@@ -3,16 +3,9 @@ import {
   isNonNullType,
   isLeafType,
   isWrappingType,
-  GraphQLInputType,
   isScalarType,
-  GraphQLInputField,
-  ObjectFieldNode,
   isRequiredInputField,
   isInputObjectType,
-  GraphQLArgument,
-  GraphQLEnumType,
-  GraphQLScalarType,
-  ValueNode,
   isEnumType,
 } from "graphql";
 

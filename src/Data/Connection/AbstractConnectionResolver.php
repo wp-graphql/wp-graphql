@@ -470,7 +470,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|null
 	 */
 	public function get_after_offset(): ?int {
-		if ( isset( $this->args['after'] ) && ! empty( $this->args['after'] ) ) {
+		if ( ! empty( $this->args['after'] ) ) {
 			return ArrayConnection::cursorToOffset( $this->args['after'] );
 		}
 
@@ -481,7 +481,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|null
 	 */
 	public function get_before_offset(): ?int {
-		if ( isset( $this->args['before'] ) && ! empty( $this->args['before'] ) ) {
+		if ( ! empty( $this->args['before'] ) ) {
 			return ArrayConnection::cursorToOffset( $this->args['before'] );
 		}
 
@@ -592,27 +592,25 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get_nodes
+	 * Get_ids_for_nodes
 	 *
-	 * Get the nodes from the query.
+	 * Gets the IDs from the query.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched
 	 * by 1 item to calculate pageInfo.
 	 *
 	 * For backward pagination, we reverse the order of nodes.
 	 *
+	 * @used-by AbstractConnectionResolver::get_nodes()
+	 *
 	 * @return array
-	 * @throws Exception
 	 */
-	public function get_nodes() {
+	public function get_ids_for_nodes() {
 		if ( empty( $this->ids ) ) {
 			return [];
 		}
 
-		$nodes = [];
-
-		$ids = $this->ids;
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
+		$ids = array_slice( $this->ids, 0, $this->query_amount, true );
 
 		// If pagination is going backwards, revers the array of IDs
 		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
@@ -623,16 +621,34 @@ abstract class AbstractConnectionResolver {
 			// If the offset is in the array
 			if ( false !== $key ) {
 				$key = absint( $key );
-				// Slice the array from the back
 				if ( ! empty( $this->args['before'] ) ) {
+					// Slice the array from the back
 					$ids = array_slice( $ids, 0, $key, true );
-					// Slice the array from the front
 				} else {
+					// Slice the array from the front
 					$key ++;
 					$ids = array_slice( $ids, $key, null, true );
 				}
 			}
 		}
+
+		return $ids;
+	}
+
+	/**
+	 * Get_nodes
+	 *
+	 * Get the nodes from the query.
+	 *
+	 * @uses AbstractConnectionResolver::get_ids_for_nodes()
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function get_nodes() {
+		$nodes = [];
+
+		$ids = $this->get_ids_for_nodes();
 
 		foreach ( $ids as $id ) {
 			$model = $this->get_node_by_id( $id );

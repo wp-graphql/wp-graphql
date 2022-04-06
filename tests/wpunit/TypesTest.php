@@ -27,17 +27,17 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_type( 'ExampleType', [
 			'fields' => [
 				'example' => [
-					'type' => 'String'
-				]
-			]
+					'type' => 'String',
+				],
+			],
 		] );
 
 		register_graphql_field( 'RootQuery', 'example', [
-			'type' => 'ExampleType'
+			'type' => 'ExampleType',
 		] );
 
 		register_graphql_field( 'ExampleType', 'example', [
-			'description' => 'Duplicate field, should throw exception'
+			'description' => 'Duplicate field, should throw exception',
 		] );
 
 		$query = '
@@ -54,7 +54,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEmpty( $this->lodashGet( $response, 'errors' ) );
 		$this->assertQuerySuccessful( $response, [
-			$this->expectedField( 'example.example', self::IS_NULL )
+			$this->expectedField( 'example.example', self::IS_NULL ),
 		] );
 		$this->assertNotEmpty( $this->lodashGet( $response, 'extensions.debug' ) );
 	}
@@ -68,7 +68,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRegisterFieldWithoutTypeShouldShowDebugMessage() {
 
 		register_graphql_field( 'RootQuery', 'newFieldWithoutTypeDefined', [
-			'description' => 'Field without type, should throw exception'
+			'description' => 'Field without type, should throw exception',
 		] );
 
 		$query = '
@@ -85,7 +85,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertQuerySuccessful( $response, [
-			$this->expectedField( 'posts.nodes.id', self::NOT_NULL )
+			$this->expectedField( 'posts.nodes.id', self::NOT_NULL ),
 		] );
 
 		$messages = wp_list_pluck( $response['extensions']['debug'], 'message' );
@@ -142,6 +142,35 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Tests getting a WordPress databaseId from a GraphQL ID type.
+	 */
+	public function testGetDatabaseIdFromId() {
+		$id       = 24;
+		$relay_id = \GraphQLRelay\Relay::toGlobalId( 'my-type', (string) $id );
+
+		// test int databaseId
+		$actual = \WPGraphQL\Utils\Utils::get_database_id_from_id( $id );
+		$this->assertEquals( $id, $actual );
+
+		// test string databaseId
+		$actual = \WPGraphQL\Utils\Utils::get_database_id_from_id( (string) $id );
+		$this->assertEquals( $id, $actual );
+
+		// test global databaseId
+		$actual = \WPGraphQL\Utils\Utils::get_database_id_from_id( $relay_id );
+		$this->assertEquals( $id, $actual );
+
+		// test bad string
+		$actual = \WPGraphQL\Utils\Utils::get_database_id_from_id( '21notreal12' );
+		$this->assertFalse( $actual, 'A bad string should return false.' );
+
+		// test empty databaseId in relay.
+		$empty_relay_id = \GraphQLRelay\Relay::toGlobalId( 'my-type', '' );
+		$actual         = \WPGraphQL\Utils\Utils::get_database_id_from_id( $empty_relay_id );
+		$this->assertFalse( $actual, 'An empty databaseId in a global ID should return false.' );
+	}
+
+	/**
 	 * Ensure get_types returns types expected to be in the Schema
 	 *
 	 * @throws Exception
@@ -153,16 +182,16 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * show in the get_types() method
 		 */
 		register_graphql_type( 'MyCustomType', [
-			'fields' => [
+			'fields'      => [
 				'test' => [
-					'type' => 'String'
-				]
+					'type' => 'String',
+				],
 			],
-			'description' => 'My Custom Type'
+			'description' => 'My Custom Type',
 		] );
 
-		add_action( 'graphql_register_types', function( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
-			$type = $type_registry->get_type('mycustomtype');
+		add_action( 'graphql_register_types', function ( \WPGraphQL\Registry\TypeRegistry $type_registry ) {
+			$type = $type_registry->get_type( 'mycustomtype' );
 			$this->assertEquals( 'MyCustomType', $type->name );
 			$this->assertEquals( 'My Custom Type', $type->description );
 		} );
@@ -181,48 +210,48 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Filter fields onto the User object
 		 */
-		add_filter( 'graphql_user_fields', function( $fields, $object, \WPGraphQL\Registry\TypeRegistry $type_registry ) {
+		add_filter( 'graphql_user_fields', function ( $fields, $object, \WPGraphQL\Registry\TypeRegistry $type_registry ) {
 
 			$fields['testNonNullString'] = [
 				'type'    => $type_registry->non_null( $type_registry->get_type( 'String' ) ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return 'string';
-				}
+				},
 			];
 
 			$fields['testNonNullStringTwo'] = [
 				'type'    => $type_registry->non_null( 'String' ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return 'string';
-				}
+				},
 			];
 
 			$fields['testListOfString'] = [
 				'type'    => $type_registry->list_of( $type_registry->get_type( 'String' ) ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return [ 'string' ];
-				}
+				},
 			];
 
 			$fields['testListOfStringTwo'] = [
 				'type'    => $type_registry->list_of( 'String' ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return [ 'string' ];
-				}
+				},
 			];
 
 			$fields['testListOfNonNullString'] = [
 				'type'    => $type_registry->list_of( $type_registry->non_null( 'String' ) ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return [ 'string' ];
-				}
+				},
 			];
 
 			$fields['testNonNullListOfString'] = [
 				'type'    => $type_registry->non_null( $type_registry->list_of( 'String' ) ),
-				'resolve' => function() {
+				'resolve' => function () {
 					return [ 'string' ];
-				}
+				},
 			];
 
 			return $fields;
@@ -280,22 +309,22 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testRegisterCustomConnection() {
 
-		add_action( 'graphql_register_types', function() {
+		add_action( 'graphql_register_types', function () {
 			register_graphql_type( 'TestCustomType', [
 				'fields' => [
 					'test' => [
-						'type' => 'String'
-					]
-				]
+						'type' => 'String',
+					],
+				],
 			]);
 
 			register_graphql_connection([
-				'fromType' => 'RootQuery',
-				'toType' => 'TestCustomType',
+				'fromType'      => 'RootQuery',
+				'toType'        => 'TestCustomType',
 				'fromFieldName' => 'customTestConnection',
-				'resolve' => function() {
+				'resolve'       => function () {
 					return null;
-				}
+				},
 			]);
 		});
 
@@ -313,27 +342,27 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertQuerySuccessful( $response, [
-			$this->expectedField( 'customTestConnection.nodes', self::IS_NULL )
+			$this->expectedField( 'customTestConnection.nodes', self::IS_NULL ),
 		] );
 	}
 
 	public function testRegisterCustomConnectionWithAuth() {
-		add_action( 'graphql_register_types', function() {
+		add_action( 'graphql_register_types', function () {
 			register_graphql_type( 'TestCustomType', [
 				'fields' => [
 					'test' => [
-						'type' => 'String',
-						'auth' => [
+						'type'    => 'String',
+						'auth'    => [
 							'errorMessage' => 'Blocked on the field-level!!!',
-							'callback'     => function( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+							'callback'     => function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
 								return ! empty( $source );
-							}
+							},
 						],
-						'resolve' => function( $source ) {
+						'resolve' => function ( $source ) {
 							return $source;
-						}
-					]
-				]
+						},
+					],
+				],
 			]);
 
 			register_graphql_connection([
@@ -341,14 +370,14 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'toType'        => 'TestCustomType',
 				'auth'          => [
 					'errorMessage' => 'Blocked on the type-level!!!',
-					'callback'     => function( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+					'callback'     => function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
 						return ! empty( $args['first'] );
-					}
+					},
 				],
 				'fromFieldName' => 'secretConnection',
-				'resolve'       => function() {
+				'resolve'       => function () {
 					return [ 'nodes' => [ 'Blah', 'blah', 'blu' ] ];
-				}
+				},
 			]);
 
 			register_graphql_connection([
@@ -359,9 +388,9 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'allowedCaps'  => [ 'administrator' ],
 				],
 				'fromFieldName' => 'failingAuthConnection',
-				'resolve'       => function() {
+				'resolve'       => function () {
 					return [ 'nodes' => [ null, false, 0 ] ];
-				}
+				},
 			]);
 
 		});
@@ -379,7 +408,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Expect query to fail on type level due to missing "first" arg.
 		 */
-		$response  = $this->graphql( compact( 'query' ) );
+		$response = $this->graphql( compact( 'query' ) );
 
 		codecept_debug( $response );
 
@@ -420,7 +449,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		';
 
-		$response  = $this->graphql( compact( 'query' ) );
+		$response = $this->graphql( compact( 'query' ) );
 
 		codecept_debug( $response );
 
@@ -433,7 +462,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQueryError( $response, $expected );
 
 		\wp_set_current_user( 1 );
-		$response  = $this->graphql( compact( 'query' ) );
+		$response = $this->graphql( compact( 'query' ) );
 		$expected = [
 			$this->expectedField( 'failingAuthConnection.nodes.0', self::NOT_NULL ),
 			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
@@ -450,7 +479,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	// A regular query shouldn't have a duplicate type debug message
 	public function testQueryDoesntHaveDuplicateTypesDebugMessage() {
 		$actual = graphql([
-			'query' => '{posts{nodes{id}}}'
+			'query' => '{posts{nodes{id}}}',
 		]);
 
 		// There should be no debug messages by default
@@ -464,20 +493,20 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_object_type( 'NewType', [
 			'fields' => [
 				'one' => [
-					'type' => 'String'
-				]
-			]
+					'type' => 'String',
+				],
+			],
 		]);
 		register_graphql_object_type( 'NewType', [
 			'fields' => [
 				'two' => [
-					'type' => 'String'
-				]
-			]
+					'type' => 'String',
+				],
+			],
 		]);
 
 		$actual = graphql([
-			'query' => '{posts{nodes{id}}}'
+			'query' => '{posts{nodes{id}}}',
 		]);
 
 		codecept_debug( $actual );
@@ -485,39 +514,37 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// There should be no debug messages by default
 		$this->assertTrue( isset( $actual['extensions']['debug'] ), 'query has debug in the extensions payload' );
 		$this->assertNotEmpty( $actual['extensions']['debug'], 'query has a debug message' );
-		$this->assertNotFalse( strpos( $actual['extensions']['debug'][0]['message'], 'duplicate'), 'debug message contains the word duplicate' );
+		$this->assertNotFalse( strpos( $actual['extensions']['debug'][0]['message'], 'duplicate' ), 'debug message contains the word duplicate' );
 
-//		// clear the schema
-//		$this->clearSchema();
-//
-//		// register duplicate types
-//		register_graphql_object_type( 'NewType', [
-//			'fields' => [
-//				'one' => [
-//					'type' => 'String'
-//				]
-//			]
-//		]);
-//		register_graphql_object_type( 'NewType', [
-//			'fields' => [
-//				'two' => [
-//					'type' => 'String'
-//				]
-//			]
-//		]);
-//
-//		// query again
-//		$actual = graphql([
-//			'query' => '{posts{nodes{id}}}'
-//		]);
-//
-//		codecept_debug( $actual );
-//
-//		// There should be a debug message now!
-//		$this->assertTrue( isset( $actual['extensions']['debug'] ) );
-//		$this->assertNotEmpty( $actual['extensions']['debug'] );
-
-
+		//      // clear the schema
+		//      $this->clearSchema();
+		//
+		//      // register duplicate types
+		//      register_graphql_object_type( 'NewType', [
+		//          'fields' => [
+		//              'one' => [
+		//                  'type' => 'String'
+		//              ]
+		//          ]
+		//      ]);
+		//      register_graphql_object_type( 'NewType', [
+		//          'fields' => [
+		//              'two' => [
+		//                  'type' => 'String'
+		//              ]
+		//          ]
+		//      ]);
+		//
+		//      // query again
+		//      $actual = graphql([
+		//          'query' => '{posts{nodes{id}}}'
+		//      ]);
+		//
+		//      codecept_debug( $actual );
+		//
+		//      // There should be a debug message now!
+		//      $this->assertTrue( isset( $actual['extensions']['debug'] ) );
+		//      $this->assertNotEmpty( $actual['extensions']['debug'] );
 
 	}
 }

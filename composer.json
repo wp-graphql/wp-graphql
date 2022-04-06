@@ -51,7 +51,11 @@
   },
   "config": {
     "optimize-autoloader": true,
-    "process-timeout": 0
+    "process-timeout": 0,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
+    }
   },
   "autoload": {
     "files": [
@@ -86,17 +90,13 @@
     "fix-cs": [
       "php ./vendor/bin/phpcbf"
     ],
-    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"],
-    "post-install-cmd": [
-      "npm ci && npm run build"
-    ]
+    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
   },
   "archive": {
     "exclude": [
       "*.yml",
       "!vendor/",
       "plugin-build/",
-      "!src/Admin/GraphiQL/app/",
       "node_modules/",
       "!.wordpress-org/",
       "docs/",

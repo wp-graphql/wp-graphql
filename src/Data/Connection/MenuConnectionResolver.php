@@ -34,14 +34,11 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 
 		// If a location is specified in the args, use it
 		if ( ! empty( $this->args['where']['location'] ) ) {
-			if ( isset( $theme_locations[ $this->args['where']['location'] ] ) ) {
-				$term_args['include'] = $theme_locations[ $this->args['where']['location'] ];
-			}
-		} else {
+			// Exclude unset and non-existent locations
+			$term_args['include'] = ! empty( $theme_locations[ $this->args['where']['location'] ] ) ? $theme_locations[ $this->args['where']['location'] ] : -1;
 			// If the current user cannot edit theme options
-			if ( ! current_user_can( 'edit_theme_options' ) ) {
-				$term_args['include'] = array_values( $theme_locations );
-			}
+		} elseif ( ! current_user_can( 'edit_theme_options' ) ) {
+			$term_args['include'] = array_values( $theme_locations );
 		}
 
 		if ( ! empty( $this->args['where']['id'] ) ) {

@@ -195,7 +195,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Cleanup
 		 */
 		deregister_graphql_field( 'RootQueryToTestCptConnectionWhereArgs', 'testTest' );
-		unregister_post_type( 'action_monitor' );
+		unregister_post_type( 'test_cpt' );
 		WPGraphQL::clear_schema();
 
 	}

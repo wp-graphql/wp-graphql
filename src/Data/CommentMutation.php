@@ -42,31 +42,34 @@ class CommentMutation {
 		 *    'comment_approved' => 1,
 		 */
 
-		$user = wp_get_current_user();
-		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
-			$output_args['user_id']              = $user->ID;
-			$output_args['comment_author']       = $user->display_name;
-			$output_args['comment_author_email'] = $user->user_email;
-			if ( ! empty( $user->user_url ) ) {
-				$output_args['comment_author_url'] = $user->user_url;
+		$user = self::get_comment_author( $input['authorEmail'] ?? null );
+
+		if ( false !== $user ) {
+
+			$output_args['user_id'] = $user->ID;
+
+			$input['author']      = ! empty( $input['author'] ) ? $input['author'] : $user->display_name;
+			$input['authorEmail'] = ! empty( $input['authorEmail'] ) ? $input['authorEmail'] : $user->user_email;
+			$input['authorUrl']   = ! empty( $input['authorUrl'] ) ? $input['authorUrl'] : $user->user_url;
+		}
+
+		if ( empty( $input['author'] ) ) {
+			if ( ! $update ) {
+				throw new UserError( __( 'Comment must include an authorName.', 'wp-graphql' ) );
 			}
 		} else {
-			if ( empty( $input['author'] ) ) {
-				if ( ! $update ) {
-					throw new UserError( __( 'Comment must include an authorName', 'wp-graphql' ) );
-				}
-			} else {
-				$output_args['comment_author'] = $input['author'];
+			$output_args['comment_author'] = $input['author'];
+		}
+
+		if ( ! empty( $input['authorEmail'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
+				throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
-			if ( ! empty( $input['authorEmail'] ) ) {
-				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
-				}
-				$output_args['comment_author_email'] = $input['authorEmail'];
-			}
-			if ( ! empty( $input['authorUrl'] ) ) {
-				$output_args['comment_author_url'] = $input['authorUrl'];
-			}
+			$output_args['comment_author_email'] = $input['authorEmail'];
+		}
+
+		if ( ! empty( $input['authorUrl'] ) ) {
+			$output_args['comment_author_url'] = $input['authorUrl'];
 		}
 
 		if ( ! empty( $input['commentOn'] ) ) {
@@ -125,5 +128,30 @@ class CommentMutation {
 		$default_comment_status  = 0;
 
 		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
+	}
+
+	/**
+	 * Gets the user object for the comment author.
+	 *
+	 * @param ?string $author_email The authorEmail provided to the mutation input.
+	 *
+	 * @return \WP_User|false
+	 */
+	protected static function get_comment_author( string $author_email = null ) {
+		$user = wp_get_current_user();
+
+		// Fail if no logged in user.
+		if ( 0 === $user->ID ) {
+			return false;
+		}
+
+		// Return the current user if they can only handle their own comments or if there's no specified author.
+		if ( empty( $author_email ) || ! $user->has_cap( 'moderate_comments' ) ) {
+			return $user;
+		}
+
+		$author = get_user_by( 'email', $author_email );
+
+		return ! empty( $author->ID ) ? $author : false;
 	}
 }
