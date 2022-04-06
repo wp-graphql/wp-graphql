@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.0
+
+### New Features
+
+### Chores / Bugfixes
+
+
 ## 1.7.2
 
 ### Chores / Bugfixes
