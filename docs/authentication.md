@@ -27,7 +27,7 @@ For remote HTTP requests to the `/graphql` endpoint, existing authentication plu
 - https://github.com/WP-API/OAuth1 (labeled for use with the WP REST API, but works well with WPGraphQL)
 - https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/ (For WordPress 5.6 and above)
 
-If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/master/assets/app/src/App.js#L16-L29).
+If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/master/packages/graphiql-auth-switch).
 
 For non-remote requests (PHP function calls), if the context of the request is already authenticated, such as an Admin page in the WordPress dashboard, existing WordPress authentication can be used, taking advantage of the existing session. For example, if you wanted to use a GraphQL query to populate a dashboard page, you could send your query to the `do_graphql_request( $query )` function, and since the request is already authenticated, GraphQL will execute with the current user set, and will resolve fields that the users has permission to resolve.
 

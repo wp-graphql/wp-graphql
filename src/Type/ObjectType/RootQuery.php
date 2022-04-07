@@ -65,8 +65,23 @@ class RootQuery {
 						},
 					],
 					'plugins'               => [
-						'toType'  => 'Plugin',
-						'resolve' => function ( $root, $args, $context, $info ) {
+						'toType'         => 'Plugin',
+						'connectionArgs' => [
+							'search' => [
+								'name'        => 'search',
+								'type'        => 'String',
+								'description' => __( 'Show plugin based on a keyword search.', 'wp-graphql' ),
+							],
+							'status' => [
+								'type'        => 'PluginStatusEnum',
+								'description' => __( 'Show plugins with a specific status.', 'wp-graphql' ),
+							],
+							'stati'  => [
+								'type'        => [ 'list_of' => 'PluginStatusEnum' ],
+								'description' => __( 'Retrieve plugins where plugin status is in an array.', 'wp-graphql' ),
+							],
+						],
+						'resolve'        => function ( $root, $args, $context, $info ) {
 							return DataSource::resolve_plugins_connection( $root, $args, $context, $info );
 						},
 					],

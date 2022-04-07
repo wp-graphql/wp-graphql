@@ -86,6 +86,11 @@ class Comment extends Model {
 			return true;
 		}
 
+		// if the current user is the author of the comment, the comment should not be private
+		if ( 0 !== wp_get_current_user()->ID && absint( $this->data->user_id ) === absint( wp_get_current_user()->ID ) ) {
+			return false;
+		}
+
 		$commented_on = get_post( (int) $this->data->comment_post_ID );
 
 		if ( empty( $commented_on ) ) {
@@ -165,7 +170,7 @@ class Comment extends Model {
 				'contentRendered'    => function () {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 
-					return $this->html_entity_decode( apply_filters( 'comment_text', $content ), 'contentRendered', false );
+					return $this->html_entity_decode( apply_filters( 'comment_text', $content, $this->data ), 'contentRendered', false );
 				},
 				'karma'              => function () {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;

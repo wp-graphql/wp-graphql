@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Utils;
 
+use GraphQLRelay\Relay;
 use WPGraphQL\Model\Model;
 
 class Utils {
@@ -182,5 +183,25 @@ class Utils {
 			'b'        => $allowed_atts,
 			'i'        => $allowed_atts,
 		];
+	}
+
+	/**
+	 * Helper function to get the WordPress database ID from a GraphQL ID type input.
+	 *
+	 * Returns false if not a valid ID.
+	 *
+	 * @param int|string $id The ID from the input args. Can be either the database ID (as either a string or int) or the global Relay ID.
+	 *
+	 * @return int|false
+	 */
+	public static function get_database_id_from_id( $id ) {
+		// If we already have the database ID, send it back as an integer.
+		if ( is_numeric( $id ) ) {
+			return absint( $id );
+		}
+
+		$id_parts = Relay::fromGlobalId( $id );
+
+		return ! empty( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
 	}
 }

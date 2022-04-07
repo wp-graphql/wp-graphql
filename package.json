@@ -1,6 +1,6 @@
 {
   "name": "wp-graphql",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "description": "GraphQL API for WordPress",
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "author": "WPGraphQL <info@wpgraphql.com> (https://www.wpgraphql.com)",
@@ -56,7 +56,7 @@
     "@wordpress/env": "^4.2.0",
     "@wordpress/jest-console": "^5.0.0",
     "@wordpress/jest-puppeteer-axe": "^4.0.0",
-    "@wordpress/scripts": "^20.0.2",
+    "@wordpress/scripts": "22.3.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "8.2.3",
     "babel-plugin-inline-json-import": "^0.3.2",

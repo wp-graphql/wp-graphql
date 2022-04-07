@@ -208,6 +208,12 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		// registered to the Schema
 		$this->assertNull( $actual['data']['__type'] );
 
+		unregister_post_type( 'test_content_type' );
+		unregister_post_type( 'not_in_graphql' );
+		unregister_taxonomy( 'test_taxonomy' );
+		unregister_post_type( 'not_in_graphql' );
+		unregister_taxonomy( 'test_taxonomy_two' );
+
 	}
 
 	public function testSchemaSupportsLazyLoadingTypes() {
