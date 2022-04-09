@@ -43,7 +43,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	public function createCategoryMutation() {
 
 		$query = '
-		mutation createCategory( $name:String!, $description:String, $parentId: ID ) {
+		mutation createCategory( $name:String!, $description:String ) {
 			createCategory(
 				input: {
 					name: $name
