@@ -350,105 +350,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $updated_email, $actual['data']['updateUser']['user']['email'] );
 	}
 
-	public function testDeleteUserWithCapability() {
-
-		wp_set_current_user( $this->admin );
-
-		$username = 'user_to_delete_with_capability';
-
-		$query = '
-		mutation deleteUser($input:DeleteUserInput!) {
-			deleteUser(input:$input){
-				user {
-					username
-					databaseId
-					id
-				}
-			}
-		}
-		';
-
-		// Test with no Id
-		$variables = [
-			'input' => [
-				'id' => '',
-			],
-		];
-
-		$actual = graphql( compact( 'query', 'variables' ) );
-
-		$this->assertArrayHasKey( 'errors', $actual );
-
-		// Test with bad Id
-		$variables['input']['id'] = 999999;
-
-		$actual = graphql( compact( 'query', 'variables' ) );
-
-		$this->assertArrayHasKey( 'errors', $actual );
-
-		// Test with databaseId
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
-
-		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-
-		$variables['input']['id'] = $user_id;
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		$expected = [
-			'deleteUser' => [
-				'user' => [
-					'username'   => $username,
-					'databaseId' => $user_id,
-					'id'         => $guid,
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual['data'] );
-
-		$user_obj_after_delete = get_user_by( 'id', $user_id );
-
-		/**
-		 * Make sure the user actually got deleted.
-		 */
-		$this->assertEquals( false, $user_obj_after_delete );
-
-		// Test with global Id
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
-
-		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-
-		$variables['input']['id'] = $guid;
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		$expected = [
-			'deleteUser' => [
-				'user' => [
-					'username'   => $username,
-					'databaseId' => $user_id,
-					'id'         => $guid,
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual['data'] );
-
-		$user_obj_after_delete = get_user_by( 'id', $user_id );
-
-		/**
-		 * Make sure the user actually got deleted.
-		 */
-		$this->assertEquals( false, $user_obj_after_delete );
-	}
-
 	public function testDeleteUserWithoutCapability() {
 
 		$username = 'user_to_delete_without_capability';
@@ -489,6 +390,85 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertNotEquals( false, $user_obj_after_delete );
 
+	}
+
+	public function testDeleteUserWithReassign() {
+
+		wp_set_current_user( $this->admin );
+
+		$username = 'user_to_delete_with_reassign';
+
+		$query = '
+		mutation deleteUser($input:DeleteUserInput!) {
+			deleteUser(input:$input){
+				user {
+					databaseId
+				}
+			}
+		}
+		';
+
+		// Test with no Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$post = $this->factory()->post->create( [
+			'post_author' => $user_id,
+		]);
+
+		// Test with bad id.
+		$variables = [
+			'input' => [
+				'reassignId' => 999999,
+				'id'         => $user_id,
+			],
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$variables['input']['reassignId'] = $this->admin;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $user_id, $actual['data']['deleteUser']['user']['databaseId'] );
+
+		codecept_debug( get_post( $post ) );
+
+		$post_obj_after_delete = get_post( $post );
+
+		// Make sure the user actually got reassigned.
+		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
+
+		// Test with global Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+		wp_update_post( [
+			'ID'          => $post,
+			'post_author' => $user_id,
+		] );
+
+		$this->assertEquals( $user_id, get_post( $post )->post_author );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+
+		$variables['input']['id']         = $user_id;
+		$variables['input']['reassignId'] = $guid;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $user_id, $actual['data']['deleteUser']['user']['databaseId'] );
+
+		$post_obj_after_delete = get_post( $post );
+
+		// Make sure the user actually got reassigned.
+		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
 	}
 
 	public function testCreateUserWithExtraFields() {
