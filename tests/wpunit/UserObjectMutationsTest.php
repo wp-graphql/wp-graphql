@@ -539,8 +539,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertEquals( $user_id, $actual['data']['deleteUser']['user']['databaseId'] );
 
-		codecept_debug( get_post( $post ) );
-
 		$post_obj_after_delete = get_post( $post );
 
 		// Make sure the user actually got reassigned.
@@ -682,8 +680,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				],
 			],
 		];
-
-		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual['data'] );
 
