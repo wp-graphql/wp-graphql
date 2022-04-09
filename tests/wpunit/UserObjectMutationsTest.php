@@ -392,6 +392,108 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
+	public function testDeleteUserWithCapability() {
+
+		wp_set_current_user( $this->admin );
+
+		$username = 'user_to_delete_with_capability';
+
+		$query = '
+		mutation deleteUser($input:DeleteUserInput!) {
+			deleteUser(input:$input){
+				deletedId
+				user {
+					username
+					databaseId
+					id
+				}
+			}
+		}
+		';
+
+		// Test with no Id
+		$variables = [
+			'input' => [
+				'id' => '',
+			],
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad Id
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $user_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$expected = [
+			'deleteUser' => [
+				'deletedId' => $guid,
+				'user'      => [
+					'username'   => $username,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		$user_obj_after_delete = get_user_by( 'id', $user_id );
+
+		/**
+		 * Make sure the user actually got deleted.
+		 */
+		$this->assertEquals( false, $user_obj_after_delete );
+
+		// Test with global Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $guid;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$expected = [
+			'deleteUser' => [
+				'deletedId' => $guid,
+				'user'      => [
+					'username'   => $username,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		$user_obj_after_delete = get_user_by( 'id', $user_id );
+
+		/**
+		 * Make sure the user actually got deleted.
+		 */
+		$this->assertEquals( false, $user_obj_after_delete );
+	}
+
 	public function testDeleteUserWithReassign() {
 
 		wp_set_current_user( $this->admin );
