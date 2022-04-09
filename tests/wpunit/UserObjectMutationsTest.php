@@ -287,9 +287,10 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$updated_firstname = 'Testupdate';
 		$updated_lastname  = 'Updatetest';
 
+		// Test with no id
 		$variables = [
 			'input' => [
-				'id'        => $guid,
+				'id'        => '',
 				'email'     => $updated_email,
 				'firstName' => $updated_firstname,
 				'lastName'  => $updated_lastname,
@@ -298,6 +299,18 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				],
 			],
 		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad id
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with database ID.
+		$variables['input']['id'] = $user_id;
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -323,6 +336,18 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertEquals( $expected, $actual['data'] );
 
+		// Test with global ID.
+		$updated_email = 'testUserUpdated2@test.com';
+
+		$variables['input'] = [
+			'id'    => $guid,
+			'email' => $updated_email,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( $guid, $actual['data']['updateUser']['user']['id'] );
+		$this->assertEquals( $user_id, $actual['data']['updateUser']['user']['databaseId'] );
+		$this->assertEquals( $updated_email, $actual['data']['updateUser']['user']['email'] );
 	}
 
 	public function testDeleteUserWithCapability() {
@@ -330,13 +355,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		wp_set_current_user( $this->admin );
 
 		$username = 'user_to_delete_with_capability';
-
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
-
-		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
 		$query = '
 		mutation deleteUser($input:DeleteUserInput!) {
@@ -350,11 +368,33 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		';
 
+		// Test with no Id
 		$variables = [
 			'input' => [
-				'id' => $guid,
+				'id' => '',
 			],
 		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad Id
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $user_id;
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -377,6 +417,36 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertEquals( false, $user_obj_after_delete );
 
+		// Test with global Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $guid;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$expected = [
+			'deleteUser' => [
+				'user' => [
+					'username'   => $username,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		$user_obj_after_delete = get_user_by( 'id', $user_id );
+
+		/**
+		 * Make sure the user actually got deleted.
+		 */
+		$this->assertEquals( false, $user_obj_after_delete );
 	}
 
 	public function testDeleteUserWithoutCapability() {
@@ -561,7 +631,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
 
