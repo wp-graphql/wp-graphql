@@ -656,13 +656,25 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		';
 
-		// Test with database ID
+		// Test with bad parent ID
 		$variables = [
 			'input' => [
 				'name'     => 'Child Category 1',
-				'parentId' => $parent_term_id,
+				'parentId' => 'notarealid',
 			],
 		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with non-existent parent ID
+		$variables['input']['parentId'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with database ID
+		$variables['input']['parentId'] = $parent_term_id;
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
