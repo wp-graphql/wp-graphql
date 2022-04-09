@@ -40,7 +40,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	/**
 	 * Function that executes the mutation
 	 */
-	public function createCategoryMutation( array $variables = [] ) {
+	public function createCategoryMutation() {
 
 		$query = '
 		mutation createCategory( $name:String!, $description:String, $parentId: ID ) {
@@ -48,11 +48,11 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				input: {
 					name: $name
 					description: $description
-					parentId: $parentId
 				}
 			) {
 				category {
 					id
+					databaseId
 					name
 					description
 				}
@@ -60,11 +60,10 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		';
 
-		$variables = array_merge( [
+		$variables = [
 			'name'        => $this->category_name,
 			'description' => $this->description,
-			'parentId'    => null,
-		], $variables );
+		];
 
 		return graphql( compact( 'query', 'variables' ) );
 	}
@@ -84,6 +83,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			) {
 				tag {
 					id
+					databaseId
 					name
 					description
 				}
@@ -117,6 +117,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			) {
 			tag {
 					id
+					databaseId
 					name
 					description
 				}
@@ -143,6 +144,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			) {
 				deletedId
 				tag {
+					databaseId
 					id
 					name
 				}
@@ -174,6 +176,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				}
 			) {
 				category {
+					databaseId
 					id
 					name
 					description
@@ -200,6 +203,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				}
 			) {
 				category {
+					databaseId
 					id
 					name
 				}
@@ -212,10 +216,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		return graphql( compact( 'query', 'variables' ) );
-	}
-
-	public function testCreateTag() {
-
 	}
 
 
@@ -260,7 +260,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayHasKey( 'errors', $try_to_delete_tag );
 
 		/**
-		 * Run the update mutation with the ID of the created tag
+		 * Run the update mutation with the ID of the created created
 		 */
 		$updated_category = $this->updateCategoryMutation( $actual['data']['createCategory']['category']['id'] );
 		codecept_debug( $updated_category );
@@ -275,6 +275,14 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $updated_category['data']['updateCategory']['category']['name'], $this->category_name );
 		$this->assertEquals( $updated_category['data']['updateCategory']['category']['description'], $this->description_update );
+
+		/**
+		 * Run the update mutation with the databaseID
+		 */
+		$updated_category = $this->updateCategoryMutation( $actual['data']['createCategory']['category']['databaseId'] );
+		codecept_debug( $updated_category );
+		$this->assertArrayNotHasKey( 'errors', $updated_category );
+		$this->assertEquals( $actual['data']['createCategory']['category']['databaseId'], $updated_category['data']['updateCategory']['category']['databaseId'] );
 
 		/**
 		 * Delete the tag
@@ -302,6 +310,14 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $deleted_category['data']['deleteCategory']['category']['name'], $this->category_name );
+
+		/**
+		 * Test delete with databaseId
+		 */
+		$category_id      = $this->factory()->category->create();
+		$deleted_category = $this->deleteCategoryMutation( $category_id );
+		$this->assertArrayNotHasKey( 'errors', $deleted_category );
+		$this->assertEquals( $category_id, $deleted_category['data']['deleteCategory']['category']['databaseId'] );
 	}
 
 	public function testCreateTagThatAlreadyExists() {
@@ -443,6 +459,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Run the mutation
 		 */
 		$actual = $this->createTagMutation();
+		codecept_debug( $actual );
 
 		/**
 		 * Assert that the created tag is what it should be
@@ -478,6 +495,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Run the update mutation with the ID of the created tag
 		 */
 		$updated_tag = $this->updateTagMutation( $actual['data']['createTag']['tag']['id'] );
+		codecept_debug( $updated_tag );
 
 		/**
 		 * Make some assertions on the response
@@ -490,9 +508,19 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $updated_tag['data']['updateTag']['tag']['description'], $this->description_update );
 
 		/**
+		 * Run the update mutation with the databaseID
+		 */
+		$updated_tag = $this->updateTagMutation( $actual['data']['createTag']['tag']['databaseId'] );
+		codecept_debug( $updated_tag );
+
+		$this->assertArrayNotHasKey( 'errors', $updated_tag );
+		$this->assertEquals( $actual['data']['createTag']['tag']['databaseId'], $updated_tag['data']['updateTag']['tag']['databaseId'] );
+
+		/**
 		 * Delete the tag
 		 */
 		$deleted_tag = $this->deleteTagMutation( $updated_tag['data']['updateTag']['tag']['id'] );
+		codecept_debug( $deleted_tag );
 
 		/**
 		 * Make some assertions on the response
@@ -504,6 +532,13 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertNotEmpty( $id_parts['id'] );
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['tag']['name'], $this->tag_name );
 
+		// Test delete with database_id
+		$tag_id      = $this->factory()->tag->create();
+		$deleted_tag = $this->deleteTagMutation( $tag_id );
+		codecept_debug( $deleted_tag );
+
+		$this->assertArrayNotHasKey( 'errors', $deleted_tag );
+		$this->assertEquals( $tag_id, $deleted_tag['data']['deleteTag']['tag']['databaseId'] );
 	}
 
 	/**
@@ -556,7 +591,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
-	public function testUpdateCategoryParent() {
+	public function testCategoryParent() {
 
 		wp_set_current_user( $this->admin );
 
@@ -569,8 +604,11 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		mutation createChildCategory($input: CreateCategoryInput!) {
 			createCategory(input: $input) {
 				category {
-					parent{
+					databaseId
+					id
+					parent {
 						node {
+							databaseId
 							id
 						}
 					}
@@ -579,18 +617,75 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		';
 
-		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_term_id );
-
+		// Test with database ID
 		$variables = [
 			'input' => [
-				'name'     => 'Child Category',
+				'name'     => 'Child Category 1',
+				'parentId' => $parent_term_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $parent_term_id, $actual['data']['createCategory']['category']['parent']['node']['databaseId'] );
+
+		// Test with globalId ID
+		$parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_term_id );
+		// Test with database ID
+		$variables = [
+			'input' => [
+				'name'     => 'Child Category 2',
 				'parentId' => $parent_id,
 			],
 		];
 
-		$actual = graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['node']['id'] );
+
+		// Test changing parent ID.
+		$database_id        = $actual['data']['createCategory']['category']['databaseId'];
+		$new_parent_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Parent Category 2',
+		]);
+
+		$query = '
+		mutation updateChildCategory($input: UpdateCategoryInput!) {
+			updateCategory(input: $input) {
+				category {
+					parent{
+						node {
+							databaseId
+							id
+						}
+					}
+				}
+			}
+		}
+		';
+
+		// Test with database ID
+		$variables = [
+			'input' => [
+				'id'       => $database_id,
+				'parentId' => $new_parent_term_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $new_parent_term_id, $actual['data']['updateCategory']['category']['parent']['node']['databaseId'] );
+
+		// Test with global ID
+		$variables['input']['parentId'] = $parent_id; // Switch back to previous parent.
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $parent_id, $actual['data']['updateCategory']['category']['parent']['node']['id'] );
 	}
 }
