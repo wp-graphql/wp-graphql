@@ -1,7 +1,6 @@
 <?php
 
-class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
-{
+class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $category_name;
 	public $tag_name;
@@ -11,67 +10,63 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $admin;
 	public $subscriber;
 
-    public function setUp(): void
-    {
-        parent::setUp();
+	public function setUp(): void {
+		parent::setUp();
 
-	    WPGraphQL::clear_schema();
+		WPGraphQL::clear_schema();
 
-	    $this->category_name = 'Test Category';
-	    $this->tag_name = 'Test Tag';
-	    $this->description = 'Test Term Description';
-	    $this->description_update = 'Description Update';
-	    $this->client_mutation_id = 'someUniqueId';
+		$this->category_name      = 'Test Category';
+		$this->tag_name           = 'Test Tag';
+		$this->description        = 'Test Term Description';
+		$this->description_update = 'Description Update';
+		$this->client_mutation_id = 'someUniqueId';
 
-	    $this->admin = $this->factory()->user->create([
-		    'role' => 'administrator',
-	    ]);
+		$this->admin = $this->factory()->user->create([
+			'role' => 'administrator',
+		]);
 
-	    $this->subscriber = $this->factory()->user->create([
-		    'role' => 'subscriber',
-	    ]);
-    }
+		$this->subscriber = $this->factory()->user->create([
+			'role' => 'subscriber',
+		]);
+	}
 
-    public function tearDown(): void
-    {
-        // your tear down methods here
-	    WPGraphQL::clear_schema();
-        // then
-        parent::tearDown();
-    }
+	public function tearDown(): void {
+		// your tear down methods here
+		WPGraphQL::clear_schema();
+		// then
+		parent::tearDown();
+	}
 
 	/**
 	 * Function that executes the mutation
 	 */
-	public function createCategoryMutation() {
+	public function createCategoryMutation( array $variables = [] ) {
 
-		$mutation = '
-		mutation createCategory( $clientMutationId:String!, $name:String!, $description:String ) {
-		  createCategory(
-			input: {
-			  clientMutationId: $clientMutationId
-			  name: $name
-			  description: $description
+		$query = '
+		mutation createCategory( $name:String!, $description:String, $parentId: ID ) {
+			createCategory(
+				input: {
+					name: $name
+					description: $description
+					parentId: $parentId
+				}
+			) {
+				category {
+					id
+					name
+					description
+				}
 			}
-		  ) {
-			clientMutationId
-			category {
-			  id
-			  name
-			  description
-			}
-		  }
 		}
 		';
 
-		$variables = wp_json_encode([
-			'clientMutationId' => $this->client_mutation_id,
-			'name' => $this->category_name,
+		$variables = array_merge( [
+			'name'        => $this->category_name,
 			'description' => $this->description,
-		]);
+			'parentId'    => null,
+		], $variables );
 
-		return do_graphql_request( $mutation, 'createCategory', $variables );
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	/**
@@ -79,33 +74,29 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function createTagMutation() {
 
-		$mutation = '
-		mutation createTag( $clientMutationId:String!, $name:String!, $description:String ) {
-		  createTag(
-		    input: {
-			  clientMutationId: $clientMutationId
-			    name: $name
-				description: $description
+		$query = '
+		mutation createTag( $name:String!, $description:String ) {
+			createTag(
+				input: {
+					name: $name
+					description: $description
+				}
+			) {
+				tag {
+					id
+					name
+					description
+				}
 			}
-		  ) {
-			clientMutationId
-			tag {
-			  id
-			  name
-			  description
-			}
-		  }
 		}
 		';
 
-		$variables = wp_json_encode([
-			'clientMutationId' => $this->client_mutation_id,
-			'name' => $this->tag_name,
+		$variables = [
+			'name'        => $this->tag_name,
 			'description' => $this->description,
-		]);
+		];
 
-		return do_graphql_request( $mutation, 'createTag', $variables );
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	/**
@@ -116,62 +107,54 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function updateTagMutation( $id ) {
 
-		$mutation = '
-		mutation updateTag( $clientMutationId:String!, $id:ID! $description:String ) {
-		  updateTag(
-		    input: {
-			  clientMutationId: $clientMutationId
-			  description: $description
-			  id: $id
-			}
-		  ) {
-			clientMutationId
+		$query = '
+		mutation updateTag( $id:ID! $description:String ) {
+			updateTag(
+				input: {
+					description: $description
+					id: $id
+				}
+			) {
 			tag {
-			  id
-			  name
-			  description
+					id
+					name
+					description
+				}
 			}
-		  }
 		}
 		';
 
-		$variables = wp_json_encode([
-			'clientMutationId' => $this->client_mutation_id,
-			'id' => $id,
+		$variables = [
+			'id'          => $id,
 			'description' => $this->description_update,
-		]);
+		];
 
-		return do_graphql_request( $mutation, 'updateTag', $variables );
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function deleteTagMutation( $id ) {
 
-		$mutation = '
-		mutation deleteTag( $clientMutationId:String!, $id:ID! ) {
-		  deleteTag(
-		    input: {
-			  id: $id
-			  clientMutationId: $clientMutationId
-		    }
-		  ) {
-		    clientMutationId
-		    deletedId
-		    tag {
-		        id
-		        name
-		    }
-		  }
+		$query = '
+		mutation deleteTag( $id:ID! ) {
+			deleteTag(
+				input: {
+					id: $id
+				}
+			) {
+				deletedId
+				tag {
+					id
+					name
+				}
+			}
 		}
 		';
 
-		$variables = wp_json_encode([
+		$variables = [
 			'id' => $id,
-			'clientMutationId' => $this->client_mutation_id,
-		]);
+		];
 
-		return do_graphql_request( $mutation, 'deleteTag', $variables );
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	/**
@@ -182,60 +165,56 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function updateCategoryMutation( $id ) {
 
-		$mutation = '
-		mutation updateCategory( $clientMutationId:String!, $id:ID! $description:String ) {
-		  updateCategory(
-		    input: {
-			  clientMutationId: $clientMutationId
-			  description: $description
-			  id: $id
+		$query = '
+		mutation updateCategory( $id:ID! $description:String ) {
+			updateCategory(
+				input: {
+					description: $description
+					id: $id
+				}
+			) {
+				category {
+					id
+					name
+					description
+				}
 			}
-		  ) {
-			clientMutationId
-			category {
-			  id
-			  name
-			  description
-			}
-		  }
 		}
 		';
 
-		$variables = wp_json_encode([
-			'clientMutationId' => $this->client_mutation_id,
-			'id' => $id,
+		$variables = [
+			'id'          => $id,
 			'description' => $this->description_update,
-		]);
+		];
 
-		return do_graphql_request( $mutation, 'updateCategory', $variables );
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function deleteCategoryMutation( $id ) {
 
-		$mutation = '
-		mutation deleteCategory( $clientMutationId:String!, $id:ID! ) {
-		  deleteCategory(
-		    input: {
-			  id: $id
-			  clientMutationId: $clientMutationId
-		    }
-		  ) {
-		    clientMutationId
-		    category {
-		        id
-		        name
-		    }
-		  }
+		$query = '
+		mutation deleteCategory( $id:ID! ) {
+			deleteCategory(
+				input: {
+					id: $id
+				}
+			) {
+				category {
+					id
+					name
+				}
+			}
 		}
 		';
 
-		$variables = wp_json_encode([
+		$variables = [
 			'id' => $id,
-			'clientMutationId' => $this->client_mutation_id,
-		]);
+		];
 
-		return do_graphql_request( $mutation, 'deleteCategory', $variables );
+		return graphql( compact( 'query', 'variables' ) );
+	}
+
+	public function testCreateTag() {
 
 	}
 
@@ -255,11 +234,12 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Run the mutation
 		 */
 		$actual = $this->createCategoryMutation();
+		codecept_debug( $actual );
 
 		/**
 		 * Assert that the created tag is what it should be
 		 */
-		$this->assertEquals( $actual['data']['createCategory']['clientMutationId'], $this->client_mutation_id );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['createCategory']['category']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createCategory']['category']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
@@ -271,23 +251,24 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Try to update a Tag using a category ID, which should return errors
 		 */
 		$try_to_update_tag = $this->updateTagMutation( $actual['data']['createCategory']['category']['id'] );
-		$this->assertNotEmpty( $try_to_update_tag['errors'] );
+		$this->assertArrayHasKey( 'errors', $try_to_update_tag );
 
 		/**
 		 * Try to update a Tag using a category ID, which should return errors
 		 */
 		$try_to_delete_tag = $this->deleteTagMutation( $actual['data']['createCategory']['category']['id'] );
-		$this->assertNotEmpty( $try_to_delete_tag['errors'] );
+		$this->assertArrayHasKey( 'errors', $try_to_delete_tag );
 
 		/**
 		 * Run the update mutation with the ID of the created tag
 		 */
 		$updated_category = $this->updateCategoryMutation( $actual['data']['createCategory']['category']['id'] );
+		codecept_debug( $updated_category );
+		$this->assertArrayNotHasKey( 'errors', $updated_category );
 
 		/**
 		 * Make some assertions on the response
 		 */
-		$this->assertEquals( $updated_category['data']['updateCategory']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $updated_category['data']['updateCategory']['category']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_category['data']['updateCategory']['category']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
@@ -311,14 +292,12 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		wp_set_current_user( $this->admin );
 		$deleted_category = $this->deleteCategoryMutation( $updated_category['data']['updateCategory']['category']['id'] );
-
 		codecept_debug( $deleted_category );
 
 		/**
 		 * Make some assertions on the response
 		 */
-		$this->assertNotEmpty( $deleted_category );
-		$this->assertEquals( $deleted_category['data']['deleteCategory']['clientMutationId'], $this->client_mutation_id );
+		$this->assertArrayNotHasKey( 'errors', $deleted_category );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_category['data']['deleteCategory']['category']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
 		$this->assertNotEmpty( $id_parts['id'] );
@@ -394,7 +373,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Now let's filter to mimick the response returning a WP_Error to make sure we also respond with an error
 		 */
-		add_filter( 'get_post_tag', function() {
+		add_filter( 'get_post_tag', function () {
 			return new \WP_Error( 'this is a test error' );
 		} );
 
@@ -403,13 +382,13 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$term = $this->factory()->term->create([
 			'taxonomy' => 'post_tag',
-			'name' => 'some random name',
+			'name'     => 'some random name',
 		]);
 
 		/**
 		 * Now try and delete it.
 		 */
-		$id = \GraphQLRelay\Relay::toGlobalId( 'term', $term );
+		$id     = \GraphQLRelay\Relay::toGlobalId( 'term', $term );
 		$actual = $this->deleteTagMutation( $id );
 
 		/**
@@ -417,36 +396,32 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 
-
 	}
 
 	public function testCreateTagWithNoName() {
 
-		$mutation = '
-		mutation createTag( $clientMutationId:String!, $name:String!, $description:String ) {
-		  createTag(
-		    input: {
-			  clientMutationId: $clientMutationId
-			    name: $name
-				description: $description
+		$query = '
+		mutation createTag( $name:String!, $description:String ) {
+			createTag(
+				input: {
+					name: $name
+					description: $description
+				}
+			) {
+				tag {
+					id
+					name
+					description
+				}
 			}
-		  ) {
-			clientMutationId
-			tag {
-			  id
-			  name
-			  description
-			}
-		  }
 		}
 		';
 
-		$variables = wp_json_encode([
-			'clientMutationId' => $this->client_mutation_id,
+		$variables = [
 			'description' => $this->description,
-		]);
+		];
 
-		$actual = do_graphql_request( $mutation, 'createTag', $variables );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -472,7 +447,6 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Assert that the created tag is what it should be
 		 */
-		$this->assertEquals( $actual['data']['createTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $actual['data']['createTag']['tag']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $actual['data']['createTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
@@ -500,8 +474,6 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		$try_to_delete_category = $this->updateCategoryMutation( $actual['data']['createTag']['tag']['id'] );
 		$this->assertNotEmpty( $try_to_delete_category['errors'] );
 
-
-
 		/**
 		 * Run the update mutation with the ID of the created tag
 		 */
@@ -510,7 +482,6 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Make some assertions on the response
 		 */
-		$this->assertEquals( $updated_tag['data']['updateTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $updated_tag['data']['updateTag']['tag']['id'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $updated_tag['data']['updateTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
@@ -527,7 +498,6 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		 * Make some assertions on the response
 		 */
 		$this->assertNotEmpty( $deleted_tag );
-		$this->assertEquals( $deleted_tag['data']['deleteTag']['clientMutationId'], $this->client_mutation_id );
 		$this->assertNotEmpty( $deleted_tag['data']['deleteTag']['deletedId'] );
 		$id_parts = \GraphQLRelay\Relay::fromGlobalId( $deleted_tag['data']['deleteTag']['tag']['id'] );
 		$this->assertEquals( $id_parts['type'], 'term' );
@@ -592,20 +562,20 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$parent_term_id = $this->factory()->term->create([
 			'taxonomy' => 'category',
-			'name' => 'Parent Category',
+			'name'     => 'Parent Category',
 		]);
 
 		$query = '
 		mutation createChildCategory($input: CreateCategoryInput!) {
-		  createCategory(input: $input) {
-		    category {
-		      parent{
-		        node {
-		          id
-		        }
-		      }
-		    }
-		  }
+			createCategory(input: $input) {
+				category {
+					parent{
+						node {
+							id
+						}
+					}
+				}
+			}
 		}
 		';
 
@@ -613,20 +583,14 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$variables = [
 			'input' => [
-				'clientMutationId' => 'someId',
-				'name' => 'Child Category',
+				'name'     => 'Child Category',
 				'parentId' => $parent_id,
 			],
 		];
 
-		$actual = do_graphql_request( $query, 'createChildCategory', $variables );
-
-		codecept_debug( $actual );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $parent_id, $actual['data']['createCategory']['category']['parent']['node']['id'] );
-
 	}
-
-
 }
