@@ -591,6 +591,45 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
+	/**
+	 * Tests updating a category with bad id.
+	 */
+	public function testUpdateCategoryWithBadId() {
+		$query =
+		'mutation updateCategory( $id:ID! $description:String ) {
+			updateCategory(
+				input: {
+					description: $description
+					id: $id
+				}
+			) {
+				category {
+					databaseId
+					id
+					name
+					description
+				}
+			}
+		}
+		';
+
+		// Test no id.
+		$variables = [
+			'id'          => '',
+			'description' => 'Some description',
+		];
+		$actual    = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test non-existent id.
+		$variables['id'] = 99999999;
+		$actual          = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+	}
+
+	/**
+	 * Tests category mutations with a parent category.
+	 */
 	public function testCategoryParent() {
 
 		wp_set_current_user( $this->admin );
