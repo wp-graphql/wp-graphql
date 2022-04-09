@@ -66,7 +66,7 @@ class UserUpdate {
 			$user_id = Utils::get_database_id_from_id( $input['id'] );
 
 			if ( empty( $user_id ) ) {
-				throw new UserError( 'The user ID passed is invalid', 'wp-graphql' );
+				throw new UserError( __( 'The user ID passed is invalid', 'wp-graphql' ) );
 			}
 			$existing_user = get_user_by( 'ID', $user_id );
 
