@@ -246,6 +246,115 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
+	public function testCreatePageWithParent() {
+		wp_set_current_user( $this->admin );
+
+		$parent_page_id = $this->factory()->post->create(  [
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Parent Page',
+			'post_content' => 'Parent Content',
+		] );
+
+		$query = '
+		mutation createPage( $input:CreatePageInput! ){
+			createPage( input:$input ) {
+				page {
+					parent {
+						node{
+							databaseId
+							id
+						}
+					}
+				}
+			}
+		}
+		';
+
+		// Test with bad parent ID
+		$variables = [
+			'input' => [
+				'title'    => $this->title,
+				'content'  => $this->content,
+				'parentId' => 99999,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( null, $actual['data']['createPage']['page']['parent'] );
+
+		// Test with databaseId
+		$variables['input']['parentId'] = $parent_page_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $parent_page_id, $actual['data']['createPage']['page']['parent']['node']['databaseId'] );
+
+		// Test with global Id
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_page_id );
+		$variables = [
+			'input' => [
+				'title'    => $this->title . ' 2',
+				'content'  => $this->content,
+				'parentId' => $global_id,
+			],
+		];
+		$actual    = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $global_id, $actual['data']['createPage']['page']['parent']['node']['id'] );
+	}
+
+	public function testCreatePostWithPostAuthor() {
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		mutation createPost( $input:CreatePostInput! ){
+			createPost( input:$input ) {
+				post{
+					author {
+						node {
+							databaseId
+							id
+						}
+					}
+				}
+			}
+		}
+		';
+
+		// Test with bad author ID
+		$variables = [
+			'input' => [
+				'title'    => $this->title,
+				'content'  => $this->content,
+				'authorId' => 99999,
+			],
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$variables['input']['authorId'] = $this->contributor;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $this->contributor, $actual['data']['createPost']['post']['author']['node']['databaseId'] );
+
+		// Test with global Id
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $this->contributor );
+		$variables = [
+			'input' => [
+				'title'    => $this->title . ' 2',
+				'content'  => $this->content,
+				'authorId' => $global_id,
+			],
+		];
+		$actual    = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $global_id, $actual['data']['createPost']['post']['author']['node']['id'] );
+	}
+
 	public function createPostWithDatesMutation( $input ) {
 
 		wp_set_current_user( $this->admin );
@@ -486,12 +595,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	public function testDeletePageMutation() {
-
-		/**
-		 * Set the current user as the subscriber role so we
-		 * can test the mutation and assert that it failed
-		 */
-		wp_set_current_user( $this->subscriber );
+		wp_set_current_user( $this->admin );
 
 		$args = [
 			'post_type'    => 'page',
@@ -528,19 +632,36 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 					id
 					title
 					content
-					pageId
+					databaseId
 				}
 			}
 		}';
 
-		/**
-		 * Set the variables to use with the mutation
-		 */
+		// Test with no id.
 		$variables = [
 			'input' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+				'id' => '',
 			],
 		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad Id.
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with global Id.
+
+		/**
+		 * Set the current user as the subscriber role so we
+		 * can test the mutation and assert that it failed
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		/**
 		 * Execute the request
@@ -571,10 +692,10 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'deletePage' => [
 				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 				'page'      => [
-					'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-					'title'   => apply_filters( 'the_title', 'Original Title' ),
-					'content' => apply_filters( 'the_content', 'Original Content' ),
-					'pageId'  => $page_id,
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+					'title'      => apply_filters( 'the_title', 'Original Title' ),
+					'content'    => apply_filters( 'the_content', 'Original Content' ),
+					'databaseId' => $page_id,
 				],
 			],
 		];
@@ -582,6 +703,18 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Compare the actual output vs the expected output
 		 */
+		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test with database ID
+		wp_update_post( [
+			'ID'          => $page_id,
+			'post_status' => 'publish',
+		] );
+
+		$variables['input']['id'] = $page_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertEquals( $expected, $actual['data'] );
 
 		/**
@@ -705,7 +838,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 					id
 					title
 					content
-					pageId
+					databaseId
 				}
 			}
 		}';
@@ -768,10 +901,10 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$expected = [
 			'updatePage' => [
 				'page' => [
-					'id'      => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-					'title'   => apply_filters( 'the_title', 'Some updated title' ),
-					'content' => apply_filters( 'the_content', 'Some updated content' ),
-					'pageId'  => $page_id,
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
+					'title'      => apply_filters( 'the_title', 'Some updated title' ),
+					'content'    => apply_filters( 'the_content', 'Some updated content' ),
+					'databaseId' => $page_id,
 				],
 			],
 		];
@@ -786,6 +919,30 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertFalse( get_post_meta( '_edit_lock', $page_id, true ) );
 
+		// Test with no id
+		$variables = [
+			'id'      => '',
+			'title'   => 'Some updated title 2',
+			'content' => 'Some updated content 2',
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad id
+		$variables['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$variables['id'] = $page_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $page_id, $actual['data']['updatePage']['page']['databaseId'] );
 	}
 
 	public function testUpdatePostWithInvalidId() {
