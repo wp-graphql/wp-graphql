@@ -2,9 +2,9 @@
 namespace WPGraphQL\Data\Connection;
 
 use Exception;
-use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class MenuItemConnectionResolver
@@ -49,12 +49,9 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			$query_args['meta_value'] = (int) $this->args['where']['parentDatabaseId'];
 		}
 
-		if ( isset( $this->args['where']['parentId'] ) ) {
-			$id_parts = Relay::fromGlobalId( $this->args['where']['parentId'] );
-			if ( isset( $id_parts['id'] ) ) {
+		if ( ! empty( $this->args['where']['parentId'] ) ) {
 				$query_args['meta_key']   = '_menu_item_menu_item_parent';
-				$query_args['meta_value'] = (int) $id_parts['id'];
-			}
+				$query_args['meta_value'] = $this->args['where']['parentId'];
 		}
 
 		// Get unique list of locations as the default limitation of
@@ -91,6 +88,49 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		}
 
 		return $query_args;
+	}
+
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args() {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'parentId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array $args The GraphQL args passed to the resolver.
+		 *
+		 * @since @todo
+		 */
+		$args = apply_filters( 'graphql_menu_item_connection_args', $args );
+
+		return $args;
+
 	}
 
 }
