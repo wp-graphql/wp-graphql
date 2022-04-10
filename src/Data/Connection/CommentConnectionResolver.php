@@ -8,7 +8,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WP_Comment_Query;
 use WPGraphQL\AppContext;
 use WPGraphQL\Types;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentConnectionResolver
@@ -168,7 +167,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return array
+	 * @throws Exception
 	 */
 	public function get_ids_from_query() {
 		/** @var array $ids */
@@ -194,6 +194,80 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function should_execute() {
 		return true;
+	}
+
+	/**
+	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the
+	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
+	 * checking if the comment with the given ID exists.
+	 *
+	 * @param int $offset The ID of the node used for the cursor offset
+	 *
+	 * @return bool
+	 */
+	public function is_valid_offset( $offset ) {
+		return ! empty( get_comment( $offset ) );
+	}
+
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args() {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'authorIn':
+					case 'authorNotIn':
+					case 'commentIn':
+					case 'commentNotIn':
+					case 'parentIn':
+					case 'parentNotIn':
+					case 'contentAuthorIn':
+					case 'contentAuthorNotIn':
+					case 'contentId':
+					case 'contentIdIn':
+					case 'contentIdNotIn':
+					case 'contentAuthor':
+					case 'userId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+					case 'includeUnapproved':
+						if ( is_email( $input_value ) ) {
+							break;
+						}
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                      $args                   The GraphQL args passed to the resolver.
+		 *
+		 * @since @todo
+		 */
+		$args = apply_filters( 'graphql_comment_connection_args', $args );
+
+		return $args;
+
 	}
 
 	/**
@@ -253,19 +327,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 
-	}
-
-	/**
-	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the
-	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
-	 * checking if the comment with the given ID exists.
-	 *
-	 * @param int $offset The ID of the node used for the cursor offset
-	 *
-	 * @return bool
-	 */
-	public function is_valid_offset( $offset ) {
-		return ! empty( get_comment( $offset ) );
 	}
 
 }
