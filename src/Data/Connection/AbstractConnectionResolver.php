@@ -149,6 +149,16 @@ abstract class AbstractConnectionResolver {
 		$this->args = $args;
 
 		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                      $args                   The GraphQL args passed to the resolver.
+		 *
+		 * @since @todo
+		 */
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args() );
+
+		/**
 		 * Set the context of the resolver
 		 */
 		$this->context = $context;
@@ -216,9 +226,26 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the $args passed to the connection
 	 *
+	 * Deprecated in favor of $this->get_args();
+	 *
+	 * @deprecated @todo
+	 *
 	 * @return array
 	 */
 	public function getArgs(): array {
+		_deprecated_function( __FUNCTION__, '@todo', 'get_args' );
+		return $this->get_args();
+	}
+
+
+	/**
+	 * Returns the $args passed to the connection.
+	 *
+	 * Useful for modifying the $args before they are passed to $this->get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args() {
 		return $this->args;
 	}
 
