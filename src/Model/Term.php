@@ -194,15 +194,9 @@ class Term extends Model {
 					return $queue;
 				},
 				'uri'                      => function () {
-					$link = get_term_link( $this->name );
+					$link = $this->link;
 
-					if ( is_wp_error( $link ) ) {
-						return null;
-					}
-
-					$stripped_link = str_ireplace( home_url(), '', $link );
-
-					return trailingslashit( $stripped_link );
+					return ! empty( $link ) ? str_ireplace( home_url(), '', $link ) : null;
 				},
 			];
 

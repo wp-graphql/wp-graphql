@@ -50,20 +50,6 @@ class TermObject {
 							return absint( $term->term_id );
 						},
 					],
-					'uri'               => [
-						'resolve' => function ( $term, $args, $context, $info ) {
-							$url = $term->link;
-							if ( ! empty( $url ) ) {
-								$parsed = wp_parse_url( $url );
-								if ( isset( $parsed ) ) {
-									$path  = isset( $parsed['path'] ) ? $parsed['path'] : '';
-									$query = isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
-									return trim( $path . $query );
-								}
-							}
-							return '';
-						},
-					],
 				],
 			]
 		);
