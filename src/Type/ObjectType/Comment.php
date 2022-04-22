@@ -31,13 +31,18 @@ class Comment {
 						'oneToOne'             => true,
 						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
 
-							/**
-							 * If the comment has a user associated, use it to populate the author, otherwise return
-							 * the $comment and the Union will use that to hydrate the CommentAuthor Type
-							 */
-							if ( ! empty( $comment->userId ) ) {
+							$node = null;
+
+							// if the request is authenticated
+							// and the comment is from a user, try and load
+							// the user node
+							if ( ! empty( $comment->userId ) && is_user_logged_in() ) {
 								$node = $context->get_loader( 'user' )->load( absint( $comment->userId ) );
-							} else {
+							}
+
+							// If no node is loaded, fallback to the
+							// public comment author data
+							if ( ! $node ) {
 								$node = ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
 							}
 
