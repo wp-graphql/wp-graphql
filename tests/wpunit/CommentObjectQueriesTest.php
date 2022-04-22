@@ -663,7 +663,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @throws Exception
 	 */
-	public function testQueryingAvatarOnUserAuthorsIsValid() {
+	public function testQueryingAvatarOnUserAuthorsIsValidForPublicAndAuthenticagedRequests() {
 
 		// create a comment with a guest author as the author
 		$comment_id = $this->createCommentObject();
@@ -686,6 +686,22 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $global_id
+			]
+		] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		codecept_debug( $actual );
+
+		$typename = $actual['data']['comment']['author']['node']['__typename'];
+
+		$this->assertSame( 'CommentAuthor', $typename );
+		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
+
+		wp_set_current_user( $this->admin );
 
 		$actual = graphql( [
 			'query' => $query,
