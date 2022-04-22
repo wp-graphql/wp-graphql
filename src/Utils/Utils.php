@@ -145,7 +145,7 @@ class Utils {
 			'title'      => [],
 			'checked'    => [],
 			'disabled'   => [],
-            'selected'   => [],
+			'selected'   => [],
 		];
 
 		return [
