@@ -145,6 +145,7 @@ class Utils {
 			'title'      => [],
 			'checked'    => [],
 			'disabled'   => [],
+            'selected'   => [],
 		];
 
 		return [
@@ -155,7 +156,7 @@ class Utils {
 			'iframe'   => $allowed_atts,
 			'script'   => $allowed_atts,
 			'select'   => $allowed_atts,
-            		'option'   => $allowed_atts,
+            'option'   => $allowed_atts,
 			'style'    => $allowed_atts,
 			'strong'   => $allowed_atts,
 			'small'    => $allowed_atts,
