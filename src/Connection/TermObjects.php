@@ -210,7 +210,7 @@ class TermObjects {
 						]
 					),
 					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 						if ( empty( $terms ) || is_wp_error( $terms ) ) {
 							return null;

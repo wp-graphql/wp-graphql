@@ -91,7 +91,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$query_args = $this->get_query_args();
-		return array_values( get_post_types( $query_args ) );
+		return array_values( \WPGraphQL::get_allowed_post_types( 'names', $query_args ) );
 	}
 
 	/**

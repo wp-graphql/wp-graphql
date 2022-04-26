@@ -29,7 +29,7 @@ class TaxonomyLoader extends AbstractDataLoader {
 	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
-		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+		$taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		$loaded = [];
 		if ( ! empty( $taxonomies ) && is_array( $taxonomies ) ) {

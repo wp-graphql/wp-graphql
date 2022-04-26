@@ -29,7 +29,7 @@ class PostTypeLoader extends AbstractDataLoader {
 	 * @throws Exception
 	 */
 	public function loadKeys( array $keys ) {
-		$post_types = get_post_types( [ 'show_in_graphql' => true ], 'objects' );
+		$post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
 		$loaded = [];
 		if ( ! empty( $post_types ) && is_array( $post_types ) ) {

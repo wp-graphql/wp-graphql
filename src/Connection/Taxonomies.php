@@ -27,7 +27,7 @@ class Taxonomies {
 			]
 		);
 
-		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+		$taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		if ( is_array( $taxonomies ) && ! empty( $taxonomies ) ) {
 			foreach ( $taxonomies as $taxonomy ) {
