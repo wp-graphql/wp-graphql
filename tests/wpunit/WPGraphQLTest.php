@@ -112,37 +112,37 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		// Test filter.
 		$expected = 'post';
 
-		// add_filter( 'graphql_post_entities_allowed_post_types', function ( $names, $objects ) use ( $expected ) {
-		// 	$this->assertContains( $expected, $names );
-		// 	$this->assertInstanceOf( \WP_Post_Type::class, $objects[ $expected ] );
+		add_filter( 'graphql_post_entities_allowed_post_types', function ( $names, $objects ) use ( $expected ) {
+			$this->assertContains( $expected, $names );
+			$this->assertInstanceOf( \WP_Post_Type::class, $objects[ $expected ] );
 
-		// 	return [ $expected => $expected ];
-		// }, 10, 2 );
+			return [ $expected => $expected ];
+		}, 10, 2 );
 
-		// // Clear cached types.
-		// WPGraphQL::$allowed_post_types = null;
+		// Clear cached types.
+		WPGraphQL::$allowed_post_types = null;
 
-		// $actual = WPGraphQL::get_allowed_post_types();
+		$actual = WPGraphQL::get_allowed_post_types();
 
-		// codecept_debug( $actual );
+		codecept_debug( $actual );
 
-		// $this->assertEquals( [ $expected => $expected ], $actual );
+		$this->assertEquals( [ $expected => $expected ], $actual );
 
-		// // Test query.
-		// $query = '
-		// 	query contentTypes {
-		// 		contentTypes {
-		// 			nodes {
-		// 				name
-		// 			}
-		// 		}
-		// 	}
-		// ';
+		// Test query.
+		$query = '
+			query contentTypes {
+				contentTypes {
+					nodes {
+						name
+					}
+				}
+			}
+		';
 
-		// $actual = graphql( [ 'query' => $query ] );
-		// codecept_debug( $actual );
+		$actual = graphql( [ 'query' => $query ] );
+		codecept_debug( $actual );
 
-		// $this->assertEquals( [ $expected ], array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
+		$this->assertEquals( [ $expected ], array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
 	}
 
 	/**
@@ -182,33 +182,33 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		// Test filter.
 		$expected = 'category';
 
-		// add_filter( 'graphql_term_entities_allowed_taxonomies', function ( $names = null, $objects = null ) use ( $expected ) {
-		// 	$this->assertContains( $expected, $names );
-		// 	$this->assertInstanceOf( \WP_Taxonomy::class, $objects[ $expected ] );
+		add_filter( 'graphql_term_entities_allowed_taxonomies', function ( $names = null, $objects = null ) use ( $expected ) {
+			$this->assertContains( $expected, $names );
+			$this->assertInstanceOf( \WP_Taxonomy::class, $objects[ $expected ] );
 
-		// 	return [ $expected => $expected ];
-		// }, 10, 2 );
+			return [ $expected => $expected ];
+		}, 10, 2 );
 
-		// // Clear cached types.
-		// WPGraphQL::$allowed_taxonomies = null;
-		// $actual                        = WPGraphQL::get_allowed_taxonomies();
-		// $this->assertEquals( [ $expected => $expected ], $actual, 'filter not equal' );
+		// Clear cached types.
+		WPGraphQL::$allowed_taxonomies = null;
+		$actual                        = WPGraphQL::get_allowed_taxonomies();
+		$this->assertEquals( [ $expected => $expected ], $actual, 'filter not equal' );
 
-		// // Test query.
-		// $query = '
-		// 	query taxonomies {
-		// 		taxonomies {
-		// 			nodes {
-		// 				name
-		// 			}
-		// 		}
-		// 	}
-		// ';
+		// Test query.
+		$query = '
+			query taxonomies {
+				taxonomies {
+					nodes {
+						name
+					}
+				}
+			}
+		';
 
-		// $actual = graphql( [ 'query' => $query ] );
-		// codecept_debug( $actual );
+		$actual = graphql( [ 'query' => $query ] );
+		codecept_debug( $actual );
 
-		// $this->assertEquals( [ $expected ], array_column( $actual['data']['taxonomies']['nodes'], 'name' ) );
+		$this->assertEquals( [ $expected ], array_column( $actual['data']['taxonomies']['nodes'], 'name' ) );
 	}
 
 }
