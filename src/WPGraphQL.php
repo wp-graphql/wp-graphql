@@ -48,22 +48,18 @@ final class WPGraphQL {
 	/**
 	 * Stores an array of allowed post types
 	 *
-	 * @todo make protected
-	 *
 	 * @var ?\WP_Post_Type[] allowed_post_types
 	 * @since  0.0.5
 	 */
-	public static $allowed_post_types;
+	protected static $allowed_post_types;
 
 	/**
 	 * Stores an array of allowed taxonomies
 	 *
-	 * @todo make protected
-	 *
 	 * @var ?\WP_Taxonomy[] allowed_taxonomies
 	 * @since  0.0.5
 	 */
-	public static $allowed_taxonomies;
+	protected static $allowed_taxonomies;
 
 	/**
 	 * @var boolean
