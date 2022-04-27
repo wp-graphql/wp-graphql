@@ -61,7 +61,7 @@ hooks.addFilter(
   "graphiql_toolbar_before_buttons",
   "graphiql-auth-switch",
   (res) => {
-    res.push(<AuthSwitch />);
+    res.push(<AuthSwitch key="auth-switch" />);
     return res;
   },
   1
