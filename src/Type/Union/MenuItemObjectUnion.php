@@ -79,8 +79,7 @@ class MenuItemObjectUnion {
 		}
 
 		// Add taxonomies that are allowed in WPGraphQL.
-		foreach ( get_taxonomies( $args ) as $type ) {
-			$tax_object = get_taxonomy( $type );
+		foreach ( \WPGraphQL::get_allowed_taxonomies( 'objects', $args ) as $tax_object ) {
 			if ( isset( $tax_object->graphql_single_name ) ) {
 				$possible_types[] = $tax_object->graphql_single_name;
 			}

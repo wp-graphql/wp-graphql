@@ -16,14 +16,12 @@ class ContentTypeEnum {
 		$values = [];
 
 		/**
-		 * Get the allowed taxonomies
+		 * Get the allowed post types
 		 */
-		$allowed_post_types = get_post_types( [
-			'show_in_graphql' => true,
-		] );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 		/**
-		 * Loop through the taxonomies and create an array
+		 * Loop through the post types and create an array
 		 * of values for use in the enum type.
 		 */
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {

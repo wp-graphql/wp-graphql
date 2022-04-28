@@ -75,4 +75,140 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Tests WPGraphQL::get_allowed_post_types()
+	 */
+	public function testGetAllowedPostTypes() {
+		// Test names.
+		$expected = get_post_types( [ 'show_in_graphql' => true ] );
+
+		$actual = WPGraphQL::get_allowed_post_types();
+
+		codecept_debug( $actual );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		// Test objects.
+		$expected = get_post_types( [ 'show_in_graphql' => true ], 'objects' );
+
+		$actual = WPGraphQL::get_allowed_post_types( 'objects' );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		// Test args.
+		$expected = get_post_types(
+			[
+				'name' => 'page',
+			],
+		);
+
+		codecept_debug( $expected );
+
+		$actual = WPGraphQL::get_allowed_post_types( 'names', [ 'name' => 'page' ] );
+		codecept_debug( $actual );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		// Test filter.
+		$expected = 'post';
+
+		add_filter( 'graphql_post_entities_allowed_post_types', function ( $names, $objects ) use ( $expected ) {
+			$this->assertContains( $expected, $names );
+			$this->assertInstanceOf( \WP_Post_Type::class, $objects[ $expected ] );
+
+			return [ $expected => $expected ];
+		}, 10, 2 );
+
+		// Clear cached types.
+		WPGraphQL::clear_schema();
+
+		$actual = WPGraphQL::get_allowed_post_types();
+
+		codecept_debug( $actual );
+
+		$this->assertEquals( [ $expected => $expected ], $actual );
+
+		// Test query.
+		$query = '
+			query contentTypes {
+				contentTypes {
+					nodes {
+						name
+					}
+				}
+			}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+		codecept_debug( $actual );
+
+		$this->assertEquals( [ $expected ], array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
+	}
+
+	/**
+	 * Tests WPGraphQL::get_allowed_taxonomies()
+	 */
+	public function testGetAllowedTaxonomies() {
+		// Test names.
+		$expected = get_taxonomies( [ 'show_in_graphql' => true ] );
+
+		$actual = WPGraphQL::get_allowed_taxonomies();
+
+		codecept_debug( $actual );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		// Test objects.
+		$expected = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+
+		$actual = WPGraphQL::get_allowed_taxonomies( 'objects' );
+
+		$this->assertEqualSets( $expected, $actual, 'objects not equal' );
+
+		// Test args.
+		$expected = get_taxonomies(
+			[
+				'name' => 'category',
+			],
+		);
+
+		codecept_debug( $expected );
+
+		$actual = WPGraphQL::get_allowed_taxonomies( 'names', [ 'name' => 'category' ] );
+		codecept_debug( $actual );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		// Test filter.
+		$expected = 'category';
+
+		add_filter( 'graphql_term_entities_allowed_taxonomies', function ( $names = null, $objects = null ) use ( $expected ) {
+			$this->assertContains( $expected, $names );
+			$this->assertInstanceOf( \WP_Taxonomy::class, $objects[ $expected ] );
+
+			return [ $expected => $expected ];
+		}, 10, 2 );
+
+		// Clear cached types.
+		WPGraphQL::clear_schema();
+		$actual = WPGraphQL::get_allowed_taxonomies();
+		$this->assertEquals( [ $expected => $expected ], $actual, 'filter not equal' );
+
+		// Test query.
+		$query = '
+			query taxonomies {
+				taxonomies {
+					nodes {
+						name
+					}
+				}
+			}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+		codecept_debug( $actual );
+
+		$this->assertEquals( [ $expected ], array_column( $actual['data']['taxonomies']['nodes'], 'name' ) );
+	}
+
 }
