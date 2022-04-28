@@ -50,10 +50,7 @@ class UserLoader extends AbstractDataLoader {
 		// Get public post types that are set to show in GraphQL
 		// as public users are determined by whether they've published
 		// content in one of these post types
-		$post_types = get_post_types( [
-			'public'          => true,
-			'show_in_graphql' => true,
-		] );
+		$post_types = \WPGraphQL::get_allowed_post_types( 'names', [ 'public' => true ] );
 
 		/**
 		 * Exclude revisions and attachments, since neither ever receive the
@@ -66,11 +63,8 @@ class UserLoader extends AbstractDataLoader {
 		 * get_posts_by_author_sql only accepts a single author ID, so we'll need to
 		 * add our own IN statement.
 		 */
-		$author_id   = null;
-		$public_only = true;
-
 		// @phpstan-ignore-next-line
-		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
+		$where = get_posts_by_author_sql( $post_types, true, null, true );
 		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
 		$count = count( $keys );
 

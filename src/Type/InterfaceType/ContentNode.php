@@ -28,7 +28,7 @@ class ContentNode {
 			'ContentNode',
 			[
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
-				'description' => __( 'Nodes used to manage content', 'wp-graphql' ),
+				'description' => __( 'Nodes with public facing content', 'wp-graphql' ),
 				'connections' => [
 					'contentType'         => [
 						'toType'   => 'ContentType',

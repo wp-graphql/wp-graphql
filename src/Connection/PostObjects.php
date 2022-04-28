@@ -25,6 +25,17 @@ use WPGraphQL\Model\User;
 class PostObjects {
 
 	/**
+	 * Returns an array of post types that are public and shown in GraphQL
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	public static function get_post_types_from_args( array $args ): array {
+		return isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types( 'names', [ 'public' => true ] );
+	}
+
+	/**
 	 * Registers the various connections from other Types to PostObjects
 	 *
 	 * @return void
@@ -58,8 +69,9 @@ class PostObjects {
 				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
 					return null;
 				}
-				$id       = absint( $comment->comment_post_ID );
-				$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, 'any' );
+				$id = absint( $comment->comment_post_ID );
+
+				$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, \WPGraphQL::get_allowed_post_types( 'names', [ 'public' => true ] ) );
 
 				return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
 			},
@@ -93,7 +105,7 @@ class PostObjects {
 				'fromFieldName'  => 'contentNodes',
 				'connectionArgs' => self::get_connection_args(),
 				'resolve'        => function ( $source, $args, $context, $info ) {
-					$post_types = isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types();
+					$post_types = self::get_post_types_from_args( $args );
 
 					return DataSource::resolve_post_objects_connection( $source, $args, $context, $info, $post_types );
 				},
@@ -113,7 +125,9 @@ class PostObjects {
 					return null;
 				}
 
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
+				$post_types = self::get_post_types_from_args( $args );
+
+				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, $post_types );
 				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
 
 				return $resolver->one_to_one()->get_connection();
@@ -130,13 +144,15 @@ class PostObjects {
 			'queryClass'         => 'WP_Query',
 			'resolve'            => function ( Post $post, $args, $context, $info ) {
 
+				$post_types = self::get_post_types_from_args( $args );
+
 				if ( $post->isRevision ) {
 					$id = $post->parentDatabaseId;
 				} else {
 					$id = $post->ID;
 				}
 
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
+				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, $post_types );
 				$resolver->set_query_arg( 'post_parent', $id );
 
 				return $resolver->get_connection();
@@ -179,7 +195,7 @@ class PostObjects {
 
 				$post_type_object = get_post_type_object( $post_type );
 
-				if ( empty( $post_type_object ) ) {
+				if ( $post_type_object === null ) {
 					return;
 				}
 
@@ -330,7 +346,8 @@ class PostObjects {
 					'toType'        => 'ContentNode',
 					'resolve'       => function ( Term $term, $args, $context, $info ) {
 
-						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
+						$post_types = self::get_post_types_from_args( $args );
+						$resolver   = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_types );
 						$resolver->set_query_arg( 'tax_query', [
 							[
 								'taxonomy'         => $term->taxonomyName,
@@ -391,7 +408,7 @@ class PostObjects {
 	 *
 	 * @return array
 	 */
-	public static function get_connection_args( $args = [], $post_type_object = null ) {
+	public static function get_connection_args( array $args = [], $post_type_object = null ): array {
 
 		$fields = [
 			/**

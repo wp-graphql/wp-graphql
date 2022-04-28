@@ -16,7 +16,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 				'graphql_single_name' => 'bootstrapPost',
 				'graphql_plural_name' => 'bootstrapPosts',
 				'hierarchical'        => true,
-				'taxonomies' => [ 'bootstrap_tax' ]
+				'taxonomies' => [ 'bootstrap_tax' ],
 			]
 		);
 		register_taxonomy(
@@ -153,7 +153,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertNull( $actual['data']['contentNode']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
 
@@ -170,7 +170,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		// A logged in user should be able to see the data as well!
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertNull( $actual['data']['contentNode']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
 
@@ -224,7 +224,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		// Since the post_type is public we should see data, even if it's set to publicly_queryable=>false, as public=>true should trump publicly_queryable
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
 
@@ -249,6 +249,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
 		  contentNode( id: $id, idType: DATABASE_ID ) {
+		    databaseId
+		  }
+		  notPublic( id: $id idType: DATABASE_ID ) {
 		    databaseId
 		  }
 		  notPublics {
@@ -295,7 +298,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		// The admin user should be able to see the content
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
+		$this->assertNull( $actual['data']['contentNode']);
+		$this->assertEquals( $database_id, $actual['data']['notPublic']['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
 
