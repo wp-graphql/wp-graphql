@@ -63,7 +63,6 @@ class UserLoader extends AbstractDataLoader {
 		 * get_posts_by_author_sql only accepts a single author ID, so we'll need to
 		 * add our own IN statement.
 		 */
-		// @phpstan-ignore-next-line
 		$where = get_posts_by_author_sql( $post_types, true, null, true );
 		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
 		$count = count( $keys );
