@@ -120,7 +120,7 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		}, 10, 2 );
 
 		// Clear cached types.
-		WPGraphQL::$allowed_post_types = null;
+		WPGraphQL::clear_schema();
 
 		$actual = WPGraphQL::get_allowed_post_types();
 
@@ -190,8 +190,8 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		}, 10, 2 );
 
 		// Clear cached types.
-		WPGraphQL::$allowed_taxonomies = null;
-		$actual                        = WPGraphQL::get_allowed_taxonomies();
+		WPGraphQL::clear_schema();
+		$actual = WPGraphQL::get_allowed_taxonomies();
 		$this->assertEquals( [ $expected => $expected ], $actual, 'filter not equal' );
 
 		// Test query.
