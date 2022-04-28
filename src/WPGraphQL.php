@@ -466,6 +466,16 @@ final class WPGraphQL {
 	}
 
 	/**
+	 * Clears the allowed post types. Intended for use in testing
+	 *
+	 * @return array
+	 */
+	public static function _clear_allowed_post_types(): ?array {
+		self::$allowed_post_types = [];
+		return self::$allowed_post_types;
+	}
+
+	/**
 	 * Get the post types that are allowed to be used in GraphQL.
 	 * This gets all post_types that are set to show_in_graphql, but allows for external code (plugins/theme) to
 	 * filter the list of allowed_post_types to add/remove additional post_types
@@ -560,6 +570,16 @@ final class WPGraphQL {
 		}
 
 		return $post_types;
+	}
+
+	/**
+	 * Clears the allowed taxonomies. Intended for use in testing
+	 *
+	 * @return array
+	 */
+	public static function _clear_allowed_taxonomies(): ?array {
+		self::$allowed_taxonomies = [];
+		return self::$allowed_taxonomies;
 	}
 
 	/**
