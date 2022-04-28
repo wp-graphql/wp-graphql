@@ -195,7 +195,7 @@ class PostObjects {
 
 				$post_type_object = get_post_type_object( $post_type );
 
-				if ( $post_type_object === null ) {
+				if ( null === $post_type_object ) {
 					return;
 				}
 
