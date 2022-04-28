@@ -31,7 +31,7 @@ class PostObjects {
 	 *
 	 * @return array
 	 */
-	public static function get_post_types_from_args( array $args ): array {
+	protected static function get_post_types_from_args( array $args ): array {
 		return isset( $args['where']['contentTypes'] ) && is_array( $args['where']['contentTypes'] ) ? $args['where']['contentTypes'] : \WPGraphQL::get_allowed_post_types( 'names', [ 'public' => true ] );
 	}
 
