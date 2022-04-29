@@ -27,9 +27,9 @@ class TermNodeIdTypeEnum {
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-		foreach ( $allowed_taxonomies as $taxonomy_object ) {
+		foreach ( $allowed_taxonomies as $tax_object ) {
 			register_graphql_enum_type(
-				$taxonomy_object->graphql_single_name . 'IdType',
+				$tax_object->graphql_single_name . 'IdType',
 				[
 					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
 					'values'      => self::get_values(),

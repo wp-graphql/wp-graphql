@@ -47,21 +47,21 @@ class ContentTypeEnum {
 		 * @var \WP_Taxonomy[] $allowed_taxonomies
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
-		foreach ( $allowed_taxonomies as $taxonomy_object ) {
+		foreach ( $allowed_taxonomies as $tax_object ) {
 			/**
 			 * Loop through the taxonomy's object type and create an array
 			 * of values for use in the enum type.
 			 */
 			$taxonomy_values = [];
-			foreach ( $taxonomy_object->object_type as $taxonomy_object_type ) {
+			foreach ( $tax_object->object_type as $tax_object_type ) {
 				// Skip object types that are not allowed by WPGraphQL
-				if ( ! array_key_exists( $taxonomy_object_type, $allowed_post_types ) ) {
+				if ( ! array_key_exists( $tax_object_type, $allowed_post_types ) ) {
 					continue;
 				}
 
-				$taxonomy_values[ WPEnumType::get_safe_name( $taxonomy_object_type ) ] = [
-					'name'        => WPEnumType::get_safe_name( $taxonomy_object_type ),
-					'value'       => $taxonomy_object_type,
+				$taxonomy_values[ WPEnumType::get_safe_name( $tax_object_type ) ] = [
+					'name'        => WPEnumType::get_safe_name( $tax_object_type ),
+					'value'       => $tax_object_type,
 					'description' => __( 'The Type of Content object', 'wp-graphql' ),
 				];
 			}
@@ -69,9 +69,9 @@ class ContentTypeEnum {
 			if ( ! empty( $taxonomy_values ) ) {
 
 				register_graphql_enum_type(
-					'ContentTypesOf' . Utils::format_type_name( $taxonomy_object->graphql_single_name ) . 'Enum',
+					'ContentTypesOf' . Utils::format_type_name( $tax_object->graphql_single_name ) . 'Enum',
 					[
-						'description' => sprintf( __( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ), Utils::format_type_name( $taxonomy_object->graphql_single_name ) ),
+						'description' => sprintf( __( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ), Utils::format_type_name( $tax_object->graphql_single_name ) ),
 						'values'      => $taxonomy_values,
 					]
 				);

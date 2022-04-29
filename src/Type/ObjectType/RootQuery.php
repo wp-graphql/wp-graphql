@@ -799,14 +799,14 @@ class RootQuery {
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-		foreach ( $allowed_taxonomies as $taxonomy_object ) {
+		foreach ( $allowed_taxonomies as $tax_object ) {
 
 			register_graphql_field(
 				'RootQuery',
-				$taxonomy_object->graphql_single_name,
+				$tax_object->graphql_single_name,
 				[
-					'type'        => $taxonomy_object->graphql_single_name,
-					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $taxonomy_object->graphql_single_name ),
+					'type'        => $tax_object->graphql_single_name,
+					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $tax_object->graphql_single_name ),
 					'args'        => [
 						'id'     => [
 							'type'        => [
@@ -815,11 +815,11 @@ class RootQuery {
 							'description' => __( 'The globally unique identifier of the object.', 'wp-graphql' ),
 						],
 						'idType' => [
-							'type'        => $taxonomy_object->graphql_single_name . 'IdType',
+							'type'        => $tax_object->graphql_single_name . 'IdType',
 							'description' => __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => function ( $source, array $args, $context, $info ) use ( $taxonomy_object ) {
+					'resolve'     => function ( $source, array $args, $context, $info ) use ( $tax_object ) {
 
 						$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 						$term_id = null;
@@ -831,7 +831,7 @@ class RootQuery {
 								if ( 'database_id' === $idType ) {
 									$idType = 'id';
 								}
-								$term    = isset( $taxonomy_object->name ) ? get_term_by( $idType, $args['id'], $taxonomy_object->name ) : null;
+								$term    = isset( $tax_object->name ) ? get_term_by( $idType, $args['id'], $tax_object->name ) : null;
 								$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 								break;
 							case 'uri':

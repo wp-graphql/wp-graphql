@@ -22,11 +22,11 @@ class TaxonomyEnum {
 		 * of values for use in the enum type.
 		 */
 
-		foreach ( $allowed_taxonomies as $taxonomy_object ) {
-			if ( ! isset( $values[ WPEnumType::get_safe_name( $taxonomy_object->graphql_single_name ) ] ) ) {
-				$values[ WPEnumType::get_safe_name( $taxonomy_object->graphql_single_name ) ] = [
-					'value'       => $taxonomy_object->name,
-					'description' => sprintf( __( 'Taxonomy enum %s', 'wp-graphql' ), $taxonomy_object->name ),
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			if ( ! isset( $values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] ) ) {
+				$values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] = [
+					'value'       => $tax_object->name,
+					'description' => sprintf( __( 'Taxonomy enum %s', 'wp-graphql' ), $tax_object->name ),
 				];
 			}
 		}

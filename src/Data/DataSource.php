@@ -582,9 +582,9 @@ class DataSource {
 					}
 					break;
 				case $node instanceof Term:
-					/** @var \WP_Taxonomy $taxonomy_object */
-					$taxonomy_object = get_taxonomy( $node->taxonomyName );
-					$type            = $taxonomy_object->graphql_single_name;
+					/** @var \WP_Taxonomy $tax_object */
+					$tax_object = get_taxonomy( $node->taxonomyName );
+					$type       = $tax_object->graphql_single_name;
 					break;
 				case $node instanceof Comment:
 					$type = 'Comment';

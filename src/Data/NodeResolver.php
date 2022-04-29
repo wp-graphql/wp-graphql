@@ -472,10 +472,10 @@ class NodeResolver {
 
 			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
 		} else {
-			$taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
-			foreach ( $taxonomies as $taxonomy ) {
-				if ( isset( $this->wp->query_vars[ $taxonomy->query_var ] ) ) {
-					$node = get_term_by( 'slug', $this->wp->query_vars[ $taxonomy->query_var ], $taxonomy->name );
+			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+			foreach ( $taxonomies as $tax_object ) {
+				if ( isset( $this->wp->query_vars[ $tax_object->query_var ] ) ) {
+					$node = get_term_by( 'slug', $this->wp->query_vars[ $tax_object->query_var ], $tax_object->name );
 
 					return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 				}

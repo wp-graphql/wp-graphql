@@ -41,10 +41,10 @@ class MenuItemObjectUnion {
 
 					// Taxonomy term
 					if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
-						/** @var \WP_Taxonomy $taxonomy_object */
-						$taxonomy_object = get_taxonomy( $object->taxonomyName );
+						/** @var \WP_Taxonomy $tax_object */
+						$tax_object = get_taxonomy( $object->taxonomyName );
 
-						return $type_registry->get_type( $taxonomy_object->graphql_single_name );
+						return $type_registry->get_type( $tax_object->graphql_single_name );
 					}
 
 					return $object;

@@ -249,15 +249,15 @@ class PostObjects {
 				);
 			}
 
-			foreach ( $allowed_taxonomies as $taxonomy_object ) {
+			foreach ( $allowed_taxonomies as $tax_object ) {
 				// If the taxonomy is in the array of taxonomies registered to the post_type
-				if ( in_array( $taxonomy_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
+				if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
 
 					register_graphql_connection(
 						self::get_connection_config(
 							$post_type_object,
 							[
-								'fromType' => $taxonomy_object->graphql_single_name,
+								'fromType' => $tax_object->graphql_single_name,
 								'resolve'  => function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 									$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
 									$resolver->set_query_arg( 'tax_query', [
