@@ -312,7 +312,7 @@ class NodeResolver {
 
 		// Limit publicly queried post_types to those that are publicly_queryable
 		if ( isset( $this->wp->query_vars['post_type'] ) ) {
-			$queryable_post_types = get_post_types( [ 'show_in_graphql' => true ] );
+			$queryable_post_types = \WPGraphQL::get_allowed_post_types();
 
 			if ( ! is_array( $this->wp->query_vars['post_type'] ) ) {
 				if ( ! in_array( $this->wp->query_vars['post_type'], $queryable_post_types, true ) ) {
@@ -412,7 +412,7 @@ class NodeResolver {
 
 			unset( $this->wp->query_vars['uri'] );
 
-			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : get_post_types( [ 'show_in_graphql' => true ] );
+			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : \WPGraphQL::get_allowed_post_types();
 
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type );
 
