@@ -76,39 +76,38 @@ class Comments {
 
 		/**
 		 * Register Connections from all existing PostObject Types to Comments
+		 *
+		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $post_type ) {
-				$post_type_object = get_post_type_object( $post_type );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
-				if ( empty( $post_type_object ) ) {
-					return;
-				}
+		if ( empty( $allowed_post_types ) ) {
+			return;
+		}
 
-				if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-					register_graphql_connection(
-						self::get_connection_config(
-							[
-								'fromType'      => $post_type_object->graphql_single_name,
-								'toType'        => 'Comment',
-								'fromFieldName' => 'comments',
-								'resolve'       => function ( Post $post, $args, $context, $info ) {
+		foreach ( $allowed_post_types as $post_type_object ) {
+			if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+				register_graphql_connection(
+					self::get_connection_config(
+						[
+							'fromType'      => $post_type_object->graphql_single_name,
+							'toType'        => 'Comment',
+							'fromFieldName' => 'comments',
+							'resolve'       => function ( Post $post, $args, $context, $info ) {
 
-									if ( $post->isRevision ) {
-										$id = $post->parentDatabaseId;
-									} else {
-										$id = $post->ID;
-									}
+								if ( $post->isRevision ) {
+									$id = $post->parentDatabaseId;
+								} else {
+									$id = $post->ID;
+								}
 
-									$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
+								$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
 
-									return $resolver->set_query_arg( 'post_id', absint( $id ) )->get_connection();
-								},
-							]
-						)
-					);
-				}
+								return $resolver->set_query_arg( 'post_id', absint( $id ) )->get_connection();
+							},
+						]
+					)
+				);
 			}
 		}
 	}
