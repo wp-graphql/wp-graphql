@@ -251,140 +251,129 @@ class PostObjectMutation {
 
 		/**
 		 * Get the allowed taxonomies and iterate through them to find the term inputs to use for setting relationships
+		 *
+		 * @var \WP_Taxonomy[] $allowed_taxonomies
 		 */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			/** @var string $taxonomy */
-			foreach ( $allowed_taxonomies as $taxonomy ) {
+		foreach ( $allowed_taxonomies as $tax_object ) {
+
+			/**
+			 * If the taxonomy is in the array of taxonomies registered to the post_type
+			 */
+			if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
 
 				/**
-				 * If the taxonomy is in the array of taxonomies registered to the post_type
+				 * If there is input for the taxonomy, process it
 				 */
-				if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
+				if ( isset( $input[ lcfirst( $tax_object->graphql_plural_name ) ] ) ) {
+
+					$term_input = $input[ lcfirst( $tax_object->graphql_plural_name ) ];
 
 					/**
-					 * Get the tax object
+					 * Default append to true, but allow input to set it to false.
 					 */
-					$tax_object = get_taxonomy( $taxonomy );
-
-					if ( ! $tax_object instanceof \WP_Taxonomy ) {
-						return;
-					}
+					$append = isset( $term_input['append'] ) && false === $term_input['append'] ? false : true;
 
 					/**
-					 * If there is input for the taxonomy, process it
+					 * Start an array of terms to connect
 					 */
-					if ( isset( $input[ lcfirst( $tax_object->graphql_plural_name ) ] ) ) {
+					$terms_to_connect = [];
 
-						$term_input = $input[ lcfirst( $tax_object->graphql_plural_name ) ];
+					/**
+					 * Filter whether to allow terms to be created during a post mutation.
+					 *
+					 * If a post mutation includes term input for a term that does not already exist,
+					 * this will allow terms to be created in order to connect the term to the post object,
+					 * but if filtered to false, this will prevent the term that doesn't already exist
+					 * from being created during the mutation of the post.
+					 *
+					 * @param bool         $allow_term_creation Whether new terms should be created during the post object mutation
+					 * @param \WP_Taxonomy $tax_object          The Taxonomy object for the term being added to the Post Object
+					 */
+					$allow_term_creation = apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
 
-						/**
-						 * Default append to true, but allow input to set it to false.
-						 */
-						$append = isset( $term_input['append'] ) && false === $term_input['append'] ? false : true;
+					/**
+					 * If there are nodes in the term_input
+					 */
+					if ( ! empty( $term_input['nodes'] ) && is_array( $term_input['nodes'] ) ) {
 
-						/**
-						 * Start an array of terms to connect
-						 */
-						$terms_to_connect = [];
+						foreach ( $term_input['nodes'] as $node ) {
 
-						/**
-						 * Filter whether to allow terms to be created during a post mutation.
-						 *
-						 * If a post mutation includes term input for a term that does not already exist,
-						 * this will allow terms to be created in order to connect the term to the post object,
-						 * but if filtered to false, this will prevent the term that doesn't already exist
-						 * from being created during the mutation of the post.
-						 *
-						 * @param bool         $allow_term_creation Whether new terms should be created during the post object mutation
-						 * @param \WP_Taxonomy $tax_object          The Taxonomy object for the term being added to the Post Object
-						 */
-						$allow_term_creation = apply_filters( 'graphql_post_object_mutations_allow_term_creation', true, $tax_object );
+							$term_exists = false;
 
-						/**
-						 * If there are nodes in the term_input
-						 */
-						if ( ! empty( $term_input['nodes'] ) && is_array( $term_input['nodes'] ) ) {
+							/**
+							 * Handle the input for ID first.
+							 */
+							if ( ! empty( $node['id'] ) ) {
 
-							foreach ( $term_input['nodes'] as $node ) {
+								if ( ! absint( $node['id'] ) ) {
 
-								$term_exists = false;
+									$id_parts = Relay::fromGlobalId( $node['id'] );
 
-								/**
-								 * Handle the input for ID first.
-								 */
-								if ( ! empty( $node['id'] ) ) {
-
-									if ( ! absint( $node['id'] ) ) {
-
-										$id_parts = Relay::fromGlobalId( $node['id'] );
-
-										if ( ! empty( $id_parts['id'] ) ) {
-											$term_exists = get_term_by( 'id', absint( $id_parts['id'] ), $tax_object->name );
-											if ( isset( $term_exists->term_id ) ) {
-												$terms_to_connect[] = $term_exists->term_id;
-											}
-										}
-									} else {
-										$term_exists = get_term_by( 'id', absint( $node['id'] ), $tax_object->name );
+									if ( ! empty( $id_parts['id'] ) ) {
+										$term_exists = get_term_by( 'id', absint( $id_parts['id'] ), $tax_object->name );
 										if ( isset( $term_exists->term_id ) ) {
 											$terms_to_connect[] = $term_exists->term_id;
 										}
 									}
-
-									/**
-									 * Next, handle the input for slug if there wasn't an ID input
-									 */
-								} elseif ( ! empty( $node['slug'] ) ) {
-									$sanitized_slug = sanitize_text_field( $node['slug'] );
-									$term_exists    = get_term_by( 'slug', $sanitized_slug, $tax_object->name );
+								} else {
+									$term_exists = get_term_by( 'id', absint( $node['id'] ), $tax_object->name );
 									if ( isset( $term_exists->term_id ) ) {
 										$terms_to_connect[] = $term_exists->term_id;
 									}
-									/**
-									 * If the input for the term isn't an existing term, check to make sure
-									 * we're allowed to create new terms during a Post Object mutation
-									 */
 								}
 
 								/**
-								 * If no term exists so far, and terms are set to be allowed to be created
-								 * during a post object mutation, create the term to connect based on the
-								 * input
+								 * Next, handle the input for slug if there wasn't an ID input
 								 */
-								if ( ! $term_exists && true === $allow_term_creation ) {
+							} elseif ( ! empty( $node['slug'] ) ) {
+								$sanitized_slug = sanitize_text_field( $node['slug'] );
+								$term_exists    = get_term_by( 'slug', $sanitized_slug, $tax_object->name );
+								if ( isset( $term_exists->term_id ) ) {
+									$terms_to_connect[] = $term_exists->term_id;
+								}
+								/**
+								 * If the input for the term isn't an existing term, check to make sure
+								 * we're allowed to create new terms during a Post Object mutation
+								 */
+							}
 
-									/**
-									 * If the current user cannot edit terms, don't create terms to connect
-									 */
-									if ( ! isset( $tax_object->cap->edit_terms ) || ! current_user_can( $tax_object->cap->edit_terms ) ) {
-										return;
-									}
+							/**
+							 * If no term exists so far, and terms are set to be allowed to be created
+							 * during a post object mutation, create the term to connect based on the
+							 * input
+							 */
+							if ( ! $term_exists && true === $allow_term_creation ) {
 
-									$created_term = self::create_term_to_connect( $node, $tax_object->name );
+								/**
+								 * If the current user cannot edit terms, don't create terms to connect
+								 */
+								if ( ! isset( $tax_object->cap->edit_terms ) || ! current_user_can( $tax_object->cap->edit_terms ) ) {
+									return;
+								}
 
-									if ( ! empty( $created_term ) ) {
-										$terms_to_connect[] = $created_term;
-									}
+								$created_term = self::create_term_to_connect( $node, $tax_object->name );
+
+								if ( ! empty( $created_term ) ) {
+									$terms_to_connect[] = $created_term;
 								}
 							}
 						}
-
-						/**
-						 * If the current user cannot edit terms, don't create terms to connect
-						 */
-						if ( ! isset( $tax_object->cap->assign_terms ) || ! current_user_can( $tax_object->cap->assign_terms ) ) {
-							return;
-						}
-
-						wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
-
 					}
+
+					/**
+					 * If the current user cannot edit terms, don't create terms to connect
+					 */
+					if ( ! isset( $tax_object->cap->assign_terms ) || ! current_user_can( $tax_object->cap->assign_terms ) ) {
+						return;
+					}
+
+					wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
+
 				}
 			}
 		}
-
 	}
 
 	/**

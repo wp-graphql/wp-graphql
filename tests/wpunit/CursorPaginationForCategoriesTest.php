@@ -84,8 +84,10 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 			]
 		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
 		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
 
 		$nodes = $this->get_nodes( $actual );
 		$names = wp_list_pluck( $nodes, 'name' );

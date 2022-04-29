@@ -72,6 +72,7 @@ class PostType extends Model {
 			'uri',
 			'isPostsPage',
 			'isFrontPage',
+			'label',
 		];
 
 		$capability = isset( $post_type->cap->edit_posts ) ? $post_type->cap->edit_posts : 'edit_posts';

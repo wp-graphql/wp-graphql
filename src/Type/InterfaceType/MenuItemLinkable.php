@@ -45,9 +45,9 @@ class MenuItemLinkable {
 						$type             = $type_registry->get_type( $post_type_object->graphql_single_name );
 						break;
 					case $node instanceof Term:
-						/** @var \WP_Taxonomy $taxonomy_object */
-						$taxonomy_object = get_taxonomy( $node->taxonomyName );
-						$type            = $type_registry->get_type( $taxonomy_object->graphql_single_name );
+						/** @var \WP_Taxonomy $tax_object */
+						$tax_object = get_taxonomy( $node->taxonomyName );
+						$type       = $type_registry->get_type( $tax_object->graphql_single_name );
 						break;
 					default:
 						$type = null;

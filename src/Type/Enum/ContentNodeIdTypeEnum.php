@@ -19,47 +19,40 @@ class ContentNodeIdTypeEnum {
 			]
 		);
 
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $post_type ) {
-				$post_type_object = get_post_type_object( $post_type );
+		/** @var \WP_Post_Type[] */
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
-				if ( empty( $post_type_object ) ) {
-					return;
-				}
+		foreach ( $allowed_post_types as $post_type_object ) {
+			$values = self::get_values();
 
-				$values = self::get_values();
-				if ( ! $post_type_object->hierarchical ) {
-					$values['SLUG'] = [
-						'name'        => 'SLUG',
-						'value'       => 'slug',
-						'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
-					];
-				}
-
-				if ( 'attachment' === $post_type_object->name ) {
-					$values['SOURCE_URL'] = [
-						'name'        => 'SOURCE_URL',
-						'value'       => 'source_url',
-						'description' => __( 'Identify a media item by its source url', 'wp-graphql' ),
-					];
-				}
-
-				/**
-				 * Register a unique Enum per Post Type. This allows for granular control
-				 * over filtering and customizing the values available per Post Type.
-				 */
-				register_graphql_enum_type(
-					$post_type_object->graphql_single_name . 'IdType',
-					[
-						'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-						'values'      => $values,
-					]
-				);
-
+			if ( ! $post_type_object->hierarchical ) {
+				$values['SLUG'] = [
+					'name'        => 'SLUG',
+					'value'       => 'slug',
+					'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
+				];
 			}
-		}
 
+			if ( 'attachment' === $post_type_object->name ) {
+				$values['SOURCE_URL'] = [
+					'name'        => 'SOURCE_URL',
+					'value'       => 'source_url',
+					'description' => __( 'Identify a media item by its source url', 'wp-graphql' ),
+				];
+			}
+
+			/**
+			 * Register a unique Enum per Post Type. This allows for granular control
+			 * over filtering and customizing the values available per Post Type.
+			 */
+			register_graphql_enum_type(
+				$post_type_object->graphql_single_name . 'IdType',
+				[
+					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+					'values'      => $values,
+				]
+			);
+		}
 	}
 
 	/**

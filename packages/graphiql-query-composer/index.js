@@ -21,7 +21,7 @@ hooks.addFilter(
     const { toggleExplorer } = useExplorer();
 
     res.push(
-      <ExplorerContext.Consumer>
+      <ExplorerContext.Consumer key="graphiql-query-composer-button">
         {(context) => {
           return (
             <GraphiQL.Button
@@ -48,7 +48,7 @@ hooks.addFilter(
   "graphiql_before_graphiql",
   "graphiql-explorer",
   (res, props) => {
-    res.push(<Explorer {...props} />);
+    res.push(<Explorer {...props} key="graphiql-explorer" />);
     return res;
   }
 );
