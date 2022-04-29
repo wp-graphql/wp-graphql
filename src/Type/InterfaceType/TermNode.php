@@ -5,7 +5,6 @@ namespace WPGraphQL\Type\InterfaceType;
 use Exception;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -25,6 +24,7 @@ class TermNode {
 			'TermNode',
 			[
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
+				'description' => __( 'A Node within a public Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
 				'connections' => [
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
@@ -42,7 +42,6 @@ class TermNode {
 						},
 					],
 				],
-				'description' => __( 'Terms are nodes within a Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
 				'resolveType' => function ( $term ) use ( $type_registry ) {
 
 					/**

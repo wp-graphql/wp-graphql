@@ -21,9 +21,10 @@ class TermObject {
 	 */
 	public static function register_taxonomy_object_type( WP_Taxonomy $taxonomy_object ) {
 
-		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
+		$interfaces = [ 'Node', 'DatabaseIdentifier' ];
 
 		if ( true === $taxonomy_object->public ) {
+			$interfaces[] = 'TermNode';
 			$interfaces[] = 'UniformResourceIdentifiable';
 		}
 

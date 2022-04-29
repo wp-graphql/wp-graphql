@@ -3,6 +3,8 @@
 namespace WPGraphQL\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Post_Type;
+use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
@@ -19,9 +21,21 @@ use WPGraphQL\Model\Term;
 class TermObjects {
 
 	/**
+	 * Given the args on a query, determine which taxonomies to return
+	 *
+	 * @param array $args
+	 *
+	 * @return array|mixed|WP_Taxonomy[]|null
+	 */
+	protected static function get_taxonomies_from_args( array $args ) {
+		return isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies( 'names', [ 'public' => true ] );
+	}
+
+	/**
 	 * Register connections to TermObjects
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_connections() {
 
@@ -43,11 +57,10 @@ class TermObjects {
 					]
 				),
 				'resolve'        => function ( $source, $args, $context, $info ) {
-					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
+					$taxonomies = self::get_taxonomies_from_args( $args );
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
-					$connection = $resolver->get_connection();
 
-					return $connection;
+					return $resolver->get_connection();
 				},
 			]
 		);
@@ -59,7 +72,7 @@ class TermObjects {
 			foreach ( $allowed_taxonomies as $taxonomy ) {
 				$tax_object = get_taxonomy( $taxonomy );
 
-				if ( $tax_object instanceof \WP_Taxonomy ) {
+				if ( $tax_object instanceof WP_Taxonomy ) {
 
 					$root_query_from_field_name = $tax_object->graphql_plural_name;
 
@@ -86,7 +99,7 @@ class TermObjects {
 					if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 						foreach ( $allowed_post_types as $post_type ) {
 							if ( in_array( $post_type, $tax_object->object_type, true ) ) {
-								/** @var \WP_Post_Type $post_type_object */
+								/** @var WP_Post_Type $post_type_object */
 								$post_type_object = get_post_type_object( $post_type );
 								register_graphql_connection(
 									self::get_connection_config(
@@ -143,7 +156,7 @@ class TermObjects {
 							'oneToOne'           => true,
 							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 
-								if ( ! isset( $term->parentDatabaseId ) || empty( $term->parentDatabaseId ) ) {
+								if ( empty( $term->parentDatabaseId ) ) {
 									return null;
 								}
 
@@ -163,7 +176,7 @@ class TermObjects {
 							'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 
-								if ( ! $tax_object instanceof \WP_Taxonomy ) {
+								if ( ! $tax_object instanceof WP_Taxonomy ) {
 									return null;
 								}
 
@@ -189,7 +202,7 @@ class TermObjects {
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
 			foreach ( $allowed_post_types as $allowed_post_type ) {
 
-				/** @var \WP_Post_Type $post_type_object */
+				/** @var WP_Post_Type $post_type_object */
 				$post_type_object = get_post_type_object( $allowed_post_type );
 
 				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
@@ -210,7 +223,7 @@ class TermObjects {
 						]
 					),
 					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
+						$taxonomies = self::get_taxonomies_from_args( $args );
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 						if ( empty( $terms ) || is_wp_error( $terms ) ) {
 							return null;
@@ -231,7 +244,7 @@ class TermObjects {
 	 * Given the Taxonomy Object and an array of args, this returns an array of args for use in
 	 * registering a connection.
 	 *
-	 * @param \WP_Taxonomy $tax_object        The taxonomy object for the taxonomy having a
+	 * @param WP_Taxonomy $tax_object        The taxonomy object for the taxonomy having a
 	 *                                        connection registered to it
 	 * @param array        $args              The custom args to modify the connection registration
 	 *

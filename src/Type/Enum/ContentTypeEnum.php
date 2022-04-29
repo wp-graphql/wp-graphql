@@ -25,14 +25,10 @@ class ContentTypeEnum {
 		 * of values for use in the enum type.
 		 */
 		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $allowed_post_type ) {
+			foreach ( $allowed_post_types as $post_type_name ) {
 
-				if ( $allowed_post_type instanceof \WP_Post_Type ) {
-					$allowed_post_type = $allowed_post_type->name;
-				}
-
-				$values[ WPEnumType::get_safe_name( $allowed_post_type ) ] = [
-					'value'       => $allowed_post_type,
+				$values[ WPEnumType::get_safe_name( $post_type_name ) ] = [
+					'value'       => $post_type_name,
 					'description' => __( 'The Type of Content object', 'wp-graphql' ),
 				];
 			}
@@ -49,11 +45,9 @@ class ContentTypeEnum {
 		/**
 		 * Register a ContentTypesOf${taxonomyName}Enum for each taxonomy
 		 */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				/** @var \WP_Taxonomy $taxonomy_object */
-				$taxonomy_object = get_taxonomy( $taxonomy );
+			foreach ( $allowed_taxonomies as $taxonomy_object ) {
 
 				/**
 				 * Loop through the taxonomy's object type and create an array
