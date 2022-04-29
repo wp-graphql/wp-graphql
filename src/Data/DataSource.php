@@ -184,23 +184,22 @@ class DataSource {
 
 		/**
 		 * Get the allowed_taxonomies
+		 *
+		 * @var string[] $allowed_taxonomies
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
-		/**
-		 * If the $post_type is one of the allowed_post_types
-		 */
-		if ( in_array( $taxonomy, $allowed_taxonomies, true ) ) {
-			$tax_object = get_taxonomy( $taxonomy );
-
-			if ( ! $tax_object instanceof \WP_Taxonomy ) {
-				throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
-			}
-
-			return new Taxonomy( $tax_object );
-		} else {
+		if ( ! in_array( $taxonomy, $allowed_taxonomies, true ) ) {
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
+
+		$tax_object = get_taxonomy( $taxonomy );
+
+		if ( ! $tax_object instanceof \WP_Taxonomy ) {
+			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+		}
+
+		return new Taxonomy( $tax_object );
 
 	}
 

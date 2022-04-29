@@ -385,16 +385,13 @@ class NodeResolver {
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 
 			// Target post types with a public URI.
-			$allowed_post_types = get_post_types( [
-				'show_in_graphql' => true,
-			] );
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 			$post_type = 'post';
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			// @phpstan-ignore-next-line
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
 
 			unset( $this->wp->query_vars['uri'] );
