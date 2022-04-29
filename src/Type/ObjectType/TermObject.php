@@ -15,27 +15,27 @@ class TermObject {
 	/**
 	 * Register the Type for each kind of Taxonomy
 	 *
-	 * @param WP_Taxonomy $taxonomy_object The taxonomy being registered
+	 * @param WP_Taxonomy $tax_object The taxonomy being registered
 	 *
 	 * @return void
 	 */
-	public static function register_taxonomy_object_type( WP_Taxonomy $taxonomy_object ) {
+	public static function register_taxonomy_object_type( WP_Taxonomy $tax_object ) {
 
 		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
 
-		if ( true === $taxonomy_object->public ) {
+		if ( true === $tax_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
 		}
 
-		if ( $taxonomy_object->hierarchical ) {
+		if ( $tax_object->hierarchical ) {
 			$interfaces[] = 'HierarchicalTermNode';
 		}
 
-		if ( true === $taxonomy_object->show_in_nav_menus ) {
+		if ( true === $tax_object->show_in_nav_menus ) {
 			$interfaces[] = 'MenuItemLinkable';
 		}
 
-		$single_name = $taxonomy_object->graphql_single_name;
+		$single_name = $tax_object->graphql_single_name;
 		register_graphql_object_type(
 			$single_name,
 			[

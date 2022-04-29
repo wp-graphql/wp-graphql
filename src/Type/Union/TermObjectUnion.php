@@ -43,18 +43,17 @@ class TermObjectUnion {
 	 */
 	public static function get_possible_types() {
 		$possible_types = [];
+		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
-				if ( empty( $possible_types[ $allowed_taxonomy ] ) ) {
-					$tax_object = get_taxonomy( $allowed_taxonomy );
-					if ( isset( $tax_object->graphql_single_name ) ) {
-						$possible_types[ $allowed_taxonomy ] = $tax_object->graphql_single_name;
-					}
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			if ( empty( $possible_types[ $tax_object->name ] ) ) {
+				if ( isset( $tax_object->graphql_single_name ) ) {
+					$possible_types[ $tax_object->name ] = $tax_object->graphql_single_name;
 				}
 			}
 		}
+
 		return $possible_types;
 	}
 }

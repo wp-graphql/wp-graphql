@@ -368,101 +368,82 @@ class TypeRegistry {
 
 		/**
 		 * Register PostObject types based on post_types configured to show_in_graphql
+		 *
+		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $post_type ) {
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
-				$post_type_object = get_post_type_object( $post_type );
+		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-				if ( empty( $post_type_object ) ) {
-					return;
-				}
+		foreach ( $allowed_post_types as $post_type_object ) {
+			PostObject::register_post_object_types( $post_type_object, $type_registry );
 
-				PostObject::register_post_object_types( $post_type_object, $type_registry );
+			/**
+			 * Mutations for attachments are handled differently
+			 * because they require different inputs
+			 */
+			if ( 'attachment' !== $post_type_object->name ) {
 
 				/**
-				 * Mutations for attachments are handled differently
-				 * because they require different inputs
+				 * Revisions are created behind the scenes as a side effect of post updates,
+				 * they aren't created manually.
 				 */
-				if ( 'attachment' !== $post_type_object->name ) {
-
-					/**
-					 * Revisions are created behind the scenes as a side effect of post updates,
-					 * they aren't created manually.
-					 */
-					if ( 'revision' !== $post_type_object->name ) {
-						PostObjectCreate::register_mutation( $post_type_object );
-						PostObjectUpdate::register_mutation( $post_type_object );
-					}
-
-					PostObjectDelete::register_mutation( $post_type_object );
-
+				if ( 'revision' !== $post_type_object->name ) {
+					PostObjectCreate::register_mutation( $post_type_object );
+					PostObjectUpdate::register_mutation( $post_type_object );
 				}
 
-				$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-				if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-					foreach ( $allowed_taxonomies as $taxonomy ) {
+				PostObjectDelete::register_mutation( $post_type_object );
 
-						$tax_object = get_taxonomy( $taxonomy );
+			}
 
-						if ( ! $tax_object instanceof \WP_Taxonomy ) {
-							throw new \GraphQL\Error\InvariantViolation(
-								sprintf(
-								/* translators: %s will replaced with the registered type */
-									__( 'The %s taxonomy cannot be found.', 'wp-graphql' ),
-									$taxonomy
-								)
-							);
-						}
+			foreach ( $allowed_taxonomies as $tax_object ) {
+				// If the taxonomy is in the array of taxonomies registered to the post_type
+				if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
+					register_graphql_input_type(
+						$post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
+						[
+							'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
+							'fields'      => [
+								'id'          => [
+									'type'        => 'Id',
+									'description' => sprintf( __( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ), $tax_object->graphql_single_name, $post_type_object->graphql_single_name ),
+								],
+								'slug'        => [
+									'type'        => 'String',
+									'description' => sprintf( __( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+								],
+								'description' => [
+									'type'        => 'String',
+									'description' => sprintf( __( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+								],
+								'name'        => [
+									'type'        => 'String',
+									'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
+								],
+							],
+						]
+					);
 
-						// If the taxonomy is in the array of taxonomies registered to the post_type
-						if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-							register_graphql_input_type(
-								$post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
-								[
-									'description' => sprintf( __( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ), $tax_object->graphql_plural_name, $post_type_object->graphql_single_name ),
-									'fields'      => [
-										'id'          => [
-											'type'        => 'Id',
-											'description' => sprintf( __( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ), $tax_object->graphql_single_name, $post_type_object->graphql_single_name ),
-										],
-										'slug'        => [
-											'type'        => 'String',
-											'description' => sprintf( __( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
-										],
-										'description' => [
-											'type'        => 'String',
-											'description' => sprintf( __( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ), $tax_object->graphql_single_name ),
-										],
-										'name'        => [
-											'type'        => 'String',
-											'description' => sprintf( __( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ), $tax_object->graphql_single_name ),
-										],
+					register_graphql_input_type(
+						ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
+						[
+							'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
+							'fields'      => [
+								'append' => [
+									'type'        => 'Boolean',
+									'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
+								],
+								'nodes'  => [
+									'type'        => [
+										'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
 									],
-								]
-							);
-
-							register_graphql_input_type(
-								ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
-								[
-									'description' => sprintf( __( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
-									'fields'      => [
-										'append' => [
-											'type'        => 'Boolean',
-											'description' => sprintf( __( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name, $tax_object->graphql_plural_name ),
-										],
-										'nodes'  => [
-											'type'        => [
-												'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
-											],
-											'description' => __( 'The input list of items to set.', 'wp-graphql' ),
-										],
-									],
-								]
-							);
-						}
-					}
+									'description' => __( 'The input list of items to set.', 'wp-graphql' ),
+								],
+							],
+						]
+					);
 				}
 			}
 		}
@@ -470,17 +451,11 @@ class TypeRegistry {
 		/**
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				$taxonomy_object = get_taxonomy( $taxonomy );
-				if ( $taxonomy_object instanceof \WP_Taxonomy ) {
-					TermObject::register_taxonomy_object_type( $taxonomy_object );
-					TermObjectCreate::register_mutation( $taxonomy_object );
-					TermObjectUpdate::register_mutation( $taxonomy_object );
-					TermObjectDelete::register_mutation( $taxonomy_object );
-				}
-			}
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			TermObject::register_taxonomy_object_type( $tax_object );
+			TermObjectCreate::register_mutation( $tax_object );
+			TermObjectUpdate::register_mutation( $tax_object );
+			TermObjectDelete::register_mutation( $tax_object );
 		}
 
 		/**
