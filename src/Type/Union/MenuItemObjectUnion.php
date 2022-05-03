@@ -41,10 +41,10 @@ class MenuItemObjectUnion {
 
 					// Taxonomy term
 					if ( $object instanceof Term && ! empty( $object->taxonomyName ) ) {
-						/** @var \WP_Taxonomy $taxonomy_object */
-						$taxonomy_object = get_taxonomy( $object->taxonomyName );
+						/** @var \WP_Taxonomy $tax_object */
+						$tax_object = get_taxonomy( $object->taxonomyName );
 
-						return $type_registry->get_type( $taxonomy_object->graphql_single_name );
+						return $type_registry->get_type( $tax_object->graphql_single_name );
 					}
 
 					return $object;
@@ -70,17 +70,19 @@ class MenuItemObjectUnion {
 
 		$possible_types = [];
 
-		// Add post types that are allowed in WPGraphQL.
-		foreach ( \WPGraphQL::get_allowed_post_types( $args ) as $type ) {
-			$post_type_object = get_post_type_object( $type );
+		/**
+		 * Add post types that are allowed in WPGraphQL.
+		 *
+		 * @var \WP_Post_Type $post_type_object
+		 */
+		foreach ( \WPGraphQL::get_allowed_post_types( 'objects', $args ) as $post_type_object ) {
 			if ( isset( $post_type_object->graphql_single_name ) ) {
 				$possible_types[] = $post_type_object->graphql_single_name;
 			}
 		}
 
 		// Add taxonomies that are allowed in WPGraphQL.
-		foreach ( get_taxonomies( $args ) as $type ) {
-			$tax_object = get_taxonomy( $type );
+		foreach ( \WPGraphQL::get_allowed_taxonomies( 'objects', $args ) as $tax_object ) {
 			if ( isset( $tax_object->graphql_single_name ) ) {
 				$possible_types[] = $tax_object->graphql_single_name;
 			}
@@ -89,4 +91,3 @@ class MenuItemObjectUnion {
 		return $possible_types;
 	}
 }
-

@@ -53,7 +53,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		if ( 'revision' === $post_type || 'attachment' === $post_type ) {
 			$this->post_type = $post_type;
 		} elseif ( 'any' === $post_type ) {
-			$post_types      = get_post_types( [ 'show_in_graphql' => true ] );
+			$post_types      = \WPGraphQL::get_allowed_post_types();
 			$this->post_type = ! empty( $post_types ) ? array_values( $post_types ) : [];
 		} else {
 			$post_type = is_array( $post_type ) ? $post_type : [ $post_type ];

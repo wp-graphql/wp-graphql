@@ -54,7 +54,7 @@ hooks.addFilter(
   "graphiql_toolbar_after_buttons",
   "graphiql-extension",
   (res, props) => {
-    res.push(<FullScreenToggleButton />);
+    res.push(<FullScreenToggleButton key="fullscreen-toggle" />);
     return res;
   }
 );

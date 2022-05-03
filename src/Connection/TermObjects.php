@@ -25,9 +25,6 @@ class TermObjects {
 	 */
 	public static function register_connections() {
 
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
 		register_graphql_connection(
 			[
 				'fromType'       => 'RootQuery',
@@ -52,179 +49,162 @@ class TermObjects {
 			]
 		);
 
+		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
+
+		/** @var \WP_Post_Type[] $allowed_post_types*/
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+
 		/**
 		 * Loop through the allowed_taxonomies to register appropriate connections
 		 */
-		if ( ! empty( $allowed_taxonomies && is_array( $allowed_taxonomies ) ) ) {
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				$tax_object = get_taxonomy( $taxonomy );
+		foreach ( $allowed_taxonomies as $tax_object ) {
 
-				if ( $tax_object instanceof \WP_Taxonomy ) {
+			$root_query_from_field_name = $tax_object->graphql_plural_name;
 
-					$root_query_from_field_name = $tax_object->graphql_plural_name;
+			// Prevent field name conflicts with the singular TermObject type.
+			if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
+				$root_query_from_field_name = 'all' . ucfirst( $tax_object->graphql_single_name );
+			}
 
-					// Prevent field name conflicts with the singular TermObject type.
-					if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {
-						$root_query_from_field_name = 'all' . ucfirst( $tax_object->graphql_single_name );
-					}
+			/**
+			 * Registers the RootQuery connection for each allowed taxonomy's TermObjects
+			 */
+			register_graphql_connection(
+				self::get_connection_config(
+					$tax_object,
+					[
+						'fromFieldName' => $root_query_from_field_name,
+					]
+				)
+			);
 
-					/**
-					 * Registers the RootQuery connection for each allowed taxonomy's TermObjects
-					 */
+			/**
+			 * Registers the connections between each allowed PostObjectType and it's TermObjects
+			 */
+			foreach ( $allowed_post_types as $post_type_object ) {
+				if ( in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
 					register_graphql_connection(
 						self::get_connection_config(
 							$tax_object,
 							[
-								'fromFieldName' => $root_query_from_field_name,
+								'fromType'      => $post_type_object->graphql_single_name,
+								'toType'        => $tax_object->graphql_single_name,
+								'fromFieldName' => $tax_object->graphql_plural_name,
+								'resolve'       => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+
+									$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
+
+									if ( empty( $object_id ) || ! absint( $object_id ) ) {
+										return null;
+									}
+
+									$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
+									$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+
+									return $resolver->get_connection();
+								},
 							]
 						)
 					);
+				}
+			}
 
-					/**
-					 * Registers the connections between each allowed PostObjectType and it's TermObjects
-					 */
-					if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-						foreach ( $allowed_post_types as $post_type ) {
-							if ( in_array( $post_type, $tax_object->object_type, true ) ) {
-								/** @var \WP_Post_Type $post_type_object */
-								$post_type_object = get_post_type_object( $post_type );
-								register_graphql_connection(
-									self::get_connection_config(
-										$tax_object,
-										[
-											'fromType' => $post_type_object->graphql_single_name,
-											'toType'   => $tax_object->graphql_single_name,
-											'fromFieldName' => $tax_object->graphql_plural_name,
-											'resolve'  => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
-
-												$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
-
-												if ( empty( $object_id ) || ! absint( $object_id ) ) {
-													return null;
-												}
-
-												$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
-												$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
-
-												return $resolver->get_connection();
-
-											},
-										]
-									)
-								);
-
-							}
-						}
-					}
-
-					if ( true === $tax_object->hierarchical ) {
-						register_graphql_connection(
-							self::get_connection_config(
-								$tax_object,
-								[
-									'fromType'      => $tax_object->graphql_single_name,
-									'fromFieldName' => 'children',
-									'resolve'       => function ( Term $term, $args, AppContext $context, $info ) {
-										$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
-										$resolver->set_query_arg( 'parent', $term->term_id );
-
-										return $resolver->get_connection();
-
-									},
-								]
-							)
-						);
-
-						register_graphql_connection( [
-							'fromType'           => $tax_object->graphql_single_name,
-							'toType'             => $tax_object->graphql_single_name,
-							'fromFieldName'      => 'parent',
-							'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
-							'oneToOne'           => true,
-							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
-
-								if ( ! isset( $term->parentDatabaseId ) || empty( $term->parentDatabaseId ) ) {
-									return null;
-								}
-
-								$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
-								$resolver->set_query_arg( 'include', $term->parentDatabaseId );
-
-								return $resolver->one_to_one()->get_connection();
-
-							},
-						] );
-
-						register_graphql_connection( [
-							'fromType'           => $tax_object->graphql_single_name,
-							'toType'             => $tax_object->graphql_single_name,
-							'fromFieldName'      => 'ancestors',
-							'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
-							'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
-							'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
-
-								if ( ! $tax_object instanceof \WP_Taxonomy ) {
-									return null;
-								}
-
-								$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
-
-								if ( empty( $ancestor_ids ) ) {
-									return null;
-								}
-
-								$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
-								$resolver->set_query_arg( 'include', $ancestor_ids );
+			if ( true === $tax_object->hierarchical ) {
+				register_graphql_connection(
+					self::get_connection_config(
+						$tax_object,
+						[
+							'fromType'      => $tax_object->graphql_single_name,
+							'fromFieldName' => 'children',
+							'resolve'       => function ( Term $term, $args, AppContext $context, $info ) {
+								$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
+								$resolver->set_query_arg( 'parent', $term->term_id );
 
 								return $resolver->get_connection();
 
 							},
-						] );
-					}
-				}
-			}
-		}
-
-		// Register a connection from each post type that
-		if ( ! empty( $allowed_post_types ) && is_array( $allowed_post_types ) ) {
-			foreach ( $allowed_post_types as $allowed_post_type ) {
-
-				/** @var \WP_Post_Type $post_type_object */
-				$post_type_object = get_post_type_object( $allowed_post_type );
-
-				if ( empty( get_object_taxonomies( $allowed_post_type ) ) ) {
-					continue;
-				}
+						]
+					)
+				);
 
 				register_graphql_connection( [
-					'fromType'       => $post_type_object->graphql_single_name,
-					'toType'         => 'TermNode',
-					'fromFieldName'  => 'terms',
-					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => self::get_connection_args(
-						[
-							'taxonomies' => [
-								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
-								'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
-							],
-						]
-					),
-					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
-						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
-						if ( empty( $terms ) || is_wp_error( $terms ) ) {
+					'fromType'           => $tax_object->graphql_single_name,
+					'toType'             => $tax_object->graphql_single_name,
+					'fromFieldName'      => 'parent',
+					'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
+					'oneToOne'           => true,
+					'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+						if ( ! isset( $term->parentDatabaseId ) || empty( $term->parentDatabaseId ) ) {
 							return null;
 						}
-						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-						$resolver->set_query_arg( 'include', $terms );
+
+						$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
+						$resolver->set_query_arg( 'include', $term->parentDatabaseId );
+
+						return $resolver->one_to_one()->get_connection();
+					},
+				] );
+
+				register_graphql_connection( [
+					'fromType'           => $tax_object->graphql_single_name,
+					'toType'             => $tax_object->graphql_single_name,
+					'fromFieldName'      => 'ancestors',
+					'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+					'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
+					'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+						if ( ! $tax_object instanceof \WP_Taxonomy ) {
+							return null;
+						}
+
+						$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
+
+						if ( empty( $ancestor_ids ) ) {
+							return null;
+						}
+
+						$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
+						$resolver->set_query_arg( 'include', $ancestor_ids );
 
 						return $resolver->get_connection();
-
 					},
 				] );
 			}
 		}
 
+		// Register a connection from each post type that
+		foreach ( $allowed_post_types as $post_type_object ) {
+
+			if ( empty( get_object_taxonomies( $post_type_object->name ) ) ) {
+				continue;
+			}
+
+			register_graphql_connection( [
+				'fromType'       => $post_type_object->graphql_single_name,
+				'toType'         => 'TermNode',
+				'fromFieldName'  => 'terms',
+				'queryClass'     => 'WP_Term_Query',
+				'connectionArgs' => self::get_connection_args(
+					[
+						'taxonomies' => [
+							'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+							'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+						],
+					]
+				),
+				'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					$taxonomies = \WPGraphQL::get_allowed_taxonomies();
+					$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+					if ( empty( $terms ) || is_wp_error( $terms ) ) {
+						return null;
+					}
+					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+					$resolver->set_query_arg( 'include', $terms );
+
+					return $resolver->get_connection();
+				},
+			] );
+		}
 	}
 
 	/**

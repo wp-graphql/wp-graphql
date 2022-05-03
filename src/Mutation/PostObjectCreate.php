@@ -139,20 +139,16 @@ class PostObjectCreate {
 			];
 		}
 
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			/** @var string $taxonomy */
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				// If the taxonomy is in the array of taxonomies registered to the post_type
-				if ( in_array( $taxonomy, get_object_taxonomies( $post_type_object->name ), true ) ) {
-					/** @var \WP_Taxonomy $tax_object */
-					$tax_object = get_taxonomy( $taxonomy );
+		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-					$fields[ $tax_object->graphql_plural_name ] = [
-						'description' => sprintf( __( 'Set connections between the %1$s and %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
-						'type'        => ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
-					];
-				}
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			// If the taxonomy is in the array of taxonomies registered to the post_type
+			if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
+				$fields[ $tax_object->graphql_plural_name ] = [
+					'description' => sprintf( __( 'Set connections between the %1$s and %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
+					'type'        => ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
+				];
 			}
 		}
 
