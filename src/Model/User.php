@@ -158,7 +158,7 @@ class User extends Model {
 		if ( true === $this->owner_matches_current_user() ) {
 			return false;
 		}
-
+		// @phpstan-ignore-next-line
 		return $this->data->is_private ?? true;
 	}
 
