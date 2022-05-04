@@ -44,14 +44,14 @@ class Request {
 	/**
 	 * Cached global post.
 	 *
-	 * @var WP_Post
+	 * @var ?WP_Post
 	 */
 	public $global_post;
 
 	/**
 	 * Cached global wp_the_query.
 	 *
-	 * @var WP_Query
+	 * @var ?WP_Query
 	 */
 	private $global_wp_the_query;
 
@@ -478,9 +478,9 @@ class Request {
 		$variables = null;
 
 		if ( $this->params instanceof OperationParams ) {
-			$operation = $this->params->operation ?? '';
-			$query     = $this->params->query ?? '';
-			$variables = $this->params->variables ?? null;
+			$operation = $this->params->operation;
+			$query     = $this->params->query;
+			$variables = $this->params->variables;
 		} elseif ( is_array( $this->params ) ) {
 
 			$operation = $this->params[ $key ]->operation ?? '';
