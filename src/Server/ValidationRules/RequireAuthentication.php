@@ -28,7 +28,7 @@ class RequireAuthentication extends QuerySecurityRule {
 		 * Allows overriding the default graphql_restrict_endpoint behavior. Returning anything other
 		 * than null will skip the default restrict checks.
 		 *
-		 * @param null            $restrict_endpoint null
+		 * @param bool|null $restrict_endpoint Whether to restrict the endpoint. Defaults to null
 		*/
 		$restrict_endpoint = apply_filters( 'graphql_pre_restrict_endpoint', $restrict_endpoint );
 
