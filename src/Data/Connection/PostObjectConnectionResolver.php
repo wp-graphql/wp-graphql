@@ -81,7 +81,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Returns the query being executed
 	 *
-	 * @return \WP_Query
+	 * @return \WP_Query|object
 	 *
 	 * @throws Exception
 	 */
