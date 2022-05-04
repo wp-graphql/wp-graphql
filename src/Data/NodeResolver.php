@@ -26,18 +26,6 @@ class NodeResolver {
 	protected $context;
 
 	/**
-	 * @var string[]
-	 */
-	private $allowed_post_types;
-
-	/**
-	 * Undocumented variable
-	 *
-	 * @var WP_Taxonomy[]
-	 */
-	private $allowed_taxonomy_objects;
-
-	/**
 	 * NodeResolver constructor.
 	 *
 	 * @param AppContext $context
@@ -46,39 +34,8 @@ class NodeResolver {
 	 */
 	public function __construct( AppContext $context ) {
 		global $wp;
-
-		$this->context = $context;
 		$this->wp      = $wp;
-	}
-
-	/**
-	 * Gets the post types visibile in GraphQL
-	 *
-	 * @return array
-	 */
-	public function get_allowed_post_types() {
-		if ( empty( $this->allowed_post_types ) ) {
-			// Initialize the post types.
-			// @phpstan-ignore-next-line
-			$this->allowed_post_types = get_post_types( [
-				'show_in_graphql' => true,
-			] );
-		}
-
-		return $this->allowed_post_types;
-	}
-
-	/**
-	 * Gets the taxonomy objects visible in GraphQL
-	 *
-	 * @return WP_Taxonomy[]
-	 */
-	public function get_allowed_taxonomy_objects() {
-		if ( empty( $this->allowed_taxonomy_objects ) ) {
-			$this->allowed_taxonomy_objects = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
-		}
-
-		return $this->allowed_taxonomy_objects;
+		$this->context = $context;
 	}
 
 	/**
@@ -155,7 +112,7 @@ class NodeResolver {
 			unset( $this->wp->query_vars['uri'] );
 
 			// Target post types with a public URI.
-			$allowed_post_types = $this->get_allowed_post_types();
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 			$post_type = 'post';
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
@@ -171,7 +128,7 @@ class NodeResolver {
 			unset( $this->wp->query_vars['uri'] );
 
 			// Search all post types if none is set.
-			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : $this->get_allowed_post_types();
+			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : \WPGraphQL::get_allowed_post_types();
 
 			return $this->resolve_post_by_slug( $this->wp->query_vars['pagename'], $post_type );
 
@@ -401,10 +358,19 @@ class NodeResolver {
 
 		/**
 		 * Filters the query variables whitelist before processing.
+		 *
+		 * Allows (publicly allowed) query vars to be added, removed, or changed prior
+		 * to executing the query. Needed to allow custom rewrite rules using your own arguments
+		 * to work, or any other custom query variables you want to be publicly available.
+		 *
+		 * @param string[] $public_query_vars The array of whitelisted query variable names.
+		 *
+		 * @since 1.5.0
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
 
-		/** @var WP_Post_Type[] */
+		/** @var WP_Post_Type[] $post_type_objects */
+		// @todo will query_vars mismatch if sourced from get_allowed_taxonomies()?
 		$post_type_objects = get_post_types( [ 'show_in_graphql' => true ], 'objects' );
 
 		foreach ( $post_type_objects as $post_type_object ) {
@@ -450,7 +416,8 @@ class NodeResolver {
 		}
 
 		// Convert urldecoded spaces back into +
-		foreach ( $this->get_allowed_taxonomy_objects() as $taxonomy => $t ) {
+		// @todo will query_vars mismatch if sourced from get_allowed_taxonomies()?
+		foreach ( get_taxonomies( [], 'objects' ) as $taxonomy => $t ) {
 			if ( $t->query_var && isset( $this->wp->query_vars[ $t->query_var ] ) ) {
 				$this->wp->query_vars[ $t->query_var ] = str_replace( ' ', '+', $this->wp->query_vars[ $t->query_var ] );
 			}
@@ -484,6 +451,10 @@ class NodeResolver {
 
 		/**
 		 * Filters the array of parsed query variables.
+		 *
+		 * @param array $query_vars The array of requested query variables.
+		 *
+		 * @since 2.1.0
 		 */
 		$this->wp->query_vars = apply_filters( 'request', $this->wp->query_vars );
 
@@ -610,13 +581,15 @@ class NodeResolver {
 	 * @return mixed|false
 	 */
 	public function resolve_taxonomy_term() {
-		$taxonomies = $this->get_allowed_taxonomy_objects();
-		foreach ( $taxonomies as $taxonomy ) {
-			if ( ! isset( $this->wp->query_vars[ $taxonomy->query_var ] ) ) {
+		// @todo will query_vars mismatch if sourced from get_allowed_taxonomies()?
+		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+
+		foreach ( $taxonomies as $tax_object ) {
+			if ( ! isset( $this->wp->query_vars[ $tax_object->query_var ] ) ) {
 				continue;
 			}
 
-			return $this->resolve_term_by_slug( $this->wp->query_vars[ $taxonomy->query_var ], $taxonomy->name );
+			return $this->resolve_term_by_slug( $this->wp->query_vars[ $tax_object->query_var ], $tax_object->name );
 		}
 
 		return false;
