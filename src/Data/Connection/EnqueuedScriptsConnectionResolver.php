@@ -130,7 +130,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Determine if the model is valid
 	 *
-	 * @param array $model
+	 * @param ?\_WP_Dependency $model
 	 *
 	 * @return bool
 	 */
