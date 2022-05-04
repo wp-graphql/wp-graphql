@@ -321,7 +321,7 @@ class Tracing {
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( isset( $user->roles ) && in_array( $this->tracing_user_role, (array) $user->roles, true ) ) {
+				if ( in_array( $this->tracing_user_role, $user->roles, true ) ) {
 					$can_see = true;
 				}
 			}

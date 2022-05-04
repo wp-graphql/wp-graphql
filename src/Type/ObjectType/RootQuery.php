@@ -589,7 +589,7 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function ( $source, array $args, AppContext $context ) {
-							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+							return ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
 						},
 					],
 				],
@@ -831,7 +831,7 @@ class RootQuery {
 								if ( 'database_id' === $idType ) {
 									$idType = 'id';
 								}
-								$term    = isset( $tax_object->name ) ? get_term_by( $idType, $args['id'], $tax_object->name ) : null;
+								$term    = get_term_by( $idType, $args['id'], $tax_object->name );
 								$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 								break;
 							case 'uri':

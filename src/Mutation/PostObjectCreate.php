@@ -297,13 +297,6 @@ class PostObjectCreate {
 			}
 
 			/**
-			 * If the $post_id is empty, we should throw an exception
-			 */
-			if ( empty( $post_id ) ) {
-				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
-			}
-
-			/**
 			 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)
 			 *
 			 * The input for the postObjectMutation will be passed, along with the $new_post_id for the

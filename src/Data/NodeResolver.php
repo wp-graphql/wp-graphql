@@ -139,7 +139,7 @@ class NodeResolver {
 			$error                   = null;
 			$this->wp->did_permalink = true;
 
-			$pathinfo         = isset( $uri ) ? $uri : '';
+			$pathinfo         = ! empty( $uri ) ? $uri : '';
 			list( $pathinfo ) = explode( '?', $pathinfo );
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
@@ -230,7 +230,7 @@ class NodeResolver {
 				}
 			}
 
-			if ( isset( $this->wp->matched_rule ) ) {
+			if ( ! empty( $this->wp->matched_rule ) ) {
 
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );

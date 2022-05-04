@@ -31,7 +31,7 @@ class EnqueuedStylesheet {
 				],
 				'src' => [
 					'resolve' => function ( \_WP_Dependency $stylesheet ) {
-						return isset( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
+						return ! empty( $stylesheet->src ) ? $stylesheet->src : null;
 					},
 				],
 			],

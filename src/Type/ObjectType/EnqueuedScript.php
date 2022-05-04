@@ -31,7 +31,7 @@ class EnqueuedScript {
 				],
 				'src' => [
 					'resolve' => function ( \_WP_Dependency $script ) {
-						return isset( $script->src ) && is_string( $script->src ) ? $script->src : null;
+						return ! empty( $script->src ) ? $script->src : null;
 					},
 				],
 			],
