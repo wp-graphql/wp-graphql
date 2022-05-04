@@ -159,7 +159,6 @@ class User extends Model {
 			return false;
 		}
 
-		// @phpstan-ignore-next-line
 		return $this->data->is_private ?? true;
 	}
 
