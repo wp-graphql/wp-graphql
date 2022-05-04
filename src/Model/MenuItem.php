@@ -33,7 +33,7 @@ class MenuItem extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var mixed|WP_Post|object $data
+	 * @var mixed|object $data
 	 */
 	protected $data;
 

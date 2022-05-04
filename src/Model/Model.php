@@ -22,7 +22,7 @@ abstract class Model {
 	/**
 	 * Stores the raw data passed to the child class when it's instantiated before it's transformed
 	 *
-	 * @var array $data
+	 * @var array|object|mixed $data
 	 */
 	protected $data;
 
@@ -202,7 +202,7 @@ abstract class Model {
 	/**
 	 * Return the visibility state for the current piece of data
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_visibility() {
 
