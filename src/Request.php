@@ -194,7 +194,7 @@ class Request {
 		 * Return the validation rules to use in the request
 		 *
 		 * @param array   $validation_rules The validation rules to use in the request
-		 * @param Request $this             The Request instance
+		 * @param Request $request          The Request instance
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
 
@@ -216,7 +216,7 @@ class Request {
 		 * Return the filtered root value
 		 *
 		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
-		 * @param Request $this       The Request instance
+		 * @param Request $request    The Request instance
 		 */
 		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
@@ -385,7 +385,7 @@ class Request {
 		 * GraphQL request will be prevented and an error will be thrown.
 		 *
 		 * @param boolean $authentication_errors Whether there are authentication errors with the request
-		 * @param Request $this                  Instance of the Request
+		 * @param Request $request               Instance of the Request
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
 	}
@@ -449,7 +449,7 @@ class Request {
 		 * Run an action after GraphQL Execution
 		 *
 		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
-		 * @param Request $this              Instance of the Request being executed
+		 * @param Request $request           Instance of the Request being executed
 		 */
 		do_action( 'graphql_after_execute', $filtered_response, $this );
 
@@ -496,7 +496,7 @@ class Request {
 		 * @param string      $operation The name of the operation
 		 * @param string      $query     The query that GraphQL executed
 		 * @param array|null  $variables Variables to passed to your GraphQL query
-		 * @param Request     $this      Instance of the Request
+		 * @param Request     $request   Instance of the Request
 		 *
 		 * @since 0.0.4
 		 */
@@ -548,7 +548,7 @@ class Request {
 		 * @param string     $operation         The name of the operation
 		 * @param string     $query             The query that GraphQL executed
 		 * @param array|null $variables         Variables to passed to your GraphQL query
-		 * @param Request    $this              Instance of the Request
+		 * @param Request    $request           Instance of the Request
 		 */
 		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this );
 
@@ -574,7 +574,7 @@ class Request {
 		 *
 		 * @param string          $query     The GraphQL query
 		 * @param string          $operation The name of the operation
-		 * @param array           $variables Variables to be passed to your GraphQL request
+		 * @param ?array          $variables Variables to be passed to your GraphQL request
 		 * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
 		 */
 		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
@@ -725,8 +725,8 @@ class Request {
 		/**
 		 * Filter whether batch queries are supported or not
 		 *
-		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
-		 * @param OperationParams $params Request operation params
+		 * @param boolean         $batch_queries_enabled Whether Batch Queries should be enabled
+		 * @param OperationParams $params                Request operation params
 		 */
 		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
 

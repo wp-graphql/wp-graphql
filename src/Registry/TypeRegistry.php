@@ -226,7 +226,7 @@ class TypeRegistry {
 		/**
 		 * Fire an action as the Type registry is being initiated
 		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'init_graphql_type_registry', $this );
 
@@ -246,7 +246,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
 
@@ -507,7 +507,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types', $type_registry );
 
@@ -515,7 +515,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $this Instance of the TypeRegistry
+		 * @param TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 

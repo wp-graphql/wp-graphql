@@ -143,14 +143,15 @@ class PostObjectMutation {
 		/**
 		 * Sets the post lock
 		 *
+		 * @param bool         $is_locked            Whether the post is locked
 		 * @param int          $post_id              The ID of the postObject being mutated
 		 * @param array        $input                The input for the mutation
 		 * @param WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
 		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
 		 * @param AppContext   $context              The AppContext passed down to all resolvers
 		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
-		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param ?string      $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param ?string      $default_post_status  The default status posts should use if an intended status wasn't set
 		 *
 		 * @return bool
 		 */
@@ -194,22 +195,23 @@ class PostObjectMutation {
 		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
 		 * @param AppContext   $context              The AppContext passed down to all resolvers
 		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
-		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param ?string      $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param ?string      $default_post_status  The default status posts should use if an intended status wasn't set
 		 */
 		do_action( 'graphql_post_object_mutation_update_additional_data', $post_id, $input, $post_type_object, $mutation_name, $context, $info, $default_post_status, $intended_post_status );
 
 		/**
 		 * Sets the post lock
 		 *
+		 * @param bool         $is_locked            Whether the post is locked.
 		 * @param int          $post_id              The ID of the postObject being mutated
 		 * @param array        $input                The input for the mutation
 		 * @param WP_Post_Type $post_type_object     The Post Type Object for the type of post being mutated
 		 * @param string       $mutation_name        The name of the mutation (ex: create, update, delete)
 		 * @param AppContext   $context              The AppContext passed down to all resolvers
 		 * @param ResolveInfo  $info                 The ResolveInfo passed down to all resolvers
-		 * @param string       $intended_post_status The intended post_status the post should have according to the mutation input
-		 * @param string       $default_post_status  The default status posts should use if an intended status wasn't set
+		 * @param ?string      $intended_post_status The intended post_status the post should have according to the mutation input
+		 * @param ?string      $default_post_status  The default status posts should use if an intended status wasn't set
 		 *
 		 * @return bool
 		 */
