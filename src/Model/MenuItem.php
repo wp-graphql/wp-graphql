@@ -146,6 +146,7 @@ class MenuItem extends Model {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
 				'uri'              => function () {
+
 					$url = $this->url;
 
 					if ( empty( $url ) ) {
@@ -161,6 +162,7 @@ class MenuItem extends Model {
 					}
 
 					return $url;
+
 				},
 				'url'              => function () {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
