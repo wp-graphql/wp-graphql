@@ -114,6 +114,10 @@ class MenuItem {
 						'type'        => 'String',
 						'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
 					],
+					'uri'              => [
+						'type'        => 'String',
+						'description' => __( 'The relative path to the current site.', 'wp-graphql' ),
+					],
 					'url'              => [
 						'type'        => 'String',
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),

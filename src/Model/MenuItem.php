@@ -145,11 +145,7 @@ class MenuItem extends Model {
 				'title'            => function () {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
-				'url'              => function () {
-					return ! empty( $this->data->url ) ? $this->data->url : null;
-				},
-				'path'             => function () {
-
+				'uri'              => function () {
 					$url = $this->url;
 
 					if ( empty( $url ) ) {
@@ -158,15 +154,7 @@ class MenuItem extends Model {
 
 					$parsed = wp_parse_url( $url );
 
-					if ( ! isset( $parsed['host'] ) ) {
-						return $url;
-					}
-
-					if ( ! isset( $parsed['path'] ) ) {
-						return;
-					}
-
-					if ( is_multisite() ) {
+					if ( is_multisite() && isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
 						$site                = get_site();
 						$subdirectory        = untrailingslashit( $site->path );
 						$path_from_site_root = str_replace( $subdirectory, '', $parsed['path'] );
@@ -174,7 +162,27 @@ class MenuItem extends Model {
 						return $path_from_site_root;
 					}
 
-					return $parsed['path'];
+					return $url;
+				},
+				'url'              => function () {
+					return ! empty( $this->data->url ) ? $this->data->url : null;
+				},
+				'path'             => function () {
+
+					$url = $this->url;
+
+					if ( ! empty( $url ) ) {
+						$parsed = wp_parse_url( $url );
+						if ( isset( $parsed['host'] ) ) {
+							if ( strpos( home_url(), $parsed['host'] ) ) {
+								return $parsed['path'];
+							} elseif ( strpos( home_url(), $parsed['host'] ) ) {
+								return $parsed['path'];
+							}
+						}
+					}
+
+					return $url;
 
 				},
 				'order'            => function () {
