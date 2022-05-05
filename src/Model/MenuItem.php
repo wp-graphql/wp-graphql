@@ -155,11 +155,9 @@ class MenuItem extends Model {
 					$parsed = wp_parse_url( $url );
 
 					if ( is_multisite() && isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
-						$site                = get_site();
-						$subdirectory        = untrailingslashit( $site->path );
-						$path_from_site_root = str_replace( $subdirectory, '', $parsed['path'] );
-
-						return $path_from_site_root;
+						$site         = get_site();
+						$subdirectory = untrailingslashit( $site->path );
+						$url          = str_replace( $subdirectory, '', $parsed['path'] );
 					}
 
 					return $url;
