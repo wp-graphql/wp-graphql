@@ -38,89 +38,148 @@ class MenuItemQueriesTest extends  \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
-	public function testMenuItemQuery() {
-		$post_id = $this->factory()->post->create();
+	public function testMenuItemQueryWithPostObject() {
+		$post_id   = $this->factory()->post->create();
+		$permalink = get_permalink( $post_id );
 
-		$menu_item_id = wp_update_nav_menu_item(
-			$this->menu_id,
-			0,
-			[
-				'menu-item-title'     => 'Menu item',
-				'menu-item-object'    => 'post',
-				'menu-item-object-id' => $post_id,
-				'menu-item-status'    => 'publish',
-				'menu-item-type'      => 'post_type',
-			]
-		);
+		$menu_args = [
+			'menu-item-attr-title'  => 'Menu item',
+			'menu-item-classes'     => 'my-class my-other-class',
+			'menu-item-description' => 'Some description',
+			'menu-item-object-id'   => $post_id,
+			'menu-item-object'      => 'post',
+			'menu-item-position'    => 1,
+			'menu-item-status'      => 'publish',
+			'menu-item-title'       => 'Menu item',
+			'menu-item-type'        => 'post_type',
+			'menu-item-target'      => '_blank',
+		];
 
-		codecept_debug( get_theme_mod( 'nav_menu_locations' ) );
+		$menu_item_id = wp_update_nav_menu_item( $this->menu_id, 0, $menu_args );
 
 		$menu_item_relay_id = Relay::toGlobalId( 'post', $menu_item_id );
 
-		$query = '
-		{
-			menuItem( id: "' . $menu_item_relay_id . '" ) {
-				id
-				databaseId
-				connectedObject {
-					... on Post {
-						id
-						postId
-					}
-				}
-				locations
-				menu {
-				  node {
-				    slug
-				    locations
-				  }
-				}
-			}
-		}
-		';
+		codecept_debug( get_theme_mod( 'nav_menu_locations' ) );
 
-		$actual = $this->graphql( compact( 'query' ) );
+		// test with database ID.
+		$query = $this->get_query();
+
+		$variables = [
+			'id'     => $menu_item_id,
+			'idType' => 'DATABASE_ID',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( explode( ' ', $menu_args['menu-item-classes'] ), $actual['data']['menuItem']['cssClasses'] );
+		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedNode']['node']['databaseId'] );
+		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['databaseId'] );
+		$this->assertEquals( $menu_args['menu-item-description'], $actual['data']['menuItem']['description'] );
+		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
+		$this->assertEquals( $menu_args['menu-item-title'], $actual['data']['menuItem']['label'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['locations'] );
+		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
+		$this->assertEquals( $this->menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
+		$this->assertEquals( $menu_args['menu-item-position'], $actual['data']['menuItem']['order'] );
+		$this->assertEquals( $menu_args['menu-item-target'], $actual['data']['menuItem']['target'] );
+		$this->assertEquals( $menu_args['menu-item-attr-title'], $actual['data']['menuItem']['title'] );
+		$this->assertEquals( str_ireplace( home_url(), '', $permalink ), $actual['data']['menuItem']['uri'] );
+		$this->assertEquals( $permalink, $actual['data']['menuItem']['url'] );
+
+		// Test with relay Id.
+		$variables = [
+			'id'     => $menu_item_relay_id,
+			'idType' => 'ID',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['databaseId'] );
 		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
-		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedObject']['postId'] );
-		$this->assertEquals( $this->menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
-		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['locations'] );
-		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
+	}
 
-		$old_id = Relay::toGlobalId( 'nav_menu_itemci', $menu_item_id );
+	public function testCustomMenuItemWithChildren() {
+		$parent_args = [
+			'menu-item-title'     => 'Parent Item',
+			'menu-item-parent-id' => 0,
+			'menu-item-url'       => 'http://example.com/',
+			'menu-item-status'    => 'publish',
+			'menu-item-type'      => 'custom',
+		];
 
-		$query = '
-		{
-			menuItem( id: "' . $old_id . '" ) {
-				id
-				databaseId
-				connectedObject {
-					... on Post {
-						id
-						postId
+		$parent_database_id = wp_update_nav_menu_item( $this->menu_id, 0, $parent_args );
+
+		$child_args = [
+			'menu-item-title'     => 'Child Item',
+			'menu-item-parent-id' => $parent_database_id,
+			'menu-item-url'       => 'http://example.com/child',
+			'menu-item-status'    => 'publish',
+			'menu-item-type'      => 'custom',
+		];
+
+		$child_database_id = wp_update_nav_menu_item( $this->menu_id, 0, $child_args );
+
+		$query = $this->get_query();
+
+		$variables = [
+			'id'     => $parent_database_id,
+			'idType' => 'DATABASE_ID',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( $parent_database_id, $actual['data']['menuItem']['databaseId'] );
+
+		// When external, these are all the same.
+		$this->assertEquals( $parent_args['menu-item-url'], $actual['data']['menuItem']['path'] );
+		$this->assertEquals( $parent_args['menu-item-url'], $actual['data']['menuItem']['uri'] );
+		$this->assertEquals( $parent_args['menu-item-url'], $actual['data']['menuItem']['url'] );
+
+		$this->assertEquals( $parent_database_id, $actual['data']['menuItem']['childItems']['nodes'][0]['parentDatabaseId'] );
+		$this->assertEquals( $child_database_id, $actual['data']['menuItem']['childItems']['nodes'][0]['databaseId'] );
+	}
+
+	public function get_query() {
+		return '
+			query menuItem( $id: ID!, $idType: MenuItemNodeIdTypeEnum) {
+				menuItem( id: $id, idType: $idType ) {
+					childItems {
+						nodes {
+							databaseId
+							parentDatabaseId
+						}
 					}
-				}
-				locations
-				menu {
-					node {
-						slug
-						locations
+					connectedNode {
+						node {
+							... on Post {
+								id
+								databaseId
+							}
+						}
 					}
+					cssClasses
+					databaseId
+					description
+					id
+					label
+					linkRelationship
+					locations
+					menu {
+						node {
+							locations
+							slug
+						}
+					}
+					order
+					parentDatabaseId
+					parentId
+					path
+					target
+					title
+					uri
+					url
 				}
 			}
-		}
 		';
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		$this->assertEquals( $menu_item_id, $actual['data']['menuItem']['databaseId'] );
-		$this->assertEquals( $menu_item_relay_id, $actual['data']['menuItem']['id'] );
-		$this->assertEquals( $post_id, $actual['data']['menuItem']['connectedObject']['postId'] );
-		$this->assertEquals( $this->menu_slug, $actual['data']['menuItem']['menu']['node']['slug'] );
-		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['locations'] );
-		$this->assertEquals( [ \WPGraphQL\Type\WPEnumType::get_safe_name( $this->location_name ) ], $actual['data']['menuItem']['menu']['node']['locations'] );
-
 	}
 
 }
