@@ -146,23 +146,9 @@ class MenuItem extends Model {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
 				'uri'              => function () {
+					$url = $this->data->url;
 
-					$url = $this->url;
-
-					if ( empty( $url ) ) {
-						return $url;
-					}
-
-					$parsed = wp_parse_url( $url );
-
-					if ( is_multisite() && isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
-						$site         = get_site();
-						$subdirectory = untrailingslashit( $site->path );
-						$url          = str_replace( $subdirectory, '', $parsed['path'] );
-					}
-
-					return $url;
-
+					return ! empty( $url ) ? str_ireplace( home_url(), '', $url ) : null;
 				},
 				'url'              => function () {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
