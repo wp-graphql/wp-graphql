@@ -21,7 +21,7 @@ class MenuItem {
 			'MenuItem',
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'UniformResourceIdentifiable' ],
 				'connections' => [
 					'connectedNode' => [
 						'toType'               => 'MenuItemLinkable',
@@ -113,10 +113,6 @@ class MenuItem {
 					'title'            => [
 						'type'        => 'String',
 						'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
-					],
-					'uri'              => [
-						'type'        => 'String',
-						'description' => __( 'The relative path to the current site.', 'wp-graphql' ),
 					],
 					'url'              => [
 						'type'        => 'String',
