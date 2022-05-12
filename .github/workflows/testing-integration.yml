@@ -25,6 +25,9 @@ jobs:
           - php: '8.0'
             wordpress: '5.9'
           - php: '8.0'
+            wordpress: '5.9'
+            multisite: 1
+          - php: '8.0'
             wordpress: '5.8'
           - php: '7.4'
             wordpress: '5.8'
@@ -80,6 +83,7 @@ jobs:
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
+          MULTISITE: ${{ matrix.multisite }}
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
