@@ -159,4 +159,28 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		$this->assertEquals( $mock_options['use_smilies'], $allSettings['writingSettingsUseSmilies'] );
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/pull/2276
+	 * @throws Exception
+	 */
+	public function testGeneralSettingsUrlDoesntThrowErrorOnMultisite() {
+
+		$query = '
+		{
+		  generalSettings {
+		    dateFormat
+		    url
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['generalSettings']['url'] );
+
+	}
+
 }
