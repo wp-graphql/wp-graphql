@@ -107,8 +107,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		$upgradable_list         = $can_update && isset( $active_stati['upgrade'] ) ? get_site_transient( 'update_plugins' ) : [];
 		$recently_activated_list = isset( $active_stati['recently_activated'] ) ? get_site_option( 'recently_activated', [] ) : [];
 
-
-
 		// Loop through the plugins, add additional data, and store them in $plugins_by_status.
 		foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
 
@@ -124,7 +122,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 				if ( $show_network_plugins ) {
 
 					// add the plugin to the network_inactive and network_inactive list since "network_inactive" are considered inactive
-					$plugins_by_status['inactive'][$plugin_file] = $plugin_file;
+					$plugins_by_status['inactive'][ $plugin_file ]         = $plugin_file;
 					$plugins_by_status['network_inactive'][ $plugin_file ] = $plugin_file;
 				} else {
 					// Unset and skip to next plugin.
@@ -135,7 +133,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 				// Check for active network plugins.
 				if ( $show_network_plugins ) {
 					// add the plugin to the network_activated and active list, since "network_activated" are active
-					$plugins_by_status['active'][$plugin_file] = $plugin_file;
+					$plugins_by_status['active'][ $plugin_file ]            = $plugin_file;
 					$plugins_by_status['network_activated'][ $plugin_file ] = $plugin_file;
 				} else {
 					// Unset and skip to next plugin.
@@ -143,7 +141,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 					continue;
 				}
 			}
-
 
 			// Populate active/inactive lists.
 			// @todo should this include MU/Dropins?
@@ -177,7 +174,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			} elseif ( empty( $plugin_data['update-supported'] ) ) {
 				$plugin_data['update-supported'] = false;
 			}
-
 
 			// Get autoupdate information.
 			if ( $can_view_autoupdates ) {
@@ -213,7 +209,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$plugins_by_status['all'] = array_flip( array_keys( $all_plugins ) );
-
 
 		// Filter the plugins by stati.
 		$filtered_plugins = ! empty( $active_stati ) ? array_merge( ... array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) ) : $plugins_by_status['all'];
@@ -300,11 +295,11 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	public function should_execute() {
 		if ( is_multisite() ) {
 			// update_, install_, and delete_ are handled above with is_super_admin().
-			$menu_perms = get_site_option( 'menu_items', array() );
+			$menu_perms = get_site_option( 'menu_items', [] );
 			if ( empty( $menu_perms['plugins'] ) && ! current_user_can( 'manage_network_plugins' ) ) {
 				return false;
 			}
-		} else if ( ! current_user_can( 'activate_plugins' ) ) {
+		} elseif ( ! current_user_can( 'activate_plugins' ) ) {
 			return false;
 		}
 

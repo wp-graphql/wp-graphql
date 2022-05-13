@@ -49,7 +49,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query_args() {
 
-		$query_args = $this->query_args;
+		$query_args            = $this->query_args;
 		$query_args['allowed'] = null;
 		return $query_args;
 	}
