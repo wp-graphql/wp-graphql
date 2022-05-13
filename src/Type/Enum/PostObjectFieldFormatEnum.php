@@ -17,12 +17,12 @@ class PostObjectFieldFormatEnum {
 				'values'      => [
 					'RAW'      => [
 						'name'        => 'RAW',
-						'description' => __( 'Provide the field value directly from database', 'wp-graphql' ),
+						'description' => __( 'Provide the field value directly from database. Null on unauthenticated requests.', 'wp-graphql' ),
 						'value'       => 'raw',
 					],
 					'RENDERED' => [
 						'name'        => 'RENDERED',
-						'description' => __( 'Apply the default WordPress rendering', 'wp-graphql' ),
+						'description' => __( 'Provide the field value as rendered by WordPress. Default.', 'wp-graphql' ),
 						'value'       => 'rendered',
 					],
 				],
