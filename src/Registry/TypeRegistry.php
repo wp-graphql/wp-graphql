@@ -1070,7 +1070,7 @@ class TypeRegistry {
 		$this->register_field(
 			'rootMutation',
 			$mutation_name,
-			[
+			array_merge( $config, [
 				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
 				'args'        => [
 					'input' => [
@@ -1099,7 +1099,7 @@ class TypeRegistry {
 
 					return $payload;
 				},
-			]
+			])
 		);
 
 	}
