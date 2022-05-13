@@ -33,7 +33,7 @@ jobs:
             wordpress: '5.8'
             coverage: 1
       fail-fast: false
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -12,7 +12,7 @@ modules:
     WPDb:
       cleanup: false
     WPLoader:
-      multisite: %MULTISITE%
+      multisite: '%MULTISITE%'
       plugins:
         - wp-graphql/wp-graphql.php
       activatePlugins:
