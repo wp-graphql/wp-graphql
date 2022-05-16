@@ -107,7 +107,7 @@ class UserDelete {
 			/**
 			 * Get the user to reassign posts to.
 			 */
-			$reassign_id = null;
+			$reassign_id = 0;
 			if ( ! empty( $input['reassignId'] ) ) {
 				$reassign_id = Utils::get_database_id_from_id( $input['reassignId'] );
 
@@ -133,12 +133,22 @@ class UserDelete {
 			if ( ! function_exists( 'wpmu_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/ms.php';
 			}
+			if ( ! function_exists( 'remove_user_from_blog' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/ms-functions.php';
+			}
 			if ( ! function_exists( 'wp_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
 			if ( is_multisite() ) {
+				$blog_id = get_current_blog_id();
+				
+				// remove the user from the blog and reassign their posts
+				remove_user_from_blog( $user_id, $blog_id, $reassign_id );
+
+				// delete the user
 				$deleted_user = wpmu_delete_user( $user_id );
+
 			} else {
 				$deleted_user = wp_delete_user( $user_id, $reassign_id );
 			}
