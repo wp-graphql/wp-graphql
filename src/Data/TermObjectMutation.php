@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WP_Taxonomy;
+use WPGraphQL\Utils\Utils;
 
 class TermObjectMutation {
 
@@ -56,32 +57,22 @@ class TermObjectMutation {
 			/**
 			 * Convert parent ID to WordPress ID
 			 */
-			$parent_id_parts = Relay::fromGlobalId( $input['parentId'] );
+			$parent_id = Utils::get_database_id_from_id( $input['parentId'] );
+
+			if ( empty( $parent_id ) ) {
+				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
+			}
 
 			/**
-			 * Ensure that the ID passed in is a valid GlobalID
+			 * Ensure there's actually a parent term to be associated with
 			 */
-			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) ) {
+			$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
-				/**
-				 * Get the Term ID from the global ID
-				 */
-				$parent_id = $parent_id_parts['id'];
+			if ( ! $parent_term instanceof \WP_Term ) {
+				throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
+			}
 
-				/**
-				 * Ensure there's actually a parent term to be associated with
-				 */
-				$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
-
-				if ( $parent_term instanceof \WP_Term ) {
-					// Otherwise, set the parent as the parent term's ID
-					$insert_args['parent'] = $parent_term->term_id;
-				} else {
-					throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
-				}
-			} else {
-				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
-			} // End if().
+			$insert_args['parent'] = $parent_term->term_id;
 		}
 
 		/**

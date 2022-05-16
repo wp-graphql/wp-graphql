@@ -652,7 +652,13 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Enable new user registration.
 		 */
-		update_option( 'users_can_register', 1 );
+		if ( is_multisite() ) {
+			// multisite doesn't like uppercase letters in usernames 🤷‍️
+			$username = strtolower( $username );
+			update_site_option( 'registration', 'user' );
+		} else {
+			update_option( 'users_can_register', 1 );
+		}
 
 		/**
 		 * Run the mutation.
@@ -661,6 +667,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'username' => $username,
 			'email'    => $email,
 		] );
+
+		codecept_debug( $actual );
 
 		$expected = [
 			'registerUser' => [
