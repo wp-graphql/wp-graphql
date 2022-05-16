@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\CommentMutation;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentUpdate
@@ -67,15 +68,10 @@ class CommentUpdate {
 	 */
 	public static function mutate_and_get_payload() {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
-			/**
-			 * Throw an exception if there's no input
-			 */
-			if ( ( empty( $input ) || ! is_array( $input ) ) ) {
-				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
-			}
+			// Get the database ID for the comment.
+			$comment_id = ! empty( $input['id'] ) ? Utils::get_database_id_from_id( $input['id'] ) : null;
 
-			$id_parts     = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
-			$comment_id   = isset( $id_parts['id'] ) && absint( $id_parts['id'] ) ? absint( $id_parts['id'] ) : null;
+			// Get the args from the existing comment.
 			$comment_args = ! empty( $comment_id ) ? get_comment( $comment_id, ARRAY_A ) : null;
 
 			if ( empty( $comment_id ) || empty( $comment_args ) ) {
