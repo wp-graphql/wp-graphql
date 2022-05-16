@@ -118,6 +118,12 @@ class MenuItem {
 						'type'        => 'String',
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
 					],
+					// Note: this field is added to the MenuItem type instead of applied by the "UniformResourceIdentifiable" interface
+					// because a MenuItem is not identifiable by a uri, the connected resource is identifiable by the uri.
+					'uri'              => [
+						'type'        => 'String',
+						'description' => __( 'The uri of the resource the menu item links to', 'wp-graphql' ),
+					],
 					'path'             => [
 						'type'        => 'String',
 						'description' => __( 'Path for the resource. Relative path for internal resources. Absolute path for external resources.', 'wp-graphql' ),
