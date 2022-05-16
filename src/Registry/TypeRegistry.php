@@ -485,7 +485,7 @@ class TypeRegistry {
 				$group_name = DataSource::format_group_name( $group_name );
 				$type_name  = SettingGroup::register_settings_group( $group_name, $group_name, $this );
 
-				if ( ! $type_name || ! $this->get_type( $type_name ) ) {
+				if ( ! $type_name ) {
 					continue;
 				}
 

@@ -30,7 +30,7 @@ class SettingGroup {
 			return null;
 		}
 
-		$type_registry->register_object_type(
+		register_graphql_object_type(
 			ucfirst( $group_name ) . 'Settings',
 			[
 				'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
