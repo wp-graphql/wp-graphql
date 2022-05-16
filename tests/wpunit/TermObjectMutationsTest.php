@@ -739,7 +739,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $parent_id, $actual['data']['updateCategory']['category']['parent']['node']['id'] );
 	}
-  
+
   /**
 	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2378
 	 * @return void
@@ -762,7 +762,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$expected_name = "what's up";
 		$slug_input = "what's-up"; // includes apostrophe
-		$expected_slug = "whats-up"; // wp should strip it on save
+		$expected_slug = sanitize_title( $slug_input ); // wp should strip it on save
 		$expected_description = "what's up, description";
 
 		wp_set_current_user( $this->admin );
