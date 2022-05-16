@@ -7,6 +7,10 @@
 - ([#2363](https://github.com/wp-graphql/wp-graphql/pull/2363)): Adds "uri" field to MenuItem type which resolves the path of the node which can then be used in a `nodeByUri` query to get the linked node. The path is relative and does not contain subdirectory path in a subdirectory multisite. the `path` field does include the multisite subdirectory path, still. Thanks @josephfusco and @justlevine!
 - ([#2337](https://github.com/wp-graphql/wp-graphql/pull/2337)): Allows for either global ID or databaseId to be supplied in the ID field for user mutations. Thanks @justlevine!
 - ([#2338](https://github.com/wp-graphql/wp-graphql/pull/2338)): Allows either global "relay" ID or databaseId for post object mutations. Thanks @justlevine!
+- ([#2336](https://github.com/wp-graphql/wp-graphql/pull/2336)): Allows either global "relay" ID or databaseId for term object mutations. Thanks @justlevine!
+- ([#2331](https://github.com/wp-graphql/wp-graphql/pull/2331)): Allows either global "relay" ID or databaseId for MediaItem object mutations. Thanks @justlevine!
+- ([#2328](https://github.com/wp-graphql/wp-graphql/pull/2328)): Allows either global "relay" ID or databaseId for Comment object mutations. Thanks @justlevine!
+
 
 ### Chores / Bugfixes
 
