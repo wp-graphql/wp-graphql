@@ -739,4 +739,54 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $parent_id, $actual['data']['updateCategory']['category']['parent']['node']['id'] );
 	}
+
+  /**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2378
+	 * @return void
+	 * @throws Exception
+	 */
+	public function testCreateTermWithApostropheInNameDoesntStoreSlashInDatabase() {
+
+		$mutation = '
+		mutation ($input: CreateTagInput!) {
+		  createTag(input: $input) {
+		    tag {
+		      databaseId
+		      name
+		      slug
+		      description
+		    }
+		  }
+		}
+		';
+
+		$expected_name = "what's up";
+		$slug_input = "what's-up"; // includes apostrophe
+		$expected_slug = sanitize_title( $slug_input ); // wp should strip it on save
+		$expected_description = "what's up, description";
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $mutation,
+			'variables' => [
+				'input' => [
+					'name' => $expected_name,
+					'slug' => $slug_input,
+					'description' => $expected_description,
+				]
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected_name, $actual['data']['createTag']['tag']['name'] );
+		$this->assertSame( $expected_slug, $actual['data']['createTag']['tag']['slug'] );
+		$this->assertSame( $expected_description, $actual['data']['createTag']['tag']['description'] );
+		$this->assertSame( $expected_name, get_term(  $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->name );
+		$this->assertSame( $expected_slug, get_term(  $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->slug );
+		$this->assertSame( $expected_description, get_term(  $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->description );
+
+	}
 }
