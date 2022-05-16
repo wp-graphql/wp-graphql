@@ -649,7 +649,8 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 		';
 
 		$expected_name = "what's up";
-		$expected_slug = "what's-up";
+		$slug_input = "what's-up"; // includes apostrophe
+		$expected_slug = "whats-up"; // wp should strip it on save
 		$expected_description = "what's up, description";
 
 		wp_set_current_user( $this->admin );
@@ -659,7 +660,7 @@ class TermObjectMutationsTest extends \Codeception\TestCase\WPTestCase
 			'variables' => [
 				'input' => [
 					'name' => $expected_name,
-					'slug' => $expected_slug,
+					'slug' => $slug_input,
 					'description' => $expected_description,
 				]
 			]
