@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -130,6 +130,21 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.8.1 =
+
+**New Features**
+
+- ([#2349](https://github.com/wp-graphql/wp-graphql/pull/2349)): Adds tags to wpkses_post for WPGraphQL settings pages to be extended further. Thanks @eavonius!
+
+**Chores/Bugfixes**
+
+- ([#2358](https://github.com/wp-graphql/wp-graphql/pull/2358)): Updates NPM dependencies. Thanks @dependabot!
+- ([#2357](https://github.com/wp-graphql/wp-graphql/pull/2357)): Updates NPM dependencies. Thanks @dependabot!
+- ([#2356](https://github.com/wp-graphql/wp-graphql/pull/2356)): Refactors codebase to take advantage of the work done in #2353. Thanks @justlevine!
+- ([#2354](https://github.com/wp-graphql/wp-graphql/pull/2354)): Fixes console warnings in GraphiQL related to missing React keys.
+- ([#2353](https://github.com/wp-graphql/wp-graphql/pull/2353)): Refactors the WPGraphQL::get_allowed_post_types() and WPGraphQL::get_allowed_taxonomies() functions. Thanks @justlevine!
+- ([#2350](https://github.com/wp-graphql/wp-graphql/pull/2350)): Fixes bug where Comment Authors were not always properly returning
 
 = 1.8.0 =
 

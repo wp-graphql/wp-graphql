@@ -121,15 +121,15 @@ class MediaItemUpdate {
 			 * Check to see if the existing_media_item author matches the current user,
 			 * if not they need to be able to edit others posts to proceed
 			 */
-			if (  get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
+			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 			}
 
 			/**
 			 * Insert the post object and get the ID
 			 */
-			$post_args                = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
-			$post_args['ID']          = $media_item_id;
+			$post_args       = MediaItemMutation::prepare_media_item( $input, $post_type_object, $mutation_name, false );
+			$post_args['ID'] = $media_item_id;
 
 			$clean_args = wp_slash( (array) $post_args );
 

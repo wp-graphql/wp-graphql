@@ -491,6 +491,223 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertSame( $value, $actual['data']['someRootField'] );
 
+	}
+
+	public function testRegisterFieldWithIsPrivateConfigReturnsNullForPublicUser() {
+
+		register_graphql_field( 'RootQuery', 'testPrivateField', [
+			'type' => 'String',
+			'resolve' => function() {
+				return 'privateValue';
+			},
+			'isPrivate' => true,
+		]);
+
+		$query = '
+		{
+		  testPrivateField
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// it's a private field, there should be an error
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// there should be only 1 error, because of the private field
+		$this->assertCount( 1, $actual['errors'] );
+
+		// the data for the field should be null
+		$this->assertNull( $actual['data']['testPrivateField'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// since we're authenticated now, there should be no errors
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// the data for the field should be returned since the user has proper capabilities
+		$this->assertSame( 'privateValue', $actual['data']['testPrivateField'] );
+
+	}
+
+	public function testRegisterFieldWithAuthCallbackIsProperlyRespected() {
+
+		register_graphql_field( 'RootQuery', 'testAuthCallbackField', [
+			'type' => 'String',
+			'resolve' => function() {
+				return 'privateValue';
+			},
+			'auth' => [
+				'callback' => function() {
+					return current_user_can( 'manage_options' );
+				}
+			],
+		]);
+
+		$query = '
+		{
+		  testAuthCallbackField
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// it's a private field, there should be an error
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// there should be only 1 error, because of the private field
+		$this->assertCount( 1, $actual['errors'] );
+
+		// the data for the field should be null
+		$this->assertNull( $actual['data']['testAuthCallbackField'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// since we're authenticated now, there should be no errors
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// the data for the field should be returned since the user has proper capabilities
+		$this->assertSame( 'privateValue', $actual['data']['testAuthCallbackField'] );
+
+	}
+
+	public function testRegisterMutationWithAuthCallbackPreventsMutationExecution() {
+
+		$expected = 'test_value';
+
+		register_graphql_mutation( 'authCallbackMutation', [
+			'inputFields' => [],
+			'outputFields' => [
+				'test' => [
+					'type' => 'String'
+				]
+			],
+			'auth' => [
+				'callback' => function() {
+					return current_user_can( 'manage_options' );
+				}
+			],
+			'mutateAndGetPayload' => function() use ( $expected ) {
+				return [
+					'test' => $expected
+				];
+			}
+		]);
+
+		$query = '
+		mutation {
+		  authCallbackMutation(input:{ clientMutationId: "test" }) {
+		    test
+	      }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// it's a private field, there should be an error
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// there should be only 1 error, because of the private field
+		$this->assertCount( 1, $actual['errors'] );
+
+		// the data for the field should be null
+		$this->assertNull( $actual['data']['authCallbackMutation'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// since we're authenticated now, there should be no errors
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// the data for the field should be returned since the user has proper capabilities
+		$this->assertSame( $expected, $actual['data']['authCallbackMutation']['test'] );
+
+	}
+
+	public function testRegisterMutationWithIsPrivatePreventsPublicMutationExecution() {
+
+		$expected = 'test_value';
+
+		register_graphql_mutation( 'isPrivateMutation', [
+			'inputFields' => [],
+			'outputFields' => [
+				'test' => [
+					'type' => 'String'
+				]
+			],
+			'isPrivate' => true,
+			'mutateAndGetPayload' => function() use ( $expected ) {
+				return [
+					'test' => $expected
+				];
+			}
+		]);
+
+		$query = '
+		mutation {
+		  isPrivateMutation(input:{ clientMutationId: "test" }) {
+		    test
+	      }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// it's a private field, there should be an error
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// there should be only 1 error, because of the private field
+		$this->assertCount( 1, $actual['errors'] );
+
+		// the data for the field should be null
+		$this->assertNull( $actual['data']['isPrivateMutation'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// since we're authenticated now, there should be no errors
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// the data for the field should be returned since the user has proper capabilities
+		$this->assertSame( $expected, $actual['data']['isPrivateMutation']['test'] );
 
 	}
 }

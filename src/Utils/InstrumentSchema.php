@@ -216,7 +216,7 @@ class InstrumentSchema {
 			return true;
 		}
 
-		if ( ! isset( $field->config['auth'] ) || ! is_array( $field->config['auth'] ) ) {
+		if ( ( ! isset( $field->config['auth'] ) || ! is_array( $field->config['auth'] ) ) && ! isset( $field->config['isPrivate'] ) ) {
 			return true;
 		}
 
