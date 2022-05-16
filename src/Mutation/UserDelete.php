@@ -124,25 +124,30 @@ class UserDelete {
 				}
 			}
 
-			/**
-			 * If wpmu_delete_user() or wp_delete_user() doesn't exist yet,
-			 * load the files in which each is defined. I think we need to
-			 * load this manually here because WordPress only uses this
-			 * function on the user edit screen normally.
-			 */
-			if ( ! function_exists( 'wpmu_delete_user' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/ms.php';
-			}
-			if ( ! function_exists( 'remove_user_from_blog' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/ms-functions.php';
-			}
+
 			if ( ! function_exists( 'wp_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
 			if ( is_multisite() ) {
+
+				/**
+				 * If wpmu_delete_user() or remove_user_from_blog() doesn't exist yet,
+				 * load the files in which each is defined. I think we need to
+				 * load this manually here because WordPress only uses this
+				 * function on the user edit screen normally.
+				 */
+
+				// only include these files for multisite requests
+				if ( ! function_exists( 'wpmu_delete_user' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/ms.php';
+				}
+				if ( ! function_exists( 'remove_user_from_blog' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/ms-functions.php';
+				}
+
 				$blog_id = get_current_blog_id();
-				
+
 				// remove the user from the blog and reassign their posts
 				remove_user_from_blog( $user_id, $blog_id, $reassign_id );
 
