@@ -124,7 +124,6 @@ class UserDelete {
 				}
 			}
 
-
 			if ( ! function_exists( 'wp_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
