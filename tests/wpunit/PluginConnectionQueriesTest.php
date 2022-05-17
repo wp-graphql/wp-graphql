@@ -16,6 +16,9 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 
 	}
 
@@ -53,6 +56,9 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		}
 		';
 
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 		wp_set_current_user( $this->admin );
 		$actual = $this->graphql( [ 'query' => $query ] );
 
@@ -183,6 +189,9 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $actual );
+
 		$this->assertIsValidQueryResponse( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );

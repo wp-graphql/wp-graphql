@@ -450,4 +450,90 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( '2.2', $actual['data']['zooBarSettings']['biz'] );
 	}
 
+	public function testRegisterFieldToSettingGroupTypeSuccessfullyAddsFieldToTheType() {
+
+		$expected = 'my custom field value';
+
+		$this->factory()->post->create([
+			'post_type' => 'post',
+			'post_status' => 'publish',
+		]);
+
+		add_action( 'graphql_register_types', function() use ( $expected ) {
+			register_graphql_field( 'GeneralSettings', 'myCustomField', [
+				'type' => 'String',
+				'resolve' => function() use ( $expected ) {
+					return $expected;
+				}
+			]);
+			register_graphql_field( 'RootQuery', 'rootCustomField', [
+				'type' => 'String',
+				'resolve' => function() use ( $expected ) {
+					return $expected;
+				}
+			]);
+			register_graphql_field( 'Post', 'customPostField', [
+				'type' => 'String',
+				'resolve' => function() use ( $expected ) {
+					return $expected;
+				}
+			]);
+		});
+
+		$query = '
+		{
+		  posts {
+		    nodes {
+		      id
+		      customPostField
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['posts']['nodes'][0]['customPostField'] );
+
+
+		$query = '
+		{
+		  rootCustomField
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['rootCustomField'] );
+
+		$query = '
+		{
+		  generalSettings {
+		    myCustomField
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['generalSettings']['myCustomField'] );
+
+
+	}
+
 }

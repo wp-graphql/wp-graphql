@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WP_Post_Type;
 use WPGraphQL\AppContext;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostObjectMutation
@@ -36,9 +37,8 @@ class PostObjectMutation {
 		 * Prepare the data for inserting the post
 		 * NOTE: These are organized in the same order as: https://developer.wordpress.org/reference/functions/wp_insert_post/
 		 */
-		$author_id_parts = ! empty( $input['authorId'] ) ? Relay::fromGlobalId( $input['authorId'] ) : null;
-		if ( is_array( $author_id_parts ) && ! empty( $author_id_parts['id'] ) && absint( $author_id_parts['id'] ) ) {
-			$insert_post_args['post_author'] = absint( $author_id_parts['id'] );
+		if ( ! empty( $input['authorId'] ) ) {
+			$insert_post_args['post_author'] = Utils::get_database_id_from_id( $input['authorId'] );
 		}
 
 		if ( ! empty( $input['date'] ) && false !== strtotime( $input['date'] ) ) {
@@ -85,9 +85,8 @@ class PostObjectMutation {
 			$insert_post_args['pinged'] = $input['pinged'];
 		}
 
-		$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
-		if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) && absint( $parent_id_parts['id'] ) ) {
-			$insert_post_args['post_parent'] = absint( $parent_id_parts['id'] );
+		if ( ! empty( $input['parentId'] ) ) {
+			$insert_post_args['post_parent'] = Utils::get_database_id_from_id( $input['parentId'] );
 		}
 
 		if ( ! empty( $input['menuOrder'] ) ) {

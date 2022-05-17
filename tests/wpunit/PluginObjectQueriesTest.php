@@ -10,6 +10,9 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 	}
 
 	public function tearDown(): void {

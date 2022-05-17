@@ -655,4 +655,48 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testParseRequestFilterExecutesOnNodeByUriQueries() {
+
+		$value = null;
+
+		// value should be null
+		$this->assertNull( $value );
+
+		// value should NOT be instance of Wp class
+		$this->assertNotInstanceOf( 'Wp', $value );
+
+		// We hook into parse_request
+		// set the value of $value to the value of the $wp argument
+		// that comes through the filter
+		add_action( 'parse_request', function( WP $wp ) use ( &$value ) {
+			if ( is_graphql_request() ) {
+				$value = $wp;
+			}
+		});
+
+
+		$query = '
+		{
+		  nodeByUri(uri:"/about") {
+		     __typename
+		     id
+		     uri
+		  }
+		}
+		';
+
+		// execute a nodeByUri query
+		graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $value );
+
+		// ensure the $value is now an instance of Wp class
+		// as set by the filter in the node resolver
+		$this->assertNotNull( $value );
+		$this->assertInstanceOf( 'Wp', $value );
+
+	}
+
 }

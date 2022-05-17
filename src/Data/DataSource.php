@@ -117,7 +117,6 @@ class DataSource {
 	 */
 	public static function resolve_plugins_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		$resolver = new PluginConnectionResolver( $source, $args, $context, $info );
-
 		return $resolver->get_connection();
 	}
 
@@ -270,7 +269,8 @@ class DataSource {
 	 * @since  0.0.5
 	 */
 	public static function resolve_themes_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		return ThemeConnectionResolver::resolve( $source, $args, $context, $info );
+		$resolver = new ThemeConnectionResolver( $source, $args, $context, $info );
+		return $resolver->get_connection();
 	}
 
 	/**

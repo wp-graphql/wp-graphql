@@ -62,9 +62,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		}
 		';
 
-		$themes = wp_get_themes();
-
-		codecept_debug( $themes );
+		$themes = wp_get_themes([ 'allowed' => null ]);
 
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
@@ -74,7 +72,12 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			$return_count = 1;
 		}
 
+		if ( is_multisite() ) {
+			grant_super_admin( $current_user );
+		}
+
 		wp_set_current_user( $current_user );
+
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
@@ -99,6 +102,11 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 * Tests querying for theme with pagination args.
 	 */
 	public function testThemesQueryPagination() {
+
+
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 		wp_set_current_user( $this->admin );
 
 		$query = '
@@ -152,7 +160,9 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'before' => null,
 		];
 
+
 		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
+		codecept_debug( [ 'expected' => $expected ] );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
@@ -168,7 +178,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 				'user' => 'admin',
 			],
 			[
-				'user' => '',
+				'user' => null,
 			],
 		];
 	}

@@ -46,7 +46,13 @@ class Plugin extends Model {
 	 */
 	protected function is_private() {
 
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( is_multisite() ) {
+				// update_, install_, and delete_ are handled above with is_super_admin().
+				$menu_perms = get_site_option( 'menu_items', [] );
+			if ( empty( $menu_perms['plugins'] ) && ! current_user_can( 'manage_network_plugins' ) ) {
+				return true;
+			}
+		} elseif ( ! current_user_can( 'activate_plugins' ) ) {
 			return true;
 		}
 

@@ -36,7 +36,7 @@ class CommentCreate {
 		return [
 			'commentOn'   => [
 				'type'        => 'Int',
-				'description' => __( 'The ID of the post object the comment belongs to.', 'wp-graphql' ),
+				'description' => __( 'The database ID of the post object the comment belongs to.', 'wp-graphql' ),
 			],
 			'author'      => [
 				'type'        => 'String',
@@ -60,7 +60,7 @@ class CommentCreate {
 			],
 			'parent'      => [
 				'type'        => 'ID',
-				'description' => __( 'Parent comment of current comment.', 'wp-graphql' ),
+				'description' => __( 'Parent comment ID of current comment.', 'wp-graphql' ),
 			],
 			'date'        => [
 				'type'        => 'String',

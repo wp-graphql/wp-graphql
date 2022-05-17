@@ -15,6 +15,9 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			'role' => 'administrator'
 		]);
 		// your set up methods here
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 	}
 
 	public function tearDown(): void {
@@ -137,6 +140,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		';
 
 		$actual = graphql( [ 'query' => $query ] );
+
+		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'themes.nodes', [

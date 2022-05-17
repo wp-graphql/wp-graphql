@@ -2,24 +2,27 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
+use WP_Taxonomy;
+use WPGraphQL\Utils\Utils;
 
 class TermObjectMutation {
 
 	/**
-	 * This prepares the object to be mutated – ensures data is safe to be saved,
+	 * This prepares the object to be mutated - ensures data is safe to be saved,
 	 * and mapped from input args to WordPress $args
 	 *
 	 * @param array        $input         The input from the GraphQL Request
-	 * @param \WP_Taxonomy $taxonomy      The Taxonomy object for the type of term being mutated
+	 * @param WP_Taxonomy  $taxonomy      The Taxonomy object for the type of term being mutated
 	 * @param string       $mutation_name The name of the mutation (create, update, etc)
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 *
 	 * @return mixed
 	 */
-	public static function prepare_object( $input, \WP_Taxonomy $taxonomy, $mutation_name ) {
+	public static function prepare_object( array $input, WP_Taxonomy $taxonomy, string $mutation_name ) {
 
 		/**
 		 * Set the taxonomy for insert
@@ -34,15 +37,15 @@ class TermObjectMutation {
 		}
 
 		if ( ! empty( $input['name'] ) ) {
-			$insert_args['name'] = esc_sql( $input['name'] );
+			$insert_args['name'] = $input['name'];
 		}
 
 		if ( ! empty( $input['description'] ) ) {
-			$insert_args['description'] = esc_sql( $input['description'] );
+			$insert_args['description'] = $input['description'];
 		}
 
 		if ( ! empty( $input['slug'] ) ) {
-			$insert_args['slug'] = esc_sql( $input['slug'] );
+			$insert_args['slug'] = $input['slug'];
 		}
 
 		/**
@@ -54,32 +57,22 @@ class TermObjectMutation {
 			/**
 			 * Convert parent ID to WordPress ID
 			 */
-			$parent_id_parts = ! empty( $input['parentId'] ) ? Relay::fromGlobalId( $input['parentId'] ) : null;
+			$parent_id = Utils::get_database_id_from_id( $input['parentId'] );
+
+			if ( empty( $parent_id ) ) {
+				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
+			}
 
 			/**
-			 * Ensure that the ID passed in is a valid GlobalID
+			 * Ensure there's actually a parent term to be associated with
 			 */
-			if ( is_array( $parent_id_parts ) && ! empty( $parent_id_parts['id'] ) ) {
+			$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
-				/**
-				 * Get the Term ID from the global ID
-				 */
-				$parent_id = $parent_id_parts['id'];
+			if ( ! $parent_term instanceof \WP_Term ) {
+				throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
+			}
 
-				/**
-				 * Ensure there's actually a parent term to be associated with
-				 */
-				$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
-
-				if ( $parent_term instanceof \WP_Term ) {
-					// Otherwise set the parent as the parent term's ID
-					$insert_args['parent'] = $parent_term->term_id;
-				} else {
-					throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
-				}
-			} else {
-				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
-			} // End if().
+			$insert_args['parent'] = $parent_term->term_id;
 		}
 
 		/**
@@ -87,15 +80,10 @@ class TermObjectMutation {
 		 *
 		 * @param array $insert_args The array of input args that will be passed to the functions that insert terms
 		 * @param array $input The data that was entered as input for the mutation
-		 * @param \WP_Taxonomy $taxonomy The taxonomy object of the term being mutated
+		 * @param WP_Taxonomy $taxonomy The taxonomy object of the term being mutated
 		 * @param string $mutation_name The name of the mutation being performed (create, edit, etc)
 		 */
-		$insert_args = apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
-
-		/**
-		 * Return the $args
-		 */
-		return $insert_args;
+		return apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
 
 	}
 

@@ -7,6 +7,7 @@ use GraphQLRelay\Relay;
 use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TermObjectUpdate
@@ -81,15 +82,12 @@ class TermObjectUpdate {
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, $mutation_name ) {
 		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
-			/**
-			 * Get the ID parts
-			 */
-			$id_parts = ! empty( $input['id'] ) ? Relay::fromGlobalId( $input['id'] ) : null;
+			$term_id = Utils::get_database_id_from_id( $input['id'] );
 
 			/**
 			 * Ensure the type for the Global ID matches the type being mutated
 			 */
-			if ( empty( $id_parts['type'] ) ) {
+			if ( empty( $term_id ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being edited
 				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
 			}
@@ -97,7 +95,7 @@ class TermObjectUpdate {
 			/**
 			 * Get the existing term
 			 */
-			$existing_term = get_term( absint( $id_parts['id'] ), $taxonomy->name );
+			$existing_term = get_term( $term_id, $taxonomy->name );
 
 			/**
 			 * If there was an error getting the existing term, return the error message
@@ -111,15 +109,15 @@ class TermObjectUpdate {
 						// Translators: The placeholder is the name of the taxonomy for the term being deleted
 						throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
 					}
-				} else {
-					// Translators: The placeholder is the name of the taxonomy for the term being deleted
-					throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
 				}
+
+				// Translators: The placeholder is the name of the taxonomy for the term being deleted
+				throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
 			}
 
 			if ( $taxonomy->name !== $existing_term->taxonomy ) {
 				// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $id_parts['id'], $taxonomy->name ) );
+				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $term_id, $taxonomy->name ) );
 			}
 
 			/**

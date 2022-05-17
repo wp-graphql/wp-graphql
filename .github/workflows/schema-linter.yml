@@ -39,7 +39,7 @@ jobs:
           node-version: 12.x
 
       - name: Setup GraphQL Schema Linter
-        run: npm install -g graphql-schema-linter
+        run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
       - name: Setup WordPress
         run: |

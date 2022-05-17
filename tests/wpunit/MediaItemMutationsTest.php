@@ -1,13 +1,13 @@
 <?php
 
-class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
-{
+class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+
 
 	public $altText;
 	public $authorId;
 	public $caption;
 	public $commentStatus;
-    public $current_date_gmt;
+	public $current_date_gmt;
 	public $date;
 	public $dateGmt;
 	public $description;
@@ -17,7 +17,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $status;
 	public $title;
 	public $parentId;
-	public $clientMutationId;
 	public $updated_title;
 	public $updated_description;
 	public $updated_altText;
@@ -27,7 +26,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $updated_dateGmt;
 	public $updated_slug;
 	public $updated_status;
-	public $updated_clientMutationId;
 
 	public $create_variables;
 	public $update_variables;
@@ -43,132 +41,128 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public $attachment_id;
 	public $media_item_id;
 
-    public function setUp(): void
-    {
-        // before
-        parent::setUp();
+	public function setUp(): void {
+		// before
+		parent::setUp();
 
-        // We don't want this funking with our tests
-	    remove_image_size( 'twentyseventeen-thumbnail-avatar' );
+		// We don't want this funking with our tests
+		remove_image_size( 'twentyseventeen-thumbnail-avatar' );
 
-	    /**
-	     * Set up different user roles for permissions testing
-	     */
-	    $this->subscriber = $this->factory()->user->create( [
-		    'role' => 'subscriber',
-	    ] );
-	    $this->subscriber_name = 'User ' . $this->subscriber;
+		/**
+		 * Set up different user roles for permissions testing
+		 */
+		$this->subscriber      = $this->factory()->user->create( [
+			'role' => 'subscriber',
+		] );
+		$this->subscriber_name = 'User ' . $this->subscriber;
 
-	    $this->author = $this->factory()->user->create( [
-		    'role' => 'author',
-	    ] );
-	    $this->author_name = 'User ' . $this->author;
+		$this->author      = $this->factory()->user->create( [
+			'role' => 'author',
+		] );
+		$this->author_name = 'User ' . $this->author;
 
-	    $this->admin = $this->factory()->user->create( [
-		    'role' => 'administrator',
-	    ] );
-	    $this->admin_name = 'User ' . $this->admin;
+		$this->admin      = $this->factory()->user->create( [
+			'role' => 'administrator',
+		] );
+		$this->admin_name = 'User ' . $this->admin;
 
-	    /**
-	     * Populate the mediaItem input fields
-	     */
-	    $this->altText          = 'A gif of Shia doing Magic.';
-	    $this->authorId         = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
-	    $this->caption          = 'Shia shows off some magic in this caption.';
-	    $this->commentStatus    = 'closed';
-	    $this->date             = '2017-08-01T15:00:00';
-	    $this->dateGmt          = '2017-08-01T21:00:00';
-	    $this->description      = 'This is a magic description.';
-	    $this->filePath         = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
-	    $this->fileType         = 'IMAGE_GIF';
-	    $this->slug             = 'magic-shia';
-	    $this->status           = 'INHERIT';
-	    $this->title            = 'Magic Shia Gif';
-	    $this->parentId         = null;
-	    $this->clientMutationId = 'someUniqueId';
+		/**
+		 * Populate the mediaItem input fields
+		 */
+		$this->altText       = 'A gif of Shia doing Magic.';
+		$this->authorId      = $this->admin;
+		$this->caption       = 'Shia shows off some magic in this caption.';
+		$this->commentStatus = 'closed';
+		$this->date          = '2017-08-01T15:00:00';
+		$this->dateGmt       = '2017-08-01T21:00:00';
+		$this->description   = 'This is a magic description.';
+		$this->filePath      = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
+		$this->fileType      = 'IMAGE_GIF';
+		$this->slug          = 'magic-shia';
+		$this->status        = 'INHERIT';
+		$this->title         = 'Magic Shia Gif';
+		$this->parentId      = null;
 
-	    /**
-	     * Set up the updateMediaItem variables
-	     */
-	    $this->updated_title = 'Updated Magic Shia Gif';
-	    $this->updated_description = 'This is an updated magic description.';
-	    $this->updated_altText = 'Some updated alt text';
-	    $this->updated_caption = 'Shia shows off some magic in this updated caption.';
-	    $this->updated_commentStatus = 'open';
-	    $this->updated_date = '2017-08-01T16:00:00';
-	    $this->updated_dateGmt = '2017-08-01T22:00:00';
-	    $this->updated_slug = 'updated-shia-magic';
-	    $this->updated_status = 'INHERIT';
-	    $this->updated_clientMutationId = 'someUpdatedUniqueId';
+		/**
+		 * Set up the updateMediaItem variables
+		 */
+		$this->updated_title         = 'Updated Magic Shia Gif';
+		$this->updated_description   = 'This is an updated magic description.';
+		$this->updated_altText       = 'Some updated alt text';
+		$this->updated_caption       = 'Shia shows off some magic in this updated caption.';
+		$this->updated_commentStatus = 'open';
+		$this->updated_date          = '2017-08-01T16:00:00';
+		$this->updated_dateGmt       = '2017-08-01T22:00:00';
+		$this->updated_slug          = 'updated-shia-magic';
+		$this->updated_status        = 'INHERIT';
 
-	    /**
-	     * Create a mediaItem to update and store it's WordPress post ID
-	     * and it's WPGraphQL ID for using in our updateMediaItem mutation
-	     */
-	    $this->attachment_id = $this->factory()->attachment->create( ['post_mime_type' => 'image/gif', 'post_author' => $this->admin] );
-	    $this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
+		/**
+		 * Create a mediaItem to update and store it's WordPress post ID
+		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
+		 */
+		$this->attachment_id = $this->factory()->attachment->create( [
+			'post_mime_type' => 'image/gif',
+			'post_author'    => $this->admin,
+		] );
+		$this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
 
-	    /**
-	     * Set the createMediaItem mutation input variables
-	     */
-	    $this->create_variables = [
-		    'input' => [
-			    'filePath'         => $this->filePath,
-			    'fileType'         => $this->fileType,
-			    'clientMutationId' => $this->clientMutationId,
-			    'title'            => $this->title,
-			    'description'      => $this->description,
-			    'altText'          => $this->altText,
-			    'parentId'         => $this->parentId,
-			    'caption'          => $this->caption,
-			    'commentStatus'    => $this->commentStatus,
-			    'date'             => $this->date,
-			    'dateGmt'          => $this->dateGmt,
-			    'slug'             => $this->slug,
-			    'status'           => $this->status,
-			    'authorId'         => $this->authorId,
-		    ],
-	    ];
+		/**
+		 * Set the createMediaItem mutation input variables
+		 */
+		$this->create_variables = [
+			'input' => [
+				'filePath'      => $this->filePath,
+				'fileType'      => $this->fileType,
+				'title'         => $this->title,
+				'description'   => $this->description,
+				'altText'       => $this->altText,
+				'parentId'      => $this->parentId,
+				'caption'       => $this->caption,
+				'commentStatus' => $this->commentStatus,
+				'date'          => $this->date,
+				'dateGmt'       => $this->dateGmt,
+				'slug'          => $this->slug,
+				'status'        => $this->status,
+				'authorId'      => $this->authorId,
+			],
+		];
 
-	    /**
-	     * Set the updateMediaItem mutation input variables
-	     */
-	    $this->update_variables = [
-		    'input' => [
-			    'id'               => $this->media_item_id,
-			    'clientMutationId' => $this->updated_clientMutationId,
-			    'title'            => $this->updated_title,
-			    'description'      => $this->updated_description,
-			    'altText'          => $this->updated_altText,
-			    'caption'          => $this->updated_caption,
-			    'commentStatus'    => $this->updated_commentStatus,
-			    'date'             => $this->updated_date,
-			    'dateGmt'          => $this->updated_dateGmt,
-			    'slug'             => $this->updated_slug,
-			    'status'           => $this->updated_status,
-			    'fileType'         => $this->fileType,
-		    ]
-	    ];
+		/**
+		 * Set the updateMediaItem mutation input variables
+		 */
+		$this->update_variables = [
+			'input' => [
+				'id'            => $this->media_item_id,
+				'title'         => $this->updated_title,
+				'description'   => $this->updated_description,
+				'altText'       => $this->updated_altText,
+				'caption'       => $this->updated_caption,
+				'commentStatus' => $this->updated_commentStatus,
+				'date'          => $this->updated_date,
+				'dateGmt'       => $this->updated_dateGmt,
+				'slug'          => $this->updated_slug,
+				'status'        => $this->updated_status,
+				'fileType'      => $this->fileType,
+			],
+		];
 
-	    /**
-	     * Set the deleteMediaItem input variables
-	     */
-	    $this->delete_variables = [
-		    'input' => [
-			    'id'               => $this->media_item_id,
-			    'clientMutationId' => $this->clientMutationId,
-			    'forceDelete'      => true,
-		    ]
-	    ];
-    }
+		/**
+		 * Set the deleteMediaItem input variables
+		 */
+		$this->delete_variables = [
+			'input' => [
+				'id'          => $this->media_item_id,
+				'forceDelete' => true,
+			],
+		];
+	}
 
-    public function tearDown(): void
-    {
-        // your tear down methods here
+	public function tearDown(): void {
+		// your tear down methods here
 
-        // then
-        parent::tearDown();
-    }
+		// then
+		parent::tearDown();
+	}
 
 	/**
 	 * This function tests the createMediaItem mutation
@@ -178,70 +172,69 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * @return array $actual
 	 */
 	public function createMediaItemMutation() {
-
 		/**
 		 * Set up the createMediaItem mutation
 		 */
-		$mutation = '
+		$query = '
 			mutation createMediaItem( $input: CreateMediaItemInput! ){
-			  createMediaItem(input: $input){
-			    clientMutationId
-			    mediaItem{
-			      id
-			      mediaItemId
-			      mediaType
-			      date
-			      dateGmt
-			      slug
-			      status
-			      title
-			      commentStatus
-			      altText
-			      caption
-			      description
-			      mimeType
-			      parent {
-			        node {
-				      ... on Post {
-				        id
-				      }
-			        }
-			      }
-			      sourceUrl
-			      mediaDetails {
-			          file
-			          height
-			          meta {
-			            aperture
-			            credit
-			            camera
-			            caption
-			            createdTimestamp
-			            copyright
-			            focalLength
-			            iso
-			            shutterSpeed
-			            title
-			            orientation
-			          }
-			          width
-			          sizes {
-			            name
-			            file
-			            width
-			            height
-			            mimeType
-			            sourceUrl
-			          }
-			        }
-			    }
-			  }
+				createMediaItem(input: $input){
+					mediaItem{
+						id
+						databaseId
+						mediaType
+						date
+						dateGmt
+						slug
+						status
+						title
+						commentStatus
+						altText
+						caption
+						description
+						mimeType
+						parent {
+							node {
+							... on Post {
+								id
+							}
+							}
+						}
+						sourceUrl
+						mediaDetails {
+								file
+								height
+								meta {
+									aperture
+									credit
+									camera
+									caption
+									createdTimestamp
+									copyright
+									focalLength
+									iso
+									shutterSpeed
+									title
+									orientation
+								}
+								width
+								sizes {
+									name
+									file
+									width
+									height
+									mimeType
+									sourceUrl
+								}
+							}
+					}
+				}
 			}
 		';
 
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $this->create_variables );
-
-		return $actual;
+		return $this->graphql( [
+			'query'     => $query,
+			'variables' => $this->create_variables,
+		]);
 	}
 
 	/**
@@ -267,7 +260,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testCreateMediaItemFilePath() {
 		wp_set_current_user( $this->admin );
 		$this->create_variables['input']['filePath'] = 'file:///Users/hdevore/Desktop/Current/colorado_lake.jpeg';
-		$actual = $this->createMediaItemMutation();
+		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
 	}
@@ -285,25 +278,25 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Set up the createMediaItem mutation
 		 */
-		$mutation = '
+		$query = '
 		mutation createMediaItem( $input: CreateMediaItemInput! ){
-		  createMediaItem(input: $input){
-		    clientMutationId
-		    mediaItem{
-		      id
-		    }
-		  }
+			createMediaItem(input: $input){
+				mediaItem{
+					id
+				}
+			}
 		}
 		';
 
-		$empty_variables = '';
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $empty_variables );
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => '',
+		]);
 		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
-	 * Set the current user to subscriber (someone who can't create posts)
-	 * and test whether they can create posts with someone else's id
+	 * Test whether the current can create posts with someone else's id
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/MediaItemCreate.php:61
 	 * @return void
@@ -313,14 +306,19 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Set up the createMediaItem mutation
 		 */
-		$mutation = '
+		$query = '
 		mutation createMediaItem( $input: CreateMediaItemInput! ){
-		  createMediaItem(input: $input){
-		    clientMutationId
-		    mediaItem{
-		      id
-		    }
-		  }
+			createMediaItem(input: $input){
+				mediaItem{
+					id
+					author {
+						node {
+							name
+							databaseId
+						}
+					}
+				}
+			}
 		}
 		';
 
@@ -329,26 +327,42 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$variables = [
 			'input' => [
-				'filePath'         => $this->filePath,
-				'fileType'         => $this->fileType,
-				'clientMutationId' => $this->clientMutationId,
-				'title'            => $this->title,
-				'description'      => $this->description,
-				'altText'          => $this->altText,
-				'parentId'         => $this->parentId,
-				'caption'          => $this->caption,
-				'commentStatus'    => $this->commentStatus,
-				'date'             => $this->date,
-				'dateGmt'          => $this->dateGmt,
-				'slug'             => $this->slug,
-				'status'           => $this->status,
-				'authorId'         => $this->admin,
+				'filePath'      => $this->filePath,
+				'fileType'      => $this->fileType,
+				'title'         => $this->title,
+				'description'   => $this->description,
+				'altText'       => $this->altText,
+				'parentId'      => $this->parentId,
+				'caption'       => $this->caption,
+				'commentStatus' => $this->commentStatus,
+				'date'          => $this->date,
+				'dateGmt'       => $this->dateGmt,
+				'slug'          => $this->slug,
+				'status'        => $this->status,
+				'authorId'      => $this->admin,
 			],
 		];
 
 		wp_set_current_user( $this->author );
-		$actual = do_graphql_request( $mutation, 'createMediaItem', $variables );
+		$actual = graphql( compact( 'query', 'variables' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions
+		wp_set_current_user( $this->admin );
+
+		// test with database Id
+		$variables['input']['authorId'] = $this->author;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
+
+		// test with global Id
+		$variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
 	}
 
 	/**
@@ -361,7 +375,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testCreateMediaItemWithInvalidUrl() {
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['filePath'] = 'htt://vice.co.um/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
-		$actual = $this->createMediaItemMutation();
+		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
 	}
@@ -376,7 +390,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testCreateMediaItemWithNoFile() {
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
-		$actual = $this->createMediaItemMutation();
+		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
 	}
@@ -392,7 +406,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testCreateMediaItemAttachToParentAsAuthor() {
 		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 		$this->create_variables['input']['parentId'] = absint( $post );
 
@@ -403,8 +417,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		wp_set_current_user( $this->author );
 		$actual = $this->createMediaItemMutation();
 
-		codecept_debug( $actual );
-
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -413,67 +425,65 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$post                                        = $this->factory()->post->create( [
 			'post_author' => $this->admin,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 		$this->create_variables['input']['parentId'] = absint( $post );
 
 		wp_set_current_user( $this->admin );
+		// Test with databaseId
 		$actual = $this->createMediaItemMutation();
 
-		codecept_debug( $actual );
-
-		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
-		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
-		$attachment_url = wp_get_attachment_url( $attachment_id );
+		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
+		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
+		$attachment_url     = wp_get_attachment_url( $attachment_id );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
 			'createMediaItem' => [
-				'clientMutationId' => $this->clientMutationId,
 				'mediaItem' => [
-					'id'               => $media_item_id,
-					'mediaItemId'      => $attachment_id,
-					'title'            => $this->title,
-					'description'      => apply_filters( 'the_content', $this->description ),
-					'altText'          => $this->altText,
-					'caption'          => apply_filters( 'the_content', $this->caption ),
-					'commentStatus'    => $this->commentStatus,
-					'date'             => $this->date,
-					'dateGmt'          => $this->dateGmt,
-					'slug'             => $this->slug,
-					'status'           => strtolower( $this->status ),
-					'mimeType'         => 'image/gif',
-					'parent'           => [
+					'id'            => $media_item_id,
+					'databaseId'    => $attachment_id,
+					'title'         => $this->title,
+					'description'   => apply_filters( 'the_content', $this->description ),
+					'altText'       => $this->altText,
+					'caption'       => apply_filters( 'the_content', $this->caption ),
+					'commentStatus' => $this->commentStatus,
+					'date'          => $this->date,
+					'dateGmt'       => $this->dateGmt,
+					'slug'          => $this->slug,
+					'status'        => strtolower( $this->status ),
+					'mimeType'      => 'image/gif',
+					'parent'        => [
 						'node' => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post ),
 						],
 					],
-					'mediaType'        => 'image',
-					'sourceUrl'        => $attachment_url,
-					'mediaDetails'     => [
+					'mediaType'     => 'image',
+					'sourceUrl'     => $attachment_url,
+					'mediaDetails'  => [
 						'file'   => $attachment_details['file'],
 						'height' => $attachment_details['height'],
 						'meta'   => [
-							'aperture' => 0.0,
-							'credit'   => '',
-							'camera'   => '',
-							'caption'  => '',
+							'aperture'         => 0.0,
+							'credit'           => '',
+							'camera'           => '',
+							'caption'          => '',
 							'createdTimestamp' => null,
-							'copyright' => '',
-							'focalLength' => null,
-							'iso' => 0,
-							'shutterSpeed' => null,
-							'title' => '',
-							'orientation' => '0',
+							'copyright'        => '',
+							'focalLength'      => null,
+							'iso'              => 0,
+							'shutterSpeed'     => null,
+							'title'            => '',
+							'orientation'      => '0',
 						],
-						'width' => $attachment_details['width'],
-						'sizes' => [
+						'width'  => $attachment_details['width'],
+						'sizes'  => [
 							0 => [
-								'name' => 'thumbnail',
-								'file' => $attachment_details['sizes']['thumbnail']['file'],
-								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'name'      => 'thumbnail',
+								'file'      => $attachment_details['sizes']['thumbnail']['file'],
+								'width'     => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height'    => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType'  => $attachment_details['sizes']['thumbnail']['mime-type'],
 								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
@@ -483,8 +493,14 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-		$this->create_variables['input']['parentId'] = $this->parentId;
 
+		// Test with globalId
+		$this->create_variables['input']['parentId'] = \GraphQLRelay\Relay::toGlobalId( 'post', $this->parentId );
+
+		$actual = $this->createMediaItemMutation();
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->create_variables['input']['parentId'] = $this->parentId;
 	}
 
 	/**
@@ -501,15 +517,14 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		] );
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['parentId'] = $post;
-		$actual = $this->createMediaItemMutation();
+		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['parentId'] = $this->parentId;
 	}
 
 	/**
-	 * Test the MediaItemMutation by setting the default values:
+	 * Test the MediaItemMutation by setting the default values: post_status
 	 *
-	 * post_status
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemMutation.php:136
 	 *
 	 * post_title
@@ -536,124 +551,122 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Set up the createMediaItem mutation
 		 */
-		$default_mutation = '
+		$query = '
 		mutation createMediaItem( $input: CreateMediaItemInput! ){
-		  createMediaItem(input: $input){
-		    clientMutationId
-		    mediaItem{
-		      id
-		      mediaItemId
-		      status
-		      title
-		      author {
-		        node {
-		          id
-		        }
-		      }
-		      description
-		      mimeType
-		      parent {
-		        node {
-  		          ... on Post {
-  		            id
-		          }
-		        }
-		      }
-		      sourceUrl
-		      mediaDetails {
-	            file
-	            height
-	            meta {
-	              aperture
-	              credit
-	              camera
-	              caption
-	              createdTimestamp
-	              copyright
-	              focalLength
-	              iso
-	              shutterSpeed
-	              title
-	              orientation
-	            }
-	            width
-	            sizes {
-	              name
-	              file
-	              width
-	              height
-	              mimeType
-	              sourceUrl
-	            }
-	          }
-		    }
-		  }
+			createMediaItem(input: $input){
+				mediaItem{
+					id
+					databaseId
+					status
+					title
+					author {
+						node {
+							id
+						}
+					}
+					description
+					mimeType
+					parent {
+						node {
+								... on Post {
+									id
+							}
+						}
+					}
+					sourceUrl
+					mediaDetails {
+							file
+							height
+							meta {
+								aperture
+								credit
+								camera
+								caption
+								createdTimestamp
+								copyright
+								focalLength
+								iso
+								shutterSpeed
+								title
+								orientation
+							}
+							width
+							sizes {
+								name
+								file
+								width
+								height
+								mimeType
+								sourceUrl
+							}
+						}
+				}
+			}
 		}
 		';
 
 		/**
 		 * Set new input variables without changing defaults
 		 */
-		$default_variables = [
+		$variables = [
 			'input' => [
-				'filePath'         => $this->filePath,
-				'clientMutationId' => $this->clientMutationId,
+				'filePath' => $this->filePath,
 			],
 		];
 
 		/**
 		 * Do the graphQL request using the above variables for input in the above mutation
 		 */
-		$actual = do_graphql_request( $default_mutation, 'createMediaItem', $default_variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
-		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
-		$attachment_data = get_post( $attachment_id );
-		$attachment_title = $attachment_data->post_title;
-		$attachment_url = wp_get_attachment_url( $attachment_id );
+		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
+		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
+		$attachment_data    = get_post( $attachment_id );
+		$attachment_title   = $attachment_data->post_title;
+		$attachment_url     = wp_get_attachment_url( $attachment_id );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
 			'createMediaItem' => [
-				'clientMutationId' => $this->clientMutationId,
 				'mediaItem' => [
-					'id'               => $media_item_id,
-					'mediaItemId'      => $attachment_id,
-					'status'           => strtolower( $this->status ),
-					'title'            => $attachment_title,
-					'description'      => '',
-					'mimeType'         => 'image/gif',
-					'author'           => [
+					'id'           => $media_item_id,
+					'databaseId'   => $attachment_id,
+					'status'       => strtolower( $this->status ),
+					'title'        => $attachment_title,
+					'description'  => '',
+					'mimeType'     => 'image/gif',
+					'author'       => [
 						'node' => [
 							'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
 						],
 					],
-					'parent'           => null,
-					'sourceUrl'        => $attachment_url,
-					'mediaDetails'     => [
+					'parent'       => null,
+					'sourceUrl'    => $attachment_url,
+					'mediaDetails' => [
 						'file'   => $attachment_details['file'],
 						'height' => $attachment_details['height'],
 						'meta'   => [
-							'aperture' => 0.0,
-							'credit'   => '',
-							'camera'   => '',
-							'caption'  => '',
+							'aperture'         => 0.0,
+							'credit'           => '',
+							'camera'           => '',
+							'caption'          => '',
 							'createdTimestamp' => null,
-							'copyright' => '',
-							'focalLength' => null,
-							'iso' => 0,
-							'shutterSpeed' => null,
-							'title' => '',
-							'orientation' => '0',
+							'copyright'        => '',
+							'focalLength'      => null,
+							'iso'              => 0,
+							'shutterSpeed'     => null,
+							'title'            => '',
+							'orientation'      => '0',
 						],
-						'width' => $attachment_details['width'],
-						'sizes' => [
+						'width'  => $attachment_details['width'],
+						'sizes'  => [
 							0 => [
-								'name' => 'thumbnail',
-								'file' => $attachment_details['sizes']['thumbnail']['file'],
-								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'name'      => 'thumbnail',
+								'file'      => $attachment_details['sizes']['thumbnail']['file'],
+								'width'     => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height'    => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType'  => $attachment_details['sizes']['thumbnail']['mime-type'],
 								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
@@ -685,54 +698,53 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$actual = $this->createMediaItemMutation();
 
-		$media_item_id = $actual["data"]["createMediaItem"]["mediaItem"]["id"];
-		$attachment_id = $actual["data"]["createMediaItem"]["mediaItem"]["mediaItemId"];
-		$attachment_url = wp_get_attachment_url( $attachment_id );
+		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
+		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
+		$attachment_url     = wp_get_attachment_url( $attachment_id );
 		$attachment_details = wp_get_attachment_metadata( $attachment_id );
 
 		$expected = [
 			'createMediaItem' => [
-				'clientMutationId' => $this->clientMutationId,
 				'mediaItem' => [
-					'id'               => $media_item_id,
-					'mediaItemId'      => $attachment_id,
-					'title'            => $this->title,
-					'description'      => apply_filters( 'the_content', $this->description ),
-					'altText'          => $this->altText,
-					'caption'          => apply_filters( 'the_content', $this->caption ),
-					'commentStatus'    => $this->commentStatus,
-					'date'             => $this->date,
-					'dateGmt'          => $this->dateGmt,
-					'slug'             => $this->slug,
-					'status'           => strtolower( $this->status ),
-					'mimeType'         => 'image/gif',
-					'parent'           => null,
-					'mediaType'        => 'image',
-					'sourceUrl'        => $attachment_url,
-					'mediaDetails'     => [
+					'id'            => $media_item_id,
+					'databaseId'    => $attachment_id,
+					'title'         => $this->title,
+					'description'   => apply_filters( 'the_content', $this->description ),
+					'altText'       => $this->altText,
+					'caption'       => apply_filters( 'the_content', $this->caption ),
+					'commentStatus' => $this->commentStatus,
+					'date'          => $this->date,
+					'dateGmt'       => $this->dateGmt,
+					'slug'          => $this->slug,
+					'status'        => strtolower( $this->status ),
+					'mimeType'      => 'image/gif',
+					'parent'        => null,
+					'mediaType'     => 'image',
+					'sourceUrl'     => $attachment_url,
+					'mediaDetails'  => [
 						'file'   => $attachment_details['file'],
 						'height' => $attachment_details['height'],
 						'meta'   => [
-							'aperture' => 0.0,
-							'credit'   => '',
-							'camera'   => '',
-							'caption'  => '',
+							'aperture'         => 0.0,
+							'credit'           => '',
+							'camera'           => '',
+							'caption'          => '',
 							'createdTimestamp' => null,
-							'copyright' => '',
-							'focalLength' => null,
-							'iso' => 0,
-							'shutterSpeed' => null,
-							'title' => '',
-							'orientation' => '0',
+							'copyright'        => '',
+							'focalLength'      => null,
+							'iso'              => 0,
+							'shutterSpeed'     => null,
+							'title'            => '',
+							'orientation'      => '0',
 						],
-						'width' => $attachment_details['width'],
-						'sizes' => [
+						'width'  => $attachment_details['width'],
+						'sizes'  => [
 							0 => [
-								'name' => 'thumbnail',
-								'file' => $attachment_details['sizes']['thumbnail']['file'],
-								'width' => (int) $attachment_details['sizes']['thumbnail']['width'],
-								'height' => (int) $attachment_details['sizes']['thumbnail']['height'],
-								'mimeType' => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'name'      => 'thumbnail',
+								'file'      => $attachment_details['sizes']['thumbnail']['file'],
+								'width'     => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height'    => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType'  => $attachment_details['sizes']['thumbnail']['mime-type'],
 								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 							],
 						],
@@ -742,7 +754,6 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -756,36 +767,36 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Prepare the updateMediaItem mutation
 		 */
-		$mutation = '
+		$query = '
 		mutation updateMediaItem( $input: UpdateMediaItemInput! ){
-		  updateMediaItem (input: $input){
-		    clientMutationId
-		    mediaItem {
-		      id
-		      mediaItemId
-		      date
-		      dateGmt
-		      slug
-		      status
-		      title
-		      commentStatus
-		      altText
-		      caption
-		      description
-		      mimeType
-		      author {
-		        node {
-		          id
-		        }
-		      }
-		    }
-		  }
+			updateMediaItem (input: $input){
+				mediaItem {
+					id
+					databaseId
+					date
+					dateGmt
+					slug
+					status
+					title
+					commentStatus
+					altText
+					caption
+					description
+					mimeType
+					author {
+						node {
+							databaseId
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$actual = do_graphql_request( $mutation, 'updateMediaItem', $this->update_variables );
-
-		return $actual;
+		return $this->graphql([
+			'query'     => $query,
+			'variables' => $this->update_variables,
+		]);
 	}
 
 	/**
@@ -798,7 +809,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testUpdateMediaItemInvalidId() {
 		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', 123456 );
-		$actual = $this->updateMediaItemMutation();
+		$actual                                = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['id'] = $this->media_item_id;
 	}
@@ -810,9 +821,9 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 * @return void
 	 */
 	public function testUpdateMediaItemUpdatePost() {
-		$test_post = $this->factory()->post->create();
+		$test_post                             = $this->factory()->post->create();
 		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
-		$actual = $this->updateMediaItemMutation();
+		$actual                                = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['id'] = $this->media_item_id;
 	}
@@ -844,7 +855,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		] );
 		wp_set_current_user( $this->author );
 		$this->update_variables['input']['parentId'] = $post;
-		$actual = $this->updateMediaItemMutation();
+		$actual                                      = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['parentId'] = $this->parentId;
 	}
@@ -859,8 +870,8 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAuthor() {
 		wp_set_current_user( $this->author );
-		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
-		$actual = $this->updateMediaItemMutation();
+		$this->update_variables['input']['authorId'] = $this->admin;
+		$actual                                      = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->update_variables['input']['authorId'] = false;
 	}
@@ -874,12 +885,20 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testUpdateMediaItemAddOtherAuthorsAsAdmin() {
 		wp_set_current_user( $this->admin );
-		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
-		$actual = $this->updateMediaItemMutation();
 
-		$actual_created = $actual['data']['updateMediaItem']['mediaItem'];
-		$this->assertArrayHasKey( 'id', $actual_created );
-		$update_variables['input']['authorId'] = false;
+		// Test as databaseId
+		$this->update_variables['input']['authorId'] = $this->author;
+		$actual                                      = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['updateMediaItem']['mediaItem']['author']['node']['databaseId'] );
+
+		// Test as global Id
+		$this->update_variables['input']['authorId'] = \GraphQLRelay\Relay::toGlobalId( 'user', $this->author );
+		$actual                                      = $this->updateMediaItemMutation();
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $this->author, $actual['data']['updateMediaItem']['mediaItem']['author']['node']['databaseId'] );
 	}
 
 	/**
@@ -898,29 +917,27 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 
 		$actual = $this->updateMediaItemMutation();
 
-
 		/**
 		 * Define the expected output.
 		 */
 		$expected = [
 			'updateMediaItem' => [
-				'clientMutationId' => $this->updated_clientMutationId,
-				'mediaItem'             => [
-					'id'               => $this->media_item_id,
-					'title'            => $this->updated_title,
-					'description'      => apply_filters( 'the_content', $this->updated_description ),
-					'mediaItemId'      => $this->attachment_id,
-					'altText'          => $this->updated_altText,
-					'caption'          => apply_filters( 'the_content', $this->updated_caption ),
-					'commentStatus'    => $this->updated_commentStatus,
-					'date'             => $this->updated_date,
-					'dateGmt'          => $this->updated_dateGmt,
-					'slug'             => $this->updated_slug,
-					'status'           => strtolower( $this->updated_status ),
-					'mimeType'         => 'image/gif',
-					'author'           => [
+				'mediaItem' => [
+					'id'            => $this->media_item_id,
+					'title'         => $this->updated_title,
+					'description'   => apply_filters( 'the_content', $this->updated_description ),
+					'databaseId'    => $this->attachment_id,
+					'altText'       => $this->updated_altText,
+					'caption'       => apply_filters( 'the_content', $this->updated_caption ),
+					'commentStatus' => $this->updated_commentStatus,
+					'date'          => $this->updated_date,
+					'dateGmt'       => $this->updated_dateGmt,
+					'slug'          => $this->updated_slug,
+					'status'        => strtolower( $this->updated_status ),
+					'mimeType'      => 'image/gif',
+					'author'        => [
 						'node' => [
-							'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin ),
+							'databaseId' => $this->admin,
 						],
 					],
 				],
@@ -949,20 +966,20 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$mutation = '
 		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
-		  deleteMediaItem(input: $input) {
-		    clientMutationId
-		    deletedId
-		    mediaItem{
-		      id
-		      mediaItemId
-		    }
-		  }
+			deleteMediaItem(input: $input) {
+				deletedId
+				mediaItem{
+					id
+					databaseId
+				}
+			}
 		}
 		';
 
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $this->delete_variables );
-
-		return $actual;
+		return $this->graphql( [
+			'query'     => $mutation,
+			'variables' => $this->delete_variables,
+		]);
 	}
 
 	/**
@@ -973,7 +990,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	 */
 	public function testDeleteMediaItemInvalidId() {
 		$this->delete_variables['input']['id'] = 12345;
-		$actual = $this->deleteMediaItemMutation();
+		$actual                                = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->delete_variables['input']['id'] = $this->media_item_id;
 	}
@@ -1007,14 +1024,13 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$mutation = '
 		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
-		  deleteMediaItem(input: $input) {
-		    clientMutationId
-		    deletedId
-		    mediaItem {
-		      id
-		      mediaItemId
-		    }
-		  }
+			deleteMediaItem(input: $input) {
+				deletedId
+				mediaItem {
+					id
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1023,15 +1039,13 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$delete_trash_variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
-				'clientMutationId' => $this->clientMutationId,
-				'forceDelete'      => false,
-			]
+				'id'          => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
+				'forceDelete' => false,
+			],
 		];
 
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
-
 
 		$this->assertArrayHasKey( 'errors', $actual );
 	}
@@ -1045,21 +1059,19 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 	public function testForceDeleteMediaItemAlreadyInTrash() {
 
 		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
-		$post               = get_post( $deleted_media_item );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
 		 */
 		$mutation = '
 		mutation deleteMediaItem( $input: DeleteMediaItemInput! ){
-		  deleteMediaItem(input: $input) {
-		    clientMutationId
-		    deletedId
-		    mediaItem {
-		      id
-		      mediaItemId
-		    }
-		  }
+			deleteMediaItem(input: $input) {
+				deletedId
+				mediaItem {
+					id
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1068,16 +1080,15 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$delete_trash_variables = [
 			'input' => [
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
-				'clientMutationId' => $this->clientMutationId,
-				'forceDelete'      => false,
-			]
+				'id'          => \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item ),
+				'forceDelete' => false,
+			],
 		];
 
 		wp_set_current_user( $this->admin );
 
 		$delete_trash_variables['input']['forceDelete'] = true;
-		$actual = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
+		$actual              = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
 		$actual_deleted_item = $actual['data']['deleteMediaItem'];
 		$this->assertArrayHasKey( 'deletedId', $actual_deleted_item );
 
@@ -1110,7 +1121,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Create a page to test against and set the post id in the mutation variables
 		 */
-		$post_to_delete = $this->factory->post->create( $args );
+		$post_to_delete                        = $this->factory->post->create( $args );
 		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $post_to_delete );
 
 		/**
@@ -1145,11 +1156,10 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		 */
 		$expected = [
 			'deleteMediaItem' => [
-				'clientMutationId' => $this->clientMutationId,
 				'deletedId' => $this->media_item_id,
 				'mediaItem' => [
-					'id'               => $this->media_item_id,
-					'mediaItemId'      => $this->attachment_id,
+					'id'         => $this->media_item_id,
+					'databaseId' => $this->attachment_id,
 				],
 			],
 		];
@@ -1157,7 +1167,7 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		/**
 		 * Compare the actual output vs the expected output
 		 */
-		$this->assertEquals( $expected,  $actual['data'] );
+		$this->assertEquals( $expected, $actual['data'] );
 
 		/**
 		 * Try to delete again but we should have errors, because there's nothing to be deleted
@@ -1165,27 +1175,34 @@ class MediaItemMutationsTest extends \Codeception\TestCase\WPTestCase
 		$actual = $this->deleteMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 
+		// test global Id
+		$deleted_media_item                    = $this->factory()->attachment->create();
+		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item );
+
+		$actual = $this->deleteMediaItemMutation();
+		$this->assertArrayNotHasKey( 'error', $actual );
+		$this->assertEquals( $deleted_media_item, $actual['data']['deleteMediaItem']['mediaItem']['databaseId'] );
+
+		$this->delete_variables['input']['id'] = $this->media_item_id;
 	}
 
 	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
 
 		$media_item_1 = $this->factory()->attachment->create( [
 			'post_mime_type' => 'image/gif',
-			'post_author' => $this->author
+			'post_author'    => $this->author,
 		] );
 
 		wp_set_current_user( $this->author );
 
 		$this->update_variables = [
 			'input' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_1 ),
-				'title' => 'Test update title...'
-			]
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $media_item_1 ),
+				'title' => 'Test update title...',
+			],
 		];
 
-		$actual =  $this->updateMediaItemMutation();
-
-//		codecept_debug( $actual );
+		$actual = $this->updateMediaItemMutation();
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 

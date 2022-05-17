@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentMutation
@@ -85,7 +86,7 @@ class CommentMutation {
 		}
 
 		if ( ! empty( $input['parent'] ) ) {
-			$output_args['comment_parent'] = $input['parent'];
+			$output_args['comment_parent'] = Utils::get_database_id_from_id( $input['parent'] );
 		}
 
 		if ( ! empty( $input['type'] ) ) {

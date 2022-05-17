@@ -347,7 +347,7 @@ class NodeResolver {
 
 		unset( $this->wp->query_vars['graphql'] );
 
-		do_action_ref_array( 'parse_request', [ $this->wp ] );
+		do_action_ref_array( 'parse_request', [ &$this->wp ] );
 
 		// If the request is for the homepage, determine
 		if ( '/' === $uri ) {
