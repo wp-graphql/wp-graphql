@@ -23,10 +23,6 @@ class MediaItemStatusEnum {
 
 		if ( ! empty( $post_stati ) && is_array( $post_stati ) ) {
 			/**
-			 * Reset the array
-			 */
-			$values = [];
-			/**
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {

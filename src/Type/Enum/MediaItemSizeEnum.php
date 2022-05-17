@@ -24,21 +24,15 @@ class MediaItemSizeEnum {
 			'full',
 		];
 
-		if ( ! empty( $image_sizes ) && is_array( $image_sizes ) ) {
-			/**
-			 * Reset the array
-			 */
-			$values = [];
-			/**
-			 * Loop through the image_sizes
-			 */
-			foreach ( $image_sizes as $image_size ) {
+		/**
+		 * Loop through the image_sizes
+		 */
+		foreach ( $image_sizes as $image_size ) {
 
-				$values[ WPEnumType::get_safe_name( $image_size ) ] = [
-					'description' => sprintf( __( 'MediaItem with the %1$s size', 'wp-graphql' ), $image_size ),
-					'value'       => $image_size,
-				];
-			}
+			$values[ WPEnumType::get_safe_name( $image_size ) ] = [
+				'description' => sprintf( __( 'MediaItem with the %1$s size', 'wp-graphql' ), $image_size ),
+				'value'       => $image_size,
+			];
 		}
 
 		register_graphql_enum_type(
