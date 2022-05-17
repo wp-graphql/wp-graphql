@@ -6,7 +6,6 @@ use Exception;
 use GraphQLRelay\Relay;
 use WP_Post;
 use WP_User;
-use WPGraphQL;
 
 /**
  * Class User - Models the data for the User object type
@@ -157,7 +156,6 @@ class User extends Model {
 		if ( true === $this->owner_matches_current_user() ) {
 			return false;
 		}
-
 		// @phpstan-ignore-next-line
 		return $this->data->is_private ?? true;
 	}

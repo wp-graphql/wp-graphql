@@ -682,7 +682,7 @@ final class WPGraphQL {
 			 *
 			 * @since 0.0.5
 			 *
-			 * @param array                 $schema      The executable Schema that GraphQL executes against
+			 * @param WPSchema   $schema      The executable Schema that GraphQL executes against
 			 * @param AppContext $app_context Object The AppContext object containing all of the
 			 *                                           information about the context we know at this point
 			 */
@@ -738,8 +738,8 @@ final class WPGraphQL {
 			 *
 			 * @since 0.0.5
 			 *
-			 * @param array                 $type_registry The TypeRegistry for the API
-			 * @param AppContext $app_context   Object The AppContext object containing all of the
+			 * @param TypeRegistry $type_registry The TypeRegistry for the API
+			 * @param AppContext   $app_context   Object The AppContext object containing all of the
 			 *                                             information about the context we know at this point
 			 */
 			self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );

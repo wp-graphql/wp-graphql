@@ -357,8 +357,8 @@ class Tracing {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array   $trace The trace to return
-		 * @param Tracing $this  The Tracing class instance
+		 * @param array   $trace     The trace to return
+		 * @param Tracing $instance  The Tracing class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
 	}

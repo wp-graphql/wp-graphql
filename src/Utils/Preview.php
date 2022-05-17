@@ -30,10 +30,10 @@ class Preview {
 		 * Filters whether to resolve revision metadata from the parent node
 		 * by default.
 		 *
-		 * @param bool   $should    Whether to resolve using the parent object. Default true.
-		 * @param int    $object_id The ID of the object to resolve meta for
-		 * @param string $meta_key  The key for the meta to resolve
-		 * @param bool   $single    Whether a single value should be returned
+		 * @param bool    $should    Whether to resolve using the parent object. Default true.
+		 * @param int     $object_id The ID of the object to resolve meta for
+		 * @param ?string $meta_key  The key for the meta to resolve
+		 * @param ?bool   $single    Whether a single value should be returned
 		 */
 		$resolve_revision_meta_from_parent = apply_filters( 'graphql_resolve_revision_meta_from_parent', true, $object_id, $meta_key, $single );
 
