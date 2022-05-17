@@ -160,7 +160,7 @@ class PostObjectUpdate {
 			/**
 			 * Throw an exception if the post failed to update
 			 */
-			if ( 0 === $post_id || is_wp_error( $updated_post_id ) ) {
+			if ( ! $post_id || is_wp_error( $updated_post_id ) ) {
 				throw new UserError( __( 'The object failed to update', 'wp-graphql' ) );
 			}
 
