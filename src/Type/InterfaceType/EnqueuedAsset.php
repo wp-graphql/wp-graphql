@@ -52,7 +52,7 @@ class EnqueuedAsset {
 				],
 				'version'      => [
 					'type'        => 'String',
-					'description' => __( 'The version of the enqueued asset', 'wp-graphql' ),
+					'description' => __( 'The version of the enqueued asset. Defaults to the current version of WordPress.', 'wp-graphql' ),
 				],
 				'src'          => [
 					'type'        => 'String',
