@@ -27,15 +27,20 @@ class MenuNodeIdTypeEnum {
 					'value'       => 'database_id',
 					'description' => __( 'Identify a menu node by the Database ID.', 'wp-graphql' ),
 				],
+				'LOCATION'    => [
+					'name'        => 'LOCATION',
+					'value'       => 'location',
+					'description' => __( 'Identify a menu node by the menu location to which it is assigned', 'wp-graphql' ),
+				],
 				'NAME'        => [
 					'name'        => 'NAME',
 					'value'       => 'name',
 					'description' => __( 'Identify a menu node by its name', 'wp-graphql' ),
 				],
-				'LOCATION'    => [
-					'name'        => 'LOCATION',
-					'value'       => 'location',
-					'description' => __( 'Identify a menu node by the menu location to which it is assigned', 'wp-graphql' ),
+				'SLUG'        => [
+					'name'        => 'SLUG',
+					'value'       => 'slug',
+					'description' => __( 'Identify a menu node by its slug', 'wp-graphql' ),
 				],
 			],
 		]);
