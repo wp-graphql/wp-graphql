@@ -359,6 +359,15 @@ class RootQuery {
 									);
 									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
 									break;
+								case 'location':
+									$locations = get_nav_menu_locations();
+
+									if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
+										throw new UserError( __( 'No menu set for the provided location', 'wp-graphql' ) );
+									}
+
+									$id = absint( $locations[ $args['id'] ] );
+									break;
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
