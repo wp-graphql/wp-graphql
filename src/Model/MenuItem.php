@@ -161,7 +161,7 @@ class MenuItem extends Model {
 					if ( ! empty( $url ) ) {
 						$parsed = wp_parse_url( $url );
 						if ( isset( $parsed['host'] ) ) {
-							if ( strpos( home_url(), $parsed['host'] ) ) {
+							if ( strpos( Utils::get_home_url(), $parsed['host'] ) ) {
 								return $parsed['path'];
 							} elseif ( strpos( home_url(), $parsed['host'] ) ) {
 								return $parsed['path'];
