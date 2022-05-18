@@ -30,7 +30,7 @@ class MenuNodeIdTypeEnum {
 				'LOCATION'    => [
 					'name'        => 'LOCATION',
 					'value'       => 'location',
-					'description' => __( 'Identify a menu node by the menu location to which it is assigned', 'wp-graphql' ),
+					'description' => __( 'Identify a menu node by the slug of menu location to which it is assigned', 'wp-graphql' ),
 				],
 				'NAME'        => [
 					'name'        => 'NAME',
