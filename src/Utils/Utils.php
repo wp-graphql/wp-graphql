@@ -221,6 +221,7 @@ class Utils {
 		/**
 		 * Filter the frontend URL for the current site used throughout the schema.
 		 *
+		 * Should only be used when conditionally filtering `home_url` is not an option.
 		 * Useful when the headless frontend is different than that used by WordPress.
 		 * E.g. `localhost:3000`
 		 *
