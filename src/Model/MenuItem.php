@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WP_Post;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class MenuItem - Models the data for the MenuItem object type
@@ -148,7 +149,7 @@ class MenuItem extends Model {
 				'uri'              => function () {
 					$url = $this->data->url;
 
-					return ! empty( $url ) ? str_ireplace( home_url(), '', $url ) : null;
+					return Utils::get_relative_uri( $url );
 				},
 				'url'              => function () {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
