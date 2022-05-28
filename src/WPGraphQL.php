@@ -285,7 +285,6 @@ final class WPGraphQL {
 
 		// Determine what to show in graphql
 		add_action( 'init_graphql_request', 'register_initial_settings', 10 );
-		add_action( 'init', [ $this, 'setup_types' ], 10 );
 
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
@@ -367,6 +366,9 @@ final class WPGraphQL {
 	 */
 	private function filters() {
 
+		// Filter the post_types and taxonomies to show in the GraphQL Schema
+		$this->setup_types();
+
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 		 */
@@ -423,50 +425,62 @@ final class WPGraphQL {
 	 * @return void
 	 */
 	public static function show_in_graphql() {
+		add_filter( 'register_post_type_args', [ __CLASS__, 'setup_default_post_types' ], 10, 2 );
+		add_filter( 'register_taxonomy_args', [ __CLASS__, 'setup_default_taxonomies' ], 10, 2 );
+	}
 
-		global $wp_post_types, $wp_taxonomies;
-
+	/**
+	 * Sets up the default post types to show_in_graphql.
+	 *
+	 * @param array  $args      Array of arguments for registering a post type.
+	 * @param string $post_type Post type key.
+	 *
+	 * @return array
+	 */
+	public static function setup_default_post_types( $args, $post_type ) {
 		// Adds GraphQL support for attachments.
-		if ( isset( $wp_post_types['attachment'] ) ) {
-			$wp_post_types['attachment']->show_in_graphql     = true;
-			$wp_post_types['attachment']->graphql_single_name = 'mediaItem';
-			$wp_post_types['attachment']->graphql_plural_name = 'mediaItems';
+		if ( 'attachment' === $post_type ) {
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'mediaItem';
+			$args['graphql_plural_name'] = 'mediaItems';
+		} elseif ( 'page' === $post_type ) { // Adds GraphQL support for pages.
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'page';
+			$args['graphql_plural_name'] = 'pages';
+		} elseif ( 'post' === $post_type ) { // Adds GraphQL support for posts.
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'post';
+			$args['graphql_plural_name'] = 'posts';
 		}
 
-		// Adds GraphQL support for pages.
-		if ( isset( $wp_post_types['page'] ) ) {
-			$wp_post_types['page']->show_in_graphql     = true;
-			$wp_post_types['page']->graphql_single_name = 'page';
-			$wp_post_types['page']->graphql_plural_name = 'pages';
-		}
+		return $args;
+	}
 
-		// Adds GraphQL support for posts.
-		if ( isset( $wp_post_types['post'] ) ) {
-			$wp_post_types['post']->show_in_graphql     = true;
-			$wp_post_types['post']->graphql_single_name = 'post';
-			$wp_post_types['post']->graphql_plural_name = 'posts';
-		}
-
+	/**
+	 * Sets up the default taxonomies to show_in_graphql.
+	 *
+	 * @param array  $args      Array of arguments for registering a taxonomy.
+	 * @param string $taxonomy  Taxonomy key.
+	 *
+	 * @return array
+	 */
+	public static function setup_default_taxonomies( $args, $taxonomy ) {
 		// Adds GraphQL support for categories.
-		if ( isset( $wp_taxonomies['category'] ) ) {
-			$wp_taxonomies['category']->show_in_graphql     = true;
-			$wp_taxonomies['category']->graphql_single_name = 'category';
-			$wp_taxonomies['category']->graphql_plural_name = 'categories';
+		if ( 'category' === $taxonomy ) {
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'category';
+			$args['graphql_plural_name'] = 'categories';
+		} elseif ( 'post_tag' === $taxonomy ) { // Adds GraphQL support for tags.
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'tag';
+			$args['graphql_plural_name'] = 'tags';
+		} elseif ( 'post_format' === $taxonomy ) { // Adds GraphQL support for post formats.
+			$args['show_in_graphql']     = true;
+			$args['graphql_single_name'] = 'postFormat';
+			$args['graphql_plural_name'] = 'postFormats';
 		}
 
-		// Adds GraphQL support for tags.
-		if ( isset( $wp_taxonomies['post_tag'] ) ) {
-			$wp_taxonomies['post_tag']->show_in_graphql     = true;
-			$wp_taxonomies['post_tag']->graphql_single_name = 'tag';
-			$wp_taxonomies['post_tag']->graphql_plural_name = 'tags';
-		}
-
-		// Adds GraphQL support for post formats.
-		if ( isset( $wp_taxonomies['post_format'] ) ) {
-			$wp_taxonomies['post_format']->show_in_graphql     = true;
-			$wp_taxonomies['post_format']->graphql_single_name = 'postFormat';
-			$wp_taxonomies['post_format']->graphql_plural_name = 'postFormats';
-		}
+		return $args;
 	}
 
 	/**
