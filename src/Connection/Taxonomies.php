@@ -27,27 +27,6 @@ class Taxonomies {
 			]
 		);
 
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects', [ 'graphql_register_root_connection' => true ] );
-
-		foreach ( $allowed_taxonomies as $tax_object ) {
-			register_graphql_connection(
-				[
-					'fromType'      => $tax_object->graphql_single_name,
-					'toType'        => 'Taxonomy',
-					'fromFieldName' => 'taxonomy',
-					'oneToOne'      => true,
-					'resolve'       => function ( Term $source, $args, $context, $info ) {
-						if ( empty( $source->taxonomyName ) ) {
-							return null;
-						}
-						$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-						$resolver->set_query_arg( 'name', $source->taxonomyName );
-						return $resolver->one_to_one()->get_connection();
-					},
-				]
-			);
-		}
-
 		register_graphql_connection(
 			[
 				'fromType'      => 'ContentType',
@@ -60,6 +39,23 @@ class Taxonomies {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					$resolver->setQueryArg( 'in', $source->taxonomies );
 					return $resolver->get_connection();
+				},
+			]
+		);
+
+		register_graphql_connection(
+			[
+				'fromType'      => 'TermNode',
+				'toType'        => 'Taxonomy',
+				'fromFieldName' => 'taxonomy',
+				'oneToOne'      => true,
+				'resolve'       => function ( Term $source, $args, $context, $info ) {
+					if ( empty( $source->taxonomyName ) ) {
+						return null;
+					}
+					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
+					$resolver->set_query_arg( 'name', $source->taxonomyName );
+					return $resolver->one_to_one()->get_connection();
 				},
 			]
 		);

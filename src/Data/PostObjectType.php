@@ -2,7 +2,16 @@
 
 namespace WPGraphQL\Data;
 
+use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
+use WPGraphQL;
+use WPGraphQL\AppContext;
+use WPGraphQL\Connection\Comments;
+use WPGraphQL\Connection\PostObjects;
+use WPGraphQL\Connection\TermObjects;
+use WPGraphQL\Data\Connection\CommentConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Post;
 
 /**
@@ -25,6 +34,7 @@ class PostObjectType {
 		$config = [
 			/* translators: post object singular name w/ description */
 			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
+			'connections' => static::get_post_object_connections( $post_type_object ),
 			'interfaces'  => static::get_post_object_interfaces( $post_type_object ),
 			'fields'      => static::get_post_object_fields( $post_type_object ),
 			'model'       => Post::class,
@@ -54,6 +64,135 @@ class PostObjectType {
 		} elseif ( 'union' === $post_type_object->graphql_kind ) {
 			register_graphql_union_type( $single_name, $config );
 		}
+	}
+
+	/**
+	 * Gets all the connections for the given post type.
+	 *
+	 * @param WP_Post_Type $post_type_object
+	 *
+	 * @return array
+	 */
+	protected static function get_post_object_connections( WP_Post_Type $post_type_object ) {
+		$connections = [];
+
+		// Comments.
+		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
+			$connections['comments'] = [
+				'toType'         => 'Comment',
+				'connectionArgs' => Comments::get_connection_args(),
+				'resolve'        => function ( Post $post, $args, $context, $info ) {
+
+					if ( $post->isRevision ) {
+						$id = $post->parentDatabaseId;
+					} else {
+						$id = $post->ID;
+					}
+
+					$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
+
+					return $resolver->set_query_arg( 'post_id', absint( $id ) )->get_connection();
+				},
+			];
+		}
+
+		// Previews.
+		if ( ! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
+			$connections['preview'] = [
+				'toType'             => $post_type_object->graphql_single_name,
+				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
+				'oneToOne'           => true,
+				'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					if ( $post->isRevision ) {
+						return null;
+					}
+
+					if ( empty( $post->previewRevisionDatabaseId ) ) {
+						return null;
+					}
+
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
+					$resolver->set_query_arg( 'p', $post->previewRevisionDatabaseId );
+
+					return $resolver->one_to_one()->get_connection();
+				},
+			];
+		}
+
+		// Revisions.
+		if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
+			$connections['revisions'] = [
+				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToRevisionConnection',
+				'toType'             => $post_type_object->graphql_single_name,
+				'queryClass'         => 'WP_Query',
+				'connectionArgs'     => PostObjects::get_connection_args( [], $post_type_object ),
+				'resolve'            => function ( Post $post, $args, $context, $info ) {
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
+					$resolver->set_query_arg( 'post_parent', $post->ID );
+
+					return $resolver->get_connection();
+				},
+			];
+		}
+
+		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
+		if ( ! empty( $allowed_taxonomies ) ) {
+
+			// TermNode.
+			$connections['terms'] = [
+				'toType'         => 'TermNode',
+				'queryClass'     => 'WP_Term_Query',
+				'connectionArgs' => TermObjects::get_connection_args(
+					[
+						'taxonomies' => [
+							'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+							'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+						],
+					]
+				),
+				'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					$taxonomies = \WPGraphQL::get_allowed_taxonomies();
+					$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+
+					if ( empty( $terms ) || is_wp_error( $terms ) ) {
+						return null;
+					}
+					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+					$resolver->set_query_arg( 'include', $terms );
+
+					return $resolver->get_connection();
+				},
+			];
+
+			// TermObjects.
+			foreach ( $allowed_taxonomies as $tax_object ) {
+				if ( ! in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
+					continue;
+				}
+
+				$connections[ $tax_object->graphql_plural_name ] = [
+					'toType'         => $tax_object->graphql_single_name,
+					'queryClass'     => 'WP_Term_Query',
+					'connectionArgs' => TermObjects::get_connection_args(),
+					'resolve'        => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+
+						$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
+
+						if ( empty( $object_id ) || ! absint( $object_id ) ) {
+							return null;
+						}
+
+						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
+						$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+
+						return $resolver->get_connection();
+					},
+				];
+
+			}
+		}
+
+		return $connections;
 	}
 
 	/**
