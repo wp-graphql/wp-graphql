@@ -135,61 +135,67 @@ class PostObjectType {
 			];
 		}
 
+		// Used to ensure TermNode connection doesn't get registered multiple times.
+		$already_registered = false;
 		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
-		if ( ! empty( $allowed_taxonomies ) ) {
+
+		foreach ( $allowed_taxonomies as $tax_object ) {
+
+			if ( ! in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
+				continue;
+			}
 
 			// TermNode.
-			$connections['terms'] = [
-				'toType'         => 'TermNode',
-				'queryClass'     => 'WP_Term_Query',
-				'connectionArgs' => TermObjects::get_connection_args(
-					[
-						'taxonomies' => [
-							'type'        => [ 'list_of' => 'TaxonomyEnum' ],
-							'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
-						],
-					]
-				),
-				'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-					$taxonomies = \WPGraphQL::get_allowed_taxonomies();
-					$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
-
-					if ( empty( $terms ) || is_wp_error( $terms ) ) {
-						return null;
-					}
-					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-					$resolver->set_query_arg( 'include', $terms );
-
-					return $resolver->get_connection();
-				},
-			];
-
-			// TermObjects.
-			foreach ( $allowed_taxonomies as $tax_object ) {
-				if ( ! in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
-					continue;
-				}
-
-				$connections[ $tax_object->graphql_plural_name ] = [
-					'toType'         => $tax_object->graphql_single_name,
+			if ( ! $already_registered ) {
+				$connections['terms'] = [
+					'toType'         => 'TermNode',
 					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => TermObjects::get_connection_args(),
-					'resolve'        => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+					'connectionArgs' => TermObjects::get_connection_args(
+						[
+							'taxonomies' => [
+								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
+								'description' => __( 'The Taxonomy to filter terms by', 'wp-graphql' ),
+							],
+						]
+					),
+					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
+						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 
-						$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
-
-						if ( empty( $object_id ) || ! absint( $object_id ) ) {
+						if ( empty( $terms ) || is_wp_error( $terms ) ) {
 							return null;
 						}
-
-						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
-						$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+						$resolver->set_query_arg( 'include', $terms );
 
 						return $resolver->get_connection();
 					},
 				];
 
+				// We won't need to register this connection again.
+				$already_registered = true;
 			}
+
+			// TermObjects.
+			$connections[ $tax_object->graphql_plural_name ] = [
+				'toType'         => $tax_object->graphql_single_name,
+				'queryClass'     => 'WP_Term_Query',
+				'connectionArgs' => TermObjects::get_connection_args(),
+				'resolve'        => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+
+					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
+
+					if ( empty( $object_id ) || ! absint( $object_id ) ) {
+						return null;
+					}
+
+					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
+					$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+
+					return $resolver->get_connection();
+				},
+			];
+
 		}
 
 		// Merge with connections set in register_post_type.
@@ -329,14 +335,14 @@ class PostObjectType {
 		}
 
 		if ( ! $post_type_object->hierarchical &&
-			! in_array(
-				$post_type_object->name,
-				[
-					'attachment',
-					'revision',
-				],
-				true
-			) ) {
+		! in_array(
+			$post_type_object->name,
+			[
+				'attachment',
+				'revision',
+			],
+			true
+		) ) {
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}

@@ -9,6 +9,7 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Connection\PostObjects;
 use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Term;
 
@@ -68,12 +69,32 @@ class TermObjectType {
 	protected static function get_term_object_connections( WP_Taxonomy $tax_object ) {
 		$connections = [];
 
+		// Taxonomy.
+		// @todo connection move to TermNode (breaking).
+		$connections['taxonomy'] = [
+			'toType'   => 'Taxonomy',
+			'oneToOne' => true,
+			'resolve'  => function ( Term $source, $args, $context, $info ) {
+				if ( empty( $source->taxonomyName ) ) {
+					return null;
+				}
+				$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
+				$resolver->set_query_arg( 'name', $source->taxonomyName );
+				return $resolver->one_to_one()->get_connection();
+			},
+		];
+
 		if ( true === $tax_object->hierarchical ) {
 			// Children.
 			$connections['children'] = [
-				'queryClass'     => 'WP_Term_Query',
 				'toType'         => $tax_object->graphql_single_name,
+				'description'    => sprintf(
+					__( 'Connection between the %1$s type and its children %2$s.', 'wp-graphql' ),
+					$tax_object->graphql_single_name,
+					$tax_object->graphql_plural_name,
+				),
 				'connectionArgs' => TermObjects::get_connection_args(),
+				'queryClass'     => 'WP_Term_Query',
 				'resolve'        => function ( Term $term, $args, AppContext $context, $info ) {
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
 					$resolver->set_query_arg( 'parent', $term->term_id );
@@ -86,6 +107,10 @@ class TermObjectType {
 			// Parent.
 			$connections['parent'] = [
 				'toType'             => $tax_object->graphql_single_name,
+				'description'        => sprintf(
+					__( 'Connection between the %1$s type and its parent %1$s.', 'wp-graphql' ),
+					$tax_object->graphql_single_name,
+				),
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 				'oneToOne'           => true,
 				'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
@@ -124,34 +149,41 @@ class TermObjectType {
 			];
 		}
 
-		// ContentNodes.
-		if ( ! empty( $tax_object->object_type ) ) {
-			$connections['contentNodes'] = PostObjects::get_connection_config( $tax_object, [
-				'toType'  => 'ContentNode',
-				'resolve' => function ( Term $term, $args, $context, $info ) {
-					$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
-					$resolver->set_query_arg( 'tax_query', [
-						[
-							'taxonomy'         => $term->taxonomyName,
-							'terms'            => [ $term->term_id ],
-							'field'            => 'term_id',
-							'include_children' => false,
-						],
-					] );
-
-					return $resolver->get_connection();
-				},
-			] );
-		}
-
-		// PostObjects.
+		// Used to ensure contentNodes connection doesn't get registered multiple times.
+		$already_registered = false;
 		$allowed_post_types = WPGraphQL::get_allowed_post_types( 'objects' );
+
 		foreach ( $allowed_post_types as $post_type_object ) {
 
 			if ( ! in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
 				continue;
 			}
 
+			// ContentNodes.
+			if ( ! $already_registered ) {
+
+				$connections['contentNodes'] = PostObjects::get_connection_config( $tax_object, [
+					'toType'  => 'ContentNode',
+					'resolve' => function ( Term $term, $args, $context, $info ) {
+						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
+						$resolver->set_query_arg( 'tax_query', [
+							[
+								'taxonomy'         => $term->taxonomyName,
+								'terms'            => [ $term->term_id ],
+								'field'            => 'term_id',
+								'include_children' => false,
+							],
+						] );
+
+						return $resolver->get_connection();
+					},
+				] );
+
+				// We won't need to register this connection again.
+				$already_registered = true;
+			}
+
+			// PostObjects.
 			$connections[ $post_type_object->graphql_plural_name ] = PostObjects::get_connection_config( $post_type_object, [
 				'toType'     => $post_type_object->graphql_single_name,
 				'queryClass' => 'WP_Query',

@@ -4,7 +4,6 @@ namespace WPGraphQL\Connection;
 
 use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Model\PostType;
-use WPGraphQL\Model\Term;
 
 class Taxonomies {
 
@@ -42,23 +41,5 @@ class Taxonomies {
 				},
 			]
 		);
-
-		register_graphql_connection(
-			[
-				'fromType'      => 'TermNode',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'taxonomy',
-				'oneToOne'      => true,
-				'resolve'       => function ( Term $source, $args, $context, $info ) {
-					if ( empty( $source->taxonomyName ) ) {
-						return null;
-					}
-					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-					$resolver->set_query_arg( 'name', $source->taxonomyName );
-					return $resolver->one_to_one()->get_connection();
-				},
-			]
-		);
-
 	}
 }
