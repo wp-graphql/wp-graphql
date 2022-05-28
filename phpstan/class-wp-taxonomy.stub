@@ -6,6 +6,7 @@
  * @property bool   $show_in_graphql
  * @property 'interface'|'object'|'union' $graphql_kind
  * @property ?callable $graphql_resolve_type
+ * @property array $graphql_connections
  * @property string[] $graphql_interfaces
  * @property bool $graphql_register_root_field
  * @property bool $graphql_register_root_connection

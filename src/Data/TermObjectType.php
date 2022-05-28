@@ -171,6 +171,11 @@ class TermObjectType {
 			]);
 		}
 
+		// Merge with connections set in register_taxonomy.
+		if ( ! empty( $tax_object->graphql_connections ) ) {
+			$connections = array_merge( $connections, $tax_object->graphql_connections );
+		}
+
 		return $connections;
 	}
 	/**

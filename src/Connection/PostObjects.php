@@ -12,7 +12,6 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
 
 /**

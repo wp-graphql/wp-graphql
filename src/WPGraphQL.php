@@ -510,6 +510,8 @@ final class WPGraphQL {
 			// An array of custom interfaces the type should implement.
 			// @todo Maybe relocate from https://github.com/wp-graphql/wp-graphql/blob/365b021efeddfc99df1fc7898c071294cac741b6/src/Type/ObjectType/PostObject.php#L24
 			'graphql_interfaces'               => [],
+			// An array of custom connections the type should implement.
+			'graphql_connections'              => [],
 			// Whether to register default connections to the schema.
 			'graphql_register_root_field'      => true,
 			'graphql_register_root_connection' => true,
