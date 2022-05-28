@@ -16,6 +16,8 @@ use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Data\PostObjectType;
+use WPGraphQL\Data\TermObjectType;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
 use WPGraphQL\Mutation\CommentRestore;
@@ -104,14 +106,12 @@ use WPGraphQL\Type\ObjectType\Menu;
 use WPGraphQL\Type\ObjectType\MenuItem;
 use WPGraphQL\Type\ObjectType\PageInfo;
 use WPGraphQL\Type\ObjectType\Plugin;
-use WPGraphQL\Type\ObjectType\PostObject;
 use WPGraphQL\Type\ObjectType\ContentType;
 use WPGraphQL\Type\ObjectType\PostTypeLabelDetails;
 use WPGraphQL\Type\ObjectType\RootMutation;
 use WPGraphQL\Type\ObjectType\RootQuery;
 use WPGraphQL\Type\ObjectType\SettingGroup;
 use WPGraphQL\Type\ObjectType\Taxonomy;
-use WPGraphQL\Type\ObjectType\TermObject;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
@@ -373,13 +373,13 @@ class TypeRegistry {
 		 *
 		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_kind' => 'object' ] );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
-			PostObject::register_post_object_types( $post_type_object, $type_registry );
+			PostObjectType::register_post_object_types( $post_type_object );
 
 			/**
 			 * Mutations for attachments are handled differently
@@ -454,9 +454,7 @@ class TypeRegistry {
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
-			if ( 'object' === $tax_object->graphql_kind ) {
-				TermObject::register_taxonomy_object_type( $tax_object );
-			}
+			TermObjectType::register_term_object_types( $tax_object );
 			TermObjectCreate::register_mutation( $tax_object );
 			TermObjectUpdate::register_mutation( $tax_object );
 			TermObjectDelete::register_mutation( $tax_object );
