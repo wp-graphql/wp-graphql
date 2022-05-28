@@ -35,6 +35,11 @@ class TermObject {
 			$interfaces[] = 'MenuItemLinkable';
 		}
 
+		// Merge with interfaces set in register_taxonomy.
+		if ( ! empty( $tax_object->graphql_interfaces ) ) {
+			$interfaces = array_merge( $interfaces, $tax_object->graphql_interfaces );
+		}
+
 		$single_name = $tax_object->graphql_single_name;
 		register_graphql_object_type(
 			$single_name,

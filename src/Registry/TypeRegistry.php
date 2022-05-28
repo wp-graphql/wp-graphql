@@ -373,7 +373,7 @@ class TypeRegistry {
 		 *
 		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_kind' => 'object' ] );
 
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
@@ -454,7 +454,9 @@ class TypeRegistry {
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
-			TermObject::register_taxonomy_object_type( $tax_object );
+			if ( 'object' === $tax_object->graphql_kind ) {
+				TermObject::register_taxonomy_object_type( $tax_object );
+			}
 			TermObjectCreate::register_mutation( $tax_object );
 			TermObjectUpdate::register_mutation( $tax_object );
 			TermObjectDelete::register_mutation( $tax_object );

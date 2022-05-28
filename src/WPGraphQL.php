@@ -427,6 +427,10 @@ final class WPGraphQL {
 	public static function show_in_graphql() {
 		add_filter( 'register_post_type_args', [ __CLASS__, 'setup_default_post_types' ], 10, 2 );
 		add_filter( 'register_taxonomy_args', [ __CLASS__, 'setup_default_taxonomies' ], 10, 2 );
+
+		// Run late so the user can filter the args themselves.
+		add_filter( 'register_post_type_args', [ __CLASS__, 'set_wp_type_args' ], 99, 2 );
+		add_filter( 'register_taxonomy_args', [ __CLASS__, 'set_wp_type_args' ], 99, 2 );
 	}
 
 	/**
@@ -478,6 +482,50 @@ final class WPGraphQL {
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'postFormat';
 			$args['graphql_plural_name'] = 'postFormats';
+		}
+
+		return $args;
+	}
+
+	/**
+	 * This sets the post type /taxonomy GraphQL properties.
+	 *
+	 * @param array  $args      Array of arguments for registering the type.
+	 * @param string $wp_type   Post type / Taxonomy type key.
+	 *
+	 * @return array
+	 */
+	public static function set_wp_type_args( $args, $wp_type ) {
+
+		// Bail early if the post type is hidden from the WPGraphQL schema.
+		if ( empty( $args['show_in_graphql'] ) ) {
+			return $args;
+		}
+
+		$defaults = [
+			// The "kind" of GraphQL type to register. Can be `interface`, `object`, or `union`.
+			'graphql_kind'                     => 'object',
+			// The callback used to resolve the type. Only used if `graphql_kind` is an `interface` or `union`.
+			'graphql_resolve_type'             => null,
+			// An array of custom interfaces the type should implement.
+			// @todo Maybe relocate from https://github.com/wp-graphql/wp-graphql/blob/365b021efeddfc99df1fc7898c071294cac741b6/src/Type/ObjectType/PostObject.php#L24
+			'graphql_interfaces'               => [],
+			// Whether to register default connections to the schema.
+			'graphql_register_root_field'      => true,
+			'graphql_register_root_connection' => true,
+		];
+
+		$args = wp_parse_args( $defaults, $args );
+
+		// Ensure a valid type resolver is set for interface and union types.
+		if ( ! is_callable( $args['graphql_resolve_type'] ) && ( 'interface' === $args['graphql_kind'] || 'union' === $args['graphql_kind'] ) ) {
+			throw new Exception(
+				sprintf(
+					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure $args[\'graphql_resolve_type\'] is a valid callback function.', 'wp-graphql' ),
+					$wp_type,
+					$args['graphql_kind']
+				)
+			);
 		}
 
 		return $args;

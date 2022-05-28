@@ -177,7 +177,8 @@ class PostObjects {
 		 *
 		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_register_root_connection' => true ] );
+
 		foreach ( $allowed_post_types as $post_type_object ) {
 
 			/**

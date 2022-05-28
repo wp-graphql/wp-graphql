@@ -82,6 +82,11 @@ class PostObject {
 			$interfaces[] = 'MenuItemLinkable';
 		}
 
+		// Merge with interfaces set in register_post_type.
+		if ( ! empty( $post_type_object->graphql_interfaces ) ) {
+			$interfaces = array_merge( $interfaces, $post_type_object->graphql_interfaces );
+		}
+
 		register_graphql_object_type(
 			$single_name,
 			[
@@ -328,5 +333,3 @@ class PostObject {
 
 	}
 }
-
-

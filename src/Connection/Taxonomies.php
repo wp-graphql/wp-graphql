@@ -27,7 +27,7 @@ class Taxonomies {
 			]
 		);
 
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects', [ 'graphql_register_root_connection' => true ] );
 
 		foreach ( $allowed_taxonomies as $tax_object ) {
 			register_graphql_connection(
