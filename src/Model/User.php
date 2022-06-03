@@ -7,6 +7,7 @@ use GraphQLRelay\Relay;
 use WP_Post;
 use WP_User;
 use WPGraphQL;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class User - Models the data for the User object type
@@ -250,7 +251,7 @@ class User extends Model {
 				'uri'                      => function () {
 					$user_profile_url = get_author_posts_url( $this->data->ID );
 
-					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
+					return Utils::get_relative_uri( $user_profile_url );
 				},
 				'enqueuedScriptsQueue'     => function () {
 					global $wp_scripts;
