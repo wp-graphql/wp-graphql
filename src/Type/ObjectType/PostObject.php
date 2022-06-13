@@ -214,7 +214,7 @@ class PostObject {
 								$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
 							}
 
-							return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->sourceUrl;
+							return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : (! empty($image->sourceUrl) ? $image->sourceUrl : '');
 						},
 					],
 					'fileSize'     => [
