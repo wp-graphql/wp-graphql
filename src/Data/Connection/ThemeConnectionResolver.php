@@ -28,15 +28,13 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_ids() {
+		$ids = [];
 
-		$ids     = [];
-		$queried = $this->get_query();
-
-		if ( empty( $queried ) ) {
+		if ( empty( $this->query ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
+		foreach ( $this->query as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
 

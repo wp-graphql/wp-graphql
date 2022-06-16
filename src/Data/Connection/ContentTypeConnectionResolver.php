@@ -50,14 +50,13 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return [ $this->query_args['name'] ];
 		}
 
-		$ids     = [];
-		$queried = $this->get_query();
+		$ids = [];
 
-		if ( empty( $queried ) ) {
+		if ( empty( $this->query ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
+		foreach ( $this->query as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
 

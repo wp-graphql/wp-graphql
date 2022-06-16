@@ -81,14 +81,13 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 			return is_array( $this->query_args['in'] ) ? $this->query_args['in'] : [ $this->query_args['in'] ];
 		}
 
-		$ids     = [];
-		$queried = $this->get_query();
+		$ids = [];
 
-		if ( empty( $queried ) ) {
+		if ( empty( $this->query ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
+		foreach ( $this->query as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
 
