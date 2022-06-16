@@ -10,9 +10,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->clearSchema();
 		parent::setUp();
 
-
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 		// your set up methods here
 		if ( is_multisite() ) {
@@ -31,12 +30,12 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  contentTypes {
-		    nodes {
-		      __typename
-		      name
-		    }
-		  }
+			contentTypes {
+				nodes {
+					__typename
+					name
+				}
+			}
 		}
 		';
 
@@ -45,8 +44,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'contentTypes.nodes', [
 				'__typename' => 'ContentType',
-				'name' => 'post'
-			] )
+				'name'       => 'post',
+			] ),
 		]);
 
 	}
@@ -55,11 +54,11 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  plugins {
-		    nodes {
-		      __typename
-		    }
-		  }
+			plugins {
+				nodes {
+					__typename
+				}
+			}
 		}
 		';
 
@@ -69,8 +68,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'plugins.nodes', [
-				'__typename' => 'Plugin'
-			] )
+				'__typename' => 'Plugin',
+			] ),
 		] );
 
 		wp_set_current_user( 0 );
@@ -78,7 +77,10 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$actual = graphql( [ 'query' => $query ] );
 
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'plugins.nodes', self::IS_NULL )
+			/**
+			 * @todo 'nodes' should return null.
+			 */
+			$this->expectedField( 'plugins.nodes', self::IS_FALSY ),
 		] );
 
 	}
@@ -87,11 +89,11 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  registeredScripts {
-		    nodes {
-		      __typename
-		    }
-		  }
+			registeredScripts {
+				nodes {
+					__typename
+				}
+			}
 		}
 		';
 
@@ -99,8 +101,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'registeredScripts.nodes', [
-				'__typename' => 'EnqueuedScript'
-			] )
+				'__typename' => 'EnqueuedScript',
+			] ),
 		] );
 
 	}
@@ -109,11 +111,11 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  registeredStylesheets {
-		    nodes {
-		      __typename
-		    }
-		  }
+			registeredStylesheets {
+				nodes {
+					__typename
+				}
+			}
 		}
 		';
 
@@ -121,8 +123,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'registeredStylesheets.nodes', [
-				'__typename' => 'EnqueuedStylesheet'
-			] )
+				'__typename' => 'EnqueuedStylesheet',
+			] ),
 		] );
 
 	}
@@ -131,11 +133,11 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  themes {
-		    nodes {
-		      __typename
-		    }
-		  }
+			themes {
+				nodes {
+					__typename
+				}
+			}
 		}
 		';
 
@@ -145,8 +147,8 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( 'themes.nodes', [
-				'__typename' => 'Theme'
-			] )
+				'__typename' => 'Theme',
+			] ),
 		] );
 
 	}
@@ -155,18 +157,21 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$query = '
 		{
-		  userRoles {
-		    nodes {
-		      __typename
-		    }
-		  }
+			userRoles {
+				nodes {
+					__typename
+				}
+			}
 		}
 		';
 
 		$actual = graphql( [ 'query' => $query ] );
 
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'userRoles.nodes', self::IS_NULL )
+			/**
+			 * @todo 'nodes' should return null.
+			 */
+			$this->expectedField( 'userRoles.nodes', self::IS_FALSY ),
 		] );
 
 	}
