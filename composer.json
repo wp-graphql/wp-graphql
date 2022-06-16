@@ -28,7 +28,7 @@
 		"appsero/client": "^1.2"
 	},
 	"require-dev": {
-		"lucatume/wp-browser": "3.1.0",
+		"lucatume/wp-browser": "^3.1.6",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-phpbrowser": "^1.0",
 		"codeception/module-webdriver": "^1.0",
@@ -44,8 +44,8 @@
 		"phpstan/phpstan": "0.12.82",
 		"szepeviktor/phpstan-wordpress": "^0.7.1",
 		"codeception/module-rest": "^1.2",
-		"wp-graphql/wp-graphql-testcase": "~2.1.3",
-		"phpunit/phpunit": "^8.5",
+		"wp-graphql/wp-graphql-testcase": "~2.3",
+		"phpunit/phpunit": "^9.5",
 		"simpod/php-coveralls-mirror": "^3.0",
 		"phpstan/extension-installer": "^1.1"
 	},
