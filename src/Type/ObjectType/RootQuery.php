@@ -347,12 +347,33 @@ class RootQuery {
 								case 'database_id':
 									$id = absint( $args['id'] );
 									break;
+								case 'location':
+									$locations = get_nav_menu_locations();
+
+									if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
+										throw new UserError( __( 'No menu set for the provided location', 'wp-graphql' ) );
+									}
+
+									$id = absint( $locations[ $args['id'] ] );
+									break;
 								case 'name':
 									$menu = new \WP_Term_Query(
 										[
 											'taxonomy' => 'nav_menu',
 											'fields'   => 'ids',
 											'name'     => $args['id'],
+											'include_children' => false,
+											'count'    => false,
+										]
+									);
+									$id   = ! empty( $menu->terms ) ? (int) $menu->terms[0] : null;
+									break;
+								case 'slug':
+									$menu = new \WP_Term_Query(
+										[
+											'taxonomy' => 'nav_menu',
+											'fields'   => 'ids',
+											'slug'     => $args['id'],
 											'include_children' => false,
 											'count'    => false,
 										]

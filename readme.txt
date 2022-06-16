@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -130,6 +130,30 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.8.2 =
+
+**New Features**
+
+- ([#2363](https://github.com/wp-graphql/wp-graphql/pull/2363)): Adds "uri" field to MenuItem type which resolves the path of the node which can then be used in a `nodeByUri` query to get the linked node. The path is relative and does not contain subdirectory path in a subdirectory multisite. the `path` field does include the multisite subdirectory path, still. Thanks @josephfusco and @justlevine!
+- ([#2337](https://github.com/wp-graphql/wp-graphql/pull/2337)): Allows for either global ID or databaseId to be supplied in the ID field for user mutations. Thanks @justlevine!
+- ([#2338](https://github.com/wp-graphql/wp-graphql/pull/2338)): Allows either global "relay" ID or databaseId for post object mutations. Thanks @justlevine!
+- ([#2336](https://github.com/wp-graphql/wp-graphql/pull/2336)): Allows either global "relay" ID or databaseId for term object mutations. Thanks @justlevine!
+- ([#2331](https://github.com/wp-graphql/wp-graphql/pull/2331)): Allows either global "relay" ID or databaseId for MediaItem object mutations. Thanks @justlevine!
+- ([#2328](https://github.com/wp-graphql/wp-graphql/pull/2328)): Allows either global "relay" ID or databaseId for Comment object mutations. Thanks @justlevine!
+
+
+**Chores/Bugfixes**
+
+- ([#2368](https://github.com/wp-graphql/wp-graphql/pull/2368)): Updates dependencies for Schema Linter workflow.
+- ([#2369](https://github.com/wp-graphql/wp-graphql/pull/2369)): Replaces the Codecov badge in the README with Coveralls badge. Thanks @justlevine!
+- ([#2374](https://github.com/wp-graphql/wp-graphql/pull/2374)): Updates descriptions for PostObjectFieldFormatEnum. Thanks @justlevine!
+- ([#2375](https://github.com/wp-graphql/wp-graphql/pull/2375)): Sets up the testing integration workflow to be able to run in multisite. Adds one workflow that runs in multisite. Fixes tests related to multisite.
+- ([#2376](https://github.com/wp-graphql/wp-graphql/pull/2276)): Adds support for `['auth']['callback']` and `isPrivate` for the `register_graphql_mutation()` API.
+- ([#2379](https://github.com/wp-graphql/wp-graphql/pull/2379)): Fixes a bug where term mutations were adding slashes when being stored in the database.
+- ([#2380](https://github.com/wp-graphql/wp-graphql/pull/2380)): Fixes a bug where WPGraphQL wasn't sending the Wp class to the `parse_request` filter as a reference.
+- ([#2382](https://github.com/wp-graphql/wp-graphql/pull/2382)): Fixes a bug where `register_graphql_field()` was not being respected by GraphQL Types added to the schema to represent Setting Groups of the core WordPress `register_setting()` API.
+
 
 = 1.8.1 =
 
