@@ -961,7 +961,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			],
 		];
 
-		return graphql( compact( 'query', 'variables' ) );
+		return $this->graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function testSendPasswordResetEmailWithInvalidUsername() {
