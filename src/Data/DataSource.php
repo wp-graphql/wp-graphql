@@ -347,13 +347,11 @@ class DataSource {
 
 		$avatar = get_avatar_data( absint( $user_id ), $args );
 
-		if ( ! empty( $avatar ) ) {
-			$avatar = new Avatar( $avatar );
-		} else {
-			$avatar = null;
+		if ( empty( $avatar['found_avatar'] ) ) {
+			return null;
 		}
 
-		return $avatar;
+		return new Avatar( $avatar );
 
 	}
 
