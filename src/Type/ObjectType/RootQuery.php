@@ -13,6 +13,7 @@ use WPGraphQL\Data\Connection\MenuConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 
 /**
  * Class RootQuery
@@ -220,6 +221,12 @@ class RootQuery {
 
 							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 								function ( $post ) use ( $allowed_post_types ) {
+
+									// if the post isn't an instance of a WP_Post or Post model, return
+									if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+										return null;
+									}
+
 									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, $allowed_post_types, true ) ) {
 										return null;
 									}
@@ -707,6 +714,12 @@ class RootQuery {
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 							function ( $post ) use ( $post_type_object ) {
+
+								// if the post isn't an instance of a WP_Post or Post model, return
+								if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+									return null;
+								}
+
 								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
 									'revision',
 									$post_type_object->name,
@@ -790,14 +803,20 @@ class RootQuery {
 						return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 							function ( $post ) use ( $post_type_object ) {
 
+								// if the post type object isn't an instance of WP_Post_Type, return
 								if ( ! $post_type_object instanceof \WP_Post_Type ) {
 									return null;
 								}
 
+								// if the post isn't an instance of a WP_Post or Post model, return
+								if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+									return null;
+								}
+
 								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
-									'revision',
-									$post_type_object->name,
-								], true ) ) {
+										'revision',
+										$post_type_object->name,
+									], true ) ) {
 									return null;
 								}
 
