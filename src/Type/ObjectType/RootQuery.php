@@ -186,8 +186,7 @@ class RootQuery {
 						],
 						'resolve'     => function ( $root, $args, AppContext $context, ResolveInfo $info ) {
 
-							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
-							$post_id = null;
+							$idType  = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
@@ -222,8 +221,8 @@ class RootQuery {
 							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 								function ( $post ) use ( $allowed_post_types ) {
 
-									// if the post isn't an instance of a WP_Post or Post model, return
-									if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+									// if the post isn't an instance of a Post model, return
+									if ( ! $post instanceof Post ) {
 										return null;
 									}
 
@@ -715,8 +714,8 @@ class RootQuery {
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 							function ( $post ) use ( $post_type_object ) {
 
-								// if the post isn't an instance of a WP_Post or Post model, return
-								if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+								// if the post isn't an instance of a Post model, return
+								if ( ! $post instanceof Post ) {
 									return null;
 								}
 
@@ -808,8 +807,8 @@ class RootQuery {
 									return null;
 								}
 
-								// if the post isn't an instance of a WP_Post or Post model, return
-								if ( ! $post instanceof \WP_Post && ! $post instanceof Post ) {
+								// if the post isn't an instance of a Post model, return
+								if ( ! $post instanceof Post ) {
 									return null;
 								}
 

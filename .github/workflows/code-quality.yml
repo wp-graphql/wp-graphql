@@ -40,7 +40,7 @@ jobs:
           restore-keys: php-${{ matrix.php }}N-${{ runner.os }}-composer
 
       - name: Install dependencies
-        run: composer update --no-progress && composer require --dev szepeviktor/phpstan-wordpress phpstan/phpstan
+        run: composer update --no-progress
 
       - name: Run PHPStan
         run: composer run-script phpstan
