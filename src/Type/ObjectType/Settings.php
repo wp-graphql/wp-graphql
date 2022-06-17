@@ -83,7 +83,7 @@ class Settings {
 
 				$field_key = $group . 'Settings' . ucfirst( $field_key );
 
-				if ( ! empty( $key ) && ! empty( $field_key ) ) {
+				if ( ! empty( $key ) ) {
 
 					/**
 					 * Dynamically build the individual setting and it's fields
@@ -101,7 +101,7 @@ class Settings {
 								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 
-							$option = ! empty( $key ) ? get_option( (string) $key ) : null;
+							$option = get_option( (string) $key );
 
 							switch ( $setting_field['type'] ) {
 								case 'integer':

@@ -13,6 +13,7 @@ use WPGraphQL\Data\Connection\MenuConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
+use WPGraphQL\Model\Post;
 
 /**
  * Class RootQuery
@@ -185,8 +186,7 @@ class RootQuery {
 						],
 						'resolve'     => function ( $root, $args, AppContext $context, ResolveInfo $info ) {
 
-							$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
-							$post_id = null;
+							$idType = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
@@ -220,6 +220,12 @@ class RootQuery {
 
 							return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 								function ( $post ) use ( $allowed_post_types ) {
+
+									// if the post isn't an instance of a Post model, return
+									if ( ! $post instanceof Post ) {
+										return null;
+									}
+
 									if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, $allowed_post_types, true ) ) {
 										return null;
 									}
@@ -610,7 +616,7 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function ( $source, array $args, AppContext $context ) {
-							return isset( $context->viewer->ID ) && ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+							return ! empty( $context->viewer->ID ) ? $context->get_loader( 'user' )->load_deferred( $context->viewer->ID ) : null;
 						},
 					],
 				],
@@ -707,6 +713,12 @@ class RootQuery {
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 							function ( $post ) use ( $post_type_object ) {
+
+								// if the post isn't an instance of a Post model, return
+								if ( ! $post instanceof Post ) {
+									return null;
+								}
+
 								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
 									'revision',
 									$post_type_object->name,
@@ -790,7 +802,13 @@ class RootQuery {
 						return $context->get_loader( 'post' )->load_deferred( $post_id )->then(
 							function ( $post ) use ( $post_type_object ) {
 
+								// if the post type object isn't an instance of WP_Post_Type, return
 								if ( ! $post_type_object instanceof \WP_Post_Type ) {
+									return null;
+								}
+
+								// if the post isn't an instance of a Post model, return
+								if ( ! $post instanceof Post ) {
 									return null;
 								}
 
@@ -852,7 +870,7 @@ class RootQuery {
 								if ( 'database_id' === $idType ) {
 									$idType = 'id';
 								}
-								$term    = isset( $tax_object->name ) ? get_term_by( $idType, $args['id'], $tax_object->name ) : null;
+								$term    = get_term_by( $idType, $args['id'], $tax_object->name );
 								$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 								break;
 							case 'uri':

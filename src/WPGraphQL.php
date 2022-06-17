@@ -26,7 +26,7 @@ final class WPGraphQL {
 	/**
 	 * Stores the instance of the WPGraphQL class
 	 *
-	 * @var WPGraphQL The one true WPGraphQL
+	 * @var ?WPGraphQL The one true WPGraphQL
 	 * @since  0.0.1
 	 */
 	private static $instance;
@@ -69,7 +69,7 @@ final class WPGraphQL {
 	/**
 	 * The instance of the WPGraphQL object
 	 *
-	 * @return object|WPGraphQL - The one true WPGraphQL
+	 * @return WPGraphQL - The one true WPGraphQL
 	 * @since  0.0.1
 	 */
 	public static function instance() {
@@ -246,13 +246,14 @@ final class WPGraphQL {
 
 				new \WPGraphQL\Data\Config();
 				new Router();
+				$instance = self::instance();
 
 				/**
 				 * Fire off init action
 				 *
 				 * @param WPGraphQL $instance The instance of the WPGraphQL class
 				 */
-				do_action( 'graphql_init', self::$instance );
+				do_action( 'graphql_init', $instance );
 			}
 		);
 

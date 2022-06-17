@@ -663,7 +663,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @throws Exception
 	 */
-	public function testQueryingAvatarOnUserAuthorsIsValidForPublicAndAuthenticagedRequests() {
+	public function testQueryingAvatarOnUserAuthorsIsValidForPublicAndAuthenticatedRequests() {
 
 		// create a comment with a guest author as the author
 		$comment_id = $this->createCommentObject();

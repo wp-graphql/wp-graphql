@@ -105,7 +105,7 @@ class User extends Model {
 		$this->global_post       = $post;
 		$this->global_authordata = $authordata;
 
-		if ( ! empty( $this->data ) ) {
+		if ( $this->data instanceof WP_User ) {
 
 			// Reset postdata
 			$wp_query->reset_postdata();
@@ -157,7 +157,7 @@ class User extends Model {
 		if ( true === $this->owner_matches_current_user() ) {
 			return false;
 		}
-		// @phpstan-ignore-next-line
+
 		return $this->data->is_private ?? true;
 	}
 

@@ -31,7 +31,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			if ( 'nav_menu' === $entry->taxonomy ) {
 
 				$menu = new Menu( $entry );
-				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+				if ( empty( $menu->fields ) ) {
 					return null;
 				} else {
 					return $menu;
@@ -39,7 +39,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			} else {
 
 				$term = new Term( $entry );
-				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+				if ( empty( $term->fields ) ) {
 					return null;
 				} else {
 					return  $term;

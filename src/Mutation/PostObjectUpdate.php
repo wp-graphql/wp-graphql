@@ -160,8 +160,13 @@ class PostObjectUpdate {
 			/**
 			 * Throw an exception if the post failed to update
 			 */
-			if ( 0 === $post_id || is_wp_error( $updated_post_id ) ) {
-				throw new UserError( __( 'The object failed to update', 'wp-graphql' ) );
+			if ( is_wp_error( $updated_post_id ) ) {
+				$error_message = $updated_post_id->get_error_message();
+				if ( ! empty( $error_message ) ) {
+					throw new UserError( esc_html( $error_message ) );
+				}
+
+				throw new UserError( __( 'The object failed to update but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**
@@ -174,7 +179,7 @@ class PostObjectUpdate {
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */
-			do_action( 'graphql_insert_post_object', $post_id, $post_type_object, $post_args, $mutation_name );
+			do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
 
 			/**
 			 * Fires after a single term is created or updated via a GraphQL mutation
@@ -185,7 +190,7 @@ class PostObjectUpdate {
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */
-			do_action( "graphql_insert_{$post_type_object->name}", $post_id, $post_args, $mutation_name );
+			do_action( "graphql_insert_{$post_type_object->name}", absint( $post_id ), $post_args, $mutation_name );
 
 			/**
 			 * This updates additional data not part of the posts table (postmeta, terms, other relations, etc)

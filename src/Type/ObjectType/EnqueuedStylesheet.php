@@ -31,14 +31,14 @@ class EnqueuedStylesheet {
 				],
 				'src'     => [
 					'resolve' => function ( \_WP_Dependency $stylesheet ) {
-						return isset( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
+						return ! empty( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
 					},
 				],
 				'version' => [
 					'resolve' => function ( \_WP_Dependency $stylesheet ) {
 						global $wp_styles;
 
-						return isset( $stylesheet->ver ) && is_string( $stylesheet->ver ) ? (string) $stylesheet->ver : $wp_styles->default_version;
+						return ! empty( $stylesheet->ver ) && is_string( $stylesheet->ver ) ? $stylesheet->ver : $wp_styles->default_version;
 					},
 				],
 			],

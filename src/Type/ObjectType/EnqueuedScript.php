@@ -31,14 +31,14 @@ class EnqueuedScript {
 				],
 				'src'     => [
 					'resolve' => function ( \_WP_Dependency $script ) {
-						return isset( $script->src ) && is_string( $script->src ) ? $script->src : null;
+						return ! empty( $script->src ) && is_string( $script->src ) ? $script->src : null;
 					},
 				],
 				'version' => [
 					'resolve' => function ( \_WP_Dependency $script ) {
 						global $wp_scripts;
 
-						return isset( $script->ver ) && is_string( $script->ver ) ? (string) $script->ver : $wp_scripts->default_version;
+						return ! empty( $script->ver ) && is_string( $script->ver ) ? (string) $script->ver : $wp_scripts->default_version;
 					},
 				],
 			],
