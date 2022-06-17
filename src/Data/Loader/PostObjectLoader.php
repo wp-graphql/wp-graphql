@@ -34,7 +34,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * will batch the loading so when `setup_post_data()` is called the user
 		 * is already in the cache.
 		 */
-		$context     = $this->context;
+		$context = $this->context;
 
 		if ( ! empty( $entry->post_author ) && absint( $entry->post_author ) ) {
 			$user_id = $entry->post_author;

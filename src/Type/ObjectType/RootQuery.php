@@ -814,9 +814,9 @@ class RootQuery {
 								}
 
 								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
-										'revision',
-										$post_type_object->name,
-									], true ) ) {
+									'revision',
+									$post_type_object->name,
+								], true ) ) {
 									return null;
 								}
 
