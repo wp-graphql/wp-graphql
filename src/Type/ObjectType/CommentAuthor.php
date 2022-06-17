@@ -77,11 +77,10 @@ class CommentAuthor {
 								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
-							// get_avatar_data can be filtered before it's returned
 							$avatar = get_avatar_data( $comment_author->email, $avatar_args );
 
-							// if found_avatar is false or filtered out before returned
-							if ( empty( $avatar['found_avatar'] ) ) {
+							// if there's no url returned, return null
+							if ( empty( $avatar['url'] ) ) {
 								return null;
 							}
 
