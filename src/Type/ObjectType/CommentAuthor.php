@@ -77,8 +77,15 @@ class CommentAuthor {
 								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
+							// get_avatar_data can be filtered before it's returned
 							$avatar = get_avatar_data( $comment_author->email, $avatar_args );
-							return ! empty( $avatar ) ? new \WPGraphQL\Model\Avatar( $avatar ) : null;
+
+							// if found_avatar is false or filtered out before returned
+							if ( empty( $avatar['found_avatar'] ) ) {
+								return null;
+							}
+
+							return new \WPGraphQL\Model\Avatar( $avatar );
 						},
 					],
 				],
