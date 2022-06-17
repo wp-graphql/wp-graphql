@@ -81,7 +81,7 @@ class NodeResolver {
 		 * This is to be used in extensions to resolve their own nodes which might not use
 		 * WordPress permalink structure.
 		 *
-		 * @param null $node The node, defaults to nothing.
+		 * @param mixed|null $node The node, defaults to nothing.
 		 * @param string $uri The uri being searched.
 		 * @param AppContext $content The app context.
 		 * @param WP $wp WP object.

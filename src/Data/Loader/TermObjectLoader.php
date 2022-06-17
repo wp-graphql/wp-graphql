@@ -59,7 +59,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * For example:
 	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
 	 *
-	 * @param array $keys
+	 * @param int[] $keys
 	 *
 	 * @return array
 	 * @throws Exception
@@ -84,7 +84,6 @@ class TermObjectLoader extends AbstractDataLoader {
 		/**
 		 * Execute the query. This adds the terms to the cache
 		 */
-		// @phpstan-ignore-next-line
 		$query = new \WP_Term_Query( $args );
 		$terms = $query->get_terms();
 

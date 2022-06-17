@@ -403,10 +403,10 @@ abstract class AbstractDataLoader {
 		/**
 		 * Filter the model before returning.
 		 *
-		 * @param mixed              $model The Model to be returned by the loader
-		 * @param mixed              $entry The entry loaded by dataloader that was used to create the Model
-		 * @param mixed              $key   The Key that was used to load the entry
-		 * @param AbstractDataLoader $this  The AbstractDataLoader Instance
+		 * @param mixed              $model  The Model to be returned by the loader
+		 * @param mixed              $entry  The entry loaded by dataloader that was used to create the Model
+		 * @param mixed              $key    The Key that was used to load the entry
+		 * @param AbstractDataLoader $loader The AbstractDataLoader Instance
 		 */
 		return apply_filters( 'graphql_dataloader_get_model', $model, $entry, $key, $this );
 	}
