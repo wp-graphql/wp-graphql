@@ -187,7 +187,7 @@ class Post extends Model {
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
 		 */
-		if ( ! empty( $this->data ) ) {
+		if ( $this->data instanceof WP_Post ) {
 
 			$id        = $this->data->ID;
 			$post_type = $this->data->post_type;
@@ -346,12 +346,12 @@ class Post extends Model {
 
 		$post_type_object = $this->post_type_object;
 
-		if ( empty( $post_object ) ) {
-			$post_object = $this->data;
+		if ( ! $post_type_object ) {
+			return true;
 		}
 
-		if ( empty( $post_object ) ) {
-			return true;
+		if ( ! $post_object ) {
+			$post_object = $this->data;
 		}
 
 		/**
@@ -390,10 +390,6 @@ class Post extends Model {
 			}
 
 			$parent_post_type_obj = $post_type_object;
-
-			if ( empty( $parent_post_type_obj ) ) {
-				return true;
-			}
 
 			if ( 'private' === $parent->post_status ) {
 				$cap = isset( $parent_post_type_obj->cap->read_private_posts ) ? $parent_post_type_obj->cap->read_private_posts : 'read_private_posts';
