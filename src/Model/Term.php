@@ -7,7 +7,6 @@ use GraphQLRelay\Relay;
 use WP_Post;
 use WP_Taxonomy;
 use WP_Term;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class Term - Models data for Terms
@@ -201,7 +200,9 @@ class Term extends Model {
 						return null;
 					}
 
-					return trailingslashit( (string) Utils::get_relative_uri( $link ) );
+					$stripped_link = str_ireplace( home_url(), '', $link );
+
+					return trailingslashit( $stripped_link );
 				},
 			];
 

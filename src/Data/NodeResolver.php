@@ -7,7 +7,6 @@ use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
-use WPGraphQL\Utils\Utils;
 
 class NodeResolver {
 
@@ -103,7 +102,6 @@ class NodeResolver {
 				[
 					wp_parse_url( site_url() )['host'],
 					wp_parse_url( home_url() )['host'],
-					wp_parse_url( Utils::get_home_url() )['host'],
 				],
 				true
 			) ) {

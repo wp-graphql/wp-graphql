@@ -3,7 +3,6 @@
 namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostType - Models data for PostTypes
@@ -191,7 +190,7 @@ class PostType extends Model {
 				},
 				'uri'                 => function () {
 					$link = get_post_type_archive_link( $this->name );
-					return ! empty( $link ) ? trailingslashit( (string) Utils::get_relative_uri( $link ) ) : null;
+					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
 				},
 				// If the homepage settings are ot set to
 				'isPostsPage'         => function () {
