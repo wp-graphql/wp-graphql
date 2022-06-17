@@ -610,7 +610,7 @@ class RootQuery {
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function ( $source, array $args, AppContext $context ) {
-							return ! empty( $context->viewer->ID ) ? DataSource::resolve_user( $context->viewer->ID, $context ) : null;
+							return ! empty( $context->viewer->ID ) ? $context->get_loader( 'user' )->load_deferred( $context->viewer->ID ) : null;
 						},
 					],
 				],
