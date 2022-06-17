@@ -291,9 +291,9 @@ class PostObjectCreate {
 				$error_message = $post_id->get_error_message();
 				if ( ! empty( $error_message ) ) {
 					throw new UserError( esc_html( $error_message ) );
-				} else {
-					throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 				}
+
+				throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**
