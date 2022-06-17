@@ -355,11 +355,7 @@ class NodeResolver {
 			$page_id       = get_option( 'page_on_front', 0 );
 			$show_on_front = get_option( 'show_on_front', 'posts' );
 
-			if ( empty( $page_id ) ) {
-				return null;
-			}
-
-			if ( 'page' === $show_on_front ) {
+			if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
 
 				$page = get_post( $page_id );
 
