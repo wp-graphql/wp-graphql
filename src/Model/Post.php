@@ -686,13 +686,13 @@ class Post extends Model {
 					return ! empty( $link ) ? $link : null;
 				},
 				'uri'                       => function () {
-					$link = $this->link;
+					$uri = $this->link;
 
 					if ( true === $this->isFrontPage ) {
 						return '/';
 					}
 
-					return Utils::get_relative_uri( $link );
+					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
 				'commentCount'              => function () {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;

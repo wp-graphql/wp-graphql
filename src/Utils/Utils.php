@@ -207,46 +207,4 @@ class Utils {
 
 		return ! empty( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
 	}
-
-	/**
-	 * Retrieves the URL for the current site to use throughout the schema.
-	 *
-	 * @param string $path Path relative to the home URL. Default ''.
-	 *
-	 * @return string
-	 */
-	public static function get_home_url( string $path = '' ) {
-		$home_url = home_url( $path );
-
-		/**
-		 * Filter the frontend URL for the current site used throughout the schema.
-		 *
-		 * Should only be used when conditionally filtering `home_url` is not an option.
-		 * Useful when the headless frontend is different than that used by WordPress.
-		 * E.g. `localhost:3000`
-		 *
-		 * @param string $url The complete home URL including scheme and path.
-		 * @param string $path Path relative to the home URL. Blank string if no path is specified.
-		 */
-		return apply_filters( 'graphql_home_url', $home_url, $path );
-	}
-
-	/**
-	 * Get the relative URI for the provided $url, if possible.
-	 *
-	 * @param string $url
-	 *
-	 * @return string|null
-	 */
-	public static function get_relative_uri( string $url ) {
-		// Bail early.
-		if ( empty( $url ) ) {
-			return null;
-		}
-
-		// Get the filtered home_url.
-		$home_url = self::get_home_url();
-
-		return str_ireplace( $home_url, '', $url );
-	}
 }
