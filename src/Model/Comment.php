@@ -102,7 +102,6 @@ class Comment extends Model {
 			return true;
 		}
 
-		// NOTE: Do a non-strict check here, as the return is a `1` or `0`.
 		if ( 0 === absint( $this->data->comment_approved ) && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
