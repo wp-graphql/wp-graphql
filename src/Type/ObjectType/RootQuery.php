@@ -186,7 +186,7 @@ class RootQuery {
 						],
 						'resolve'     => function ( $root, $args, AppContext $context, ResolveInfo $info ) {
 
-							$idType  = $args['idType'] ?? 'global_id';
+							$idType = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
 									return $context->node_resolver->resolve_uri( $args['id'] );
