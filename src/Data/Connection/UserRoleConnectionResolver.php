@@ -53,13 +53,14 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 			return $this->query_args['slugIn'];
 		}
 
-		$ids = [];
+		$ids     = [];
+		$queried = $this->get_query();
 
-		if ( empty( $this->query ) ) {
+		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $this->query as $key => $item ) {
+		foreach ( $queried as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
 

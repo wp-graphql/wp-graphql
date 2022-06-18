@@ -52,13 +52,14 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_ids() {
-		$ids = [];
+		$ids     = [];
+		$queried = $this->get_query();
 
-		if ( empty( $this->query ) ) {
+		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $this->query as $key => $item ) {
+		foreach ( $queried as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
 

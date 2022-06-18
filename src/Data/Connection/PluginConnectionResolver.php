@@ -44,13 +44,14 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_ids() {
-		$ids = [];
+		$ids     = [];
+		$queried = ! empty( $this->query ) ? $this->query : [];
 
-		if ( empty( $this->query ) ) {
+		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $this->query as $key => $item ) {
+		foreach ( $queried as $key => $item ) {
 			$ids[ $key ] = $key;
 		}
 
