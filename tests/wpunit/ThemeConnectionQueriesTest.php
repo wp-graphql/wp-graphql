@@ -2,10 +2,10 @@
 
 class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
 	public $admin;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	/**
 	 * @var WP_Theme
@@ -38,6 +38,34 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		parent::tearDown();
 	}
 
+	public function getQuery() {
+		return '
+			query themesQuery( $first: Int, $last:Int, $after:String, $before:String ) {
+				themes( first: $first, last: $last, after: $after, before: $before ) {
+					pageInfo {
+						hasNextPage
+						hasPreviousPage
+						startCursor
+						endCursor
+					}
+					edges {
+						cursor
+						node {
+							id
+							slug
+							name
+						}
+					}
+					nodes {
+						id
+						slug
+						name
+					}
+				}
+			}
+		';
+	}
+
 	/**
 	 * testThemesQuery
 	 *
@@ -45,24 +73,8 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 * This tests querying for themes to ensure that we're getting back a proper connection
 	 */
 	public function testThemesQuery( $user ) {
-
-		$query = '
-		{
-			themes{
-				edges{
-					node{
-						id
-						name
-					}
-				}
-				nodes {
-					id
-				}
-			}
-		}
-		';
-
-		$themes = wp_get_themes([ 'allowed' => null ]);
+		$query  = $this->getQuery();
+		$themes = wp_get_themes( [ 'allowed' => null ] );
 
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
@@ -98,78 +110,274 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	}
 
-	/**
-	 * Tests querying for theme with pagination args.
-	 */
-	public function testThemesQueryPagination() {
-
-
+	public function testForwardPagination() {
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
 		}
 		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
 
-		$query = '
-			query testThemes($first: Int, $after: String, $last: Int, $before: String ) {
-				themes(first: $first, last: $last, before: $before, after: $after) {
-					pageInfo {
-						endCursor
-						hasNextPage
-						hasPreviousPage
-						startCursor
-					}
-					nodes {
-						id
-						name
-					}
-				}
-			}
-		';
+		// The list of themes might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 100,
+			],
+		] );
 
-		// Get all for comparison
+		// Confirm its valid.
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['slug'] );
+
+		// Store for use by $expected.
+		$wp_query = $actual['data']['themes'];
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
 		$variables = [
-			'first'  => null,
-			'after'  => null,
-			'last'   => null,
-			'before' => null,
+			'first' => 2,
 		];
+
+		// Run the GraphQL Query
+		$expected = $wp_query;
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['after'] = '';
+		$expected           = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['after'] = $actual['data']['themes']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['after'] = $actual['data']['themes']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 2, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Theres only one item, so we cant assertValidPagination()
 		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$nodes = $actual['data']['themes']['nodes'];
+		$this->assertEquals( 1, count( $actual['data']['themes']['edges'] ) );
 
-		// Get first two themes
-		$variables['first'] = 2;
+		$theme_slug = $expected['nodes'][0]['slug'];
+		$cursor     = $this->toRelayId( 'arrayconnection', $theme_slug );
 
-		$expected = array_slice( $nodes, 0, $variables['first'], true );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
+		codecept_debug( 'slug: ' . $theme_slug . ' cursor:' . $cursor );
 
-		// Test with empty `after`.
-		$variables['after'] = '';
-		$actual             = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
+		$this->assertEquals( $theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
+		$this->assertEquals( $theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['edges'][0]['cursor'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['startCursor'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['endCursor'] );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
 
-		// Get last two themes
+		codecept_debug( $expected );
+		$this->markTestIncomplete( 'works until here' );
+
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+	}
+
+	public function testBackwardPagination() {
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
+		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
+
+		// The list of themes might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'last' => 100,
+			],
+		] );
+
+		// Confirm its valid.
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['slug'] );
+
+		$wp_query = $actual['data']['themes'];
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
 		$variables = [
-			'first'  => null,
-			'after'  => null,
-			'last'   => 2,
-			'before' => null,
+			'last' => 2,
 		];
 
-
-		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
-		codecept_debug( [ 'expected' => $expected ] );
+		// Run the GraphQL Query
+		$expected = $wp_query;
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
-		// Test with empty `before`.
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
 		$variables['before'] = '';
-		$actual              = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
+		$expected            = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['before'] = $actual['data']['themes']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$variables['before'] = $actual['data']['themes']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
+		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $expected );
+		$this->markTestIncomplete( 'works until here' );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['after'] = $actual['data']['themes']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
+		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Theres only one item, so we cant assertValidPagination()
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 1, count( $actual['data']['themes']['edges'] ) );
+
+		$theme_slug = $expected['nodes'][0]['slug'];
+		$cursor     = $this->toRelayId( 'arrayconnection', $theme_slug );
+
+		codecept_debug( 'slug: ' . $theme_slug . ' cursor:' . $cursor );
+
+		$this->assertEquals( $theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
+		$this->assertEquals( $theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['edges'][0]['cursor'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['startCursor'] );
+		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['endCursor'] );
+
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+	}
+
+	public function testQueryWithFirstAndLast() {
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
+		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
+
+		// The list of themes might change, so we'll reuse this to check late.
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 100,
+			],
+		] );
+
+		$after_cursor  = $actual['data']['themes']['edges'][0]['cursor'];
+		$before_cursor = $actual['data']['themes']['edges'][2]['cursor'];
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$variables = [
+			'first'  => 5,
+			'after'  => $after_cursor,
+			'before' => $before_cursor,
+		];
+
+		$expected = $actual['data']['themes']['nodes'][1];
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $expected );
+		$this->markTestIncomplete( 'works until here' );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
+
+		/**
+		 * Test `last`.
+		 */
+		$variables['last'] = 5;
+
+		// Using first and last should throw an error.
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		unset( $variables['first'] );
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
+
 	}
 
 	public function dataProviderUser() {
@@ -181,5 +389,37 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 				'user' => null,
 			],
 		];
+	}
+
+	/**
+	 * Common asserts for testing pagination.
+	 *
+	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+	 * @param array $actual The GraphQL results.
+	 */
+	public function assertValidPagination( $expected, $actual ) {
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 2, count( $actual['data']['themes']['edges'] ) );
+		codecept_debug( 'expected' );
+		codecept_debug( $expected );
+
+		$first_theme_slug  = $expected['nodes'][0]['slug'];
+		$second_theme_slug = $expected['nodes'][1]['slug'];
+
+		$start_cursor = $this->toRelayId( 'arrayconnection', $first_theme_slug );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_theme_slug );
+
+		codecept_debug( 'start: ' . $first_theme_slug . ' cursor:' . $start_cursor );
+		codecept_debug( 'end: ' . $second_theme_slug . ' cursor:' . $end_cursor );
+		$this->assertEquals( $first_theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
+		$this->assertEquals( $first_theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
+		$this->assertEquals( $start_cursor, $actual['data']['themes']['edges'][0]['cursor'] );
+		$this->assertEquals( $second_theme_slug, $actual['data']['themes']['edges'][1]['node']['slug'] );
+		$this->assertEquals( $second_theme_slug, $actual['data']['themes']['nodes'][1]['slug'] );
+		$this->assertEquals( $end_cursor, $actual['data']['themes']['edges'][1]['cursor'] );
+		$this->assertEquals( $start_cursor, $actual['data']['themes']['pageInfo']['startCursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['themes']['pageInfo']['endCursor'] );
 	}
 }
