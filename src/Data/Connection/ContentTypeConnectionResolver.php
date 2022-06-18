@@ -68,7 +68,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 
 		if ( ! empty( $offset ) ) {
 			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
+			$key = array_search( $offset, $ids, true );
 
 			if ( false !== $key ) {
 				$key = absint( $key );
