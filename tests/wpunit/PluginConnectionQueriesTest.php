@@ -118,7 +118,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the last two results.
@@ -138,9 +138,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		// Theres only one item, so we cant assertValidPagination()
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertEquals( 1, count( $actual['data']['plugins']['edges'] ) );
 
@@ -188,8 +185,11 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		];
 
 		// Run the GraphQL Query
-		$expected = $wp_query;
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
@@ -215,15 +215,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		// Run the GraphQL Query
 		$expected          = $wp_query;
 		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
+		$expected['edges'] = array_reverse( $expected['edges'] );
 		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
+		$expected['nodes'] = array_reverse( $expected['nodes'] );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
-
 		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
 
 		/**
@@ -232,7 +231,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		// Set the variables to use in the GraphQL query.
 		// We dont have enough to paginate twice.
-		$variables['after'] = $actual['data']['plugins']['pageInfo']['startCursor'];
+		$variables['before'] = $actual['data']['plugins']['pageInfo']['endCursor'];
 
 		// Run the GraphQL Query
 		$expected          = $wp_query;
@@ -258,8 +257,8 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['startCursor'] );
 		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['endCursor'] );
 
-		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testQueryWithFirstAndLast() {
@@ -287,9 +286,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$expected = $actual['data']['plugins']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

@@ -55,6 +55,33 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			$ids[ $key ] = $key;
 		}
 
+		// If pagination is going backwards, revers the array of IDs
+		$offset = $this->get_offset();
+
+		if ( ! empty( $offset ) ) {
+			// Determine if the offset is in the array
+			$key = array_search( $offset, array_values( $ids ), true );
+
+			if ( false !== $key ) {
+				$key = absint( $key );
+
+				if ( ! empty( $this->args['after'] ) ) {
+					// Slice the array from the front.
+					$key ++;
+					$ids = array_slice( $ids, $key, null, true );
+				} else {
+					// Slice the array from the back.
+					$ids = array_slice( $ids, 0, $key, true );
+				}
+			}
+		}
+
+		// If pagination is going backwards, reverse the array of IDs
+		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
+
+		// // Slice the array to n+1, so prev/next checks can work.
+		$ids = array_slice( $ids, 0, $this->query_amount + 1, true );
+
 		return $ids;
 	}
 
@@ -249,26 +276,10 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 
 		$ids = $this->ids;
 
+		$ids = array_slice( $ids, 0, $this->query_amount, true );
+
 		// If pagination is going backwards, revers the array of IDs
 		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		if ( ! empty( $this->get_offset() ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
-		}
-
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
 
 		return $ids;
 	}
@@ -286,7 +297,16 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// This is missing must use and drop in plugins, so we need to fetch and merge them separately.
+		$site_plugins   = apply_filters( 'all_plugins', get_plugins() );
+		$mu_plugins     = apply_filters( 'show_advanced_plugins', true, 'mustuse' ) ? get_mu_plugins() : [];
+		$dropin_plugins = apply_filters( 'show_advanced_plugins', true, 'dropins' ) ? get_dropins() : [];
+
+		$all_plugins = array_merge( $site_plugins, $mu_plugins, $dropin_plugins );
+
+		return array_key_exists( $offset, $all_plugins );
 	}
 
 	/**
