@@ -36,11 +36,14 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 		} elseif ( ! empty( $this->args['before'] ) ) {
 			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
 		}
+
 		return $offset;
 	}
 
 	/**
 	 * Get the IDs from the source
+	 *
+	 * We're slicing here since the query doesnt support pagination.
 	 *
 	 * @return array|mixed|null
 	 */
@@ -51,7 +54,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$ids     = [];
-		$queried = $this->get_query();
+		$queried = $this->query;
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -60,6 +63,31 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 		foreach ( $queried as $key => $item ) {
 			$ids[ $key ] = $item;
 		}
+
+		$offset = $this->get_offset();
+
+		if ( ! empty( $offset ) ) {
+			// Determine if the offset is in the array
+			$key = array_search( $this->get_offset(), $ids, true );
+
+			if ( false !== $key ) {
+				$key = absint( $key );
+				if ( ! empty( $this->args['after'] ) ) {
+					// Slice the array from the front.
+					$key ++;
+					$ids = array_slice( $ids, $key, null, true );
+				} else {
+					// Slice the array from the back.
+					$ids = array_slice( $ids, 0, $key, true );
+				}
+			}
+		}
+
+		// If pagination is going backwards, reverse the array of IDs
+		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
+
+		// Slice the array to n+1, so prev/next checks can work.
+		$ids = array_slice( $ids, 0, $this->query_amount + 1, true );
 
 		return $ids;
 
@@ -90,12 +118,14 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return $this->query_args['contentTypeNames'];
 		}
 
-		$query_args = $this->get_query_args();
+		$query_args = $this->query_args;
 		return array_values( \WPGraphQL::get_allowed_post_types( 'names', $query_args ) );
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * Since WP doesnt allow pagination of post types, we slice them in get_query().
 	 */
 	public function get_ids_for_nodes() {
 		if ( empty( $this->ids ) ) {
@@ -104,26 +134,10 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 
 		$ids = $this->ids;
 
-		// If pagination is going backwards, revers the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		if ( ! empty( $this->get_offset() ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
-		}
-
 		$ids = array_slice( $ids, 0, $this->query_amount, true );
+
+		// If pagination is going backwards, reverse the array of IDs
+		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
 
 		return $ids;
 	}
@@ -145,7 +159,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		return get_post_type_object( $offset ) instanceof \WP_Post_Type;
 	}
 
 	/**

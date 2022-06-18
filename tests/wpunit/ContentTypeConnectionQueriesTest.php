@@ -70,7 +70,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	public function getQuery() {
 		return '
 			query testContentTypes($first: Int, $after: String, $last: Int, $before: String ) {
-				contentTypes(first: $first, last: $last, before: $before, after: $after) {
+				contentTypes(first: $first, after: $after, last: $last, before: $before) {
 					pageInfo {
 						endCursor
 						hasNextPage
@@ -94,7 +94,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	public function testForwardPagination() {
 		$query    = $this->getQuery();
 		$wp_query = WPGraphQL::get_allowed_post_types( 'names' );
-		$wp_query = array_keys( $wp_query );
+		$wp_query = array_values( $wp_query );
 
 		/**
 		 * Test the first two results.
@@ -152,15 +152,13 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 
-		$this->markTestIncomplete( 'works until here' );
-
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testBackwardPagination() {
 		$query    = $this->getQuery();
 		$wp_query = WPGraphQL::get_allowed_post_types( 'names' );
-		$wp_query = array_reverse( array_keys( $wp_query ) );
+		$wp_query = array_values( $wp_query );
 
 		/**
 		 * Test the first two results.
@@ -172,7 +170,8 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		];
 
 		// Run the GraphQL Query
-		$expected = array_slice( $wp_query, 0, 2, false );
+		$expected = array_slice( array_reverse( $wp_query ), 0, 2, false );
+		$expected = array_reverse( $expected );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -198,11 +197,10 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$variables['before'] = $actual['data']['contentTypes']['pageInfo']['startCursor'];
 
 		// Run the GraphQL Query
-		$expected = array_slice( $wp_query, 2, 2, false );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected = array_slice( array_reverse( $wp_query ), 2, 2, false );
+		$expected = array_reverse( $expected );
 
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
@@ -216,7 +214,8 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$variables['before'] = $actual['data']['contentTypes']['pageInfo']['startCursor'];
 
 		// Run the GraphQL Query
-		$expected = array_slice( $wp_query, 4, 2, false );
+		$expected = array_slice( array_reverse( $wp_query ), 4, 2, false );
+		$expected = array_reverse( $expected );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
@@ -248,9 +247,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 
 		$expected = $actual['data']['contentTypes']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
