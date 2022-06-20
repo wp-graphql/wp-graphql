@@ -32,8 +32,8 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	public function has_next_page() {
 
 		$last_key = array_key_last( $this->get_ids_for_nodes() );
-		$index = array_search( $last_key, array_keys( $this->get_ids() ), true );
-		$count = count( $this->get_ids() );
+		$index    = array_search( $last_key, array_keys( $this->get_ids() ), true );
+		$count    = count( $this->get_ids() );
 
 		if ( ! empty( $this->args['first'] ) ) {
 			return $index + 1 < $count;
@@ -44,7 +44,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 
 	public function has_previous_page() {
 		$first_key = array_key_first( $this->get_ids_for_nodes() );
-		$index = array_search( $first_key, array_keys( $this->get_ids() ), true );
+		$index     = array_search( $first_key, array_keys( $this->get_ids() ), true );
 
 		if ( ! empty( $this->args['last'] ) ) {
 			return $index > 0;
@@ -134,7 +134,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 		if ( ! empty( $this->get_offset() ) ) {
 			// Determine if the offset is in the array
 			$keys = array_keys( $ids );
-			$key = array_search( $this->get_offset(), $keys, true );
+			$key  = array_search( $this->get_offset(), $keys, true );
 
 			if ( false !== $key ) {
 				$key = absint( $key );
@@ -149,10 +149,8 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 			}
 		}
 
-
 		$ids = array_slice( $ids, 0, $this->query_amount, true );
 		return ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
 
 	}
 
