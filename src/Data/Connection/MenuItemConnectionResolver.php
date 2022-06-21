@@ -36,10 +36,9 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
-		$query_args = parent::get_query_args();
+		$query_args            = parent::get_query_args();
 		$query_args['orderby'] = 'menu_order';
 		$query_args['order']   = 'ASC';
-
 
 		if ( isset( $this->args['where']['parentDatabaseId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';
@@ -75,7 +74,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		if ( ! empty( $locations ) && is_array( $locations ) ) {
 
 			// unset the location arg
-			// we don't need this passed as a taxonomy paramater to wp_query
+			// we don't need this passed as a taxonomy parameter to wp_query
 			unset( $query_args['location'] );
 
 			$query_args['tax_query'] = [
@@ -88,9 +87,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 				],
 			];
 		}
-
-
-
 
 		return $query_args;
 	}
