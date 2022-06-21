@@ -372,7 +372,7 @@ abstract class AbstractConnectionResolver {
 	public function get_ids_from_query() {
 		throw new Exception( sprintf(
 			__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-			$this::class,
+			$this::class
 		) );
 	}
 
