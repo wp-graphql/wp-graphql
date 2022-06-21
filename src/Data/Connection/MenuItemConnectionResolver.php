@@ -75,6 +75,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		if ( ! empty( $locations ) && is_array( $locations ) ) {
 
 			// unset the location arg
+			// we don't need this passed as a taxonomy paramater to wp_query
 			unset( $query_args['location'] );
 
 			$query_args['tax_query'] = [
