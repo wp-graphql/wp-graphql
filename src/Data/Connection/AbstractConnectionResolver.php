@@ -586,7 +586,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-			_deprecated_function( __FUNCTION__, '@todo', get_class($this) . '::get_offset_for_cursor()' );
+			_deprecated_function( __FUNCTION__, '@todo', get_class( $this ) . '::get_offset_for_cursor()' );
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
