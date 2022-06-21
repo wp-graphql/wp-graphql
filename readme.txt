@@ -135,7 +135,16 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **New Features**
 
+- ([#2388](https://github.com/wp-graphql/wp-graphql/pull/2388)): Adds ability to query menus by SLUG and LOCATION. Thanks @justlevine!
+
 **Chores / Bugfixes**
+
+- ([#2412](https://github.com/wp-graphql/wp-graphql/pull/2412)): Update tests to run in PHP 8, 8.1 and with WordPress 6.0. Updates Docker Deploy workflow as well.
+- ([#2411](https://github.com/wp-graphql/wp-graphql/pull/2411)): Fixes bug where menuItems "location" arg was conflicting if a taxonomy is also registered with "location" as its name.
+- ([#2410](https://github.com/wp-graphql/wp-graphql/pull/2410)): Fixes a regression with Taxonomy Connection pagination.
+- ([#2406](https://github.com/wp-graphql/wp-graphql/pull/2406)): Updates PHPUnit, WPBrowser and WPGraphQL Test Case for use in workflows. Thanks @justlevine!
+- ([#2387](https://github.com/wp-graphql/wp-graphql/pull/2387)): Fixes a bug with asset versions when querying for Enqueued Scripts and Styles. Thanks @justlevine!
+
 
 
 = 1.8.2 =
