@@ -6,13 +6,18 @@ parameters:
         # Simulate added properties
         - phpstan/class-wp-post-type.stub
         - phpstan/class-wp-taxonomy.stub
+        - phpstan/class-wp-dependency.stub
     bootstrapFiles:
         - phpstan/constants.php
         - wp-graphql.php
         - access-functions.php
+        - activation.php
+        - deactivation.php
     paths:
         - wp-graphql.php
         - access-functions.php
+        - activation.php
+        - deactivation.php
         - src/
     excludePaths:
       analyseAndScan:

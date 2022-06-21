@@ -81,7 +81,7 @@ class NodeResolver {
 		 * This is to be used in extensions to resolve their own nodes which might not use
 		 * WordPress permalink structure.
 		 *
-		 * @param null $node The node, defaults to nothing.
+		 * @param mixed|null $node The node, defaults to nothing.
 		 * @param string $uri The uri being searched.
 		 * @param AppContext $content The app context.
 		 * @param WP $wp WP object.
@@ -139,7 +139,7 @@ class NodeResolver {
 			$error                   = null;
 			$this->wp->did_permalink = true;
 
-			$pathinfo         = isset( $uri ) ? $uri : '';
+			$pathinfo         = ! empty( $uri ) ? $uri : '';
 			list( $pathinfo ) = explode( '?', $pathinfo );
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
@@ -230,7 +230,7 @@ class NodeResolver {
 				}
 			}
 
-			if ( isset( $this->wp->matched_rule ) ) {
+			if ( ! empty( $this->wp->matched_rule ) ) {
 
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );
@@ -357,9 +357,6 @@ class NodeResolver {
 
 			if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
 
-				if ( empty( $page_id ) ) {
-					return null;
-				}
 				$page = get_post( $page_id );
 
 				if ( empty( $page ) ) {

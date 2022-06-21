@@ -81,7 +81,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Returns the query being executed
 	 *
-	 * @return \WP_Query
+	 * @return \WP_Query|object
 	 *
 	 * @throws Exception
 	 */
@@ -230,16 +230,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( 'attachment' === $this->post_type || 'revision' === $this->post_type ) {
 			$query_args['post_status'] = 'inherit';
+		}
 
-			if ( isset( $query_args['post_parent'] ) ) {
-
-				/**
-				 * Unset the "post_parent" for attachments, as we don't really care if they
-				 * have a post_parent set by default
-				 */
-				unset( $query_args['post_parent'] );
-
-			}
+		/**
+		 * Unset the "post_parent" for attachments, as we don't really care if they
+		 * have a post_parent set by default
+		 */
+		if ( 'attachment' === $this->post_type && isset( $input_fields['parent'] ) ) {
+			unset( $input_fields['parent'] );
 		}
 
 		/**

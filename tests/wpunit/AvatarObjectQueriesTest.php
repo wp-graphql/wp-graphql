@@ -213,16 +213,9 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		/**
-		 * The avatar should be empty.
-		 */
-		$expected = [
-			'user' => [
-				'avatar' => null
-			],
-		];
 
-		$this->assertEquals( $expected, $actual['data'] );
+		$this->assertEmpty( $actual['data']['user']['avatar']['foundAvatar'] );
+		$this->assertSame( $this->avatar_test_url( null ), $actual['data']['user']['avatar']['url'] );
 
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );

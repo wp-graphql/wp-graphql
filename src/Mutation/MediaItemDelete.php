@@ -65,9 +65,10 @@ class MediaItemDelete {
 				'type'        => 'MediaItem',
 				'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					$deleted = (object) $payload['mediaItemObject'];
+					/** @var Post $deleted */
+					$deleted = $payload['mediaItemObject'];
 
-					return ! empty( $deleted ) ? $deleted : null;
+					return ! empty( $deleted->ID ) ? $deleted : null;
 				},
 			],
 		];

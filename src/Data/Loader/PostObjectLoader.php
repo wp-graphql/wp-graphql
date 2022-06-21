@@ -34,15 +34,11 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * will batch the loading so when `setup_post_data()` is called the user
 		 * is already in the cache.
 		 */
-		$context     = $this->context;
-		$user_id     = null;
-		$post_parent = null;
+		$context = $this->context;
 
 		if ( ! empty( $entry->post_author ) && absint( $entry->post_author ) ) {
-			if ( ! empty( $entry->post_author ) ) {
-				$user_id = $entry->post_author;
-				$context->get_loader( 'user' )->load_deferred( $user_id );
-			}
+			$user_id = $entry->post_author;
+			$context->get_loader( 'user' )->load_deferred( $user_id );
 		}
 
 		if ( 'revision' === $entry->post_type && ! empty( $entry->post_parent ) && absint( $entry->post_parent ) ) {
@@ -55,7 +51,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		}
 
 		$post = new Post( $entry );
-		if ( ! isset( $post->fields ) || empty( $post->fields ) ) {
+		if ( empty( $post->fields ) ) {
 			return null;
 		}
 
@@ -141,7 +137,7 @@ class PostObjectLoader extends AbstractDataLoader {
 
 			}
 		}
-		return ! empty( $loaded_posts ) ? $loaded_posts : [];
+		return $loaded_posts;
 	}
 
 }

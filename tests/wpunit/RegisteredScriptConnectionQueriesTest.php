@@ -29,8 +29,11 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 						startCursor
 					}
 					nodes {
-						id
+						extra
 						handle
+						id
+						src
+						version
 					}
 				}
 			}
@@ -45,10 +48,18 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		];
 		$actual    = $this->graphql( compact( 'query', 'variables' ) );
 
-
 		$this->assertIsValidQueryResponse( $actual );
 
 		$nodes = $actual['data']['registeredScripts']['nodes'];
+
+		// Test fields for first asset.
+		global $wp_scripts;
+		$expected = $wp_scripts->registered[ $nodes[0]['handle'] ];
+
+		$this->assertEquals( $expected->extra['data'], $nodes[0]['extra'] );
+		$this->assertEquals( $expected->handle, $nodes[0]['handle'] );
+		$this->assertEquals( $expected->src, $nodes[0]['src'] );
+		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $nodes[0]['version'] );
 
 		// Get first two registeredScripts
 		$variables['first'] = 2;

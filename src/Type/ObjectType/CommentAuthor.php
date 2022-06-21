@@ -78,7 +78,13 @@ class CommentAuthor {
 							}
 
 							$avatar = get_avatar_data( $comment_author->email, $avatar_args );
-							return ! empty( $avatar ) ? new \WPGraphQL\Model\Avatar( $avatar ) : null;
+
+							// if there's no url returned, return null
+							if ( empty( $avatar['url'] ) ) {
+								return null;
+							}
+
+							return new \WPGraphQL\Model\Avatar( $avatar );
 						},
 					],
 				],

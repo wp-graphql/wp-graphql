@@ -177,9 +177,7 @@ class User {
 								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
-							$avatar = DataSource::resolve_avatar( $user->userId, $avatar_args );
-
-							return isset( $avatar->foundAvatar ) && true === $avatar->foundAvatar ? $avatar : null;
+							return DataSource::resolve_avatar( $user->userId, $avatar_args );
 						},
 					],
 				],

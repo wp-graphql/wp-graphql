@@ -105,7 +105,7 @@ class DebugLog {
 		/**
 		 * Init the debug logger
 		 *
-		 * @param DebugLog $this The DebugLog instance
+		 * @param DebugLog $instance The DebugLog instance
 		 */
 		do_action( 'graphql_get_debug_log', $this );
 
@@ -122,8 +122,8 @@ class DebugLog {
 		/**
 		 * Return the filtered debug log
 		 *
-		 * @param array $logs The logs to be output with the request
-		 * @param DebugLog $this The Debug Log class
+		 * @param array    $logs     The logs to be output with the request
+		 * @param DebugLog $instance The Debug Log class
 		 */
 		return apply_filters( 'graphql_debug_log', array_values( $this->logs ), $this );
 	}

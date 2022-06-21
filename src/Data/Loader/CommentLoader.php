@@ -26,7 +26,7 @@ class CommentLoader extends AbstractDataLoader {
 		}
 
 		$comment_model = new Comment( $entry );
-		if ( ! isset( $comment_model->fields ) || empty( $comment_model->fields ) ) {
+		if ( empty( $comment_model->fields ) ) {
 			return null;
 		}
 

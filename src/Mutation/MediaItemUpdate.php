@@ -145,8 +145,13 @@ class MediaItemUpdate {
 			 */
 			$post_id = wp_update_post( $clean_args, true );
 
-			if ( 0 === $post_id || is_wp_error( $post_id ) ) {
-				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+			if ( is_wp_error( $post_id ) ) {
+				$error_message = $post_id->get_error_message();
+				if ( ! empty( $error_message ) ) {
+					throw new UserError( esc_html( $error_message ) );
+				}
+
+				throw new UserError( __( 'The media item failed to update but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**
