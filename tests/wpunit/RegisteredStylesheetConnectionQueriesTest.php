@@ -134,14 +134,11 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$variables['after'] = $actual['data']['registeredStylesheets']['pageInfo']['startCursor'];
 
 		// Run the GraphQL Query
-		$expected = $actual['data']['registeredStylesheets'];
+		$expected          = $actual['data']['registeredStylesheets'];
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
 
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
-		$actual            = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
@@ -178,8 +175,11 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		];
 
 		// Run the GraphQL Query
-		$expected = $wp_query;
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 4, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 4, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
@@ -203,13 +203,10 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		// Run the GraphQL Query
 		$expected          = $wp_query;
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+		$expected['edges'] = array_slice( $expected['edges'], 2, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, 2, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
@@ -231,18 +228,18 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 
-		$variables['before'] = $actual['data']['registeredStylesheets']['pageInfo']['startCursor'];
+		$variables['before'] = $actual['data']['registeredStylesheets']['pageInfo']['endCursor'];
 
 		// Run the GraphQL Query
-		$expected = $actual['data']['registeredStylesheets'];
+		$expected          = $actual['data']['registeredStylesheets'];
+		$expected['edges'] = array_slice( $expected['edges'], 0, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 0, 2, false );
 
-		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
-		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
-		$actual            = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['registeredStylesheets']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testQueryWithFirstAndLast() {
@@ -270,9 +267,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$expected = $actual['data']['registeredStylesheets']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

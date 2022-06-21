@@ -130,20 +130,17 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
-		$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
+		$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['startCursor'];
 
 		// Run the GraphQL Query
-		$expected = $actual['data']['registeredScripts'];
+		$expected          = $actual['data']['registeredScripts'];
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
 
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
-		$actual            = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
 	}
@@ -177,8 +174,11 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		];
 
 		// Run the GraphQL Query
-		$expected = $wp_query;
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 4, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 4, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
@@ -202,13 +202,10 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		// Run the GraphQL Query
 		$expected          = $wp_query;
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+		$expected['edges'] = array_slice( $expected['edges'], 2, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, 2, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
@@ -230,18 +227,18 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
-		$variables['before'] = $actual['data']['registeredScripts']['pageInfo']['startCursor'];
+		$variables['before'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
 
 		// Run the GraphQL Query
-		$expected = $actual['data']['registeredScripts'];
+		$expected          = $actual['data']['registeredScripts'];
+		$expected['edges'] = array_slice( $expected['edges'], 0, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 0, 2, false );
 
-		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
-		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
-		$actual            = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testQueryWithFirstAndLast() {
@@ -269,9 +266,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		$expected = $actual['data']['registeredScripts']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

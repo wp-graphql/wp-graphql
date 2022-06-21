@@ -16,6 +16,13 @@ use WPGraphQL\Types;
 class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Comment_Query
+	 */
+	protected $query;
+
+	/**
 	 * @return array
 	 * @throws Exception
 	 */
@@ -98,7 +105,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the graphql_cursor_offset
 		 */
-		$query_args['graphql_cursor_offset']  = $this->get_offset();
+		$query_args['graphql_cursor_offset']  = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
 		/**
@@ -151,11 +158,20 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * @return array
-	 * @throws Exception
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+	public function get_ids_from_query() {
+		/** @var array $ids */
+		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

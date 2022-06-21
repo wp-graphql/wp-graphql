@@ -17,6 +17,13 @@ use WPGraphQL\Types;
 class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Term_Query
+	 */
+	protected $query;
+
+	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
 	 * @var string
@@ -159,19 +166,24 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @throws Exception
 	 */
 	public function get_query() {
-		$query = new \WP_Term_Query( $this->query_args );
-
-		return $query;
+		return new \WP_Term_Query( $this->query_args );
 	}
 
 	/**
-	 * This gets the items from the query. Different queries return items in different ways, so this
-	 * helps normalize the items into an array for use by the get_nodes() function.
+	 * {@inheritDoc}
 	 *
 	 * @return array
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	public function get_ids_from_query() {
+		/** @var string[] $ids **/
+		$ids = ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

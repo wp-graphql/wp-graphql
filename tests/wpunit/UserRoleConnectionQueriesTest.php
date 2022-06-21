@@ -190,10 +190,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['userRoles']['pageInfo']['hasPreviousPage'] );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
-
 		$this->assertEquals( false, $actual['data']['userRoles']['pageInfo']['hasNextPage'] );
 
 	}
@@ -226,7 +222,9 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		];
 
 		// Run the GraphQL Query
-		$expected = $wp_query;
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 4, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 4, null, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -252,13 +250,10 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Run the GraphQL Query
 		$expected          = $wp_query;
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+		$expected['edges'] = array_slice( $expected['edges'], 2, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, 2, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['userRoles']['pageInfo']['hasPreviousPage'] );
@@ -269,18 +264,18 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables['after'] = $actual['data']['userRoles']['pageInfo']['startCursor'];
+		$variables['before'] = $actual['data']['userRoles']['pageInfo']['startCursor'];
 
-		// // Run the GraphQL Query
+		// Run the GraphQL Query
 		$expected          = $wp_query;
-		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 4, null, false );
-		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 4, null, false );
+		$expected['edges'] = array_slice( $expected['edges'], 0, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 0, 2, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['userRoles']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['userRoles']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['userRoles']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['userRoles']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testQueryWithFirstAndLast() {
@@ -308,9 +303,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$expected = $actual['data']['userRoles']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

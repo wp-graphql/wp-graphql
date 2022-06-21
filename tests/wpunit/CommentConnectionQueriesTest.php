@@ -141,7 +141,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
-		// DESC order requires a reversal.
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 

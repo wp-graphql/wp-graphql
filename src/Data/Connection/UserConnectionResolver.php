@@ -188,12 +188,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
-	public function get_ids() {
-		$results = $this->query->get_results();
+	public function get_ids_from_query() {
+		$ids = $this->query->get_results();
 
-		return ! empty( $results ) ? $results : [];
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

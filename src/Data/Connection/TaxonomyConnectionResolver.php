@@ -3,10 +3,7 @@ namespace WPGraphQL\Data\Connection;
 
 use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Taxonomy;
-use WPGraphQL\Model\Term;
 
 /**
  * Class TaxonomyConnectionResolver
@@ -54,57 +51,32 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return bool|int|mixed|null|string
-	 */
-	public function get_offset() {
-		$offset = null;
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
-		}
-		return $offset;
-	}
-
-	/**
-	 * Get the IDs from the source
+	 * {@inheritDoc}
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
-	public function get_ids() {
-
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
-		}
-
-		if ( isset( $this->query_args['in'] ) ) {
-			return is_array( $this->query_args['in'] ) ? $this->query_args['in'] : [ $this->query_args['in'] ];
-		}
+	public function get_ids_from_query() {
 
 		$ids     = [];
-		$queried = $this->get_query();
+		$queried = $this->query;
 
 		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
-			$ids[ $key ] = $item;
+		foreach ( $queried as $item ) {
+			$ids[] = $item;
 		}
 
 		return $ids;
-
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_args() {
-
-		return [
-			'show_in_graphql' => true,
-		];
-
+		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 
@@ -114,44 +86,16 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 * @return array|mixed|null
 	 */
 	public function get_query() {
-		$query_args = $this->get_query_args();
-		return get_taxonomies( $query_args );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
-			return [];
+		if ( isset( $this->query_args['name'] ) ) {
+			return [ $this->query_args['name'] ];
 		}
 
-		$ids = $this->ids;
-
-		// If pagination is going backwards, revers the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		if ( ! empty( $this->get_offset() ) ) {
-			// Determine if the offset is in the array
-			$keys = array_keys( $ids );
-			$key  = array_search( $this->get_offset(), $keys, true );
-
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, $key + 1, $this->get_query_amount(), true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
+		if ( isset( $this->query_args['in'] ) ) {
+			return is_array( $this->query_args['in'] ) ? $this->query_args['in'] : [ $this->query_args['in'] ];
 		}
 
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
-		return ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
+		$query_args = $this->query_args;
+		return \WPGraphQL::get_allowed_taxonomies( 'names', $query_args );
 	}
 
 	/**
@@ -171,7 +115,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return (bool) get_taxonomy( $offset );
+		return get_taxonomy( $offset ) instanceof \WP_Taxonomy;
 	}
 
 	/**

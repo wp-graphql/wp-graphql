@@ -175,7 +175,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the last two results.
@@ -208,11 +208,8 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( $cursor, $actual['data']['themes']['edges'][0]['cursor'] );
 		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['startCursor'] );
 		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['endCursor'] );
+
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
-
 		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 	}
 
@@ -247,8 +244,11 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		];
 
 		// Run the GraphQL Query
-		$expected = $wp_query;
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
@@ -272,20 +272,16 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$variables['before'] = $actual['data']['themes']['pageInfo']['endCursor'];
 
 		// Run the GraphQL Query
-		$variables['before'] = $actual['data']['themes']['pageInfo']['endCursor'];
-
-		// Run the GraphQL Query
 		$expected          = $wp_query;
 		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
+		$expected['edges'] = array_reverse( $expected['edges'] );
 		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
+		$expected['nodes'] = array_reverse( $expected['nodes'] );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
-
 		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 
 		/**
@@ -294,12 +290,14 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		// Set the variables to use in the GraphQL query.
 		// We dont have enough to paginate twice.
-		$variables['after'] = $actual['data']['themes']['pageInfo']['startCursor'];
+		$variables['before'] = $actual['data']['themes']['pageInfo']['endCursor'];
 
 		// Run the GraphQL Query
 		$expected          = $wp_query;
 		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
 		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+
+		codecept_debug( $expected );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -320,8 +318,8 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['startCursor'] );
 		$this->assertEquals( $cursor, $actual['data']['themes']['pageInfo']['endCursor'] );
 
-		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testQueryWithFirstAndLast() {
@@ -351,9 +349,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$expected = $actual['data']['themes']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $expected );
-		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

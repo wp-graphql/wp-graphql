@@ -27,31 +27,11 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return bool|int|mixed|null|string
-	 */
-	public function get_offset() {
-		$offset = null;
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
-		}
-
-		return $offset;
-	}
-
-	/**
-	 * Get the IDs from the source
+	 * {@inheritDoc}
 	 *
-	 * We're slicing here since the query doesnt support pagination.
-	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
-	public function get_ids() {
-
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
-		}
+	public function get_ids_from_query() {
 
 		$ids     = [];
 		$queried = $this->query;
@@ -60,50 +40,19 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
-			$ids[ $key ] = $item;
+		foreach ( $queried as $item ) {
+			$ids[] = $item;
 		}
-
-		$offset = $this->get_offset();
-
-		if ( ! empty( $offset ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $offset, $ids, true );
-
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['after'] ) ) {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				} else {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				}
-			}
-		}
-
-		// If pagination is going backwards, reverse the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		// Slice the array to n+1, so prev/next checks can work.
-		$ids = array_slice( $ids, 0, $this->query_amount + 1, true );
 
 		return $ids;
-
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_args() {
-
-		$query_args = [
-			'show_in_graphql' => true,
-		];
-
-		return $query_args;
-
+		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 
@@ -118,28 +67,12 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return $this->query_args['contentTypeNames'];
 		}
 
-		$query_args = $this->query_args;
-		return array_values( \WPGraphQL::get_allowed_post_types( 'names', $query_args ) );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Since WP doesnt allow pagination of post types, we slice them in get_query().
-	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
-			return [];
+		if ( isset( $this->query_args['name'] ) ) {
+			return [ $this->query_args['name'] ];
 		}
 
-		$ids = $this->ids;
-
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
-
-		// If pagination is going backwards, reverse the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		return $ids;
+		$query_args = $this->query_args;
+		return \WPGraphQL::get_allowed_post_types( 'names', $query_args );
 	}
 
 	/**
