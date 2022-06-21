@@ -20,7 +20,7 @@ class Comments {
 	/**
 	 * Register connections to Comments.
 	 *
-	 * Connections from Post Objects to Comments are handled in \Data\PostObjectType.
+	 * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
 	 *
 	 * @return void
 	 * @throws Exception

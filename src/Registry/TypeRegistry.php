@@ -16,8 +16,6 @@ use WPGraphQL\Connection\Taxonomies;
 use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Data\PostObjectType;
-use WPGraphQL\Data\TermObjectType;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
 use WPGraphQL\Mutation\CommentRestore;
@@ -38,6 +36,8 @@ use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
+use WPGraphQL\Registry\Utils\PostObject;
+use WPGraphQL\Registry\Utils\TermObject;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
 use WPGraphQL\Type\Enum\MenuItemNodeIdTypeEnum;
@@ -379,7 +379,7 @@ class TypeRegistry {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
-			PostObjectType::register_post_object_types( $post_type_object );
+			PostObject::register_post_object_types( $post_type_object );
 
 			/**
 			 * Mutations for attachments are handled differently
@@ -454,7 +454,7 @@ class TypeRegistry {
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
-			TermObjectType::register_term_object_types( $tax_object );
+			TermObject::register_term_object_types( $tax_object );
 			TermObjectCreate::register_mutation( $tax_object );
 			TermObjectUpdate::register_mutation( $tax_object );
 			TermObjectDelete::register_mutation( $tax_object );

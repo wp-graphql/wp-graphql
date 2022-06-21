@@ -1,7 +1,8 @@
 <?php
 
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Registry\Utils;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Taxonomy;
 use WPGraphQL;
@@ -18,7 +19,7 @@ use WPGraphQL\Model\Term;
  *
  * @package WPGraphQL\Data
  */
-class TermObjectType {
+class TermObject {
 
 	/**
 	 * Registers a post_type type to the schema as either a GraphQL object, interface, or union.
@@ -26,6 +27,7 @@ class TermObjectType {
 	 * @param WP_Taxonomy $tax_object Taxonomy.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_term_object_types( WP_Taxonomy $tax_object ) {
 		$single_name = $tax_object->graphql_single_name;

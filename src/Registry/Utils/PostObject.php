@@ -1,7 +1,8 @@
 <?php
 
-namespace WPGraphQL\Data;
+namespace WPGraphQL\Registry\Utils;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WPGraphQL;
@@ -15,11 +16,11 @@ use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Post;
 
 /**
- * Class PostObjectType
+ * Class PostObject
  *
  * @package WPGraphQL\Data
  */
-class PostObjectType {
+class PostObject {
 
 	/**
 	 * Registers a post_type type to the schema as either a GraphQL object, interface, or union.
@@ -27,6 +28,7 @@ class PostObjectType {
 	 * @param WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
@@ -257,13 +259,13 @@ class PostObjectType {
 		}
 
 		if ( $post_type_object->hierarchical || in_array(
-			$post_type_object->name,
-			[
-				'attachment',
-				'revision',
-			],
-			true
-		) ) {
+				$post_type_object->name,
+				[
+					'attachment',
+					'revision',
+				],
+				true
+			) ) {
 			$interfaces[] = 'HierarchicalContentNode';
 		}
 
@@ -335,14 +337,14 @@ class PostObjectType {
 		}
 
 		if ( ! $post_type_object->hierarchical &&
-		! in_array(
-			$post_type_object->name,
-			[
-				'attachment',
-				'revision',
-			],
-			true
-		) ) {
+		     ! in_array(
+			     $post_type_object->name,
+			     [
+				     'attachment',
+				     'revision',
+			     ],
+			     true
+		     ) ) {
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
