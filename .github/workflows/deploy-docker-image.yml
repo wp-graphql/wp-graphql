@@ -18,6 +18,14 @@ jobs:
         exclude:
           - php: '8.0'
             wordpress: '5.5.3'
+          - php: '8.1'
+            wordpress: '5.5.3'
+          - php: '8.1'
+            wordpress: '5.6'
+          - php: '8.1'
+            wordpress: '5.7.2'
+          - php: '7.3'
+            wordpress: '6.0'
       fail-fast: false
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
