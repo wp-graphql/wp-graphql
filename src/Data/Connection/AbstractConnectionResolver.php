@@ -532,7 +532,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
-			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
 		if ( ! empty( $this->args['before'] ) ) {
@@ -555,7 +555,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
-			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
 		if ( ! empty( $this->args['after'] ) ) {
