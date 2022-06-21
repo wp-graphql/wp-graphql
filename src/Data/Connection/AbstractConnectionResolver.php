@@ -372,7 +372,7 @@ abstract class AbstractConnectionResolver {
 	public function get_ids_from_query() {
 		throw new Exception( sprintf(
 			__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-			$this::class
+			get_class( $this )
 		) );
 	}
 
@@ -586,7 +586,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-			_deprecated_function( __FUNCTION__, '@todo', $this::class . '::get_offset_for_cursor()' );
+			_deprecated_function( __FUNCTION__, '@todo', get_class($this) . '::get_offset_for_cursor()' );
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
