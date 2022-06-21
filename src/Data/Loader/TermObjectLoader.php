@@ -31,7 +31,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			if ( 'nav_menu' === $entry->taxonomy ) {
 
 				$menu = new Menu( $entry );
-				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+				if ( empty( $menu->fields ) ) {
 					return null;
 				} else {
 					return $menu;
@@ -39,7 +39,7 @@ class TermObjectLoader extends AbstractDataLoader {
 			} else {
 
 				$term = new Term( $entry );
-				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+				if ( empty( $term->fields ) ) {
 					return null;
 				} else {
 					return  $term;
@@ -59,7 +59,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * For example:
 	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
 	 *
-	 * @param array $keys
+	 * @param int[] $keys
 	 *
 	 * @return array
 	 * @throws Exception
@@ -84,7 +84,6 @@ class TermObjectLoader extends AbstractDataLoader {
 		/**
 		 * Execute the query. This adds the terms to the cache
 		 */
-		// @phpstan-ignore-next-line
 		$query = new \WP_Term_Query( $args );
 		$terms = $query->get_terms();
 

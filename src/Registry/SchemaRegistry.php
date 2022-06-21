@@ -53,8 +53,8 @@ class SchemaRegistry {
 		/**
 		 * Filter the Schema
 		 *
-		 * @param WPSchema       $schema The generated Schema
-		 * @param SchemaRegistry $this   The Schema Registry Instance
+		 * @param WPSchema       $schema   The generated Schema
+		 * @param SchemaRegistry $registry The Schema Registry Instance
 		 */
 		return apply_filters( 'graphql_schema', $schema, $this );
 

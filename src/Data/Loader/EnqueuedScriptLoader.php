@@ -17,7 +17,7 @@ class EnqueuedScriptLoader extends AbstractDataLoader {
 	 * @return array
 	 */
 	public function loadKeys( array $keys ) {
-
+		/** @var \WP_Scripts $wp_scripts */
 		global $wp_scripts;
 
 		$loaded = [];

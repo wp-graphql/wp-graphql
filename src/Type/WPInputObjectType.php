@@ -64,6 +64,8 @@ class WPInputObjectType extends InputObjectType {
 		 *
 		 * @param array  $fields    The array of fields for the object config
 		 * @param string $type_name The name of the object type
+		 * @param array  $config    The type config
+		 *
 		 * @param TypeRegistry $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );

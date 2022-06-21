@@ -145,7 +145,7 @@ class Router {
 		 * If this filter returns anything other than null, the function will return now and skip the
 		 * default checks.
 		 *
-		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 * @param ?bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
 		$pre_is_graphql_http_request = apply_filters( 'graphql_pre_is_graphql_http_request', null );
 
@@ -481,9 +481,9 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 *
-			 * @param array              $errors   Formatted errors object.
-			 * @param Exception          $error    Thrown error.
-			 * @param \WPGraphQL\Request $request  WPGraphQL Request object.
+			 * @param array               $errors   Formatted errors object.
+			 * @param \Exception          $error    Thrown error.
+			 * @param \WPGraphQL\Request  $request  WPGraphQL Request object.
 			 */
 			$response['errors'] = apply_filters(
 				'graphql_http_request_response_errors',
@@ -510,7 +510,7 @@ class Router {
 		 * @param array  $result         The result of the GraphQL Query
 		 * @param string $operation_name The name of the operation
 		 * @param string $query          The request that GraphQL executed
-		 * @param array  $variables      Variables to passed to your GraphQL query
+		 * @param ?array $variables      Variables to passed to your GraphQL query
 		 * @param mixed  $status_code    The status code for the response
 		 *
 		 * @since 0.0.5

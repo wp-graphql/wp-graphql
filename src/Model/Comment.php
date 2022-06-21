@@ -93,18 +93,16 @@ class Comment extends Model {
 
 		$commented_on = get_post( (int) $this->data->comment_post_ID );
 
-		if ( empty( $commented_on ) ) {
+		if ( ! $commented_on instanceof \WP_Post ) {
 			return true;
 		}
 
 		// A comment is considered private if it is attached to a private post.
-		if ( empty( $commented_on ) || true === ( new Post( $commented_on ) )->is_private() ) {
+		if ( true === ( new Post( $commented_on ) )->is_private() ) {
 			return true;
 		}
 
-		// NOTE: Do a non-strict check here, as the return is a `1` or `0`.
-		// phpcs:disable WordPress.PHP.StrictComparisons.LooseComparison
-		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
+		if ( 0 === absint( $this->data->comment_approved ) && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
 
@@ -185,7 +183,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;
 				},
 				'userId'             => function () {
-					return isset( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
+					return ! empty( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
 				},
 			];
 

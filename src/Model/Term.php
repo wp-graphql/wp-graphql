@@ -80,7 +80,7 @@ class Term extends Model {
 		 */
 		$this->global_post = $post;
 
-		if ( ! empty( $this->data ) ) {
+		if ( $this->data instanceof WP_Term ) {
 
 			/**
 			 * Reset global post
@@ -206,7 +206,7 @@ class Term extends Model {
 				},
 			];
 
-			if ( isset( $this->taxonomy_object ) && isset( $this->taxonomy_object->graphql_single_name ) ) {
+			if ( isset( $this->taxonomy_object, $this->taxonomy_object->graphql_single_name ) ) {
 				$type_id                  = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->data->term_id );
 			}

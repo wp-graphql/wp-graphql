@@ -395,7 +395,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * This filter is intentionally applied AFTER the query_args filter, as
 		 *
-		 * @param array       $query_args array of query_args being passed to the
+		 * @param int         $max_posts  the maximum number of posts per page.
 		 * @param mixed       $source     source passed down from the resolve tree
 		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
 		 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
@@ -459,8 +459,8 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * This filter allows to modify the requested connection page size
 		 *
-		 * @param int                        $amount the requested amount
-		 * @param AbstractConnectionResolver $this   Instance of the connection resolver class
+		 * @param int                        $amount   the requested amount
+		 * @param AbstractConnectionResolver $resolver Instance of the connection resolver class
 		 */
 		return max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
 
@@ -532,7 +532,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
-			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
 		if ( ! empty( $this->args['before'] ) ) {
@@ -555,7 +555,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
-			return ! empty( $this->ids ) ? count( $this->ids ) > $this->query_amount : false;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
 		if ( ! empty( $this->args['after'] ) ) {

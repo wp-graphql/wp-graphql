@@ -29,6 +29,30 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 		parent::__construct( $source, $args, $context, $info );
 	}
 
+	public function has_next_page() {
+
+		$last_key = array_key_last( $this->get_ids_for_nodes() );
+		$index    = array_search( $last_key, array_keys( $this->get_ids() ), true );
+		$count    = count( $this->get_ids() );
+
+		if ( ! empty( $this->args['first'] ) ) {
+			return $index + 1 < $count;
+		}
+
+		return false;
+	}
+
+	public function has_previous_page() {
+		$first_key = array_key_first( $this->get_ids_for_nodes() );
+		$index     = array_search( $first_key, array_keys( $this->get_ids() ), true );
+
+		if ( ! empty( $this->args['last'] ) ) {
+			return $index > 0;
+		}
+
+		return false;
+	}
+
 	/**
 	 * @return bool|int|mixed|null|string
 	 */
@@ -77,11 +101,9 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query_args() {
 
-		$query_args = [
+		return [
 			'show_in_graphql' => true,
 		];
-
-		return $query_args;
 
 	}
 
@@ -111,12 +133,14 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 
 		if ( ! empty( $this->get_offset() ) ) {
 			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
+			$keys = array_keys( $ids );
+			$key  = array_search( $this->get_offset(), $keys, true );
+
 			if ( false !== $key ) {
 				$key = absint( $key );
 				if ( ! empty( $this->args['before'] ) ) {
 					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
+					$ids = array_slice( $ids, $key + 1, $this->get_query_amount(), true );
 				} else {
 					// Slice the array from the front.
 					$key ++;
@@ -126,8 +150,8 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		$ids = array_slice( $ids, 0, $this->query_amount, true );
+		return ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
 
-		return $ids;
 	}
 
 	/**
@@ -147,7 +171,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		return (bool) get_taxonomy( $offset );
 	}
 
 	/**
