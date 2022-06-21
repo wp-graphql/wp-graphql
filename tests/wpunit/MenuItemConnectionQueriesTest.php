@@ -774,6 +774,12 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['menuItems']['edges'] );
 
+		foreach ($created['menu_item_ids'] as $menu_item_id ) {
+			wp_delete_post( $menu_item_id );
+		}
+
+		unregister_taxonomy( 'location' );
+
 	}
 
 }
