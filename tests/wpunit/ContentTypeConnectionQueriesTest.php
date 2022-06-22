@@ -11,6 +11,8 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		] );
 		wp_set_current_user( $this->admin );
 		$this->created_content_type_ids = $this->create_content_types();
+		WPGraphQL::clear_schema();
+
 		parent::setUp();
 	}
 
@@ -18,6 +20,8 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		foreach ( $this->created_content_type_ids as $id ) {
 			unregister_post_type( $id );
 		}
+		WPGraphQL::clear_schema();
+
 		parent::tearDown();
 	}
 
@@ -51,7 +55,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$created_content_types = [];
 		for ( $i = 1; $i <= 3; $i ++ ) {
 			$created_content_types[ $i ] = $this->createContentTypeObject(
-				"slug-$i",
+				"type_connection-$i",
 				[
 					'label'               => $alphabet[ $i ],
 					'labels'              => [

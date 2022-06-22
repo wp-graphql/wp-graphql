@@ -7,21 +7,20 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
 
 		register_post_type(
-			'bootstrap_cpt',
+			'cpt_test_cpt',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapPost',
 				'graphql_plural_name' => 'bootstrapPosts',
 				'hierarchical'        => true,
-				'taxonomies' => [ 'bootstrap_tax' ]
+				'taxonomies'          => [ 'cpt_test_tax' ],
 			]
 		);
 		register_taxonomy(
-			'bootstrap_tax',
-			[ 'bootstrap_cpt' ],
+			'cpt_test_tax',
+			[ 'cpt_test_cpt' ],
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapTerm',
@@ -30,22 +29,27 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
+		WPGraphQL::clear_schema();
 
 		$this->post_id = $this->factory()->post->create([
-			'post_type' => 'bootstrap_cpt',
+			'post_type'   => 'cpt_test_cpt',
 			'post_status' => 'publish',
-			'post_title' => 'Test'
+			'post_title'  => 'Test for CustomPostTypeTest',
 		]);
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 	}
 
 	public function tearDown(): void {
-		parent::tearDown();
+		wp_delete_post( $this->post_id, true );
+		unregister_post_type( 'cpt_test_cpt' );
+		unregister_taxonomy( 'cpt_test_tax' );
+		WPGraphQL::clear_schema();
 
+		parent::tearDown();
 	}
 
 	/**
@@ -57,28 +61,30 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: Int ) {
-		  bootstrapPostBy( bootstrapPostId: $id ) {
-		    bootstrapPostId
-		  }
-		  bootstrapPosts {
-		    nodes {
-		      bootstrapPostId
-		    }
-		    edges {
-		      node {
-		        bootstrapPostId
-		      }
-		    }
-		  }
+			bootstrapPostBy( bootstrapPostId: $id ) {
+				bootstrapPostId
+			}
+			bootstrapPosts {
+				nodes {
+					bootstrapPostId
+				}
+				edges {
+					node {
+						bootstrapPostId
+					}
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $this->post_id
-			]
+				'id' => $this->post_id,
+			],
 		]);
+
+		codecept_debug( $actual );
 
 		// Since the post type was registered as not-public, a public user should
 		// not be able to query the content.
@@ -87,218 +93,218 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEmpty( $actual['data']['bootstrapPosts']['edges'] );
 		$this->assertEmpty( $actual['data']['bootstrapPostBy'] );
 
-
-
 		// An authenticated user should be able to access the content
 		wp_set_current_user( $this->admin );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $this->post_id
-			]
+				'id' => $this->post_id,
+			],
 		]);
 
 		codecept_debug( $actual );
-		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPostBy']['bootstrapPostId']);
-		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['nodes'][0]['bootstrapPostId']);
-		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['edges'][0]['node']['bootstrapPostId']);
+		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPostBy']['bootstrapPostId'] );
+		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['nodes'][0]['bootstrapPostId'] );
+		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['edges'][0]['node']['bootstrapPostId'] );
 
 	}
 
 	public function testQueryNonPublicPostTypeThatIsPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
-			'show_in_graphql'=> true,
+		register_post_type( 'cpt_test_private_cpt', [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
-			'public' => false,
-			'publicly_queryable' => true,
+			'public'              => false,
+			'publicly_queryable'  => true,
 		]);
+		WPGraphQL::clear_schema();
 
 		$database_id = $this->factory()->post->create([
-			'post_type' => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title' => 'Test'
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPublicyQueryable',
 		]);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
-
 
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $database_id
-			]
+				'id' => $database_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
 		// make sure the query is from a logged in user
 		wp_set_current_user( $this->admin );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $database_id
-			]
+				'id' => $database_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		// A logged in user should be able to see the data as well!
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryPublicPostTypeThatIsNotPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
-			'show_in_graphql'=> true,
+		register_post_type( 'cpt_test_private_cpt', [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
-			'public' => true,
-			'publicly_queryable' => false,
+			'public'              => true,
+			'publicly_queryable'  => false,
 		]);
 
 		$database_id = $this->factory()->post->create([
-			'post_type' => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title' => 'Test'
+			'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPublicyQueryable',
 		]);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
-
 
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $database_id
-			]
+				'id' => $database_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		// Since the post_type is public we should see data, even if it's set to publicly_queryable=>false, as public=>true should trump publicly_queryable
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryNonPublicPostTypeThatIsNotPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
-			'show_in_graphql'=> true,
+		register_post_type( 'cpt_test_private_cpt', [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
-			'public' => false,
-			'publicly_queryable' => false,
+			'public'              => false,
+			'publicly_queryable'  => false,
 		]);
+		WPGraphQL::clear_schema();
 
 		$database_id = $this->factory()->post->create([
-			'post_type' => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title' => 'Test'
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPublicyQueryable',
 		]);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
-
 
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $database_id
-			]
+				'id' => $database_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		// Since the post_type is public=>false / publicly_queryable=>false, the content should be null for a public user
-		$this->assertEmpty($actual['data']['contentNode']);
-		$this->assertEmpty( $actual['data']['notPublics']['nodes']);
-		$this->assertEmpty( $actual['data']['notPublics']['edges']);
+		$this->assertEmpty( $actual['data']['contentNode'] );
+		$this->assertEmpty( $actual['data']['notPublics']['nodes'] );
+		$this->assertEmpty( $actual['data']['notPublics']['edges'] );
 
 		// Log the user in and do the request again
 		wp_set_current_user( $this->admin );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $database_id
-			]
+				'id' => $database_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		// The admin user should be able to see the content
-		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId']);
-		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId']);
+		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryCustomPostTypeByUri() {
@@ -309,9 +315,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		create_initial_taxonomies();
 		$GLOBALS['wp_rewrite']->init();
 
-
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -326,16 +331,16 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules();
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-			'post_author' => $this->admin
+			'post_title'  => 'Test for QueryCustomPostTypeByUri',
+			'post_author' => $this->admin,
 		]);
 
 		$child_post_id = $this->factory()->post->create([
-			'post_type' => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title' => 'Child Post',
+			'post_title'  => 'Child Post for QueryCustomPostTypeByUri',
 			'post_author' => $this->admin,
 		]);
 
@@ -344,8 +349,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
 			testCpt(id: $id idType: URI ) {
-			  __typename
-			  databaseId
+				__typename
+				databaseId
 			}
 		}
 		';
@@ -356,10 +361,10 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		// Query a parent (top-level) post by URI
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $uri
-			]
+				'id' => $uri,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -373,10 +378,10 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		// Query a child post of CPT by uri
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $child_uri
-			]
+				'id' => $child_uri,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -396,9 +401,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		create_initial_taxonomies();
 		$GLOBALS['wp_rewrite']->init();
 
-
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -413,16 +417,16 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules();
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-			'post_author' => $this->admin
+			'post_title'  => 'Test for QueryCustomPostTypeByDatabaseId',
+			'post_author' => $this->admin,
 		]);
 
 		$child_post_id = $this->factory()->post->create([
-			'post_type' => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title' => 'Child Post',
+			'post_title'  => 'Child Post for QueryCustomPostTypeByDatabaseId',
 			'post_author' => $this->admin,
 		]);
 
@@ -431,8 +435,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
 			testCpt(id: $id idType: DATABASE_ID ) {
-			  __typename
-			  databaseId
+				__typename
+				databaseId
 			}
 		}
 		';
@@ -443,10 +447,10 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		// Query a parent (top-level) post by URI
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $post_id
-			]
+				'id' => $post_id,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -460,10 +464,10 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		// Query a child post of CPT by uri
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $child_post_id
-			]
+				'id' => $child_post_id,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -477,7 +481,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -489,36 +493,36 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
-			'post_author' => $this->admin
+			'post_title'  => 'Test for QueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName',
+			'post_author' => $this->admin,
 		]);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  testCpt( id: $id idType: DATABASE_ID ) {
+			testCpt( id: $id idType: DATABASE_ID ) {
 			__typename
 			databaseId
-		  }
-		  allTestCpt {
-		    nodes {
-			  databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			}
+			allTestCpt {
+				nodes {
+				databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $post_id
-			]
+				'id' => $post_id,
+			],
 		]);
 
 		codecept_debug( $actual );

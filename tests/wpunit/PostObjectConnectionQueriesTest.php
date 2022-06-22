@@ -33,6 +33,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
+		foreach ( $this->created_post_ids as $id ) {
+			wp_delete_post( $id, true );
+		}
 		WPGraphQL::clear_schema();
 		parent::tearDown();
 	}
@@ -47,7 +50,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_content'  => 'Test page content',
 			'post_excerpt'  => 'Test excerpt',
 			'post_status'   => 'publish',
-			'post_title'    => 'Test Title',
+			'post_title'    => 'Test Post for PostObjectConnectionQueriesTest',
 			'post_type'     => 'post',
 			'post_date'     => $this->current_date,
 			'has_password'  => false,
@@ -100,7 +103,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'post_type'   => 'post',
 					'post_date'   => $date,
 					'post_status' => 'publish',
-					'post_title'  => $i,
+					'post_title'  => 'Test post for PostObjectConnectionQueriesTest ' . $i,
 				]
 			);
 		}
@@ -371,7 +374,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsWithProperCaps() {
 
 		$post_args = [
-			'post_title'  => 'Private post WITH caps',
+			'post_title'  => 'Private post WITH caps for PostObjectConnectionQueriesTest',
 			'post_status' => 'private',
 			'post_author' => $this->subscriber,
 		];
@@ -496,7 +499,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$public_post = $this->createPostObject( [] );
 		$draft_args  = [
-			'post_title'   => 'Draft Title',
+			'post_title'   => 'Draft Title for DraftPosts',
 			'post_content' => 'Draft Post Content Here',
 			'post_status'  => 'draft',
 		];
@@ -550,7 +553,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$public_post = $this->createPostObject( [] );
 		$draft_args  = [
-			'post_title'   => 'Trash Title',
+			'post_title'   => 'Trash Title TrashPosts',
 			'post_content' => 'Trash Post Content Here',
 			'post_status'  => 'trash',
 		];
@@ -615,13 +618,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$public_post_id = $this->factory()->post->create( [
 			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for PrivatePostsNotReturnedToPublicUserInConnection',
 		] );
 
 		$private_post_id = $this->factory()->post->create( [
 			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title'  => 'Private Post',
+			'post_title'  => 'Private Post for PrivatePostsNotReturnedToPublicUserInConnection',
 		] );
 
 		update_post_meta( $private_post_id, '_private_key', true );
@@ -722,25 +725,25 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_1 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_2 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_3 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_4 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
@@ -800,7 +803,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $cursor );
 		codecept_debug( base64_decode( $cursor ) );
-		codecept_debug( 'line 932...' );
 
 		$actual = graphql([
 			'query'     => $query,
@@ -838,25 +840,25 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_1 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_2 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_3 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_4 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];

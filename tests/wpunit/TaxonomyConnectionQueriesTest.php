@@ -13,26 +13,19 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		parent::setUp();
 
-
 		$this->clearSchema();
 
-		$alphabet = range( 'A', 'Z' );
-
-		// Create posts
-		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
-			register_taxonomy( $alphabet[ $i ], 'post', [
-				'public' => true,
-				'show_in_graphql' => true,
-				'graphql_single_name' => $alphabet[ $i ],
-				'graphql_plural_name' => 'all' . lcfirst( $alphabet[ $i ] ),
-			] );
-		}
-
-		$this->taxonomies = get_taxonomies([ 'show_in_graphql' => true ] );
+		$this->taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
 
 	}
 
 	public function tearDown(): void {
+		foreach ( $this->created_taxonomy_ids as $id ) {
+			unregister_taxonomy( $id );
+		}
+
+		$this->clearSchema();
+
 		parent::tearDown();
 	}
 
@@ -64,7 +57,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$created_taxonomies = [];
 		for ( $i = 1; $i <= 3; $i ++ ) {
 			$created_taxonomies[ $i ] = $this->createTaxonomyObject(
-				'tax-' . $alphabet[ $i ],
+				'tax_connection_queries-' . $alphabet[ $i ],
 				[
 					'graphql_single_name' => 'TestTerm' . $alphabet[ $i ],
 					'graphql_plural_name' => 'TestTerm' . $alphabet[ $i ] . 's',
@@ -142,6 +135,10 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Run the GraphQL Query
 		$expected = array_slice( $wp_query, 2, 2, false );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( 'expected failing tax forward:' );
+		codecept_debug( $wp_query );
+		codecept_debug( $expected );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasPreviousPage'] );

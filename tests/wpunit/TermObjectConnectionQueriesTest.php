@@ -191,7 +191,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertValidPagination( $expected, $actual );
 
 		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
-		$this->markTestIncomplete( 'Old terms are not cleaned up' );
 		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasNextPage'] );
 	}
 
@@ -275,8 +274,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
-
-		$this->markTestIncomplete( 'Old terms are not cleaned up' );
 		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
 	}
 

@@ -35,10 +35,10 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	public function testContentNodeExists() {
 		$query  = '
 		{
-		  __type(name: "ContentNode") {
-		    name
-		    kind
-		  }
+			__type(name: "ContentNode") {
+				name
+				kind
+			}
 		}
 		';
 		$actual = graphql( [ 'query' => $query ] );
@@ -55,41 +55,41 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for QueryContentNodesOfManyTypes',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for QueryContentNodesOfManyTypes',
 			'post_author' => $this->admin,
 		] );
 
 		$query = '
 		{
-		  contentNodes(first:2) {
-		    nodes {
-		      __typename
-		      id
-		      databaseId
-		      contentTypeName
-		      ...on NodeWithTitle {
-		        title
-		      }
-		      ...on Post {
-		        postId
-		      }
-		      ...on Page {
-		        pageId
-		      }
-		    }
-		  }
-	    }
+			contentNodes(first:2) {
+				nodes {
+					__typename
+					id
+					databaseId
+					contentTypeName
+					...on NodeWithTitle {
+						title
+					}
+					...on Post {
+						postId
+					}
+					...on Page {
+						pageId
+					}
+				}
+			}
+			}
 		';
 
 		$actual = graphql( [
-			'query' => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -113,28 +113,28 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	public function contentNodeQuery() {
 		return '
 		query TestContentNode( $postId: ID! $pageId: ID! $postIdType: ContentNodeIdTypeEnum $pageIdType: ContentNodeIdTypeEnum ){
-		  post: contentNode(id: $postId, idType: $postIdType, contentType: POST) {
-		    ...ContentFields
-		  }
-		  page: contentNode(id: $pageId, idType: $pageIdType, contentType: PAGE) {
-		    ...ContentFields
-		  }
+			post: contentNode(id: $postId, idType: $postIdType, contentType: POST) {
+				...ContentFields
+			}
+			page: contentNode(id: $pageId, idType: $pageIdType, contentType: PAGE) {
+				...ContentFields
+			}
 		}
 
 		fragment ContentFields on ContentNode {
-		  __typename
-		  id
-		  ...on NodeWithTitle {
-	        title
-	      }
-		  slug
-		  uri
-		  ... on Post {
-		    postId
-		  }
-		  ... on Page {
-		    pageId
-		  }
+			__typename
+			id
+			...on NodeWithTitle {
+					title
+				}
+			slug
+			uri
+			... on Post {
+				postId
+			}
+			... on Page {
+				pageId
+			}
 		}
 		';
 	}
@@ -147,14 +147,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for ContentNodeFieldByDatabaseId',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for testContentNodeFieldByDatabaseId',
 			'post_author' => $this->admin,
 		] );
 
@@ -168,7 +168,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 				'postId'     => (string) $post_id,
 				'pageIdType' => 'DATABASE_ID',
 				'pageId'     => (string) $page_id,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -189,7 +189,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 				'postId'     => (int) $post_id,
 				'pageIdType' => 'DATABASE_ID',
 				'pageId'     => (int) $page_id,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -211,15 +211,15 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Page for ContentNodeFieldByUri',
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Post for ContentNodeFieldByUri',
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -233,7 +233,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -255,10 +255,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $variables );
 
-
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -278,15 +277,15 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Page for ContentNodeFieldById',
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Post for ContentNodeFieldById',
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -300,7 +299,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -320,15 +319,15 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Page for ContentNodeFieldByQueryArgUri ',
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Post for ContentNodeFieldByQueryArgUri',
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -342,7 +341,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -359,76 +358,80 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testContentNodeFieldBySlug() {
 
-		$post_types = array(
-			'book' => array(
+		$post_types = [
+			'by_slug_book' => [
 				'public'              => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'book',
 				'graphql_plural_name' => 'books',
-				'label'               => 'Books',
-			),
-			'test' => array(
+				'label'               => 'By Slug Books',
+			],
+			'by_slug_test' => [
 				'public'              => false,
 				'publicly_queryable'  => true,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'test',
 				'graphql_plural_name' => 'tests',
-				'label'               => 'Tests',
-			),
-			'cat' => array(
+				'label'               => 'By Slug Tests',
+			],
+			'by_slug_cat'  => [
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'cat',
 				'graphql_plural_name' => 'cats',
-				'label'               => 'Cats',
-			),
-		);
+				'label'               => 'By Slug Cats',
+			],
+		];
 
 		foreach ( $post_types as $post_type => $args ) {
 			register_post_type( $post_type, $args );
 		}
 
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
+		WPGraphQL::clear_schema();
+
 		$post_id_book = $this->factory()->post->create( [
-			'post_type'   => 'book',
+			'post_type'   => 'by_slug_book',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Book for ContentNodeFieldBySlug',
+			'post_author' => $this->admin,
 		] );
 
 		$post_id_test = $this->factory()->post->create( [
-			'post_type'   => 'test',
+			'post_type'   => 'by_slug_test',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Test',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Test for ContentNodeFieldBySlug',
+			'post_author' => $this->admin,
 		] );
 
 		$post_id_cat = $this->factory()->post->create( [
-			'post_type'   => 'cat',
+			'post_type'   => 'by_slug_cat',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Cat',
-			'post_author' => $this->admin
+			'post_title'  => 'Test Cat for ContentNodeFieldBySlug',
+			'post_author' => $this->admin,
 		] );
 
 		$query = '
 			{
-				book(id: "test-post", idType: SLUG) {
+				book(id: "test-book-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					bookId
 				},
-				test(id: "test-test", idType: SLUG) {
+				test(id: "test-test-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					testId
 				},
-				cat(id: "test-cat", idType: SLUG) {
+				cat(id: "test-cat-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					catId
 				}
-		    }
+			}
 		';
 
 		$actual = graphql( [
-			'query'     => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -441,12 +444,11 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Cat', $actual['data']['cat']['__typename'] );
 		$this->assertEquals( $post_id_cat, $actual['data']['cat']['catId'] );
 
-
 		// Set the user to a public user
 		wp_set_current_user( 0 );
 
 		$actual = graphql( [
-			'query'     => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -465,6 +467,8 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		foreach ( $post_types as $post_type => $args ) {
 			unregister_post_type( $post_type, $args );
 		}
+
+		WPGraphQL::clear_schema();
 
 	}
 }

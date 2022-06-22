@@ -19,7 +19,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->contributor = $this->factory()->user->create( [
+		$this->contributor      = $this->factory()->user->create( [
 			'role' => 'contributor',
 		] );
 
@@ -68,7 +68,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			return ! empty( $output ) ? $output : '';
 		} );
 
-
 	}
 
 	public function tearDown(): void {
@@ -99,7 +98,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_content' => 'Test page content',
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
+			'post_title'   => 'Test Title for PostObjectQueriesTest',
 			'post_type'    => 'post',
 			'post_date'    => $this->current_date,
 		];
@@ -148,8 +147,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'post',
 		] );
 
-		add_filter('upload_dir', function( $param ) {
-			$dir = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
+		add_filter('upload_dir', function ( $param ) {
+			$dir           = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
 			$param['path'] = $dir;
 			return $param;
 		});
@@ -157,7 +156,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a featured image and attach it to the post
 		 */
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename          = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
 		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 
@@ -174,9 +173,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				author{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				commentCount
 				commentStatus
@@ -185,9 +184,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				dateGmt
 				desiredSlug
 				lastEditedBy{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				editingLockedBy{
 					lockTimestamp
@@ -208,17 +207,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				guid
 				featuredImage{
-				  node {
+					node {
 					mediaItemId
 					thumbnail: sourceUrl(size: THUMBNAIL)
 					medium: sourceUrl(size: MEDIUM)
 					full: sourceUrl(size: LARGE)
 					sourceUrl
-				  }
+					}
 				}
 			}
 		}";
-
 
 		/**
 		 * Run the GraphQL query
@@ -232,43 +230,43 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$expected = [
 			'post' => [
-				'id'            => $global_id,
-				'author'        => [
+				'id'              => $global_id,
+				'author'          => [
 					'node' => [
 						'userId' => $this->admin,
-					]
+					],
 				],
-				'commentCount'  => null,
-				'commentStatus' => 'open',
-				'content'       => apply_filters( 'the_content', 'Test page content' ),
-				'date'          => \WPGraphQL\Utils\Utils::prepare_date_response( 'now', $this->current_date ),
-				'dateGmt'       => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
-				'desiredSlug'   => null,
-				'lastEditedBy'      => [
+				'commentCount'    => null,
+				'commentStatus'   => 'open',
+				'content'         => apply_filters( 'the_content', 'Test page content' ),
+				'date'            => \WPGraphQL\Utils\Utils::prepare_date_response( 'now', $this->current_date ),
+				'dateGmt'         => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+				'desiredSlug'     => null,
+				'lastEditedBy'    => [
 					'node' => [
 						'userId' => $this->admin,
-					]
+					],
 				],
-				'editingLockedBy'      => null,
-				'enclosure'     => null,
-				'excerpt'       => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
-				'status'        => 'publish',
-				'link'          => get_permalink( $post_id ),
-				'postId'        => $post_id,
-				'slug'          => 'test-title',
-				'toPing'        => null,
-				'pinged'        => null,
-				'modified'      => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
-				'modifiedGmt'   => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
-				'title'         => apply_filters( 'the_title', 'Test Title' ),
-				'guid'          => get_post( $post_id )->guid,
-				'featuredImage' => [
+				'editingLockedBy' => null,
+				'enclosure'       => null,
+				'excerpt'         => apply_filters( 'the_excerpt', apply_filters( 'get_the_excerpt', 'Test excerpt' ) ),
+				'status'          => 'publish',
+				'link'            => get_permalink( $post_id ),
+				'postId'          => $post_id,
+				'slug'            => 'test-title-for-postobjectqueriestest',
+				'toPing'          => null,
+				'pinged'          => null,
+				'modified'        => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
+				'modifiedGmt'     => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+				'title'           => apply_filters( 'the_title', 'Test Title for PostObjectQueriesTest' ),
+				'guid'            => get_post( $post_id )->guid,
+				'featuredImage'   => [
 					'node' => [
 						'mediaItemId' => $featured_image_id,
-						'thumbnail' => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
-						'medium' => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
-						'full' => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
-						'sourceUrl' => wp_get_attachment_image_src( $featured_image_id, 'full' )[0]
+						'thumbnail'   => wp_get_attachment_image_src( $featured_image_id, 'thumbnail' )[0],
+						'medium'      => wp_get_attachment_image_src( $featured_image_id, 'medium' )[0],
+						'full'        => wp_get_attachment_image_src( $featured_image_id, 'large' )[0],
+						'sourceUrl'   => wp_get_attachment_image_src( $featured_image_id, 'full' )[0],
 					],
 				],
 			],
@@ -328,7 +326,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create Post
 		 */
 		$post_id = $this->createPostObject( [
-			'post_type' => 'post'
+			'post_type' => 'post',
 		] );
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -339,12 +337,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				featuredImage {
-				  node {
+					node {
 					altText
 					author {
-					  node {
+						node {
 						id
-					  }
+						}
 					}
 					caption
 					commentCount
@@ -361,12 +359,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					description
 					desiredSlug
 					lastEditedBy {
-					  node {
+						node {
 						userId
-				      }
+							}
 					}
 					editingLockedBy {
-					  lockTimestamp
+						lockTimestamp
 					}
 					enclosure
 					guid
@@ -405,33 +403,31 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					modified
 					modifiedGmt
 					parent {
-					  node {
+						node {
 						...on Post {
 							id
 						}
-				      }
+							}
 					}
 					slug
 					sourceUrl
 					status
 					title
-				  }
+					}
 				}
 			}
 		}
-    ";
+		";
 
-		$actual   = do_graphql_request( $query );
+		$actual = do_graphql_request( $query );
 
 		codecept_debug( $actual );
 		$expected = [
-			"post" => [
-				"id"            => $global_id,
-				"featuredImage" => null
-			]
+			'post' => [
+				'id'            => $global_id,
+				'featuredImage' => null,
+			],
 		];
-
-
 
 		$this->assertEquals( $expected, $actual['data'] );
 	}
@@ -449,8 +445,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create a post
 		 */
 		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-			'post_status' => 'publish'
+			'post_type'   => 'post',
+			'post_status' => 'publish',
 		] );
 
 		// Create a comment and assign it to post.
@@ -547,11 +543,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				parentId
 				parentDatabaseId
 				parent {
-				  node {
+					node {
 					... on Page {
 						databaseId
 					}
-			      }
+						}
 				}
 			}
 		}";
@@ -572,16 +568,16 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-				'page' => [
-					'id'        => $global_id,
-					'parentId'  => $global_parent_id,
-					'parentDatabaseId'  => $parent_id,
-					'parent'    => [
-						'node' => [
-							'databaseId' => $parent_id,
-						],
+			'page' => [
+				'id'               => $global_id,
+				'parentId'         => $global_parent_id,
+				'parentDatabaseId' => $parent_id,
+				'parent'           => [
+					'node' => [
+						'databaseId' => $parent_id,
 					],
 				],
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -644,8 +640,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$expected = [
 			'post' => [
-				'id'        => $global_id,
-				'tags'      => [
+				'id'   => $global_id,
+				'tags' => [
 					'edges' => [
 						[
 							'node' => [
@@ -677,10 +673,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create a post
 		 */
 		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_author' => $this->admin,
-			'post_title' => 'test post',
+			'post_title'  => 'Test Post for PostQueryWithCategories',
 		] );
 
 		// Create a comment and assign it to post.
@@ -718,7 +714,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$actual = do_graphql_request( $query );
 
-
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -738,8 +733,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-
-
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
@@ -753,7 +746,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'post',
-			'post_title' => 'This is a title, yo',
+			'post_title' => 'Test Post for PostByIdQuery',
 		] );
 
 		/**
@@ -783,7 +776,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'postBy' => [
 				'id'    => $global_id,
-				'title' => 'This is a title, yo',
+				'title' => 'Test Post for PostByIdQuery',
 			],
 		];
 
@@ -801,7 +794,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'post',
-			'post_title' => 'This is a title, yo',
+			'post_title' => 'Test post for PostByUriQuery',
 		] );
 
 		/**
@@ -833,7 +826,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'postBy' => [
 				'id'    => $global_id,
-				'title' => 'This is a title, yo',
+				'title' => 'Test post for PostByUriQuery',
 			],
 		];
 
@@ -850,19 +843,19 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create a page
 		 */
 		$parent_id = $this->createPostObject( [
-			'post_type'  => 'page',
-			'post_type'  => 'page',
-			'post_title' => 'Parent Page',
-			'post_name'  => 'parent-page',
-			'post_status' => 'publish'
+			'post_type'   => 'page',
+			'post_type'   => 'page',
+			'post_title'  => 'Parent Page for PageByUri',
+			'post_name'   => 'parent-page',
+			'post_status' => 'publish',
 		] );
 
 		$child_id = $this->createPostObject( [
 			'post_type'   => 'page',
-			'post_title'  => 'Child Page',
+			'post_title'  => 'Child Page for PageByUri',
 			'post_name'   => 'child-page',
 			'post_parent' => $parent_id,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 
 		/**
@@ -873,7 +866,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Get the uri to the Child Page
 		 */
-		$uri = rtrim( str_ireplace( home_url(), '', get_permalink( $child_id ) ), '');
+		$uri = rtrim( str_ireplace( home_url(), '', get_permalink( $child_id ) ), '' );
 
 		codecept_debug( $uri );
 
@@ -904,7 +897,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'pageBy' => [
 				'id'    => $global_child_id,
-				'title' => 'Child Page',
+				'title' => 'Child Page for PageByUri',
 				'uri'   => $uri,
 			],
 		];
@@ -921,13 +914,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$post_id = $this->createPostObject( [
-			'post_type'  => 'page',
-			'post_title' => 'Page Dawg',
+			'post_type'   => 'page',
+			'post_title'  => 'Page for PageByQueries',
 			'post_author' => $this->admin,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 
-		$path      = get_page_uri( $post_id );
+		$path = get_page_uri( $post_id );
 		codecept_debug( $path );
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
@@ -937,33 +930,33 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  pages(first:1){
-		    edges{
-		      node{
-		        ...pageData
-		      }
-		    }
-		  }
-		  byUri:pageBy(uri:"' . $path . '") {
-		    ...pageData
-		  }
-		  byPageId:pageBy(pageId:' . $post_id . '){
-		    ...pageData
-		  }
-		  byId:pageBy(id:"' . $global_id . '"){
-		    ...pageData
-		  }
+			pages(first:1){
+				edges{
+					node{
+						...pageData
+					}
+				}
+			}
+			byUri:pageBy(uri:"' . $path . '") {
+				...pageData
+			}
+			byPageId:pageBy(pageId:' . $post_id . '){
+				...pageData
+			}
+			byId:pageBy(id:"' . $global_id . '"){
+				...pageData
+			}
 		}
 
 		fragment pageData on Page {
-		  __typename
-		  id
-		  pageId
-		  title
-		  uri
-		  link
-		  slug
-		  date
+			__typename
+			id
+			pageId
+			title
+			uri
+			link
+			slug
+			date
 		}
 		';
 
@@ -984,6 +977,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $node, $byPageId );
 		$this->assertEquals( $node, $byId );
 
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -1066,7 +1060,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$page_id = $this->createPostObject( [
 			'post_type'  => 'page',
-			'post_title' => 'A Test Page',
+			'post_title' => 'Test for PostByQueryWithIDForADifferentType',
 		] );
 
 		/**
@@ -1108,7 +1102,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->createPostObject( array() );
+		$graphql_query_post_id = $this->createPostObject( [] );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1173,7 +1167,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEquals( 'Test page content', $graphql_query_data['data']['post']['content'] );
 		$this->assertEquals( 'Test excerpt', $graphql_query_data['data']['post']['excerpt'] );
-		$this->assertEquals( 'Test Title', $graphql_query_data['data']['post']['title'] );
+		$this->assertEquals( 'Test Title for PostObjectQueriesTest', $graphql_query_data['data']['post']['title'] );
 	}
 
 	/**
@@ -1301,7 +1295,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create another post that we can query via GraphQL.
 		 */
 		$graphql_query_post_id = $this->factory()->post->create( [
-			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>'
+			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
 		] );
 
 		/**
@@ -1460,8 +1454,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePosts() {
 
 		$post_id = $this->factory()->post->create( [
-			'post_status' => 'private',
-			'post_content' => 'Test',
+			'post_status'  => 'private',
+			'post_content' => 'Test private posts',
 		] );
 
 		/**
@@ -1472,20 +1466,20 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			postBy(id: \"{$global_id}\") {
-			    status
-			    title
-			    categories {
-			      nodes {
-			        id
-			        name
-			        slug
-			      }
-			    }
-		    }
-	    }";
+					status
+					title
+					categories {
+						nodes {
+							id
+							name
+							slug
+						}
+					}
+				}
+			}";
 
 		$expected = [
-			'postBy' => null
+			'postBy' => null,
 		];
 
 		$actual = do_graphql_request( $query );
@@ -1498,6 +1492,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test restricted posts returned on certain statuses
+	 *
 	 * @dataProvider dataProviderRestrictedPosts
 	 */
 	public function testRestrictedPosts( $status, $author, $user, $restricted ) {
@@ -1509,8 +1504,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$user = $this->{$user};
 		}
 
-		$title = 'Content from author: ' . (string)$author;
-		$content = 'Test Content';
+		$title     = 'RestrictedPost from author: ' . (string) $author;
+		$content   = 'Test Content';
 		$post_date = time();
 
 		if ( 'future' === $status ) {
@@ -1518,12 +1513,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$post_date = date( 'Y-m-d H:i:s', $post_date );
-		$post_id = $this->factory()->post->create( [
-			'post_status' => $status,
-			'post_author' => $author,
-			'post_title' => $title,
+		$post_id   = $this->factory()->post->create( [
+			'post_status'  => $status,
+			'post_author'  => $author,
+			'post_title'   => $title,
 			'post_content' => $content,
-			'post_date' => $post_date,
+			'post_date'    => $post_date,
 		] );
 
 		/**
@@ -1541,9 +1536,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				status
 				author{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				content
 			}
@@ -1558,21 +1553,21 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'post' => [
-				'id' => $global_id,
-				'title' => $title,
-				'status' => $status,
-				'author' => [
+				'id'      => $global_id,
+				'title'   => $title,
+				'status'  => $status,
+				'author'  => [
 					'node' => [
-						'userId' => $author
+						'userId' => $author,
 					],
 				],
 				'content' => apply_filters( 'the_content', $content ),
-			]
+			],
 		];
 
 		if ( true === $restricted ) {
 			$expected['post']['content'] = null;
-			$expected['post']['author'] = null;
+			$expected['post']['author']  = null;
 		}
 
 		if ( 0 === $author ) {
@@ -1595,33 +1590,32 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $expected, $actual['data'] );
 		}
 
-
 	}
 
 	public function dataProviderRestrictedPosts() {
 
 		$test_vars = [];
-		$statuses = [ 'future', 'draft', 'pending' ];
+		$statuses  = [ 'future', 'draft', 'pending' ];
 
 		foreach ( $statuses as $status ) {
 			$test_vars[] = [
-				'status' => $status,
-				'author' => 0,
-				'user' => 'admin',
+				'status'     => $status,
+				'author'     => 0,
+				'user'       => 'admin',
 				'restricted' => false,
 			];
 
 			$test_vars[] = [
-				'status' => $status,
-				'author' => 0,
-				'user' => 0,
+				'status'     => $status,
+				'author'     => 0,
+				'user'       => 0,
 				'restricted' => true,
 			];
 
 			$test_vars[] = [
-				'status' => $status,
-				'author' => 'contributor',
-				'user' => 'contributor',
+				'status'     => $status,
+				'author'     => 'contributor',
+				'user'       => 'contributor',
 				'restricted' => false,
 			];
 
@@ -1651,21 +1645,21 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $nonexistent_user_id,
 		] );
 
-		$query = "
+		$query = '
 		{
 			posts(first: 5) {
 				nodes {
 					postId
 					author {
-					  node {
+						node {
 						userId
 						name
-					  }
+						}
 					}
 				}
 			}
 		}
-		";
+		';
 
 		$actual = graphql( [ 'query' => $query ] );
 
@@ -1697,28 +1691,28 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$pageId = $this->factory()->post->create([
 			'post_status' => 'publish',
-			'post_type' => 'page',
-			'post_title' => 'Test Front Page'
+			'post_type'   => 'page',
+			'post_title'  => 'Test Front Page',
 		]);
 
 		$other_pageId = $this->factory()->post->create([
 			'post_status' => 'publish',
-			'post_type' => 'page',
-			'post_title' => 'Test Not Front Page'
+			'post_type'   => 'page',
+			'post_title'  => 'Test Not Front Page',
 		]);
 
 		$query = '
 		query Page( $pageId: Int ) {
-		  pageBy( pageId: $pageId ) {
-		    id
-		    title
-		    isFrontPage
-		  }
+			pageBy( pageId: $pageId ) {
+				id
+				title
+				isFrontPage
+			}
  		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'pageId' => $pageId,
 			],
@@ -1739,7 +1733,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Query again
 		 */
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'pageId' => $pageId,
 			],
@@ -1758,7 +1752,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * so we can assert that isFrontPage is FALSE for it
 		 */
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'pageId' => $other_pageId, // <-- NOTE OTHER PAGE ID
 			],
@@ -1781,25 +1775,25 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$notPrivacyPageId = $this->factory()->post->create([
 			'post_status' => 'publish',
-			'post_type' => 'page',
-			'post_title' => 'Test is not Privacy Page'
+			'post_type'   => 'page',
+			'post_title'  => 'Test is not Privacy Page',
 		]);
 
 		$privacyPageId = $this->factory()->post->create([
 			'post_status' => 'publish',
-			'post_type' => 'page',
-			'post_title' => 'Test is Privacy Page'
+			'post_type'   => 'page',
+			'post_title'  => 'Test is Privacy Page',
 		]);
 
 		update_option( 'wp_page_for_privacy_policy', $privacyPageId );
 
 		$query = '
 		query Page( $pageId: Int ) {
-		  pageBy( pageId: $pageId ) {
-		    id
-		    title
-		    isPrivacyPage
-		  }
+			pageBy( pageId: $pageId ) {
+				id
+				title
+				isPrivacyPage
+			}
  		}
 		';
 
@@ -1807,7 +1801,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Make sure page not set as privacy page returns false
 		 */
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'pageId' => $notPrivacyPageId,
 			],
@@ -1822,7 +1816,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Make sure page set as privacy page returns true
 		 */
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'pageId' => $privacyPageId,
 			],
@@ -1844,25 +1838,25 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testQueryPostUsingIDType() {
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Test Node',
+			'post_title'  => 'Test for QueryPostUsingIDType',
 		]);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
-		$slug = get_post( $post_id )->post_name;
-		$uri = get_page_uri( $post_id );
-		$title = get_post( $post_id )->post_title;
+		$slug      = get_post( $post_id )->post_name;
+		$uri       = get_page_uri( $post_id );
+		$title     = get_post( $post_id )->post_title;
 		$permalink = get_permalink( $post_id );
 
 		codecept_debug( $uri );
 
 		$expected = [
-			'id' => $global_id,
+			'id'     => $global_id,
 			'postId' => $post_id,
-			'title' => $title,
-			'uri' => str_ireplace( home_url(), '', $permalink ),
-			'slug' => $slug,
+			'title'  => $title,
+			'uri'    => str_ireplace( home_url(), '', $permalink ),
+			'slug'   => $slug,
 		];
 
 		codecept_debug( $expected );
@@ -1873,43 +1867,43 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
-		    ...PostFields
-		  }
-		  postByUriID: post(id: "' . $uri . '", idType: URI) {
-		    ...PostFields
-		  }
-		  postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
-		    ...PostFields
-		  }
-		  postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
-		    ...PostFields
-		  }
-		  postBySlug: postBy(slug: "' . $slug . '") {
-		    ...PostFields
-		  }
-		  postByUri: postBy(uri: "' . $uri . '") {
-		    ...PostFields
-		  }
-		  postById: postBy(id: "' . $global_id . '") {
-		    ...PostFields
-		  }
-		  postByPostId: postBy(postId: ' . $post_id . ') {
-		    ...PostFields
-		  }
+			postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
+				...PostFields
+			}
+			postByUriID: post(id: "' . $uri . '", idType: URI) {
+				...PostFields
+			}
+			postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
+				...PostFields
+			}
+			postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
+				...PostFields
+			}
+			postBySlug: postBy(slug: "' . $slug . '") {
+				...PostFields
+			}
+			postByUri: postBy(uri: "' . $uri . '") {
+				...PostFields
+			}
+			postById: postBy(id: "' . $global_id . '") {
+				...PostFields
+			}
+			postByPostId: postBy(postId: ' . $post_id . ') {
+				...PostFields
+			}
 		}
 
 		fragment PostFields on Post {
-		  id
-		  postId
-		  title
-		  uri
-		  slug
+			id
+			postId
+			title
+			uri
+			slug
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $actual );
@@ -1935,22 +1929,22 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testQueryPageUsingIDType() {
 
 		$page_id = $this->factory()->post->create([
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title' => 'Test Node',
+			'post_title'  => 'Test for QueryPageUsingIDType',
 		]);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $page_id ) );
-		$slug = get_post( $page_id )->post_name;
-		$uri = get_page_uri( $page_id );
-		$title = get_post( $page_id )->post_title;
+		$slug      = get_post( $page_id )->post_name;
+		$uri       = get_page_uri( $page_id );
+		$title     = get_post( $page_id )->post_title;
 
 		$expected = [
-			'id' => $global_id,
+			'id'     => $global_id,
 			'pageId' => $page_id,
-			'title' => $title,
-			'uri' => str_ireplace( home_url(), '', get_permalink( $page_id ) ),
-			'slug' => $slug,
+			'title'  => $title,
+			'uri'    => str_ireplace( home_url(), '', get_permalink( $page_id ) ),
+			'slug'   => $slug,
 		];
 
 		codecept_debug( $expected );
@@ -1961,37 +1955,37 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  pageByUriID: page(id: "' . $uri . '", idType: URI) {
-		    ...pageFields
-		  }
-		  pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
-		    ...pageFields
-		  }
-		  pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
-		    ...pageFields
-		  }
-		  pageByUri: pageBy(uri: "' . $uri . '") {
-		    ...pageFields
-		  }
-		  pageById: pageBy(id: "' . $global_id . '") {
-		    ...pageFields
-		  }
-		  pageBypageId: pageBy(pageId: ' . $page_id . ') {
-		    ...pageFields
-		  }
+			pageByUriID: page(id: "' . $uri . '", idType: URI) {
+				...pageFields
+			}
+			pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
+				...pageFields
+			}
+			pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
+				...pageFields
+			}
+			pageByUri: pageBy(uri: "' . $uri . '") {
+				...pageFields
+			}
+			pageById: pageBy(id: "' . $global_id . '") {
+				...pageFields
+			}
+			pageBypageId: pageBy(pageId: ' . $page_id . ') {
+				...pageFields
+			}
 		}
 
 		fragment pageFields on Page {
-		  id
-		  pageId
-		  title
-		  uri
-		  slug
+			id
+			pageId
+			title
+			uri
+			slug
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $actual );
@@ -2019,28 +2013,28 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * @see: https://github.com/wp-graphql/wp-graphql/issues/1338
 		 */
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
 			'post_password' => 'test',
-			'post_title' => 'Post with password',
-			'post_content' => 'Protected content',
-			'post_author' => $this->admin,
+			'post_title'    => 'Post with password',
+			'post_content'  => 'Protected content',
+			'post_author'   => $this->admin,
 		]);
 
 		$query = '
 		query {
-		  posts(first: 1, where: {status: PUBLISH}) {
-		    nodes {
-		      databaseId
-		      uri
-		      link
-		    }
-		  }
+			posts(first: 1, where: {status: PUBLISH}) {
+				nodes {
+					databaseId
+					uri
+					link
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $actual );
@@ -2054,26 +2048,26 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryPasswordProtectedPost() {
 
-		$title = 'Test Title ' . uniqid();
-		$content = 'Test Content ' . uniqid();
+		$title   = 'Test Title for QueryPasswordProtectedPost' . uniqid();
+		$content = 'Test Content for QueryPasswordProtectedPost' . uniqid();
 
 		$this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
 			'post_password' => 'publish',
-			'post_content' => $content,
-			'post_title' => $title
+			'post_content'  => $content,
+			'post_title'    => $title,
 		]);
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		      title
-		      content
-		    }
-		  }
+			posts {
+				nodes {
+					id
+					title
+					content
+				}
+			}
 		}
 		';
 
@@ -2103,22 +2097,22 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testIsStickyFieldOnPost() {
 
 		$sticky_post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Sticky Post',
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Sticky Post',
 			'post_content' => 'Sticky post content',
-			'post_author' => $this->admin,
+			'post_author'  => $this->admin,
 		]);
 
 		$nonsticky_post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Non-sticky Post',
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Non-sticky Post',
 			'post_content' => 'Non-sticky post content',
-			'post_author' => $this->admin,
+			'post_author'  => $this->admin,
 		]);
 
-		update_option('sticky_posts', [$sticky_post_id]);
+		update_option( 'sticky_posts', [ $sticky_post_id ] );
 
 		$query = '
 		query testStickyPost($ids: [ID]) {
@@ -2134,11 +2128,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'ids' => [
 					$sticky_post_id,
-					$nonsticky_post_id
+					$nonsticky_post_id,
 				],
 			],
 		]);
@@ -2147,39 +2141,39 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
-		$this->assertFalse($actual['data']['posts']['nodes'][1]['isSticky'] );
+		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
 	public function testQueryPostOfAnotherPostTypeReturnsNull() {
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		]);
 
 		$page_id = $this->factory()->post->create([
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		]);
 
 		$query = '
 		query getPage($id:ID!){
-		  page(id:$id) {
-		    id
-		    __typename
-		  }
+			page(id:$id) {
+				id
+				__typename
+			}
 		}
 		';
 
 		$global_post_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_post_id
-			]
+				'id' => $global_post_id,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -2190,10 +2184,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$global_page_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_page_id
-			]
+				'id' => $global_page_id,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -2234,10 +2228,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'path' => $permalink
-			]
+				'path' => $permalink,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -2254,29 +2248,29 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$slug = 'test-page-slug';
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_name' => $slug,
+			'post_name'   => $slug,
 		]);
 
 		$query = '
 		query PostAndPageByUri($uri:ID!){
-		  page(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
-		  post(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
+			page(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
+			post(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query'=> $query,
+			'query'     => $query,
 			'variables' => [
 				'uri' => $slug,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -2289,7 +2283,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryCustomPostTypeByPageUriReturnsNull() {
 
-		register_post_type('block', [
+		register_post_type('bloc', [
 			'exclude_from_search' => true,
 			'graphql_single_name' => 'block',
 			'graphql_plural_name' => 'blocks',
@@ -2313,29 +2307,29 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$slug = 'test-page-slug';
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_name' => $slug,
+			'post_name'   => $slug,
 		]);
 
 		$query = '
 		query BlockAndPageByUri($uri:ID!){
-		  page(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
-		  block(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
+			page(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
+			block(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query'=> $query,
+			'query'     => $query,
 			'variables' => [
 				'uri' => $slug,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
