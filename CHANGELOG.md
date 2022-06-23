@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.4
+
+### Chores / Bugfixes 
+
+- ([#2416](https://github.com/wp-graphql/wp-graphql/pull/2416)): Fixes schema artifact workflow in Github.
+
 ## 1.8.3
 
 ### New Features
