@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -130,6 +130,22 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.8.3 =
+
+**New Features**
+
+- ([#2388](https://github.com/wp-graphql/wp-graphql/pull/2388)): Adds ability to query menus by SLUG and LOCATION. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2412](https://github.com/wp-graphql/wp-graphql/pull/2412)): Update tests to run in PHP 8, 8.1 and with WordPress 6.0. Updates Docker Deploy workflow as well.
+- ([#2411](https://github.com/wp-graphql/wp-graphql/pull/2411)): Fixes bug where menuItems "location" arg was conflicting if a taxonomy is also registered with "location" as its name.
+- ([#2410](https://github.com/wp-graphql/wp-graphql/pull/2410)): Fixes a regression with Taxonomy Connection pagination.
+- ([#2406](https://github.com/wp-graphql/wp-graphql/pull/2406)): Updates PHPUnit, WPBrowser and WPGraphQL Test Case for use in workflows. Thanks @justlevine!
+- ([#2387](https://github.com/wp-graphql/wp-graphql/pull/2387)): Fixes a bug with asset versions when querying for Enqueued Scripts and Styles. Thanks @justlevine!
+
+
 
 = 1.8.2 =
 

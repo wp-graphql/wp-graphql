@@ -731,4 +731,55 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2409
+	 *
+	 * @return void
+	 */
+	public function testFilterMenuItemsByLocationDoesntBreakWhenTaxonomyNamedLocationExists() {
+
+		// create some menu items
+		$created = $this->createMenuItems( 'my-test-menu-location', 5 );
+
+		// register a "location" taxonomy
+		register_taxonomy( 'location', 'post', [
+			'show_ui' => true,
+			'label' => 'Location',
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'Location',
+			'graphql_plural_name' => 'Locations'
+		]);
+
+		$query = '
+		{
+			menuItems( first: 100 where: { location: MY_MENU_LOCATION } ) {
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		// the query for menu items filtered by location should return menu items
+		// this was breaking when a taxonomy named location was set
+		// as it was passing the location as a WP_Query arg
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['menuItems']['edges'] );
+
+		foreach ($created['menu_item_ids'] as $menu_item_id ) {
+			wp_delete_post( $menu_item_id );
+		}
+
+		unregister_taxonomy( 'location' );
+
+	}
+
 }

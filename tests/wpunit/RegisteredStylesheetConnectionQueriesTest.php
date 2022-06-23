@@ -34,8 +34,11 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 						startCursor
 					}
 					nodes {
-						id
+						extra
 						handle
+						id
+						src
+						version
 					}
 				}
 			}
@@ -55,6 +58,16 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$nodes = $actual['data']['registeredStylesheets']['nodes'];
 
+		// Test fields for first asset.
+		global $wp_styles;
+		$expected = $wp_styles->registered[ $nodes[0]['handle'] ];
+		codecept_debug( $expected );
+
+		$this->assertEquals( $expected->extra['data'] ?? null, $nodes[0]['extra'] );
+		$this->assertEquals( $expected->handle, $nodes[0]['handle'] );
+		$this->assertEquals( is_string( $expected->src ) ? $expected->src : null, $nodes[0]['src'] );
+		$this->assertEquals( $expected->ver ?: $wp_styles->default_version, $nodes[0]['version'] );
+
 		// Get first two registeredStylesheets
 		$variables['first'] = 2;
 		$variables['after'] = null;
@@ -62,10 +75,9 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$expected = array_slice( $nodes, 0, $variables['first'], true );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-
 		codecept_debug( [
 			'expected' => $expected,
-			'actual' => $actual['data']['registeredStylesheets']['nodes']
+			'actual'   => $actual['data']['registeredStylesheets']['nodes'],
 		]);
 
 		$this->assertEqualSets( $expected, $actual['data']['registeredStylesheets']['nodes'] );

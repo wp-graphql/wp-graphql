@@ -21,7 +21,7 @@ class EnqueuedStylesheet {
 			'description' => __( 'Stylesheet enqueued by the CMS', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 			'fields'      => [
-				'id'  => [
+				'id'      => [
 					'type'    => [
 						'non_null' => 'ID',
 					],
@@ -29,9 +29,16 @@ class EnqueuedStylesheet {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
 					},
 				],
-				'src' => [
+				'src'     => [
 					'resolve' => function ( \_WP_Dependency $stylesheet ) {
-						return isset( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
+						return ! empty( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
+					},
+				],
+				'version' => [
+					'resolve' => function ( \_WP_Dependency $stylesheet ) {
+						global $wp_styles;
+
+						return ! empty( $stylesheet->ver ) && is_string( $stylesheet->ver ) ? $stylesheet->ver : $wp_styles->default_version;
 					},
 				],
 			],

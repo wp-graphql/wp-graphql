@@ -32,7 +32,7 @@ class MenuItem extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var mixed|WP_Post|object $data
+	 * @var mixed|object $data
 	 */
 	protected $data;
 
@@ -94,13 +94,13 @@ class MenuItem extends Model {
 	}
 
 	/**
-	 * Initialize the Post object
+	 * Initialize the MenuItem object
 	 *
 	 * @return void
 	 */
 	protected function init() {
 
-		if ( empty( $fields ) ) {
+		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
 				'id'               => function () {
@@ -159,12 +159,8 @@ class MenuItem extends Model {
 
 					if ( ! empty( $url ) ) {
 						$parsed = wp_parse_url( $url );
-						if ( isset( $parsed['host'] ) ) {
-							if ( strpos( home_url(), $parsed['host'] ) ) {
-								return $parsed['path'];
-							} elseif ( strpos( home_url(), $parsed['host'] ) ) {
-								return $parsed['path'];
-							}
+						if ( isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
+							return $parsed['path'];
 						}
 					}
 
@@ -184,7 +180,7 @@ class MenuItem extends Model {
 						throw new UserError( $menus->get_error_message() );
 					}
 
-					return isset( $menus[0] ) && isset( $menus[0]->term_id ) ? $menus[0]->term_id : null;
+					return ! empty( $menus[0]->term_id ) ? $menus[0]->term_id : null;
 				},
 				'locations'        => function () {
 

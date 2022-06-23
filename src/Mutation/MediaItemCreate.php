@@ -253,10 +253,15 @@ class MediaItemCreate {
 			 * post_status (inherit if not entered)
 			 * post_mime_type (pulled from the file if not entered in the mutation)
 			 */
-			$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id );
+			$attachment_id = wp_insert_attachment( $media_item_args, $file['file'], $attachment_parent_id, true );
 
-			if ( 0 === $attachment_id || is_wp_error( $attachment_id ) ) {
-				throw new UserError( __( 'The Media Item failed to create', 'wp-graphql' ) );
+			if ( is_wp_error( $attachment_id ) ) {
+				$error_message = $attachment_id->get_error_message();
+				if ( ! empty( $error_message ) ) {
+					throw new UserError( esc_html( $error_message ) );
+				}
+
+				throw new UserError( __( 'The media item failed to create but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**

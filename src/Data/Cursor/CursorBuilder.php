@@ -53,7 +53,7 @@ class CursorBuilder {
 		 *
 		 * @param array         $field          The field key, value, type and order
 		 * @param CursorBuilder $cursor_builder The CursorBuilder class
-		 * @param object        $object_cursor  The Cursor class
+		 * @param ?object        $object_cursor  The Cursor class
 		 */
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',

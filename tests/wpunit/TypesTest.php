@@ -85,7 +85,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertQuerySuccessful( $response, [
-			$this->expectedField( 'posts.nodes.id', self::NOT_NULL ),
+			$this->expectedField( 'posts.nodes', self::NOT_NULL ),
 		] );
 
 		$messages = wp_list_pluck( $response['extensions']['debug'], 'message' );

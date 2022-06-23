@@ -67,18 +67,20 @@ class PostObjectDelete {
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					$deleted = (object) $payload['postObject'];
+					/** @var Post $deleted */
+					$deleted = $payload['postObject'];
 
-					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
+					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', (string) $deleted->ID ) : null;
 				},
 			],
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					$deleted = (object) $payload['postObject'];
+					/** @var Post $deleted */
+					$deleted = $payload['postObject'];
 
-					return ! empty( $deleted ) ? $deleted : null;
+					return ! empty( $deleted->ID ) ? $deleted : null;
 				},
 			],
 		];

@@ -41,7 +41,7 @@ class ContentRevisionUnion {
 
 						$type   = 'Post';
 						$parent = get_post( (int) $object->parentDatabaseId );
-						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
+						if ( $parent instanceof \WP_Post ) {
 							$parent_post_type_object = get_post_type_object( $parent->post_type );
 							if ( isset( $parent_post_type_object->graphql_single_name ) ) {
 								$type = $type_registry->get_type( $parent_post_type_object->graphql_single_name );

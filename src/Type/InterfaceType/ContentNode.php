@@ -82,7 +82,7 @@ class ContentNode {
 
 					if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
 						$parent = get_post( $post->parentDatabaseId );
-						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
+						if ( $parent instanceof \WP_Post ) {
 							$post_type = $parent->post_type;
 						}
 					}

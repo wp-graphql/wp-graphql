@@ -16,7 +16,7 @@ jobs:
     name: Check code
     strategy:
       matrix:
-        php: [ 7.4.5 ]
+        php: [ 8.0 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
           restore-keys: php-${{ matrix.php }}N-${{ runner.os }}-composer
 
       - name: Install dependencies
-        run: composer install --no-progress
+        run: composer update --no-progress
 
       - name: Run PHPStan
         run: composer run-script phpstan

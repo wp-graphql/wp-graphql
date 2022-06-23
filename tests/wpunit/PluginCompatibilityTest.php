@@ -29,7 +29,8 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		});
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'publish'
+			'post_type' => 'post',
+			'post_status' => 'publish',
 		]);
 
 		$slug = get_post( $post_id )->post_name;
