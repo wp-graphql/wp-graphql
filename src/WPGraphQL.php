@@ -292,16 +292,13 @@ final class WPGraphQL {
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
-
-		add_action( 'init_graphql_request', function() {
+		add_action( 'init_graphql_request', function () {
 			$tracing = new \WPGraphQL\Utils\Tracing();
 			$tracing->init();
 
 			$query_log = new \WPGraphQL\Utils\QueryLog();
 			$query_log->init();
 		} );
-
-
 
 	}
 

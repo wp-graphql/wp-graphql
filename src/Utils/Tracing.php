@@ -264,12 +264,12 @@ class Tracing {
 	 *
 	 * @param mixed|array|object $response       The response of the GraphQL Request
 	 * @param mixed              $schema         The WPGraphQL Schema
-	 * @param string             $operation_name The operation name being executed
+	 * @param mixed|string|null             $operation_name The operation name being executed
 	 * @param string             $request        The GraphQL Request being made
 	 *
 	 * @return mixed $response
 	 */
-	public function add_tracing_to_response_extensions( $response, $schema, string $operation_name, string $request ) {
+	public function add_tracing_to_response_extensions( $response, $schema, $operation_name, string $request ) {
 
 		// Get the trace
 		$trace = $this->get_trace();
