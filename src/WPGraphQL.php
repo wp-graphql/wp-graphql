@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.8.4' );
+			define( 'WPGRAPHQL_VERSION', '1.8.5' );
 		}
 
 		// Plugin Folder Path.
@@ -292,11 +292,13 @@ final class WPGraphQL {
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
-		$tracing = new \WPGraphQL\Utils\Tracing();
-		$tracing->init();
+		add_action( 'init_graphql_request', function () {
+			$tracing = new \WPGraphQL\Utils\Tracing();
+			$tracing->init();
 
-		$query_log = new \WPGraphQL\Utils\QueryLog();
-		$query_log->init();
+			$query_log = new \WPGraphQL\Utils\QueryLog();
+			$query_log->init();
+		} );
 
 	}
 
