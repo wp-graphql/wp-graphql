@@ -493,7 +493,7 @@ class Request {
 		 *
 		 * @param mixed|array $response  The response your GraphQL request
 		 * @param WPSchema    $schema    The schema object for the root request
-		 * @param string      $operation The name of the operation
+		 * @param mixed|string|null      $operation The name of the operation
 		 * @param string      $query     The query that GraphQL executed
 		 * @param array|null  $variables Variables to passed to your GraphQL query
 		 * @param Request     $request   Instance of the Request
