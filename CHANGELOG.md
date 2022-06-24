@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.6
+
+### Chores / Bugfixes
+
+- ([#2427](https://github.com/wp-graphql/wp-graphql/pull/2427)): Fixes a regression of the 1.8.3 release where there could be fatal errors when GraphQL Tracing is enabled and a queryId is used as a query param.
+
+
 ## 1.8.5
 
 ### Chores / Bugfixes
