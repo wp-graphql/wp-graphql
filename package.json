@@ -1,6 +1,6 @@
 {
   "name": "wp-graphql",
-  "version": "1.8.4",
+  "version": "1.8.4.1",
   "description": "GraphQL API for WordPress",
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "author": "WPGraphQL <info@wpgraphql.com> (https://www.wpgraphql.com)",

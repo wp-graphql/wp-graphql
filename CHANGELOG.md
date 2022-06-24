@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.4.1
+
+### Chores / Bugfixes
+
+- ([#2422](https://github.com/wp-graphql/wp-graphql/pull/2422)): Fixes a regression of the 1.8.3 release where there could be fatal errors when GraphQL Tracing is enabled.
+
+
 ## 1.8.4
 
 ### Chores / Bugfixes 
