@@ -100,7 +100,7 @@ class Tracing {
 		add_filter( 'graphql_request_results', [
 			$this,
 			'add_tracing_to_response_extensions',
-		], 10, 4 );
+		], 10, 1 );
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
 	}
@@ -263,13 +263,10 @@ class Tracing {
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
 	 * @param mixed|array|object $response       The response of the GraphQL Request
-	 * @param mixed              $schema         The WPGraphQL Schema
-	 * @param mixed|string|null             $operation_name The operation name being executed
-	 * @param string             $request        The GraphQL Request being made
 	 *
 	 * @return mixed $response
 	 */
-	public function add_tracing_to_response_extensions( $response, $schema, $operation_name, string $request ) {
+	public function add_tracing_to_response_extensions( $response ) {
 
 		// Get the trace
 		$trace = $this->get_trace();
