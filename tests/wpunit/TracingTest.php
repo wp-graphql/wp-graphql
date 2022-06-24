@@ -42,4 +42,33 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testQueryByGraphqlIdWorksWithTracingEnabled() {
+
+		// enable tracing for any user
+		$settings = get_option( 'graphql_general_settings', [] );
+		$settings['tracing_enabled'] = 'on';
+		$settings['tracing_user_role'] = 'any';
+		update_option( 'graphql_general_settings', $settings  );
+
+		$query = '
+		{
+		  posts { 
+		    nodes { 
+		      id 
+		    } 
+		  }
+		}
+		';
+
+		$response = $this->graphql([
+			'queryId' => $query
+		]);
+
+		codecept_debug( $response );
+
+		$this->assertIsValidQueryResponse( $response );
+		$this->assertNotEmpty( $response['extensions']['tracing'] );
+
+	}
+
 }
