@@ -476,7 +476,7 @@ class Request {
 		$query     = null;
 		$operation = null;
 		$variables = null;
-		$query_id     = null;
+		$query_id  = null;
 
 		if ( $this->params instanceof OperationParams ) {
 			$operation    = $this->params->operation;
