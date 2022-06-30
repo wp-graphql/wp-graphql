@@ -479,15 +479,15 @@ class Request {
 		$query_id  = null;
 
 		if ( $this->params instanceof OperationParams ) {
-			$operation    = $this->params->operation;
-			$query        = $this->params->query;
-			$query_id     = $this->params->queryId;
-			$variables    = $this->params->variables;
+			$operation = $this->params->operation;
+			$query     = $this->params->query;
+			$query_id  = $this->params->queryId;
+			$variables = $this->params->variables;
 		} elseif ( is_array( $this->params ) ) {
-			$operation    = $this->params[ $key ]->operation ?? '';
-			$query        = $this->params[ $key ]->query ?? '';
-			$query_id     = $this->params[ $key ]->queryId ?? '';
-			$variables    = $this->params[ $key ]->variables ?? null;
+			$operation = $this->params[ $key ]->operation ?? '';
+			$query     = $this->params[ $key ]->query ?? '';
+			$query_id  = $this->params[ $key ]->queryId ?? '';
+			$variables = $this->params[ $key ]->variables ?? null;
 		}
 
 		/**
