@@ -486,7 +486,7 @@ class Request {
 		} elseif ( is_array( $this->params ) ) {
 			$operation = $this->params[ $key ]->operation ?? '';
 			$query     = $this->params[ $key ]->query ?? '';
-			$query_id  = $this->params[ $key ]->queryId ?? '';
+			$query_id  = $this->params[ $key ]->queryId ?? null;
 			$variables = $this->params[ $key ]->variables ?? null;
 		}
 
