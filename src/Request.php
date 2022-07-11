@@ -611,9 +611,19 @@ class Request {
 			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
 			if ( null === $response ) {
+
+				/**
+				 * Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
+				 */
+				$query = apply_filters(
+					'graphql_execute_query_params',
+					isset( $this->params->query ) ? $this->params->query : '',
+					$this->params
+				);
+
 				$result = \GraphQL\GraphQL::executeQuery(
 					$this->schema,
-					isset( $this->params->query ) ? $this->params->query : '',
+					$query,
 					$this->root_value,
 					$this->app_context,
 					isset( $this->params->variables ) ? $this->params->variables : null,
