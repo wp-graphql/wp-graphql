@@ -6,12 +6,13 @@ on:
       - master
       - develop
 
+permissions: write-all
+
 jobs:
   tag:
     runs-on: ubuntu-latest
 
-    permissions: write-all
-    # permissions: 
+    # permissions:
     #   contents: write
     #   discussions: write
     #   pull-requests: write
