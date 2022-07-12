@@ -9,8 +9,13 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
+
+    permissions: write-all
+    # permissions: 
+    #   contents: write
+    #   discussions: write
+    #   pull-requests: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
