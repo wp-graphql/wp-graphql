@@ -1,0 +1,32 @@
+name: Create plugin zip artifact for pull-request
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          tools: composer
+      - name: Install PHP dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+      - name: Create Artifact
+        run: |
+          mkdir plugin-build
+          composer archive -vvv --format=zip --file="plugin-build/wp-graphql"
+      - name: Upload artifact
+        uses: gavv/pull-request-artifacts@v1.0.0
+        with:
+          commit: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: |
+            plugin-build/wp-graphql.zip
