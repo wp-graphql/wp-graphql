@@ -32,62 +32,67 @@ const render = (component) => {
 describe("Router", () => {
   test("it should render", async () => {
     await act(async () => {
-      render(<Router />);
+      const { container } = render(<Router />);
+
+      expect( container ).toBeInTheDocument();
     });
+
   });
 
   test("router should render GraphiQL by default", async () => {
+
     await act(async () => {
-      render(<Router />);
-      expect(screen.getByTestId("router-screen-graphiql")).toBeInTheDocument();
-    });
+      const { queryByTestId, debug, container } = await render(<Router />);
+      await waitFor(() => queryByTestId("router-screen-graphiql"));
+    })
+
   });
 
   test("clicking router menu item changes route to associated screen", async () => {
-    await act(async () => {
-      render(<Router />);
+
+      const { queryByTestId } = render(<Router />);
 
       // Default router layout is graphiql
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+        queryByTestId("router-screen-graphiql")
       ).toBeInTheDocument();
 
       // help screen should not be rendered
       expect(
-        screen.queryByTestId("router-screen-help")
+        queryByTestId("router-screen-help")
       ).not.toBeInTheDocument();
 
       // click menu item to change route
-      const button = screen.getByTestId("router-menu-item-help");
+      const button = queryByTestId("router-menu-item-help");
       fireEvent.click(button);
 
       await waitFor(() => {
-        screen.queryByTestId("router-screen-help");
+        queryByTestId("router-screen-help");
       });
 
       // graphiql screen should no longer be rendered
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+        queryByTestId("router-screen-graphiql")
       ).not.toBeInTheDocument();
 
       // click menu item to change route
-      const graphiqlButton = screen.getByTestId("router-menu-item-graphiql");
+      const graphiqlButton = queryByTestId("router-menu-item-graphiql");
       fireEvent.click(graphiqlButton);
 
       await waitFor(() => {
-        screen.queryByTestId("router-screen-graphiql");
+        queryByTestId("router-screen-graphiql");
       });
 
       // graphiql screen should no longer be rendered
       expect(
-        screen.queryByTestId("router-screen-help")
+        queryByTestId("router-screen-help")
       ).not.toBeInTheDocument();
 
       // help screen should be rendered
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+        queryByTestId("router-screen-graphiql")
       ).toBeInTheDocument();
-    });
+
   });
 
 });
@@ -113,107 +118,115 @@ describe("router filters", () => {
   });
 
   test("clicking filtered screen menu item should replace screen with filtered screen", async () => {
-    await act(async () => {
-      render(<Router />);
 
-      expect(screen.getByText("Test Screen Menu Item")).toBeInTheDocument();
+      const{ getByText, queryByTestId, debug } = render(<Router />);
 
       // Wait for the state change caused by the click
-      await waitFor(() => screen.queryByTestId("router-screen-graphiql"));
+      await waitFor(() => queryByTestId("router-screen-graphiql"));
+
+      // debug();
+
+      expect(getByText("Test Screen Menu Item")).toBeInTheDocument();
 
       // GraphiQL is the defualt screen we should see
-      expect(screen.getByTestId("router-screen-graphiql")).toBeInTheDocument();
+      expect(queryByTestId("router-screen-graphiql")).toBeInTheDocument();
 
       // testScreen should not be present until we navigate to it
       expect(
-        screen.queryByTestId("router-screen-testScreen")
+          queryByTestId("router-screen-testScreen")
       ).not.toBeInTheDocument();
 
       // Click the testScreen menu button
-      const button = screen.queryByTestId("router-menu-item-testScreen");
+      const button = queryByTestId("router-menu-item-testScreen");
       fireEvent.click(button);
 
       // Wait for the state change caused by the click
-      await waitFor(() => screen.queryByTestId("router-screen-testScreen"));
+      await waitFor(() => queryByTestId("router-screen-testScreen"));
 
       // IDE screen should not be present anymore
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+          queryByTestId("router-screen-graphiql")
       ).not.toBeInTheDocument();
 
       // testScreen screen should now be present
       expect(
-        screen.queryByTestId("router-screen-testScreen")
+          queryByTestId("router-screen-testScreen")
       ).toBeInTheDocument();
 
       // click menu item to change route
-      const graphiqlButton = screen.getByTestId("router-menu-item-graphiql");
+      const graphiqlButton = queryByTestId("router-menu-item-graphiql");
       fireEvent.click(graphiqlButton);
 
       await waitFor(() => {
-        screen.queryByTestId("router-screen-graphiql");
+        queryByTestId("router-screen-graphiql");
       });
 
       // graphiql screen should no longer be rendered
       expect(
-        screen.queryByTestId("router-screen-testScreen")
+          queryByTestId("router-screen-testScreen")
       ).not.toBeInTheDocument();
 
       // help screen should be rendered
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+          queryByTestId("router-screen-graphiql")
       ).toBeInTheDocument();
-    });
   });
 
   test("screens still show if filter reutrns null", async () => {
-    await act(async () => {
+
       const { hooks } = wpGraphiQL;
 
       hooks.addFilter("graphiql_router_screens", "test", (screen) => {
         return null;
       });
 
-      render(<Router />);
+      const { queryByTestId } = render(<Router />);
 
-      // IDE is the defualt screen we should see
+      await waitFor(() => queryByTestId("router-screen-graphiql"));
+
+      // IDE is the default screen we should see
       expect(
-        screen.queryByTestId("router-screen-graphiql")
+        queryByTestId("router-screen-graphiql")
       ).toBeInTheDocument();
-    });
   });
 
   test("changing screens, causes screen query param to change", async () => {
     // check default screen query param is equal to default screen
     // click to change screen
     // assert that query param is now equal to new screen
-    await act(async () => {
-      render(<Router />);
+      
+      const { queryByTestId } = render(<Router />);
 
-      // graphiql is the defualt screen we should see
-      expect(screen.getByTestId("router-screen-graphiql")).toBeInTheDocument();
+      // Default router layout is graphiql
+      expect(
+          queryByTestId("router-screen-graphiql")
+      ).toBeInTheDocument();
+
+      // graphiql is the default screen we should see
       const queryParam = window.location.search.split("=")[1];
       expect(queryParam).toBe("graphiql");
 
       // click menu item to change route
-      const button = screen.getByTestId("router-menu-item-help");
-      fireEvent.click(button);
+      const button = queryByTestId("router-menu-item-help");
 
-      await waitFor(() => {
-        screen.queryByTestId("router-screen-help");
-      });
+        fireEvent.click(button);
 
-      // graphiql screen should no longer be rendered
-      expect(
-        screen.queryByTestId("router-screen-graphiql")
-      ).not.toBeInTheDocument();
+        await waitFor(() => {
+          queryByTestId("router-screen-help");
+        });
 
-      // testScreen screen should now be present
-      expect(screen.queryByTestId("router-screen-help")).toBeInTheDocument();
+        // graphiql screen should no longer be rendered
+        expect(
+            queryByTestId("router-screen-graphiql")
+        ).not.toBeInTheDocument();
 
-      // test that query param is now equal to new screen
-      const newQueryParam = window.location.search.split("=")[1];
-      expect(newQueryParam).toBe("help");
-    });
+        // testScreen screen should now be present
+        expect(queryByTestId("router-screen-help")).toBeInTheDocument();
+
+        // test that query param is now equal to new screen
+        const newQueryParam = window.location.search.split("=")[1];
+        expect(newQueryParam).toBe("help");
+
+
   });
 });
