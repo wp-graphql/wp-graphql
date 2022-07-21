@@ -729,4 +729,43 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testQueryContentNodesOnCustomTaxonomyTest() {
+
+
+		register_taxonomy( 'no-posts', [], [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'NoPost',
+			'graphql_plural_name' => 'NoPosts',
+		]);
+
+		register_taxonomy( 'with-graphql', ['post', 'page'], [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'TestTax',
+			'graphql_plural_name' => 'AllTestTax',
+			'public' => true,
+		]);
+
+		$query = '
+		{
+		  allTestTax {
+		    nodes {
+		      id
+		      contentNodes {
+		        __typename
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		// assert that the query was valid
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+	}
+
 }
