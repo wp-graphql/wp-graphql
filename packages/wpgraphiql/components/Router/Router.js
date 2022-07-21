@@ -57,8 +57,8 @@ const getScreens = () => {
   ];
 
   const filteredScreens = hooks.applyFilters(
-    "graphiql_router_screens",
-    screens
+      "graphiql_router_screens",
+      screens
   );
 
   // @todo: consider better validation to ensure the screens are valid after being filtered?
@@ -83,47 +83,52 @@ const RouterSider = (props) => {
     setQueryParams({ screen });
   };
 
+  const getMenuItems = () => {
+
+    let menuItems = [];
+
+    screens &&
+    screens.map((screen) => {
+      menuItems.push({
+        "data-testid":`router-menu-item-${screen.id}`,
+        "id": `router-menu-item-${screen.id}`,
+        "key":screen.id,
+        "icon":screen.icon,
+        "onClick": () => {
+          updateCurrentScreen(screen.id);
+        },
+        "label": screen.title
+      })
+    })
+
+    return menuItems;
+  }
+
   return (
-    <Sider
-      id="graphiql-router-sider"
-      data-testid="graphiql-router-sider"
-      className="graphiql-app-screen-sider"
-      collapsible
-      defaultCollapsed={collapsed}
-      collapsed={collapsed}
-      trigger={
-        <span data-testid="router-menu-collapse-trigger">
+      <Sider
+          id="graphiql-router-sider"
+          data-testid="graphiql-router-sider"
+          className="graphiql-app-screen-sider"
+          collapsible
+          defaultCollapsed={collapsed}
+          collapsed={collapsed}
+          trigger={
+            <span data-testid="router-menu-collapse-trigger">
           {collapsed ? <RightOutlined /> : <LeftOutlined />}
         </span>
-      }
-      onCollapse={() => {
-        handleCollapse();
-      }}
-    >
-      <Menu
-        theme="dark"
-        mode="inline"
-        selectedKeys={currentScreen}
-        activeKey={currentScreen}
+          }
+          onCollapse={() => {
+            handleCollapse();
+          }}
       >
-        {screens &&
-          screens.map((screen) => {
-            return (
-              <Menu.Item
-                data-testid={`router-menu-item-${screen.id}`}
-                id={`router-menu-item-${screen.id}`}
-                key={screen.id}
-                icon={screen.icon}
-                onClick={() => {
-                  updateCurrentScreen(screen.id);
-                }}
-              >
-                {screen.title}
-              </Menu.Item>
-            );
-          })}
-      </Menu>
-    </Sider>
+        <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={currentScreen}
+            activeKey={currentScreen}
+            items={getMenuItems()}
+        />
+      </Sider>
   );
 };
 
@@ -146,23 +151,23 @@ const Router = (props) => {
     const remoteQuery = getIntrospectionQuery();
 
     client(endpoint)
-      .query({
-        query: gql`
+        .query({
+          query: gql`
           ${remoteQuery}
         `,
-      })
-      .then((res) => {
-        const clientSchema = res?.data ? buildClientSchema(res.data) : null;
-        if (clientSchema !== schema) {
-          setSchema(clientSchema);
-        }
-      });
+        })
+        .then((res) => {
+          const clientSchema = res?.data ? buildClientSchema(res.data) : null;
+          if (clientSchema !== schema) {
+            setSchema(clientSchema);
+          }
+        });
   }, [endpoint]);
 
   const getActiveScreenName = () => {
     // find the matching screen
     const activeScreen =
-      screens && screens.find((found) => found.id === screen);
+        screens && screens.find((found) => found.id === screen);
     return activeScreen ? activeScreen.id : "graphiql";
   };
 
@@ -176,32 +181,32 @@ const Router = (props) => {
     const screen = getCurrentScreen();
 
     return screen ? (
-      <Layout data-testid={`router-screen-${screen.id}`}>
-        {screen?.render(props)}
-      </Layout>
+        <Layout className={"router-screen"} data-testid={`router-screen-${screen.id}`}>
+          {screen?.render(props)}
+        </Layout>
     ) : null;
   };
 
   return currentScreen ? (
-    <StyledRouter data-testid="graphiql-router">
-      <Layout style={{ height: `calc(100vh - 32px)`, width: `100%` }}>
-        <RouterSider
-          setQueryParams={setQueryParams}
-          setCurrentScreen={setCurrentScreen}
-          currentScreen={currentScreen}
-          screens={screens}
-        />
-        <Layout className="screen-layout" style={{ background: "#fff" }}>
-          {renderScreen(props)}
+      <StyledRouter data-testid="graphiql-router">
+        <Layout style={{ height: `calc(100vh - 32px)`, width: `100%` }}>
+          <RouterSider
+              setQueryParams={setQueryParams}
+              setCurrentScreen={setCurrentScreen}
+              currentScreen={currentScreen}
+              screens={screens}
+          />
+          <Layout className="screen-layout" style={{ background: "#fff" }}>
+            {renderScreen(props)}
+          </Layout>
         </Layout>
-      </Layout>
-    </StyledRouter>
+      </StyledRouter>
   ) : null;
 };
 
 export default withQueryParams(
-  {
-    screen: withDefault(StringParam, "graphiql"),
-  },
-  Router
+    {
+      screen: withDefault(StringParam, "graphiql"),
+    },
+    Router
 );
