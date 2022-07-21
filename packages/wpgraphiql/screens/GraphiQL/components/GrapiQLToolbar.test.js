@@ -1,18 +1,15 @@
 import {
-  cleanup,
   render,
   screen,
   act,
   fireEvent,
-  waitFor,
 } from "@testing-library/react";
-import { beforeAll } from "jest-circus";
 import GraphiQLToolbar from "./GraphiQLToolbar";
 
 describe("GraphiQL Toolbar", () => {
   test("it should render", () => {
     const { container } = render(<GraphiQLToolbar />);
-    expect(container).toBeTruthy();
+    expect(container).toBeInTheDocument();
   });
 
   test("it should render with prettify button", () => {
@@ -49,11 +46,17 @@ describe("Filter before the GraphiQL Toolbar Buttons", () => {
   });
 
   // @todo: figure out how to test that this filter comes _before_ the buttons, as right now it tests the fitler renders something, but not that it renders _before_ the buttons
-  test("button should render before the other buttons", async () => {
-    await act(async () => {
-      render(<GraphiQLToolbar />);
-      expect(screen.getByTestId("test-button")).toBeInTheDocument();
-    });
+  test("button should render before the other buttons", () => {
+    // await act(async () => {
+    //   const { container, getByTestId, debug } = render(<GraphiQLToolbar />);
+    //   screen.debug();
+    //   expect(screen.getByTestId("test-button")).toBeInTheDocument();
+    // });
+
+    const { getByTestId } = render(<GraphiQLToolbar />);
+
+    expect(getByTestId("test-button")).toBeInTheDocument();
+
   });
 });
 
@@ -81,17 +84,17 @@ describe("Filter after the GraphiQL Toolbar Buttons", () => {
 
   // @todo: figure out how to test that this filter comes _after_ the buttons, as right now it tests the fitler renders something, but not that it renders _after_ the buttons
   test("button should be after the other buttons", () => {
-    render(<GraphiQLToolbar />);
+    const { getByTestId } = render(<GraphiQLToolbar />);
 
     // expect test button to render after the prettify button
-    expect(screen.getByTestId("test-after-button")).toBeInTheDocument();
+    expect(getByTestId("test-after-button")).toBeInTheDocument();
   });
 
-  test("it should render with the test button", async () => {
-    await act(async () => {
-      render(<GraphiQLToolbar />);
-      expect(screen.getByTestId("test-after-button")).toBeInTheDocument();
-    });
+  test("it should render with the test button", () => {
+
+      const { getByTestId } = render(<GraphiQLToolbar />);
+      expect(getByTestId("test-after-button")).toBeInTheDocument();
+
   });
 });
 

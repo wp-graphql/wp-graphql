@@ -304,7 +304,7 @@ class PostObjects {
 		// Register a connection from all taxonomies that are connected to
 		foreach ( $allowed_taxonomies as $tax_object ) {
 			if ( empty( $tax_object->object_type ) ) {
-				return;
+				continue;
 			}
 
 			// Connection from the Taxonomy to Content Nodes
