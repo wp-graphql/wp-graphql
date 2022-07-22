@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0e43d3cfca2cce946757b837542b2b2",
+    "content-hash": "9279d5eb9aa240cd82218fe0f44548a0",
     "packages": [
         {
             "name": "appsero/client",
@@ -1025,24 +1025,20 @@
         },
         {
             "name": "codeception/stub",
-            "version": "4.0.2",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Stub.git",
-                "reference": "18a148dacd293fc7b044042f5aa63a82b08bff5d"
+                "reference": "468dd5fe659f131fc997f5196aad87512f9b1304"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Stub/zipball/18a148dacd293fc7b044042f5aa63a82b08bff5d",
-                "reference": "18a148dacd293fc7b044042f5aa63a82b08bff5d",
+                "url": "https://api.github.com/repos/Codeception/Stub/zipball/468dd5fe659f131fc997f5196aad87512f9b1304",
+                "reference": "468dd5fe659f131fc997f5196aad87512f9b1304",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4 | ^8.0",
-                "phpunit/phpunit": "^8.4 | ^9.0 | ^10.0 | 10.0.x-dev"
-            },
-            "require-dev": {
-                "consolidation/robo": "^3.0"
+                "phpunit/phpunit": "^8.4 | ^9.0"
             },
             "type": "library",
             "autoload": {
@@ -1057,9 +1053,9 @@
             "description": "Flexible Stub wrapper for PHPUnit's Mock Builder",
             "support": {
                 "issues": "https://github.com/Codeception/Stub/issues",
-                "source": "https://github.com/Codeception/Stub/tree/4.0.2"
+                "source": "https://github.com/Codeception/Stub/tree/3.7.0"
             },
-            "time": "2022-01-31T19:25:15+00:00"
+            "time": "2020-07-03T15:54:43+00:00"
         },
         {
             "name": "codeception/util-universalframework",
