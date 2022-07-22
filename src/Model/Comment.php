@@ -4,6 +4,7 @@ namespace WPGraphQL\Model;
 
 use Exception;
 use GraphQLRelay\Relay;
+use WP_Comment;
 
 /**
  * Class Comment - Models data for Comments
@@ -35,18 +36,18 @@ class Comment extends Model {
 	/**
 	 * Stores the incoming WP_Comment object to be modeled
 	 *
-	 * @var \WP_Comment $data
+	 * @var WP_Comment $data
 	 */
 	protected $data;
 
 	/**
 	 * Comment constructor.
 	 *
-	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
+	 * @param WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
 	 * @throws Exception
 	 */
-	public function __construct( \WP_Comment $comment ) {
+	public function __construct( WP_Comment $comment ) {
 
 		$allowed_restricted_fields = [
 			'id',
