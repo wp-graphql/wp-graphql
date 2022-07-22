@@ -721,6 +721,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( 'User', $typename );
 		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
+
+		wp_delete_comment( $comment_by_user_id );
+		wp_delete_comment( $comment_by_comment_author_id );
+
 	}
 
 
