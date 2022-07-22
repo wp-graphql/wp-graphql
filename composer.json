@@ -50,6 +50,9 @@
 		"phpstan/extension-installer": "^1.1"
 	},
 	"config": {
+		"platform": {
+			"php": "7.4"
+		},
 		"optimize-autoloader": true,
 		"process-timeout": 0,
 		"allow-plugins": {
