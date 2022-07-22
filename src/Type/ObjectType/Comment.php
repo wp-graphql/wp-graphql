@@ -44,8 +44,6 @@ class Comment {
 								$node = ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
 							}
 
-
-
 							return [
 								'node'   => $node,
 								'source' => $comment,
