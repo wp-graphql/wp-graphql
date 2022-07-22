@@ -54,8 +54,9 @@
 	</rule>
 
 	<!-- Tests for PHP version compatibility -->
+	<config name="testVersion" value="7.1-"/>
 	<rule ref="PHPCompatibilityWP">
-		<config name="testVersion" value="7.1-"/>
+		<include-pattern>*\.php$</include-pattern>
 	</rule>
 
 	<!-- Enforce short array syntax -->
