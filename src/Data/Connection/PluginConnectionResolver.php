@@ -227,7 +227,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 						}
 
 						return false;
-					},
+					}
 				)
 			);
 			if ( ! empty( $matches ) ) {
