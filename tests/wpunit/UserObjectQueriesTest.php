@@ -610,11 +610,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:1) {
 				edges{
-				  node{
-				    id
-				    userId
-				    email
-				  }
+					node {
+						id
+						userId
+						email
+					}
 				}
 			}
 		}';
@@ -1695,11 +1695,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-
-		codecept_debug( 'expected failing users:' );
-		codecept_debug( get_users() );
-		codecept_debug( $ids );
-		codecept_debug( $actual );
 
 		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
 		$this->assertEquals( 52, count( $ids ) );

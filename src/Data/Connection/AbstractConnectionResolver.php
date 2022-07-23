@@ -705,15 +705,13 @@ abstract class AbstractConnectionResolver {
 			return [];
 		}
 
-		// If we're going backwards, our overfetched ID is at the front.
-		if ( ! empty( $this->args['last'] ) ) {
-			$ids = array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->query_amount, true );
-		} else {
-			// If we're going forwards, our overfetched ID is at the back.
-			$ids = array_slice( $this->ids, 0, $this->query_amount, true );
+		// If we're going backwards then our overfetched ID is at the front.
+		if ( ! empty( $this->args['last'] ) && count( $this->ids ) > absint( $this->args['last'] ) ) {
+			return array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->query_amount, true );
 		}
 
-		return $ids;
+		// If we're going forwards, our overfetched ID is at the back.
+		return array_slice( $this->ids, 0, $this->query_amount, true );
 	}
 
 	/**
