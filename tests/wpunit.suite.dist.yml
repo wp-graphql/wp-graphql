@@ -13,7 +13,6 @@ modules:
       cleanup: false
     WPLoader:
       multisite: '%MULTISITE%'
-      installationTableHandling: drop
       plugins:
         - wp-graphql/wp-graphql.php
       activatePlugins:
