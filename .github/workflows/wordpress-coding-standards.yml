@@ -15,7 +15,7 @@ jobs:
     name: Check code
     strategy:
       matrix:
-        php: [ 8.0.15 ]
+        php: [ 8.0 ]
 
     steps:
       - name: Checkout
@@ -40,8 +40,7 @@ jobs:
           restore-keys: php-${{ matrix.php }}-${{ runner.os }}-composer
 
       - name: Install dependencies
-        run: |
-          composer update
+        run: composer install --no-progress
 
       - name: Run PHP_CodeSniffer
         run: composer run-script check-cs

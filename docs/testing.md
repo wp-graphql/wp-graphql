@@ -14,7 +14,7 @@ Running tests locally with Codeception is the fastest way to run tests, but it r
 ### Pre-requisites
 
 - Command line access
-- PHP installed and running on your machine
+- PHP 7.3+ installed and running on your machine
 - MySQL installed and running on your machine
 - Composer
 
