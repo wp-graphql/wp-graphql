@@ -8,6 +8,8 @@ permissions: write-all
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Create plugin zip artifact for pull-request
+    if: contains(github.event.pull_request.labels.*.name, 'build plugin zip')
 
     # permissions:
     #   contents: write
