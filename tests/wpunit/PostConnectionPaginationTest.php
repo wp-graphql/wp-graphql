@@ -216,7 +216,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'], print_r( $actual, true ) );
+		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage']);
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
@@ -488,10 +488,10 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	}
 
 	public function testForwardPaginationWithDuplicateTitlesAndDates() {
-		// // Cleanup old posts.
-		// foreach ( $this->created_post_ids as $id ) {
-		// 	wp_delete_post( $id, true );
-		// }
+		// Cleanup old posts.
+		foreach ( $this->created_post_ids as $id ) {
+			wp_delete_post( $id, true );
+		}
 
 		// Create duplicate posts
 		$date          = date( 'Y-m-d H:i:s', strtotime( 'now' ) );
@@ -523,10 +523,10 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	}
 
 	public function testBackwardPaginationWithDuplicateTitlesAndDates() {
-		// // Cleanup old posts.
-		// foreach ( $this->created_post_ids as $id ) {
-		// 	wp_delete_post( $id, true );
-		// }
+		// Cleanup old posts.
+		foreach ( $this->created_post_ids as $id ) {
+			wp_delete_post( $id, true );
+		}
 
 		// Create duplicate posts
 		$date          = date( 'Y-m-d H:i:s', strtotime( 'now' ) );
