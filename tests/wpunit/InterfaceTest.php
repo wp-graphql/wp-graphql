@@ -3,9 +3,8 @@
 class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
-		WPGraphQL::clear_schema();
 		parent::setUp();
-
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {

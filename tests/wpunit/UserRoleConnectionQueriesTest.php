@@ -5,6 +5,8 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	private $admin;
 
 	public function setUp(): void {
+		parent::setUp();
+
 		add_role(
 			'test_role',
 			__( 'Test role' ),
@@ -21,7 +23,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 				'delete_published_pages' => true,
 			]
 		);
-		parent::setUp();
+
 		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 

@@ -6,6 +6,8 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	public $created_content_type_ids;
 
 	public function setUp(): void {
+		parent::setUp();
+
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
@@ -13,7 +15,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->created_content_type_ids = $this->create_content_types();
 		WPGraphQL::clear_schema();
 
-		parent::setUp();
 	}
 
 	public function tearDown(): void {

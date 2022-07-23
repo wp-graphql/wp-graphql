@@ -11,6 +11,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 	public function setUp(): void {
 		parent::setUp();
+
 		$this->admin            = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
@@ -215,7 +216,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'], print_r( $actual, true ) );
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {

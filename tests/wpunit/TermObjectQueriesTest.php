@@ -4,6 +4,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+
 		global $wp_rewrite;
 		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
 		create_initial_taxonomies();

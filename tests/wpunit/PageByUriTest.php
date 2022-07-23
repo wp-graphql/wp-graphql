@@ -6,6 +6,7 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 	public $user;
 
 	public function setUp(): void {
+		parent::setUp();
 
 		$this->user = $this->factory()->user->create([
 			'role'       => 'administrator',
@@ -25,7 +26,6 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules();
 		WPGraphQL::show_in_graphql();
 
-		parent::setUp();
 	}
 
 	public function tearDown(): void {

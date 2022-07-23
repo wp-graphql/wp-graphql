@@ -6,9 +6,10 @@ class UserRoleEnumTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before
-		WPGraphQL::clear_schema();
 		parent::setUp();
+
 		// your set up methods here
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {

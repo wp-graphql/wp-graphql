@@ -1,6 +1,6 @@
 <?php
 
-class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
+class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post;
 	public $page;
@@ -11,6 +11,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_taxonomy;
 
 	public function setUp(): void {
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		parent::setUp();
 
 		register_post_type('by_uri_cpt', [
 			'show_in_graphql'     => true,
@@ -25,12 +27,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_plural_name' => 'CustomTaxes',
 		]);
 
-		global $wp_rewrite;
-		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
-		create_initial_taxonomies();
-		$GLOBALS['wp_rewrite']->init();
-		flush_rewrite_rules();
-		WPGraphQL::show_in_graphql();
+
 		WPGraphQL::clear_schema();
 
 		$this->user = $this->factory()->user->create([
@@ -69,9 +66,6 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Test CPT for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {
@@ -87,9 +81,12 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
 		parent::tearDown();
 
 	}
+
+	
 
 	/**
 	 * Get a Post by it's permalink
@@ -332,17 +329,19 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 		';
+		codecept_debug( $this->custom_taxonomy );
 
-		$actual = graphql([
+
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $this->custom_taxonomy ),
 			],
 		]);
 
-		codecept_debug( $actual );
+		codecept_debug( get_term_link( $this->custom_taxonomy ) );
 
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
 
@@ -416,6 +415,9 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isFrontPage'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isPostsPage'] );
+
+		// cleanup
+		wp_delete_post( $post_id, true );
 
 	}
 

@@ -11,6 +11,9 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_taxonomy;
 
 	public function setUp(): void {
+		//before
+		parent::setUp();
+
 		register_post_type('by_slug_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomType',
@@ -46,9 +49,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Test Page for NodeBySlugTest',
 			'post_author' => $this->user,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {

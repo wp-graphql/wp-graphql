@@ -3,6 +3,7 @@
 class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
+		parent::setUp();
 
 		register_post_type(
 			'test_custom_tax_cpt',
@@ -25,7 +26,6 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		parent::setUp();
 		WPGraphQL::clear_schema();
 	}
 

@@ -4,8 +4,8 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	public function setUp(): void {
 		// before
-		$this->clearSchema();
 		parent::setUp();
+		$this->clearSchema();
 		// your set up methods here
 	}
 

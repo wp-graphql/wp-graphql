@@ -10,8 +10,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before
-		WPGraphQL::clear_schema();
 		parent::setUp();
+
+		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );

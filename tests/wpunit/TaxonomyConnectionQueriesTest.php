@@ -9,9 +9,9 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	public $taxonomies = [];
 
 	public function setUp(): void {
-		$this->created_taxonomy_ids = $this->create_taxonomies();
-
 		parent::setUp();
+
+		$this->created_taxonomy_ids = $this->create_taxonomies();
 
 		$this->clearSchema();
 
