@@ -1,6 +1,7 @@
 name: Create plugin zip artifact for pull-request
 on:
-  pull_request:
+  pull_request_target:
+    types: [labeled]
     branches:
       - main
       - master
