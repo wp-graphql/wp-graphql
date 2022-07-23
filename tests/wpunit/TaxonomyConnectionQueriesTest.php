@@ -157,8 +157,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasPreviousPage'] );
-
-		$this->markTestIncomplete( 'Old taxonomies are not cleaned up' );
 		$this->assertEquals( false, $actual['data']['taxonomies']['pageInfo']['hasNextPage'] );
 	}
 
@@ -226,9 +224,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasNextPage'] );
-
-		$this->markTestIncomplete( 'Old terms are not cleaned up' );
-
 		$this->assertEquals( false, $actual['data']['taxonomies']['pageInfo']['hasPreviousPage'] );
 	}
 

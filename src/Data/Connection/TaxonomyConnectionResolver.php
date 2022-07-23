@@ -26,30 +26,6 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 		parent::__construct( $source, $args, $context, $info );
 	}
 
-	public function has_next_page() {
-
-		$last_key = array_key_last( $this->get_ids_for_nodes() );
-		$index    = array_search( $last_key, array_keys( $this->get_ids() ), true );
-		$count    = count( $this->get_ids() );
-
-		if ( ! empty( $this->args['first'] ) ) {
-			return $index + 1 < $count;
-		}
-
-		return false;
-	}
-
-	public function has_previous_page() {
-		$first_key = array_key_first( $this->get_ids_for_nodes() );
-		$index     = array_search( $first_key, array_keys( $this->get_ids() ), true );
-
-		if ( ! empty( $this->args['last'] ) ) {
-			return $index > 0;
-		}
-
-		return false;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 *
