@@ -29,12 +29,6 @@ jobs:
             ci
             chore
             revert
-          scopes: |
-            core
-            ui
-            graphiql
-            tests
-            docs
           requireScope: false
           ignoreLabels: |
             bot
