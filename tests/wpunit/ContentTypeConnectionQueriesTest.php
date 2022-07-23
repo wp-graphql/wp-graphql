@@ -158,6 +158,17 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testBackwardPagination() {
@@ -226,6 +237,17 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the first two results are equal to `first:2`.
+		 */
+		$variables = [
+			'first' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testQueryWithFirstAndLast() {

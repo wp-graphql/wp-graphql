@@ -192,6 +192,17 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testBackwardPagination() {
@@ -275,6 +286,17 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
 		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+
+		/**
+		 * Test the last two results are equal to `first:2`.
+		 */
+		$variables = [
+			'first' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testQueryWithFirstAndLast() {

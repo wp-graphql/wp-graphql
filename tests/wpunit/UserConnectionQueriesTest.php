@@ -84,7 +84,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 	}
 
-	public function forwardPagination( $variables = [], $wp_variables = [] ) {
+	public function forwardPagination( $graphql_args = [], $query_args = [] ) {
 		wp_set_current_user( $this->admin );
 
 		/**
@@ -94,7 +94,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Set the variables to use in the GraphQL query.
 		$variables = array_merge( [
 			'first' => 2,
-		], $variables );
+		], $graphql_args );
 
 		// Set the variables to use in the WP query.
 		$wp_variables = array_merge( [
@@ -103,7 +103,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			'fields'  => 'ids',
 			'order'   => 'ASC',
 			'orderby' => 'name',
-		], $wp_variables );
+		], $query_args );
 
 		// Run the GraphQL Query
 		$expected = ( new WP_User_Query( $wp_variables ) )->get_results();
@@ -159,9 +159,22 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['users']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = array_merge( [
+			'last' => 2,
+		], $graphql_args );
+		unset( $variables['first'] );
+
+		$expected = $actual;
+
+		$actual = $this->usersQuery( $variables );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
-	public function backwardPagination( $variables = [], $wp_variables = [] ) {
+	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
 		wp_set_current_user( $this->admin );
 
 		/**
@@ -171,7 +184,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Set the variables to use in the GraphQL query.
 		$variables = array_merge( [
 			'last' => 2,
-		], $variables );
+		], $graphql_args );
 
 		// Set the variables to use in the WP query.
 		$wp_variables = array_merge( [
@@ -180,7 +193,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			'fields'  => 'ids',
 			'order'   => 'DESC',
 			'orderby' => 'name',
-		], $wp_variables );
+		], $query_args );
 
 		// Run the GraphQL Query
 		$expected = ( new WP_User_Query( $wp_variables ) )->get_results();
@@ -238,6 +251,19 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['users']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `first:2`.
+		 */
+		$variables = array_merge( [
+			'first' => 2,
+		], $graphql_args );
+		unset( $variables['last'] );
+
+		$expected = $actual;
+
+		$actual = $this->usersQuery( $variables );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testForwardPaginationOrderedByDefault() {

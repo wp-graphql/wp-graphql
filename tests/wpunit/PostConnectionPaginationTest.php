@@ -216,7 +216,25 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage']);
+
+		if ( isset( $graphql_args['where']['search'] ) ) {
+			$this->markTestIncomplete( 'Offsetting with search ovefetches.' );
+		}
+
+		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = array_merge( [
+			'last' => 2,
+		], $graphql_args );
+		unset( $variables['first'] );
+
+		$expected = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
@@ -297,6 +315,19 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the first two results are equal to `first:2`.
+		 */
+		$variables = array_merge( [
+			'first' => 2,
+		], $graphql_args );
+		unset( $variables['last'] );
+
+		$expected = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testForwardPaginationOrderedByDefault() {
@@ -369,7 +400,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$post_ids = [];
 
-		for ( $i = 1; $i < 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i ++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
 			$post_ids[]        = $this->factory()->post->create( $args );

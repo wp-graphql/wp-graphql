@@ -154,6 +154,17 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 100,
+		];
+		$expected  = $wp_query;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins'] );
 	}
 
 	public function testBackwardPagination() {
@@ -259,6 +270,17 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'first' => 100,
+		];
+		$expected  = $wp_query;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins'] );
 	}
 
 	public function testQueryWithFirstAndLast() {

@@ -198,6 +198,17 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['comments']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
@@ -285,6 +296,17 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the first two results are equal to `first:2`.
+		 */
+		$variables = [
+			'first' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
 	public function testForwardPagination() {
@@ -294,7 +316,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testBackwardPagination() {
 		$this->backwardPagination();
 	}
-
 
 	public function testQueryWithFirstAndLast() {
 		wp_set_current_user( $this->admin );
