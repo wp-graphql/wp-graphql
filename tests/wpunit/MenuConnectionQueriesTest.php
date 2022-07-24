@@ -371,7 +371,6 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menus']['nodes'][0] );
-
 	}
 
 	/**
