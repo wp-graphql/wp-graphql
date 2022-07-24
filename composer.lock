@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21f70489c75dd7ebaa19e2a610f89498",
+    "content-hash": "ff622ccfa325d7ffdb715e59c01a03c5",
     "packages": [
         {
             "name": "appsero/client",
@@ -1970,16 +1970,16 @@
         },
         {
             "name": "lucatume/wp-browser",
-            "version": "3.1.6",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "5cefdab50d16f69447c48e5a8668d67d4892d6ef"
+                "reference": "415046123ce5373bf306ac0622f9523b720b9a3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/5cefdab50d16f69447c48e5a8668d67d4892d6ef",
-                "reference": "5cefdab50d16f69447c48e5a8668d67d4892d6ef",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/415046123ce5373bf306ac0622f9523b720b9a3b",
+                "reference": "415046123ce5373bf306ac0622f9523b720b9a3b",
                 "shasum": ""
             },
             "require": {
@@ -2008,8 +2008,6 @@
             },
             "require-dev": {
                 "erusev/parsedown": "^1.7",
-                "ext-pcntl": "*",
-                "ext-sockets": "*",
                 "gumlet/php-image-resize": "^1.6",
                 "lucatume/codeception-snapshot-assertions": "^0.2",
                 "mikey179/vfsstream": "^1.6",
@@ -2039,8 +2037,7 @@
                 ],
                 "psr-4": {
                     "tad\\": "src/tad",
-                    "Codeception\\": "src/Codeception",
-                    "lucatume\\WPBrowser\\": "src/"
+                    "Codeception\\": "src/Codeception"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2063,7 +2060,7 @@
             ],
             "support": {
                 "issues": "https://github.com/lucatume/wp-browser/issues",
-                "source": "https://github.com/lucatume/wp-browser/tree/3.1.6"
+                "source": "https://github.com/lucatume/wp-browser/tree/3.1.0"
             },
             "funding": [
                 {
@@ -2071,7 +2068,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-28T06:45:08+00:00"
+            "time": "2022-01-28T16:09:41+00:00"
         },
         {
             "name": "mikehaertl/php-shellcommand",
