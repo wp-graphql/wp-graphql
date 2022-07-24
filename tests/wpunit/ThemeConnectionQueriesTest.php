@@ -2,10 +2,10 @@
 
 class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
 	public $admin;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	/**
 	 * @var WP_Theme

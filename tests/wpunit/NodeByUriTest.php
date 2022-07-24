@@ -11,8 +11,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_taxonomy;
 
 	public function setUp(): void {
-
-		WPGraphQL::clear_schema();
+		parent::setUp();
 
 		register_post_type('by_uri_cpt', [
 			'show_in_graphql'     => true,
@@ -70,26 +69,22 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Test CPT for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {
-
+		wp_delete_post( $this->post, true );
+		wp_delete_post( $this->page, true );
+		wp_delete_post( $this->custom_type, true );
+		wp_delete_term( $this->tag, 'post_tag' );
+		wp_delete_term( $this->category, 'category' );
+		wp_delete_term( $this->custom_taxonomy, 'by_uri_tax' );
+		wp_delete_user( $this->user );
 		unregister_post_type( 'by_uri_cpt' );
 		unregister_taxonomy( 'by_uri_tax' );
 		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
-		parent::tearDown();
-		wp_delete_post( $this->post );
-		wp_delete_post( $this->page );
-		wp_delete_post( $this->custom_post_type );
-		wp_delete_term( $this->tag, 'post_tag' );
-		wp_delete_term( $this->category, 'category' );
-		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
-		wp_delete_user( $this->user );
 
+		parent::tearDown();
 	}
 
 	/**
@@ -226,7 +221,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_post_type_object( 'custom_type' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
 
 		$this->set_permalink_structure( '' );
@@ -344,6 +339,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['nodeByUri'] );
 		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
 

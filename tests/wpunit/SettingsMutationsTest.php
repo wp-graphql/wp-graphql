@@ -29,6 +29,8 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $admin_name;
 
 	public function setUp(): void {
+		// before
+		parent::setUp();
 
 		WPGraphQL::clear_schema();
 
@@ -127,9 +129,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'show_in_graphql' => true,
 			'default'         => 4.5,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {

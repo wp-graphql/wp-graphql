@@ -4,9 +4,9 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 	public function setUp(): void {
 		// before
-		$this->clearSchema();
 		parent::setUp();
 		// your set up methods here
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {

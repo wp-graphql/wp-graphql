@@ -11,8 +11,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_taxonomy;
 
 	public function setUp(): void {
-
-		WPGraphQL::clear_schema();
+		parent::setUp();
 
 		register_post_type('by_slug_cpt', [
 			'show_in_graphql'     => true,
@@ -29,6 +28,8 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
+		WPGraphQL::clear_schema();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -47,21 +48,19 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			'post_title'  => 'Test Page for NodeBySlugTest',
 			'post_author' => $this->user,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {
-
-		unregister_post_type( 'by_slug_cpt' );
-		unregister_post_type( 'faq' );
-		WPGraphQL::clear_schema();
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
-		parent::tearDown();
 		wp_delete_post( $this->post );
 		wp_delete_post( $this->custom_post_type );
 		wp_delete_user( $this->user );
+
+		unregister_post_type( 'by_slug_cpt' );
+		unregister_post_type( 'faq' );
+
+		WPGraphQL::clear_schema();
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		parent::tearDown();
 
 	}
 

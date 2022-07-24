@@ -3,6 +3,7 @@
 class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
+		parent::setUp();
 
 		$this->admin = $this->factory->user->create( [
 			'role' => 'administrator',
@@ -12,14 +13,12 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 			'role' => 'editor',
 		] );
 
-		parent::setUp();
-
 		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
-		parent::tearDown();
 		WPGraphQL::clear_schema();
+		parent::tearDown();
 	}
 
 	/**

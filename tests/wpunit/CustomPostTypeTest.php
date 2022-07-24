@@ -7,7 +7,6 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
 
 		register_post_type(
 			'cpt_test_cpt',
@@ -30,6 +29,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
+		WPGraphQL::clear_schema();
+
 		$this->post_id = $this->factory()->post->create([
 			'post_type'   => 'cpt_test_cpt',
 			'post_status' => 'publish',
@@ -43,6 +44,10 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
+		unregister_post_type( 'cpt_test_cpt' );
+		unregister_taxonomy( 'cpt_test_tax' );
+		WPGraphQL::clear_schema();
+
 		parent::tearDown();
 	}
 
