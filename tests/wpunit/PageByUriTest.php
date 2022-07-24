@@ -43,7 +43,7 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 			page(id: $uri, idType: URI) {
 				__typename
 				id
-			  	slug
+					slug
 				databaseId
 				uri
 			}

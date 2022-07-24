@@ -64,17 +64,17 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		return '
 		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
-		  node: contentNode(id:$id idType:DATABASE_ID asPreview:$asPreview) {
-		    __typename
-		    id
-		    databaseId
-		    isPreview
-		    status
+			node: contentNode(id:$id idType:DATABASE_ID asPreview:$asPreview) {
+				__typename
+				id
+				databaseId
+				isPreview
+				status
 			previewRevisionDatabaseId
-		    ...on NodeWithTitle {
-		      title
-		    }
-		  }
+				...on NodeWithTitle {
+					title
+				}
+			}
 		}
 		';
 

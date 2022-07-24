@@ -95,7 +95,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Post {
-				  postId
+					postId
 				}
 				isContentNode
 				isTermNode
@@ -150,7 +150,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Page {
-				  pageId
+					pageId
 				}
 				isTermNode
 				isContentNode
@@ -209,7 +209,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomType {
-				  customTypeId
+					customTypeId
 				}
 			}
 		}
@@ -263,7 +263,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Category {
-				  categoryId
+					categoryId
 				}
 				isTermNode
 				isContentNode
@@ -300,7 +300,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Tag {
-				  tagId
+					tagId
 				}
 				isTermNode
 				isContentNode
@@ -335,7 +335,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomTax {
-				  customTaxId
+					customTaxId
 				}
 			}
 		}
@@ -371,20 +371,20 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  nodeByUri(uri: "/") {
-		    __typename
-		    uri
-		    ... on Page {
-		      title
-		      isPostsPage
-		      isFrontPage
-		    }
-		    ... on ContentType {
-		      name
-		      isPostsPage
-		      isFrontPage
-		    }
-		  }
+			nodeByUri(uri: "/") {
+				__typename
+				uri
+				... on Page {
+					title
+					isPostsPage
+					isFrontPage
+				}
+				... on ContentType {
+					name
+					isPostsPage
+					isFrontPage
+				}
+			}
 		}
 		';
 
@@ -440,14 +440,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  page( id:"/" idType: URI ) {
-		    __typename
-		    databaseId
-		    isPostsPage
-		    isFrontPage
-		    title
-		    uri
-		  }
+			page( id:"/" idType: URI ) {
+				__typename
+				databaseId
+				isPostsPage
+				isFrontPage
+				title
+				uri
+			}
 		}
 		';
 
@@ -520,14 +520,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  testHierarchicals {
-		    nodes {
-		      id
-		      databaseId
-		      title
-		      uri
-		    }
-		  }
+			testHierarchicals {
+				nodes {
+					id
+					databaseId
+					title
+					uri
+				}
+			}
 		}
 		';
 
@@ -543,13 +543,13 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query NodeByUri( $uri: String! ) {
-		  nodeByUri( uri: $uri ) {
-		     uri
-		     __typename
-		     ...on DatabaseIdentifier {
-		       databaseId
-		     }
-		  }
+			nodeByUri( uri: $uri ) {
+				 uri
+				 __typename
+				 ...on DatabaseIdentifier {
+					 databaseId
+				 }
+			}
 		}
 		';
 
@@ -620,10 +620,10 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query Media( $uri: ID! ){
-		  mediaItem(id: $uri, idType: URI) {
-		    id
-		    title
-		  }
+			mediaItem(id: $uri, idType: URI) {
+				id
+				title
+			}
 		}
 		';
 
@@ -641,10 +641,10 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query Media( $uri: ID! ){
-		  mediaItem(id: $uri, idType: SOURCE_URL) {
-		    id
-		    title
-		  }
+			mediaItem(id: $uri, idType: SOURCE_URL) {
+				id
+				title
+			}
 		}
 		';
 
@@ -683,11 +683,11 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  nodeByUri(uri:"/about") {
-		     __typename
-		     id
-		     uri
-		  }
+			nodeByUri(uri:"/about") {
+				 __typename
+				 id
+				 uri
+			}
 		}
 		';
 

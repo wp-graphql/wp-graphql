@@ -69,9 +69,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Some common assertions repeated for each test.
 	 *
-	 * @param  array $created_menu_ids Created menu items.
-	 * @param  array $created_post_ids Created connected posts.
-	 * @param  array $query_results    Query results.
+	 * @param   array $created_menu_ids Created menu items.
+	 * @param   array $created_post_ids Created connected posts.
+	 * @param   array $query_results        Query results.
 	 *
 	 * @return void
 	 */
@@ -113,11 +113,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						   node {
-						      ...on Post {
-						         databaseId
-						      }
-						   }
+							 node {
+									...on Post {
+										 databaseId
+									}
+							 }
 						}
 					}
 				}
@@ -188,11 +188,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -230,11 +230,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -295,11 +295,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -356,11 +356,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 						childItems {
 							edges {
@@ -404,11 +404,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 						childItems {
 							edges {
@@ -420,11 +420,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 										}
 									}
 									connectedNode {
-									  node {
-									     ...on Post {
-									        databaseId
-									     }
-									  }
+										node {
+											 ...on Post {
+													databaseId
+											 }
+										}
 									}
 								}
 							}
@@ -463,11 +463,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -503,11 +503,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -541,11 +541,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 							}
 						}
 						connectedNode {
-						  node {
-						     ...on Post {
-						        databaseId
-						     }
-						  }
+							node {
+								 ...on Post {
+										databaseId
+								 }
+							}
 						}
 					}
 				}
@@ -582,11 +582,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 					connectedNode {
-					  node {
-					     ...on Post {
-					        status
-					     }
-					  }
+						node {
+							 ...on Post {
+									status
+							 }
+						}
 					}
 				}
 			}
@@ -646,11 +646,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 					connectedNode {
-					  node {
-					     ...on Post {
-					        status
-					     }
-					  }
+						node {
+							 ...on Post {
+									status
+							 }
+						}
 					}
 				}
 			}

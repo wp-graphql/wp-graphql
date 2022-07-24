@@ -43,21 +43,21 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$query = '
 		{
-		  testTypeConnection {
-		    nodes {
-		      id
-		      connectedPosts {
-		        nodes {
-		          id
-		        }
-		      }
-		      connectedPost {
-		        node {
-		          id
-		        }
-		      }
-		    }
-		  }
+			testTypeConnection {
+				nodes {
+					id
+					connectedPosts {
+						nodes {
+							id
+						}
+					}
+					connectedPost {
+						node {
+							id
+						}
+					}
+				}
+			}
 		}
 		';
 
@@ -101,13 +101,13 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$query = '
 		query Test($where: TestToPostConnectionWhereArgs) {
-		  test {
-		    testPostConnection(where: $where) {
-		      nodes {
-		        id
-		      }
-		    }
-		  }
+			test {
+				testPostConnection(where: $where) {
+					nodes {
+						id
+					}
+				}
+			}
 		}
 		';
 

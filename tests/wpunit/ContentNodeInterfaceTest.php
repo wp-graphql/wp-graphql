@@ -37,10 +37,10 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	public function testContentNodeExists() {
 		$query  = '
 		{
-		  __type(name: "ContentNode") {
-		    name
-		    kind
-		  }
+			__type(name: "ContentNode") {
+				name
+				kind
+			}
 		}
 		';
 		$actual = graphql( [ 'query' => $query ] );
@@ -70,24 +70,24 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  contentNodes(first:2) {
-		    nodes {
-		      __typename
-		      id
-		      databaseId
-		      contentTypeName
-		      ...on NodeWithTitle {
-		        title
-		      }
-		      ...on Post {
-		        postId
-		      }
-		      ...on Page {
-		        pageId
-		      }
-		    }
-		  }
-	    }
+			contentNodes(first:2) {
+				nodes {
+					__typename
+					id
+					databaseId
+					contentTypeName
+					...on NodeWithTitle {
+						title
+					}
+					...on Post {
+						postId
+					}
+					...on Page {
+						pageId
+					}
+				}
+			}
+			}
 		';
 
 		$actual = graphql( [
@@ -115,28 +115,28 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	public function contentNodeQuery() {
 		return '
 		query TestContentNode( $postId: ID! $pageId: ID! $postIdType: ContentNodeIdTypeEnum $pageIdType: ContentNodeIdTypeEnum ){
-		  post: contentNode(id: $postId, idType: $postIdType, contentType: POST) {
-		    ...ContentFields
-		  }
-		  page: contentNode(id: $pageId, idType: $pageIdType, contentType: PAGE) {
-		    ...ContentFields
-		  }
+			post: contentNode(id: $postId, idType: $postIdType, contentType: POST) {
+				...ContentFields
+			}
+			page: contentNode(id: $pageId, idType: $pageIdType, contentType: PAGE) {
+				...ContentFields
+			}
 		}
 
 		fragment ContentFields on ContentNode {
-		  __typename
-		  id
-		  ...on NodeWithTitle {
-	        title
-	      }
-		  slug
-		  uri
-		  ... on Post {
-		    postId
-		  }
-		  ... on Page {
-		    pageId
-		  }
+			__typename
+			id
+			...on NodeWithTitle {
+					title
+				}
+			slug
+			uri
+			... on Post {
+				postId
+			}
+			... on Page {
+				pageId
+			}
 		}
 		';
 	}

@@ -41,10 +41,10 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		$query  = '
 			query {
 				allSettings {
-				    generalSettingsEmail
+						generalSettingsEmail
 				}
-		    }
-	    ';
+				}
+			';
 		$actual = do_graphql_request( $query );
 
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -92,19 +92,19 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 			$query = '
 				query {
 					allSettings {
-					    discussionSettingsDefaultCommentStatus
-					    discussionSettingsDefaultPingStatus
-					    generalSettingsDateFormat
-					    generalSettingsDescription
-					    generalSettingsLanguage
-					    generalSettingsStartOfWeek
-					    generalSettingsTimeFormat
-					    generalSettingsTimezone
-					    generalSettingsTitle
-					    readingSettingsPostsPerPage
-					    writingSettingsDefaultCategory
-					    writingSettingsDefaultPostFormat
-					    writingSettingsUseSmilies
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
 					}
 				}
 			';
@@ -112,21 +112,21 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 			$query = '
 				query {
 					allSettings {
-					    discussionSettingsDefaultCommentStatus
-					    discussionSettingsDefaultPingStatus
-					    generalSettingsDateFormat
-					    generalSettingsDescription
-					    generalSettingsEmail
-					    generalSettingsLanguage
-					    generalSettingsStartOfWeek
-					    generalSettingsTimeFormat
-					    generalSettingsTimezone
-					    generalSettingsTitle
-					    generalSettingsUrl
-					    readingSettingsPostsPerPage
-					    writingSettingsDefaultCategory
-					    writingSettingsDefaultPostFormat
-					    writingSettingsUseSmilies
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsEmail
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							generalSettingsUrl
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
 					}
 				}
 			';
@@ -166,10 +166,10 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 		$query = '
 		{
-		  generalSettings {
-		    dateFormat
-		    url
-		  }
+			generalSettings {
+				dateFormat
+				url
+			}
 		}
 		';
 

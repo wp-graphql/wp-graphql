@@ -84,7 +84,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
-	 * @param  int $count Number of posts to create.
+	 * @param   int $count Number of posts to create.
 	 *
 	 * @return array
 	 */
@@ -131,8 +131,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				nodes {
-				  id
-				  postId
+					id
+					postId
 				}
 			}
 		}';
@@ -405,9 +405,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				children {
 					edges {
 						node {
-						    ...on Page {
-							  id
-							  pageId
+								...on Page {
+								id
+								pageId
 							}
 						}
 					}
@@ -579,26 +579,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  posts( where:{in:[\"{$parent_post}\"]}){
-		    edges{
-		      node{
-		        postId
-		        id
-		        title
-		        content
-		        revisions{
-		          edges {
-		            node{
-		              id
-		              postId
-		              title
-		              content
-		            }
-		          }
-		        }
-		      }
-		    }
-		  }
+			posts( where:{in:[\"{$parent_post}\"]}){
+				edges{
+					node{
+						postId
+						id
+						title
+						content
+						revisions{
+							edges {
+								node{
+									id
+									postId
+									title
+									content
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		";
 
@@ -756,13 +756,13 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		      databaseId
-		      title
-		    }
-		  }
+			posts {
+				nodes {
+					id
+					databaseId
+					title
+				}
+			}
 		}
 		';
 
@@ -826,12 +826,12 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => '
 			{
-			  posts {
-			    nodes {
-			      id
-			      title
-			    }
-			  }
+				posts {
+					nodes {
+						id
+						title
+					}
+				}
 			}
 			',
 		]);
@@ -875,14 +875,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetPostsByIds($post_ids: [ID] $first: Int, $after: String, $last: Int, $before: String) {
-		  posts(where: {in: $post_ids} first: $first, after: $after, last: $last, before: $before) {
-		    edges {
-		      cursor
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			posts(where: {in: $post_ids} first: $first, after: $after, last: $last, before: $before) {
+				edges {
+					cursor
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
@@ -1004,14 +1004,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetPostsWithSpecificIdsInResolver($after:String $before:String) {
-		  posts: postOrderbyDebug(after:$after before:$before) {
-		    edges {
-		      cursor
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			posts: postOrderbyDebug(after:$after before:$before) {
+				edges {
+					cursor
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 

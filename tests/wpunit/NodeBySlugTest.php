@@ -189,11 +189,11 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$query = '
-        query GET_POST_BY_SLUG( $slug: ID! ) {
-           faq(id: $slug, idType: SLUG) {
-                databaseId
-                title
-           }
+				query GET_POST_BY_SLUG( $slug: ID! ) {
+					 faq(id: $slug, idType: SLUG) {
+								databaseId
+								title
+					 }
 		}
 		';
 
@@ -215,11 +215,11 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $faqPost->post_title, $actual['data']['faq']['title'] );
 
 		$query = '
-        query GET_PAGE_BY_URI( $uri: ID! ) {
-           page(id: $uri, idType: URI) {
-                databaseId
-                title
-           }
+				query GET_PAGE_BY_URI( $uri: ID! ) {
+					 page(id: $uri, idType: URI) {
+								databaseId
+								title
+					 }
 		}
 		';
 

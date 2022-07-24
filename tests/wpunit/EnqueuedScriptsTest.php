@@ -25,73 +25,73 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin_id = $this->factory()->user->create( [
 			'user_login' => uniqid(),
 			'user_email' => uniqid() . '@test.com',
-			'user_role'  => 'administrator',
+			'user_role'	=> 'administrator',
 		] );
 
 		$this->author_id = $this->factory()->user->create( [
 			'user_login' => uniqid(),
 			'user_email' => uniqid() . '@test.com',
-			'user_role'  => 'author',
+			'user_role'	=> 'author',
 		] );
 
 		register_post_type( 'test_script_cpt', [
-			'public'              => true,
-			'show_in_graphql'     => true,
+			'public'							=> true,
+			'show_in_graphql'		 => true,
 			'graphql_single_name' => 'TestEnqueueCpt',
 			'graphql_plural_name' => 'TestEnqueueCpts',
 		] );
 
 		register_taxonomy( 'test_script_tax', [ 'test_script_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
+			'public'							=> true,
+			'show_in_graphql'		 => true,
 			'graphql_single_name' => 'TestEnqueueTax',
 			'graphql_plural_name' => 'TestEnqueueTaxes',
 		] );
 
 		$this->category_id = $this->factory()->term->create( [
 			'taxonomy' => 'category',
-			'name'     => uniqid(),
+			'name'		 => uniqid(),
 		] );
 
 		$this->tag_id = $this->factory()->term->create( [
 			'taxonomy' => 'post_tag',
-			'name'     => uniqid(),
+			'name'		 => uniqid(),
 		] );
 
 		$this->custom_tax_id = $this->factory()->term->create( [
 			'taxonomy' => 'test_script_tax',
-			'name'     => uniqid(),
+			'name'		 => uniqid(),
 		] );
 
 		$this->page_id = $this->factory()->post->create( [
-			'post_type'    => 'page',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Page for EnqueuedScriptsTest',
-			'post_author'  => $this->author_id,
+			'post_type'		=> 'page',
+			'post_status'	=> 'publish',
+			'post_title'	 => 'Test Page for EnqueuedScriptsTest',
+			'post_author'	=> $this->author_id,
 			'post_excerpt' => '',
 		] );
 
 		$this->post_id = $this->factory()->post->create( [
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_title'    => 'Test Post for EnqueuedScriptsTest',
+			'post_type'		 => 'post',
+			'post_status'	 => 'publish',
+			'post_title'		=> 'Test Post for EnqueuedScriptsTest',
 			'post_category' => [ $this->category_id ],
-			'tags_input'    => [ $this->tag_id ],
-			'post_author'   => $this->author_id,
-			'post_excerpt'  => 'Test excerpt',
+			'tags_input'		=> [ $this->tag_id ],
+			'post_author'	 => $this->author_id,
+			'post_excerpt'	=> 'Test excerpt',
 		] );
 
-		$filename       = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename			 = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
 
 		$this->custom_post_id = $this->factory()->post->create( [
-			'post_type'    => 'test_script_cpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test CPT for EnqueuedScriptsTest',
+			'post_type'		=> 'test_script_cpt',
+			'post_status'	=> 'publish',
+			'post_title'	 => 'Test CPT for EnqueuedScriptsTest',
 			'post_excerpt' => 'Test excerpt',
 		] );
 
-		$GLOBALS['post']       = null;
+		$GLOBALS['post']			 = null;
 		$GLOBALS['authordata'] = null;
 
 	}
@@ -107,7 +107,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_attachment( $this->media_id, true );
 		unregister_post_type( 'test_script_cpt' );
 		unregister_taxonomy( 'test_script_tax' );
-		$GLOBALS['post']       = null;
+		$GLOBALS['post']			 = null;
 		$GLOBALS['authordata'] = null;
 		parent::tearDown();
 
@@ -116,8 +116,8 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function get_enqueued_assets_fragment() {
 		return '
 		fragment EnqueuedScriptFragment on EnqueuedScript {
-	      handle
-	      src
+			handle
+			src
 		}
 		';
 	}
@@ -136,19 +136,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query PageById( $id: ID! ) {
-		  page( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			page( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $page_id,
 			],
@@ -172,19 +172,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query postById( $id: ID! ) {
-		  post( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			post( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $post_id,
 			],
@@ -208,19 +208,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query testEnqueueCpt( $id: ID! ) {
-		  testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $custom_id,
 			],
@@ -244,19 +244,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query tagById( $id: ID! ) {
-		  tag( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			tag( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $tag_id,
 			],
@@ -280,19 +280,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query catById( $id: ID! ) {
-		  category( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			category( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $cat_id,
 			],
@@ -316,19 +316,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query catById( $id: ID! ) {
-		  category( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			category( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $cat_id,
 			],
@@ -352,19 +352,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query userById( $id: ID! ) {
-		  user( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			user( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $user_id,
 			],
@@ -388,19 +388,19 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query mediaItem( $id: ID! ) {
-		  mediaItem( id: $id idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedScripts {
-		      nodes {
-		        ...EnqueuedScriptFragment
-		      }
-		    }
-		  }
+			mediaItem( id: $id idType: DATABASE_ID ) {
+				databaseId
+				enqueuedScripts {
+					nodes {
+						...EnqueuedScriptFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query'		 => $query,
 			'variables' => [
 				'id' => $media_id,
 			],
@@ -419,7 +419,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Front_Page() {
 
 		$handle = 'test-front-page';
-		$src    = 'test-front-page.js';
+		$src		= 'test-front-page.js';
 
 		// Set the page to be the home page
 		update_option( 'show_on_front', 'page' );
@@ -446,9 +446,9 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Make sure the script is NOT connected to another page
 		$another_page_id = $this->factory()->post->create( [
-			'post_type'   => 'page',
+			'post_type'	 => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Script for unique: ' . uniqid(),
+			'post_title'	=> 'Test Script for unique: ' . uniqid(),
 		] );
 
 		$actual = $this->get_page_query( $another_page_id );
@@ -502,7 +502,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Page() {
 
 		$handle = 'test-is-page';
-		$src    = 'test-is-page.js';
+		$src		= 'test-is-page.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -562,7 +562,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Single() {
 
 		$handle = 'test-is-single';
-		$src    = 'test-is-single.js';
+		$src		= 'test-is-single.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -622,7 +622,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Singular() {
 
 		$handle = 'test-is-singular';
-		$src    = 'test-is-singular.js';
+		$src		= 'test-is-singular.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -698,7 +698,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Sticky() {
 
 		$handle = 'test-is-sticky';
-		$src    = 'test-is-sticky.js';
+		$src		= 'test-is-sticky.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -761,7 +761,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Post_Type_Hierarchical() {
 
 		$handle = 'test-is-post-type-hierarchical';
-		$src    = 'test-is-post-type-hierarchical.js';
+		$src		= 'test-is-post-type-hierarchical.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			global $post;
@@ -827,7 +827,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptComments_Open() {
 
 		$handle = 'test-comments-open';
-		$src    = 'test-comments-open.js';
+		$src		= 'test-comments-open.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 
@@ -892,7 +892,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptPings_Open() {
 
 		$handle = 'test-pings-open';
-		$src    = 'test-pings-open.js';
+		$src		= 'test-pings-open.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -957,12 +957,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Page_Template() {
 
 		$page_template = 'test-page-template';
-		$page_handle   = 'test-is-page-template';
-		$page_src      = 'test-is-page-template.js';
+		$page_handle	 = 'test-is-page-template';
+		$page_src			= 'test-is-page-template.js';
 
 		$post_template = 'test-post-template';
-		$post_handle   = 'test-is-post-template';
-		$post_src      = 'test-is-post-template.js';
+		$post_handle	 = 'test-is-post-template';
+		$post_src			= 'test-is-post-template.js';
 
 		update_post_meta( $this->post_id, '_wp_page_template', $post_template );
 		update_post_meta( $this->page_id, '_wp_page_template', $page_template );
@@ -1037,7 +1037,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Category() {
 
 		$handle = 'test-is-category';
-		$src    = 'test-is-category.js';
+		$src		= 'test-is-category.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1109,7 +1109,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Tag() {
 
 		$handle = 'test-is-tag';
-		$src    = 'test-is-tag.js';
+		$src		= 'test-is-tag.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1181,7 +1181,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Tax() {
 
 		$handle = 'test-is-tax';
-		$src    = 'test-is-tax.js';
+		$src		= 'test-is-tax.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1253,7 +1253,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptHas_Term() {
 
 		$handle = 'test-has-term';
-		$src    = 'test-has-term.js';
+		$src		= 'test-has-term.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1325,7 +1325,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Author() {
 
 		$handle = 'test-is-author';
-		$src    = 'test-is-author.js';
+		$src		= 'test-is-author.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1408,7 +1408,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptIs_Attachment() {
 
 		$handle = 'test-is-attachment';
-		$src    = 'test-is-attachment.js';
+		$src		= 'test-is-attachment.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1502,7 +1502,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptWP_Attachment_Is_Image() {
 
 		$handle = 'test-is-wp-attachment-is-image';
-		$src    = 'test-is-wp-attachment-is-image.js';
+		$src		= 'test-is-wp-attachment-is-image.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
@@ -1594,7 +1594,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 	public function testEnqueuedScriptsHas_Excerpt() {
 
 		$handle = 'test-has-excerpt';
-		$src    = 'test-has-excerpt.js';
+		$src		= 'test-has-excerpt.js';
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );

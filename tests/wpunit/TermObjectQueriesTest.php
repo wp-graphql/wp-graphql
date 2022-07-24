@@ -4,6 +4,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+
 		global $wp_rewrite;
 		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
 		create_initial_taxonomies();
@@ -43,15 +44,15 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  categories(where:{hideEmpty:false}) {
-		    edges {
-		      node {
-		        id
-		        categoryId
-		        name
-		      }
-		    }
-		  }
+			categories(where:{hideEmpty:false}) {
+				edges {
+					node {
+						id
+						categoryId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -63,13 +64,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query getCategoriesBefore($beforeCursor:String){
 			categories(last:1 before:$beforeCursor where:{hideEmpty:false}){
-			  edges{
-			    node{
-			      id
-			      categoryId
-			      name
-			    }
-			  }
+				edges{
+					node{
+						id
+						categoryId
+						name
+					}
+				}
 			}
 		}
 		';
@@ -100,13 +101,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query getCategoriesAfter($afterCursor:String){
 			categories(first:1 after:$afterCursor where:{hideEmpty:false}){
-			  edges{
-			    node{
-			      id
-			      categoryId
-			      name
-			    }
-			  }
+				edges{
+					node{
+						id
+						categoryId
+						name
+					}
+				}
 			}
 		}
 		';
@@ -405,14 +406,14 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				id
 				categoryId
 				parent {
-				  node {
-				    id
-				  }
+					node {
+						id
+					}
 				}
 				ancestors {
-				  nodes {
-					  id
-					  categoryId
+					nodes {
+						id
+						categoryId
 					}
 				}
 			}
@@ -513,13 +514,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CategoryByUri($uri: String!) {
-		  nodeByUri( uri: $uri ) {
-		    __typename
-		    id
-		    ...on Category {
-		      name
-		    }
-		  }
+			nodeByUri( uri: $uri ) {
+				__typename
+				id
+				...on Category {
+					name
+				}
+			}
 		}
 		';
 
@@ -576,26 +577,26 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getNewsTerm($uri_string:String! $uri_id: ID! ) {
-		  nodeByUri(uri: $uri_string) {
-		    id
-		    ...NewsCategory
-		  }
-		  newsCategory(id:$uri_id idType: URI ) {
-		    ...NewsCategory
-		  }
+			nodeByUri(uri: $uri_string) {
+				id
+				...NewsCategory
+			}
+			newsCategory(id:$uri_id idType: URI ) {
+				...NewsCategory
+			}
 		}
 		fragment NewsCategory on NewsCategory {
-		    id
-		    databaseId
-		    uri
-		    link
-		    name
+				id
+				databaseId
+				uri
+				link
+				name
 			posts {
-		      nodes {
-		        title
-		      }
-		    }
-		  }
+					nodes {
+						title
+					}
+				}
+			}
 		';
 
 		$actual = graphql([

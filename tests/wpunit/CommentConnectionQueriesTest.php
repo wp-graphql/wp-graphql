@@ -2,12 +2,12 @@
 
 class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $post_id;
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
 	public $admin;
 	public $created_comment_ids;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
+	public $post_id;
 
 	public function setUp(): void {
 		// before
@@ -107,7 +107,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 					}
 				}
 				nodes {
-				  databaseId
+					databaseId
 				}
 			}
 		}';

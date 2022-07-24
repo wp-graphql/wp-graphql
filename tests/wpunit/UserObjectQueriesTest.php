@@ -139,9 +139,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				registeredDate
 				roles {
-				  nodes {
-				    name
-				  }
+					nodes {
+						name
+					}
 				}
 				slug
 				url
@@ -224,7 +224,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Post for  UserQueryWithComments',
+			'post_title'  => 'Post for	UserQueryWithComments',
 			'post_author' => $this->admin,
 		]);
 
@@ -532,11 +532,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:1) {
 				edges{
-				  node{
-				    id
-				    userId
-				    email
-				  }
+					node{
+						id
+						userId
+						email
+					}
 				}
 			}
 		}';
@@ -610,11 +610,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:1) {
 				edges{
-				  node{
-				    id
-				    userId
-				    email
-				  }
+					node{
+						id
+						userId
+						email
+					}
 				}
 			}
 		}';
@@ -662,14 +662,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:2) {
 				edges{
-				  node{
-				    userId
-				    username
-				    email
-				    firstName
-				    lastName
-				    url
-				  }
+					node{
+						userId
+						username
+						email
+						firstName
+						lastName
+						url
+					}
 				}
 			}
 		}';
@@ -749,16 +749,16 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:2) {
 				edges{
-				  node{
-				    userId
-				    username
-				    email
-				    firstName
-				    lastName
-				    url
-				    description
-				    isRestricted
-				  }
+					node{
+						userId
+						username
+						email
+						firstName
+						lastName
+						url
+						description
+						isRestricted
+					}
 				}
 			}
 		}';
@@ -792,16 +792,16 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:ADMINISTRATOR}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:ADMINISTRATOR}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
@@ -846,16 +846,16 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:ADMINISTRATOR}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:ADMINISTRATOR}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
@@ -901,16 +901,16 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:SUBSCRIBER}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:SUBSCRIBER}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
@@ -954,14 +954,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -996,14 +996,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -1040,14 +1040,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -1084,14 +1084,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 
 		';
@@ -1132,14 +1132,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 
 		';
@@ -1178,14 +1178,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -1240,39 +1240,39 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
@@ -1371,39 +1371,39 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
@@ -1482,39 +1482,39 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $subscriber->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $subscriber->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $subscriber->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $subscriber->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $subscriber->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $subscriber->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $subscriber->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $subscriber->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $subscriber->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $subscriber->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
@@ -1578,11 +1578,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  users(first:100) {
-		    nodes {
-		      databaseId
-		    }
-		  }
+			users(first:100) {
+				nodes {
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1604,11 +1604,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  users(last:100) {
-		    nodes {
-		      databaseId
-		    }
-		  }
+			users(last:100) {
+				nodes {
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1629,11 +1629,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  users(last:10) {
-		    nodes {
-		      databaseId
-		    }
-		  }
+			users(last:10) {
+				nodes {
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1659,11 +1659,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  users(first:100) {
-		    nodes {
-		      databaseId
-		    }
-		  }
+			users(first:100) {
+				nodes {
+					databaseId
+				}
+			}
 		}
 		';
 
@@ -1679,11 +1679,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  users(last:100) {
-		    nodes {
-		      databaseId
-		    }
-		  }
+			users(last:100) {
+				nodes {
+					databaseId
+				}
+			}
 		}
 		';
 

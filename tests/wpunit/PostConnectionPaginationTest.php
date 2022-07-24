@@ -2,11 +2,11 @@
 
 class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
-	public $created_post_ids;
 	public $admin;
+	public $created_post_ids;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 	public $subscriber;
 
 	public function setUp(): void {
@@ -114,19 +114,19 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query FirstTwoPosts($first: Int, $after: String, $last: Int, $before: String) {
-		  posts(first: $first, last: $last, before: $before, after: $after) {
-		    pageInfo {
-		      endCursor
-		      startCursor
-		      hasPreviousPage
-		      hasNextPage
-		    }
-		    nodes {
-		      databaseId
-		      id
-		      title
-		    }
-		  }
+			posts(first: $first, last: $last, before: $before, after: $after) {
+				pageInfo {
+					endCursor
+					startCursor
+					hasPreviousPage
+					hasNextPage
+				}
+				nodes {
+					databaseId
+					id
+					title
+				}
+			}
 		}
 		';
 
@@ -251,19 +251,19 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query FirstTwoPosts($first: Int, $after: String, $last: Int, $before: String $where: RootQueryToPostConnectionWhereArgs ) {
-		  posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
-		    pageInfo {
-		      endCursor
-		      startCursor
-		      hasPreviousPage
-		      hasNextPage
-		    }
-		    nodes {
-		      databaseId
-		      id
-		      title
-		    }
-		  }
+			posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
+				pageInfo {
+					endCursor
+					startCursor
+					hasPreviousPage
+					hasNextPage
+				}
+				nodes {
+					databaseId
+					id
+					title
+				}
+			}
 		}
 		';
 
@@ -446,19 +446,19 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query FirstTwoPosts($first: Int, $after: String, $last: Int, $before: String $where: RootQueryToPostConnectionWhereArgs ) {
-		  posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
-		    pageInfo {
-		      endCursor
-		      startCursor
-		      hasPreviousPage
-		      hasNextPage
-		    }
-		    nodes {
-		      databaseId
-		      id
-		      title
-		    }
-		  }
+			posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
+				pageInfo {
+					endCursor
+					startCursor
+					hasPreviousPage
+					hasNextPage
+				}
+				nodes {
+					databaseId
+					id
+					title
+				}
+			}
 		}
 		';
 
@@ -595,19 +595,19 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query FirstTwoPosts($first: Int, $after: String, $last: Int, $before: String $where: RootQueryToPostConnectionWhereArgs ) {
-		  posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
-		    pageInfo {
-		      endCursor
-		      startCursor
-		      hasPreviousPage
-		      hasNextPage
-		    }
-		    nodes {
-		      databaseId
-		      id
-		      title
-		    }
-		  }
+			posts(first: $first, last: $last, before: $before, after: $after where: $where ) {
+				pageInfo {
+					endCursor
+					startCursor
+					hasPreviousPage
+					hasNextPage
+				}
+				nodes {
+					databaseId
+					id
+					title
+				}
+			}
 		}
 		';
 

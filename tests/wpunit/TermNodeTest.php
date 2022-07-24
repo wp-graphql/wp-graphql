@@ -26,26 +26,26 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  categories: terms(first: 1, where: {taxonomies: [CATEGORY]}) {
-		    nodes {
-		      ...TermFields
-		    }
-		  }
-		  tags: terms(first: 1, where: {taxonomies: [TAG]}) {
-		    nodes {
-		      ...TermFields
-		    }
-		  }
+			categories: terms(first: 1, where: {taxonomies: [CATEGORY]}) {
+				nodes {
+					...TermFields
+				}
+			}
+			tags: terms(first: 1, where: {taxonomies: [TAG]}) {
+				nodes {
+					...TermFields
+				}
+			}
 		}
 		
 		fragment TermFields on TermNode {
-		  __typename
-		  ... on Category {
-		    categoryId
-		  }
-		  ... on Tag {
-            tagId
-          }
+			__typename
+			... on Category {
+				categoryId
+			}
+			... on Tag {
+						tagId
+					}
 		}
 		';
 
@@ -77,12 +77,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
@@ -115,12 +115,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:DATABASE_ID) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:DATABASE_ID) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
@@ -155,12 +155,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:NAME) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:NAME) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
@@ -195,12 +195,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:SLUG) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:SLUG) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
@@ -235,12 +235,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:URI) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:URI) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
@@ -275,12 +275,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
@@ -313,12 +313,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CategoryByDatabaseId($id:ID!){
-		  category(id: $id idType:DATABASE_ID) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:DATABASE_ID) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
@@ -353,12 +353,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id idType:NAME) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:NAME) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
@@ -393,12 +393,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CategoryByGlobalId($id:ID!){
-		  category(id: $id idType:SLUG) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:SLUG) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
@@ -433,12 +433,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id idType:URI) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:URI) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
@@ -474,15 +474,15 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobal($id:ID!){
-		  termNode(id: $id) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+						categoryId
+				}
+			}
 		}
 		';
 
@@ -516,15 +516,15 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermNodeByDatabaseId($id:ID!){
-		  termNode(id: $id idType:DATABASE_ID) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Tag {
-		      tagId
-		    }
-		  }
+			termNode(id: $id idType:DATABASE_ID) {
+				__typename
+				id
+				name
+				slug
+				...on Tag {
+					tagId
+				}
+			}
 		}
 		';
 
@@ -560,15 +560,15 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:NAME, taxonomy: CATEGORY) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id idType:NAME, taxonomy: CATEGORY) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+						categoryId
+				}
+			}
 		}
 		';
 
@@ -604,15 +604,15 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:SLUG, taxonomy: CATEGORY) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id idType:SLUG, taxonomy: CATEGORY) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+						categoryId
+				}
+			}
 		}
 		';
 
@@ -652,16 +652,16 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:URI) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		    uri
-		  }
+			termNode(id: $id idType:URI) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+						categoryId
+				}
+				uri
+			}
 		}
 		';
 
@@ -708,10 +708,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:URI) {
-		    __typename
-		    uri
-		  }
+			termNode(id: $id idType:URI) {
+				__typename
+				uri
+			}
 		}
 		';
 
@@ -747,14 +747,14 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  allTestTax {
-		    nodes {
-		      id
-		      contentNodes {
-		        __typename
-		      }
-		    }
-		  }
+			allTestTax {
+				nodes {
+					id
+					contentNodes {
+						__typename
+					}
+				}
+			}
 		}
 		';
 

@@ -60,19 +60,19 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: Int ) {
-		  bootstrapPostBy( bootstrapPostId: $id ) {
-		    bootstrapPostId
-		  }
-		  bootstrapPosts {
-		    nodes {
-		      bootstrapPostId
-		    }
-		    edges {
-		      node {
-		        bootstrapPostId
-		      }
-		    }
-		  }
+			bootstrapPostBy( bootstrapPostId: $id ) {
+				bootstrapPostId
+			}
+			bootstrapPosts {
+				nodes {
+					bootstrapPostId
+				}
+				edges {
+					node {
+						bootstrapPostId
+					}
+				}
+			}
 		}
 		';
 
@@ -125,19 +125,19 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
@@ -194,19 +194,19 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
@@ -247,19 +247,19 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  contentNode( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		  }
-		  notPublics {
-		    nodes {
-		      databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			contentNode( id: $id, idType: DATABASE_ID ) {
+				databaseId
+			}
+			notPublics {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
@@ -341,8 +341,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
 			testCpt(id: $id idType: URI ) {
-			  __typename
-			  databaseId
+				__typename
+				databaseId
 			}
 		}
 		';
@@ -427,8 +427,8 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
 			testCpt(id: $id idType: DATABASE_ID ) {
-			  __typename
-			  databaseId
+				__typename
+				databaseId
 			}
 		}
 		';
@@ -493,20 +493,20 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
-		  testCpt( id: $id idType: DATABASE_ID ) {
+			testCpt( id: $id idType: DATABASE_ID ) {
 			__typename
 			databaseId
-		  }
-		  allTestCpt {
-		    nodes {
-			  databaseId
-		    }
-		    edges {
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			}
+			allTestCpt {
+				nodes {
+				databaseId
+				}
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 

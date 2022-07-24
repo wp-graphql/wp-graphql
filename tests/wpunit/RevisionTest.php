@@ -53,7 +53,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					__typename
 					...on Post {
-					    id
+							id
 						postId
 						title
 						content
@@ -108,17 +108,17 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					__typename
 					...on Post {
-					    id
+							id
 						postId
 						title
 						content
 						revisionOf {
-						  node {
+							node {
 							__typename
 							...on Post {
-							  postId
+								postId
 							}
-						  }
+							}
 						}
 					}
 				}
@@ -175,8 +175,8 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query PostBy ($postId: Int) {
 			postBy(postId: $postId) {
-			    __typename
-			    id
+					__typename
+					id
 				postId
 				title
 				content
@@ -184,12 +184,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 					nodes {
 						__typename
 						revisionOf {
-						  node {
+							node {
 							__typename
 							...on Post {
-							  postId
+								postId
 							}
-						  }
+							}
 						}
 					}
 				}

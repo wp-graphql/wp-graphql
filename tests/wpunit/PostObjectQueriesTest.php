@@ -174,9 +174,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				author{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				commentCount
 				commentStatus
@@ -185,9 +185,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				dateGmt
 				desiredSlug
 				lastEditedBy{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				editingLockedBy{
 					lockTimestamp
@@ -208,13 +208,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				guid
 				featuredImage{
-				  node {
+					node {
 					mediaItemId
 					thumbnail: sourceUrl(size: THUMBNAIL)
 					medium: sourceUrl(size: MEDIUM)
 					full: sourceUrl(size: LARGE)
 					sourceUrl
-				  }
+					}
 				}
 			}
 		}";
@@ -338,12 +338,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			post(id: \"{$global_id}\") {
 				id
 				featuredImage {
-				  node {
+					node {
 					altText
 					author {
-					  node {
+						node {
 						id
-					  }
+						}
 					}
 					caption
 					commentCount
@@ -360,12 +360,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					description
 					desiredSlug
 					lastEditedBy {
-					  node {
+						node {
 						userId
-				      }
+							}
 					}
 					editingLockedBy {
-					  lockTimestamp
+						lockTimestamp
 					}
 					enclosure
 					guid
@@ -404,21 +404,21 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					modified
 					modifiedGmt
 					parent {
-					  node {
+						node {
 						...on Post {
 							id
 						}
-				      }
+							}
 					}
 					slug
 					sourceUrl
 					status
 					title
-				  }
+					}
 				}
 			}
 		}
-    ";
+		";
 
 		$actual = do_graphql_request( $query );
 
@@ -544,11 +544,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				parentId
 				parentDatabaseId
 				parent {
-				  node {
+					node {
 					... on Page {
 						databaseId
 					}
-			      }
+						}
 				}
 			}
 		}";
@@ -931,33 +931,33 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  pages(first:1){
-		    edges{
-		      node{
-		        ...pageData
-		      }
-		    }
-		  }
-		  byUri:pageBy(uri:"' . $path . '") {
-		    ...pageData
-		  }
-		  byPageId:pageBy(pageId:' . $post_id . '){
-		    ...pageData
-		  }
-		  byId:pageBy(id:"' . $global_id . '"){
-		    ...pageData
-		  }
+			pages(first:1){
+				edges{
+					node{
+						...pageData
+					}
+				}
+			}
+			byUri:pageBy(uri:"' . $path . '") {
+				...pageData
+			}
+			byPageId:pageBy(pageId:' . $post_id . '){
+				...pageData
+			}
+			byId:pageBy(id:"' . $global_id . '"){
+				...pageData
+			}
 		}
 
 		fragment pageData on Page {
-		  __typename
-		  id
-		  pageId
-		  title
-		  uri
-		  link
-		  slug
-		  date
+			__typename
+			id
+			pageId
+			title
+			uri
+			link
+			slug
+			date
 		}
 		';
 
@@ -1466,17 +1466,17 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query {
 			postBy(id: \"{$global_id}\") {
-			    status
-			    title
-			    categories {
-			      nodes {
-			        id
-			        name
-			        slug
-			      }
-			    }
-		    }
-	    }";
+					status
+					title
+					categories {
+						nodes {
+							id
+							name
+							slug
+						}
+					}
+				}
+			}";
 
 		$expected = [
 			'postBy' => null,
@@ -1536,9 +1536,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				status
 				author{
-				  node {
+					node {
 					userId
-				  }
+					}
 				}
 				content
 			}
@@ -1651,10 +1651,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					postId
 					author {
-					  node {
+						node {
 						userId
 						name
-					  }
+						}
 					}
 				}
 			}
@@ -1703,11 +1703,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query Page( $pageId: Int ) {
-		  pageBy( pageId: $pageId ) {
-		    id
-		    title
-		    isFrontPage
-		  }
+			pageBy( pageId: $pageId ) {
+				id
+				title
+				isFrontPage
+			}
  		}
 		';
 
@@ -1789,11 +1789,11 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query Page( $pageId: Int ) {
-		  pageBy( pageId: $pageId ) {
-		    id
-		    title
-		    isPrivacyPage
-		  }
+			pageBy( pageId: $pageId ) {
+				id
+				title
+				isPrivacyPage
+			}
  		}
 		';
 
@@ -1867,38 +1867,38 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
-		    ...PostFields
-		  }
-		  postByUriID: post(id: "' . $uri . '", idType: URI) {
-		    ...PostFields
-		  }
-		  postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
-		    ...PostFields
-		  }
-		  postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
-		    ...PostFields
-		  }
-		  postBySlug: postBy(slug: "' . $slug . '") {
-		    ...PostFields
-		  }
-		  postByUri: postBy(uri: "' . $uri . '") {
-		    ...PostFields
-		  }
-		  postById: postBy(id: "' . $global_id . '") {
-		    ...PostFields
-		  }
-		  postByPostId: postBy(postId: ' . $post_id . ') {
-		    ...PostFields
-		  }
+			postBySlugID: post(id: "' . $slug . '", idType: SLUG) {
+				...PostFields
+			}
+			postByUriID: post(id: "' . $uri . '", idType: URI) {
+				...PostFields
+			}
+			postByDatabaseID: post(id: "' . $post_id . '", idType: DATABASE_ID) {
+				...PostFields
+			}
+			postByGlobalId: post(id: "' . $global_id . '", idType: ID) {
+				...PostFields
+			}
+			postBySlug: postBy(slug: "' . $slug . '") {
+				...PostFields
+			}
+			postByUri: postBy(uri: "' . $uri . '") {
+				...PostFields
+			}
+			postById: postBy(id: "' . $global_id . '") {
+				...PostFields
+			}
+			postByPostId: postBy(postId: ' . $post_id . ') {
+				...PostFields
+			}
 		}
 
 		fragment PostFields on Post {
-		  id
-		  postId
-		  title
-		  uri
-		  slug
+			id
+			postId
+			title
+			uri
+			slug
 		}
 		';
 
@@ -1955,32 +1955,32 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		{
-		  pageByUriID: page(id: "' . $uri . '", idType: URI) {
-		    ...pageFields
-		  }
-		  pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
-		    ...pageFields
-		  }
-		  pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
-		    ...pageFields
-		  }
-		  pageByUri: pageBy(uri: "' . $uri . '") {
-		    ...pageFields
-		  }
-		  pageById: pageBy(id: "' . $global_id . '") {
-		    ...pageFields
-		  }
-		  pageBypageId: pageBy(pageId: ' . $page_id . ') {
-		    ...pageFields
-		  }
+			pageByUriID: page(id: "' . $uri . '", idType: URI) {
+				...pageFields
+			}
+			pageByDatabaseID: page(id: "' . $page_id . '", idType: DATABASE_ID) {
+				...pageFields
+			}
+			pageByGlobalId: page(id: "' . $global_id . '", idType: ID) {
+				...pageFields
+			}
+			pageByUri: pageBy(uri: "' . $uri . '") {
+				...pageFields
+			}
+			pageById: pageBy(id: "' . $global_id . '") {
+				...pageFields
+			}
+			pageBypageId: pageBy(pageId: ' . $page_id . ') {
+				...pageFields
+			}
 		}
 
 		fragment pageFields on Page {
-		  id
-		  pageId
-		  title
-		  uri
-		  slug
+			id
+			pageId
+			title
+			uri
+			slug
 		}
 		';
 
@@ -2023,13 +2023,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query {
-		  posts(first: 1, where: {status: PUBLISH}) {
-		    nodes {
-		      databaseId
-		      uri
-		      link
-		    }
-		  }
+			posts(first: 1, where: {status: PUBLISH}) {
+				nodes {
+					databaseId
+					uri
+					link
+				}
+			}
 		}
 		';
 
@@ -2061,13 +2061,13 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		      title
-		      content
-		    }
-		  }
+			posts {
+				nodes {
+					id
+					title
+					content
+				}
+			}
 		}
 		';
 
@@ -2160,10 +2160,10 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getPage($id:ID!){
-		  page(id:$id) {
-		    id
-		    __typename
-		  }
+			page(id:$id) {
+				id
+				__typename
+			}
 		}
 		';
 
@@ -2255,14 +2255,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query PostAndPageByUri($uri:ID!){
-		  page(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
-		  post(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
+			page(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
+			post(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
 		}
 		';
 

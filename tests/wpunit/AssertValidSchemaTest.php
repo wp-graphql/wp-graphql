@@ -52,14 +52,14 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => '
 			{
-			  __type(name: "RootQuery") {
-			    name
-			  }
-			  __schema {
-			    queryType {
-			      name
-			    }
-			  }
+				__type(name: "RootQuery") {
+					name
+				}
+				__schema {
+					queryType {
+						name
+					}
+				}
 			}
 			',
 		]);
@@ -86,14 +86,14 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => '
 			{
-			  __type(name: "RootQuery") {
-			    name
-			  }
-			  __schema {
-			    queryType {
-			      name
-			    }
-			  }
+				__type(name: "RootQuery") {
+					name
+				}
+				__schema {
+					queryType {
+						name
+					}
+				}
 			}
 			',
 		]);
@@ -113,14 +113,14 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => '
 			{
-			  __type(name: "RootQuery") {
-			    name
-			  }
-			  __schema {
-			    queryType {
-			      name
-			    }
-			  }
+				__type(name: "RootQuery") {
+					name
+				}
+				__schema {
+					queryType {
+						name
+					}
+				}
 			}
 			',
 		]);
@@ -164,13 +164,13 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetEnum($name:String!){
-		  __type(name: $name) {
-		    name
-		    kind
-		    enumValues {
-		      name
-		    }
-		  }
+			__type(name: $name) {
+				name
+				kind
+				enumValues {
+					name
+				}
+			}
 		}
 		';
 
@@ -381,7 +381,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		{
 			header {
-				test  
+				test	
 			}
 		}
 		';
@@ -415,7 +415,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		{
 			wpSendJson {
-				test  
+				test	
 			}
 		}
 		';
@@ -446,11 +446,11 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		// New way to register:
 		// register_graphql_object_type( 'Test', [
-		//  'fields' => [
-		//    'test' => [
-		//       'type' => 'String',
-		//    ],
-		//  ],
+		//	'fields' => [
+		//		'test' => [
+		//			 'type' => 'String',
+		//		],
+		//	],
 		// ] );
 
 		register_graphql_field( 'RootQuery', 'test', [
@@ -459,14 +459,14 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		// New way to register
 		// register_graphql_field( 'RootQuery', 'test', [
-		//   'type' => 'Test'
+		//	 'type' => 'Test'
 		// ]);
 
 		$query = '
 		{
-		  test {
-		    test
-		  }
+			test {
+				test
+			}
 		}
 		';
 

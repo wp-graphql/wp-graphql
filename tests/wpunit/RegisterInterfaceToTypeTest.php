@@ -46,16 +46,16 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$query = '
 		query GetType($name:String!) {
-		  __type(name: $name) {
-		    name
-		    kind
-		    interfaces {
-		      name
-		    }
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $name) {
+				name
+				kind
+				interfaces {
+					name
+				}
+				fields {
+					name
+				}
+			}
 		}
 		';
 
@@ -115,16 +115,16 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$query = '
 		query GetType($name:String!) {
-		  __type(name: $name) {
-		    name
-		    kind
-		    interfaces {
-		      name
-		    }
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $name) {
+				name
+				kind
+				interfaces {
+					name
+				}
+				fields {
+					name
+				}
+			}
 		}
 		';
 

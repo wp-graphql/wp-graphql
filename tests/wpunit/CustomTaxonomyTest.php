@@ -30,6 +30,8 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
+		unregister_post_type( 'test_custom_tax_cpt' );
+		unregister_taxonomy( 'test_custom_tax' );
 		WPGraphQL::clear_schema();
 
 		parent::tearDown();

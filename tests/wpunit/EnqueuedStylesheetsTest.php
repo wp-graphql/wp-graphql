@@ -116,8 +116,8 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 	public function get_enqueued_assets_fragment() {
 		return '
 		fragment EnqueuedStyleFragment on EnqueuedStylesheet {
-	      handle
-	      src
+			handle
+			src
 		}
 		';
 	}
@@ -136,14 +136,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query PageById( $id: ID! ) {
-		  page( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			page( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -172,14 +172,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query postById( $id: ID! ) {
-		  post( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			post( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -208,14 +208,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query testEnqueueCpt( $id: ID! ) {
-		  testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			testEnqueueCpt( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -244,14 +244,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query tagById( $id: ID! ) {
-		  tag( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			tag( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -280,14 +280,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query catById( $id: ID! ) {
-		  category( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			category( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -316,14 +316,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query catById( $id: ID! ) {
-		  category( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			category( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -352,14 +352,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query userById( $id: ID! ) {
-		  user( id: $id, idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			user( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 
@@ -388,14 +388,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query mediaItem( $id: ID! ) {
-		  mediaItem( id: $id idType: DATABASE_ID ) {
-		    databaseId
-		    enqueuedStylesheets {
-		      nodes {
-		        ...EnqueuedStyleFragment
-		      }
-		    }
-		  }
+			mediaItem( id: $id idType: DATABASE_ID ) {
+				databaseId
+				enqueuedStylesheets {
+					nodes {
+						...EnqueuedStyleFragment
+					}
+				}
+			}
 		}
 		' . $fragment;
 

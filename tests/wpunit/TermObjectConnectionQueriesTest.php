@@ -96,14 +96,14 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					cursor
 					node {
 						id
-                        categoryId
-				        name
-				        description
-				        slug
+												categoryId
+								name
+								description
+								slug
 					}
 				}
 				nodes {
-				  categoryId
+					categoryId
 				}
 			}
 		}';
@@ -280,14 +280,14 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetCategoriesWithCustomOrder( $order:OrderEnum ){
-		  categories( where: { orderby: COUNT order: $order } ) {
-		    nodes {
-		      id
-		      databaseId
-		      name
-		      count
-		    }
-		  }
+			categories( where: { orderby: COUNT order: $order } ) {
+				nodes {
+					id
+					databaseId
+					name
+					count
+				}
+			}
 		}
 		';
 

@@ -70,7 +70,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
-	 * @param  int $count Number of posts to create.
+	 * @param   int $count Number of posts to create.
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
@@ -134,17 +134,17 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query getPosts(\$cursor: String) {
 			posts(after: \$cursor, first: $posts_per_page, where: {author: {$this->admin}}) {
-			  pageInfo {
+				pageInfo {
 				endCursor
-			  }
-			  edges {
-				node {
-				  title
-				  postId
 				}
-			  }
+				edges {
+				node {
+					title
+					postId
+				}
+				}
 			}
-		  }
+			}
 		";
 
 		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );

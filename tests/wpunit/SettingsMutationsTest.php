@@ -149,94 +149,94 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 		if ( is_multisite() ) {
 			$mutation = '
 				mutation updateSettings( $input: UpdateSettingsInput! ){
-				  updateSettings( input: $input ) {
-				    clientMutationId
-				    allSettings {
-				      discussionSettingsDefaultCommentStatus
-				      discussionSettingsDefaultPingStatus
-				      generalSettingsDateFormat
-				      generalSettingsDescription
-				      generalSettingsLanguage
-				      generalSettingsStartOfWeek
-				      generalSettingsTimeFormat
-				      generalSettingsTimezone
-				      generalSettingsTitle
-				      readingSettingsPostsPerPage
-				      writingSettingsDefaultCategory
-				      writingSettingsDefaultPostFormat
-				      writingSettingsUseSmilies
-				    }
-				    discussionSettings {
-				      defaultCommentStatus
-				      defaultPingStatus
-				    }
-				    generalSettings {
-				      dateFormat
-				      description
-				      language
-				      startOfWeek
-				      timeFormat
-				      timezone
-				      title
-				    }
-				    readingSettings {
-				      postsPerPage
-				    }
-				    writingSettings {
-				      defaultCategory
-				      defaultPostFormat
-				      useSmilies
-				    }
-				  }
+					updateSettings( input: $input ) {
+						clientMutationId
+						allSettings {
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
+						}
+						discussionSettings {
+							defaultCommentStatus
+							defaultPingStatus
+						}
+						generalSettings {
+							dateFormat
+							description
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
+						}
+						readingSettings {
+							postsPerPage
+						}
+						writingSettings {
+							defaultCategory
+							defaultPostFormat
+							useSmilies
+						}
+					}
 				}
 			';
 
 		} else {
 			$mutation = '
 				mutation updateSettings( $input: UpdateSettingsInput! ){
-				  updateSettings( input: $input ) {
-				    clientMutationId
-				    allSettings {
-				      discussionSettingsDefaultCommentStatus
-				      discussionSettingsDefaultPingStatus
-				      generalSettingsDateFormat
-				      generalSettingsDescription
-				      generalSettingsEmail
-				      generalSettingsLanguage
-				      generalSettingsStartOfWeek
-				      generalSettingsTimeFormat
-				      generalSettingsTimezone
-				      generalSettingsTitle
-				      generalSettingsUrl
-				      readingSettingsPostsPerPage
-				      writingSettingsDefaultCategory
-				      writingSettingsDefaultPostFormat
-				      writingSettingsUseSmilies
-				    }
-				    discussionSettings {
-				      defaultCommentStatus
-				      defaultPingStatus
-				    }
-				    generalSettings {
-				      dateFormat
-				      description
-				      email
-				      language
-				      startOfWeek
-				      timeFormat
-				      timezone
-				      title
-				      url
-				    }
-				    readingSettings {
-				      postsPerPage
-				    }
-				    writingSettings {
-				      defaultCategory
-				      defaultPostFormat
-				      useSmilies
-				    }
-				  }
+					updateSettings( input: $input ) {
+						clientMutationId
+						allSettings {
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsEmail
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							generalSettingsUrl
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
+						}
+						discussionSettings {
+							defaultCommentStatus
+							defaultPingStatus
+						}
+						generalSettings {
+							dateFormat
+							description
+							email
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
+							url
+						}
+						readingSettings {
+							postsPerPage
+						}
+						writingSettings {
+							defaultCategory
+							defaultPostFormat
+							useSmilies
+						}
+					}
 				}
 			';
 
@@ -289,10 +289,10 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$query  = '
 			query {
 				allSettings {
-				    generalSettingsEmail
+						generalSettingsEmail
 				}
-		    }
-	    ';
+				}
+			';
 		$actual = do_graphql_request( $query );
 		$this->assertArrayHasKey( 'errors', $actual );
 
@@ -480,14 +480,14 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		mutation updateSettings( $input: UpdateSettingsInput! ) {
-		  updateSettings( input: $input ) { 
-		    allSettings {
-		      mySettingGroupSettingsMySettingField
-		    }
-		    mySettingGroupSettings {
-		      mySettingField
-		    }
-		  }
+			updateSettings( input: $input ) { 
+				allSettings {
+					mySettingGroupSettingsMySettingField
+				}
+				mySettingGroupSettings {
+					mySettingField
+				}
+			}
 		}
 		';
 
