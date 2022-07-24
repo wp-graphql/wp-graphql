@@ -92,19 +92,19 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 			$query = '
 				query {
 					allSettings {
-							discussionSettingsDefaultCommentStatus
-							discussionSettingsDefaultPingStatus
-							generalSettingsDateFormat
-							generalSettingsDescription
-							generalSettingsLanguage
-							generalSettingsStartOfWeek
-							generalSettingsTimeFormat
-							generalSettingsTimezone
-							generalSettingsTitle
-							readingSettingsPostsPerPage
-							writingSettingsDefaultCategory
-							writingSettingsDefaultPostFormat
-							writingSettingsUseSmilies
+						discussionSettingsDefaultCommentStatus
+						discussionSettingsDefaultPingStatus
+						generalSettingsDateFormat
+						generalSettingsDescription
+						generalSettingsLanguage
+						generalSettingsStartOfWeek
+						generalSettingsTimeFormat
+						generalSettingsTimezone
+						generalSettingsTitle
+						readingSettingsPostsPerPage
+						writingSettingsDefaultCategory
+						writingSettingsDefaultPostFormat
+						writingSettingsUseSmilies
 					}
 				}
 			';
@@ -112,21 +112,21 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 			$query = '
 				query {
 					allSettings {
-							discussionSettingsDefaultCommentStatus
-							discussionSettingsDefaultPingStatus
-							generalSettingsDateFormat
-							generalSettingsDescription
-							generalSettingsEmail
-							generalSettingsLanguage
-							generalSettingsStartOfWeek
-							generalSettingsTimeFormat
-							generalSettingsTimezone
-							generalSettingsTitle
-							generalSettingsUrl
-							readingSettingsPostsPerPage
-							writingSettingsDefaultCategory
-							writingSettingsDefaultPostFormat
-							writingSettingsUseSmilies
+						discussionSettingsDefaultCommentStatus
+						discussionSettingsDefaultPingStatus
+						generalSettingsDateFormat
+						generalSettingsDescription
+						generalSettingsEmail
+						generalSettingsLanguage
+						generalSettingsStartOfWeek
+						generalSettingsTimeFormat
+						generalSettingsTimezone
+						generalSettingsTitle
+						generalSettingsUrl
+						readingSettingsPostsPerPage
+						writingSettingsDefaultCategory
+						writingSettingsDefaultPostFormat
+						writingSettingsUseSmilies
 					}
 				}
 			';

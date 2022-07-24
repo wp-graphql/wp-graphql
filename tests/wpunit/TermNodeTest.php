@@ -462,7 +462,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				name
 				slug
 				...on Category {
-						categoryId
+					categoryId
 				}
 			}
 		}
@@ -546,7 +546,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				name
 				slug
 				...on Category {
-						categoryId
+					categoryId
 				}
 			}
 		}
@@ -588,7 +588,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				name
 				slug
 				...on Category {
-						categoryId
+					categoryId
 				}
 			}
 		}
@@ -634,7 +634,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				name
 				slug
 				...on Category {
-						categoryId
+					categoryId
 				}
 				uri
 			}

@@ -53,7 +53,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				nodes {
 					__typename
 					...on Post {
-							id
+						id
 						postId
 						title
 						content
@@ -106,16 +106,16 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				nodes {
 					__typename
 					...on Post {
-							id
+						id
 						postId
 						title
 						content
 						revisionOf {
 							node {
-							__typename
-							...on Post {
-								postId
-							}
+								__typename
+								...on Post {
+									postId
+								}
 							}
 						}
 					}
@@ -171,8 +171,8 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query PostBy ($postId: Int) {
 			postBy(postId: $postId) {
-					__typename
-					id
+				__typename
+				id
 				postId
 				title
 				content
@@ -181,10 +181,10 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						__typename
 						revisionOf {
 							node {
-							__typename
-							...on Post {
-								postId
-							}
+								__typename
+								...on Post {
+									postId
+								}
 							}
 						}
 					}

@@ -290,10 +290,10 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$query  = '
 			query {
 				allSettings {
-						generalSettingsEmail
+					generalSettingsEmail
 				}
-				}
-			';
+			}
+		';
 		$actual = $this->graphql( compact( 'query' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
 

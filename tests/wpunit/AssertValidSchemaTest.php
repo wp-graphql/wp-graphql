@@ -81,8 +81,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		wp_set_current_user( $admin );
 
-		$actual = $this->graphql([
-			'query' => '
+		$query = '
 			{
 				__type(name: "RootQuery") {
 					name
@@ -93,8 +92,9 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 					}
 				}
 			}
-			',
-		]);
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -106,8 +106,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$settings['public_introspection_enabled'] = 'on';
 		update_option( 'graphql_general_settings', $settings );
 
-		$actual = $this->graphql([
-			'query' => '
+		$query = '
 			{
 				__type(name: "RootQuery") {
 					name
@@ -118,8 +117,9 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 					}
 				}
 			}
-			',
-		]);
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -371,7 +371,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$query = '
 		{
 			header {
-				test	
+				test
 			}
 		}
 		';
@@ -403,7 +403,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$query = '
 		{
 			wpSendJson {
-				test	
+				test
 			}
 		}
 		';

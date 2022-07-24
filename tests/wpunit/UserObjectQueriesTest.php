@@ -222,7 +222,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Post for	UserQueryWithComments',
+			'post_title'  => 'Post for UserQueryWithComments',
 			'post_author' => $this->admin,
 		]);
 

@@ -70,7 +70,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
-	 * @param   int $count Number of posts to create.
+	 * @param int $count Number of posts to create.
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
@@ -138,10 +138,10 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				endCursor
 				}
 				edges {
-				node {
-					title
-					postId
-				}
+					node {
+						title
+						postId
+					}
 				}
 			}
 			}

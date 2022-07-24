@@ -61,7 +61,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query    = '{
 			__type(name: "TestScalar") {
-					kind
+				kind
 			}
 		}';
 		$response = $this->graphql( compact( 'query' ) );
@@ -87,7 +87,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$fields = $response['data']['__schema']['queryType']['fields'];
 
 		$test_scalar = array_filter( $fields, function ( $field ) {
-			return $field['type']['name'] === 'TestScalar' && $field['type']['kind'] === 'SCALAR' ? $field : null;
+			return 'TestScalar' === $field['type']['name'] && 'SCALAR' === $field['type']['kind'] ? $field : null;
 		} );
 
 		$this->assertNotEmpty( $test_scalar );
@@ -189,7 +189,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Assert that `testTest` exists in the $names (the field was properly registered)
 		 */
-		$this->assertTrue( in_array( 'testTest', $names ) );
+		$this->assertTrue( in_array( 'testTest', $names, true ) );
 
 		/**
 		 * Cleanup
@@ -411,10 +411,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-		 {
+		{
 			graphqlInResolver
-		 }
-		 ';
+		}
+		';
 
 		$actual = $this->graphql([
 			'query' => $query,
@@ -450,10 +450,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-		 {
+		{
 			graphqlInResolver
-		 }
-		 ';
+		}
+		';
 
 		$actual = $this->graphql([
 			[
@@ -614,7 +614,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		mutation {
 			authCallbackMutation(input:{ clientMutationId: "test" }) {
 				test
-				}
+			}
 		}
 		';
 
@@ -668,7 +668,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		mutation {
 			isPrivateMutation(input:{ clientMutationId: "test" }) {
 				test
-				}
+			}
 		}
 		';
 

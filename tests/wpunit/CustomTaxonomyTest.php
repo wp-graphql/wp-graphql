@@ -49,16 +49,16 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query GET_CUSTOM_TAX_TERMS {
-		  bootstrapTerms {
-		    nodes {
-		      bootstrapTermId
-		    }
-		    edges {
-		      node {
-		        bootstrapTermId
-		      }
-		    }
-		  }
+			bootstrapTerms {
+				nodes {
+					bootstrapTermId
+				}
+				edges {
+					node {
+						bootstrapTermId
+					}
+				}
+			}
 		}
 		';
 
@@ -94,21 +94,21 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query TaxonomyChildren {
-		  bootstrapTerms(where:{parent:0}) {
-		    nodes {
+			bootstrapTerms(where:{parent:0}) {
+				nodes {
 			name
-			  children {
-				  nodes {
-					  name
-				  }
-			  }
-		    }
-		  }
-		  bootstrapPosts {
-			  nodes {
-				  title
-			  }
-		  }
+				children {
+					nodes {
+						name
+					}
+				}
+				}
+			}
+			bootstrapPosts {
+				nodes {
+					title
+				}
+			}
 		}
 		';
 
@@ -139,19 +139,19 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query GET_CUSTOM_TAX_TERMS( $id: ID! ) {
-		  aircraft( id: $id idType: DATABASE_ID ) {
-			databaseId
-		  }
-		  allAircraft {
-			nodes {
-			  databaseId
-			}
-			edges {
-			  node {
+			aircraft( id: $id idType: DATABASE_ID ) {
 				databaseId
-			  }
 			}
-		  }
+			allAircraft {
+				nodes {
+					databaseId
+				}
+				edges {
+					node {
+					databaseId
+					}
+				}
+			}
 		}
 		';
 

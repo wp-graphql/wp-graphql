@@ -43,7 +43,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			page(id: $uri, idType: URI) {
 				__typename
 				id
-					slug
+				slug
 				databaseId
 				uri
 			}

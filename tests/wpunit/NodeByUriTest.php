@@ -153,7 +153,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}
 		';
-		$uri   = wp_make_link_relative( get_permalink( $this->page ) );
+
+		$uri = wp_make_link_relative( get_permalink( $this->page ) );
 
 		codecept_debug( $uri );
 
@@ -224,6 +225,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
 
 		$this->set_permalink_structure( '' );
+
 		$uri = wp_make_link_relative( get_permalink( $this->custom_type ) );
 
 		codecept_debug( $uri );
@@ -652,9 +654,9 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		{
 			nodeByUri(uri:"/about") {
-				 __typename
-				 id
-				 uri
+				__typename
+				id
+				uri
 			}
 		}
 		';
