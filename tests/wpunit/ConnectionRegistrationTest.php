@@ -19,25 +19,25 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function testRegisteringConnectionsFromTypeRegistrationAddsConnectionsToSchema() {
 
 		register_graphql_object_type( 'TestTypeWithOneToOneConnection', [
-			'fields' => [
+			'fields'      => [
 				'id' => [
-					'type' => 'ID'
+					'type' => 'ID',
 				],
 			],
 			'connections' => [
 				'connectedPosts' => [
 					'toType' => 'Post',
 				],
-				'connectedPost' => [
-					'toType' => 'Post',
+				'connectedPost'  => [
+					'toType'   => 'Post',
 					'oneToOne' => true,
-				]
-			]
+				],
+			],
 		]);
 
 		register_graphql_connection( [
-			'fromType' => 'RootQuery',
-			'toType' => 'TestTypeWithOneToOneConnection',
+			'fromType'      => 'RootQuery',
+			'toType'        => 'TestTypeWithOneToOneConnection',
 			'fromFieldName' => 'testTypeConnection',
 		]);
 
@@ -67,7 +67,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// But since there's no data for the connection, we can safely assert the response
 		// should be null, but with no errors
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testTypeConnection', self::IS_NULL )
+			$this->expectedField( 'testTypeConnection', self::IS_NULL ),
 		] );
 
 	}
@@ -78,17 +78,17 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function testRegisteringConnectionWithArgsAllowsArgsToBeUsedInQuery() {
 
 		register_graphql_object_type( 'Test', [
-			'fields' => [
+			'fields'      => [
 				'test' => [
-					'type' => 'String'
-				]
+					'type' => 'String',
+				],
 			],
 			'connections' => [
 				'testPostConnection' => [
-					'toType' => 'Post',
+					'toType'         => 'Post',
 					'connectionArgs' => [
 						'testInput' => [
-							'type' => 'String'
+							'type' => 'String',
 						],
 					],
 				],
@@ -112,18 +112,18 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		';
 
 		$variables = [
-			'testInput' => 'test'
+			'testInput' => 'test',
 		];
 
 		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables
+			'query'     => $query,
+			'variables' => $variables,
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'test', self::IS_NULL )
+			$this->expectedField( 'test', self::IS_NULL ),
 		]);
 
 	}

@@ -83,7 +83,7 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'authorUri'   => 'https://wordpress.org/',
 				'description' => $theme->description,
 				'id'          => $global_id,
-				'name'        => $theme->get('Name'),
+				'name'        => $theme->get( 'Name' ),
 				'screenshot'  => $theme->get_screenshot(),
 				'slug'        => $theme->get_stylesheet(),
 				'tags'        => $theme->tags,
@@ -130,19 +130,19 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$expected_errors = [
 			[
-				'message'   => 'No theme was found with the stylesheet: doesNotExist',
-				'locations' => [
+				'message'    => 'No theme was found with the stylesheet: doesNotExist',
+				'locations'  => [
 					[
 						'line'   => 3,
 						'column' => 4,
 					],
 				],
-				'path'      => [
+				'path'       => [
 					'theme',
 				],
 				'extensions' => [
-					'category'  => 'user',
-				]
+					'category' => 'user',
+				],
 			],
 		];
 

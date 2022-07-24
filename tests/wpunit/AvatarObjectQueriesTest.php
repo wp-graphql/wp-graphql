@@ -9,7 +9,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->admin = $this->factory()->user->create( [
 			'role'       => 'admin',
-			'user_email' => 'test@test.com'
+			'user_email' => 'test@test.com',
 		] );
 
 		// Create a published post for the author so it is public in the API.
@@ -37,7 +37,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
-		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
+		add_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ], 10, 1 );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -92,7 +92,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
-		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
+		remove_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ] );
 	}
 
 	/**
@@ -110,7 +110,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
-		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
+		add_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ], 10, 1 );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -163,7 +163,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected, $actual['data'] );
 
 		// Clean up filter usage.
-		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
+		remove_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ] );
 	}
 
 	/**
@@ -182,8 +182,8 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		// Override avatar url to match $this->avatar_test_url()
-		add_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ), 10, 1 );
-		add_filter( 'get_avatar_data', array( $this, 'fake_unfound_avatar' ) );
+		add_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ], 10, 1 );
+		add_filter( 'get_avatar_data', [ $this, 'fake_unfound_avatar' ] );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -209,17 +209,16 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = graphql([ 'query' => $query ] );
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
-
 
 		$this->assertEmpty( $actual['data']['user']['avatar']['foundAvatar'] );
 		$this->assertSame( $this->avatar_test_url( null ), $actual['data']['user']['avatar']['url'] );
 
 		// Clean up filter usage.
-		remove_filter( 'get_avatar_url', array( $this, 'avatar_test_url' ) );
-		remove_filter( 'get_avatar_data', array( $this, 'fake_unfound_avatar' ) );
+		remove_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ] );
+		remove_filter( 'get_avatar_data', [ $this, 'fake_unfound_avatar' ] );
 	}
 
 	public function avatar_test_url( $url ) {

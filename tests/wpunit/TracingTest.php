@@ -16,10 +16,10 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testQueryWithTracingEnabledForAnyUser() {
 
 		// enable tracing for any user
-		$settings = get_option( 'graphql_general_settings', [] );
-		$settings['tracing_enabled'] = 'on';
+		$settings                      = get_option( 'graphql_general_settings', [] );
+		$settings['tracing_enabled']   = 'on';
 		$settings['tracing_user_role'] = 'any';
-		update_option( 'graphql_general_settings', $settings  );
+		update_option( 'graphql_general_settings', $settings );
 
 		$query = '
 		{
@@ -32,7 +32,7 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$response = $this->graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $response );
@@ -45,10 +45,10 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testQueryByGraphqlIdWorksWithTracingEnabled() {
 
 		// enable tracing for any user
-		$settings = get_option( 'graphql_general_settings', [] );
-		$settings['tracing_enabled'] = 'on';
+		$settings                      = get_option( 'graphql_general_settings', [] );
+		$settings['tracing_enabled']   = 'on';
 		$settings['tracing_user_role'] = 'any';
-		update_option( 'graphql_general_settings', $settings  );
+		update_option( 'graphql_general_settings', $settings );
 
 		$query = '
 		{
@@ -61,7 +61,7 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$response = $this->graphql([
-			'queryId' => $query
+			'queryId' => $query,
 		]);
 
 		codecept_debug( $response );

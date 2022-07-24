@@ -15,83 +15,83 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 		$users = [
 			[
-				'role' => 'administrator',
+				'role'      => 'administrator',
 				'user_data' => [
 					'user_nicename' => 'Admin Nicename',
-					'user_login' => 'administrator',
-					'user_pass' => 'admin',
-					'user_url' => 'http://admin.com',
-					'user_email' => 'admin@admin.com',
-					'display_name' => 'Admin Display',
-					'nickname' => 'Admin Nickname',
-					'first_name' => 'Admin First',
-					'last_name' => 'Admin Last',
-					'description' => 'Admin desc',
-					'rich_editing' => false,
+					'user_login'    => 'administrator',
+					'user_pass'     => 'admin',
+					'user_url'      => 'http://admin.com',
+					'user_email'    => 'admin@admin.com',
+					'display_name'  => 'Admin Display',
+					'nickname'      => 'Admin Nickname',
+					'first_name'    => 'Admin First',
+					'last_name'     => 'Admin Last',
+					'description'   => 'Admin desc',
+					'rich_editing'  => false,
 				],
 			],
 			[
-				'role' => 'author',
+				'role'      => 'author',
 				'user_data' => [
 					'user_nicename' => 'Author Nicename',
-					'user_login' => 'author',
-					'user_pass' => 'author',
-					'user_url' => 'http://author.com',
-					'user_email' => 'author@author.com',
-					'display_name' => 'Author Display',
-					'nickname' => 'Author Nickname',
-					'first_name' => 'Author First',
-					'last_name' => 'Author Last',
-					'description' => 'Author desc',
-					'rich_editing' => false,
+					'user_login'    => 'author',
+					'user_pass'     => 'author',
+					'user_url'      => 'http://author.com',
+					'user_email'    => 'author@author.com',
+					'display_name'  => 'Author Display',
+					'nickname'      => 'Author Nickname',
+					'first_name'    => 'Author First',
+					'last_name'     => 'Author Last',
+					'description'   => 'Author desc',
+					'rich_editing'  => false,
 				],
 			],
 			[
-				'role' => 'contributor',
+				'role'      => 'contributor',
 				'user_data' => [
 					'user_nicename' => 'Contributor Nicename',
-					'user_login' => 'contributor',
-					'user_pass' => 'contributor',
-					'user_url' => 'http://contributor.com',
-					'user_email' => 'contributor@contributor.com',
-					'display_name' => 'Contributor Display',
-					'nickname' => 'Contributor Nickname',
-					'first_name' => 'Contributor First',
-					'last_name' => 'Contributor Last',
-					'description' => 'Contributor desc',
-					'rich_editing' => false,
+					'user_login'    => 'contributor',
+					'user_pass'     => 'contributor',
+					'user_url'      => 'http://contributor.com',
+					'user_email'    => 'contributor@contributor.com',
+					'display_name'  => 'Contributor Display',
+					'nickname'      => 'Contributor Nickname',
+					'first_name'    => 'Contributor First',
+					'last_name'     => 'Contributor Last',
+					'description'   => 'Contributor desc',
+					'rich_editing'  => false,
 				],
 			],
 			[
-				'role' => 'editor',
+				'role'      => 'editor',
 				'user_data' => [
 					'user_nicename' => 'Editor Nicename',
-					'user_login' => 'editor',
-					'user_pass' => 'editor',
-					'user_url' => 'http://editor.com',
-					'user_email' => 'editor@editor.com',
-					'display_name' => 'Editor Display',
-					'nickname' => 'Editor Nickname',
-					'first_name' => 'Editor First',
-					'last_name' => 'Editor Last',
-					'description' => 'Editor desc',
-					'rich_editing' => false,
+					'user_login'    => 'editor',
+					'user_pass'     => 'editor',
+					'user_url'      => 'http://editor.com',
+					'user_email'    => 'editor@editor.com',
+					'display_name'  => 'Editor Display',
+					'nickname'      => 'Editor Nickname',
+					'first_name'    => 'Editor First',
+					'last_name'     => 'Editor Last',
+					'description'   => 'Editor desc',
+					'rich_editing'  => false,
 				],
 			],
 			[
-				'role' => 'subscriber',
+				'role'      => 'subscriber',
 				'user_data' => [
 					'user_nicename' => 'Subscriber Nicename',
-					'user_login' => 'subscriber',
-					'user_pass' => 'subscriber',
-					'user_url' => 'http://subscriber.com',
-					'user_email' => 'subscriber@subscriber.com',
-					'display_name' => 'Subscriber Display',
-					'nickname' => 'Subscriber Nickname',
-					'first_name' => 'Subscriber First',
-					'last_name' => 'Subscriber Last',
-					'description' => 'Subscriber desc',
-					'rich_editing' => false,
+					'user_login'    => 'subscriber',
+					'user_pass'     => 'subscriber',
+					'user_url'      => 'http://subscriber.com',
+					'user_email'    => 'subscriber@subscriber.com',
+					'display_name'  => 'Subscriber Display',
+					'nickname'      => 'Subscriber Nickname',
+					'first_name'    => 'Subscriber First',
+					'last_name'     => 'Subscriber Last',
+					'description'   => 'Subscriber desc',
+					'rich_editing'  => false,
 				],
 			],
 		];
@@ -108,12 +108,12 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 			 * Create a post published by the user
 			 */
 			$this->factory()->post->create([
-				'post_title' => 'Post by ' . $user['role'],
+				'post_title'  => 'Post by ' . $user['role'],
 				'post_status' => 'publish',
-				'post_author' => $id
+				'post_author' => $id,
 			]);
 
-			$this->userIds[] = $id;
+			$this->userIds[]         = $id;
 			$user['user_data']['ID'] = $id;
 
 			wp_update_user( $user['user_data'] );
@@ -154,7 +154,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$variables = [
-			'ids' => $this->userIds
+			'ids' => $this->userIds,
 		];
 
 		/**
@@ -200,12 +200,12 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes']  );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
 
 	}
 
@@ -224,12 +224,12 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes']  );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][2]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][2]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][2]['roles']['nodes'] );
 
 	}
 
@@ -248,12 +248,12 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes']  );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['roles']['nodes'] );
 
 	}
 
@@ -277,7 +277,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['email'] );
-		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['roles']['nodes']  );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['roles']['nodes'] );
 
 	}
 }
