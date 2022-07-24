@@ -16,7 +16,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 		$pageId = $this->factory()->post->create([
 			'post_status' => 'publish',
 			'post_type'   => 'page',
-			'post_title'  => 'Test title',
+			'post_title'  => 'Test title for ReplaceString',
 		]);
 
 		add_filter( 'graphql_pre_resolve_field', function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
@@ -58,7 +58,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 		$pageId = $this->factory()->post->create([
 			'post_status'  => 'publish',
 			'post_type'    => 'page',
-			'post_title'   => 'Test title',
+			'post_title'   => 'Test title for PresolveToNull',
 			'post_content' => 'Test content',
 		]);
 
@@ -101,7 +101,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 		$pageId = $this->factory()->post->create([
 			'post_status' => 'publish',
 			'post_type'   => 'page',
-			'post_title'  => 'Test Front Page',
+			'post_title'  => 'Test Front Page for PreresolveToFalse',
 		]);
 
 		/**

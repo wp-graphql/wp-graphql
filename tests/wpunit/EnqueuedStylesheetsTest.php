@@ -34,14 +34,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 			'user_role'  => 'author',
 		] );
 
-		register_post_type( 'test_enqueue_cpt', [
+		register_post_type( 'test_style_cpt', [
 			'public'              => true,
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestEnqueueCpt',
 			'graphql_plural_name' => 'TestEnqueueCpts',
 		] );
 
-		register_taxonomy( 'test_enqueue_tax', [ 'test_enqueue_cpt' ], [
+		register_taxonomy( 'test_style_tax', [ 'test_style_cpt' ], [
 			'public'              => true,
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestEnqueueTax',
@@ -59,14 +59,14 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$this->custom_tax_id = $this->factory()->term->create( [
-			'taxonomy' => 'test_enqueue_tax',
+			'taxonomy' => 'test_style_tax',
 			'name'     => uniqid(),
 		] );
 
 		$this->page_id = $this->factory()->post->create( [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Page',
+			'post_title'   => 'Test Page for EnqueuedStylesheetsTest',
 			'post_author'  => $this->author_id,
 			'post_excerpt' => '',
 		] );
@@ -74,7 +74,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		$this->post_id = $this->factory()->post->create( [
 			'post_type'     => 'post',
 			'post_status'   => 'publish',
-			'post_title'    => 'Test Post',
+			'post_title'    => 'Test Post for EnqueuedStylesheetsTest',
 			'post_category' => [ $this->category_id ],
 			'tags_input'    => [ $this->tag_id ],
 			'post_author'   => $this->author_id,
@@ -85,9 +85,9 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
 
 		$this->custom_post_id = $this->factory()->post->create( [
-			'post_type'    => 'test_enqueue_cpt',
+			'post_type'    => 'test_style_cpt',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Page',
+			'post_title'   => 'Test CPT for EnqueuedStylesheetsTest',
 			'post_excerpt' => 'Test excerpt',
 		] );
 
@@ -105,8 +105,8 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		wp_delete_post( $this->page_id, true );
 		wp_delete_post( $this->custom_post_id, true );
 		wp_delete_attachment( $this->media_id, true );
-		unregister_post_type( 'test_enqueue_cpt' );
-		unregister_taxonomy( 'test_enqueue_tax' );
+		unregister_post_type( 'test_style_cpt' );
+		unregister_taxonomy( 'test_style_tax' );
 		$GLOBALS['post']       = null;
 		$GLOBALS['authordata'] = null;
 		parent::tearDown();
@@ -387,7 +387,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		$fragment = $this->get_enqueued_assets_fragment();
 
 		$query = '
-		query mediaItem( $id: ID!  ) {
+		query mediaItem( $id: ID! ) {
 		  mediaItem( id: $id idType: DATABASE_ID ) {
 		    databaseId
 		    enqueuedStylesheets {
@@ -450,7 +450,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		$another_page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => uniqid(),
+			'post_title'  => 'Test Style for unique' . uniqid(),
 		] );
 
 		$actual = $this->get_page_query( $another_page_id );
@@ -467,7 +467,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on POSTS
 		$actual = $this->get_post_query( $this->post_id );
 
-		 codecept_debug( $actual );
+		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
@@ -628,7 +628,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_style( $handle, $src );
-			if ( is_singular( [ 'post', 'test_enqueue_cpt' ] ) ) {
+			if ( is_singular( [ 'post', 'test_style_cpt' ] ) ) {
 				wp_enqueue_style( $handle );
 			}
 

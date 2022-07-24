@@ -10,18 +10,18 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 
 		register_post_type(
-			'bootstrap_cpt',
+			'cpt_test_cpt',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapPost',
 				'graphql_plural_name' => 'bootstrapPosts',
 				'hierarchical'        => true,
-				'taxonomies'          => [ 'bootstrap_tax' ],
+				'taxonomies'          => [ 'cpt_test_tax' ],
 			]
 		);
 		register_taxonomy(
-			'bootstrap_tax',
-			[ 'bootstrap_cpt' ],
+			'cpt_test_tax',
+			[ 'cpt_test_cpt' ],
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapTerm',
@@ -31,9 +31,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->post_id = $this->factory()->post->create([
-			'post_type'   => 'bootstrap_cpt',
+			'post_type'   => 'cpt_test_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for CustomPostTypeTest',
 		]);
 
 		$this->admin = $this->factory()->user->create([
@@ -44,7 +44,6 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		parent::tearDown();
-
 	}
 
 	/**
@@ -105,7 +104,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryNonPublicPostTypeThatIsPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
+		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
@@ -114,9 +113,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$database_id = $this->factory()->post->create([
-			'post_type'   => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPublicyQueryable',
 		]);
 
 		$query = '
@@ -174,7 +173,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryPublicPostTypeThatIsNotPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
+		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
@@ -183,9 +182,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$database_id = $this->factory()->post->create([
-			'post_type'   => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPublicyQueryable',
 		]);
 
 		$query = '
@@ -227,7 +226,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryNonPublicPostTypeThatIsNotPublicyQueryable() {
 
-		register_post_type( 'non_public_cpt', [
+		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'notPublic',
 			'graphql_plural_name' => 'notPublics',
@@ -236,9 +235,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$database_id = $this->factory()->post->create([
-			'post_type'   => 'non_public_cpt',
+			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPublicyQueryable',
 		]);
 
 		$query = '
@@ -304,7 +303,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$GLOBALS['wp_rewrite']->init();
 
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -319,16 +318,16 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules();
 
 		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryCustomPostTypeByUri',
 			'post_author' => $this->admin,
 		]);
 
 		$child_post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title'  => 'Child Post',
+			'post_title'  => 'Child Post for QueryCustomPostTypeByUri',
 			'post_author' => $this->admin,
 		]);
 
@@ -390,7 +389,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$GLOBALS['wp_rewrite']->init();
 
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -405,16 +404,16 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules();
 
 		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryCustomPostTypeByDatabaseId',
 			'post_author' => $this->admin,
 		]);
 
 		$child_post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title'  => 'Child Post',
+			'post_title'  => 'Child Post for QueryCustomPostTypeByDatabaseId',
 			'post_author' => $this->admin,
 		]);
 
@@ -469,7 +468,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
 		register_post_type(
-			'test_cpt',
+			'test_cpt_by_uri',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'testCpt',
@@ -481,9 +480,9 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt',
+			'post_type'   => 'test_cpt_by_uri',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for QueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName',
 			'post_author' => $this->admin,
 		]);
 

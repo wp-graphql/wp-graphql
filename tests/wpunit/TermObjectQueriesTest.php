@@ -249,19 +249,19 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Create a comment and assign it to term.
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
-			'post_title'  => uniqid(),
+			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
 			'post_status' => 'publish',
 		] );
 
 		codecept_debug( $post_id );
 		$page_id  = $this->factory()->post->create( [
 			'post_type'   => 'page',
-			'post_title'  => uniqid(),
+			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
 			'post_status' => 'publish',
 		] );
 		$media_id = $this->factory()->post->create( [
 			'post_type'   => 'attachment',
-			'post_title'  => uniqid(),
+			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
 			'post_status' => 'publish',
 		] );
 

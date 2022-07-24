@@ -55,14 +55,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for QueryContentNodesOfManyTypes',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for QueryContentNodesOfManyTypes',
 			'post_author' => $this->admin,
 		] );
 
@@ -147,14 +147,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for ContentNodeFieldByDatabaseId',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for testContentNodeFieldByDatabaseId',
 			'post_author' => $this->admin,
 		] );
 
@@ -211,14 +211,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for ContentNodeFieldByUri',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for ContentNodeFieldByUri',
 			'post_author' => $this->admin,
 		] );
 
@@ -277,14 +277,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for ContentNodeFieldById',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for ContentNodeFieldById',
 			'post_author' => $this->admin,
 		] );
 
@@ -319,14 +319,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for ContentNodeFieldByQueryArgUri ',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Post for ContentNodeFieldByQueryArgUri',
 			'post_author' => $this->admin,
 		] );
 
@@ -359,28 +359,28 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	public function testContentNodeFieldBySlug() {
 
 		$post_types = [
-			'book' => [
+			'by_slug_book' => [
 				'public'              => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'book',
 				'graphql_plural_name' => 'books',
-				'label'               => 'Books',
+				'label'               => 'By Slug Books',
 			],
-			'test' => [
+			'by_slug_test' => [
 				'public'              => false,
 				'publicly_queryable'  => true,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'test',
 				'graphql_plural_name' => 'tests',
-				'label'               => 'Tests',
+				'label'               => 'By Slug Tests',
 			],
-			'cat'  => [
+			'by_slug_cat'  => [
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'cat',
 				'graphql_plural_name' => 'cats',
-				'label'               => 'Cats',
+				'label'               => 'By Slug Cats',
 			],
 		];
 
@@ -389,41 +389,41 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$post_id_book = $this->factory()->post->create( [
-			'post_type'   => 'book',
+			'post_type'   => 'by_slug_book',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Post',
+			'post_title'  => 'Test Book for ContentNodeFieldBySlug',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id_test = $this->factory()->post->create( [
-			'post_type'   => 'test',
+			'post_type'   => 'by_slug_test',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Test',
+			'post_title'  => 'Test Test for ContentNodeFieldBySlug',
 			'post_author' => $this->admin,
 		] );
 
 		$post_id_cat = $this->factory()->post->create( [
-			'post_type'   => 'cat',
+			'post_type'   => 'by_slug_cat',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Cat',
+			'post_title'  => 'Test Cat for ContentNodeFieldBySlug',
 			'post_author' => $this->admin,
 		] );
 
 		$query = '
 			{
-				book(id: "test-post", idType: SLUG) {
+				book(id: "test-book-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					bookId
 				},
-				test(id: "test-test", idType: SLUG) {
+				test(id: "test-test-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					testId
 				},
-				cat(id: "test-cat", idType: SLUG) {
+				cat(id: "test-cat-for-contentnodefieldbyslug", idType: SLUG) {
 					__typename
 					catId
 				}
-		    }
+			}
 		';
 
 		$actual = graphql( [

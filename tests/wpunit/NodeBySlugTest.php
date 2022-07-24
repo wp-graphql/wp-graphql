@@ -14,7 +14,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		WPGraphQL::clear_schema();
 
-		register_post_type('custom_type', [
+		register_post_type('by_slug_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
@@ -37,14 +37,14 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$this->post = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for NodeBySlugTest',
 			'post_author' => $this->user,
 		] );
 
 		$this->custom_type = $this->factory()->post->create( [
-			'post_type'   => 'custom_type',
+			'post_type'   => 'by_slug_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for NodeBySlugTest',
 			'post_author' => $this->user,
 		] );
 
@@ -54,7 +54,8 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 
-		unregister_post_type( 'custom_type' );
+		unregister_post_type( 'by_slug_cpt' );
+		unregister_post_type( 'faq' );
 		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
@@ -81,12 +82,12 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$post = get_post( $this->post );
 
 		$query = '
-        query GET_POST_BY_URI( $slug: ID! ) {
-           post(id: $slug, idType: SLUG) {
-                databaseId
-                title
-           }
-		}
+			query GET_POST_BY_URI( $slug: ID! ) {
+				post(id: $slug, idType: SLUG) {
+					databaseId
+					title
+				}
+			}
 		';
 
 		codecept_debug( get_post( $this->post ) );
@@ -132,12 +133,12 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$post = get_post( $this->custom_type );
 
 		$query = '
-        query GET_POST_BY_URI( $slug: ID! ) {
-           customType(id: $slug, idType: SLUG) {
-                databaseId
-                title
-           }
-		}
+			query GET_POST_BY_URI( $slug: ID! ) {
+				customType(id: $slug, idType: SLUG) {
+					databaseId
+					title
+				}
+			}
 		';
 
 		codecept_debug( get_post( $this->custom_type ) );

@@ -98,7 +98,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_content' => 'Test page content',
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
+			'post_title'   => 'Test Title for PostObjectQueriesTest',
 			'post_type'    => 'post',
 			'post_date'    => $this->current_date,
 		];
@@ -253,12 +253,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'status'          => 'publish',
 				'link'            => get_permalink( $post_id ),
 				'postId'          => $post_id,
-				'slug'            => 'test-title',
+				'slug'            => 'test-title-for-postobjectqueriestest',
 				'toPing'          => null,
 				'pinged'          => null,
 				'modified'        => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
 				'modifiedGmt'     => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
-				'title'           => apply_filters( 'the_title', 'Test Title' ),
+				'title'           => apply_filters( 'the_title', 'Test Title for PostObjectQueriesTest' ),
 				'guid'            => get_post( $post_id )->guid,
 				'featuredImage'   => [
 					'node' => [
@@ -676,7 +676,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_author' => $this->admin,
-			'post_title'  => 'test post',
+			'post_title'  => 'Test Post for PostQueryWithCategories',
 		] );
 
 		// Create a comment and assign it to post.
@@ -746,7 +746,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'post',
-			'post_title' => 'This is a title, yo',
+			'post_title' => 'Test Post for PostByIdQuery',
 		] );
 
 		/**
@@ -776,7 +776,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'postBy' => [
 				'id'    => $global_id,
-				'title' => 'This is a title, yo',
+				'title' => 'Test Post for PostByIdQuery',
 			],
 		];
 
@@ -794,7 +794,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$post_id = $this->createPostObject( [
 			'post_type'  => 'post',
-			'post_title' => 'This is a title, yo',
+			'post_title' => 'Test post for PostByUriQuery',
 		] );
 
 		/**
@@ -826,7 +826,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'postBy' => [
 				'id'    => $global_id,
-				'title' => 'This is a title, yo',
+				'title' => 'Test post for PostByUriQuery',
 			],
 		];
 
@@ -845,14 +845,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$parent_id = $this->createPostObject( [
 			'post_type'   => 'page',
 			'post_type'   => 'page',
-			'post_title'  => 'Parent Page',
+			'post_title'  => 'Parent Page for PageByUri',
 			'post_name'   => 'parent-page',
 			'post_status' => 'publish',
 		] );
 
 		$child_id = $this->createPostObject( [
 			'post_type'   => 'page',
-			'post_title'  => 'Child Page',
+			'post_title'  => 'Child Page for PageByUri',
 			'post_name'   => 'child-page',
 			'post_parent' => $parent_id,
 			'post_status' => 'publish',
@@ -897,7 +897,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'pageBy' => [
 				'id'    => $global_child_id,
-				'title' => 'Child Page',
+				'title' => 'Child Page for PageByUri',
 				'uri'   => $uri,
 			],
 		];
@@ -915,7 +915,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->createPostObject( [
 			'post_type'   => 'page',
-			'post_title'  => 'Page Dawg',
+			'post_title'  => 'Page for PageByQueries',
 			'post_author' => $this->admin,
 			'post_status' => 'publish',
 		] );
@@ -1059,7 +1059,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$page_id = $this->createPostObject( [
 			'post_type'  => 'page',
-			'post_title' => 'A Test Page',
+			'post_title' => 'Test for PostByQueryWithIDForADifferentType',
 		] );
 
 		/**
@@ -1166,7 +1166,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEquals( 'Test page content', $graphql_query_data['data']['post']['content'] );
 		$this->assertEquals( 'Test excerpt', $graphql_query_data['data']['post']['excerpt'] );
-		$this->assertEquals( 'Test Title', $graphql_query_data['data']['post']['title'] );
+		$this->assertEquals( 'Test Title for PostObjectQueriesTest', $graphql_query_data['data']['post']['title'] );
 	}
 
 	/**
@@ -1454,7 +1454,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->factory()->post->create( [
 			'post_status'  => 'private',
-			'post_content' => 'Test',
+			'post_content' => 'Test private posts',
 		] );
 
 		/**
@@ -1503,7 +1503,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$user = $this->{$user};
 		}
 
-		$title     = 'Content from author: ' . (string) $author;
+		$title     = 'RestrictedPost from author: ' . (string) $author;
 		$content   = 'Test Content';
 		$post_date = time();
 
@@ -1839,7 +1839,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Node',
+			'post_title'  => 'Test for QueryPostUsingIDType',
 		]);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
@@ -1930,7 +1930,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$page_id = $this->factory()->post->create([
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Node',
+			'post_title'  => 'Test for QueryPageUsingIDType',
 		]);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $page_id ) );
@@ -2047,8 +2047,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryPasswordProtectedPost() {
 
-		$title   = 'Test Title ' . uniqid();
-		$content = 'Test Content ' . uniqid();
+		$title   = 'Test Title for QueryPasswordProtectedPost' . uniqid();
+		$content = 'Test Content for QueryPasswordProtectedPost' . uniqid();
 
 		$this->factory()->post->create([
 			'post_type'     => 'post',
@@ -2313,14 +2313,14 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query BlockAndPageByUri($uri:ID!){
-		  page(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
-		  block(id:$uri idType:URI) {
-		    __typename
-		    databaseId
-		  }
+			page(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
+			block(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
 		}
 		';
 

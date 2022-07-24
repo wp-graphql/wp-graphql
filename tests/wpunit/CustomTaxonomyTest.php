@@ -5,18 +5,18 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 
 		register_post_type(
-			'bootstrap_cpt',
+			'test_custom_tax_cpt',
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapPost',
 				'graphql_plural_name' => 'bootstrapPosts',
 				'hierarchical'        => true,
-				'taxonomies'          => [ 'bootstrap_tax' ],
+				'taxonomies'          => [ 'test_custom_tax' ],
 			]
 		);
 		register_taxonomy(
-			'bootstrap_tax',
-			[ 'bootstrap_cpt' ],
+			'test_custom_tax',
+			[ 'test_custom_tax_cpt' ],
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'bootstrapTerm',
@@ -40,7 +40,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 	public function testQueryCustomTaxomomy() {
 
 		$id = $this->factory()->term->create( [
-			'taxonomy' => 'bootstrap_tax',
+			'taxonomy' => 'test_custom_tax',
 			'name'     => 'Honda',
 		] );
 
@@ -72,20 +72,20 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		// Just create a post of the same cpt to expose issue #905
 		$this->factory()->post->create( [
-			'post_content' => 'Test page content',
+			'post_content' => 'Test post content',
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
-			'post_type'    => 'bootstrap_cpt',
+			'post_title'   => 'Test Post QueryCustomTaxomomyChildren',
+			'post_type'    => 'test_custom_tax_cpt',
 		] );
 
 		$parent_id = $this->factory()->term->create( [
-			'taxonomy' => 'bootstrap_tax',
+			'taxonomy' => 'test_custom_tax',
 			'name'     => 'parent',
 		] );
 
 		$child_id = $this->factory()->term->create( [
-			'taxonomy' => 'bootstrap_tax',
+			'taxonomy' => 'test_custom_tax',
 			'name'     => 'child',
 			'parent'   => $parent_id,
 		] );
@@ -123,7 +123,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 	public function testQueryCustomTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
 		register_taxonomy(
 			'aircraft',
-			[ 'bootstrap_cpt' ],
+			[ 'test_custom_tax_cpt' ],
 			[
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'aircraft',

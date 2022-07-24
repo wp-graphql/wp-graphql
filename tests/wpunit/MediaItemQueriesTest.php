@@ -37,7 +37,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_content' => 'Test page content',
 			'post_excerpt' => 'Test excerpt',
 			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
+			'post_title'   => 'Test Post for MediaItemQueriesTest',
 			'post_type'    => 'post',
 			'post_date'    => $this->current_date,
 		];

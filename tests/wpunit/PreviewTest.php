@@ -27,7 +27,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->post = $this->factory()->post->create([
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Published Post',
+			'post_title'   => 'Published Post For PreviewTest',
 			'post_content' => 'Published Content',
 			'post_author'  => $this->admin,
 		]);
@@ -40,7 +40,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->preview = $this->factory()->post->create([
 			'post_status'  => 'inherit',
-			'post_title'   => 'Preview Post',
+			'post_title'   => 'Preview Post for PreviewTest',
 			'post_content' => 'Preview Content',
 			'post_type'    => 'revision',
 			'post_parent'  => $this->post,

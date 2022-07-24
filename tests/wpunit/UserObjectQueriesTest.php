@@ -224,7 +224,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Post for commenting...',
+			'post_title'  => 'Post for  UserQueryWithComments',
 			'post_author' => $this->admin,
 		]);
 
@@ -1570,7 +1570,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$published_users[] = $author_id;
 			$this->factory()->post->create([
 				'post_status' => 'publish',
-				'post_title'  => $letter . '_Post',
+				'post_title'  => $letter . '_Post for UserQueryWithComments',
 				'post_author' => $author_id,
 				'role'        => 'administrator',
 			]);

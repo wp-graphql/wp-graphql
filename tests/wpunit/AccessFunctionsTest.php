@@ -141,13 +141,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRegisterInputField() {
 
 		/**
-		 * Register Test CPT
+		 * Register Register Input Field CPT
 		 */
-		register_post_type( 'test_cpt', [
-			'label'               => __( 'Test CPT', 'wp-graphql' ),
+		register_post_type( 'access_functions_cpt', [
+			'label'               => __( 'Register Input Field CPT', 'wp-graphql' ),
 			'labels'              => [
-				'name'          => __( 'Test CPT', 'wp-graphql' ),
-				'singular_name' => __( 'Test CPT', 'wp-graphql' ),
+				'name'          => __( 'Register Input Field CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Input Field CPT', 'wp-graphql' ),
 			],
 			'description'         => __( 'test-post-type', 'wp-graphql' ),
 			'supports'            => [ 'title' ],
@@ -195,7 +195,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Cleanup
 		 */
 		deregister_graphql_field( 'RootQueryToTestCptConnectionWhereArgs', 'testTest' );
-		unregister_post_type( 'test_cpt' );
+		unregister_post_type( 'access_functions_cpt' );
 		WPGraphQL::clear_schema();
 
 	}

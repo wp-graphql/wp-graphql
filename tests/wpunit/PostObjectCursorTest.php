@@ -33,7 +33,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'post_content'  => 'Test page content',
 			'post_excerpt'  => 'Test excerpt',
 			'post_status'   => 'publish',
-			'post_title'    => 'Test Title',
+			'post_title'    => 'Test Title for PostObjectCursorTest',
 			'post_type'     => 'post',
 			'post_date'     => $this->current_date,
 			'has_password'  => false,
@@ -113,7 +113,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		 $query = new WP_Query( $args );
+		$query = new WP_Query( $args );
 
 		foreach ( $query->posts as $post ) {
 			wp_delete_post( $post->ID, true );

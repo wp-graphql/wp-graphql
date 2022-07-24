@@ -14,14 +14,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		WPGraphQL::clear_schema();
 
-		register_post_type('custom_type', [
+		register_post_type('by_uri_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
 			'public'              => true,
 		]);
 
-		register_taxonomy( 'custom_tax', 'custom_type', [
+		register_taxonomy( 'by_uri_tax', 'by_uri_cpt', [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
@@ -47,27 +47,27 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->custom_taxonomy = $this->factory()->term->create([
-			'taxonomy' => 'custom_tax',
+			'taxonomy' => 'by_uri_tax',
 		]);
 
 		$this->post = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
 
 		$this->page = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test Page for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
 
 		$this->custom_type = $this->factory()->post->create( [
-			'post_type'   => 'custom_type',
+			'post_type'   => 'by_uri_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test Page',
+			'post_title'  => 'Test CPT for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
 
@@ -77,7 +77,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 
-		unregister_post_type( 'custom_type' );
+		unregister_post_type( 'by_uri_cpt' );
+		unregister_taxonomy( 'by_uri_tax' );
 		WPGraphQL::clear_schema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
@@ -170,7 +171,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
@@ -241,7 +242,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_post_type_object( 'custom_type' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
 
 	}
@@ -342,8 +343,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_taxonomy( 'custom_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
 
 	}
@@ -496,14 +497,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$parent = $this->factory()->post->create([
 			'post_type'    => 'test_hierarchical',
-			'post_title'   => 'test',
+			'post_title'   => 'Test for HierarchicalCptNodesByUri',
 			'post_content' => 'test',
 			'post_status'  => 'publish',
 		]);
 
 		$child = $this->factory()->post->create([
 			'post_type'    => 'test_hierarchical',
-			'post_title'   => 'child',
+			'post_title'   => 'Test child for HierarchicalCptNodesByUri',
 			'post_content' => 'child',
 			'post_parent'  => $parent,
 			'post_status'  => 'publish',
@@ -583,13 +584,13 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query NodeByUri( $uri: String! ) {
-		  nodeByUri( uri: $uri ) {
-		     uri
-		     __typename
-		     ...on DatabaseIdentifier {
-		       databaseId
-		     }
-		  }
+			nodeByUri( uri: $uri ) {
+				uri
+				__typename
+				...on DatabaseIdentifier {
+					databaseId
+				}
+			}
 		}
 		';
 

@@ -89,7 +89,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->factory()->post->create([
 			'post_status' => 'publish',
 			'post_author' => $admin,
-			'post_title'  => 'test',
+			'post_title'  => 'Test Filters',
 		]);
 
 		set_current_user( $admin );

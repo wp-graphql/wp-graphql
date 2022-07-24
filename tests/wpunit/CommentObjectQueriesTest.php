@@ -31,7 +31,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Post for commenting...',
+			'post_title'  => 'Post for CommentObjectQueries',
 			'post_author' => $this->admin,
 		]);
 
@@ -55,9 +55,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * passed through
 		 */
 		$args = array_merge( $defaults, $args );
-
-		codecept_debug( $args );
-		codecept_debug( get_post( $post_id ) );
 
 		/**
 		 * Create the page

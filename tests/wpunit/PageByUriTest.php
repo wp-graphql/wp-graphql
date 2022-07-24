@@ -15,7 +15,7 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->page = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title'  => 'PageByUriTest',
+			'post_title'  => 'Test PageByUriTest',
 			'post_author' => $this->user,
 		] );
 
@@ -80,4 +80,3 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( str_ireplace( home_url(), '', get_permalink( $this->page ) ), $actual['data']['page']['uri'] );
 	}
 }
-

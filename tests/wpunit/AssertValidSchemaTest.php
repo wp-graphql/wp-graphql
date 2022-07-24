@@ -138,32 +138,28 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_single_name' => 'TestContentType',
 			'graphql_plural_name' => 'TestContentTypes',
 			'public'              => true,
-			'label'               => 'Test Content Type, Yo',
+			'label'               => 'Content Types of Taxonomy',
 		] );
 
-		register_post_type( 'not_in_graphql', [
+		register_post_type( 'test_cpt_excluded', [
 			'public' => true,
+			'label'  => 'Content Types Not in GraphQL',
 		] );
 
-		register_taxonomy( 'test_taxonomy', [ 'test_content_type', 'not_in_graphql' ], [
+		register_taxonomy( 'test_ct_tax_one', [ 'test_content_type', 'test_cpt_excluded' ], [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestTaxonomy',
 			'graphql_plural_name' => 'TestTaxonomies',
 			'public'              => true,
-			'label'               => 'Test Taxonomy, Yo',
+			'label'               => 'Content Types of Tax One',
 		]);
 
-		register_post_type( 'not_in_graphql', [
-			'public' => true,
-			'label'  => 'Not in GraphQL Test',
-		] );
-
-		register_taxonomy( 'test_taxonomy_two', [ 'not_in_graphql' ], [
+		register_taxonomy( 'test_ct_tax_two', [ 'test_cpt_excluded' ], [
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestTaxonomyTwo',
 			'graphql_plural_name' => 'TestTaxonomieTwos',
 			'public'              => true,
-			'label'               => 'Test Taxonomy Two, Yo',
+			'label'               => 'Content Types of Tax Two',
 		]);
 
 		$query = '
@@ -209,10 +205,9 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $actual['data']['__type'] );
 
 		unregister_post_type( 'test_content_type' );
-		unregister_post_type( 'not_in_graphql' );
-		unregister_taxonomy( 'test_taxonomy' );
-		unregister_post_type( 'not_in_graphql' );
-		unregister_taxonomy( 'test_taxonomy_two' );
+		unregister_post_type( 'test_cpt_excluded' );
+		unregister_taxonomy( 'test_ct_tax_one' );
+		unregister_taxonomy( 'test_ct_tax_two' );
 
 	}
 

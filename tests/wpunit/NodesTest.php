@@ -31,7 +31,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test page content',
-			'post_title'   => 'Test Page Title',
+			'post_title'   => 'Test Page Title for NodeQueryWithVariables',
 			'post_type'    => 'page',
 			'post_author'  => $this->admin,
 		];
@@ -99,7 +99,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test page content',
-			'post_title'   => 'Test Page Title',
+			'post_title'   => 'Test Page Title for PageNodeQuery',
 			'post_type'    => 'page',
 			'post_author'  => $this->admin,
 		];
@@ -155,7 +155,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test post content',
-			'post_title'   => 'Test post Title',
+			'post_title'   => 'Test post Title for PostNodeQuery',
 			'post_type'    => 'post',
 			'post_author'  => $this->admin,
 		];
@@ -195,7 +195,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$args = [
 			'post_status'  => 'inherit',
 			'post_content' => 'Test attachment content',
-			'post_title'   => 'Test attachment Title',
+			'post_title'   => 'Test attachment Title for AttachmentNodeQuery',
 			'post_type'    => 'attachment',
 			'post_author'  => $this->admin,
 		];
@@ -410,7 +410,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$post_id = $this->factory()->post->create([
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Post for commenting...',
+			'post_title'  => 'Post for CommentNodeQuery',
 			'post_author' => $this->admin,
 		]);
 

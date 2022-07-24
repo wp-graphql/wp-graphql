@@ -40,7 +40,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory()->post->create( [
 			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for PostTypeQueryForPosts',
 		] );
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -222,9 +222,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostTypeQueryForPages() {
 
 		$this->factory()->post->create( [
-			'post_type'   => 'Page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_type'    => 'Page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test for PostTypeQueryForPages',
+			'post_content' => 'Test post type query for pages',
 		] );
 
 		/**
@@ -336,15 +337,16 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostTypeQueryForMedia() {
 
 		$post_id = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test PostTypeQueryForMedia',
+			'post_content' => __FUNCTION__,
 		] );
 
 		$this->factory()->post->create( [
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test attachment for PostTypeQueryForMedia',
 			'post_parent' => $post_id,
 		] );
 
