@@ -90,8 +90,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 			}
 		';
 
-		codecept_debug( get_post( $this->post ) );
-
 		$actual = graphql([
 			'query'     => $query,
 			'variables' => [
@@ -140,8 +138,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 					 }
 		}
 		';
-
-			codecept_debug( get_post( $this->custom_type ) );
 
 			$actual = graphql([
 				'query'     => $query,
@@ -198,8 +194,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-			codecept_debug( get_post( $this->custom_type ) );
-
 			$faqPost = get_post( $this->custom_type );
 
 			$actual = graphql([
@@ -223,8 +217,6 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 					 }
 		}
 		';
-
-			codecept_debug( get_post( $this->custom_type ) );
 
 			$faqPage   = get_post( $this->page );
 			$permalink = get_permalink( $faqPage );

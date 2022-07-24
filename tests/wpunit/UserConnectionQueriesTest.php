@@ -107,8 +107,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Run the GraphQL Query
 		$expected = ( new WP_User_Query( $wp_variables ) )->get_results();
-		codecept_debug( 'expected' );
-		codecept_debug( $expected );
+
 		$actual = $this->usersQuery( $variables );
 
 		$this->assertValidPagination( $expected, $actual );
@@ -489,16 +488,12 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertEquals( 2, count( $actual['data']['users']['edges'] ) );
 		$expected = array_values( $expected );
 
-		codecept_debug( $expected );
-
 		$first_user_id  = $expected[0];
 		$second_user_id = $expected[1];
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_user_id );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_user_id );
 
-		codecept_debug( 'start: ' . $first_user_id . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_user_id . ' cursor:' . $end_cursor );
 		$this->assertEquals( $first_user_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first_user_id, $actual['data']['users']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $start_cursor, $actual['data']['users']['edges'][0]['cursor'] );

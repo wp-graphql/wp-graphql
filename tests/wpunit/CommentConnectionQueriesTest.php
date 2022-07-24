@@ -173,9 +173,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( 'expected' );
-		codecept_debug( $expected );
-
 		$this->markTestIncomplete( 'works until here' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
@@ -268,9 +265,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected = $wp_query->query( $query_args );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( 'expected' );
-		codecept_debug( $expected );
-
 		$this->markTestIncomplete( 'works fine until here' );
 
 		$this->assertValidPagination( $expected, $actual );
@@ -344,7 +338,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected = $actual['data']['comments']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( $expected );
 		$this->markTestIncomplete( 'works until here' );
 
 		$this->assertIsValidQueryResponse( $actual );
@@ -443,9 +436,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_comment->comment_ID );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_comment->comment_ID );
-
-		codecept_debug( 'start: ' . $first_comment->comment_ID . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $first_comment->comment_ID . ' cursor:' . $end_cursor );
 
 		$this->assertEquals( $first_comment->comment_ID, $actual['data']['comments']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first_comment->comment_ID, $actual['data']['comments']['nodes'][0]['databaseId'] );

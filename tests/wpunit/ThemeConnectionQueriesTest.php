@@ -201,8 +201,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$theme_slug = $expected['nodes'][0]['slug'];
 		$cursor     = $this->toRelayId( 'arrayconnection', $theme_slug );
 
-		codecept_debug( 'slug: ' . $theme_slug . ' cursor:' . $cursor );
-
 		$this->assertEquals( $theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
 		$this->assertEquals( $theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
 		$this->assertEquals( $cursor, $actual['data']['themes']['edges'][0]['cursor'] );
@@ -308,8 +306,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
 		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
 
-		codecept_debug( $expected );
-
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Theres only one item, so we cant assertValidPagination()
@@ -320,8 +316,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$theme_slug = $expected['nodes'][0]['slug'];
 		$cursor     = $this->toRelayId( 'arrayconnection', $theme_slug );
-
-		codecept_debug( 'slug: ' . $theme_slug . ' cursor:' . $cursor );
 
 		$this->assertEquals( $theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
 		$this->assertEquals( $theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
@@ -419,8 +413,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['themes']['edges'] ) );
-		codecept_debug( 'expected' );
-		codecept_debug( $expected );
 
 		$first_theme_slug  = $expected['nodes'][0]['slug'];
 		$second_theme_slug = $expected['nodes'][1]['slug'];
@@ -428,8 +420,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_theme_slug );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_theme_slug );
 
-		codecept_debug( 'start: ' . $first_theme_slug . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_theme_slug . ' cursor:' . $end_cursor );
 		$this->assertEquals( $first_theme_slug, $actual['data']['themes']['edges'][0]['node']['slug'] );
 		$this->assertEquals( $first_theme_slug, $actual['data']['themes']['nodes'][0]['slug'] );
 		$this->assertEquals( $start_cursor, $actual['data']['themes']['edges'][0]['cursor'] );

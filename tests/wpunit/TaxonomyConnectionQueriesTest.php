@@ -136,10 +136,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$expected = array_slice( $wp_query, 2, 2, false );
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( 'expected failing tax forward:' );
-		codecept_debug( $wp_query );
-		codecept_debug( $expected );
-
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasNextPage'] );
@@ -316,9 +312,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_taxonomy );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_taxonomy );
-
-		codecept_debug( 'start: ' . $first_taxonomy . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_taxonomy . ' cursor:' . $end_cursor );
 
 		$this->assertEquals( $first_taxonomy, $actual['data']['taxonomies']['edges'][0]['node']['name'] );
 		$this->assertEquals( $first_taxonomy, $actual['data']['taxonomies']['nodes'][0]['name'] );

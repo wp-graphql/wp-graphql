@@ -660,8 +660,6 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_post_id );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_post_id );
 
-		codecept_debug( 'start: ' . $first_post_id . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_post_id . ' cursor:' . $end_cursor );
 		$this->assertEquals( $first_post_id, $actual['data']['posts']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first_post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $start_cursor, $actual['data']['posts']['edges'][0]['cursor'] );

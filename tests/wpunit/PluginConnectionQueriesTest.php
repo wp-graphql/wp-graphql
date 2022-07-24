@@ -144,8 +144,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$plugin_path = $expected['nodes'][0]['path'];
 		$cursor      = $this->toRelayId( 'arrayconnection', $plugin_path );
 
-		codecept_debug( 'path: ' . $plugin_path . ' cursor:' . $cursor );
-
 		$this->assertEquals( $plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
 		$this->assertEquals( $plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );
 		$this->assertEquals( $cursor, $actual['data']['plugins']['edges'][0]['cursor'] );
@@ -259,8 +257,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$plugin_path = $expected['nodes'][0]['path'];
 		$cursor      = $this->toRelayId( 'arrayconnection', $plugin_path );
-
-		codecept_debug( 'path: ' . $plugin_path . ' cursor:' . $cursor );
 
 		$this->assertEquals( $plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
 		$this->assertEquals( $plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );
@@ -432,9 +428,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_plugin_path );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_plugin_path );
-
-		codecept_debug( 'start: ' . $first_plugin_path . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_plugin_path . ' cursor:' . $end_cursor );
 
 		$this->assertEquals( $first_plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
 		$this->assertEquals( $first_plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );

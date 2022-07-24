@@ -318,9 +318,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_content_type );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_content_type );
 
-		codecept_debug( 'start: ' . $first_content_type . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_content_type . ' cursor:' . $end_cursor );
-
 		$this->assertEquals( $first_content_type, $actual['data']['contentTypes']['edges'][0]['node']['name'] );
 		$this->assertEquals( $first_content_type, $actual['data']['contentTypes']['nodes'][0]['name'] );
 		$this->assertEquals( $start_cursor, $actual['data']['contentTypes']['edges'][0]['cursor'] );

@@ -467,8 +467,6 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on POSTS
 		$actual = $this->get_post_query( $this->post_id );
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
 		$styles = $actual['data']['post']['enqueuedStylesheets']['nodes'];

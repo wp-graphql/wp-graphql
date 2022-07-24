@@ -391,9 +391,6 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first->term_id );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second->term_id );
 
-		codecept_debug( 'start: ' . $first->term_id . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second->term_id . ' cursor:' . $end_cursor );
-
 		$this->assertEquals( $first->term_id, $actual['data']['menus']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first->term_id, $actual['data']['menus']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $start_cursor, $actual['data']['menus']['edges'][0]['cursor'] );

@@ -310,8 +310,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_plugin_handle );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_plugin_handle );
 
-		codecept_debug( 'start: ' . $first_plugin_handle . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_plugin_handle . ' cursor:' . $end_cursor );
 		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
 		$this->assertEquals( $start_cursor, $actual['data']['registeredScripts']['edges'][0]['cursor'] );

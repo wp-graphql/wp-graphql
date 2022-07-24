@@ -663,8 +663,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script IS enqueued on posts
 		$actual = $this->get_custom_post_query( $this->custom_post_id );
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// codecept_debug( $actual );
 		$scripts = $actual['data']['testEnqueueCpt']['enqueuedScripts']['nodes'];

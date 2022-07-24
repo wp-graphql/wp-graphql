@@ -370,9 +370,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_user_role_name );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_user_role_name );
 
-		codecept_debug( 'start: ' . $first_user_role_name . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_user_role_name . ' cursor:' . $end_cursor );
-
 		$this->assertEquals( $first_user_role_name, $actual['data']['userRoles']['edges'][0]['node']['name'] );
 		$this->assertEquals( $first_user_role_name, $actual['data']['userRoles']['nodes'][0]['name'] );
 		$this->assertEquals( $start_cursor, $actual['data']['userRoles']['edges'][0]['cursor'] );

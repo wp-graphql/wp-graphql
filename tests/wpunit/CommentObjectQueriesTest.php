@@ -56,9 +56,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$args = array_merge( $defaults, $args );
 
-		codecept_debug( $args );
-		codecept_debug( get_post( $post_id ) );
-
 		/**
 		 * Create the page
 		 */

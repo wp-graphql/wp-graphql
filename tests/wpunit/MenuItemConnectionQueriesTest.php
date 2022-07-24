@@ -718,8 +718,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		codecept_debug( 'expected' );
-		codecept_debug( $expected );
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -731,8 +729,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_post_id );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_post_id );
 
-		codecept_debug( 'start: ' . $first_post_id . ' cursor:' . $start_cursor );
-		codecept_debug( 'end: ' . $second_post_id . ' cursor:' . $end_cursor );
 		$this->assertEquals( $first_post_id, $actual['data']['menuItems']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first_post_id, $actual['data']['menuItems']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $start_cursor, $actual['data']['menuItems']['edges'][0]['cursor'] );
