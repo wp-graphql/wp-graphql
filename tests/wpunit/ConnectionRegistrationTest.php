@@ -115,12 +115,10 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'testInput' => 'test',
 		];
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => $variables,
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedField( 'test', self::IS_NULL ),

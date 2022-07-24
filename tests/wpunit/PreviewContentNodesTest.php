@@ -1,5 +1,5 @@
 <?php
-class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
+class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $with_post_type;
@@ -112,7 +112,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_parent' => $draft_id,
 		]);
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
@@ -127,17 +127,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $revision_id, $preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $preview['data']['node']['title'] );
 
-		codecept_debug( $preview );
-
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 
@@ -168,7 +164,7 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author' => $this->admin,
 		]);
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
@@ -181,17 +177,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $draft_id, $preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $preview['data']['node']['title'] );
 
-		codecept_debug( $preview );
-
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 		$this->assertSame( 'WithoutRevisionSupport', $not_preview['data']['node']['__typename'] );
@@ -232,15 +224,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_parent' => $draft_id,
 		]);
 
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $not_preview );
 
@@ -251,15 +241,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// the preview id should be the id of the revision since the post_type supports revisions
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
 			],
 		]);
-
-		codecept_debug( $preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 
@@ -302,15 +290,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 
 		// since the post type does not support revisions, a revision is not created
 
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $not_preview );
 		$this->assertSame( 'WithoutRevisionSupport', $not_preview['data']['node']['__typename'] );
@@ -321,15 +307,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// the post_type does not support revisions, so there shouldn't be a revision ID.
 		$this->assertNull( $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
 			],
 		]);
-
-		codecept_debug( $preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 
@@ -379,15 +363,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_parent' => $published_id,
 		]);
 
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $not_preview );
 		$this->assertSame( 'WithRevisionSupport', $not_preview['data']['node']['__typename'] );
@@ -397,15 +379,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// the preview id should be the id of the autosave revision
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => true,
 			],
 		]);
-
-		codecept_debug( $preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 
@@ -459,15 +439,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_parent' => $published_id,
 		]);
 
-		$not_preview = graphql([
+		$not_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => false,
 			],
 		]);
-
-		codecept_debug( $not_preview );
 
 		$this->assertArrayNotHasKey( 'errors', $not_preview );
 		$this->assertSame( 'WithoutRevisionSupport', $not_preview['data']['node']['__typename'] );
@@ -477,15 +455,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// the preview id should be the id of the autosave revision
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
-		$preview = graphql([
+		$preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => true,
 			],
 		]);
-
-		codecept_debug( $preview );
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
 

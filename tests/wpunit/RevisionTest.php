@@ -1,6 +1,6 @@
 <?php
 
-class RevisionTest extends \Codeception\TestCase\WPTestCase {
+class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $subscriber;
@@ -63,9 +63,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ] );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * This query should not return any revisions because
@@ -126,9 +124,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ] );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * This query should NOT error, because the user is asking for
@@ -197,14 +193,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'postId' => $post_id,
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * This query should NOT error, because the user is asking for

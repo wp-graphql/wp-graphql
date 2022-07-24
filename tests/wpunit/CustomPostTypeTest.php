@@ -1,6 +1,6 @@
 <?php
 
-class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
+class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
 	public $admin;
@@ -29,7 +29,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->post_id = $this->factory()->post->create([
 			'post_type'   => 'cpt_test_cpt',
@@ -46,7 +46,7 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		unregister_post_type( 'cpt_test_cpt' );
 		unregister_taxonomy( 'cpt_test_tax' );
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		parent::tearDown();
 	}
@@ -93,14 +93,13 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// An authenticated user should be able to access the content
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $this->post_id,
 			],
 		]);
 
-		codecept_debug( $actual );
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPostBy']['bootstrapPostId'] );
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['nodes'][0]['bootstrapPostId'] );
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['edges'][0]['node']['bootstrapPostId'] );
@@ -144,14 +143,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $database_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
@@ -160,14 +157,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// make sure the query is from a logged in user
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $database_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		// A logged in user should be able to see the data as well!
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -213,14 +208,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $database_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		// Since the post_type is public we should see data, even if it's set to publicly_queryable=>false, as public=>true should trump publicly_queryable
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -266,14 +259,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $database_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		// Since the post_type is public=>false / publicly_queryable=>false, the content should be null for a public user
 		$this->assertEmpty( $actual['data']['contentNode'] );
@@ -283,14 +274,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		// Log the user in and do the request again
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $database_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		// The admin user should be able to see the content
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -352,14 +341,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $uri );
 
 		// Query a parent (top-level) post by URI
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $uri,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -369,14 +356,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		$child_uri = get_permalink( $child_post_id );
 
 		// Query a child post of CPT by uri
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $child_uri,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -433,36 +418,26 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$uri = get_permalink( $post_id );
-
-		codecept_debug( $uri );
-
-		// Query a parent (top-level) post by URI
-		$actual = graphql([
+		// Query a parent (top-level) post by DatabaseId
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $post_id,
 			],
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( 'TestCpt', $actual['data']['testCpt']['__typename'] );
 		$this->assertSame( $post_id, $actual['data']['testCpt']['databaseId'] );
 
-		$child_uri = get_permalink( $child_post_id );
-
-		// Query a child post of CPT by uri
-		$actual = graphql([
+		// Query a child post of CPT by ID
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $child_post_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -510,14 +485,12 @@ class CustomPostTypeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $post_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 

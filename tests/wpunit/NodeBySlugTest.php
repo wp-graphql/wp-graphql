@@ -1,6 +1,6 @@
 <?php
 
-class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
+class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post;
 	public $page;
@@ -29,7 +29,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -58,7 +58,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		unregister_post_type( 'by_slug_cpt' );
 		unregister_post_type( 'faq' );
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
 
@@ -91,12 +91,13 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( get_post( $this->post ) );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'slug' => $post->post_name,
 			],
 		]);
+		// @TODO what is this supposed to test?
 
 		codecept_debug( $actual );
 
@@ -142,14 +143,14 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( get_post( $this->custom_type ) );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'slug' => $post->post_name,
 			],
 		]);
 
-		codecept_debug( $actual );
+		// TODO: what is this supposed to test?
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
@@ -201,14 +202,12 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 		$faqPost = get_post( $this->custom_type );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'slug' => $faqPost->post_name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->custom_type, $actual['data']['faq']['databaseId'] );
@@ -228,14 +227,12 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$faqPage   = get_post( $this->page );
 		$permalink = get_permalink( $faqPage );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => $permalink,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->page, $actual['data']['page']['databaseId'] );

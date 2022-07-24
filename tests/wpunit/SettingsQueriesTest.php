@@ -1,6 +1,6 @@
 <?php
 
-class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase {
+class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -13,11 +13,11 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 			'role' => 'editor',
 		] );
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -41,11 +41,11 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		$query  = '
 			query {
 				allSettings {
-						generalSettingsEmail
+					generalSettingsEmail
 				}
-				}
-			';
-		$actual = do_graphql_request( $query );
+			}
+		';
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
 
@@ -132,7 +132,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 			';
 		}
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$allSettings = $actual['data']['allSettings'];
 

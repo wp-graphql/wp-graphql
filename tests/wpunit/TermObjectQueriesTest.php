@@ -1,6 +1,6 @@
 <?php
 
-class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -56,7 +56,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertNotEmpty( $actual['data']['categories']['edges'][0]['node'] );
 		$this->assertNotEmpty( $actual['data']['categories']['edges'][0]['node']['categoryId'], $term_id1 );
@@ -90,7 +90,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Do the request
 		 */
-		$actual = do_graphql_request( $query, 'getCategoriesBefore', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Assert that we should have received just 1 node, $term_id2
@@ -127,7 +127,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Do the request
 		 */
-		$actual = do_graphql_request( $query, 'getCategoriesAfter', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Assert that we should have received just 1 node, $term_id2
@@ -196,9 +196,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -296,9 +294,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -358,7 +354,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$expected = [
 			'category' => [
@@ -420,7 +416,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$expected = [
 			'category' => [
@@ -473,7 +469,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -524,13 +520,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $child_id ),
 			],
 		]);
-		codecept_debug( $actual );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 'Category', $actual['data']['nodeByUri']['__typename'] );
@@ -550,7 +546,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		flush_rewrite_rules();
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$parent_id = $this->factory()->term->create([
 			'taxonomy' => 'news',
@@ -599,15 +595,13 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri_string' => $link,
 				'uri_id'     => $link,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $link, $actual['data']['nodeByUri']['link'] );

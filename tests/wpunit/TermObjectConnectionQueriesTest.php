@@ -2,11 +2,11 @@
 
 class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
-	public $created_post_ids;
 	public $admin;
+	public $created_post_ids;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	public function setUp(): void {
 		// before

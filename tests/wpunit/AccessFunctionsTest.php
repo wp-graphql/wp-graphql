@@ -20,7 +20,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// then
 		parent::tearDown();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 
 	public function testGraphQLPhpVersion() {
@@ -61,7 +61,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query    = '{
 			__type(name: "TestScalar") {
-			  	kind
+					kind
 			}
 		}';
 		$response = $this->graphql( compact( 'query' ) );
@@ -211,13 +211,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$query = '
 		{
-		  __type(name: "RootQueryToPostConnectionWhereArgs") {
-		    name
-		    kind
-		    inputFields {
-		      name
-		    }
-		  }
+			__type(name: "RootQueryToPostConnectionWhereArgs") {
+				name
+				kind
+				inputFields {
+					name
+				}
+			}
 		}
 		';
 
@@ -252,13 +252,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$query = '
 		{
-		  __type(name: "RootQueryToPostConnectionWhereArgs") {
-		    name
-		    kind
-		    inputFields {
-		      name
-		    }
-		  }
+			__type(name: "RootQueryToPostConnectionWhereArgs") {
+				name
+				kind
+				inputFields {
+					name
+				}
+			}
 		}
 		';
 
@@ -354,14 +354,14 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Query for the RootQuery type
 		$query = '
 		{
-		  __type( name:"RootQuery" ) {
-		    fields {
-		      name
-		      type {
-		        name
-		      }
-		    }
-		  }
+			__type( name:"RootQuery" ) {
+				fields {
+					name
+					type {
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -411,16 +411,14 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-	   {
-	     graphqlInResolver
-	   }
-	   ';
+		 {
+			graphqlInResolver
+		 }
+		 ';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
@@ -452,12 +450,12 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-	   {
-	     graphqlInResolver
-	   }
-	   ';
+		 {
+			graphqlInResolver
+		 }
+		 ';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			[
 				'query' => $query,
 			],
@@ -474,8 +472,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
 			]);
 		}
-
-		codecept_debug( $actual );
 
 	}
 
@@ -513,15 +509,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  testPrivateField
+			testPrivateField
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// it's a private field, there should be an error
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -534,11 +528,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// since we're authenticated now, there should be no errors
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -564,15 +556,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  testAuthCallbackField
+			testAuthCallbackField
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// it's a private field, there should be an error
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -585,11 +575,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// since we're authenticated now, there should be no errors
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -624,17 +612,15 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation {
-		  authCallbackMutation(input:{ clientMutationId: "test" }) {
-		    test
-	      }
+			authCallbackMutation(input:{ clientMutationId: "test" }) {
+				test
+				}
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// it's a private field, there should be an error
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -647,11 +633,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// since we're authenticated now, there should be no errors
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -682,17 +666,15 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation {
-		  isPrivateMutation(input:{ clientMutationId: "test" }) {
-		    test
-	      }
+			isPrivateMutation(input:{ clientMutationId: "test" }) {
+				test
+				}
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// it's a private field, there should be an error
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -705,11 +687,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		// since we're authenticated now, there should be no errors
 		$this->assertArrayNotHasKey( 'errors', $actual );

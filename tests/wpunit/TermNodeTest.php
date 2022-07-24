@@ -1,13 +1,13 @@
 <?php
 
-class TermNodeTest extends \Codeception\TestCase\WPTestCase {
+class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -44,14 +44,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 				categoryId
 			}
 			... on Tag {
-						tagId
-					}
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ] );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -124,14 +122,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -164,14 +160,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $tag->name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -204,14 +198,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $tag->slug,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -244,14 +236,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $tag->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -322,14 +312,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => absint( $cat->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -362,14 +350,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -402,14 +388,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -442,14 +426,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -528,14 +510,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -572,14 +552,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -616,14 +594,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -665,14 +641,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -715,14 +689,12 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );

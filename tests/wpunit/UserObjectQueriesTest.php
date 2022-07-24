@@ -1,6 +1,6 @@
 <?php
 
-class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -153,9 +153,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -258,7 +256,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -322,7 +320,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -389,7 +387,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -456,7 +454,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -505,7 +503,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -544,7 +542,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * The user has no published posts, so there should be no results publicly
@@ -622,9 +620,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * The authenticated user should see their own user in the result
@@ -674,7 +670,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$expected = [
 			'users' => [
@@ -763,9 +759,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}';
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -807,9 +801,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $subscriber );
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
 		/**
 		 * Results should be empty for a non-authenticated request because the
 		 * users have no published posts and are not considered public
@@ -861,9 +854,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $admin );
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'hasNextPage', $actual['data']['users']['pageInfo'] );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
@@ -916,9 +907,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $admin );
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Now let's make sure the subscriber role query worked
@@ -1007,7 +996,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
@@ -1015,8 +1004,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -1051,7 +1038,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
@@ -1059,8 +1046,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -1098,7 +1083,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( get_user_by( 'id', get_current_user_id() ) );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
@@ -1106,8 +1091,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should not have any errors because admins have "list_users" cap and can
@@ -1144,7 +1127,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
@@ -1152,8 +1135,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should not have any errors because admins have "list_users" cap and can
@@ -1285,14 +1266,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'email'    => $admin->user_email,
 		];
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $user_data['user_email'],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
@@ -1306,14 +1285,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( 0 );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $user_data['user_email'],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
@@ -1418,11 +1395,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( 0 );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query' => $query,
 		] );
-
-		codecept_debug( $actual );
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
@@ -1518,11 +1493,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query' => $query,
 		] );
-
-		codecept_debug( $actual );
 
 		$expected_user = [
 			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
@@ -1586,11 +1559,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
 
@@ -1612,11 +1583,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
 
@@ -1637,11 +1606,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
 
@@ -1667,11 +1634,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
 		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
@@ -1687,11 +1652,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
 		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.

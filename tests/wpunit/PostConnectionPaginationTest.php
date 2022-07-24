@@ -1,6 +1,6 @@
 <?php
 
-class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
+class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $created_post_ids;
@@ -31,7 +31,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->created_post_ids = $this->create_posts();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {

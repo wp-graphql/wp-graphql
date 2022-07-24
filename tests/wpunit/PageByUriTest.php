@@ -1,6 +1,6 @@
 <?php
 
-class PageByUriTest extends \Codeception\TestCase\WPTestCase {
+class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $page;
 	public $user;
@@ -28,7 +28,7 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		wp_delete_post( $this->page, true );
 		wp_delete_user( $this->user, false );
@@ -50,26 +50,22 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => '/non-existent-page',
 			],
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['page'] );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => get_permalink( $this->page ),
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['page']['__typename'] );

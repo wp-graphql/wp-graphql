@@ -1,6 +1,6 @@
 <?php
 
-class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
+class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -26,13 +26,13 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
 		unregister_post_type( 'test_custom_tax_cpt' );
 		unregister_taxonomy( 'test_custom_tax' );
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		parent::tearDown();
 	}
@@ -62,11 +62,10 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query' => $query,
 		] );
 
-		codecept_debug( $actual );
 		$this->assertEquals( $id, $actual['data']['bootstrapTerms']['nodes'][0]['bootstrapTermId'] );
 		$this->assertEquals( $id, $actual['data']['bootstrapTerms']['edges'][0]['node']['bootstrapTermId'] );
 
@@ -97,7 +96,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		query TaxonomyChildren {
 		  bootstrapTerms(where:{parent:0}) {
 		    nodes {
-			  name
+			name
 			  children {
 				  nodes {
 					  name
@@ -113,11 +112,9 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query' => $query,
 		] );
-
-		codecept_debug( $actual );
 
 		$this->assertEquals( 'child', $actual['data']['bootstrapTerms']['nodes'][0]['children']['nodes'][0]['name'] );
 
@@ -158,14 +155,12 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $term_id,
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 

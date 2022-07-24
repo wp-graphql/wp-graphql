@@ -1,6 +1,6 @@
 <?php
 
-class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
+class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $tag_id;
 	public $post_id;
@@ -20,7 +20,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 
 		parent::setUp();
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->admin_id = $this->factory()->user->create( [
 			'user_login' => uniqid(),
@@ -97,7 +97,7 @@ class EnqueuedStylesheetsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		wp_delete_term( $this->tag_id, 'post_tag' );
 		wp_delete_term( $this->category_id, 'post_tag' );
 		wp_delete_term( $this->custom_tax_id, 'post_tag' );

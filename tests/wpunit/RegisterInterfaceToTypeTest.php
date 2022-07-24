@@ -59,14 +59,12 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'name' => $type_name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
@@ -128,14 +126,12 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'name' => $type_name,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
@@ -144,14 +140,12 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] ),
 		] );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'name' => 'TestInterface',
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterfaceTwo' ] ),

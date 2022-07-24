@@ -1,6 +1,6 @@
 <?php
 
-class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
+class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $clientMutationId;
 	public $defaultCategory;
@@ -32,7 +32,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->subscriber      = $this->factory->user->create( [
 			'role' => 'subscriber',
@@ -242,9 +242,10 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		}
 
-		$actual = do_graphql_request( $mutation, 'updateSettings', $this->update_variables );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql([
+			'query'     => $mutation,
+			'variables' => $this->update_variables,
+		]);
 
 		return $actual;
 	}
@@ -293,7 +294,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 				}
 				}
 			';
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -430,8 +431,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 			];
 		}
 
-		codecept_debug( $actual );
-
 		/**
 		 * Compare the actual output vs the expected output
 		 */
@@ -462,8 +461,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = $this->updateSettingsMutation();
 
-		codecept_debug( $actual );
-
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 
 		$this->assertEquals( 0, $start_of_week );
@@ -493,7 +490,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$unique_value = uniqid( 'test', true );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'input' => [
@@ -501,8 +498,6 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $unique_value, $actual['data']['updateSettings']['allSettings']['mySettingGroupSettingsMySettingField'] );

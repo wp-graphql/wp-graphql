@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
@@ -10,7 +10,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -33,7 +33,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -816,7 +816,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testSuppressFiltersThrowsException() {
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		add_filter( 'graphql_post_object_connection_query_args', function ( $args ) {
 			$args['suppress_filters'] = true;

@@ -190,8 +190,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( $actual );
-
 		$this->assertIsValidQueryResponse( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );

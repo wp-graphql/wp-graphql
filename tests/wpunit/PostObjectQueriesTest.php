@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -12,7 +12,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -52,7 +52,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'first' => ! empty( $atts['first'] ) ? absint( $atts['first'] ) : 5,
 			];
 
-			$data  = do_graphql_request( $query, 'basicPostList', $variables );
+			$data  = $this->graphql( compact( 'query', 'variables' ) );
 			$edges = ! empty( $data['data']['posts']['edges'] ) ? $data['data']['posts']['edges'] : [];
 
 			if ( ! empty( $edges ) && is_array( $edges ) ) {
@@ -74,7 +74,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		// your tear down methods here
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		// then
 		parent::tearDown();
 	}
@@ -222,9 +222,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -275,8 +273,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_delete_attachment( $featured_image_id, true );
 
-		codecept_debug( $actual );
-
 		$this->assertEquals( $expected, $actual['data'] );
 
 	}
@@ -307,7 +303,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * There should be an internal server error when requesting a non-existent post
@@ -420,9 +416,8 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		";
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
 		$expected = [
 			'post' => [
 				'id'            => $global_id,
@@ -482,7 +477,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -556,9 +551,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Create the global ID of the parent too for asserting
@@ -634,7 +627,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -713,7 +706,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -769,7 +762,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -819,7 +812,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -888,9 +881,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -961,9 +952,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -992,7 +981,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * This should return an error as we tried to query with an invalid ID
@@ -1038,9 +1027,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * This should not return errors, and postBy should be null
@@ -1081,7 +1068,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * This should not return an error, but should return null for the postBy response
@@ -1121,7 +1108,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		add_filter( 'the_excerpt', 'override_for_testPostObjectFieldRawFormat', 10, 0 );
 		add_filter( 'the_title', 'override_for_testPostObjectFieldRawFormat', 10, 0 );
 
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1134,7 +1121,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$graphql_query_data = do_graphql_request( $graphql_query );
+		$graphql_query_data = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Assert that the filters were called.
@@ -1147,7 +1134,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Run the same query but request the fields in raw form.
 		 */
 		wp_set_current_user( $this->admin );
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1160,7 +1147,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Rerun the GraphQL query
 		 */
-		$graphql_query_data = do_graphql_request( $graphql_query );
+		$graphql_query_data = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Assert that the filters were not called.
@@ -1188,7 +1175,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $graphql_query_post_id );
 
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1212,7 +1199,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$graphql_query_data = do_graphql_request( $graphql_query );
+		$graphql_query_data = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Assert that the filter was called.
@@ -1252,7 +1239,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1262,7 +1249,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		do_graphql_request( $graphql_query );
+		$this->graphql( compact( 'query' ) );
 
 		/**
 		 * Assert that the query has been reset to the main query.
@@ -1306,7 +1293,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1317,7 +1304,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$response = do_graphql_request( $graphql_query );
+		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertNotFalse( strpos( $response['data']['post']['content'], 'Some content before the shortcode' ) );
 		$this->assertNotFalse( strpos( $response['data']['post']['content'], 'overridden content' ) );
@@ -1358,7 +1345,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			page(id: \"{$global_id}\") {
 				id
@@ -1369,7 +1356,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$response = do_graphql_request( $graphql_query );
+		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'Some content before the shortcode' ) );
 		$this->assertNotFalse( strpos( $response['data']['page']['content'], 'some test content' ) );
@@ -1420,7 +1407,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			page(id: \"{$global_id}\") {
 				id
@@ -1431,7 +1418,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$response = do_graphql_request( $graphql_query );
+		$response = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Here we're asserting that the shortcode is showing up (rendered) in the middle of the content, but that the content before and after
@@ -1482,9 +1469,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'postBy' => null,
 		];
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertEquals( $expected, $actual['data'] );
 
@@ -1529,7 +1514,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the GraphQL query.
 		 */
-		$graphql_query = "
+		$query = "
 		query {
 			post(id: \"{$global_id}\") {
 				id
@@ -1546,7 +1531,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $user );
 
-		$actual = do_graphql_request( $graphql_query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		codecept_debug( $user );
 		codecept_debug( $actual );
@@ -1711,14 +1696,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
  		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'pageId' => $pageId,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
@@ -1732,14 +1715,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Query again
 		 */
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'pageId' => $pageId,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		/**
 		 * Assert that the page is showing as the front page
@@ -1800,14 +1781,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Make sure page not set as privacy page returns false
 		 */
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'pageId' => $notPrivacyPageId,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isPrivacyPage'] );
@@ -1815,14 +1794,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Make sure page set as privacy page returns true
 		 */
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'pageId' => $privacyPageId,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['pageBy']['isPrivacyPage'] );
@@ -1902,11 +1879,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['postBySlugID'] );
@@ -1984,11 +1959,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['pageByUriID'] );
@@ -2033,11 +2006,9 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
@@ -2127,7 +2098,7 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'ids' => [
@@ -2136,8 +2107,6 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
@@ -2169,28 +2138,24 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$global_post_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $global_post_id,
 			],
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( null, $actual['data']['page'] );
 
 		$global_page_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $global_page_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
@@ -2227,14 +2192,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'path' => $permalink,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
@@ -2266,14 +2229,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => $slug,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
@@ -2325,14 +2286,12 @@ class PostObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'uri' => $slug,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['block'] );
