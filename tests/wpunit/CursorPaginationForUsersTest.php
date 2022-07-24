@@ -26,16 +26,16 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$created_users[ $i ] = $this->factory()->user->create(
 				[
-					'user_login'   => $alphabet[ ($i ) ],
-					'user_nicename'   => $alphabet[ ($i ) ],
-					'user_url' => 'http://'.$alphabet[ ($i ) ].'.com',
-					'user_email'  => $alphabet[ ($i ) ] . '@example.com',
-					'display_name' => $alphabet[ ($i ) ],
-					'nickname' => $alphabet[ ($i ) ],
-					'first_name' => $alphabet[ ($i ) ],
-					'last_name' => $alphabet[ ($i ) ],
-					'description' => $alphabet[ ($i ) ],
-					'role' => 'administrator',
+					'user_login'    => $alphabet[ ( $i ) ],
+					'user_nicename' => $alphabet[ ( $i ) ],
+					'user_url'      => 'http://' . $alphabet[ ( $i ) ] . '.com',
+					'user_email'    => $alphabet[ ( $i ) ] . '@example.com',
+					'display_name'  => $alphabet[ ( $i ) ],
+					'nickname'      => $alphabet[ ( $i ) ],
+					'first_name'    => $alphabet[ ( $i ) ],
+					'last_name'     => $alphabet[ ( $i ) ],
+					'description'   => $alphabet[ ( $i ) ],
+					'role'          => 'administrator',
 				]
 			);
 		}
@@ -45,7 +45,7 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function delete_users( $user_ids ) {
-		foreach( $user_ids as $user_id ) {
+		foreach ( $user_ids as $user_id ) {
 			wp_delete_user( $user_id );
 		}
 	}
@@ -93,13 +93,13 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -113,13 +113,13 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 
 		// Page forward by 5
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $actual['data']['users']['pageInfo']['endCursor'],
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => $actual['data']['users']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -132,17 +132,17 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $names, array_slice( $alphabet, 5, 5 ) );
 
-		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['users']['pageInfo']['endCursor'] ) ]);
+		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['users']['pageInfo']['endCursor'] ) ] );
 
 		// Ask for the first 5 items, with a before cursor established
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => $actual['data']['users']['pageInfo']['endCursor']
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => $actual['data']['users']['pageInfo']['endCursor'],
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -157,13 +157,13 @@ class CursorPaginationForUsersTest extends \Codeception\TestCase\WPTestCase {
 
 		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $this->get_edges( $actual )[1]['cursor'],
-				'last' => null,
-				'before' => $this->get_edges( $actual )[3]['cursor']
-			]
+				'first'  => 5,
+				'after'  => $this->get_edges( $actual )[1]['cursor'],
+				'last'   => null,
+				'before' => $this->get_edges( $actual )[3]['cursor'],
+			],
 		]);
 
 		codecept_debug( $actual );

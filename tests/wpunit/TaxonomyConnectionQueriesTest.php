@@ -10,7 +10,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	public function setUp(): void {
 		parent::setUp();
 
-
 		$this->clearSchema();
 
 		$alphabet = range( 'A', 'Z' );
@@ -18,14 +17,14 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Create posts
 		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
 			register_taxonomy( $alphabet[ $i ], 'post', [
-				'public' => true,
-				'show_in_graphql' => true,
+				'public'              => true,
+				'show_in_graphql'     => true,
 				'graphql_single_name' => $alphabet[ $i ],
 				'graphql_plural_name' => 'all' . lcfirst( $alphabet[ $i ] ),
 			] );
 		}
 
-		$this->taxonomies = get_taxonomies([ 'show_in_graphql' => true ] );
+		$this->taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
 
 	}
 
@@ -57,11 +56,11 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$first = 5;
 
 		$variables = [
-			'first' => $first
+			'first' => $first,
 		];
 
 		$actual = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => $variables,
 		]);
 
@@ -72,16 +71,15 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// assert that the first 5 taxonomies from the query are the first 5 from get_taxonomies
 		$this->assertSame( $names, array_slice( array_values( $this->taxonomies ), 0, $first ) );
 
-
 		$endCursor = $actual['data']['taxonomies']['pageInfo']['endCursor'];
 
 		$variables = [
 			'first' => $first,
-			'after' => $endCursor
+			'after' => $endCursor,
 		];
 
 		$page_2 = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => $variables,
 		]);
 
@@ -94,11 +92,11 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$variables = [
 			'first' => $first,
-			'after' => $page_2_endCursor
+			'after' => $page_2_endCursor,
 		];
 
 		$page_3 = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => $variables,
 		]);
 
@@ -116,29 +114,28 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$last = 5;
 
 		$page_1 = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => [
-				'last' => $last,
+				'last'   => $last,
 				'before' => null,
-			]
+			],
 		]);
 
 		$this->assertIsValidQueryResponse( $page_1 );
 
 		$page_1_names = wp_list_pluck( $page_1['data']['taxonomies']['nodes'], 'name' );
 
-
 		// the first page should be the first 5 taxonomies
 		$this->assertSame( $page_1_names, array_reverse( array_slice( array_values( $backward_taxonomies ), 0, $last ) ) );
 
-		$page_1_start_cursor =  $page_1['data']['taxonomies']['pageInfo']['startCursor'];
+		$page_1_start_cursor = $page_1['data']['taxonomies']['pageInfo']['startCursor'];
 
 		$page_2 = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => [
-				'last' => $last,
-				'before' => $page_1_start_cursor
-			]
+				'last'   => $last,
+				'before' => $page_1_start_cursor,
+			],
 		]);
 
 		$this->assertIsValidQueryResponse( $page_2 );
@@ -147,14 +144,14 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertSame( $page_2_names, array_reverse( array_slice( array_values( $backward_taxonomies ), 5, $last ) ) );
 
-		$page_2_start_cursor =  $page_2['data']['taxonomies']['pageInfo']['startCursor'];
+		$page_2_start_cursor = $page_2['data']['taxonomies']['pageInfo']['startCursor'];
 
 		$page_3 = $this->graphql([
-			'query' => $this->taxonomyQuery(),
+			'query'     => $this->taxonomyQuery(),
 			'variables' => [
-				'last' => $last,
-				'before' => $page_2_start_cursor
-			]
+				'last'   => $last,
+				'before' => $page_2_start_cursor,
+			],
 		]);
 
 		$this->assertIsValidQueryResponse( $page_3 );

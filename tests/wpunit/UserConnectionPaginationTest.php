@@ -20,7 +20,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			array( 0 )
+			[ 0 ]
 		) );
 		$this->created_user_ids = [ 1 ];
 	}
@@ -86,7 +86,6 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
 
 		// assert there are 2 items in the query
 		$this->assertCount( 2, $actual['data']['users']['nodes'] );

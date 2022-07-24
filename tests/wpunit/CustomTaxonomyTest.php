@@ -11,7 +11,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 				'graphql_single_name' => 'bootstrapPost',
 				'graphql_plural_name' => 'bootstrapPosts',
 				'hierarchical'        => true,
-				'taxonomies' => [ 'bootstrap_tax' ]
+				'taxonomies'          => [ 'bootstrap_tax' ],
 			]
 		);
 		register_taxonomy(
@@ -41,7 +41,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		$id = $this->factory()->term->create( [
 			'taxonomy' => 'bootstrap_tax',
-			'name'     => 'Honda'
+			'name'     => 'Honda',
 		] );
 
 		$query = '
@@ -60,7 +60,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -70,25 +70,24 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 	}
 	public function testQueryCustomTaxomomyChildren() {
 
-
 		// Just create a post of the same cpt to expose issue #905
 		$this->factory()->post->create( [
-			'post_content'  => 'Test page content',
-			'post_excerpt'  => 'Test excerpt',
-			'post_status'   => 'publish',
-			'post_title'    => 'Test Title',
-			'post_type'     => 'bootstrap_cpt',
+			'post_content' => 'Test page content',
+			'post_excerpt' => 'Test excerpt',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test Title',
+			'post_type'    => 'bootstrap_cpt',
 		] );
 
 		$parent_id = $this->factory()->term->create( [
 			'taxonomy' => 'bootstrap_tax',
-			'name'     => 'parent'
+			'name'     => 'parent',
 		] );
 
 		$child_id = $this->factory()->term->create( [
 			'taxonomy' => 'bootstrap_tax',
 			'name'     => 'child',
-			'parent' => $parent_id,
+			'parent'   => $parent_id,
 		] );
 
 		$query = '
@@ -112,7 +111,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query'     => $query,
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -135,7 +134,7 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 
 		$term_id = $this->factory()->term->create( [
 			'taxonomy' => 'aircraft',
-			'name'     => 'Boeing 767'
+			'name'     => 'Boeing 767',
 		] );
 
 		$query = '
@@ -159,8 +158,8 @@ class CustomTaxonomyTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query'     => $query,
 			'variables' => [
-				'id' => $term_id
-			]
+				'id' => $term_id,
+			],
 		] );
 
 		codecept_debug( $actual );

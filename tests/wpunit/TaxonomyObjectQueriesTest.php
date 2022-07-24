@@ -34,15 +34,15 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'category' => $category_id,
+			'category'    => $category_id,
 		]);
 
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			categories(first: 1) {
 				nodes {
@@ -75,7 +75,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				   }
 				}
 			}
-		}";
+		}';
 
 		if ( true === $logged_in ) {
 			$user = $this->admin;
@@ -103,31 +103,31 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					[
 						'taxonomy' => [
 							'node' => [
-								'connectedContentTypes'     => [
+								'connectedContentTypes' => [
 									'nodes' => [
 										[
-											'name' => 'post'
-										]
-									]
+											'name' => 'post',
+										],
+									],
 								],
-								'description'            => '',
-								'graphqlPluralName'      => 'categories',
-								'graphqlSingleName'      => 'category',
-								'hierarchical'           => true,
-								'id'                     => $global_id,
-								'label'                  => 'Categories',
-								'name'                   => 'category',
-								'public'                 => true,
-								'restBase'               => 'categories',
-								'restControllerClass'    => 'WP_REST_Terms_Controller',
-								'showCloud'              => true,
-								'showInAdminColumn'      => true,
-								'showInGraphql'          => true,
-								'showInMenu'             => true,
-								'showInNavMenus'         => true,
-								'showInQuickEdit'        => true,
-								'showInRest'             => true,
-								'showUi'                 => true,
+								'description'           => '',
+								'graphqlPluralName'     => 'categories',
+								'graphqlSingleName'     => 'category',
+								'hierarchical'          => true,
+								'id'                    => $global_id,
+								'label'                 => 'Categories',
+								'name'                  => 'category',
+								'public'                => true,
+								'restBase'              => 'categories',
+								'restControllerClass'   => 'WP_REST_Terms_Controller',
+								'showCloud'             => true,
+								'showInAdminColumn'     => true,
+								'showInGraphql'         => true,
+								'showInMenu'            => true,
+								'showInNavMenus'        => true,
+								'showInQuickEdit'       => true,
+								'showInRest'            => true,
+								'showUi'                => true,
 							],
 						],
 					],
@@ -136,16 +136,16 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		if ( false === $logged_in ) {
-			$expected['categories']['nodes'][0]['taxonomy']['node']['label'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['public'] = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['label']               = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['public']              = null;
 			$expected['categories']['nodes'][0]['taxonomy']['node']['restControllerClass'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showCloud'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showInAdminColumn'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showInMenu'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showInNavMenus'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showInQuickEdit'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showInRest'] = null;
-			$expected['categories']['nodes'][0]['taxonomy']['node']['showUi'] = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showCloud']           = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showInAdminColumn']   = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showInMenu']          = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showInNavMenus']      = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showInQuickEdit']     = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showInRest']          = null;
+			$expected['categories']['nodes'][0]['taxonomy']['node']['showUi']              = null;
 		}
 
 		codecept_debug( $actual );
@@ -166,19 +166,19 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testTaxonomyQueryForTags( $logged_in ) {
 
 		$tag_id = $this->factory()->tag->create([
-			'name' => 'test'
+			'name' => 'test',
 		]);
 
 		$this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_tag' => $tag_id
+			'post_tag'    => $tag_id,
 		]);
 
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			tags(first:1) {
 				nodes {
@@ -211,7 +211,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  }
 				}
 			}
-		}";
+		}';
 
 		if ( true === $logged_in ) {
 			$user = $this->admin;
@@ -220,7 +220,6 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		wp_set_current_user( $user );
-
 
 		/**
 		 * Run the GraphQL query
@@ -243,28 +242,28 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'connectedContentTypes' => [
 									'nodes' => [
 										[
-											'name' => 'post'
-										]
-									]
+											'name' => 'post',
+										],
+									],
 								],
-								'description'            => '',
-								'graphqlPluralName'      => 'tags',
-								'graphqlSingleName'      => 'tag',
-								'hierarchical'           => false,
-								'id'                     => $global_id,
-								'label'                  => 'Tags',
-								'name'                   => 'post_tag',
-								'public'                 => true,
-								'restBase'               => 'tags',
-								'restControllerClass'    => 'WP_REST_Terms_Controller',
-								'showCloud'              => true,
-								'showInAdminColumn'      => true,
-								'showInGraphql'          => true,
-								'showInMenu'             => true,
-								'showInNavMenus'         => true,
-								'showInQuickEdit'        => true,
-								'showInRest'             => true,
-								'showUi'                 => true,
+								'description'           => '',
+								'graphqlPluralName'     => 'tags',
+								'graphqlSingleName'     => 'tag',
+								'hierarchical'          => false,
+								'id'                    => $global_id,
+								'label'                 => 'Tags',
+								'name'                  => 'post_tag',
+								'public'                => true,
+								'restBase'              => 'tags',
+								'restControllerClass'   => 'WP_REST_Terms_Controller',
+								'showCloud'             => true,
+								'showInAdminColumn'     => true,
+								'showInGraphql'         => true,
+								'showInMenu'            => true,
+								'showInNavMenus'        => true,
+								'showInQuickEdit'       => true,
+								'showInRest'            => true,
+								'showUi'                => true,
 							],
 						],
 					],
@@ -273,16 +272,16 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		if ( false === $logged_in ) {
-			$expected['tags']['nodes'][0]['taxonomy']['node']['label'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['public'] = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['label']               = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['public']              = null;
 			$expected['tags']['nodes'][0]['taxonomy']['node']['restControllerClass'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showCloud'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showInAdminColumn'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showInMenu'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showInNavMenus'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showInQuickEdit'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showInRest'] = null;
-			$expected['tags']['nodes'][0]['taxonomy']['node']['showUi'] = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showCloud']           = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showInAdminColumn']   = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showInMenu']          = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showInNavMenus']      = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showInQuickEdit']     = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showInRest']          = null;
+			$expected['tags']['nodes'][0]['taxonomy']['node']['showUi']              = null;
 		}
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -310,7 +309,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			categories(first:1) {
 				nodes {
@@ -321,7 +320,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			      }
 			    }
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -366,7 +365,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			tags(first:1)
 			 {
@@ -378,7 +377,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				   }
 				}
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -417,14 +416,14 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testTaxonomyQueryPostConnections() {
 		$post_id           = $this->factory()->post->create();
 		$unrelated_post_id = $this->factory()->post->create();
-		$term_id = $this->factory()->term->create( [ 'name' => 'Test' ] );
+		$term_id           = $this->factory()->term->create( [ 'name' => 'Test' ] );
 
 		wp_set_object_terms( $post_id, $term_id, 'post_tag' );
 
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			tags(first:2) {
 				nodes {
@@ -435,7 +434,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 			  }
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -453,7 +452,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							'nodes' => [
 								[
 									'databaseId' => $post_id,
-								]
+								],
 							],
 						],
 					],
@@ -471,7 +470,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							'nodes' => [
 								[
 									'databaseId' => $unrelated_post_id,
-								]
+								],
 							],
 						],
 					],
@@ -489,7 +488,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			[
 				'logged_in' => false,
-			]
+			],
 		];
 	}
 

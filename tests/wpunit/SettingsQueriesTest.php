@@ -39,13 +39,13 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		 * Validate the request has errors
 		 */
 		wp_set_current_user( $this->editor );
-		$query = "
+		$query  = '
 			query {
 				allSettings {
 				    generalSettingsEmail
 				}
 		    }
-	    ";
+	    ';
 		$actual = do_graphql_request( $query );
 
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -69,20 +69,20 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 
 		$mock_options = [
 			'default_comment_status' => 'closed',
-			'default_ping_status' => 'closed',
-			'date_format' => 'test date format',
-			'blogdescription' => 'test description',
-			'admin_email' => 'test@test.com',
-			'start_of_week' => 0,
-			'time_format' => 'test_time_format',
-			'timezone_string' => 'UTC',
-			'blogname' => 'test_title',
-			'siteurl' => 'http://test.com',
-			'posts_per_page' => 20,
-			'default_category' => 2,
-			'default_post_format' => 'quote',
-			'use_smilies' => 0,
-			'points' => 5.5,
+			'default_ping_status'    => 'closed',
+			'date_format'            => 'test date format',
+			'blogdescription'        => 'test description',
+			'admin_email'            => 'test@test.com',
+			'start_of_week'          => 0,
+			'time_format'            => 'test_time_format',
+			'timezone_string'        => 'UTC',
+			'blogname'               => 'test_title',
+			'siteurl'                => 'http://test.com',
+			'posts_per_page'         => 20,
+			'default_category'       => 2,
+			'default_post_format'    => 'quote',
+			'use_smilies'            => 0,
+			'points'                 => 5.5,
 		];
 
 		foreach ( $mock_options as $mock_option_key => $mock_value ) {
@@ -90,7 +90,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 		}
 
 		if ( true === is_multisite() ) {
-			$query = "
+			$query = '
 				query {
 					allSettings {
 					    discussionSettingsDefaultCommentStatus
@@ -108,9 +108,9 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 					    writingSettingsUseSmilies
 					}
 				}
-			";
+			';
 		} else {
-			$query = "
+			$query = '
 				query {
 					allSettings {
 					    discussionSettingsDefaultCommentStatus
@@ -130,7 +130,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Codeception\TestCase\WPTestCase 
 					    writingSettingsUseSmilies
 					}
 				}
-			";
+			';
 		}
 
 		$actual = do_graphql_request( $query );

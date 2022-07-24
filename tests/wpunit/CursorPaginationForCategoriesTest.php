@@ -25,9 +25,9 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
 			$created_terms[ $i ] = $this->factory()->term->create(
 				[
-					'taxonomy'   => $taxonomy,
-					'name'   => $alphabet[ ($i ) ],
-					'description' => $alphabet[ ($i ) ],
+					'taxonomy'    => $taxonomy,
+					'name'        => $alphabet[ ( $i ) ],
+					'description' => $alphabet[ ( $i ) ],
 				]
 			);
 		}
@@ -37,7 +37,7 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 	}
 
 	public function delete_terms( $term_ids ) {
-		foreach( $term_ids as $term_id ) {
+		foreach ( $term_ids as $term_id ) {
 			wp_delete_term( $term_id, 'category' );
 		}
 	}
@@ -53,7 +53,7 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 	public function testForwardPagination() {
 
 		$category_ids = $this->create_terms( 'category' );
-		$query = '
+		$query        = '
 		query TestForwardPaginationForCategories( $first: Int $after: String $last:Int $before: String ) {
 		  categories( first:$first last:$last after:$after before:$before) {
 		    pageInfo {
@@ -75,13 +75,13 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -95,13 +95,13 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 
 		// Page forward by 5
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => $actual['data']['categories']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -114,17 +114,17 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $names, array_slice( $alphabet, 5, 5 ) );
 
-		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['categories']['pageInfo']['endCursor'] ) ]);
+		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['categories']['pageInfo']['endCursor'] ) ] );
 
 		// Ask for the first 5 items, with a before cursor established
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => $actual['data']['categories']['pageInfo']['endCursor']
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => $actual['data']['categories']['pageInfo']['endCursor'],
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -137,19 +137,18 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( array_slice( $alphabet, 0, 5 ), $names );
 
-
-		$after_cursor = $this->get_edges( $actual )[1]['cursor'];
+		$after_cursor  = $this->get_edges( $actual )[1]['cursor'];
 		$before_cursor = $this->get_edges( $actual )[3]['cursor'];
 
 		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $after_cursor,
-				'last' => null,
-				'before' => $before_cursor
-			]
+				'first'  => 5,
+				'after'  => $after_cursor,
+				'last'   => null,
+				'before' => $before_cursor,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -164,13 +163,13 @@ class CursorPaginationForCategoriesTest extends \Codeception\TestCase\WPTestCase
 
 		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => null,
-				'after' => $after_cursor,
-				'last' => 5,
-				'before' => $before_cursor
-			]
+				'first'  => null,
+				'after'  => $after_cursor,
+				'last'   => 5,
+				'before' => $before_cursor,
+			],
 		]);
 
 		codecept_debug( $actual );

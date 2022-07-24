@@ -8,11 +8,11 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		$this->subscriber = $this->factory()->user->create([
-			'role' => 'subscriber'
+			'role' => 'subscriber',
 		]);
 
 		parent::setUp();
@@ -24,6 +24,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test querying revisions as an admin
+	 *
 	 * @throws Exception
 	 */
 	public function testQueryRootRevisionsAsPublicUser() {
@@ -37,16 +38,15 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query RootRevisions {
@@ -79,6 +79,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test querying revisions as an admin
+	 *
 	 * @throws Exception
 	 */
 	public function testQueryRootRevisionsAsAdmin() {
@@ -92,16 +93,15 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query RootRevisions {
@@ -163,16 +163,15 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query PostBy ($postId: Int) {
@@ -200,10 +199,10 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'postId' => $post_id,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );

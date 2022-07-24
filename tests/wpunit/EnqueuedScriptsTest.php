@@ -38,14 +38,14 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'public'              => true,
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestEnqueueCpt',
-			'graphql_plural_name' => 'TestEnqueueCpts'
+			'graphql_plural_name' => 'TestEnqueueCpts',
 		] );
 
 		register_taxonomy( 'test_enqueue_tax', [ 'test_enqueue_cpt' ], [
 			'public'              => true,
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestEnqueueTax',
-			'graphql_plural_name' => 'TestEnqueueTaxes'
+			'graphql_plural_name' => 'TestEnqueueTaxes',
 		] );
 
 		$this->category_id = $this->factory()->term->create( [
@@ -78,7 +78,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_category' => [ $this->category_id ],
 			'tags_input'    => [ $this->tag_id ],
 			'post_author'   => $this->author_id,
-			'post_excerpt'  => 'Test excerpt'
+			'post_excerpt'  => 'Test excerpt',
 		] );
 
 		$filename       = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
@@ -88,12 +88,11 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'    => 'test_enqueue_cpt',
 			'post_status'  => 'publish',
 			'post_title'   => 'Test Page',
-			'post_excerpt' => 'Test excerpt'
+			'post_excerpt' => 'Test excerpt',
 		] );
 
 		$GLOBALS['post']       = null;
 		$GLOBALS['authordata'] = null;
-
 
 	}
 
@@ -152,7 +151,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $page_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -188,7 +187,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $post_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -224,7 +223,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $custom_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -260,7 +259,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $tag_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -296,7 +295,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -332,7 +331,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $cat_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -368,7 +367,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $user_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -404,7 +403,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'id' => $media_id,
-			]
+			],
 		] );
 
 		return $actual;
@@ -426,7 +425,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $this->page_id );
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_front_page() ) {
 				wp_enqueue_script( $handle );
@@ -479,7 +478,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -506,7 +504,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-page';
 		$src    = 'test-is-page.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_page() ) {
 				wp_enqueue_script( $handle );
@@ -541,7 +539,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -567,7 +564,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-single';
 		$src    = 'test-is-single.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_single() ) {
 				wp_enqueue_script( $handle );
@@ -603,7 +600,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -628,7 +624,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-singular';
 		$src    = 'test-is-singular.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_singular( [ 'post', 'test_enqueue_cpt' ] ) ) {
 				wp_enqueue_script( $handle );
@@ -680,7 +676,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -705,14 +700,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-sticky';
 		$src    = 'test-is-sticky.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_sticky() ) {
 				wp_enqueue_script( $handle );
 			}
 
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -745,7 +739,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -770,7 +763,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-post-type-hierarchical';
 		$src    = 'test-is-post-type-hierarchical.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			global $post;
 			// codecept_debug( 'GLOBALPOST....' );
 			// codecept_debug( $post );
@@ -823,7 +816,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
-
 	}
 
 	/**
@@ -837,7 +829,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-comments-open';
 		$src    = 'test-comments-open.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 
 			wp_register_script( $handle, $src );
 			// codecept_debug( comments_open() );
@@ -846,7 +838,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			}
 
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -878,7 +869,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		// codecept_debug( $actual );
@@ -904,7 +894,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-pings-open';
 		$src    = 'test-pings-open.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			global $post;
 			// codecept_debug( 'PING_STATUS' );
@@ -914,7 +904,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			}
 
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -946,7 +935,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -976,14 +964,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$post_handle   = 'test-is-post-template';
 		$post_src      = 'test-is-post-template.js';
 
-
 		update_post_meta( $this->post_id, '_wp_page_template', $post_template );
 		update_post_meta( $this->page_id, '_wp_page_template', $page_template );
 
 		// codecept_debug( get_page_template_slug( $this->post_id ) );
 		// codecept_debug( get_page_template_slug( $this->page_id ) );
 
-		add_action( 'wp_enqueue_scripts', function() use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
 			wp_register_script( $page_handle, $page_src );
 			wp_register_script( $post_handle, $post_src );
 			if ( is_page_template( $page_template ) ) {
@@ -994,7 +981,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 			}
 
 		} );
-
 
 		// Test that the script is enqueued on the page with the template
 		$actual = $this->get_page_query( $this->page_id );
@@ -1012,7 +998,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
 
-
 		// codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1027,7 +1012,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $post_src, $sources, true ) );
 		$this->assertFalse( in_array( $page_handle, $handles, true ) );
 		$this->assertFalse( in_array( $page_src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1055,13 +1039,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-category';
 		$src    = 'test-is-category.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_category() ) {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1092,7 +1075,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1129,13 +1111,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-tag';
 		$src    = 'test-is-tag.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_tag() ) {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1166,7 +1147,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1203,13 +1183,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-tax';
 		$src    = 'test-is-tax.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_tax( 'post_tag' ) || is_tax( 'category' ) ) {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1240,7 +1219,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1277,13 +1255,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-has-term';
 		$src    = 'test-has-term.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( has_term( $this->tag_id, 'post_tag' ) ) {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1314,7 +1291,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1351,14 +1327,13 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-author';
 		$src    = 'test-is-author.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_author() ) {
 				// codecept_debug( 'AUTHOR, YO!!' );
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1387,7 +1362,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1436,7 +1410,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-attachment';
 		$src    = 'test-is-attachment.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( is_attachment() ) {
 				wp_enqueue_script( $handle );
@@ -1470,7 +1444,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1531,13 +1504,12 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-is-wp-attachment-is-image';
 		$src    = 'test-is-wp-attachment-is-image.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( wp_attachment_is_image() ) {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
@@ -1554,7 +1526,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$sources = wp_list_pluck( $scripts, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -1625,7 +1596,7 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$handle = 'test-has-excerpt';
 		$src    = 'test-has-excerpt.js';
 
-		add_action( 'wp_enqueue_scripts', function() use ( $handle, $src ) {
+		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
 			wp_register_script( $handle, $src );
 			if ( has_excerpt() ) {
 				global $post;
@@ -1634,7 +1605,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 				wp_enqueue_script( $handle );
 			}
 		} );
-
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
@@ -1652,7 +1622,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
-
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_page_query( $this->page_id );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1663,7 +1632,6 @@ class EnqueuedScriptsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_custom_post_query( $this->custom_post_id );

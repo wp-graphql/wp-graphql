@@ -304,7 +304,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function() {
+			function () {
 				return 20;
 			}
 		);
@@ -316,7 +316,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function() {
+			function () {
 				return 100;
 			}
 		);
@@ -741,15 +741,15 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
 
 		$public_post_id = $this->factory()->post->create( [
-			'post_type' => 'Post',
+			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post',
 		] );
 
 		$private_post_id = $this->factory()->post->create( [
-			'post_type' => 'Post',
+			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title' => 'Private Post',
+			'post_title'  => 'Private Post',
 		] );
 
 		update_post_meta( $private_post_id, '_private_key', true );
@@ -775,7 +775,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$ids = [];
 		foreach ( $nodes as $node ) {
-			$ids[$node['databaseId']] = $node;
+			$ids[ $node['databaseId'] ] = $node;
 		}
 
 		$this->assertArrayHasKey( $private_post_id, $ids );
@@ -785,7 +785,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * should NOT be returned as nodes at all. They should be stripped before
 		 * nodes array is returned.
 		 */
-		add_filter( 'graphql_data_is_private', function( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
+		add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
 			if ( 'PostObject' === $model_name ) {
 				$is_private_meta = get_post_meta( $data->ID, '_private_key' );
 				if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
@@ -807,11 +807,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$ids = [];
 		foreach ( $nodes as $node ) {
-			$ids[$node['databaseId']] = $node;
+			$ids[ $node['databaseId'] ] = $node;
 		}
 
 		$this->assertArrayNotHasKey( $private_post_id, $ids );
-
 
 	}
 
@@ -819,7 +818,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		WPGraphQL::clear_schema();
 
-		add_filter( 'graphql_post_object_connection_query_args', function( $args ) {
+		add_filter( 'graphql_post_object_connection_query_args', function ( $args ) {
 			$args['suppress_filters'] = true;
 			return $args;
 		} );
@@ -834,7 +833,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			    }
 			  }
 			}
-			'
+			',
 		]);
 
 		codecept_debug( $actual );
@@ -849,27 +848,27 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostInArgumentWorksWithCursors() {
 
 		$post_1 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post',
 		] );
 
 		$post_2 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post',
 		] );
 
 		$post_3 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post',
 		] );
 
 		$post_4 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post',
 		] );
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
@@ -888,11 +887,11 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'after' => null,
-			]
+				'after'    => null,
+			],
 		] );
 
 		$actual_ids = [];
@@ -910,11 +909,11 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'after' => $cursor
-			]
+				'after'    => $cursor,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -932,19 +931,21 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( 'line 932...' );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'before' => $cursor,
-				'last' => 1,
-			]
+				'before'   => $cursor,
+				'last'     => 1,
+			],
 		]);
 
-		codecept_debug( [ 'variables' => [
-			'post_ids' => $post_ids,
-			'before' => $cursor,
-			'last' => 1,
-		] ]);
+		codecept_debug( [
+			'variables' => [
+				'post_ids' => $post_ids,
+				'before'   => $cursor,
+				'last'     => 1,
+			],
+		]);
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -990,15 +991,15 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		register_graphql_connection([
 			'connectionTypeName' => 'OrderbyDebug',
-			'description' => __( 'debugging', 'wp-graphql' ),
-			'fromType' => 'RootQuery',
-			'toType' => 'MediaItem',
-			'fromFieldName' => 'postOrderbyDebug',
-			'resolve' => function( $root, $args, $context, $info ) use ( $post_ids ) {
+			'description'        => __( 'debugging', 'wp-graphql' ),
+			'fromType'           => 'RootQuery',
+			'toType'             => 'MediaItem',
+			'fromFieldName'      => 'postOrderbyDebug',
+			'resolve'            => function ( $root, $args, $context, $info ) use ( $post_ids ) {
 				$args['where']['in'] = $post_ids;
-				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
+				$resolver            = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
 				return $resolver->get_connection();
-			}
+			},
 		]);
 
 		$query = '
@@ -1017,9 +1018,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql( [
 			'query'     => $query,
 			'variables' => [
-				'after'    => null,
+				'after'  => null,
 				'before' => null,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -1035,10 +1036,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$cursor_from_first_query = $actual['data']['posts']['edges'][1]['cursor'];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'after' => $cursor_from_first_query
-			]
+				'after' => $cursor_from_first_query,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1050,10 +1051,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( [ $post_ids[2], $post_ids[3] ], $actual_ids );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'before' => $cursor_from_first_query,
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1063,7 +1064,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$this->assertSame( [ $post_ids[0] ], $actual_ids );
-
 
 	}
 

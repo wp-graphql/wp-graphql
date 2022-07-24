@@ -8,15 +8,15 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 
 		$this->user = $this->factory()->user->create([
-			'role' => 'administrator',
-			'user_login' => 'queryPagebyUriTestUser'
+			'role'       => 'administrator',
+			'user_login' => 'queryPagebyUriTestUser',
 		]);
 
 		$this->page = $this->factory()->post->create( [
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title' => 'PageByUriTest',
-			'post_author' => $this->user
+			'post_title'  => 'PageByUriTest',
+			'post_author' => $this->user,
 		] );
 
 		update_option( 'permalink_structure', '/posts/%postname%/' );
@@ -26,7 +26,7 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::show_in_graphql();
 
 		parent::setUp();
-    }
+	}
 
 	public function tearDown(): void {
 
@@ -36,7 +36,6 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		wp_delete_post( $this->page, true );
 		wp_delete_user( $this->user, false );
-
 
 	}
 
@@ -55,21 +54,21 @@ class PageByUriTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'uri' => '/non-existent-page'
+				'uri' => '/non-existent-page',
 			],
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull($actual['data']['page']);
+		$this->assertNull( $actual['data']['page'] );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->page )
+				'uri' => get_permalink( $this->page ),
 			],
 		]);
 

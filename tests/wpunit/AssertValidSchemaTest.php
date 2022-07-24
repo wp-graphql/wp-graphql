@@ -3,7 +3,7 @@
 class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
-		$settings = get_option( 'graphql_general_settings' );
+		$settings                                 = get_option( 'graphql_general_settings' );
 		$settings['public_introspection_enabled'] = 'on';
 		update_option( 'graphql_general_settings', $settings );
 		WPGraphQL::clear_schema();
@@ -32,7 +32,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 			// Assert true upon success.
 			$this->assertTrue( true );
-		} catch (\GraphQL\Error\InvariantViolation $e) {
+		} catch ( \GraphQL\Error\InvariantViolation $e ) {
 			// use --debug flag to view.
 			codecept_debug( $e->getMessage() );
 
@@ -45,7 +45,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 		add_filter( 'graphql_debug_enabled', '__return_false' );
 
-		$settings = get_option( 'graphql_general_settings' );
+		$settings                                 = get_option( 'graphql_general_settings' );
 		$settings['public_introspection_enabled'] = 'off';
 		update_option( 'graphql_general_settings', $settings );
 
@@ -61,7 +61,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			    }
 			  }
 			}
-			'
+			',
 		]);
 
 		codecept_debug( $actual );
@@ -73,12 +73,12 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testIntrospectionQueriesByAdminWhenPublicIntrospectionIsDisabled() {
 
-		$settings = get_option( 'graphql_general_settings' );
+		$settings                                 = get_option( 'graphql_general_settings' );
 		$settings['public_introspection_enabled'] = 'off';
 		update_option( 'graphql_general_settings', $settings );
 
 		$admin = $this->factory()->user->create( [
-			'role' => 'administrator'
+			'role' => 'administrator',
 		] );
 
 		wp_set_current_user( $admin );
@@ -95,7 +95,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			    }
 			  }
 			}
-			'
+			',
 		]);
 
 		codecept_debug( $actual );
@@ -106,7 +106,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testIntrospectionQueriesEnabledForPublicUsers() {
 
-		$settings = get_option( 'graphql_general_settings' );
+		$settings                                 = get_option( 'graphql_general_settings' );
 		$settings['public_introspection_enabled'] = 'on';
 		update_option( 'graphql_general_settings', $settings );
 
@@ -122,7 +122,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			    }
 			  }
 			}
-			'
+			',
 		]);
 
 		codecept_debug( $actual );
@@ -134,11 +134,11 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	public function testContentTypesOfTaxonomy() {
 
 		register_post_type( 'test_content_type', [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestContentType',
 			'graphql_plural_name' => 'TestContentTypes',
-			'public' => true,
-			'label' => 'Test Content Type, Yo'
+			'public'              => true,
+			'label'               => 'Test Content Type, Yo',
 		] );
 
 		register_post_type( 'not_in_graphql', [
@@ -146,24 +146,24 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		register_taxonomy( 'test_taxonomy', [ 'test_content_type', 'not_in_graphql' ], [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestTaxonomy',
 			'graphql_plural_name' => 'TestTaxonomies',
-			'public' => true,
-			'label' => 'Test Taxonomy, Yo'
+			'public'              => true,
+			'label'               => 'Test Taxonomy, Yo',
 		]);
 
 		register_post_type( 'not_in_graphql', [
 			'public' => true,
-			'label' => 'Not in GraphQL Test'
+			'label'  => 'Not in GraphQL Test',
 		] );
 
 		register_taxonomy( 'test_taxonomy_two', [ 'not_in_graphql' ], [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestTaxonomyTwo',
 			'graphql_plural_name' => 'TestTaxonomieTwos',
-			'public' => true,
-			'label' => 'Test Taxonomy Two, Yo'
+			'public'              => true,
+			'label'               => 'Test Taxonomy Two, Yo',
 		]);
 
 		$query = '
@@ -179,11 +179,11 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$variables = [
-			'name' => "ContentTypesOfTestTaxonomyEnum"
+			'name' => 'ContentTypesOfTestTaxonomyEnum',
 		];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => $variables,
 		]);
 
@@ -195,11 +195,11 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( \WPGraphQL\Type\WPEnumType::get_safe_name( 'test_content_type' ), $actual['data']['__type']['enumValues'][0]['name'] );
 
 		$variables = [
-			'name' => "ContentTypesOfTestTaxonomyTwoEnum"
+			'name' => 'ContentTypesOfTestTaxonomyTwoEnum',
 		];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => $variables,
 		]);
 
@@ -321,7 +321,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'fields' => [
 					'foo' => [
-						'type'    => 'String',
+						'type' => 'String',
 					],
 				],
 			]
@@ -331,7 +331,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 			'RootQuery',
 			'example',
 			[
-				'type' => 'TestLazyType',
+				'type'    => 'TestLazyType',
 				'resolve' => function () {
 					return [
 						'foo' => 'bar',
@@ -368,17 +368,17 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	public function testRegisterTypeWithNameOfExistingPhpFunctionDoesNotCauseErrors() {
 
 		register_graphql_field( 'RootQuery', 'header', [
-			'type' => 'Header',
-			'resolve' => function() {
+			'type'    => 'Header',
+			'resolve' => function () {
 				return 'it works!';
-			}
+			},
 		]);
 
 		register_graphql_object_type( 'Header', [
 			'description' => __( 'This Type is named after a PHP function to test that it does not cause conflicts', 'wp-graphql' ),
-			'fields' => [
+			'fields'      => [
 				'test' => [
-					'type' => 'String'
+					'type' => 'String',
 				],
 			],
 		]);
@@ -391,7 +391,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ]);
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
 
@@ -402,17 +402,17 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	public function testRegisterTypeWithNameOfExistingWordpressFunctionDoesNotCauseErrors() {
 
 		register_graphql_field( 'RootQuery', 'wpSendJson', [
-			'type' => 'WP_Send_Json',
-			'resolve' => function() {
+			'type'    => 'WP_Send_Json',
+			'resolve' => function () {
 				return 'it works!';
-			}
+			},
 		]);
 
 		register_graphql_object_type( 'WP_Send_Json', [
 			'description' => __( 'This type is named after a WordPress function to test that it does not cause conflicts', 'wp-graphql' ),
-			'fields' => [
+			'fields'      => [
 				'test' => [
-					'type' => 'String'
+					'type' => 'String',
 				],
 			],
 		]);
@@ -425,7 +425,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ]);
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
 
@@ -443,7 +443,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 	public function testRegisteringFieldWithGraphQLTypeDefinitionAsTypeConfigDoesntThrowErrors() {
 
 		$type = new \GraphQL\Type\Definition\ObjectType([
-			'name' => 'Test',
+			'name'   => 'Test',
 			'fields' => [
 				'test' => GraphQL\Type\Definition\Type::string(),
 			],
@@ -476,7 +476,7 @@ class AssertValidSchemaTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $actual );

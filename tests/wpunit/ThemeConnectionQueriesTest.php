@@ -62,7 +62,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		}
 		';
 
-		$themes = wp_get_themes([ 'allowed' => null ]);
+		$themes = wp_get_themes( [ 'allowed' => null ] );
 
 		if ( ! empty( $user ) ) {
 			$current_user = $this->admin;
@@ -102,7 +102,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 * Tests querying for theme with pagination args.
 	 */
 	public function testThemesQueryPagination() {
-
 
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
@@ -160,10 +159,9 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'before' => null,
 		];
 
-
 		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
 		codecept_debug( [ 'expected' => $expected ] );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEqualSets( $expected, $actual['data']['themes']['nodes'] );
 
 		// Test with empty `before`.

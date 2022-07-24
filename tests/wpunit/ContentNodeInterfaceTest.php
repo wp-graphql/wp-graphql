@@ -89,7 +89,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query' => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -168,7 +168,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 				'postId'     => (string) $post_id,
 				'pageIdType' => 'DATABASE_ID',
 				'pageId'     => (string) $page_id,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -189,7 +189,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 				'postId'     => (int) $post_id,
 				'pageIdType' => 'DATABASE_ID',
 				'pageId'     => (int) $page_id,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -212,14 +212,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'page',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -233,7 +233,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -255,10 +255,9 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $variables );
 
-
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -279,14 +278,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'page',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -300,7 +299,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -321,14 +320,14 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'page',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Page',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$post_id = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$variables = [
@@ -342,7 +341,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = graphql( [
 			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables
+			'variables' => $variables,
 		] );
 
 		codecept_debug( $actual );
@@ -359,31 +358,31 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testContentNodeFieldBySlug() {
 
-		$post_types = array(
-			'book' => array(
+		$post_types = [
+			'book' => [
 				'public'              => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'book',
 				'graphql_plural_name' => 'books',
 				'label'               => 'Books',
-			),
-			'test' => array(
+			],
+			'test' => [
 				'public'              => false,
 				'publicly_queryable'  => true,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'test',
 				'graphql_plural_name' => 'tests',
 				'label'               => 'Tests',
-			),
-			'cat' => array(
+			],
+			'cat'  => [
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'cat',
 				'graphql_plural_name' => 'cats',
 				'label'               => 'Cats',
-			),
-		);
+			],
+		];
 
 		foreach ( $post_types as $post_type => $args ) {
 			register_post_type( $post_type, $args );
@@ -393,21 +392,21 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'book',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Post',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$post_id_test = $this->factory()->post->create( [
 			'post_type'   => 'test',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Test',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$post_id_cat = $this->factory()->post->create( [
 			'post_type'   => 'cat',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Cat',
-			'post_author' => $this->admin
+			'post_author' => $this->admin,
 		] );
 
 		$query = '
@@ -428,7 +427,7 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql( [
-			'query'     => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );
@@ -441,12 +440,11 @@ class ContentNodeInterfaceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Cat', $actual['data']['cat']['__typename'] );
 		$this->assertEquals( $post_id_cat, $actual['data']['cat']['catId'] );
 
-
 		// Set the user to a public user
 		wp_set_current_user( 0 );
 
 		$actual = graphql( [
-			'query'     => $query
+			'query' => $query,
 		] );
 
 		codecept_debug( $actual );

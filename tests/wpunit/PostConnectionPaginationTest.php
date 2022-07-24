@@ -139,7 +139,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => null,
 				'last'   => null,
 				'before' => null,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -165,7 +165,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => $actual['data']['posts']['pageInfo']['endCursor'],
 				'last'   => null,
 				'before' => null,
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -185,7 +185,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => $actual['data']['posts']['pageInfo']['endCursor'],
 				'last'   => null,
 				'before' => null,
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -205,7 +205,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => null,
 				'last'   => 2,
 				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -225,7 +225,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'after'  => null,
 				'last'   => 2,
 				'before' => $actual['data']['posts']['pageInfo']['startCursor'],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -244,7 +244,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 			'post_type' => 'post',
 			'orderby'   => 'title',
 			'order'     => 'DESC',
-			'fields'    => 'ids'
+			'fields'    => 'ids',
 		] );
 
 		codecept_debug( $posts_by_title->posts );
@@ -281,7 +281,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'field' => 'TITLE',
 							'order' => 'DESC',
-						]
+						],
 					],
 				],
 			],
@@ -313,10 +313,10 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'field' => 'TITLE',
 							'order' => 'DESC',
-						]
+						],
 					],
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -341,10 +341,10 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'field' => 'TITLE',
 							'order' => 'DESC',
-						]
+						],
 					],
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -369,10 +369,10 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'field' => 'TITLE',
 							'order' => 'DESC',
-						]
+						],
 					],
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -397,10 +397,10 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 						[
 							'field' => 'TITLE',
 							'order' => 'DESC',
-						]
+						],
 					],
 				],
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -424,20 +424,20 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 			'post_author' => $this->admin,
-			'post_title'  => $search_string
+			'post_title'  => $search_string,
 		];
 
 		// Create 10 posts all with the $search_string as the title
 		for ( $i = 0; $i <= 10; $i ++ ) {
-			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
+			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
 			$this->factory()->post->create( $args );
 		}
 
 		$posts_search = new WP_Query( [
 			'post_type' => 'post',
-			's'    => $search_string,
-			'fields' => 'ids'
+			's'         => $search_string,
+			'fields'    => 'ids',
 		] );
 
 		codecept_debug( $posts_search );
@@ -501,7 +501,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'search' => $search_string,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -524,7 +524,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'search' => $search_string,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -547,7 +547,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'search' => $search_string,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -570,7 +570,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'search' => $search_string,
 				],
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -648,7 +648,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -671,7 +671,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -694,7 +694,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		// assert there are 2 items in the query
@@ -717,7 +717,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 					'in' => $post_ids,
 				],
 			],
-			'decoded' => base64_decode( $actual['data']['posts']['pageInfo']['startCursor'] )
+			'decoded'   => base64_decode( $actual['data']['posts']['pageInfo']['startCursor'] ),
 		]);
 
 		// Query the previous page
@@ -731,7 +731,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -756,7 +756,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		codecept_debug( [
@@ -769,7 +769,7 @@ class PostConnectionPaginationTest extends \Codeception\TestCase\WPTestCase {
 				'where'  => [
 					'in' => $post_ids,
 				],
-			]
+			],
 		] );
 
 		codecept_debug( $actual );

@@ -19,7 +19,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->admin = $this->factory()->user->create( [
 			'role'       => 'administrator',
-			'user_email' => 'test@test.com'
+			'user_email' => 'test@test.com',
 		] );
 
 	}
@@ -36,7 +36,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Create some Post menu items.
 		for ( $x = 1; $x <= $count; $x ++ ) {
 			$post_id    = $this->factory()->post->create( [
-				'post_status' => 'publish'
+				'post_status' => 'publish',
 			] );
 			$post_ids[] = $post_id;
 
@@ -81,7 +81,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// The returned menu items have the expected IDs in the expected order.
 		$this->assertEquals(
 			$created_menu_ids,
-			array_map( function( $menu_item ) {
+			array_map( function ( $menu_item ) {
 				return $menu_item['node']['databaseId'];
 			}, $edges )
 		);
@@ -89,7 +89,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// The connected posts have the expected IDs in the expected order.
 		$this->assertEquals(
 			$created_post_ids,
-			array_map( function( $menu_item ) {
+			array_map( function ( $menu_item ) {
 				return $menu_item['node']['connectedObject']['postId'];
 			}, $edges )
 		);
@@ -207,7 +207,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryByLocation() {
-		$count   = 10;
+		$count = 10;
 
 		/**
 		 * Create menu items that should NOT be returned because they're not assigned this location
@@ -310,7 +310,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = do_graphql_request( $query );
 
 		$this->assertEquals( 13, count( $actual['data']['menuItems']['edges'] ) );
-
 
 		$child_items_via_database_id = [];
 		$parent_id                   = null;
@@ -478,7 +477,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
 
 		// The parentDatabaseId matches with the requested parent database id
@@ -557,7 +555,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-
 		// Perform some common assertions. Slice the created IDs to the limit.
 		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
 		$post_ids      = array_slice( $created['post_ids'], 0, $limit );
@@ -571,10 +568,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_update_post(
 			[
 				'ID'          => $created['post_ids'][0],
-				'post_status' => 'draft'
+				'post_status' => 'draft',
 			]
 		);
-
 
 		$query = '
 		{
@@ -611,13 +607,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			0 => [
 				// But actual connected data is not available because there's no permission to do so
 				'connectedObject' => null,
-				'connectedNode' => null,
+				'connectedNode'   => null,
 			],
 			1 => [
 				'connectedObject' => [
 					'status' => 'publish',
 				],
-				'connectedNode' => [
+				'connectedNode'   => [
 					'node' => [
 						'status' => 'publish',
 					],
@@ -636,10 +632,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_update_post(
 			[
 				'ID'          => $created['post_ids'][0],
-				'post_status' => 'draft'
+				'post_status' => 'draft',
 			]
 		);
-
 
 		$query = '
 		{
@@ -676,13 +671,13 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'connectedObject' => [
 					'status' => 'draft',
 				],
-				'connectedNode' => null,
+				'connectedNode'   => null,
 			],
 			1 => [
 				'connectedObject' => [
 					'status' => 'publish',
 				],
-				'connectedNode' => [
+				'connectedNode'   => [
 					'node' => [
 						'status' => 'publish',
 					],
@@ -713,11 +708,10 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$actual = do_graphql_request( $query );
 
-
 		// Assert that the `order` field actually exists and is an int
 		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order'] );
 
-		$orders = array_map( function( $node ) {
+		$orders = array_map( function ( $node ) {
 			return $node['order'];
 		}, $actual['data']['menuItems']['nodes'] );
 
@@ -727,7 +721,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// Assert that the returned list was in the sorted order
 		$this->assertEquals( $orders, $sorted_orders );
-
 
 	}
 
@@ -743,11 +736,11 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// register a "location" taxonomy
 		register_taxonomy( 'location', 'post', [
-			'show_ui' => true,
-			'label' => 'Location',
-			'show_in_graphql' => true,
+			'show_ui'             => true,
+			'label'               => 'Location',
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'Location',
-			'graphql_plural_name' => 'Locations'
+			'graphql_plural_name' => 'Locations',
 		]);
 
 		$query = '
@@ -763,7 +756,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $actual );
@@ -774,7 +767,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['menuItems']['edges'] );
 
-		foreach ($created['menu_item_ids'] as $menu_item_id ) {
+		foreach ( $created['menu_item_ids'] as $menu_item_id ) {
 			wp_delete_post( $menu_item_id );
 		}
 

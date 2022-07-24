@@ -15,20 +15,18 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 
 		register_post_type('custom_type', [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
-			'public' => true,
+			'public'              => true,
 		]);
 
 		register_post_type('faq', [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'faq',
 			'graphql_plural_name' => 'faqs',
-			'public' => true,
+			'public'              => true,
 		]);
-
-
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
@@ -37,17 +35,17 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->post = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
+			'post_title'  => 'Test',
 			'post_author' => $this->user,
 		] );
 
 		$this->custom_type = $this->factory()->post->create( [
-			'post_type' => 'custom_type',
+			'post_type'   => 'custom_type',
 			'post_status' => 'publish',
-			'post_title' => 'Test Page',
-			'post_author' => $this->user
+			'post_title'  => 'Test Page',
+			'post_author' => $this->user,
 		] );
 
 		parent::setUp();
@@ -75,12 +73,12 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Get a Post by it's permalink
+	 *
 	 * @throws Exception
 	 */
 	public function testPostBySlug() {
 
-	    $post = get_post($this->post);
-
+		$post = get_post( $this->post );
 
 		$query = '
         query GET_POST_BY_URI( $slug: ID! ) {
@@ -94,7 +92,7 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( get_post( $this->post ) );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'slug' => $post->post_name,
 			],
@@ -106,35 +104,34 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
 		$this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 
+		$this->set_permalink_structure( "/$post->post_type/%postname%" );
 
-        $this->set_permalink_structure( "/$post->post_type/%postname%" );
+		codecept_debug( $actual );
 
-        codecept_debug( $actual );
-
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
-        $this->assertSame( $post->post_title, $actual['data']['post']['title'] );
-
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
+		$this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 
 		$this->set_permalink_structure( '' );
 
 		codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
-        $this->assertSame( $post->post_title, $actual['data']['post']['title'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->post, $actual['data']['post']['databaseId'] );
+		$this->assertSame( $post->post_title, $actual['data']['post']['title'] );
 	}
 
 
-    /**
-     * Get a Post by it's permalink
-     * @throws Exception
-     */
-    public function testCustomPostBySlug() {
+	/**
+	 * Get a Post by it's permalink
+	 *
+	 * @throws Exception
+	 */
+	public function testCustomPostBySlug() {
 
-        $post = get_post($this->custom_type);
+		$post = get_post( $this->custom_type );
 
-        $query = '
+		$query = '
         query GET_POST_BY_URI( $slug: ID! ) {
            customType(id: $slug, idType: SLUG) {
                 databaseId
@@ -143,58 +140,55 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-        codecept_debug( get_post( $this->custom_type ) );
+		codecept_debug( get_post( $this->custom_type ) );
 
-        $actual = graphql([
-            'query' => $query,
-            'variables' => [
-                'slug' => $post->post_name,
-            ],
-        ]);
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'slug' => $post->post_name,
+			],
+		]);
 
-        codecept_debug( $actual );
+		codecept_debug( $actual );
 
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
-        $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
+		$this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
 
+		$this->set_permalink_structure( "/$post->post_type/%postname%" );
 
-        $this->set_permalink_structure( "/$post->post_type/%postname%" );
+		codecept_debug( $actual );
 
-        codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
+		$this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
 
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
-        $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
+		$this->set_permalink_structure( '' );
 
+		codecept_debug( $actual );
 
-        $this->set_permalink_structure( '' );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
+		$this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
+	}
 
-        codecept_debug( $actual );
+	function testPageWithNameOfPostType() {
 
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->custom_type, $actual['data']['customType']['databaseId'] );
-        $this->assertSame( $post->post_title, $actual['data']['customType']['title'] );
-    }
+		$this->custom_type = $this->factory()->post->create( [
+			'post_type'   => 'faq',
+			'post_status' => 'publish',
+			'post_title'  => 'Test FAQ',
+			'post_author' => $this->user,
+		] );
 
-    function testPageWithNameOfPostType () {
+		$this->page = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'FAQ',
+			'post_author' => $this->user,
+		] );
 
-        $this->custom_type = $this->factory()->post->create( [
-            'post_type' => 'faq',
-            'post_status' => 'publish',
-            'post_title' => 'Test FAQ',
-            'post_author' => $this->user
-        ] );
-
-        $this->page = $this->factory()->post->create( [
-            'post_type' => 'page',
-            'post_status' => 'publish',
-            'post_title' => 'FAQ',
-            'post_author' => $this->user
-        ] );
-
-
-        $query = '
+		$query = '
         query GET_POST_BY_SLUG( $slug: ID! ) {
            faq(id: $slug, idType: SLUG) {
                 databaseId
@@ -203,27 +197,24 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-        codecept_debug( get_post( $this->custom_type ) );
+		codecept_debug( get_post( $this->custom_type ) );
 
-        $faqPost = get_post($this->custom_type);
+		$faqPost = get_post( $this->custom_type );
 
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'slug' => $faqPost->post_name,
+			],
+		]);
 
-        $actual = graphql([
-            'query' => $query,
-            'variables' => [
-                'slug' => $faqPost->post_name,
-            ],
-        ]);
+		codecept_debug( $actual );
 
-        codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->custom_type, $actual['data']['faq']['databaseId'] );
+		$this->assertSame( $faqPost->post_title, $actual['data']['faq']['title'] );
 
-
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->custom_type, $actual['data']['faq']['databaseId'] );
-        $this->assertSame( $faqPost->post_title, $actual['data']['faq']['title'] );
-
-
-        $query = '
+		$query = '
         query GET_PAGE_BY_URI( $uri: ID! ) {
            page(id: $uri, idType: URI) {
                 databaseId
@@ -232,25 +223,24 @@ class NodeBySlugTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-        codecept_debug( get_post( $this->custom_type ) );
+		codecept_debug( get_post( $this->custom_type ) );
 
-        $faqPage = get_post( $this->page );
-        $permalink = get_permalink( $faqPage );
+		$faqPage   = get_post( $this->page );
+		$permalink = get_permalink( $faqPage );
 
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $permalink,
+			],
+		]);
 
-        $actual = graphql([
-            'query' => $query,
-            'variables' => [
-                'uri' => $permalink,
-            ],
-        ]);
+		codecept_debug( $actual );
 
-        codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
+		$this->assertSame( $faqPage->post_title, $actual['data']['page']['title'] );
 
-        $this->assertArrayNotHasKey( 'errors', $actual );
-        $this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
-        $this->assertSame( $faqPage->post_title, $actual['data']['page']['title'] );
-
-    }
+	}
 
 }

@@ -199,7 +199,6 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( $actual );
 
-
 		/**
 		 * Establish the expectation for the output of the query
 		 */
@@ -222,7 +221,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 				'termGroupId'    => null,
 				'termTaxonomyId' => $term_id,
-				'taxonomyName' => 'category',
+				'taxonomyName'   => 'category',
 			],
 		];
 
@@ -242,24 +241,27 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create a term
 		 */
-		$term_id = $this->createTermObject( [ 'name' => uniqid(), 'taxonomy' => 'category' ] );
+		$term_id = $this->createTermObject( [
+			'name'     => uniqid(),
+			'taxonomy' => 'category',
+		] );
 
 		// Create a comment and assign it to term.
-		$post_id  = $this->factory()->post->create( [
-			'post_type' => 'post' ,
-			'post_title' => uniqid(),
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_title'  => uniqid(),
 			'post_status' => 'publish',
 		] );
 
 		codecept_debug( $post_id );
 		$page_id  = $this->factory()->post->create( [
-			'post_type' => 'page',
-			'post_title' => uniqid(),
+			'post_type'   => 'page',
+			'post_title'  => uniqid(),
 			'post_status' => 'publish',
 		] );
 		$media_id = $this->factory()->post->create( [
-			'post_type' => 'attachment',
-			'post_title' => uniqid(),
+			'post_type'   => 'attachment',
+			'post_title'  => uniqid(),
 			'post_status' => 'publish',
 		] );
 
@@ -369,7 +371,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						],
 					],
 				],
-			]
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -380,7 +382,6 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * testTermQueryWithParentTerm
 	 *
 	 * Tests query for term ancestors
-	 *
 	 */
 	public function testTermQueryWithParentTerm() {
 
@@ -424,10 +425,10 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'category' => [
 				'id'         => $global_child_id,
 				'categoryId' => $child_id,
-				'parent' => [
+				'parent'     => [
 					'node' => [
 						'id' => $global_parent_id,
-					]
+					],
 				],
 				'ancestors'  => [
 					'nodes' => [
@@ -435,11 +436,10 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							'id'         => $global_parent_id,
 							'categoryId' => $parent_id,
 						],
-					]
+					],
 				],
 			],
 		];
-
 
 		$this->assertEquals( $expected, $actual['data'] );
 
@@ -479,18 +479,18 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$expected_errors = [
 			[
-				'message'   => 'The ID input is invalid',
-				'locations' => [
+				'message'    => 'The ID input is invalid',
+				'locations'  => [
 					[
 						'line'   => 3,
 						'column' => 4,
 					],
 				],
-				'path'      => [
+				'path'       => [
 					'category',
 				],
 				'extensions' => [
-					'category' => 'user'
+					'category' => 'user',
 				],
 			],
 		];
@@ -501,12 +501,12 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testQueryChildCategoryByUri() {
 
 		$parent_id = $this->factory()->category->create([
-			'name' => 'parent'
+			'name' => 'parent',
 		]);
 
 		$child_id = $this->factory()->category->create([
-			'name' => 'child',
-			'parent' => $parent_id
+			'name'   => 'child',
+			'parent' => $parent_id,
 		]);
 
 		codecept_debug( get_term_link( $child_id, 'category' ) );
@@ -524,7 +524,7 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $child_id ),
 			],
@@ -535,17 +535,16 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Category', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertEquals( 'child', $actual['data']['nodeByUri']['name'] );
 
-
 	}
 
 	public function testCustomTaxonomyChildTermQueryByUri() {
 
 		register_taxonomy( 'news', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
+			'public'              => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'NewsCategory',
 			'graphql_plural_name' => 'NewsCategories',
-			'rewrite' => true,
+			'rewrite'             => true,
 		]);
 
 		flush_rewrite_rules();
@@ -554,19 +553,19 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$parent_id = $this->factory()->term->create([
 			'taxonomy' => 'news',
-			'name' => 'parent',
+			'name'     => 'parent',
 		]);
 
 		$child_id = $this->factory()->term->create([
 			'taxonomy' => 'news',
-			'name' => 'child',
-			'parent' => $parent_id,
+			'name'     => 'child',
+			'parent'   => $parent_id,
 		]);
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'news',
+			'post_type'   => 'news',
 			'post_status' => 'publish',
-			'post_title' => 'Test News Post',
+			'post_title'  => 'Test News Post',
 		]);
 
 		wp_set_object_terms( $post_id, [ $child_id ], 'news' );
@@ -600,11 +599,11 @@ class TermObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'uri_string' => $link,
-				'uri_id' => $link,
-			]
+				'uri_id'     => $link,
+			],
 		]);
 
 		codecept_debug( $actual );

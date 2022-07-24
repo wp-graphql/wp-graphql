@@ -49,14 +49,14 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([ 'query' => $query ]);
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->assertEquals(  'Category', $actual['data']['categories']['nodes'][0]['__typename'] );
-		$this->assertEquals(  'Tag', $actual['data']['tags']['nodes'][0]['__typename'] );
+		$this->assertEquals( 'Category', $actual['data']['categories']['nodes'][0]['__typename'] );
+		$this->assertEquals( 'Tag', $actual['data']['tags']['nodes'][0]['__typename'] );
 
 	}
 
@@ -65,13 +65,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByGlobalId() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
@@ -87,10 +87,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -103,13 +103,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByDatabaseId() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
@@ -125,10 +125,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -143,13 +143,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByName() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
@@ -165,10 +165,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $tag->name,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -183,13 +183,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagBySlug() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
@@ -205,10 +205,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $tag->slug,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -223,13 +223,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByUri() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
@@ -245,10 +245,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $tag->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -267,9 +267,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -285,10 +285,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -305,9 +305,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -323,10 +323,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $cat->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -341,13 +341,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryByName() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -363,10 +363,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -381,13 +381,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryBySlug() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -403,10 +403,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -421,13 +421,13 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryByUri() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -443,10 +443,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -466,9 +466,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -487,10 +487,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -508,10 +508,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Tag',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
-			'tagId' => $tag->term_id,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'       => $tag->name,
+			'slug'       => $tag->slug,
+			'tagId'      => $tag->term_id,
 		];
 
 		$query = '
@@ -529,10 +529,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -547,14 +547,14 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeByName() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -573,10 +573,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -591,14 +591,14 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeBySlug() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
@@ -617,10 +617,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -635,19 +635,19 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeByUri() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
-		$link = get_term_link( $cat->term_id );
+		$link     = get_term_link( $cat->term_id );
 		$term_uri = str_ireplace( home_url(), '', $link );
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
-			'uri' => $term_uri,
+			'uri'        => $term_uri,
 		];
 
 		$query = '
@@ -666,10 +666,10 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
-			]
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -696,9 +696,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 			return str_replace( $site_url, $frontend_uri, $term_link );
 		});
 
-		$link     = get_term_link( $cat->term_id );
-		$parsed   = parse_url( $link );
-		$term_uri = $parsed['path'] ?? '';
+		$link      = get_term_link( $cat->term_id );
+		$parsed    = parse_url( $link );
+		$term_uri  = $parsed['path'] ?? '';
 		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
 
 		$expected = [
@@ -731,19 +731,18 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testQueryContentNodesOnCustomTaxonomyTest() {
 
-
 		register_taxonomy( 'no-posts', [], [
-			'public' => true,
-			'show_in_graphql' => true,
+			'public'              => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'NoPost',
 			'graphql_plural_name' => 'NoPosts',
 		]);
 
-		register_taxonomy( 'with-graphql', ['post', 'page'], [
-			'show_in_graphql' => true,
+		register_taxonomy( 'with-graphql', [ 'post', 'page' ], [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'TestTax',
 			'graphql_plural_name' => 'AllTestTax',
-			'public' => true,
+			'public'              => true,
 		]);
 
 		$query = '

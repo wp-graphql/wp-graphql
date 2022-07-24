@@ -8,30 +8,29 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
-		$this->with_post_type = 'with-revisions';
+		$this->with_post_type    = 'with-revisions';
 		$this->without_post_type = 'without-revisions';
-
 
 		register_post_type(
 			$this->with_post_type,
 			[
-				'show_in_graphql' => true,
+				'show_in_graphql'     => true,
 				'graphql_single_name' => 'WithRevisionSupport',
 				'graphql_plural_name' => 'allWithRevisionSupport',
-				'supports' => [ 'title', 'content', 'author', 'revisions' ],
-				'public' => true,
+				'supports'            => [ 'title', 'content', 'author', 'revisions' ],
+				'public'              => true,
 			]
 		);
 
 		register_post_type( $this->without_post_type, [
-			'show_in_graphql' => true,
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'WithoutRevisionSupport',
 			'graphql_plural_name' => 'allWithoutRevisionSupport',
-			'supports' => [ 'title', 'content', 'author' ],
-			'public' => true,
+			'supports'            => [ 'title', 'content', 'author' ],
+			'public'              => true,
 		]);
 
 		wp_set_current_user( $this->admin );
@@ -49,13 +48,13 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	public function testValidSchema() {
 
 		$actual = graphql([
-			'query' => '{allWithoutRevisionSupport{nodes{id}}}'
+			'query' => '{allWithoutRevisionSupport{nodes{id}}}',
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$actual = graphql([
-			'query' => '{allWithRevisionSupport{nodes{id}}}'
+			'query' => '{allWithRevisionSupport{nodes{id}}}',
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -99,27 +98,27 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// a draft is created
 		// a revision is also created
 		$draft_title = uniqid( 'preview:', true );
-		$draft_id = $this->factory()->post->create([
-			'post_type' => $this->with_post_type,
+		$draft_id    = $this->factory()->post->create([
+			'post_type'   => $this->with_post_type,
 			'post_status' => 'draft',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 		]);
 
 		$revision_id = $this->factory()->post->create([
-			'post_type' => 'revision',
+			'post_type'   => 'revision',
 			'post_status' => 'inherit',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 			'post_parent' => $draft_id,
 		]);
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
@@ -132,11 +131,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $preview );
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -154,7 +153,6 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// but the titles should be the same, because that's the change we're previewing
 		$this->assertSame( $preview['data']['node']['title'], $not_preview['data']['node']['title'] );
 
-
 	}
 
 	public function testPreviewNewPostOfTypeWithoutRevisionSupport() {
@@ -164,19 +162,19 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// the post_type doesn't support revisions
 		// a draft is created
 		$draft_title = uniqid( 'preview:', true );
-		$draft_id = $this->factory()->post->create([
-			'post_type' => $this->without_post_type,
+		$draft_id    = $this->factory()->post->create([
+			'post_type'   => $this->without_post_type,
 			'post_status' => 'draft',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 		]);
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $preview );
@@ -187,11 +185,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $preview );
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -219,28 +217,28 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// user clicks "preview"
 		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
-		$draft_id = $this->factory()->post->create([
-			'post_type' => $this->with_post_type,
+		$draft_id    = $this->factory()->post->create([
+			'post_type'   => $this->with_post_type,
 			'post_status' => 'draft',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 		]);
 
 		// since the post type supports revisions, a revision is created
 		$revision_id = $this->factory()->post->create([
-			'post_type' => 'revision',
+			'post_type'   => 'revision',
 			'post_status' => 'inherit',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 			'post_parent' => $draft_id,
 		]);
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -255,11 +253,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		codecept_debug( $preview );
@@ -296,21 +294,21 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// user clicks "preview"
 		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
-		$draft_id = $this->factory()->post->create([
-			'post_type' => $this->without_post_type,
+		$draft_id    = $this->factory()->post->create([
+			'post_type'   => $this->without_post_type,
 			'post_status' => 'draft',
-			'post_title' => $draft_title,
+			'post_title'  => $draft_title,
 			'post_author' => $this->admin,
 		]);
 
 		// since the post type does not support revisions, a revision is not created
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -325,11 +323,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $draft_id,
+				'id'        => $draft_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		codecept_debug( $preview );
@@ -361,11 +359,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPreviewPublishedPostOfTypeWithRevisionSupport() {
 
 		// we're starting with a published post
-		$title = 'published title';
+		$title        = 'published title';
 		$published_id = $this->factory()->post->create([
-			'post_type' => $this->with_post_type,
+			'post_type'   => $this->with_post_type,
 			'post_status' => 'publish',
-			'post_title' => $title,
+			'post_title'  => $title,
 			'post_author' => $this->admin,
 		]);
 
@@ -375,19 +373,19 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// User clicks preview
 		// an autosave revision is created
 		$revision_id = $this->factory()->post->create([
-			'post_type' => 'revision',
+			'post_type'   => 'revision',
 			'post_status' => 'inherit',
-			'post_title' => $new_title,
+			'post_title'  => $new_title,
 			'post_author' => $this->admin,
 			'post_parent' => $published_id,
 		]);
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $published_id,
+				'id'        => $published_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -401,11 +399,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $published_id,
+				'id'        => $published_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		codecept_debug( $preview );
@@ -440,11 +438,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPreviewPublishedPostOfTypeWithoutRevisionSupport() {
 
 		// we're starting with a published post
-		$title = 'published title';
+		$title        = 'published title';
 		$published_id = $this->factory()->post->create([
-			'post_type' => $this->without_post_type,
+			'post_type'   => $this->without_post_type,
 			'post_status' => 'publish',
-			'post_title' => $title,
+			'post_title'  => $title,
 			'post_author' => $this->admin,
 		]);
 
@@ -455,19 +453,19 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		// autosave revisions are always created for published posts
 		// regardless of post type support
 		$revision_id = $this->factory()->post->create([
-			'post_type' => 'revision',
+			'post_type'   => 'revision',
 			'post_status' => 'inherit',
-			'post_title' => $new_title,
+			'post_title'  => $new_title,
 			'post_author' => $this->admin,
 			'post_parent' => $published_id,
 		]);
 
 		$not_preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $published_id,
+				'id'        => $published_id,
 				'asPreview' => false,
-			]
+			],
 		]);
 
 		codecept_debug( $not_preview );
@@ -481,11 +479,11 @@ class PreviewContentNodesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = graphql([
-			'query' => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
-				'id' => $published_id,
+				'id'        => $published_id,
 				'asPreview' => true,
-			]
+			],
 		]);
 
 		codecept_debug( $preview );

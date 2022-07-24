@@ -9,7 +9,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator'
+			'role' => 'administrator',
 		] );
 
 		if ( is_multisite() ) {
@@ -28,13 +28,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Set up the $args
 		 */
-		$args = array(
+		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test page content',
 			'post_title'   => 'Test Page Title',
 			'post_type'    => 'page',
 			'post_author'  => $this->admin,
-		);
+		];
 
 		/**
 		 * Create the page
@@ -96,13 +96,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Set up the $args
 		 */
-		$args = array(
+		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test page content',
 			'post_title'   => 'Test Page Title',
 			'post_type'    => 'page',
 			'post_author'  => $this->admin,
-		);
+		];
 
 		/**
 		 * Create the page
@@ -152,13 +152,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostNodeQuery() {
 
-		$args = array(
+		$args = [
 			'post_status'  => 'publish',
 			'post_content' => 'Test post content',
 			'post_title'   => 'Test post Title',
 			'post_type'    => 'post',
 			'post_author'  => $this->admin,
-		);
+		];
 
 		$post_id = $this->factory->post->create( $args );
 
@@ -192,13 +192,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testAttachmentNodeQuery() {
 
-		$args = array(
+		$args = [
 			'post_status'  => 'inherit',
 			'post_content' => 'Test attachment content',
 			'post_title'   => 'Test attachment Title',
 			'post_type'    => 'attachment',
 			'post_author'  => $this->admin,
-		);
+		];
 
 		$attachment_id = $this->factory->post->create( $args );
 		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
@@ -243,7 +243,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		}";
 
 		wp_set_current_user( $this->admin );
-		$actual = graphql([ 'query' => $query ] );
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
 
@@ -264,14 +264,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testThemeNodeQuery() {
 
-
-		$themes = wp_get_themes();
+		$themes       = wp_get_themes();
 		$active_theme = $themes[ array_key_first( $themes ) ]->get_stylesheet();
 		update_option( 'template', $active_theme );
 		update_option( 'stylesheet', $active_theme );
 
-		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'theme', $active_theme );
-		$query      = "
+		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $active_theme );
+		$query     = "
 		query { 
 			node(id: \"{$global_id}\") { 
 				__typename 
@@ -281,7 +280,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			} 
 		}";
 		wp_set_current_user( $this->admin );
-		$actual     = do_graphql_request( $query );
+		$actual = do_graphql_request( $query );
 
 		codecept_debug( $actual );
 
@@ -308,10 +307,10 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUserNodeQuery( $has_posts, $user, $private ) {
 
-		$user_args = array(
+		$user_args = [
 			'role'       => 'editor',
 			'user_email' => 'graphqliscool@wpgraphql.com',
-		);
+		];
 
 		$user_id = $this->factory->user->create( $user_args );
 
@@ -373,24 +372,24 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		return [
 			[
 				'has_posts' => true,
-				'user' => '',
-				'private' => false,
+				'user'      => '',
+				'private'   => false,
 			],
 			[
 				'has_posts' => false,
-				'user' => '',
-				'private' => true,
+				'user'      => '',
+				'private'   => true,
 			],
 			[
 				'has_posts' => false,
-				'user' => 'admin',
-				'private' => false,
+				'user'      => 'admin',
+				'private'   => false,
 			],
 			[
 				'has_posts' => false,
-				'user' => 'owner',
-				'private' => false,
-			]
+				'user'      => 'owner',
+				'private'   => false,
+			],
 		];
 	}
 
@@ -401,25 +400,25 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testCommentNodeQuery() {
 
-		$user_args = array(
+		$user_args = [
 			'role'       => 'editor',
 			'user_email' => 'graphqliscool@wpgraphql.com',
-		);
+		];
 
 		$user_id = $this->factory->user->create( $user_args );
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...',
-			'post_author' => $this->admin
+			'post_title'  => 'Post for commenting...',
+			'post_author' => $this->admin,
 		]);
 
-		$comment_args = array(
+		$comment_args = [
 			'user_id'         => $user_id,
 			'comment_content' => 'GraphQL is really awesome, dude!',
-			'comment_post_ID' => $post_id
-		);
+			'comment_post_ID' => $post_id,
+		];
 		$comment_id   = $this->factory()->comment->create( $comment_args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
@@ -452,13 +451,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$comment_args = [
 			'comment_author_email' => 'yoyoyo@wpgraphql.com',
-			'comment_author' => 'Test Author',
-			'comment_author_url' => 'wpgraphql.com',
-			'comment_content' => 'JsOnB00l smellz',
+			'comment_author'       => 'Test Author',
+			'comment_author_url'   => 'wpgraphql.com',
+			'comment_content'      => 'JsOnB00l smellz',
 		];
 
 		$comment_id = $this->factory->comment->create( $comment_args );
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id );
+		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id );
 
 		$query = "
 		query {
@@ -476,8 +475,8 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$expected = [
 			'node' => [
 				'__typename' => 'CommentAuthor',
-				'id' => $global_id,
-			]
+				'id'         => $global_id,
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -489,15 +488,15 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testSuccessfulPostTypeResolver() {
 
-		$query = "
+		$query = '
 		{
-		  node(id:\"cG9zdF90eXBlOnBvc3Q=\"){
+		  node(id:"cG9zdF90eXBlOnBvc3Q="){
 			...on ContentType {
 			  name
 			}
 		  }
 		}
-		";
+		';
 
 		$actual = do_graphql_request( $query );
 
@@ -540,15 +539,15 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testSuccessfulTaxonomyResolver() {
 
-		$query = "
+		$query = '
 		{
-		  node(id:\"dGF4b25vbXk6Y2F0ZWdvcnk=\"){
+		  node(id:"dGF4b25vbXk6Y2F0ZWdvcnk="){
 			...on Taxonomy {
 			  name
 			}
 		  }
 		}
-		";
+		';
 
 		$actual = do_graphql_request( $query );
 
@@ -567,15 +566,15 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUnsuccessfulTaxonomyResolver() {
 
-		$query = "
+		$query = '
 		{
-		  node(id:\"dGF4b25vbXk6dGVzdA==\"){
+		  node(id:"dGF4b25vbXk6dGVzdA=="){
 			...on Taxonomy {
 			  name
 			}
 		  }
 		}
-		";
+		';
 
 		$actual = do_graphql_request( $query );
 
@@ -589,15 +588,15 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testUnsuccessfulCommentResolver() {
 
-		$query = "
+		$query = '
 		{
-		  node(id:\"nonExistentId\"){
+		  node(id:"nonExistentId"){
 			...on Comment {
 			  id
 			}
 		  }
 		}
-		";
+		';
 
 		$actual = do_graphql_request( $query );
 

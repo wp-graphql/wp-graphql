@@ -107,47 +107,47 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create an attachment with a post set as it's parent
 		 */
 		$image_description = 'some description';
-		$attachment_id = $this->createPostObject( [
-			'post_type'   => 'attachment',
-			'post_parent' => $post_id,
+		$attachment_id     = $this->createPostObject( [
+			'post_type'    => 'attachment',
+			'post_parent'  => $post_id,
 			'post_content' => $image_description,
 		] );
 
 		$default_image_meta = [
-			'aperture' => 0,
-			'credit' => 'some photographer',
-			'camera' => 'some camera',
-			'caption' => 'some caption',
+			'aperture'          => 0,
+			'credit'            => 'some photographer',
+			'camera'            => 'some camera',
+			'caption'           => 'some caption',
 			'created_timestamp' => strtotime( $this->current_date ),
-			'copyright' => 'Copyright WPGraphQL',
-			'focal_length' => 0,
-			'iso' => 0,
-			'shutter_speed' => 0,
-			'title' => 'some title',
-			'orientation' => 'some orientation',
-			'keywords' => [
+			'copyright'         => 'Copyright WPGraphQL',
+			'focal_length'      => 0,
+			'iso'               => 0,
+			'shutter_speed'     => 0,
+			'title'             => 'some title',
+			'orientation'       => 'some orientation',
+			'keywords'          => [
 				'keyword1',
 				'keyword2',
 			],
 		];
 
 		$meta_data = [
-			'width' => 300,
-			'height' => 300,
-			'file' => 'example.jpg',
-			'sizes' => [
+			'width'      => 300,
+			'height'     => 300,
+			'file'       => 'example.jpg',
+			'sizes'      => [
 				'thumbnail' => [
-					'file' => 'example-thumbnail.jpg',
-					'width' => 150,
-					'height' => 150,
-					'mime-type' => 'image/jpeg',
+					'file'       => 'example-thumbnail.jpg',
+					'width'      => 150,
+					'height'     => 150,
+					'mime-type'  => 'image/jpeg',
 					'source_url' => 'example-thumbnail.jpg',
 				],
-				'full' => [
-					'file' => 'example-full.jpg',
-					'width' => 1500,
-					'height' => 1500,
-					'mime-type' => 'image/jpeg',
+				'full'      => [
+					'file'       => 'example-full.jpg',
+					'width'      => 1500,
+					'height'     => 1500,
+					'mime-type'  => 'image/jpeg',
 					'source_url' => 'example-full.jpg',
 				],
 			],
@@ -160,7 +160,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the global ID based on the post_type and the created $id
 		 */
 		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
-		$post_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
+		$post_global_id       = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -306,17 +306,17 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $mediaDetails['meta'] );
 		$meta = $mediaDetails['meta'];
 
-		$this->assertEquals( $meta_data['image_meta']['aperture'],  $meta['aperture'] );
-		$this->assertEquals( $meta_data['image_meta']['credit'],  $meta['credit'] );
-		$this->assertEquals( $meta_data['image_meta']['camera'],  $meta['camera'] );
-		$this->assertEquals( $meta_data['image_meta']['caption'],  $meta['caption'] );
-		$this->assertEquals( $meta_data['image_meta']['created_timestamp'],  $meta['createdTimestamp'] );
-		$this->assertEquals( $meta_data['image_meta']['copyright'],  $meta['copyright'] );
-		$this->assertEquals( $meta_data['image_meta']['focal_length'],  $meta['focalLength'] );
-		$this->assertEquals( $meta_data['image_meta']['iso'],  $meta['iso'] );
-		$this->assertEquals( $meta_data['image_meta']['shutter_speed'],  $meta['shutterSpeed'] );
-		$this->assertEquals( $meta_data['image_meta']['title'],  $meta['title'] );
-		$this->assertEquals( $meta_data['image_meta']['orientation'],  $meta['orientation'] );
+		$this->assertEquals( $meta_data['image_meta']['aperture'], $meta['aperture'] );
+		$this->assertEquals( $meta_data['image_meta']['credit'], $meta['credit'] );
+		$this->assertEquals( $meta_data['image_meta']['camera'], $meta['camera'] );
+		$this->assertEquals( $meta_data['image_meta']['caption'], $meta['caption'] );
+		$this->assertEquals( $meta_data['image_meta']['created_timestamp'], $meta['createdTimestamp'] );
+		$this->assertEquals( $meta_data['image_meta']['copyright'], $meta['copyright'] );
+		$this->assertEquals( $meta_data['image_meta']['focal_length'], $meta['focalLength'] );
+		$this->assertEquals( $meta_data['image_meta']['iso'], $meta['iso'] );
+		$this->assertEquals( $meta_data['image_meta']['shutter_speed'], $meta['shutterSpeed'] );
+		$this->assertEquals( $meta_data['image_meta']['title'], $meta['title'] );
+		$this->assertEquals( $meta_data['image_meta']['orientation'], $meta['orientation'] );
 
 		$this->assertNotEmpty( $meta_data['image_meta']['keywords'] );
 		$keywords = $meta_data['image_meta']['keywords'];
@@ -334,21 +334,21 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-    /**
-     * testPostQuery
-     *
-     * This tests creates a single attachment and retrieves said post URL via a GraphQL query
-     *
-     * @since 0.3.6
-     */
-    public function testMediaItemImageUrl() {
+	/**
+	 * testPostQuery
+	 *
+	 * This tests creates a single attachment and retrieves said post URL via a GraphQL query
+	 *
+	 * @since 0.3.6
+	 */
+	public function testMediaItemImageUrl() {
 
-        $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
-        $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
-	    $expected_filesize = filesize( $filename );
+		$expected_filesize = filesize( $filename );
 
-	    $query = '
+		$query = '
         query GET_MEDIA_ITEM( $id: Int! ) {
           mediaItemBy(mediaItemId: $id) {
             mediaItemUrl
@@ -357,74 +357,73 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
         }
         ';
 
-        $result = graphql([
-            'query' => $query,
-            'variables' => [
-                'id' => $attachment_id,
-            ],
-        ]);
+		$result = graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => $attachment_id,
+			],
+		]);
 
-        $expected = wp_get_attachment_url( $attachment_id );
+		$expected = wp_get_attachment_url( $attachment_id );
 
-        $this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
-	    $this->assertEquals( $expected_filesize, $result['data']['mediaItemBy']['fileSize'] );
+		$this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
+		$this->assertEquals( $expected_filesize, $result['data']['mediaItemBy']['fileSize'] );
 
-    }
+	}
 
 	/**
 	 * @throws Exception
 	 */
-    public function testQueryMediaItemBySourceUrl() {
+	public function testQueryMediaItemBySourceUrl() {
 
-	    $filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
-	    $attachment_id = $this->factory()->attachment->create_upload_object( $filename );
-	    $expected_filesize = filesize( $filename );
+		$filename          = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
+		$attachment_id     = $this->factory()->attachment->create_upload_object( $filename );
+		$expected_filesize = filesize( $filename );
 
-	    $default_image_meta = [
-		    'aperture' => 0,
-		    'credit' => 'some photographer',
-		    'camera' => 'some camera',
-		    'caption' => 'some caption',
-		    'created_timestamp' => strtotime( $this->current_date ),
-		    'copyright' => 'Copyright WPGraphQL',
-		    'focal_length' => 0,
-		    'iso' => 0,
-		    'shutter_speed' => 0,
-		    'title' => 'some title',
-		    'orientation' => 'some orientation',
-		    'keywords' => [
-			    'keyword1',
-			    'keyword2',
-		    ],
-	    ];
+		$default_image_meta = [
+			'aperture'          => 0,
+			'credit'            => 'some photographer',
+			'camera'            => 'some camera',
+			'caption'           => 'some caption',
+			'created_timestamp' => strtotime( $this->current_date ),
+			'copyright'         => 'Copyright WPGraphQL',
+			'focal_length'      => 0,
+			'iso'               => 0,
+			'shutter_speed'     => 0,
+			'title'             => 'some title',
+			'orientation'       => 'some orientation',
+			'keywords'          => [
+				'keyword1',
+				'keyword2',
+			],
+		];
 
-	    $meta_data = [
-		    'width' => 300,
-		    'height' => 300,
-		    'file' => 'example.jpg',
-		    'sizes' => [
-			    'thumbnail' => [
-				    'file' => 'example-thumbnail.jpg',
-				    'width' => 150,
-				    'height' => 150,
-				    'mime-type' => 'image/jpeg',
-				    'source_url' => 'example-thumbnail.jpg',
-			    ],
-			    'full' => [
-				    'file' => 'example-full.jpg',
-				    'width' => 1500,
-				    'height' => 1500,
-				    'mime-type' => 'image/jpeg',
-				    'source_url' => 'example-full.jpg',
-			    ],
-		    ],
-		    'image_meta' => array_merge( $default_image_meta, [] ),
-	    ];
+		$meta_data = [
+			'width'      => 300,
+			'height'     => 300,
+			'file'       => 'example.jpg',
+			'sizes'      => [
+				'thumbnail' => [
+					'file'       => 'example-thumbnail.jpg',
+					'width'      => 150,
+					'height'     => 150,
+					'mime-type'  => 'image/jpeg',
+					'source_url' => 'example-thumbnail.jpg',
+				],
+				'full'      => [
+					'file'       => 'example-full.jpg',
+					'width'      => 1500,
+					'height'     => 1500,
+					'mime-type'  => 'image/jpeg',
+					'source_url' => 'example-full.jpg',
+				],
+			],
+			'image_meta' => array_merge( $default_image_meta, [] ),
+		];
 
-	    update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
+		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
 
-
-	    $query = '
+		$query = '
         query GET_MEDIA_ITEM( $id: ID! ) {
           mediaItem(id: $id, idType: DATABASE_ID) {
             sourceUrl
@@ -433,39 +432,42 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
         }
         ';
 
-	    $media_item = graphql(['query' => $query, 'variables' => [ 'id' => $attachment_id ]]);
+		$media_item = graphql( [
+			'query'     => $query,
+			'variables' => [ 'id' => $attachment_id ],
+		] );
 
-	    codecept_debug( $media_item );
+		codecept_debug( $media_item );
 
-	    $this->assertArrayNotHasKey( 'errors', $media_item );
-	    $this->assertEquals( $expected_filesize, $media_item['data']['mediaItem']['fileSize'] );
+		$this->assertArrayNotHasKey( 'errors', $media_item );
+		$this->assertEquals( $expected_filesize, $media_item['data']['mediaItem']['fileSize'] );
 
-	    $source_url = $media_item['data']['mediaItem']['sourceUrl'];
+		$source_url = $media_item['data']['mediaItem']['sourceUrl'];
 
-	    /**
-	     * Mock saving the _wp_attached_file to meta
-	     *
-	     * SEE: https://developer.wordpress.org/reference/functions/attachment_url_to_postid/#source
-	     */
-	    $dir  = wp_get_upload_dir();
-	    $path = $source_url;
+		/**
+		 * Mock saving the _wp_attached_file to meta
+		 *
+		 * SEE: https://developer.wordpress.org/reference/functions/attachment_url_to_postid/#source
+		 */
+		$dir  = wp_get_upload_dir();
+		$path = $source_url;
 
-	    $site_url   = parse_url( $dir['url'] );
-	    $image_path = parse_url( $path );
+		$site_url   = parse_url( $dir['url'] );
+		$image_path = parse_url( $path );
 
-	    //force the protocols to match if needed
-	    if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
-		    $path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
-	    }
+		//force the protocols to match if needed
+		if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
+			$path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
+		}
 
-	    if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
-		    $path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
-	    }
-	    update_post_meta( $attachment_id, '_wp_attached_file', $path );
+		if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
+			$path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
+		}
+		update_post_meta( $attachment_id, '_wp_attached_file', $path );
 
-	    codecept_debug( $source_url );
+		codecept_debug( $source_url );
 
-	    $query_by_source_url = '
+		$query_by_source_url = '
 	    query GetMediaItem($id:ID!) {
             mediaItem(
 				id: $id, 
@@ -478,16 +480,16 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 	    ';
 
-	    $actual = graphql([
-	    	'query' => $query_by_source_url,
-		    'variables' => [
-		    	'id' => $source_url,
-		    ],
-	    ]);
+		$actual = graphql([
+			'query'     => $query_by_source_url,
+			'variables' => [
+				'id' => $source_url,
+			],
+		]);
 
-	    codecept_debug( $actual );
+		codecept_debug( $actual );
 
-    }
+	}
 
 	/**
 	 * testPostQuery
