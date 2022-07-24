@@ -539,7 +539,7 @@ abstract class AbstractConnectionResolver {
 
 			$offset = $this->get_offset_for_cursor( $this->args['after'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
-			codecept_debug( 'after offset:' . $offset . ' index: ' . $index );
+
 			if ( false !== $index ) {
 				// We want to start with the first id after the index.
 				$ids = array_slice( $ids, $index + 1, null, true );
@@ -550,7 +550,6 @@ abstract class AbstractConnectionResolver {
 		if ( ! empty( $this->args['before'] ) ) {
 			$offset = $this->get_offset_for_cursor( $this->args['before'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
-			codecept_debug( 'after offset:' . $offset . ' index: ' . $index );
 
 			if ( false !== $index ) {
 				// Because array indexes start at 0, we can overfetch without adding 1 to $index.
