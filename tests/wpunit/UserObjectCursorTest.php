@@ -290,7 +290,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function assertQueryInCursor( $graphql_args = [], $wp_user_query_args, $order_by_meta_field = false ) {
+	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
 		$graphql_args = ! empty( $graphql_args ) ? $graphql_args : [];
 
@@ -390,7 +390,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Test default order
 	 */
 	public function testDefaultUserOrdering() {
-		$this->assertQueryInCursor( null, [] );
+		$this->assertQueryInCursor( [], [] );
 	}
 
 	/**
