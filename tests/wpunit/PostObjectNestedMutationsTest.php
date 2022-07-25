@@ -75,8 +75,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$default = [
 			'clientMutationId' => uniqid(),
-			'title' => 'Test Title',
-			'status' => 'PUBLISH',
+			'title'            => 'Test Title',
+			'status'           => 'PUBLISH',
 		];
 
 		$input = array_merge( $default, $args );
@@ -92,37 +92,36 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testCreatePostAndAttachCategories() {
 
-		$tag_slug = uniqid();
-		$tag = wp_insert_term( $tag_slug, 'post_tag' );
+		$tag_slug        = uniqid();
+		$tag             = wp_insert_term( $tag_slug, 'post_tag' );
 		$expected_tag_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $tag['term_id'] ) );
 
-		$category_slug = uniqid();
-		$category = wp_insert_term( $category_slug, 'category' );
-		$expected_category_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $category['term_id']  ) );
+		$category_slug        = uniqid();
+		$category             = wp_insert_term( $category_slug, 'category' );
+		$expected_category_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $category['term_id'] ) );
 
 		wp_set_current_user( $this->admin );
 		$results = $this->createPostMutation([
-			'tags' => [
+			'tags'       => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'slug' => $tag_slug
+						'slug' => $tag_slug,
 					],
-				]
+				],
 
 			],
 			'categories' => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'slug' => $category_slug
+						'slug' => $category_slug,
 					],
-				]
-			]
+				],
+			],
 		]);
 
 		codecept_debug( $results );
-
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 
@@ -131,7 +130,6 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_tag_id, $createdPost['tags']['edges'][0]['node']['id'] );
 		$this->assertEquals( $expected_category_id, $createdPost['categories']['edges'][0]['node']['id'] );
 
-
 	}
 
 	public function testCreatePostAndAttachTagByID() {
@@ -139,8 +137,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$new_term = $this->factory->term->create([
-			'name' => 'Test Term',
-			'taxonomy' => 'post_tag'
+			'name'     => 'Test Term',
+			'taxonomy' => 'post_tag',
 		]);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
@@ -148,18 +146,16 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$results = $this->createPostMutation([
 			'tags' => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'id' => $new_term_global_id
+						'id' => $new_term_global_id,
 					],
-				]
+				],
 
 			],
 		]);
 
-
 		$this->assertArrayNotHasKey( 'errors', $results );
-
 
 		$createdPost = $results['data']['createPost']['post'];
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
@@ -173,8 +169,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$new_term = $this->factory->term->create([
-			'name' => 'Test Term',
-			'taxonomy' => 'post_tag'
+			'name'     => 'Test Term',
+			'taxonomy' => 'post_tag',
 		]);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
@@ -182,18 +178,16 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$results = $this->createPostMutation([
 			'tags' => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'id' => (int) $new_term
+						'id' => (int) $new_term,
 					],
-				]
+				],
 
 			],
 		]);
 
-
 		$this->assertArrayNotHasKey( 'errors', $results );
-
 
 		$createdPost = $results['data']['createPost']['post'];
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
@@ -207,8 +201,8 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$new_term = $this->factory->term->create([
-			'name' => 'Test Term',
-			'taxonomy' => 'category'
+			'name'     => 'Test Term',
+			'taxonomy' => 'category',
 		]);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
@@ -216,9 +210,9 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$results = $this->createPostMutation([
 			'tags' => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'id' => $new_term_global_id
+						'id' => $new_term_global_id,
 					],
 				],
 			],
@@ -235,7 +229,6 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEmpty( $createdPost['tags']['edges'] );
 
-
 	}
 
 	public function testCreatePostAndCreateTerms() {
@@ -243,21 +236,21 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$results = $this->createPostMutation([
-			'tags' => [
+			'tags'       => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'name' => 'Test Tag',
-						'slug' => 'test-tag',
+						'name'        => 'Test Tag',
+						'slug'        => 'test-tag',
 						'description' => 'Test Tag Description',
 					],
 				],
 			],
 			'categories' => [
 				'append' => false,
-				'nodes' => [
+				'nodes'  => [
 					[
-						'slug' => 'test-category',
+						'slug'        => 'test-category',
 						'description' => 'Test Category Description',
 					],
 				],
@@ -265,7 +258,6 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-
 
 		$createdPost = $results['data']['createPost']['post'];
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
@@ -276,7 +268,6 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEquals( 'Test Tag Description', $createdPost['tags']['edges'][0]['node']['description'] );
 		$this->assertEquals( 'Test Category Description', $createdPost['categories']['edges'][0]['node']['description'] );
-
 
 	}
 

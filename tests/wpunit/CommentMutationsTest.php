@@ -46,7 +46,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$post_args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Post Title',
+			'post_title'   => 'Post for CommentMutationsTest',
 			'post_content' => 'Post Content',
 		];
 
@@ -83,7 +83,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -96,7 +96,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '
@@ -242,7 +242,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -310,7 +310,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -382,7 +382,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -463,7 +463,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -481,7 +481,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '
@@ -525,7 +525,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -543,7 +543,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '

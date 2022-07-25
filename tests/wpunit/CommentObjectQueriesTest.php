@@ -17,7 +17,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
-		$this->subscriber = $this->factory()->user->create( [
+		$this->subscriber       = $this->factory()->user->create( [
 			'role' => 'subscriber',
 		]);
 	}
@@ -29,17 +29,17 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function createCommentObject( $args = [] ) {
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Post for commenting...',
-			'post_author' => $this->admin
+			'post_title'  => 'Post for CommentObjectQueries',
+			'post_author' => $this->admin,
 		]);
 
 		/**
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_ID' => $post_id,
+			'comment_post_ID'  => $post_id,
 			'comment_parent'   => 0,
 			'comment_author'   => get_user_by( 'id', $this->admin )->user_email,
 			'comment_content'  => 'Test comment content',
@@ -55,9 +55,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * passed through
 		 */
 		$args = array_merge( $defaults, $args );
-
-		codecept_debug( $args );
-		codecept_debug( get_post( $post_id ) );
 
 		/**
 		 * Create the page
@@ -160,11 +157,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'author'      => [
 					'node' => [
 						'__typename' => 'User',
-						'userId' => $this->admin,
-					]
+						'userId'     => $this->admin,
+					],
 				],
 				'authorIp'    => null,
-				'replies'    => [
+				'replies'     => [
 					'edges' => [],
 				],
 				'commentId'   => $comment_id,
@@ -202,7 +199,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_author'       => 'Author Name',
 			'comment_author_email' => 'test@test.com',
 			'comment_author_url'   => 'http://example.com',
-			'user_id' => 0,
+			'user_id'              => 0,
 		] );
 
 		codecept_debug( $comment_id );
@@ -253,11 +250,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'approved' => true,
 				'author'   => [
 					'node' => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'databaseId' => absint( $comment_id ),
-						'name'  => get_comment_author( $comment_id ),
-						'email' => null, // Email is restricted to users with moderate_comments capability
-						'url'   => get_comment_author_url( $comment_id ),
+						'name'       => get_comment_author( $comment_id ),
+						'email'      => null, // Email is restricted to users with moderate_comments capability
+						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
 			],
@@ -266,7 +263,6 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualSets( $expected, $actual['data'] );
 
 		wp_set_current_user( $this->admin );
-
 
 		/**
 		 * Run the GraphQL query
@@ -284,11 +280,11 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'approved' => true,
 				'author'   => [
 					'node' => [
-						'id'    => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
+						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'databaseId' => absint( $comment_id ),
-						'name'  => get_comment_author( $comment_id ),
-						'email' => get_comment_author_email( $comment_id ),
-						'url'   => get_comment_author_url( $comment_id ),
+						'name'       => get_comment_author( $comment_id ),
+						'email'      => get_comment_author_email( $comment_id ),
+						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
 			],
@@ -311,8 +307,8 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// Post object to assign comments to.
 		$post_id = $this->factory()->post->create( [
 			'post_content' => 'Post object',
-			'post_author' => $this->admin,
-			'post_status' => 'publish'
+			'post_author'  => $this->admin,
+			'post_status'  => 'publish',
 		] );
 
 		// Parent comment.
@@ -394,7 +390,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$expected = [
 			'comment' => [
-				'replies'    => [
+				'replies'     => [
 					'edges' => [
 						[
 							'node' => [
@@ -414,7 +410,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'commentedOn' => [
 					'node' => [
 						'content' => apply_filters( 'the_content', 'Post object' ),
-					]
+					],
 				],
 				'content'     => apply_filters( 'comment_text', 'Test comment' ),
 				'parent'      => [
@@ -443,20 +439,20 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->factory->post->create();
 
-		$admin_args = [
-			'comment_post_ID' => $post_id,
-			'comment_content' => 'Admin Comment',
+		$admin_args         = [
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => 'Admin Comment',
 			'comment_author_email' => 'admin@test.com',
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Admin Agent',
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Admin Agent',
 		];
-		$admin_comment = $this->createCommentObject( $admin_args );
-		$subscriber_args = [
-			'comment_post_ID' => $post_id,
-			'comment_content' => 'Subscriber Comment',
+		$admin_comment      = $this->createCommentObject( $admin_args );
+		$subscriber_args    = [
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => 'Subscriber Comment',
 			'comment_author_email' => 'subscriber@test.com',
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Subscriber Agent',
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Subscriber Agent',
 		];
 		$subscriber_comment = $this->createCommentObject( $subscriber_args );
 
@@ -482,7 +478,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		wp_set_current_user( $this->{$user} );
-		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
+		$admin_actual      = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
 		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
 
 		$this->assertArrayNotHasKey( 'errors', $admin_actual );
@@ -506,6 +502,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Assert that non-approved posts are hidden from users without proper caps
+	 *
 	 * @dataProvider dataProviderSwitchUser
 	 * @param $user
 	 * @param $should_display
@@ -515,22 +512,22 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->factory->post->create();
 
-		$admin_args = [
-			'comment_post_ID' => $post_id,
-			'comment_content' => 'Admin Comment',
-			'comment_approved' => 0,
+		$admin_args         = [
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => 'Admin Comment',
+			'comment_approved'     => 0,
 			'comment_author_email' => 'admin@test.com',
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Admin Agent',
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Admin Agent',
 		];
-		$admin_comment = $this->createCommentObject( $admin_args );
-		$subscriber_args = [
-			'comment_post_ID' => $post_id,
-			'comment_approved' => 0,
-			'comment_content' => 'Subscriber Comment',
+		$admin_comment      = $this->createCommentObject( $admin_args );
+		$subscriber_args    = [
+			'comment_post_ID'      => $post_id,
+			'comment_approved'     => 0,
+			'comment_content'      => 'Subscriber Comment',
 			'comment_author_email' => 'subscriber@test.com',
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Subscriber Agent',
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Subscriber Agent',
 		];
 		$subscriber_comment = $this->createCommentObject( $subscriber_args );
 
@@ -585,22 +582,22 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function testPrivatePostCommentsNotQueryableWithoutAuth( ) {
+	public function testPrivatePostCommentsNotQueryableWithoutAuth() {
 
 		$post_id = $this->factory()->post->create( [
-			'post_status' => 'private',
+			'post_status'  => 'private',
 			'post_content' => 'Test',
 		] );
 
 		$comment_args = [
-			'comment_post_ID' => $post_id,
-			'comment_content' => 'Private Post Comment',
-			'comment_approved' => 1,
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => 'Private Post Comment',
+			'comment_approved'     => 1,
 			'comment_author_email' => 'admin@test.com',
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Admin Agent',
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Admin Agent',
 		];
-		$comment = $this->createCommentObject( $comment_args );
+		$comment      = $this->createCommentObject( $comment_args );
 
 		$query = '
 		query commentQuery( $id:ID! ) {
@@ -650,13 +647,13 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function dataProviderSwitchUser() {
 		return [
 			[
-				'user' => 'admin',
+				'user'           => 'admin',
 				'should_display' => true,
 			],
 			[
-				'user' => 'subscriber',
+				'user'           => 'subscriber',
 				'should_display' => false,
-			]
+			],
 		];
 	}
 
@@ -688,10 +685,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_id
-			]
+				'id' => $global_id,
+			],
 		] );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		codecept_debug( $actual );
@@ -704,10 +701,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_id
-			]
+				'id' => $global_id,
+			],
 		] );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		codecept_debug( $actual );
@@ -726,9 +723,9 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// create a comment with a guest author as the author
 		$comment_id = $this->createCommentObject([
-			'comment_author' => 0,
+			'comment_author'       => 0,
 			'comment_author_email' => 'test@gmail.com',
-			'user_id' => 0,
+			'user_id'              => 0,
 		]);
 
 		$query = '
@@ -751,10 +748,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_id
-			]
+				'id' => $global_id,
+			],
 		] );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		codecept_debug( $actual );
@@ -776,9 +773,9 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 		$comment_id = $this->createCommentObject([
-			'comment_content' => $content
+			'comment_content' => $content,
 		]);
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
 		$query = '
 		query GetComment($id:ID!){
@@ -791,10 +788,10 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_id
-			]
+				'id' => $global_id,
+			],
 		]);
 
 		codecept_debug( $actual );
@@ -805,23 +802,21 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$filtered = 'filtered...';
 
 		// test that filtering the comment text with 2 arguments works properly
-		add_filter( 'comment_text', function( $text, $comment ) use ( $filtered ) {
+		add_filter( 'comment_text', function ( $text, $comment ) use ( $filtered ) {
 			return $filtered;
 		}, 10, 2 );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'id' => $global_id
-			]
+				'id' => $global_id,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $filtered, null ), $actual['data']['comment']['content'] );
-
-
 
 	}
 

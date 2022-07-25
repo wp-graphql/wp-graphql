@@ -74,7 +74,7 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 					'post_type'   => 'post',
 					'post_date'   => $date,
 					'post_status' => 'publish',
-					'post_title'  => $alphabet[ ($i ) ],
+					'post_title'  => $alphabet[ ( $i ) ],
 				]
 			);
 		}
@@ -84,7 +84,7 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function delete_posts( $post_ids ) {
-		foreach( $post_ids as $post_id ) {
+		foreach ( $post_ids as $post_id ) {
 			wp_delete_post( $post_id );
 		}
 	}
@@ -100,7 +100,7 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 	public function testForwardPagination() {
 
 		$post_ids = $this->create_posts();
-		$query = '
+		$query    = '
 		query TestForwardPaginationForPosts( $first: Int $after: String $last:Int $before: String ) {
 		  posts( first:$first last:$last after:$after before:$before) {
 		    pageInfo {
@@ -121,19 +121,19 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		codecept_debug( $actual );
 
-		$nodes = $this->get_nodes( $actual );
+		$nodes  = $this->get_nodes( $actual );
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
@@ -141,43 +141,43 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Page forward by 5
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $actual['data']['posts']['pageInfo']['endCursor'],
-				'last' => null,
-				'before' => null
-			]
+				'first'  => 5,
+				'after'  => $actual['data']['posts']['pageInfo']['endCursor'],
+				'last'   => null,
+				'before' => null,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$nodes = $this->get_nodes( $actual );
+		$nodes  = $this->get_nodes( $actual );
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
 		$this->assertSame( $titles, array_slice( $alphabet, 5, 5 ) );
 
-		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['posts']['pageInfo']['endCursor'] ) ]);
+		codecept_debug( [ 'endCursor' => base64_decode( $actual['data']['posts']['pageInfo']['endCursor'] ) ] );
 
 		// Ask for the first 5 items, with a before cursor established
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => null,
-				'last' => null,
-				'before' => $actual['data']['posts']['pageInfo']['endCursor']
-			]
+				'first'  => 5,
+				'after'  => null,
+				'last'   => null,
+				'before' => $actual['data']['posts']['pageInfo']['endCursor'],
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$nodes = $this->get_nodes( $actual );
+		$nodes  = $this->get_nodes( $actual );
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
@@ -185,20 +185,20 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 		// Ask for the first 5 items, but within the bounds of a before and after cursor
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5,
-				'after' => $this->get_edges( $actual )[1]['cursor'],
-				'last' => null,
-				'before' => $this->get_edges( $actual )[3]['cursor']
-			]
+				'first'  => 5,
+				'after'  => $this->get_edges( $actual )[1]['cursor'],
+				'last'   => null,
+				'before' => $this->get_edges( $actual )[3]['cursor'],
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$nodes = $this->get_nodes( $actual );
+		$nodes  = $this->get_nodes( $actual );
 		$titles = wp_list_pluck( $nodes, 'title' );
 
 		$alphabet = range( 'A', 'Z' );
@@ -210,8 +210,8 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPaginationForPostsWithDuplicateTitlesAndDates() {
 
-		$alphabet = range( 'A', 'Z' );
-		$date                = date( 'Y-m-d H:i:s', strtotime("now") );
+		$alphabet      = range( 'A', 'Z' );
+		$date          = date( 'Y-m-d H:i:s', strtotime( 'now' ) );
 		$created_posts = [];
 		for ( $i = 0; $i <= count( $alphabet ) - 1; $i ++ ) {
 			// Set the date 1 minute apart for each post
@@ -249,53 +249,52 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 		$newest = array_reverse( $created_posts );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'first' => 5
-			]
+				'first' => 5,
+			],
 		]);
 
 		codecept_debug( $actual );
 
 		$db_ids = [];
-		foreach( $actual['data']['posts']['nodes'] as $node ) {
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
 			$db_ids[] = $node['databaseId'];
 		}
 
 		$page_1 = array_slice( $newest, 0, 5 );
 		$this->assertSame( $page_1, $db_ids );
 
-		$after = $actual['data']['posts']['pageInfo']['endCursor'];
+		$after  = $actual['data']['posts']['pageInfo']['endCursor'];
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'first' => 5,
-				'after' => $after
-			]
+				'after' => $after,
+			],
 		]);
 
 		$db_ids = [];
-		foreach( $actual['data']['posts']['nodes'] as $node ) {
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
 			$db_ids[] = $node['databaseId'];
 		}
 
 		$page_2 = array_slice( $newest, 5, 5 );
 		$this->assertSame( $page_2, $db_ids );
 
-		$after = $actual['data']['posts']['pageInfo']['endCursor'];
+		$after  = $actual['data']['posts']['pageInfo']['endCursor'];
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'first' => 5,
-				'after' => $after
-			]
+				'after' => $after,
+			],
 		]);
 
 		$db_ids = [];
-		foreach( $actual['data']['posts']['nodes'] as $node ) {
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
 			$db_ids[] = $node['databaseId'];
 		}
-
 
 		$page_3 = array_slice( $newest, 10, 5 );
 		$this->assertSame( $page_3, $db_ids );
@@ -303,15 +302,15 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 		// ok, now let's paginate backward
 		$before = $actual['data']['posts']['pageInfo']['startCursor'];
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'last' => 5,
-				'before' => $before
-			]
+				'last'   => 5,
+				'before' => $before,
+			],
 		]);
 
 		$db_ids = [];
-		foreach( $actual['data']['posts']['nodes'] as $node ) {
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
 			$db_ids[] = $node['databaseId'];
 		}
 
@@ -319,15 +318,15 @@ class CursorPaginationForPostsTest extends \Codeception\TestCase\WPTestCase {
 
 		$before = $actual['data']['posts']['pageInfo']['startCursor'];
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'last' => 5,
-				'before' => $before
-			]
+				'last'   => 5,
+				'before' => $before,
+			],
 		]);
 
 		$db_ids = [];
-		foreach( $actual['data']['posts']['nodes'] as $node ) {
+		foreach ( $actual['data']['posts']['nodes'] as $node ) {
 			$db_ids[] = $node['databaseId'];
 		}
 

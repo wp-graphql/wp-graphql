@@ -15,7 +15,7 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		parent::setUp();
 
 		global $wpdb;
-		$wpdb->delete( $wpdb->prefix . 'posts', array( 'post_type' => 'post' ) );
+		$wpdb->delete( $wpdb->prefix . 'posts', [ 'post_type' => 'post' ] );
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -34,7 +34,6 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
-
 
 		$this->query = '
 		query GET_POSTS($first: Int, $last: Int, $after: String, $before: String $where:RootQueryToPostConnectionWhereArgs) {
@@ -62,7 +61,7 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		global $wpdb;
-		$wpdb->delete( $wpdb->prefix . 'posts', array( 'post_type' => 'post' ) );
+		$wpdb->delete( $wpdb->prefix . 'posts', [ 'post_type' => 'post' ] );
 		parent::tearDown();
 	}
 
@@ -207,10 +206,10 @@ class PostObjectSearchTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$posts_search = new WP_Query( [
-			'post_type' => 'post',
-			's'    => 'test',
-			'fields' => 'ids',
-			'posts_per_page' => -1
+			'post_type'      => 'post',
+			's'              => 'test',
+			'fields'         => 'ids',
+			'posts_per_page' => -1,
 		] );
 
 		codecept_debug( 'test....' );

@@ -2,10 +2,10 @@
 
 class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
 	public $admin;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -189,8 +189,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $actual );
 
 		$this->assertIsValidQueryResponse( $actual );
 

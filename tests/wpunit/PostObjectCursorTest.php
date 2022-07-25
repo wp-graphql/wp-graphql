@@ -29,15 +29,15 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'post_author'  => $this->admin,
-			'post_content' => 'Test page content',
-			'post_excerpt' => 'Test excerpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Title',
-			'post_type'    => 'post',
-			'post_date'    => $this->current_date,
-			'has_password' => false,
-			'post_password'=> null,
+			'post_author'   => $this->admin,
+			'post_content'  => 'Test page content',
+			'post_excerpt'  => 'Test excerpt',
+			'post_status'   => 'publish',
+			'post_title'    => 'Test Title for PostObjectCursorTest',
+			'post_type'     => 'post',
+			'post_date'     => $this->current_date,
+			'has_password'  => false,
+			'post_password' => null,
 		];
 
 		/**
@@ -70,12 +70,12 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
-	 * @param  int $count Number of posts to create.
+	 * @param int $count Number of posts to create.
 	 * @return array
 	 */
 	public function create_posts( $count = 20 ) {
 		// Ensure that ordering by titles is different from ordering by ids
-		$titles = "qwertyuiopasdfghjklzxcvbnm";
+		$titles = 'qwertyuiopasdfghjklzxcvbnm';
 
 		// Create posts
 		$created_posts = [];
@@ -94,30 +94,30 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	private function formatNumber($num) {
-		return sprintf('%08d', $num);
+	private function formatNumber( $num ) {
+		return sprintf( '%08d', $num );
 	}
 
-	private function numberToMysqlDate($num) {
-		return sprintf('2019-03-%02d', $num);
+	private function numberToMysqlDate( $num ) {
+		return sprintf( '2019-03-%02d', $num );
 	}
 
 	private function deleteByMetaKey( $key, $value ) {
-		$args = array(
-			'meta_query' => array(
-				array(
-					'key' => $key,
-					'value' => $value,
+		$args = [
+			'meta_query' => [
+				[
+					'key'     => $key,
+					'value'   => $value,
 					'compare' => '=',
-				)
-			)
-		 );
+				],
+			],
+		];
 
-		 $query = new WP_Query($args);
+		$query = new WP_Query( $args );
 
-		 foreach ( $query->posts as $post ) {
+		foreach ( $query->posts as $post ) {
 			wp_delete_post( $post->ID, true );
-		 }
+		}
 	}
 
 	/**
@@ -125,7 +125,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function assertQueryInCursor( $meta_fields, $posts_per_page = 5 ) {
 
-		add_filter( 'graphql_map_input_fields_to_wp_query', function( $query_args ) use ( $meta_fields ) {
+		add_filter( 'graphql_map_input_fields_to_wp_query', function ( $query_args ) use ( $meta_fields ) {
 			return array_merge( $query_args, $meta_fields );
 		}, 10, 1 );
 
@@ -134,70 +134,66 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$query = "
 		query getPosts(\$cursor: String) {
 			posts(after: \$cursor, first: $posts_per_page, where: {author: {$this->admin}}) {
-			  pageInfo {
+				pageInfo {
 				endCursor
-			  }
-			  edges {
-				node {
-				  title
-				  postId
 				}
-			  }
+				edges {
+					node {
+						title
+						postId
+					}
+				}
 			}
-		  }
+			}
 		";
 
 		$first = do_graphql_request( $query, 'getPosts', [ 'cursor' => '' ] );
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
-		$first_page_actual = array_map( function( $edge ) {
+		$first_page_actual = array_map( function ( $edge ) {
 			return $edge['node']['postId'];
 		}, $first['data']['posts']['edges']);
-
-
 
 		$cursor = $first['data']['posts']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getPosts', [ 'cursor' => $cursor ] );
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
-		$second_page_actual = array_map( function( $edge ) {
+		$second_page_actual = array_map( function ( $edge ) {
 			return $edge['node']['postId'];
 		}, $second['data']['posts']['edges']);
 
 		// Make correspondig WP_Query
 		WPGraphQL::set_is_graphql_request( true );
 		$first_page = new WP_Query( array_merge( $meta_fields, [
-			'post_status' => 'publish',
-			'post_type' => 'post',
-			'post_author' => $this->admin,
+			'post_status'    => 'publish',
+			'post_type'      => 'post',
+			'post_author'    => $this->admin,
 			'posts_per_page' => $posts_per_page,
-			'paged' => 1,
+			'paged'          => 1,
 		] ) );
 
-
 		$second_page = new WP_Query( array_merge( $meta_fields, [
-			'post_status' => 'publish',
-			'post_type' => 'post',
-			'post_author' => $this->admin,
+			'post_status'    => 'publish',
+			'post_type'      => 'post',
+			'post_author'    => $this->admin,
 			'posts_per_page' => $posts_per_page,
-			'paged' => 2,
+			'paged'          => 2,
 		] ) );
 		WPGraphQL::set_is_graphql_request( true );
 
-
-		$first_page_expected = wp_list_pluck($first_page->posts, 'ID');
-		$second_page_expected = wp_list_pluck($second_page->posts, 'ID');
+		$first_page_expected  = wp_list_pluck( $first_page->posts, 'ID' );
+		$second_page_expected = wp_list_pluck( $second_page->posts, 'ID' );
 
 		// Aserting like this we get more readable assertion fail message
-		$this->assertEquals( implode(',', $first_page_expected), implode(',', $first_page_actual), 'First page' );
-		$this->assertEquals( implode(',', $second_page_expected), implode(',', $second_page_actual), 'Second page' );
+		$this->assertEquals( implode( ',', $first_page_expected ), implode( ',', $first_page_actual ), 'First page' );
+		$this->assertEquals( implode( ',', $second_page_expected ), implode( ',', $second_page_actual ), 'Second page' );
 	}
 
 	/**
 	 * Test default order
 	 */
 	public function testDefaultPostOrdering() {
-		$this->assertQueryInCursor( [ ] );
+		$this->assertQueryInCursor( [] );
 	}
 
 	/**
@@ -215,7 +211,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByPostTitleASC() {
 		$this->assertQueryInCursor( [
 			'orderby' => 'post_title',
-			'order' => 'ASC',
+			'order'   => 'ASC',
 		] );
 	}
 
@@ -225,14 +221,14 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByPostTitleDESC() {
 		$this->assertQueryInCursor( [
 			'orderby' => 'post_title',
-			'order' => 'DESC',
+			'order'   => 'DESC',
 		] );
 	}
 
 	public function testPostOrderingByDuplicatePostTitles() {
-		foreach ($this->created_post_ids as $index => $post_id) {
+		foreach ( $this->created_post_ids as $index => $post_id ) {
 			wp_update_post( [
-				'ID' => $post_id,
+				'ID'         => $post_id,
 				'post_title' => 'duptitle',
 
 			] );
@@ -240,23 +236,23 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertQueryInCursor( [
 			'orderby' => 'post_title',
-			'order' => 'DESC',
+			'order'   => 'DESC',
 		] );
 	}
 
 	public function testPostOrderingByMetaString() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $this->formatNumber( $index ) );
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
-		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
+			'orderby'  => [ 'meta_value' => 'ASC' ],
 			'meta_key' => 'test_meta',
 		] );
 
@@ -266,7 +262,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByMetaDate() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
+		foreach ( $this->created_post_ids as $index => $post_id ) {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
 		}
 
@@ -275,8 +271,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'ASC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'DATE',
 		] );
 	}
@@ -284,7 +280,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByMetaDateDESC() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
+		foreach ( $this->created_post_ids as $index => $post_id ) {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
 		}
 
@@ -292,8 +288,8 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $this->created_post_ids[2], 'test_meta', $this->numberToMysqlDate( 14 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'DESC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'DESC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'DATE',
 		] );
 	}
@@ -301,17 +297,17 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByMetaNumber() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $index );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $index );
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', 6 );
-		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
+		update_post_meta( $this->created_post_ids[19], 'test_meta', 6 );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'ASC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'UNSIGNED',
 		] );
 	}
@@ -319,7 +315,7 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByMetaNumberDESC() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
+		foreach ( $this->created_post_ids as $index => $post_id ) {
 			update_post_meta( $post_id, 'test_meta', $index );
 		}
 
@@ -327,26 +323,26 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $this->created_post_ids[2], 'test_meta', 14 );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'DESC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'DESC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'UNSIGNED',
 		] );
 	}
 
 	public function testPostOrderingWithMetaFiltering() {
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $index );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $index );
 		}
 
 		// Move number 2 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', 15 );
-		update_post_meta($this->created_post_ids[2], 'test_meta', 15 );
+		update_post_meta( $this->created_post_ids[2], 'test_meta', 15 );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
-			'meta_type' => 'UNSIGNED',
+			'orderby'    => [ 'meta_value' => 'ASC' ],
+			'meta_key'   => 'test_meta',
+			'meta_type'  => 'UNSIGNED',
 			'meta_query' => [
 				[
 					'key'     => 'test_meta',
@@ -354,51 +350,51 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 					'value'   => 10,
 					'type'    => 'UNSIGNED',
 				],
-			]
-			], 3 );
+			],
+		], 3 );
 
 	}
 
 	public function testPostOrderingByMetaQueryClause() {
 
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $this->formatNumber( $index ) );
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
-		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'test_clause' => 'ASC', ],
+			'orderby'    => [ 'test_clause' => 'ASC' ],
 			'meta_query' => [
 				'test_clause' => [
-					'key' => 'test_meta',
+					'key'     => 'test_meta',
 					'compare' => 'EXISTS',
-				]
-			]
+				],
+			],
 		] );
 	}
 
 	public function testPostOrderingByMetaQueryClauseString() {
 
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $this->formatNumber( $index ) );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $this->formatNumber( $index ) );
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', $this->formatNumber( 6 ) );
-		update_post_meta($this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
+		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->formatNumber( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => 'test_clause',
-			'order' => 'ASC',
+			'orderby'    => 'test_clause',
+			'order'      => 'ASC',
 			'meta_query' => [
 				'test_clause' => [
-					'key' => 'test_meta',
+					'key'     => 'test_meta',
 					'compare' => 'EXISTS',
-				]
-			]
+				],
+			],
 		] );
 
 	}
@@ -412,31 +408,31 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		add_filter( 'is_graphql_request', '__return_true' );
 
-		foreach ($this->created_post_ids as $index => $post_id) {
+		foreach ( $this->created_post_ids as $index => $post_id ) {
 			update_post_meta( $post_id, 'test_meta', $this->numberToMysqlDate( $index ) );
 		}
 
 		update_post_meta( $this->created_post_ids[19], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'ASC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'DATE',
 		] );
 
 		update_post_meta( $this->created_post_ids[17], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'ASC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'DATE',
 		] );
 
 		update_post_meta( $this->created_post_ids[18], 'test_meta', $this->numberToMysqlDate( 6 ) );
 
 		$this->assertQueryInCursor( [
-			'orderby' => [ 'meta_value' => 'ASC', ],
-			'meta_key' => 'test_meta',
+			'orderby'   => [ 'meta_value' => 'ASC' ],
+			'meta_key'  => 'test_meta',
 			'meta_type' => 'DATE',
 		] );
 
@@ -448,20 +444,20 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostOrderingByMetaValueNum() {
 
 		// Add post meta to created posts
-		foreach ($this->created_post_ids as $index => $post_id) {
-			update_post_meta($post_id, 'test_meta', $index );
+		foreach ( $this->created_post_ids as $index => $post_id ) {
+			update_post_meta( $post_id, 'test_meta', $index );
 		}
 
 		// Move number 19 to the second page when ordering by test_meta
 		$this->deleteByMetaKey( 'test_meta', 6 );
-		update_post_meta($this->created_post_ids[19], 'test_meta', 6 );
+		update_post_meta( $this->created_post_ids[19], 'test_meta', 6 );
 
 		$this->deleteByMetaKey( 'test_meta', 16 );
-		update_post_meta($this->created_post_ids[2], 'test_meta', 16 );
+		update_post_meta( $this->created_post_ids[2], 'test_meta', 16 );
 
 		$this->assertQueryInCursor( [
-			'orderby' => 'meta_value_num',
-			'order' => 'ASC',
+			'orderby'  => 'meta_value_num',
+			'order'    => 'ASC',
 			'meta_key' => 'test_meta',
 		] );
 	}

@@ -24,31 +24,42 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Quick function for comparing semantic versioning
 	 *
-	 * @param string $versionA	string representation of version number
-	 * @param string $versionB 	string representation of version number
-	 * @return string|boolean 	returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
+	 * @param string $versionA  string representation of version number
+	 * @param string $versionB  string representation of version number
+	 * @return string|boolean   returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
 	 */
-	public function compareSemantics( $versionA, $versionB )
-	{
+	public function compareSemantics( $versionA, $versionB ) {
 		$a = explode( '.', $versionA );
 		$b = explode( '.', $versionB );
-		if ( ! empty( $a[0] ) )
-		{
-			if ( empty( $b[0] ) ) return true;
-			if ( ( int ) $a[0] > ( int ) $b[0] ) return true;
-			elseif ( ( int ) $a[0] < ( int ) $b[0] ) return false;
+		if ( ! empty( $a[0] ) ) {
+			if ( empty( $b[0] ) ) {
+				return true;
+			}
+			if ( (int) $a[0] > (int) $b[0] ) {
+				return true;
+			} elseif ( (int) $a[0] < (int) $b[0] ) {
+				return false;
+			}
 		}
-		if ( ! empty( $a[1] ) )
-		{
-			if ( empty( $b[1] ) ) return true;
-			if ( ( int ) $a[1] > ( int ) $b[1] ) return true;
-			elseif ( ( int ) $a[1] < ( int ) $b[1] ) return false;
+		if ( ! empty( $a[1] ) ) {
+			if ( empty( $b[1] ) ) {
+				return true;
+			}
+			if ( (int) $a[1] > (int) $b[1] ) {
+				return true;
+			} elseif ( (int) $a[1] < (int) $b[1] ) {
+				return false;
+			}
 		}
-		if ( ! empty( $a[2] ) )
-		{
-			if ( empty( $b[2] ) ) return true;
-			if ( ( int ) $a[2] > ( int ) $b[2] ) return true;
-			elseif ( ( int ) $a[2] < ( int ) $b[2] ) return false;
+		if ( ! empty( $a[2] ) ) {
+			if ( empty( $b[2] ) ) {
+				return true;
+			}
+			if ( (int) $a[2] > (int) $b[2] ) {
+				return true;
+			} elseif ( (int) $a[2] < (int) $b[2] ) {
+				return false;
+			}
 		}
 
 		return 'equals';

@@ -6,9 +6,9 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 	public function setUp(): void {
 		// before
+		parent::setUp();
 
 		$this->clearSchema();
-		parent::setUp();
 
 		$this->admin = $this->factory()->user->create([
 			'role' => 'administrator',

@@ -2,6 +2,8 @@
 
 class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	public $admin;
+
 	public function setUp(): void {
 		$this->admin = $this->factory()->user->create( [
 			'role' => 'administrator',

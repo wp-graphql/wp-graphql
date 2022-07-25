@@ -2,11 +2,11 @@
 
 class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
-	public $created_post_ids;
 	public $admin;
+	public $created_post_ids;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	public function setUp(): void {
 		// before
@@ -96,14 +96,14 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					cursor
 					node {
 						id
-                        categoryId
-				        name
-				        description
-				        slug
+												categoryId
+								name
+								description
+								slug
 					}
 				}
 				nodes {
-				  categoryId
+					categoryId
 				}
 			}
 		}';
@@ -160,7 +160,7 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$results = $this->categoriesQuery( $variables );
 
-		codecept_debug(  $results );
+		codecept_debug( $results );
 
 		$offset = 1;
 		$query  = new WP_Term_Query(
@@ -266,12 +266,12 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$category_id = $this->factory()->term->create([
 			'taxonomy' => 'category',
-			'name' => 'high count'
+			'name'     => 'high count',
 		]);
 
-		for ( $x = 0; $x <= 10; $x++) {
+		for ( $x = 0; $x <= 10; $x++ ) {
 			$post_id = $this->factory()->post->create([
-				'post_type' => 'post',
+				'post_type'   => 'post',
 				'post_status' => 'publish',
 			]);
 
@@ -280,32 +280,32 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetCategoriesWithCustomOrder( $order:OrderEnum ){
-		  categories( where: { orderby: COUNT order: $order } ) {
-		    nodes {
-		      id
-		      databaseId
-		      name
-		      count
-		    }
-		  }
+			categories( where: { orderby: COUNT order: $order } ) {
+				nodes {
+					id
+					databaseId
+					name
+					count
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'order' => 'DESC'
-			]
+				'order' => 'DESC',
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $category_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'order' => 'ASC'
-			]
+				'order' => 'ASC',
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
