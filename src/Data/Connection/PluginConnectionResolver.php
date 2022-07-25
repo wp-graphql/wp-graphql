@@ -65,7 +65,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|void
+	 * @return array
 	 */
 	public function get_query_args() {
 		if ( ! empty( $this->args['where']['status'] ) ) {

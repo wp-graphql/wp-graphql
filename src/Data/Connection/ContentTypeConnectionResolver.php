@@ -75,13 +75,8 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
-
-		$query_args = [
-			'show_in_graphql' => true,
-		];
-
-		return $query_args;
-
+		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 

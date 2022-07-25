@@ -106,11 +106,8 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
-
-		return [
-			'show_in_graphql' => true,
-		];
-
+		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 

@@ -74,10 +74,11 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|void
+	 * @return array
 	 */
 	public function get_query_args() {
 		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 
