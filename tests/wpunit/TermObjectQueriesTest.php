@@ -607,6 +607,8 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $link, $actual['data']['nodeByUri']['link'] );
 		$this->assertSame( $link, $actual['data']['newsCategory']['link'] );
 
+		unregister_taxonomy( 'news' );
+
 	}
 
 }

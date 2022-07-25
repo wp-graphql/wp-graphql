@@ -169,6 +169,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryPublicPostTypeThatIsNotPublicyQueryable() {
@@ -220,6 +221,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryNonPublicPostTypeThatIsNotPublicyQueryable() {
@@ -286,6 +288,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['edges'][0]['node']['databaseId'] );
 
+		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
 	public function testQueryCustomPostTypeByUri() {
@@ -368,6 +371,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'TestCpt', $actual['data']['testCpt']['__typename'] );
 		$this->assertSame( $child_post_id, $actual['data']['testCpt']['databaseId'] );
 
+		unregister_post_type( 'test_cpt_by_uri' );
+
 	}
 
 	public function testQueryCustomPostTypeByDatabaseId() {
@@ -444,6 +449,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'TestCpt', $actual['data']['testCpt']['__typename'] );
 		$this->assertSame( $child_post_id, $actual['data']['testCpt']['databaseId'] );
 
+		unregister_post_type( 'test_cpt_by_uri' );
+
 	}
 
 	public function testQueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
@@ -498,6 +505,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $post_id, $actual['data']['testCpt']['databaseId'] );
 		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $post_id, $actual['data']['allTestCpt']['edges'][0]['node']['databaseId'] );
+
+		unregister_post_type( 'test_cpt_by_uri' );
 	}
 
 }

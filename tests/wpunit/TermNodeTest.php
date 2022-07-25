@@ -737,6 +737,9 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// assert that the query was valid
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
+		unregister_taxonomy( 'no-posts' );
+		unregister_taxonomy( 'with-graphql' );
+
 	}
 
 }

@@ -167,6 +167,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $term_id, $actual['data']['aircraft']['databaseId'] );
 		$this->assertEquals( $term_id, $actual['data']['allAircraft']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $term_id, $actual['data']['allAircraft']['edges'][0]['node']['databaseId'] );
+
+		unregister_taxonomy( 'aircraft' );
 	}
 
 }

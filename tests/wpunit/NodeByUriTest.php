@@ -562,6 +562,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'TestHierarchical', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
 
+		unregister_post_type( 'test_hierarchical' );
+
 	}
 
 	public function testExternalUriReturnsNull() {
