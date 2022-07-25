@@ -13,20 +13,22 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		parent::tearDown();
 	}
 
-	/**
-	 * Tests querying for plugins with pagination args.
-	 */
-	public function testRegisteredScriptsQueryPagination() {
-		wp_set_current_user( $this->admin );
-
-		$query = '
+	public function getQuery() {
+		return '
 			query testRegisteredScripts($first: Int, $after: String, $last: Int, $before: String ) {
 				registeredScripts(first: $first, last: $last, before: $before, after: $after) {
 					pageInfo {
-						endCursor
 						hasNextPage
 						hasPreviousPage
 						startCursor
+						endCursor
+					}
+					edges {
+						cursor
+						node {
+							id
+							handle
+						}
 					}
 					nodes {
 						extra
@@ -38,59 +40,288 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 				}
 			}
 		';
+	}
 
-		// Get all for comparison
-		$variables = [
-			'first'  => 500,
-			'after'  => null,
-			'last'   => null,
-			'before' => null,
-		];
-		$actual    = $this->graphql( compact( 'query', 'variables' ) );
+	public function testForwardPagination() {
+		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
 
+		// The list of registeredScripts might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 4,
+			],
+		] );
+
+		// Confirm it's valid.
 		$this->assertIsValidQueryResponse( $actual );
-
-		$nodes = $actual['data']['registeredScripts']['nodes'];
+		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
 		// Test fields for first asset.
 		global $wp_scripts;
-		$expected = $wp_scripts->registered[ $nodes[0]['handle'] ];
+		$expected = $wp_scripts->registered[ $actual['data']['registeredScripts']['nodes'][0]['handle'] ];
 
-		$this->assertEquals( $expected->extra['data'], $nodes[0]['extra'] );
-		$this->assertEquals( $expected->handle, $nodes[0]['handle'] );
-		$this->assertEquals( $expected->src, $nodes[0]['src'] );
-		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $nodes[0]['version'] );
+		$this->assertEquals( $expected->extra['data'], $actual['data']['registeredScripts']['nodes'][0]['extra'] );
+		$this->assertEquals( $expected->handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
+		$this->assertEquals( $expected->src, $actual['data']['registeredScripts']['nodes'][0]['src'] );
+		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $actual['data']['registeredScripts']['nodes'][0]['version'] );
 
-		// Get first two registeredScripts
-		$variables['first'] = 2;
-		$variables['after'] = null;
+		// Store for use by $expected.
+		$wp_query = $actual['data']['registeredScripts'];
 
-		$expected = array_slice( $nodes, 0, $variables['first'], true );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
+		/**
+		 * Test the first two results.
+		 */
 
-		// Test with empty `after`.
-		$variables['after'] = '';
-		$actual             = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
-
-		// Get last two registeredScripts
+		// Set the variables to use in the GraphQL query.
 		$variables = [
-			'first'  => null,
-			'after'  => null,
-			'last'   => 2,
-			'before' => null,
+			'first' => 2,
 		];
 
-		$expected = array_slice( $nodes, count( $nodes ) - $variables['last'], null, true );
+		// Run the GraphQL Query
+		$expected = $wp_query;
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
 
-		// Test with empty `before`.
-		$variables['before'] = '';
-		$actual              = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual['data']['registeredScripts']['nodes'] );
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['after'] = '';
+		$expected           = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 2, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// There are hundreds of scripts, so lets get a good end cursor.
+		$actual = $this->graphql( [
+			'query'     => $this->getQuery(),
+			'variables' => [
+				'last' => 3,
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
+
+		$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $actual['data']['registeredScripts'];
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->markTestIncomplete( 'last + after doesnt work, breaking workaround' );
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+
+		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
 	}
+
+	public function testBackwardPagination() {
+		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
+
+		// The list of registeredScripts might change, so we'll reuse this to check late.
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'last' => 6,
+			],
+		] );
+
+		// Confirm it's valid.
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
+
+		// Store for use by $expected.
+		$wp_query = $actual['data']['registeredScripts'];
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'last' => 2,
+		];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 4, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 4, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->markTestIncomplete( 'Order reversed before slicing' );
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['before'] = '';
+		$expected            = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['before'] = $actual['data']['registeredScripts']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 2, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// There are hundreds of scripts, so lets get a good start cursor.
+		$actual = $this->graphql( [
+			'query'     => $this->getQuery(),
+			'variables' => [
+				'first' => 3,
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
+
+		$variables['before'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $actual['data']['registeredScripts'];
+		$expected['edges'] = array_slice( $expected['edges'], 0, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 0, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
+	}
+
+	public function testQueryWithFirstAndLast() {
+		wp_set_current_user( $this->admin );
+
+		$query = $this->getQuery();
+
+		// The list of registeredScripts might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 100,
+			],
+		] );
+
+		$after_cursor  = $actual['data']['registeredScripts']['edges'][0]['cursor'];
+		$before_cursor = $actual['data']['registeredScripts']['edges'][2]['cursor'];
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$variables = [
+			'first'  => 5,
+			'after'  => $after_cursor,
+			'before' => $before_cursor,
+		];
+
+		$expected = $actual['data']['registeredScripts']['nodes'][1];
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'before and after arent supported together' );
+		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
+
+		/**
+		 * Test `last`.
+		 */
+		$variables['last'] = 5;
+
+		// Using first and last should throw an error.
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		unset( $variables['first'] );
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
+
+	}
+
+	/**
+	 * Common asserts for testing pagination.
+	 *
+	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+	 * @param array $actual The GraphQL results.
+	 */
+	public function assertValidPagination( $expected, $actual ) {
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 2, count( $actual['data']['registeredScripts']['edges'] ) );
+
+		$first_plugin_handle  = $expected['nodes'][0]['handle'];
+		$second_plugin_handle = $expected['nodes'][1]['handle'];
+
+		$start_cursor = $this->toRelayId( 'arrayconnection', $first_plugin_handle );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_plugin_handle );
+
+		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
+		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
+		$this->assertEquals( $start_cursor, $actual['data']['registeredScripts']['edges'][0]['cursor'] );
+		$this->assertEquals( $second_plugin_handle, $actual['data']['registeredScripts']['edges'][1]['node']['handle'] );
+		$this->assertEquals( $second_plugin_handle, $actual['data']['registeredScripts']['nodes'][1]['handle'] );
+		$this->assertEquals( $end_cursor, $actual['data']['registeredScripts']['edges'][1]['cursor'] );
+		$this->assertEquals( $start_cursor, $actual['data']['registeredScripts']['pageInfo']['startCursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['registeredScripts']['pageInfo']['endCursor'] );
+	}
+
+
 
 }

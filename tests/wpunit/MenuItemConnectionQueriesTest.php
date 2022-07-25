@@ -1,34 +1,45 @@
 <?php
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Type\WPEnumType;
 
-class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
+	public $menu_location;
+	public $created_menu_items;
 
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
-
-		add_theme_support( 'nav_menu_locations' );
-		register_nav_menu( 'my-menu-location', 'My Menu' );
-		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => 0 ] );
-	}
 
 	public function setUp(): void {
+		$this->clearSchema();
 		parent::setUp();
+
+		$this->menu_location = 'my-menu-location';
+
+		add_theme_support( 'nav_menu_locations' );
+		register_nav_menu( $this->menu_location, 'My Menu' );
+		set_theme_mod( 'nav_menu_locations', [ $this->menu_location => 0 ] );
 
 		$this->admin = $this->factory()->user->create( [
 			'role'       => 'administrator',
 			'user_email' => 'test@test.com',
 		] );
 
+		$this->created_menu_items = $this->create_menu_items( 'my-menu-items-test', $this->menu_location, 6 );
+
+	}
+
+	public function tearDown(): void {
+		// your tear down methods here
+		$this->clearSchema();
+		parent::tearDown();
 	}
 
 	private function createMenuItem( $menu_id, $options ) {
 		return wp_update_nav_menu_item( $menu_id, 0, $options );
 	}
 
-	private function createMenuItems( $slug, $count ) {
+	private function create_menu_items( $slug, $location, $count ) {
 		$menu_id       = wp_create_nav_menu( $slug );
 		$menu_item_ids = [];
 		$post_ids      = [];
@@ -53,7 +64,7 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Assign menu to location.
-		set_theme_mod( 'nav_menu_locations', [ 'my-menu-location' => $menu_id ] );
+		set_theme_mod( 'nav_menu_locations', [ $location => $menu_id ] );
 
 		// Make sure menu items were created.
 		$this->assertEquals( $count, count( $menu_item_ids ) );
@@ -66,195 +77,9 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 	}
 
-	/**
-	 * Some common assertions repeated for each test.
-	 *
-	 * @param   array $created_menu_ids Created menu items.
-	 * @param   array $created_post_ids Created connected posts.
-	 * @param   array $query_results        Query results.
-	 *
-	 * @return void
-	 */
-	private function compareResults( $created_menu_ids, $created_post_ids, $query_result ) {
-		$edges = $query_result['data']['menuItems']['edges'];
-
-		// The returned menu items have the expected IDs in the expected order.
-		$this->assertEquals(
-			$created_menu_ids,
-			array_map( function ( $menu_item ) {
-				return $menu_item['node']['databaseId'];
-			}, $edges )
-		);
-
-		// The connected posts have the expected IDs in the expected order.
-		$this->assertEquals(
-			$created_post_ids,
-			array_map( function ( $menu_item ) {
-				return $menu_item['node']['connectedObject']['postId'];
-			}, $edges )
-		);
-	}
-
-	public function testMenuItemsQueryWithNoArgs() {
+	public function create_nested_menu( $child_count, $location ) {
 		$count   = 10;
-		$created = $this->createMenuItems( 'my-test-menu-id', $count );
-
-		codecept_debug( $created );
-
-		$query = '
-		{
-			menuItems {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							 node {
-									...on Post {
-										 databaseId
-									}
-							 }
-						}
-					}
-				}
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
-
-		// The query should return the 10 menu items
-		$this->assertEquals( 10, count( $actual['data']['menuItems']['edges'] ) );
-		$this->assertEquals( 10, count( $actual['data']['menuItems']['nodes'] ) );
-
-		$node_ids = wp_list_pluck( $actual['data']['menuItems']['nodes'], 'databaseId' );
-		$this->assertSame( $created['menu_item_ids'], $node_ids );
-
-	}
-
-	public function testMenuItemsQueryNodes() {
-
-		$count   = 10;
-		$created = $this->createMenuItems( 'my-test-menu-id', $count );
-
-		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id      = intval( $created['post_ids'][2] );
-
-		$query = '
-		{
-			menuItems( where: { id: ' . $menu_item_id . ' } ) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		foreach ( $actual['data']['menuItems']['nodes'] as $node ) {
-			$this->assertTrue( in_array( $node['databaseId'], [ $menu_item_id ], true ) );
-		}
-
-		$this->assertEquals( 1, count( $actual['data']['menuItems']['nodes'] ) );
-
-	}
-
-	public function testMenuItemsQueryById() {
-		$count   = 10;
-		$created = $this->createMenuItems( 'my-test-menu-id', $count );
-
-		$menu_item_id = intval( $created['menu_item_ids'][2] );
-		$post_id      = intval( $created['post_ids'][2] );
-
-		$query = '
-		{
-			menuItems( where: { id: ' . $menu_item_id . ' } ) {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		// Perform some common assertions.
-		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
-	}
-
-	public function testMenuItemsQueryByLocation() {
-		$count = 10;
-
-		/**
-		 * Create menu items that should NOT be returned because they're not assigned this location
-		 */
-		$this->createMenuItems( 'excluded-items', 10 );
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-
-		wp_set_current_user( $this->admin );
-
-		$query = '
-		{
-			menuItems( first: 100 where: { location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-						locations
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-		codecept_debug( $actual );
-
-		// The returned menu items have the expected number.
-		$this->assertEquals( $count, count( $actual['data']['menuItems']['edges'] ) );
-
-		// Perform some common assertions.
-		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
-	}
-
-	public function createNestedMenu( $child_count ) {
-		$count   = 10;
-		$created = $this->createMenuItems( 'my-test-menu-with-child-items', $count );
+		$created = $this->create_menu_items( 'my-test-menu-with-child-items', $location, $count );
 
 		// Add some child items to the fourth menu item.
 		for ( $x = 1; $x <= $child_count; $x ++ ) {
@@ -274,40 +99,367 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	/**
+	 * Some common assertions repeated for each test.
+	 *
+	 * @param  array $created_menu_ids Created menu items.
+	 * @param  array $created_post_ids Created connected posts.
+	 * @param  array $query_results    Query results.
+	 *
+	 * @return void
+	 */
+	private function compareResults( $created_menu_ids, $created_post_ids, $query_result ) {
+		$edges = $query_result['data']['menuItems']['edges'];
+
+		// The returned menu items have the expected IDs in the expected order.
+		$this->assertEquals(
+			$created_menu_ids,
+			array_map( function ( $menu_item ) {
+				return $menu_item['node']['databaseId'];
+			}, $edges )
+		);
+
+		// The connected posts have the expected IDs in the expected order.
+		$this->assertEquals(
+			$created_post_ids,
+			array_map( function ( $menu_item ) {
+				return $menu_item['node']['connectedObject']['databaseId'];
+			}, $edges )
+		);
+	}
+
+	public function getQuery() {
+		return '
+			query menuItemsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToMenuItemConnectionWhereArgs ){
+				menuItems( first:$first last:$last after:$after before:$before where:$where ) {
+					pageInfo {
+						hasNextPage
+						hasPreviousPage
+						startCursor
+						endCursor
+					}
+					edges {
+						cursor
+						node {
+							id
+							databaseId
+							parentDatabaseId
+							parentId
+							locations
+							connectedObject {
+								... on Post {
+									databaseId
+									status
+								}
+							}
+							connectedNode {
+								node {
+									...on Post {
+											databaseId
+											status
+									}
+								}
+							}
+							childItems {
+								edges {
+									node {
+										databaseId
+										connectedObject {
+											... on Post {
+												databaseId
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					nodes {
+						id
+						databaseId
+						order
+					}
+				}
+			}
+		';
+	}
+
+	public function testForwardPagination() {
+		$query    = $this->getQuery();
+		$wp_query = wp_get_nav_menu_items( 'my-menu-items-test' );
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'first' => 2,
+		];
+
+		// Run the GraphQL Query
+		$expected = array_slice( $wp_query, 0, 2, false );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['after'] = '';
+		$expected           = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['after'] = $actual['data']['menuItems']['pageInfo']['endCursor'];
+
+		// Set the variables to use in the WP query.
+		$query_args['offset'] = 2;
+
+		// Run the GraphQL Query
+		$expected = array_slice( $wp_query, 2, 2, false );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['after'] = $actual['data']['menuItems']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected = array_slice( $wp_query, 4, 2, false );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+
+		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->markTestIncomplete( 'backwards pagination has order reversed' );
+
+		$this->assertEqualSets( $expected, $actual );
+	}
+
+	public function testBackwardPagination() {
+		$query    = $this->getQuery();
+		$wp_query = wp_get_nav_menu_items( 'my-menu-items-test' );
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'last' => 2,
+		];
+
+		// Run the GraphQL Query
+		$expected = array_slice( array_reverse( $wp_query ), 0, 2, false );
+		$expected = array_reverse( $expected );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->markTestIncomplete( 'backwards pagination has order reversed' );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['before'] = '';
+		$expected            = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['before'] = $actual['data']['menuItems']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected = array_slice( array_reverse( $wp_query ), 2, 2, false );
+		$expected = array_reverse( $expected );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['before'] = $actual['data']['menuItems']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected = array_slice( array_reverse( $wp_query ), 4, 2, false );
+		$expected = array_reverse( $expected );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the first two results are equal to `first:2`.
+		 */
+		$variables = [
+			'first' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+	}
+
+	public function testQueryWithFirstAndLast() {
+		$query = $this->getQuery();
+
+		$variables = [
+			'first' => 5,
+		];
+
+		/**
+		 * Test `first`.
+		 */
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$after_cursor  = $actual['data']['menuItems']['edges'][1]['cursor'];
+		$before_cursor = $actual['data']['menuItems']['edges'][3]['cursor'];
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$variables = [
+			'first'  => 5,
+			'after'  => $after_cursor,
+			'before' => $before_cursor,
+		];
+
+		$expected = $actual['data']['menuItems']['nodes'][2];
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'Results not sliced by both cursors' );
+		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
+
+		/**
+		 * Test `last`.
+		 */
+		$variables['last'] = 5;
+
+		// Using first and last should throw an error.
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		unset( $variables['first'] );
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
+	}
+
+	public function testMenuItemsQueryById() {
+		$menu_item_id = intval( $this->created_menu_items['menu_item_ids'][2] );
+		$post_id      = intval( $this->created_menu_items['post_ids'][2] );
+
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'id' => $menu_item_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+
+		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
+		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
+	}
+
+	public function testMenuItemsQueryByLocation() {
+		$menu_item_id = intval( $this->created_menu_items['menu_item_ids'][2] );
+		$post_id      = intval( $this->created_menu_items['post_ids'][2] );
+
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_menu_items( 'menu-for-locaion-test', $menu_location, 1 );
+
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'location' => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// The returned menu items have the expected number.
+		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
+
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
+	}
+
 	public function testMenuItemsQueryWithChildItemsAsFlat() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_nested_menu( 3, $menu_location );
 
 		// The nesting is added to the fourth item
 		$parent_database_id = $created['menu_item_ids'][3];
 
-		$query = '
-		{
-			menuItems(first: 99, where: { location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						id
-						databaseId
-						parentId
-						parentDatabaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		';
+		$query = $this->getQuery();
 
-		$actual = do_graphql_request( $query );
+		$variables = [
+			'first' => 99,
+			'where' => [
+				'location' => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( 13, count( $actual['data']['menuItems']['edges'] ) );
 
@@ -342,45 +494,22 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithChildItemsUsingRelayParentId() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
 
-		$query = '
-		{
-			menuItems( where: { parentId: "0", location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-						childItems {
-							edges {
-								node {
-									databaseId
-									connectedObject {
-										... on Post {
-											postId
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		';
+		$created = $this->create_nested_menu( 3, $menu_location );
 
-		$actual = do_graphql_request( $query );
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'parentId' => '0',
+				'location' => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
@@ -390,52 +519,22 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithChildItemsUsingDatabaseParentId() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
 
-		$query = '
-		{
-			menuItems( where: { parentDatabaseId: 0, location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-						childItems {
-							edges {
-								node {
-									databaseId
-									connectedObject {
-										... on Post {
-											postId
-										}
-									}
-									connectedNode {
-										node {
-											 ...on Post {
-													databaseId
-											 }
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		';
+		$created = $this->create_nested_menu( 3, $menu_location );
 
-		$actual = do_graphql_request( $query );
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'parentDatabaseId' => 0,
+				'location'         => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
@@ -445,37 +544,25 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithExplicitParentDatabaseId() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_nested_menu( 3, $menu_location );
+
+		$query = $this->getQuery();
 
 		// The nesting is added to the fourth item
 		$parent_database_id = $created['menu_item_ids'][3];
 
-		$query = "
-		{
-			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-						parentDatabaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		";
+		$variables = [
+			'where' => [
+				'parentDatabaseId' => $parent_database_id,
+				'location'         => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
 
@@ -485,228 +572,93 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testMenuItemsQueryWithExplicitParentId() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
 
-		// The nesting is added to the fourth item.
-		// Convernt it to the global relay id from the database id.
+		$created = $this->create_nested_menu( 3, $menu_location );
+
+		$query = $this->getQuery();
+
+		// The nesting is added to the fourth item
 		$parent_id = Relay::toGlobalId( 'post', $created['menu_item_ids'][3] );
 
-		$query = "
-		{
-			menuItems( where: { parentId: \"${parent_id}\", location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		";
+		$variables = [
+			'where' => [
+				'parentId' => $parent_id,
+				'location' => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Perform some common assertions.
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
 	}
 
-	public function testMenuItemsQueryWithLimit() {
-		$count   = 10;
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-		$limit   = 5;
-
-		$query = '
-		{
-			menuItems(
-				first: ' . $limit . '
-				where: { location: MY_MENU_LOCATION }
-			) {
-				edges {
-					node {
-						databaseId
-						connectedObject {
-							... on Post {
-								postId
-							}
-						}
-						connectedNode {
-							node {
-								 ...on Post {
-										databaseId
-								 }
-							}
-						}
-					}
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		// Perform some common assertions. Slice the created IDs to the limit.
-		$menu_item_ids = array_slice( $created['menu_item_ids'], 0, $limit );
-		$post_ids      = array_slice( $created['post_ids'], 0, $limit );
-		$this->compareResults( $menu_item_ids, $post_ids, $actual );
-	}
-
-	public function testDraftPostsAreNotVisibleForAnonymous() {
-		$count   = 2;
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
+	public function testDraftPostsVisibility() {
 
 		wp_update_post(
 			[
-				'ID'          => $created['post_ids'][0],
+				'ID'          => $this->created_menu_items['post_ids'][0],
 				'post_status' => 'draft',
 			]
 		);
 
-		$query = '
-		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
-				nodes {
-					connectedObject {
-						... on Post {
-							status
-						}
-					}
-					connectedNode {
-						node {
-							 ...on Post {
-									status
-							 }
-						}
-					}
-				}
-			}
-		}
-		';
+		$query     = $this->getQuery();
+		$variables = [
+			'where' => [
+				'location' => 'MY_MENU_LOCATION',
+			],
+		];
 
-		// Ensure unauthenticated request
+		// Test not visible for unauthenticated
 		wp_set_current_user( 0 );
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual, print_r( $actual, true ) );
 
 		// Unauthenticated request still returns two _menu_ items
-		$this->assertEquals( $count, count( $actual['data']['menuItems']['nodes'] ) );
+		$this->assertEquals( 6, count( $actual['data']['menuItems']['nodes'] ) );
 
-		$expected = [
-			0 => [
-				// But actual connected data is not available because there's no permission to do so
-				'connectedObject' => null,
-				'connectedNode'   => null,
-			],
-			1 => [
-				'connectedObject' => [
-					'status' => 'publish',
-				],
-				'connectedNode'   => [
-					'node' => [
-						'status' => 'publish',
-					],
-				],
-			],
-		];
+		$this->assertEquals( null, $actual['data']['menuItems']['edges'][0]['node']['connectedObject'] );
+		$this->assertEquals( null, $actual['data']['menuItems']['edges'][0]['node']['connectedNode'] );
+		$this->assertEquals( 'publish', $actual['data']['menuItems']['edges'][1]['node']['connectedObject']['status'] );
+		$this->assertEquals( 'publish', $actual['data']['menuItems']['edges'][1]['node']['connectedNode']['node']['status'] );
 
-		$this->assertEquals( $expected, $actual['data']['menuItems']['nodes'] );
-
-	}
-
-	public function testDraftPostsAreVisibleForAdmin() {
-		$count   = 2;
-		$created = $this->createMenuItems( 'my-test-menu-location', $count );
-
-		wp_update_post(
-			[
-				'ID'          => $created['post_ids'][0],
-				'post_status' => 'draft',
-			]
-		);
-
-		$query = '
-		{
-			menuItems( where: { location: MY_MENU_LOCATION } ) {
-				nodes {
-					connectedObject {
-						... on Post {
-							status
-						}
-					}
-					connectedNode {
-						node {
-							 ...on Post {
-									status
-							 }
-						}
-					}
-				}
-			}
-		}
-		';
-
-		// Authenticate as admin
+		// Test visible for admin.
 		wp_set_current_user( $this->admin );
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertArrayNotHasKey( 'errors', $actual, print_r( $actual, true ) );
+		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedObject']['status'] );
+		$this->markTestIncomplete( 'connectedNode shouldnt be null for admin' );
 
-		$this->assertEquals( $count, count( $actual['data']['menuItems']['nodes'] ) );
-
-		$expected = [
-			0 => [
-				'connectedObject' => [
-					'status' => 'draft',
-				],
-				'connectedNode'   => null,
-			],
-			1 => [
-				'connectedObject' => [
-					'status' => 'publish',
-				],
-				'connectedNode'   => [
-					'node' => [
-						'status' => 'publish',
-					],
-				],
-			],
-		];
-
-		$this->assertEquals( $expected, $actual['data']['menuItems']['nodes'] );
+		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedNode']['node']['status'] );
 
 	}
 
 	public function testMenuItemsOrder() {
-		$created = $this->createNestedMenu( 3 );
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_nested_menu( 3, $menu_location );
+
+		$query = $this->getQuery();
 
 		// The nesting is added to the fourth item
 		$parent_database_id = $created['menu_item_ids'][3];
 
-		$query = "
-		{
-			menuItems( where: { parentDatabaseId: $parent_database_id, location: MY_MENU_LOCATION } ) {
-				nodes {
-					databaseId
-					order
-				}
-			}
-		}
-		";
+		$variables = [
+			'where' => [
+				'parentDatabaseId' => $parent_database_id,
+				'location'         => WPEnumType::get_safe_name( $menu_location ),
+			],
+		];
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Assert that the `order` field actually exists and is an int
 		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order'] );
@@ -730,10 +682,6 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @return void
 	 */
 	public function testFilterMenuItemsByLocationDoesntBreakWhenTaxonomyNamedLocationExists() {
-
-		// create some menu items
-		$created = $this->createMenuItems( 'my-test-menu-location', 5 );
-
 		// register a "location" taxonomy
 		register_taxonomy( 'location', 'post', [
 			'show_ui'             => true,
@@ -742,24 +690,16 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'graphql_single_name' => 'Location',
 			'graphql_plural_name' => 'Locations',
 		]);
+		WPGraphQL::clear_schema();
 
-		$query = '
-		{
-			menuItems( first: 100 where: { location: MY_MENU_LOCATION } ) {
-				edges {
-					node {
-						databaseId
-					}
-				}
-			}
-		}
-		';
+		$query     = $this->getQuery();
+		$variables = [
+			'where' => [
+				'location' => 'MY_MENU_LOCATION',
+			],
+		];
 
-		$actual = graphql([
-			'query' => $query,
-		]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// the query for menu items filtered by location should return menu items
 		// this was breaking when a taxonomy named location was set
@@ -767,12 +707,40 @@ class MenuItemConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['menuItems']['edges'] );
 
-		foreach ( $created['menu_item_ids'] as $menu_item_id ) {
-			wp_delete_post( $menu_item_id );
+		foreach ( $this->created_menu_items['menu_item_ids'] as $menu_item_id ) {
+			wp_delete_post( $menu_item_id, true );
 		}
 
 		unregister_taxonomy( 'location' );
 
+	}
+
+		/**
+	 * Common asserts for testing pagination.
+	 *
+	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+	 * @param array $actual The GraphQL results.
+	 */
+	public function assertValidPagination( $expected, $actual ) {
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 2, count( $actual['data']['menuItems']['edges'] ) );
+
+		$first_post_id  = $expected[0]->ID;
+		$second_post_id = $expected[1]->ID;
+
+		$start_cursor = $this->toRelayId( 'arrayconnection', $first_post_id );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_post_id );
+
+		$this->assertEquals( $first_post_id, $actual['data']['menuItems']['edges'][0]['node']['databaseId'] );
+		$this->assertEquals( $first_post_id, $actual['data']['menuItems']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $start_cursor, $actual['data']['menuItems']['edges'][0]['cursor'] );
+		$this->assertEquals( $second_post_id, $actual['data']['menuItems']['edges'][1]['node']['databaseId'] );
+		$this->assertEquals( $second_post_id, $actual['data']['menuItems']['nodes'][1]['databaseId'] );
+		$this->assertEquals( $end_cursor, $actual['data']['menuItems']['edges'][1]['cursor'] );
+		$this->assertEquals( $start_cursor, $actual['data']['menuItems']['pageInfo']['startCursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['menuItems']['pageInfo']['endCursor'] );
 	}
 
 }
