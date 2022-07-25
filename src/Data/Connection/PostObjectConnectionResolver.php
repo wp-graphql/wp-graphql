@@ -24,6 +24,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	protected $post_type;
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Query|object
+	 */
+	protected $query;
+	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
 	 * @param mixed              $source    source passed down from the resolve tree

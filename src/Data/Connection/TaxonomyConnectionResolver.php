@@ -14,6 +14,12 @@ use WPGraphQL\Model\Term;
  * @package WPGraphQL\Data\Connection
  */
 class TaxonomyConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * ContentTypeConnectionResolver constructor.
@@ -111,7 +117,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Get the items from the source
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public function get_query() {
 		$query_args = $this->get_query_args();

@@ -10,6 +10,12 @@ use WPGraphQL\AppContext;
  * @package WPGraphQL\Data\Connection
  */
 class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * EnqueuedStylesheetConnectionResolver constructor.
@@ -49,7 +55,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Get the IDs from the source
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public function get_ids() {
 		$ids     = [];

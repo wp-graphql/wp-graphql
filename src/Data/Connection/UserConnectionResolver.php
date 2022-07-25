@@ -14,6 +14,14 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Connection
  */
 class UserConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * A custom class is assumed to have the same core functions as WP_User_Query.
+	 *
+	 * @var \WP_User_Query|object
+	 */
+	protected $query;
 
 	/**
 	 * Determines whether the query should execute at all. It's possible that in some
@@ -172,7 +180,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Return an instance of the WP_User_Query with the args for the connection being executed
 	 *
-	 * @return mixed|\WP_User_Query
+	 * @return object|\WP_User_Query
 	 * @throws \Exception
 	 */
 	public function get_query() {
@@ -191,7 +199,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_ids() {
-		$results = $this->query->get_results();
+		$results = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : null;
 
 		return ! empty( $results ) ? $results : [];
 	}

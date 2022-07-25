@@ -14,6 +14,12 @@ use WPGraphQL\Model\User;
  * @since   0.0.5
  */
 class UserRoleConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * UserRoleConnectionResolver constructor.
@@ -75,7 +81,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|mixed
+	 * @return array
 	 */
 	public function get_query() {
 		$wp_roles = wp_roles();

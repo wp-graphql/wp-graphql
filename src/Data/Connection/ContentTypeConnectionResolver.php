@@ -11,6 +11,12 @@ use WPGraphQL\AppContext;
  * @package WPGraphQL\Data\Connection
  */
 class ContentTypeConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * ContentTypeConnectionResolver constructor.
@@ -82,7 +88,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Get the items from the source
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public function get_query() {
 

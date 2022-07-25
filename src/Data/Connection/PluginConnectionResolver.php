@@ -12,6 +12,12 @@ use WPGraphQL\AppContext;
  * @since 0.0.5
  */
 class PluginConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * PluginConnectionResolver constructor.
@@ -72,7 +78,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|mixed
+	 * @return array
 	 */
 	public function get_query() {
 		// File has not loaded.

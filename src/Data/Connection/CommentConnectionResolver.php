@@ -16,6 +16,13 @@ use WPGraphQL\Types;
 class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Comment_Query
+	 */
+	protected $query;
+
+	/**
 	 * @return array
 	 * @throws Exception
 	 */

@@ -17,6 +17,13 @@ use WPGraphQL\Types;
 class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Term_Query
+	 */
+	protected $query;
+
+	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
 	 * @var string
@@ -155,13 +162,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Return an instance of WP_Term_Query with the args mapped to the query
 	 *
-	 * @return mixed|\WP_Term_Query
+	 * @return \WP_Term_Query
 	 * @throws Exception
 	 */
 	public function get_query() {
-		$query = new \WP_Term_Query( $this->query_args );
-
-		return $query;
+		return new \WP_Term_Query( $this->query_args );
 	}
 
 	/**

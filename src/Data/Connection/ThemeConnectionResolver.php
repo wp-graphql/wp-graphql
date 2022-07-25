@@ -8,6 +8,12 @@ namespace WPGraphQL\Data\Connection;
  * @since 0.5.0
  */
 class ThemeConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * @return mixed
@@ -58,7 +64,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Get the items from the source
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public function get_query() {
 		$query_args = $this->get_query_args();
