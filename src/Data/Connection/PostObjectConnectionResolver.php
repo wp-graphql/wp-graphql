@@ -557,7 +557,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_post( absint( $offset ) ) );
+		return (bool) get_post( absint( $offset ) );
 	}
 
 }

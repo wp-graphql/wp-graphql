@@ -146,7 +146,8 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		global $wp_styles;
+		return isset( $wp_styles->registered[ $offset ] );
 	}
 
 	/**

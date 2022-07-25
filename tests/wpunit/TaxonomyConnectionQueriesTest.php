@@ -139,7 +139,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
-		$this->markTestIncomplete( 'hasPreviousPage is not being set to false when there are no more results.' );
+		$this->markTestIncomplete( 'Not slicing correctly' );
 
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['taxonomies']['pageInfo']['hasNextPage'] );

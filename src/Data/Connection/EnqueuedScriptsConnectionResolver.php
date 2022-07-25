@@ -146,7 +146,8 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		global $wp_scripts;
+		return isset( $wp_scripts->registered[ $offset ] );
 	}
 
 	/**

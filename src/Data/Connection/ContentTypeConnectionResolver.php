@@ -145,7 +145,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		return (bool) get_post_type_object( $offset );
 	}
 
 	/**

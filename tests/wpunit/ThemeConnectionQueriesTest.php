@@ -175,7 +175,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
-		$this->markTestIncomplete( 'hasNextPage is not being set to false when there are no more results.' );
+		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 
 		/**

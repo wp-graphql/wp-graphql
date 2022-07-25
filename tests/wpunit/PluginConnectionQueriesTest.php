@@ -118,7 +118,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
-		$this->markTestIncomplete( 'hasNextPage is not being set to false when there are no more results.' );
+		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
 
 		/**

@@ -255,7 +255,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_term( absint( $offset ) ) );
+		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
 
 }

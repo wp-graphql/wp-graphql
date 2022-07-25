@@ -193,7 +193,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['userRoles']['pageInfo']['hasPreviousPage'] );
 
-		$this->markTestIncomplete( 'hasNextPage is not being set to false when there are no more results.' );
+		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['userRoles']['pageInfo']['hasNextPage'] );
 
 		/**

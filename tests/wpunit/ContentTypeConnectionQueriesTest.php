@@ -157,7 +157,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 
-		$this->markTestIncomplete( 'hasNextPage is not being set to false when there are no more results.' );
+		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
 
 		/**

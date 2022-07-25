@@ -286,7 +286,16 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// This is missing must use and drop in plugins, so we need to fetch and merge them separately.
+		$site_plugins   = apply_filters( 'all_plugins', get_plugins() );
+		$mu_plugins     = apply_filters( 'show_advanced_plugins', true, 'mustuse' ) ? get_mu_plugins() : [];
+		$dropin_plugins = apply_filters( 'show_advanced_plugins', true, 'dropins' ) ? get_dropins() : [];
+
+		$all_plugins = array_merge( $site_plugins, $mu_plugins, $dropin_plugins );
+
+		return array_key_exists( $offset, $all_plugins );
 	}
 
 	/**
