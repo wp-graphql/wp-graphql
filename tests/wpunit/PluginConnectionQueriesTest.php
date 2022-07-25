@@ -118,7 +118,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
-		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
 
 		/**
@@ -201,7 +200,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'backwards pagination has order reversed' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
@@ -309,7 +307,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->markTestIncomplete( 'before slicing doesnt work' );
 		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
 
 		/**

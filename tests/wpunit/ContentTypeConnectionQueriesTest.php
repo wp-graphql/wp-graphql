@@ -157,7 +157,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 
-		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
 
 		/**
@@ -191,7 +190,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$expected = array_reverse( $expected );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->markTestIncomplete( 'backwards pagination has order reversed' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['contentTypes']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['contentTypes']['pageInfo']['hasNextPage'] );
@@ -278,7 +276,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->markTestIncomplete( 'before and after arent supported together' );
 		$this->assertSame( $expected, $actual['data']['contentTypes']['nodes'][0] );
 
 		/**

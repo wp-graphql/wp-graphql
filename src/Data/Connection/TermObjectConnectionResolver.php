@@ -5,8 +5,6 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Types;
 
 /**
@@ -47,8 +45,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 
@@ -170,17 +167,22 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * This gets the items from the query. Different queries return items in different ways, so this
-	 * helps normalize the items into an array for use by the get_nodes() function.
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	public function get_ids_from_query() {
+		/** @var string[] $ids **/
+		$ids = ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'term';

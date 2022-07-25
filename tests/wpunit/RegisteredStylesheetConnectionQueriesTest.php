@@ -140,7 +140,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'last + after doesnt work, breaking workaround' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['registeredStylesheets']['pageInfo']['hasNextPage'] );
@@ -182,7 +181,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'Order reversed before slicing' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['registeredStylesheets']['pageInfo']['hasNextPage'] );
@@ -272,7 +270,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->markTestIncomplete( 'before and after arent supported together' );
 
 		$this->assertSame( $expected, $actual['data']['registeredStylesheets']['nodes'][0] );
 

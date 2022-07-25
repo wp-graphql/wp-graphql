@@ -23,8 +23,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	protected $query;
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 
@@ -158,11 +157,18 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+	public function get_ids_from_query() {
+		/** @var array $ids */
+		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

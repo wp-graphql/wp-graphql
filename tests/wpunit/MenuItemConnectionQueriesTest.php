@@ -259,8 +259,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'backwards pagination has order reversed' );
-
 		$this->assertEqualSets( $expected, $actual );
 	}
 
@@ -282,7 +280,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$expected = array_reverse( $expected );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->markTestIncomplete( 'backwards pagination has order reversed' );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );

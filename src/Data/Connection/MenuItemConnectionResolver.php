@@ -33,12 +33,16 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * @return array
 	 */
 	public function get_query_args() {
+		/**
+		 * Prepare for later use
+		 */
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
 		$query_args            = parent::get_query_args();
 		$query_args['orderby'] = 'menu_order';
-		$query_args['order']   = 'ASC';
+		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
 
 		if ( isset( $this->args['where']['parentDatabaseId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';

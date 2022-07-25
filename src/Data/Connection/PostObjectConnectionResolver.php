@@ -107,12 +107,17 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an array of items from the query
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->posts ) ? $this->query->posts : [];
+	public function get_ids_from_query() {
+		$ids = ! empty( $this->query->posts ) ? $this->query->posts : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

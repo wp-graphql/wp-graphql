@@ -5,7 +5,6 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -196,12 +195,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
-	public function get_ids() {
-		$results = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : null;
+	public function get_ids_from_query() {
+		$ids = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : [];
 
-		return ! empty( $results ) ? $results : [];
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**

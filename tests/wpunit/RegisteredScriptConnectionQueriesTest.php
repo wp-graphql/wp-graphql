@@ -139,7 +139,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'last + after doesnt work, breaking workaround' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
 
@@ -180,7 +179,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$expected['nodes'] = array_slice( $expected['nodes'], 4, null, false );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->markTestIncomplete( 'Order reversed before slicing' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredScripts']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['registeredScripts']['pageInfo']['hasNextPage'] );
@@ -270,7 +268,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->markTestIncomplete( 'before and after arent supported together' );
 		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
 
 		/**

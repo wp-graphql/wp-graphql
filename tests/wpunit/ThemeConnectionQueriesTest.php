@@ -175,7 +175,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
-		$this->markTestIncomplete( 'Not slicing correctly' );
 		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
 
 		/**
@@ -260,7 +259,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'backwards pagination has order reversed' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['themes']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['themes']['pageInfo']['hasNextPage'] );
@@ -371,7 +369,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->markTestIncomplete( 'before and after arent supported together' );
 		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
 
 		/**

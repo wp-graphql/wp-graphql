@@ -33,33 +33,26 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get the IDs from the source
-	 *
-	 * @return array|mixed|null
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
-		}
+	public function get_ids_from_query() {
 
 		$ids     = [];
-		$queried = $this->get_query();
+		$queried = $this->query;
 
 		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
-			$ids[ $key ] = $item;
+		foreach ( $queried as $item ) {
+			$ids[] = $item;
 		}
 
 		return $ids;
-
 	}
 
 	/**
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 		// If any args are added to filter/sort the connection
@@ -78,44 +71,12 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return $this->query_args['contentTypeNames'];
 		}
 
-		$query_args = $this->get_query_args();
-		return array_values( \WPGraphQL::get_allowed_post_types( 'names', $query_args ) );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
-			return [];
+		if ( isset( $this->query_args['name'] ) ) {
+			return [ $this->query_args['name'] ];
 		}
 
-		$ids = $this->ids;
-
-		// If pagination is going backwards, revers the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
-
-		if ( ! empty( $cursor_offset ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $cursor_offset, $ids, true );
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
-		}
-
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
-
-		return $ids;
+		$query_args = $this->query_args;
+		return \WPGraphQL::get_allowed_post_types( 'names', $query_args );
 	}
 
 	/**
