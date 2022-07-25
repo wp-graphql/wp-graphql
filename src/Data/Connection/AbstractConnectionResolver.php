@@ -467,26 +467,31 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return int|null
+	 * Gets the offset for the `after` cursor.
+	 *
+	 * @return int|string|null
 	 */
-	public function get_after_offset(): ?int {
+	public function get_after_offset() {
 		if ( ! empty( $this->args['after'] ) ) {
-			return ArrayConnection::cursorToOffset( $this->args['after'] );
+			return $this->get_offset_for_cursor( $this->args['after'] );
 		}
 
 		return null;
 	}
 
 	/**
-	 * @return int|null
+	 * Gets the offset for the `before` cursor.
+	 *
+	 * @return int|string|null
 	 */
-	public function get_before_offset(): ?int {
+	public function get_before_offset() {
 		if ( ! empty( $this->args['before'] ) ) {
-			return ArrayConnection::cursorToOffset( $this->args['before'] );
+			return $this->get_offset_for_cursor( $this->args['before'] );
 		}
 
 		return null;
 	}
+
 
 	/**
 	 * Get_offset
@@ -494,29 +499,40 @@ abstract class AbstractConnectionResolver {
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
 	 * GraphQL query.
 	 *
+	 * @deprecated @todo
+	 *
 	 * @return int|mixed
 	 */
 	public function get_offset() {
+			_deprecated_function( __FUNCTION__, '@todo', get_class( $this ) . '::get_offset_for_cursor()' );
 
-		/**
-		 * Defaults
-		 */
-		$offset = 0;
+		// Using shorthand since this is for deprecated code.
+		$cursor = $this->args['after'] ?? null;
+		$cursor = $cursor ?: ( $this->args['before'] ?? null );
 
-		/**
-		 * Get the $after offset
-		 */
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = ArrayConnection::cursorToOffset( $this->args['after'] );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = ArrayConnection::cursorToOffset( $this->args['before'] );
+		return $this->get_offset_for_cursor( $cursor );
+	}
+
+	/**
+	 * Returns the offset for a given cursor.
+	 *
+	 * Connections that use a string-based offset should override this method.
+	 *
+	 * @return int|mixed
+	 */
+	public function get_offset_for_cursor( string $cursor = null ) {
+		$offset = false;
+
+		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
+		if ( ! empty( $cursor ) ) {
+			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
 		}
 
 		/**
-		 * Return the higher of the two values
+		 * We assume a numeric $offset is an integer ID.
+		 * If it isn't this method should be overriden by the child class.
 		 */
-		return max( 0, $offset );
-
+		return is_numeric( $offset ) ? absint( $offset ) : $offset;
 	}
 
 	/**
@@ -535,8 +551,10 @@ abstract class AbstractConnectionResolver {
 			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
-		if ( ! empty( $this->args['before'] ) ) {
-			return $this->is_valid_offset( $this->get_offset() );
+		$before_offset = $this->get_before_offset();
+
+		if ( $before_offset ) {
+			return $this->is_valid_offset( $before_offset );
 		}
 
 		return false;
@@ -558,8 +576,9 @@ abstract class AbstractConnectionResolver {
 			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
 		}
 
-		if ( ! empty( $this->args['after'] ) ) {
-			return $this->is_valid_offset( $this->get_offset() );
+		$after_offset = $this->get_after_offset();
+		if ( $after_offset ) {
+			return $this->is_valid_offset( $after_offset );
 		}
 
 		return false;
@@ -615,9 +634,12 @@ abstract class AbstractConnectionResolver {
 		// If pagination is going backwards, revers the array of IDs
 		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
 
-		if ( ! empty( $this->get_offset() ) ) {
+		$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
+
+		if ( ! empty( $cursor_offset ) ) {
 			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
+			$key = array_search( $cursor_offset, $ids, true );
+
 			// If the offset is in the array
 			if ( false !== $key ) {
 				$key = absint( $key );

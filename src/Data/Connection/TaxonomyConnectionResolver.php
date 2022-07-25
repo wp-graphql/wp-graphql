@@ -60,19 +60,6 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return bool|int|mixed|null|string
-	 */
-	public function get_offset() {
-		$offset = null;
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
-		}
-		return $offset;
-	}
-
-	/**
 	 * Get the IDs from the source
 	 *
 	 * @return array|mixed|null
@@ -107,7 +94,9 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query_args() {
 		// If any args are added to filter/sort the connection
-		return [];
+		return [
+			'show_in_graphql' => true, // temporarily necessary before query is refactored.
+		];
 	}
 
 
@@ -134,10 +123,13 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 		// If pagination is going backwards, revers the array of IDs
 		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
 
-		if ( ! empty( $this->get_offset() ) ) {
+		$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
+
+		if ( ! empty( $cursor_offset ) ) {
 			// Determine if the offset is in the array
+			codecept_debug( $ids );
 			$keys = array_keys( $ids );
-			$key  = array_search( $this->get_offset(), $keys, true );
+			$key  = array_search( $cursor_offset, $keys, true );
 
 			if ( false !== $key ) {
 				$key = absint( $key );

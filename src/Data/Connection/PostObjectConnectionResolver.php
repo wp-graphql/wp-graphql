@@ -202,13 +202,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
 		 * to filter the WP_Query to support cursor pagination
 		 */
-		$cursor_offset = $this->get_offset();
+		$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
 
 		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
-		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
-		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+		$query_args['graphql_after_cursor']  = $this->get_after_offset();
+		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
 		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
@@ -288,9 +288,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					$post_in = array_reverse( $post_in );
 				}
 
-				if ( ! empty( $this->get_offset() ) ) {
+				$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
+
+				if ( ! empty( $cursor_offset ) ) {
 					// Determine if the offset is in the array
-					$key = array_search( $this->get_offset(), $post_in, true );
+					$key = array_search( $cursor_offset, $post_in, true );
 
 					// If the offset is in the array
 					if ( false !== $key ) {
