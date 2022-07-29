@@ -178,6 +178,32 @@ composer build-test
 
 This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step to run the full test suite in the docker container.
 
+Build the environment with specific version of PHP:
+
+```shell
+PHP_VERSION=8.1 composer build-test
+```
+
+```shell
+PHP_VERSION=7.4 composer build-test
+```
+
+Build the environment with specific version of WordPress:
+
+```shell
+WP_VERSION=6.0 composer build-test
+```
+
+```shell
+WP_VERSION=5.9 composer build-test
+```
+
+Or both
+
+```shell
+PHP_VERSION=8.1 WP_VERSION=6.0 composer build-test
+```
+
 #### Run the full test suite
 
 ```shell
@@ -226,6 +252,12 @@ To run a specific test within a test suite file:
 SUITES=wpunit:FiltersTest.php:testFilterGraphqlRequestResults composer run-test
 ```
 
+You can also specify the PHP and/or WordPress versions to run the tests in those environments. Environment must have been built previously using instructions above.
+
+```shell
+PHP_VERSION=8.1 WP_VERSION=6.0 SUITES=acceptance composer run-test
+```
+
 **Notes:**
 
 - If you make a change that requires `composer install` to be rerun, run composer build-app again.
@@ -241,6 +273,12 @@ Log into the docker shell prompt:
 
 ```
 docker-compose run --entrypoint bash -- testing
+```
+
+Specify the PHP and/or WordPress versions to use that environment. Environment must have been built previously using instructions above.
+
+```
+PHP_VERSION=8.1 WP_VERSION=6.0 docker-compose run --entrypoint bash -- testing
 ```
 
 Run the setup script, which also runs the test suite.  This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.
