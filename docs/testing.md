@@ -162,7 +162,7 @@ The tests should start running and you should see something similar to the follo
 
 ## Testing with Docker
 
-Testing in docker is slower than testing locally with Codeception, but it allows you to test in a consistent environment and not have to worry about a local environment issue getting in the way of running the tests. 
+Testing in docker is slower than testing locally directly with Codeception, but it allows you to test in a consistent environment and not have to worry about a local environment issue getting in the way of running the tests. Also allows testing with different versions of PHP and/or WordPress quickly.
 
 ### Pre-Requisites
 
@@ -178,62 +178,84 @@ composer build-test
 
 This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step to run the full test suite in the docker container.
 
+Build the environment with specific version of PHP:
+
+```shell
+PHP_VERSION=8.1 composer build-test
+```
+
+```shell
+PHP_VERSION=7.4 composer build-test
+```
+
+Build the environment with specific version of WordPress:
+
+```shell
+WP_VERSION=6.0 composer build-test
+```
+
+```shell
+WP_VERSION=5.9 composer build-test
+```
+
+Or both
+
+```shell
+PHP_VERSION=8.1 WP_VERSION=6.0 composer build-test
+```
+
 #### Run the full test suite
 
 ```shell
 composer run-test
 ```
 
-#### Run specific tests in Docker shell
-
-To run individual tests, you will need to build the &#8216;app' docker image.
-
-```shell
-composer build-app
-```
-
-In the terminal window, access the Docker container shell from which you can run tests:
-
-```shell
-docker-compose run -- app bash
-cd wp-content/plugins/wp-graphql/
-```
-
-You should eventually see a prompt like this:
-
-```shell
-root@cd8e4375eb6f:/var/www/html/wp-content/plugins/wp-graphql#
-```
-
-Now you are ready to work in your IDE and test your changes by running any of the following commands in the second terminal window):
-
-```shell
-vendor/bin/codecept run -c codeception.dist.yml wpunit
-```
-
-```shell
-vendor/bin/codecept run -c codeception.dist.yml functional
-```
-
-```shell
-vendor/bin/codecept run -c codeception.dist.yml acceptance
-```
-
-```shell
-vendor/bin/codecept run -c codeception.dist.yml tests/wpunit/NodesTest.php
-```
-
-```shell
-vendor/bin/codecept run -c codeception.dist.yml tests/wpunit/NodesTest.php:testPluginNodeQuery
-```
-
 #### Run specific tests in testing environment
 
 Use the environment variable SUITES to specify individual files or lists of files to test. This is useful when working on one test file and wanting to limit test execution to the single file or test. Also see the contributing documentation on enabling xdebug in the testing docker environment.
 
+By default the SUITES variable is set to all test types; acceptance,functional,wpunit.  See the .env file in the source root directory.
+
+To run just the acceptance test suite, use the following:
+
 ```shell
-SUITES=tests/wpunit/FooTest.php:someTest composer run-test
-export SUITES="tests/wpunit/BarTest.php tests/wpunit/FooTest.php" composer run-test
+SUITES=acceptance composer run-test
+```
+
+To run just the functional test suite, use the following:
+
+```shell
+SUITES=functional composer run-test
+```
+
+To run just the wpunit test suite, use the following:
+
+```shell
+SUITES=wpunit composer run-test
+```
+
+Or a combination of more than one:
+
+```shell
+SUITES=acceptance,functional composer run-test
+```
+
+To run a specific test file, use something like the following:
+
+```shell
+SUITES=functional:BasicPostListCept composer run-test
+```
+
+To run a specific test within a test suite file:
+
+```shell
+SUITES=wpunit:FiltersTest.php:testFilterGraphqlRequestResults composer run-test
+```
+
+You can also specify the PHP and/or WordPress versions to run the tests in those environments. Environment must have been built previously using instructions above.
+
+```shell
+PHP_VERSION=8.1 WP_VERSION=6.0 SUITES=acceptance composer run-test
 ```
 
 **Notes:**
@@ -243,3 +265,50 @@ export SUITES="tests/wpunit/BarTest.php tests/wpunit/FooTest.php" composer run-t
 - Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
     - Run this command: `docker system prune`
     - https://docs.docker.com/config/pruning/#prune-containers
+
+
+#### Advanced Testing Within Docker Shell
+
+Log into the docker shell prompt:
+
+```
+docker-compose run --entrypoint bash -- testing
+```
+
+Specify the PHP and/or WordPress versions to use that environment. Environment must have been built previously using instructions above.
+
+```
+PHP_VERSION=8.1 WP_VERSION=6.0 docker-compose run --entrypoint bash -- testing
+```
+
+Run the setup script, which also runs the test suite.  This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.
+
+```
+/usr/local/bin/testing-entrypoint.sh
+```
+
+If you want to skip the tests but initiate and setup the docker environment, use the following:
+
+```
+SUITES= /usr/local/bin/testing-entrypoint.sh
+```
+
+After running the initial entry point, change to the plugin diectory:
+
+```
+cd wp-content/plugins/wp-graphql
+```
+
+Run tests like this:
+
+```
+vendor/bin/codecept run -c codeception.dist.yml wpunit
+```
+
+```
+vendor/bin/codecept run -c codeception.dist.yml acceptance
+```
+
+```
+vendor/bin/codecept run -c codeception.dist.yml functional:BasicPostListCept
+```
