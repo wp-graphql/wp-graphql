@@ -107,10 +107,20 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_cursor_offset']  = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
+		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors
+		$query_args['graphql_after_cursor']  = $this->get_after_offset();
+		$query_args['graphql_before_cursor'] = $this->get_before_offset();
+
 		/**
 		 * Pass the graphql $this->args to the WP_Query
 		 */
 		$query_args['graphql_args'] = $this->args;
+
+		// encode the graphql args as a cache domain to ensure the
+		// graphql_args are used to identify different queries.
+		// see: https://core.trac.wordpress.org/ticket/35075
+		$encoded_args               = wp_json_encode( $this->args );
+		$query_args['cache_domain'] = ! empty( $encoded_args ) ? 'graphql:' . md5( $encoded_args ) : 'graphql';
 
 		/**
 		 * We only want to query IDs because deferred resolution will resolve the full
@@ -140,7 +150,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
-	 * @return mixed|\WP_Comment_Query
+	 * @return \WP_Comment_Query
 	 * @throws Exception
 	 */
 	public function get_query() {
