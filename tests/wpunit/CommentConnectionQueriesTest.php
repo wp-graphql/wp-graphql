@@ -340,10 +340,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected = $page_1['data']['comments']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( [
-			'afterAndBefore' => $actual
-		]);
-
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['comments']['nodes'][0] );
@@ -364,11 +360,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( [
-			'expected' => $expected,
-			'actual' => $actual
-		]);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
