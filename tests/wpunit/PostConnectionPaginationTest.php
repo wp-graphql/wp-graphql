@@ -165,28 +165,28 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$page_1   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertValidPagination( $expected, $page_1 );
+		$this->assertEquals( false, $page_1['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $page_1['data']['posts']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test with empty offset.
 		 */
 		$variables['after'] = '';
-		$expected           = $actual;
+		$expected           = $page_1;
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$page_1 = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertEqualSets( $expected, $actual );
+		$this->assertEqualSets( $expected, $page_1 );
 
 		/**
 		 * Test the next two results.
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables['after'] = $actual['data']['posts']['pageInfo']['endCursor'];
+		$variables['after'] = $page_1['data']['posts']['pageInfo']['endCursor'];
 
 		// Set the variables to use in the WP query.
 		$query_args['offset'] = 2;
@@ -194,34 +194,29 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$page_2 = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertValidPagination( $expected, $page_2 );
+		$this->assertEquals( true, $page_2['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $page_2['data']['posts']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the last two results.
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables['after'] = $actual['data']['posts']['pageInfo']['endCursor'];
+		$variables['after'] = $page_2['data']['posts']['pageInfo']['endCursor'];
 
 		// Set the variables to use in the WP query.
 		$query_args['offset'] = 4;
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$page_3   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['posts']['pageInfo']['hasPreviousPage'] );
-
-		if ( isset( $graphql_args['where']['search'] ) ) {
-			$this->markTestIncomplete( 'Offsetting with search ovefetches.' );
-		}
-
-		$this->assertEquals( false, $actual['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertValidPagination( $expected, $page_3 );
+		$this->assertEquals( true, $page_3['data']['posts']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $page_3['data']['posts']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the last two results are equal to `last:2`.
@@ -231,10 +226,8 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		], $graphql_args );
 		unset( $variables['first'] );
 
-		$expected = $actual;
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual );
+		$last_page = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $page_3, $last_page );
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
@@ -398,23 +391,13 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 			'post_title'  => $search_string,
 		];
 
-		$post_ids = [];
+		$created_posts = [];
 
 		for ( $i = 1; $i <= 6; $i ++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$post_ids[]        = $this->factory()->post->create( $args );
+			$created_posts[]        = $this->factory()->post->create( $args );
 		}
-
-		// Add one to the content.
-		$post_ids[] = $this->factory()->post->create( [
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_author'  => $this->admin,
-			'post_date'    => date( 'Y-m-d H:i:s', strtotime( '-1 day -6 minutes' ) ),
-			'post_title'   => 'Test Post 6 For Search',
-			'post_content' => $search_string,
-		]);
 
 		// Set the variables to use in the GraphQL query.
 		$graphql_args = [
@@ -426,12 +409,17 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Set the variables to use in the WP query.
 		$query_args = [
-			'number' => 2,
-			'offset' => 0,
+			'posts_per_page' => 2,
+			'page' => 1,
 			's'      => $search_string,
 		];
 
 		$this->forwardPagination( $graphql_args, $query_args );
+
+		foreach ( $created_posts as $id ) {
+			wp_delete_post( $id, true );
+		}
+
 	}
 
 	public function testBackwardPaginationWithSearch() {
@@ -445,12 +433,12 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 			'post_title'  => $search_string,
 		];
 
-		$post_ids = [];
+		$created_posts = [];
 
 		for ( $i = 1; $i <= 6; $i ++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$post_ids[]        = $this->factory()->post->create( $args );
+			$created_posts[]        = $this->factory()->post->create( $args );
 		}
 
 		// Set the variables to use in the GraphQL query.
@@ -470,6 +458,10 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		];
 
 		$this->backwardPagination( $graphql_args, $query_args );
+
+		foreach ( $created_posts as $id ) {
+			wp_delete_post( $id, true );
+		}
 	}
 
 	public function testForwardPaginationWithPostIn() {
@@ -528,7 +520,6 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$date          = date( 'Y-m-d H:i:s', strtotime( 'now' ) );
 		$created_posts = [];
 
-		$created_posts = [];
 		for ( $i = 1; $i <= 6; $i ++ ) {
 			$created_posts[ $i ] = $this->createPostObject(
 				[
