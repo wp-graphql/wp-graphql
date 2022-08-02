@@ -81,10 +81,10 @@ class PostObjectCursor {
 		 * Get the cursor offset if any
 		 */
 		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$offset              = isset( $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ) ? $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] : $offset;
+		$offset              = $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ?? $offset;
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
-		$compare       = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
+		$compare       = $query->get( 'graphql_cursor_compare' ) ?: '>';
 		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 		if ( 'before' === $cursor ) {
@@ -161,7 +161,7 @@ class PostObjectCursor {
 		/**
 		 * Ensure the cursor_offset is a positive integer
 		 */
-		if ( ! is_integer( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
+		if ( ! is_int( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
 			return '';
 		}
 
@@ -238,7 +238,7 @@ class PostObjectCursor {
 		$value = $this->get_cursor_post()->{$by};
 
 		/**
-		 * Compare by the post field if the key matches an value
+		 * Compare by the post field if the key matches a value
 		 */
 		if ( ! empty( $value ) ) {
 
@@ -253,8 +253,6 @@ class PostObjectCursor {
 		$meta_key = $this->get_meta_key( $by );
 		if ( $meta_key ) {
 			$this->compare_with_meta_field( $meta_key, $order );
-
-			return;
 		}
 
 	}

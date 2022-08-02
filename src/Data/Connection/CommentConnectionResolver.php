@@ -5,8 +5,10 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Comment_Query;
 use WPGraphQL\AppContext;
 use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentConnectionResolver
@@ -18,7 +20,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var \WP_Comment_Query
+	 * @var WP_Comment_Query
 	 */
 	protected $query;
 
@@ -101,11 +103,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
+
 		/**
 		 * Set the graphql_cursor_offset
 		 */
 		$query_args['graphql_cursor_offset']  = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
-		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+		$query_args['graphql_cursor_compare'] = ( isset( $last ) ) ? '>' : '<';
 
 		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors
 		$query_args['graphql_after_cursor']  = $this->get_after_offset();
@@ -140,9 +143,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$query_args = apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
-
-		return $query_args;
+		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 	}
 
 	/**
@@ -150,11 +151,11 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
-	 * @return \WP_Comment_Query
+	 * @return WP_Comment_Query
 	 * @throws Exception
 	 */
 	public function get_query() {
-		return new \WP_Comment_Query( $this->query_args );
+		return new WP_Comment_Query( $this->query_args );
 	}
 
 	/**
@@ -238,7 +239,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_Comment_Query compatible args
 		 */
-		$query_args = Types::map_input( $args, $arg_mapping );
+		$query_args = Utils::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

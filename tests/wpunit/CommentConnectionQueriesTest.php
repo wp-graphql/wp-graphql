@@ -173,7 +173,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'Comments missing cursor pagination support' );
+//		$this->markTestIncomplete( 'Comments missing cursor pagination support' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasNextPage'] );
@@ -190,11 +190,11 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$page_3   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertValidPagination( $expected, $actual );
-		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $actual['data']['comments']['pageInfo']['hasNextPage'] );
+		$this->assertValidPagination( $expected, $page_3 );
+		$this->assertEquals( true, $page_3['data']['comments']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $page_3['data']['comments']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the last two results are equal to `last:2`.
@@ -202,10 +202,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$variables = [
 			'last' => 2,
 		];
-		$expected  = $actual;
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertEqualSets( $expected, $actual );
+		$last_page = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( true, $last_page['data']['comments']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $last_page['data']['comments']['pageInfo']['hasNextPage'] );
+
+		$this->assertEqualSets( $page_3, $last_page );
 	}
 
 	public function backwardPagination( $graphql_args = [], $query_args = [] ) {
@@ -263,9 +265,9 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$expected = array_reverse( $expected );
 
-		$this->markTestIncomplete( 'Comments missing cursor pagination support' );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
@@ -311,7 +313,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->backwardPagination();
 	}
 
-	public function testQueryWithFirstAndLast() {
+	public function testQueryWithAfterAndBefore() {
 		wp_set_current_user( $this->admin );
 
 		$query = $this->getQuery();
@@ -323,10 +325,10 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Test `first`.
 		 */
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$page_1 = $this->graphql( compact( 'query', 'variables' ) );
 
-		$after_cursor  = $actual['data']['comments']['edges'][1]['cursor'];
-		$before_cursor = $actual['data']['comments']['edges'][3]['cursor'];
+		$after_cursor  = $page_1['data']['comments']['edges'][1]['cursor'];
+		$before_cursor = $page_1['data']['comments']['edges'][3]['cursor'];
 
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$variables = [
@@ -335,10 +337,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 			'before' => $before_cursor,
 		];
 
-		$expected = $actual['data']['comments']['nodes'][2];
+		$expected = $page_1['data']['comments']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->markTestIncomplete( 'Comments missing cursor pagination support' );
+		codecept_debug( [
+			'afterAndBefore' => $actual
+		]);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -352,12 +356,19 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Using first and last should throw an error.
 		$actual = graphql( compact( 'query', 'variables' ) );
 
+
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		unset( $variables['first'] );
 
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( [
+			'expected' => $expected,
+			'actual' => $actual
+		]);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );

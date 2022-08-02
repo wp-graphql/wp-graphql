@@ -83,7 +83,7 @@ class UserCursor {
 		 * Get the cursor offset if any
 		 */
 		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$offset              = isset( $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ) ? $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] : $offset;
+		$offset              = $this->get_query_var( 'graphql_' . $cursor . '_cursor' ) ?: $offset;
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
 		/**

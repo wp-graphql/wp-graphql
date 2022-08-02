@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data;
 
 use WP_Comment_Query;
+use WPGraphQL\Data\Cursor\CommentObjectCursor;
 use WPGraphQL\Data\Cursor\PostObjectCursor;
 use WPGraphQL\Data\Cursor\TermObjectCursor;
 use WPGraphQL\Data\Cursor\UserCursor;
@@ -318,37 +319,19 @@ class Config {
 		/**
 		 * Access the global $wpdb object
 		 */
-		global $wpdb;
+		if ( true !== is_graphql_request() ) {
+			return $pieces;
+		}
 
-		if (
-			true === is_graphql_request() &&
-			( is_array( $query->query_vars ) && array_key_exists( 'graphql_cursor_offset', $query->query_vars ) )
-		) {
+		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
+			$after_cursor     = new CommentObjectCursor( $query, 'after' );
+			$pieces['where'] .= $after_cursor->get_where();
+		}
 
-			$cursor_offset = $query->query_vars['graphql_cursor_offset'];
+		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
+			$before_cursor = new CommentObjectCursor( $query, 'before' );
 
-			/**
-			 * Ensure the cursor_offset is a positive integer
-			 */
-			if ( is_integer( $cursor_offset ) && 0 < $cursor_offset ) {
-
-				$compare = ! empty( $query->query_vars['graphql_cursor_compare'] ) ? $query->query_vars['graphql_cursor_compare'] : '>';
-				$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-
-				$order_by      = ! empty( $query->query_vars['order_by'] ) ? $query->query_vars['order_by'] : 'comment_date';
-				$order         = ! empty( $query->query_vars['order'] ) ? $query->query_vars['order'] : 'DESC';
-				$order_compare = ( 'ASC' === $order ) ? '>' : '<';
-
-				// Get the $cursor_post
-				$cursor_comment = get_comment( $cursor_offset );
-				if ( ! empty( $cursor_comment ) ) {
-					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					$pieces['where'] .= $wpdb->prepare( " AND {$order_by} {$order_compare} %s", $cursor_comment->{$order_by} );
-				} else {
-					// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
-					$pieces['where'] .= $wpdb->prepare( ' AND comment_ID %1$s %2$d', $compare, $cursor_offset );
-				}
-			}
+			$pieces['where'] .= $before_cursor->get_where();
 		}
 
 		return $pieces;
