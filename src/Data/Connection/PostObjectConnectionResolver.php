@@ -279,37 +279,35 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
-		if ( empty( $this->args['where']['orderby'] ) ) {
-			if ( ! empty( $query_args['post__in'] ) ) {
+		if ( empty( $this->args['where']['orderby'] ) && ! empty( $query_args['post__in'] ) ) {
 
-				$post_in = $query_args['post__in'];
-				// Make sure the IDs are integers
-				$post_in = array_map( function ( $id ) {
-					return absint( $id );
-				}, $post_in );
+			$post_in = $query_args['post__in'];
+			// Make sure the IDs are integers
+			$post_in = array_map( static function ( $id ) {
+				return absint( $id );
+			}, $post_in );
 
-				// If we're coming backwards, let's reverse the IDs
-				if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
-					$post_in = array_reverse( $post_in );
-				}
-
-				$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
-
-				if ( ! empty( $cursor_offset ) ) {
-					// Determine if the offset is in the array
-					$key = array_search( $cursor_offset, $post_in, true );
-
-					// If the offset is in the array
-					if ( false !== $key ) {
-						$key     = absint( $key );
-						$post_in = array_slice( $post_in, $key + 1, null, true );
-					}
-				}
-
-				$query_args['post__in'] = $post_in;
-				$query_args['orderby']  = 'post__in';
-				$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
+			// If we're coming backwards, let's reverse the IDs
+			if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
+				$post_in = array_reverse( $post_in );
 			}
+
+			$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
+
+			if ( ! empty( $cursor_offset ) ) {
+				// Determine if the offset is in the array
+				$key = array_search( $cursor_offset, $post_in, true );
+
+				// If the offset is in the array
+				if ( false !== $key ) {
+					$key     = absint( $key );
+					$post_in = array_slice( $post_in, $key + 1, null, true );
+				}
+			}
+
+			$query_args['post__in'] = $post_in;
+			$query_args['orderby']  = 'post__in';
+			$query_args['order']    = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**
@@ -382,12 +380,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
 		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
-		$query_args = apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
+		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 
-		/**
-		 * Return the $query_args
-		 */
-		return $query_args;
 	}
 
 	/**

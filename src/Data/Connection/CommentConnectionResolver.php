@@ -103,7 +103,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
-
 		/**
 		 * Set the graphql_cursor_offset
 		 */
