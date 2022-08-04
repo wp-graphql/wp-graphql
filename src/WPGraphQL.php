@@ -48,7 +48,7 @@ final class WPGraphQL {
 	/**
 	 * Stores an array of allowed post types
 	 *
-	 * @var ?\WP_Post_Type[] allowed_post_types
+	 * @var ?WP_Post_Type[] allowed_post_types
 	 * @since  0.0.5
 	 */
 	protected static $allowed_post_types;
@@ -56,7 +56,7 @@ final class WPGraphQL {
 	/**
 	 * Stores an array of allowed taxonomies
 	 *
-	 * @var ?\WP_Taxonomy[] allowed_taxonomies
+	 * @var ?WP_Taxonomy[] allowed_taxonomies
 	 * @since  0.0.5
 	 */
 	protected static $allowed_taxonomies;
@@ -74,8 +74,8 @@ final class WPGraphQL {
 	 */
 	public static function instance() {
 
-		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof WPGraphQL ) ) {
-			self::$instance = new WPGraphQL();
+		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof self ) ) {
+			self::$instance = new self();
 			self::$instance->setup_constants();
 			if ( self::$instance->includes() ) {
 				self::$instance->actions();
@@ -517,7 +517,7 @@ final class WPGraphQL {
 			'graphql_register_root_connection' => true,
 		];
 
-		$args = wp_parse_args( $defaults, $args );
+		$args = wp_parse_args( $args, $defaults );
 
 		// Ensure a valid type resolver is set for interface and union types.
 		if ( ! is_callable( $args['graphql_resolve_type'] ) && ( 'interface' === $args['graphql_kind'] || 'union' === $args['graphql_kind'] ) ) {
@@ -648,7 +648,7 @@ final class WPGraphQL {
 			/**
 			 * Get all post types objects.
 			 *
-			 * @var \WP_Taxonomy[] $tax_objects
+			 * @var WP_Taxonomy[] $tax_objects
 			 */
 			$tax_objects = get_taxonomies(
 				[ 'show_in_graphql' => true ],

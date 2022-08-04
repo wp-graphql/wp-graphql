@@ -23,7 +23,6 @@ class PostObject {
 	 * @return void
 	 * @throws Exception
 	 * @deprecated @todo
-	 *
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
 

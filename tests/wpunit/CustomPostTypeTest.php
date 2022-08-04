@@ -509,4 +509,285 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_post_type( 'test_cpt_by_uri' );
 	}
 
+	public function testRegisterPostTypeWithoutRootField() {
+
+		register_post_type( 'non_root', [
+			'show_in_graphql'             => true,
+			'graphql_single_name'         => 'NonRoot',
+			'graphql_plural_name'         => 'NonRoots',
+			'graphql_register_root_field' => false,
+		]);
+
+		$query = '
+		query GetType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'RootQuery',
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		codecept_debug( [ 'names' => $names ] );
+
+		// assert that other common fields are in the rootQuery
+		$this->assertContains( 'node', $names );
+		$this->assertContains( 'post', $names );
+
+		// assert that the connection field is there
+		$this->assertContains( 'nonRoots', $names );
+
+		// but the singular root field is not there
+		$this->assertNotContains( 'nonRoot', $names );
+
+	}
+
+	public function testRegisterPostTypeWithoutRootConnection() {
+
+		register_post_type( 'non_root', [
+			'show_in_graphql'                  => true,
+			'graphql_single_name'              => 'NonRoot',
+			'graphql_plural_name'              => 'NonRoots',
+			'graphql_register_root_connection' => false,
+		]);
+
+		$query = '
+		query GetType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'RootQuery',
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		codecept_debug( [ 'names' => $names ] );
+
+		// assert that other common fields are in the rootQuery
+		$this->assertContains( 'node', $names );
+		$this->assertContains( 'post', $names );
+
+		// assert that the single field is there
+		$this->assertContains( 'nonRoot', $names );
+
+		// but the root connection field is not there
+		$this->assertNotContains( 'nonRoots', $names );
+
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testRegisterCustomPostTypeWithCustomInterfaces() {
+
+		$value = uniqid( 'testField', true );
+
+		register_graphql_interface_type( 'TestInterface', [
+			'fields' => [
+				'testField' => [
+					'type'    => 'String',
+					'resolve' => function () use ( $value ) {
+						return $value;
+					},
+				],
+			],
+		]);
+
+		register_post_type( 'custom_interface', [
+			'show_in_graphql'     => true,
+			'public'              => true,
+			'graphql_single_name' => 'CustomInterface',
+			'graphql_plural_name' => 'CustomInterfaces',
+			'graphql_interfaces'  => [ 'TestInterface' ],
+		]);
+
+		$custom_interface_post_id = self::factory()->post->create([
+			'post_type'   => 'custom_interface',
+			'post_status' => 'publish',
+			'post_title'  => 'test',
+		]);
+
+		$query = '
+		query getCustomInterfacePost($id:ID!){
+		  customInterface( id: $id idType:DATABASE_ID ) {
+		    __typename
+		    databaseId
+		    # We can succesfully query for the testField, which is part of the interface and
+		    # was added to the post type via the registry utils
+		    testField
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => $custom_interface_post_id,
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'customInterface.__typename', 'CustomInterface' ),
+			$this->expectedField( 'customInterface.databaseId', $custom_interface_post_id ),
+			$this->expectedField( 'customInterface.testField', $value ),
+		]);
+
+		// now we want to query type from the schema and assert that it
+		// has the interface applied and the field from the interface
+		$query = '
+		query GetType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    interfaces {
+		      name
+		    }
+		    possibleTypes {
+		      name
+		    }
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'CustomInterface',
+			],
+		]);
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedObject( '__type.fields', [
+				'name' => 'testField',
+			]),
+			$this->expectedObject( '__type.interfaces', [
+				'name' => 'TestInterface',
+			]),
+		]);
+
+		// Now, query for the TestInterface type
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'TestInterface',
+			],
+		]);
+
+		// assert that it has the testField field, and that the CustomInterface is the
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedObject( '__type.fields', [
+				'name' => 'testField',
+			]),
+			$this->expectedObject( '__type.possibleTypes', [
+				'name' => 'CustomInterface',
+			]),
+		]);
+
+		// assert that the only Type that implements the TestInterface is the CustomInterface type
+		// i.e. it hasn't accidentally leaked into being applied to other post types
+		$this->assertEqualSets( [
+			[ 'name' => 'CustomInterface' ],
+		], $actual['data']['__type']['possibleTypes'] );
+
+	}
+
+	public function testRegisterCustomPostTypeWithConnections() {
+
+		register_post_type( 'with_connections', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'WithConnection',
+			'graphql_plural_name' => 'WithConnections',
+			'graphql_connections' => [
+				'connectionFieldName' => [
+					'toType'  => 'Post',
+					'resolve' => function () {
+						return null;
+					},
+				],
+			],
+		]);
+
+		$query = '
+		{
+		  withConnections {
+		    nodes {
+		      __typename
+		      databaseId
+		      connectionFieldName {
+		        nodes {
+		          __typename
+		        }
+	          }
+		    }
+		  }
+		}
+		';
+
+		$response = $this->graphql([
+			'query' => $query,
+		]);
+
+		// assert that the query is valid
+		// (there would be errors if the connection didn't exist)
+		$this->assertIsValidQueryResponse( $response );
+
+		$query = '
+		query GetType( $typeName: String! ){
+		  __type(name: $typeName) {
+		    name
+		    fields {
+		      name
+		    }
+		  }
+		}
+		';
+
+		// query the WithConnection type
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'WithConnection',
+			],
+		]);
+
+		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		codecept_debug( [ 'names' => $names ] );
+
+		// assert that other common fields are in the rootQuery
+		$this->assertContains( 'id', $names );
+		$this->assertContains( 'databaseId', $names );
+
+		// assert that the connection field is there
+		$this->assertContains( 'connectionFieldName', $names );
+
+	}
+
 }

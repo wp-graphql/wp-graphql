@@ -93,7 +93,7 @@ class TermObject {
 				'description'    => sprintf(
 					__( 'Connection between the %1$s type and its children %2$s.', 'wp-graphql' ),
 					$tax_object->graphql_single_name,
-					$tax_object->graphql_plural_name,
+					$tax_object->graphql_plural_name
 				),
 				'connectionArgs' => TermObjects::get_connection_args(),
 				'queryClass'     => 'WP_Term_Query',
@@ -111,7 +111,7 @@ class TermObject {
 				'toType'             => $tax_object->graphql_single_name,
 				'description'        => sprintf(
 					__( 'Connection between the %1$s type and its parent %1$s.', 'wp-graphql' ),
-					$tax_object->graphql_single_name,
+					$tax_object->graphql_single_name
 				),
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 				'oneToOne'           => true,
