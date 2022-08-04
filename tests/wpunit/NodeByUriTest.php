@@ -677,4 +677,49 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testNodeByUriReturnsContentTypeWhenPageIsSetToPageForPosts() {
+
+		$page_id = self::factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Blog'
+		]);
+
+		update_option( 'page_for_posts', $page_id );
+
+		$query = '
+		query NodeByUri($uri:String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/blog'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+
+		delete_option( 'page_for_posts' );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/blog'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
+
+	}
+
 }
