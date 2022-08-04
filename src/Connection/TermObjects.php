@@ -8,6 +8,7 @@ use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TermObjects
@@ -60,7 +61,7 @@ class TermObjects {
 				continue;
 			}
 
-			$root_query_from_field_name = lcfirst( $tax_object->graphql_plural_name );
+			$root_query_from_field_name = Utils::format_field_name( $tax_object->graphql_plural_name );
 
 			// Prevent field name conflicts with the singular TermObject type.
 			if ( $tax_object->graphql_single_name === $tax_object->graphql_plural_name ) {

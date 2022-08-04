@@ -13,6 +13,7 @@ use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\User;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostObjects
@@ -176,7 +177,7 @@ class PostObjects {
 			 * Registers the RootQuery connection for each post_type
 			 */
 			if ( true === $post_type_object->graphql_register_root_connection && 'revision' !== $post_type_object->name ) {
-				$root_query_from_field_name = lcfirst( $post_type_object->graphql_plural_name );
+				$root_query_from_field_name = Utils::format_field_name( $post_type_object->graphql_plural_name );
 
 				// Prevent field name conflicts with the singular PostObject type.
 				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
