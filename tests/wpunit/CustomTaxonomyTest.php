@@ -521,7 +521,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
-	public function testRegisterCustomPostTypeWithExcludedConnections() {
+	public function testRegisterTaxonomyWithExcludedConnections() {
 		register_taxonomy( 'missing_connections', [ 'test_custom_tax_cpt' ], [
 			'public'                      => true,
 			'show_in_graphql'             => true,
@@ -550,6 +550,182 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "contentNodes"', $actual['errors'][0]['message'] );
+	}
+
+	public function testRegisterTaxonomyWithGraphQLKindNoResolver() {
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithInterfaceKind',
+				'graphql_plural_name' => 'WithInterfaceKinds',
+				'graphql_kind'        => 'interface',
+			]);
+
+		} );
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithUnionKind',
+				'graphql_plural_name' => 'WithUnionKinds',
+				'graphql_kind'        => 'union',
+			]);
+
+		} );
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKind',
+				'graphql_plural_name'  => 'WithUnionKinds',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+			]);
+
+		} );
+	}
+
+	public function testRegisterTaxonomyWithInterfaceKind() {
+		register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithInterfaceKind',
+			'graphql_plural_name'  => 'WithInterfaceKinds',
+			'graphql_kind'         => 'interface',
+			'graphql_resolve_type' => $this->resolve_type(),
+		]);
+
+		register_taxonomy( 'child_type_one', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeOne',
+			'graphql_plural_name' => 'ChildTypeOne',
+			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		]);
+
+		register_taxonomy( 'child_type_two', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeTwo',
+			'graphql_plural_name' => 'ChildTypeTwo',
+			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		]);
+
+		$term_one_id = $this->factory()->term->create( [
+			'taxonomy' => 'child_type_one',
+			'name'     => 'Interface child 1',
+		] );
+		$term_two_id = $this->factory()->term->create( [
+			'taxonomy' => 'child_type_two',
+			'name'     => 'Interface child 2',
+		] );
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			withInterfaceKinds {
+				nodes {
+					... on ChildTypeOne{
+						databaseId
+					}
+					... on ChildTypeTwo {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
+		$this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+	}
+
+	public function testRegisterTaxonomyWithUnionKind() {
+		register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithUnionKind',
+			'graphql_plural_name'  => 'WithUnionKinds',
+			'graphql_kind'         => 'union',
+			'graphql_resolve_type' => $this->resolve_type(),
+			'graphql_union_types'  => [
+				'ChildTypeOne',
+				'ChildTypeTwo',
+			],
+		]);
+
+		register_taxonomy( 'child_type_one', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeOne',
+			'graphql_plural_name' => 'ChildTypeOne',
+		]);
+
+		register_taxonomy( 'child_type_two', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeTwo',
+			'graphql_plural_name' => 'ChildTypeTwo',
+		]);
+
+		$term_one_id = $this->factory()->term->create( [
+			'taxonomy' => 'child_type_one',
+			'name'     => 'Interface child 1',
+		] );
+		$term_two_id = $this->factory()->term->create( [
+			'taxonomy' => 'child_type_two',
+			'name'     => 'Interface child 2',
+		] );
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			withUnionKinds {
+				nodes {
+					... on ChildTypeOne{
+						databaseId
+					}
+					... on ChildTypeTwo {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
+		$this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+	}
+
+
+	public function resolve_type() {
+		return function ( $value ) {
+			$type_registry = WPGraphQL::get_type_registry();
+
+			$type = null;
+			if ( isset( $value->taxonomyName ) ) {
+				$tax_object = get_taxonomy( $value->taxonomyName );
+				if ( isset( $tax_object->graphql_single_name ) ) {
+					$type = $type_registry->get_type( $tax_object->graphql_single_name );
+				}
+			}
+
+			return ! empty( $type ) ? $type : null;
+		};
 	}
 
 }

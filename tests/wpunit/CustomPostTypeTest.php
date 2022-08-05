@@ -1,7 +1,9 @@
 <?php
 
+
 class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	protected $tester;
 	public $post_id;
 	public $admin;
 
@@ -573,14 +575,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'typeName' => 'RootQuery',
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
@@ -925,6 +925,188 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "comments"', $actual['errors'][0]['message'] );
 		$this->assertStringStartsWith( 'Cannot query field "revisions"', $actual['errors'][1]['message'] );
+	}
+
+	public function testRegisterCustomPostTypeWithGraphQLKindNoResolver() {
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_post_type( 'with_interface_kind', [
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithInterfaceKind',
+				'graphql_plural_name' => 'WithInterfaceKinds',
+				'graphql_kind'        => 'interface',
+			]);
+
+		} );
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_post_type( 'with_union_kind', [
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithUnionKind',
+				'graphql_plural_name' => 'WithUnionKinds',
+				'graphql_kind'        => 'union',
+			]);
+
+		} );
+
+		$this->tester->expectThrowable( \Exception::class, function () {
+			register_post_type( 'with_union_kind', [
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKind',
+				'graphql_plural_name'  => 'WithUnionKinds',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+			]);
+
+		} );
+	}
+
+	public function testRegisterCustomPostTypeWithInterfaceKind() {
+		register_post_type( 'with_interface_kind', [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithInterfaceKind',
+			'graphql_plural_name'  => 'WithInterfaceKinds',
+			'graphql_kind'         => 'interface',
+			'graphql_resolve_type' => $this->resolve_type(),
+		]);
+
+		register_post_type( 'child_type_one', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeOne',
+			'graphql_plural_name' => 'ChildTypeOne',
+			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		]);
+
+		register_post_type( 'child_type_two', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeTwo',
+			'graphql_plural_name' => 'ChildTypeTwo',
+			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		]);
+
+		$cpt_one_id = $this->factory()->post->create([
+			'post_type'   => 'child_type_one',
+			'post_status' => 'publish',
+			'post_title'  => 'Interface child 1',
+		]);
+
+		$cpt_two_id = $this->factory()->post->create([
+			'post_type'   => 'child_type_two',
+			'post_status' => 'publish',
+			'post_title'  => 'Interface child 2',
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			withInterfaceKinds {
+				nodes {
+					... on ChildTypeOne{
+						databaseId
+					}
+					... on ChildTypeTwo {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
+		$this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+	}
+
+	public function testRegisterCustomPostTypeWithUnionKind() {
+		register_post_type( 'with_union_kind', [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithUnionKind',
+			'graphql_plural_name'  => 'WithUnionKinds',
+			'graphql_kind'         => 'union',
+			'graphql_resolve_type' => $this->resolve_type(),
+			'graphql_union_types'  => [
+				'ChildTypeOne',
+				'ChildTypeTwo',
+			],
+		]);
+
+		register_post_type( 'child_type_one', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeOne',
+			'graphql_plural_name' => 'ChildTypeOne',
+		]);
+
+		register_post_type( 'child_type_two', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ChildTypeTwo',
+			'graphql_plural_name' => 'ChildTypeTwo',
+		]);
+
+		$cpt_one_id = $this->factory()->post->create([
+			'post_type'   => 'child_type_one',
+			'post_status' => 'publish',
+			'post_title'  => 'Union child 1',
+		]);
+
+		$cpt_two_id = $this->factory()->post->create([
+			'post_type'   => 'child_type_two',
+			'post_status' => 'publish',
+			'post_title'  => 'Union child 2',
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			withUnionKinds {
+				nodes {
+					... on ChildTypeOne{
+						databaseId
+					}
+					... on ChildTypeTwo {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
+		$this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+	}
+
+	public function resolve_type() {
+		return function ( $value ) {
+			$type_registry = WPGraphQL::get_type_registry();
+
+			$type = null;
+			if ( isset( $value->post_type ) ) {
+				$post_type_object = get_post_type_object( $value->post_type );
+
+				if ( isset( $post_type_object->graphql_single_name ) ) {
+					$type = $type_registry->get_type( $post_type_object->graphql_single_name );
+				}
+			}
+
+			return ! empty( $type ) ? $type : null;
+		};
 	}
 
 }
