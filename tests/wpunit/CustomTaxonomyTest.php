@@ -172,7 +172,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithoutRootField() {
-		register_taxonomy( 'non_root', [ 'test_custom_tax_cpt' ], [
+		register_taxonomy( 'non_root_field', [ 'test_custom_tax_cpt' ], [
 			'show_in_graphql'             => true,
 			'graphql_single_name'         => 'NonRoot',
 			'graphql_plural_name'         => 'NonRoots',
@@ -210,10 +210,12 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// but the singular root field is not there
 		$this->assertNotContains( 'nonRoot', $names );
+
+		unregister_taxonomy( 'non_root_field' );
 	}
 
 	public function testRegisterTaxonomyWithoutRootConnection() {
-		register_taxonomy( 'non_root', [ 'test_custom_tax_cpt' ], [
+		register_taxonomy( 'non_root_connection', [ 'test_custom_tax_cpt' ], [
 			'show_in_graphql'                  => true,
 			'graphql_single_name'              => 'NonRoot',
 			'graphql_plural_name'              => 'NonRoots',
@@ -251,6 +253,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// but the singular root field is not there
 		$this->assertNotContains( 'nonRoots', $names );
+
+		unregister_taxonomy( 'non_root_connection' );
 	}
 
 	public function testRegisterCustomTaxonomyWithCustomInterfaces() {
@@ -365,6 +369,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[ 'name' => 'CustomInterface' ],
 		], $actual['data']['__type']['possibleTypes'] );
 
+		unregister_taxonomy( 'custom_interface' );
+
 	}
 
 	public function testRegisterCustomTaxonomyWithExcludedInterfaces() {
@@ -448,6 +454,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
 			[ 'name' => 'CustomInterfaceExcluded' ],
 		] );
+
+		unregister_taxonomy( 'removed_interfaces' );
 	}
 
 	public function testRegisterCustomTaxonomyWithConnections() {
@@ -519,6 +527,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// assert that the connection field is there
 		$this->assertContains( 'connectionFieldName', $names );
 
+		unregister_taxonomy( 'with_connections' );
+
 	}
 
 	public function testRegisterTaxonomyWithExcludedConnections() {
@@ -550,6 +560,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "contentNodes"', $actual['errors'][0]['message'] );
+
+		unregister_taxonomy( 'missing_connections' );
 	}
 
 	public function testRegisterTaxonomyWithGraphQLKindNoResolver() {
@@ -566,7 +578,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		} );
 
 		$this->tester->expectThrowable( \Exception::class, function () {
-			register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
+			register_taxonomy( 'with_union_kind_one', [ 'test_custom_tax_cpt' ], [
 				'public'              => true,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'WithUnionKind',
@@ -577,7 +589,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		} );
 
 		$this->tester->expectThrowable( \Exception::class, function () {
-			register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
+			register_taxonomy( 'with_union_kind_two', [ 'test_custom_tax_cpt' ], [
 				'public'               => true,
 				'show_in_graphql'      => true,
 				'graphql_single_name'  => 'WithUnionKind',
@@ -587,6 +599,10 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]);
 
 		} );
+
+		unregister_taxonomy( 'with_interface_kind' );
+		unregister_taxonomy( 'with_union_kind_one' );
+		unregister_taxonomy( 'with_union_kind_two' );
 	}
 
 	public function testRegisterTaxonomyWithInterfaceKind() {
@@ -644,9 +660,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		// $this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		// $this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+
+		unregister_taxonomy( 'with_imterface_kind' );
+		unregister_taxonomy( 'child_type_one' );
+		unregister_taxonomy( 'child_type_two' );
+
 		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
-		$this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		$this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
 	}
 
 	public function testRegisterTaxonomyWithUnionKind() {
@@ -706,9 +727,13 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		// $this->assertEquals( $term_one_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
+		// $this->assertEquals( $term_two_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+
+		unregister_taxonomy( 'with_union_kind' );
+		unregister_taxonomy( 'child_type_one' );
+		unregister_taxonomy( 'child_type_two' );
 		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
-		$this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		$this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
 	}
 
 

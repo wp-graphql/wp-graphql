@@ -513,7 +513,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterPostTypeWithoutRootField() {
 
-		register_post_type( 'non_root', [
+		register_post_type( 'non_root_field', [
 			'show_in_graphql'             => true,
 			'graphql_single_name'         => 'NonRoot',
 			'graphql_plural_name'         => 'NonRoots',
@@ -553,11 +553,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// but the singular root field is not there
 		$this->assertNotContains( 'nonRoot', $names );
+
+		unregister_post_type( 'non_root_field' );
+
 	}
 
 	public function testRegisterPostTypeWithoutRootConnection() {
 
-		register_post_type( 'non_root', [
+		register_post_type( 'non_root_connection', [
 			'show_in_graphql'                  => true,
 			'graphql_single_name'              => 'NonRoot',
 			'graphql_plural_name'              => 'NonRoots',
@@ -595,6 +598,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// but the root connection field is not there
 		$this->assertNotContains( 'nonRoots', $names );
+
+		unregister_post_type( 'non_root_connection' );
 
 	}
 
@@ -715,6 +720,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[ 'name' => 'CustomInterface' ],
 		], $actual['data']['__type']['possibleTypes'] );
 
+		unregister_post_type( 'custom_interface' );
+
 	}
 
 	public function testRegisterCustomPostTypeWithExcludedInterfaces() {
@@ -815,6 +822,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
 			[ 'name' => 'CustomInterfaceExcluded' ],
 		] );
+
+		unregister_post_type( 'removed_interfaces' );
 	}
 
 	public function testRegisterCustomPostTypeWithConnections() {
@@ -887,6 +896,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// assert that the connection field is there
 		$this->assertContains( 'connectionFieldName', $names );
 
+		unregister_post_type( 'with_connections' );
+
 	}
 
 	public function testRegisterCustomPostTypeWithExcludedConnections() {
@@ -925,6 +936,8 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "comments"', $actual['errors'][0]['message'] );
 		$this->assertStringStartsWith( 'Cannot query field "revisions"', $actual['errors'][1]['message'] );
+
+		unregister_post_type( 'missing_connections' );
 	}
 
 	public function testRegisterCustomPostTypeWithGraphQLKindNoResolver() {
@@ -941,7 +954,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		} );
 
 		$this->tester->expectThrowable( \Exception::class, function () {
-			register_post_type( 'with_union_kind', [
+			register_post_type( 'with_union_kind_one', [
 				'public'              => true,
 				'show_in_graphql'     => true,
 				'graphql_single_name' => 'WithUnionKind',
@@ -952,7 +965,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		} );
 
 		$this->tester->expectThrowable( \Exception::class, function () {
-			register_post_type( 'with_union_kind', [
+			register_post_type( 'with_union_kind_two', [
 				'public'               => true,
 				'show_in_graphql'      => true,
 				'graphql_single_name'  => 'WithUnionKind',
@@ -962,6 +975,10 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]);
 
 		} );
+
+		unregister_post_type( 'with_interface_kind' );
+		unregister_post_type( 'with_union_kind_one' );
+		unregister_post_type( 'with_union_kind_two' );
 	}
 
 	public function testRegisterCustomPostTypeWithInterfaceKind() {
@@ -1022,9 +1039,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		// $this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		// $this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+
+		unregister_post_type( 'with_interface_kind' );
+		unregister_post_type( 'child_type_one' );
+		unregister_post_type( 'child_type_two' );
+
 		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
-		$this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		$this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
 	}
 
 	public function testRegisterCustomPostTypeWithUnionKind() {
@@ -1087,9 +1109,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		// $this->assertEquals( $cpt_one_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
+		// $this->assertEquals( $cpt_two_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+
+		unregister_post_type( 'with_union_kind' );
+		unregister_post_type( 'child_type_one' );
+		unregister_post_type( 'child_type_two' );
+
 		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
-		$this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		$this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
 	}
 
 	public function resolve_type() {
