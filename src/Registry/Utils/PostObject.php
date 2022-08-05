@@ -30,15 +30,15 @@ class PostObject {
 	 * @return void
 	 * @throws Exception
 	 */
-	public static function register_post_object_types( WP_Post_Type $post_type_object ) {
+	public static function register_types( WP_Post_Type $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
 
 		$config = [
 			/* translators: post object singular name w/ description */
 			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-			'connections' => static::get_post_object_connections( $post_type_object ),
-			'interfaces'  => static::get_post_object_interfaces( $post_type_object ),
-			'fields'      => static::get_post_object_fields( $post_type_object ),
+			'connections' => static::get_connections( $post_type_object ),
+			'interfaces'  => static::get_interfaces( $post_type_object ),
+			'fields'      => static::get_fields( $post_type_object ),
 			'model'       => Post::class,
 		];
 
@@ -75,7 +75,7 @@ class PostObject {
 	 *
 	 * @return array
 	 */
-	protected static function get_post_object_connections( WP_Post_Type $post_type_object ) {
+	protected static function get_connections( WP_Post_Type $post_type_object ) {
 		$connections = [];
 
 		// Comments.
@@ -215,7 +215,7 @@ class PostObject {
 	 *
 	 * @return array
 	 */
-	protected static function get_post_object_interfaces( WP_Post_Type $post_type_object ) {
+	protected static function get_interfaces( WP_Post_Type $post_type_object ) {
 		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier', 'NodeWithTemplate' ];
 
 		if ( true === $post_type_object->public ) {
@@ -284,13 +284,13 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @todo make protected after \Type\ObjectType\PostObject::get_post_object_fields() is removed.
+	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
 	 *
 	 * @param WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return array
 	 */
-	public static function get_post_object_fields( WP_Post_Type $post_type_object ) {
+	public static function get_fields( WP_Post_Type $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
 		$fields      = [
 			'id'                => [

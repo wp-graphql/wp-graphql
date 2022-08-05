@@ -379,7 +379,7 @@ class TypeRegistry {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
-			PostObject::register_post_object_types( $post_type_object );
+			PostObject::register_types( $post_type_object );
 
 			/**
 			 * Mutations for attachments are handled differently
@@ -454,7 +454,7 @@ class TypeRegistry {
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
-			TermObject::register_term_object_types( $tax_object );
+			TermObject::register_types( $tax_object );
 			TermObjectCreate::register_mutation( $tax_object );
 			TermObjectUpdate::register_mutation( $tax_object );
 			TermObjectDelete::register_mutation( $tax_object );

@@ -26,9 +26,9 @@ class PostObject {
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
 
-		_deprecated_function( __FUNCTION__, '@todo', \WPGraphQL\Registry\Utils\PostObject::class . '::register_post_object_types()' );
+		_deprecated_function( __FUNCTION__, '@todo', \WPGraphQL\Registry\Utils\PostObject::class . '::register_types()' );
 
-		\WPGraphQL\Registry\Utils\PostObject::register_post_object_types( $post_type_object );
+		\WPGraphQL\Registry\Utils\PostObject::register_types( $post_type_object );
 	}
 
 
@@ -42,9 +42,9 @@ class PostObject {
 	 *
 	 * @return array
 	 */
-	public static function get_post_object_fields( $post_type_object, $type_registry ) {
-		_deprecated_function( __FUNCTION__, '@todo', \WPGraphQL\Registry\Utils\PostObject::class . '::get_post_object_fields()' );
+	public static function get_fields( $post_type_object, $type_registry ) {
+		_deprecated_function( __FUNCTION__, '@todo', \WPGraphQL\Registry\Utils\PostObject::class . '::get_fields()' );
 
-		return \WPGraphQL\Registry\Utils\PostObject::get_post_object_fields( $post_type_object );
+		return \WPGraphQL\Registry\Utils\PostObject::get_fields( $post_type_object );
 	}
 }

@@ -29,15 +29,15 @@ class TermObject {
 	 * @return void
 	 * @throws Exception
 	 */
-	public static function register_term_object_types( WP_Taxonomy $tax_object ) {
+	public static function register_types( WP_Taxonomy $tax_object ) {
 		$single_name = $tax_object->graphql_single_name;
 
 		$config = [
 			/* translators: post object singular name w/ description */
 			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
-			'connections' => static::get_term_object_connections( $tax_object ),
-			'interfaces'  => static::get_term_object_interfaces( $tax_object ),
-			'fields'      => static::get_term_object_fields( $tax_object ),
+			'connections' => static::get_connections( $tax_object ),
+			'interfaces'  => static::get_interfaces( $tax_object ),
+			'fields'      => static::get_fields( $tax_object ),
 			'model'       => Term::class,
 		];
 
@@ -68,7 +68,7 @@ class TermObject {
 	 *
 	 * @return array
 	 */
-	protected static function get_term_object_connections( WP_Taxonomy $tax_object ) {
+	protected static function get_connections( WP_Taxonomy $tax_object ) {
 		$connections = [];
 
 		// Taxonomy.
@@ -219,7 +219,7 @@ class TermObject {
 	 *
 	 * @return array
 	 */
-	protected static function get_term_object_interfaces( WP_Taxonomy $tax_object ) {
+	protected static function get_interfaces( WP_Taxonomy $tax_object ) {
 		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
 
 		if ( true === $tax_object->public ) {
@@ -249,7 +249,7 @@ class TermObject {
 	 *
 	 * @return array
 	 */
-	protected static function get_term_object_fields( WP_Taxonomy $tax_object ) {
+	protected static function get_fields( WP_Taxonomy $tax_object ) {
 		$single_name = $tax_object->graphql_single_name;
 		$fields      = [
 			$single_name . 'Id' => [
