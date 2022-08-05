@@ -359,7 +359,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$child_uri = get_permalink( $child_post_id );
 
 		// Query a child post of CPT by uri
-		$actual = $this->graphql([
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $child_uri,
@@ -520,12 +520,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query GetType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
@@ -551,7 +551,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// but the singular root field is not there
 		$this->assertNotContains( 'nonRoot', $names );
-
 	}
 
 	public function testRegisterPostTypeWithoutRootConnection() {
@@ -565,12 +564,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query GetType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
@@ -633,13 +632,13 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query getCustomInterfacePost($id:ID!){
-		  customInterface( id: $id idType:DATABASE_ID ) {
-		    __typename
-		    databaseId
-		    # We can succesfully query for the testField, which is part of the interface and
-		    # was added to the post type via the registry utils
-		    testField
-		  }
+			customInterface( id: $id idType:DATABASE_ID ) {
+				__typename
+				databaseId
+				# We can succesfully query for the testField, which is part of the interface and
+				# was added to the post type via the registry utils
+				testField
+			}
 		}
 		';
 
@@ -661,18 +660,18 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// has the interface applied and the field from the interface
 		$query = '
 		query GetType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    interfaces {
-		      name
-		    }
-		    possibleTypes {
-		      name
-		    }
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				interfaces {
+					name
+				}
+				possibleTypes {
+					name
+				}
+				fields {
+					name
+				}
+			}
 		}
 		';
 
@@ -718,6 +717,106 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterCustomPostTypeWithExcludedInterfaces() {
+		register_post_type( 'removed_interfaces', [
+			'show_in_graphql'            => true,
+			'public'                     => true,
+			'supports'                   => [ 'title', 'author' ],
+			'graphql_single_name'        => 'CustomInterfaceExcluded',
+			'graphql_plural_name'        => 'CustomInterfacesExcluded',
+			'graphql_exclude_interfaces' => [ 'NodeWithAuthor', 'NodeWithTitle' ],
+		]);
+
+		$post_id = self::factory()->post->create([
+			'post_type'   => 'removed_interfaces',
+			'post_status' => 'publish',
+			'post_title'  => 'test',
+		]);
+
+		$query = '
+		query getCustomInterfaceExcludedPost($id:ID!){
+			customInterfaceExcluded( id: $id idType:DATABASE_ID ) {
+				authorDatabaseId
+				title
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => $post_id,
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringStartsWith( 'Cannot query field "authorDatabaseId"', $actual['errors'][0]['message'] );
+		$this->assertStringStartsWith( 'Cannot query field "title"', $actual['errors'][1]['message'] );
+
+		// now we want to query type from the schema and assert that it
+		// has the interface applied and the field from the interface
+		$query = '
+		query GetType( $typeName: String! ){
+			__type(name: $typeName) {
+				name
+				interfaces {
+					name
+				}
+				possibleTypes {
+					name
+				}
+				fields {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'CustomInterfaceExcluded',
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotContains( $actual['data']['__type']['interfaces'], [
+			[ 'name' => 'NodeWithAuthor' ],
+			[ 'name' => 'NodeWithTitle' ],
+		] );
+		$this->assertNotContains( $actual['data']['__type']['fields'], [
+			[ 'name' => 'authorDatabaseId' ],
+			[ 'name' => 'title' ],
+		]);
+
+		// Now, query for the NodeWithAuthor type
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'NodeWithAuthor',
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
+			[ 'name' => 'CustomInterfaceExcluded' ],
+		] );
+
+		// Now, query for the NodeWithAuthor type
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'typeName' => 'NodeWithTitle',
+			],
+		]);
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
+			[ 'name' => 'CustomInterfaceExcluded' ],
+		] );
+	}
+
 	public function testRegisterCustomPostTypeWithConnections() {
 
 		register_post_type( 'with_connections', [
@@ -737,17 +836,17 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  withConnections {
-		    nodes {
-		      __typename
-		      databaseId
-		      connectionFieldName {
-		        nodes {
-		          __typename
-		        }
-	          }
-		    }
-		  }
+			withConnections {
+				nodes {
+					__typename
+					databaseId
+					connectionFieldName {
+						nodes {
+							__typename
+						}
+					}
+				}
+			}
 		}
 		';
 
@@ -756,17 +855,17 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		// assert that the query is valid
-		// (there would be errors if the connection didn't exist)
 		$this->assertIsValidQueryResponse( $response );
+		$this->assertArrayNotHasKey( 'errors', $response );
 
 		$query = '
 		query GetType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
@@ -788,6 +887,44 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// assert that the connection field is there
 		$this->assertContains( 'connectionFieldName', $names );
 
+	}
+
+	public function testRegisterCustomPostTypeWithExcludedConnections() {
+		register_post_type( 'missing_connections', [
+			'public'                      => true,
+			'show_in_graphql'             => true,
+			'graphql_single_name'         => 'ExcludedConnection',
+			'graphql_plural_name'         => 'ExcludedConnections',
+			'supports'                    => [ 'comments', 'revisions' ],
+			'graphql_exclude_connections' => [ 'comments', 'revisions' ],
+		]);
+
+		$query = '
+		{
+			excludedConnections {
+				nodes {
+					__typename
+					databaseId
+					comments {
+						nodes {
+							__typename
+						}
+					}
+					revisions {
+						nodes {
+							__typename
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringStartsWith( 'Cannot query field "comments"', $actual['errors'][0]['message'] );
+		$this->assertStringStartsWith( 'Cannot query field "revisions"', $actual['errors'][1]['message'] );
 	}
 
 }

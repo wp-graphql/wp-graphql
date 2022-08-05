@@ -205,6 +205,11 @@ class PostObject {
 			$connections = array_merge( $connections, $post_type_object->graphql_connections );
 		}
 
+		// Remove excluded connections.
+		foreach ( $post_type_object->graphql_exclude_connections as $connection_name ) {
+			unset( $connections[ lcfirst( $connection_name ) ] );
+		}
+
 		return $connections;
 	}
 
@@ -276,6 +281,11 @@ class PostObject {
 		// Merge with interfaces set in register_post_type.
 		if ( ! empty( $post_type_object->graphql_interfaces ) ) {
 			$interfaces = array_merge( $interfaces, $post_type_object->graphql_interfaces );
+		}
+
+		// Remove excluded interfaces.
+		if ( ! empty( $post_type_object->graphql_exclude_interfaces ) ) {
+			$interfaces = array_diff( $interfaces, $post_type_object->graphql_exclude_interfaces );
 		}
 
 		return $interfaces;

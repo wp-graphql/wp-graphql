@@ -508,10 +508,13 @@ final class WPGraphQL {
 			// The callback used to resolve the type. Only used if `graphql_kind` is an `interface` or `union`.
 			'graphql_resolve_type'             => null,
 			// An array of custom interfaces the type should implement.
-			// @todo Maybe relocate from https://github.com/wp-graphql/wp-graphql/blob/365b021efeddfc99df1fc7898c071294cac741b6/src/Type/ObjectType/PostObject.php#L24
 			'graphql_interfaces'               => [],
+			// An array of default interfaces the type should exclude.
+			'graphql_exclude_interfaces'       => [],
 			// An array of custom connections the type should implement.
 			'graphql_connections'              => [],
+			// An array of default connection field names the type should exclude.
+			'graphql_exclude_connections'      => [],
 			// Whether to register default connections to the schema.
 			'graphql_register_root_field'      => true,
 			'graphql_register_root_connection' => true,

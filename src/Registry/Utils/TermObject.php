@@ -210,6 +210,11 @@ class TermObject {
 			$connections = array_merge( $connections, $tax_object->graphql_connections );
 		}
 
+		// Remove excluded connections.
+		foreach ( $tax_object->graphql_exclude_connections as $connection_name ) {
+			unset( $connections[ lcfirst( $connection_name ) ] );
+		}
+
 		return $connections;
 	}
 	/**
@@ -237,6 +242,11 @@ class TermObject {
 		// Merge with interfaces set in register_taxonomy.
 		if ( ! empty( $tax_object->graphql_interfaces ) ) {
 			$interfaces = array_merge( $interfaces, $tax_object->graphql_interfaces );
+		}
+
+		// Remove excluded interfaces.
+		if ( ! empty( $tax_object->graphql_exclude_interfaces ) ) {
+			$interfaces = array_diff( $interfaces, $tax_object->graphql_exclude_interfaces );
 		}
 
 		return $interfaces;
