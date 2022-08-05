@@ -10,6 +10,7 @@
  * @property string[] $graphql_exclude_connections
  * @property string[] $graphql_interfaces
  * @property string[] $graphql_exclude_interfaces
+ * @property string[] $graphql_union_types
  * @property bool $graphql_register_root_field
  * @property bool $graphql_register_root_connection
  */

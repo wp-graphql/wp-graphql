@@ -57,6 +57,9 @@ class TermObject {
 		if ( 'interface' === $tax_object->graphql_kind ) {
 			register_graphql_interface_type( $single_name, $config );
 		} elseif ( 'union' === $tax_object->graphql_kind ) {
+			// Set the possible types for the union.
+			$config['typeNames'] = $tax_object->graphql_union_types;
+
 			register_graphql_union_type( $single_name, $config );
 		}
 	}

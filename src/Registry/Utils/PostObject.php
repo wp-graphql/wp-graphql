@@ -64,6 +64,9 @@ class PostObject {
 		if ( 'interface' === $post_type_object->graphql_kind ) {
 			register_graphql_interface_type( $single_name, $config );
 		} elseif ( 'union' === $post_type_object->graphql_kind ) {
+			// Set the possible types for the union.
+			$config['typeNames'] = $post_type_object->graphql_union_types;
+
 			register_graphql_union_type( $single_name, $config );
 		}
 	}

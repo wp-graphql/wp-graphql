@@ -515,6 +515,8 @@ final class WPGraphQL {
 			'graphql_connections'              => [],
 			// An array of default connection field names the type should exclude.
 			'graphql_exclude_connections'      => [],
+			// An array of possible type the union can resolve to. Only used if `graphql_kind` is a `union`.
+			'graphql_union_types'              => [],
 			// Whether to register default connections to the schema.
 			'graphql_register_root_field'      => true,
 			'graphql_register_root_connection' => true,
@@ -529,6 +531,16 @@ final class WPGraphQL {
 					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure $args[\'graphql_resolve_type\'] is a valid callback function.', 'wp-graphql' ),
 					$wp_type,
 					$args['graphql_kind']
+				)
+			);
+		}
+
+		// Ensure union types have a valid list of possible types.
+		if ( empty( $args['graphql_union_types'] ) && 'union' === $args['graphql_kind'] ) {
+			throw new Exception(
+				sprintf(
+					__( '%1$s is registered as a GraphQL Union, but has list of possible types. Ensure $args[\'graphql_union_types\'] is a valid array of GraphQL type names.', 'wp-graphql' ),
+					$wp_type
 				)
 			);
 		}
