@@ -175,6 +175,17 @@ class PostObjectCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
+		if ( $orderby === 'menu_order' ) {
+			if ( '>' === $this->compare ) {
+
+				$order         = 'DESC';
+				$this->compare = '<';
+			} elseif ( '<' === $this->compare ) {
+				$this->compare = '>';
+				$order         = 'ASC';
+			}
+		}
+
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 
 			/**
@@ -199,7 +210,7 @@ class PostObjectCursor {
 			$this->compare_with_date();
 		}
 
-		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID' );
+		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID', $order );
 
 		return $this->to_sql();
 	}

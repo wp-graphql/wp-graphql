@@ -367,7 +367,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->markTestIncomplete( 'Results not sliced by both cursors' );
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 
 		/**
@@ -630,8 +629,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedObject']['status'] );
-		$this->markTestIncomplete( 'connectedNode shouldnt be null for admin' );
-
 		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedNode']['node']['status'] );
 
 	}
