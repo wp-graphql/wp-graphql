@@ -84,16 +84,10 @@ abstract class AbstractCursor {
 
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
+		// Get the WP Object for the cursor.
 		$this->cursor_node = $this->get_cursor_node();
 
-		/**
-		 * Get the direction for the query builder.
-		 */
-
-		// @todo this doesnt seem necessary
-		$compare       = ! empty( $this->get_query_var( 'graphql_cursor_compare' ) ) ? $this->get_query_var( 'graphql_cursor_compare' ) : '>';
-		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-
+		// Get the direction for the builder query.
 		$this->compare = $this->get_cursor_compare();
 
 		$this->builder = new CursorBuilder( $this->compare );
@@ -129,9 +123,10 @@ abstract class AbstractCursor {
 	 * @return bool
 	 */
 	protected function is_valid_offset_and_node() {
-		if ( ! is_int( $this->cursor_offset ) ||
+		if (
+			! is_int( $this->cursor_offset ) ||
 			0 >= $this->cursor_offset ||
-			! $this->get_cursor_node()
+			! $this->cursor_node
 		) {
 			return false;
 		}
@@ -154,7 +149,6 @@ abstract class AbstractCursor {
 	 * @return string
 	 */
 	abstract public function get_where();
-
 
 	/**
 	 * Generate the final SQL string to be appended to WHERE clause

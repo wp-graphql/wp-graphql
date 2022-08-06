@@ -43,7 +43,9 @@ class UserCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @todo Confirm why logic is reversed.
+	 * {@inheritDoc}
+	 *
+	 * Unlike most queries, users by default are in ascending order.
 	 */
 	public function get_cursor_compare() {
 		if ( 'before' === $this->cursor ) {
