@@ -40,7 +40,7 @@ class CommentObjectCursor {
 	public $query;
 
 	/**
-	 * @var QM_DB|string|wpdb
+	 * @var wpdb
 	 */
 	public $wpdb;
 
@@ -48,7 +48,6 @@ class CommentObjectCursor {
 	 * @var array
 	 */
 	public $query_vars;
-
 
 	/**
 	 * @param WP_Comment_Query $query The instance of the WP_Comment_Query being executed
@@ -106,6 +105,14 @@ class CommentObjectCursor {
 		return isset( $this->query->query_vars[ $name ] ) ? $this->query->query_vars[ $name ] : null;
 	}
 
+	/**
+	 * Get AND operator for given order by key
+	 *
+	 * @param string $by    The order by key
+	 * @param string $order The order direction ASC or DESC
+	 *
+	 * @return void
+	 */
 	public function compare_with( $by, $order ) {
 
 		$type = null;
@@ -122,7 +129,11 @@ class CommentObjectCursor {
 
 	}
 
-
+	/**
+	 * Return the additional AND operators for the where statement
+	 *
+	 * @return string|null
+	 */
 	public function get_where() {
 
 		if ( ! is_int( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
@@ -158,9 +169,12 @@ class CommentObjectCursor {
 	 * @return void
 	 */
 	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->comments}.comment_date", $this->get_cursor_node()->comment_date, 'DATETIME' );
+		$this->builder->add_field( "{$this->wpdb->comments}.comment_date", $this->get_cursor_node()->comment_date ?? null, 'DATETIME' );
 	}
 
+	/**
+	 * @return string
+	 */
 	private function to_sql() {
 		$sql = $this->builder->to_sql();
 		return ! empty( $sql ) ? ' AND ' . $sql : '';
