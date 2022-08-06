@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data;
 
 use WP_Comment_Query;
+use WP_Query;
 use WPGraphQL\Data\Cursor\CommentObjectCursor;
 use WPGraphQL\Data\Cursor\PostObjectCursor;
 use WPGraphQL\Data\Cursor\TermObjectCursor;
@@ -159,11 +160,11 @@ class Config {
 	 * and for their cursors to properly go forward/backward to the proper place in the database.
 	 *
 	 * @param string    $orderby  The ORDER BY clause of the query.
-	 * @param \WP_Query $wp_query The WP_Query instance executing
+	 * @param WP_Query $wp_query The WP_Query instance executing
 	 *
 	 * @return string
 	 */
-	public function graphql_wp_query_cursor_pagination_stability( string $orderby, \WP_Query $wp_query ) {
+	public function graphql_wp_query_cursor_pagination_stability( string $orderby, WP_Query $wp_query ) {
 
 		if ( true !== is_graphql_request() ) {
 			return $orderby;
@@ -189,12 +190,12 @@ class Config {
 	 * This filters the WPQuery 'where' $args, enforcing the query to return results before or
 	 * after the referenced cursor
 	 *
-	 * @param string    $where The WHERE clause of the query.
-	 * @param \WP_Query $query The WP_Query instance (passed by reference).
+	 * @param string   $where The WHERE clause of the query.
+	 * @param WP_Query $query The WP_Query instance (passed by reference).
 	 *
 	 * @return string
 	 */
-	public function graphql_wp_query_cursor_pagination_support( $where, \WP_Query $query ) {
+	public function graphql_wp_query_cursor_pagination_support( string $where, WP_Query $query ) {
 
 		/**
 		 * If there's a graphql_cursor_offset in the query, we should check to see if

@@ -81,14 +81,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			// we don't need this passed as a taxonomy parameter to wp_query
 			unset( $query_args['location'] );
 
-			$query_args['tax_query'] = [
-				[
-					'taxonomy'         => 'nav_menu',
-					'field'            => 'term_id',
-					'terms'            => $locations,
-					'include_children' => false,
-					'operator'         => 'IN',
-				],
+			$query_args['tax_query'][] = [
+				'taxonomy'         => 'nav_menu',
+				'field'            => 'term_id',
+				'terms'            => $locations,
+				'include_children' => false,
+				'operator'         => 'IN',
 			];
 		}
 
