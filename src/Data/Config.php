@@ -204,12 +204,12 @@ class Config {
 		if ( true === is_graphql_request() ) {
 
 			if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-				$after_cursor = new PostObjectCursor( $query, 'after' );
+				$after_cursor = new PostObjectCursor( $query->query_vars, 'after' );
 				$where        = $where . $after_cursor->get_where();
 			}
 
 			if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-				$before_cursor = new PostObjectCursor( $query, 'before' );
+				$before_cursor = new PostObjectCursor( $query->query_vars, 'before' );
 				$where         = $where . $before_cursor->get_where();
 			}
 		}
@@ -237,7 +237,6 @@ class Config {
 
 		return $orderby;
 	}
-
 
 	/**
 	 * This filters the WP_User_Query 'where' $args, enforcing the query to return results before or
@@ -270,7 +269,6 @@ class Config {
 		return $where;
 	}
 
-
 	/**
 	 * This filters the term_clauses in the WP_Term_Query to support cursor based pagination, where
 	 * we can move forward or backward from a particular record, instead of typical offset
@@ -291,7 +289,6 @@ class Config {
 			}
 
 			if ( ! empty( $args['graphql_after_cursor'] ) ) {
-
 				$after_cursor    = new TermObjectCursor( $args, 'after' );
 				$pieces['where'] = $pieces['where'] . $after_cursor->get_where();
 			}
@@ -325,13 +322,12 @@ class Config {
 		}
 
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-			$after_cursor     = new CommentObjectCursor( $query, 'after' );
+			$after_cursor     = new CommentObjectCursor( $query->query_vars, 'after' );
 			$pieces['where'] .= $after_cursor->get_where();
 		}
 
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-			$before_cursor = new CommentObjectCursor( $query, 'before' );
-
+			$before_cursor    = new CommentObjectCursor( $query->query_vars, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
 
