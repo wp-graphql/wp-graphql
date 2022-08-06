@@ -175,7 +175,7 @@ class PostObjectCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
-		if ( $orderby === 'menu_order' ) {
+		if ( 'menu_order' === $orderby ) {
 			if ( '>' === $this->compare ) {
 
 				$order         = 'DESC';
