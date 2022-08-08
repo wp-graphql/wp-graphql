@@ -64,8 +64,7 @@ class CommentObjectCursor {
 		$this->query_vars = $this->query->query_vars;
 		$this->cursor     = $cursor;
 
-		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$offset              = $this->get_query_var( 'graphql_' . $cursor . '_cursor' ) ?? $offset;
+		$offset              = $this->get_query_var( 'graphql_' . $cursor . '_cursor' );
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
 		$raw_compare   = $this->get_query_var( 'graphql_cursor_compare' ) ?: '>';

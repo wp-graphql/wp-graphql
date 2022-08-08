@@ -64,11 +64,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_args'] = $this->args;
 
 		/**
-		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
-		 * to filter the WP_User_Query to support cursor pagination
+		 * Set the graphql_cursor_compare to determine what direction the
+		 * query should be paginated
 		 */
-		$cursor_offset                        = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
-		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
 		$query_args['graphql_after_cursor']  = $this->get_after_offset();

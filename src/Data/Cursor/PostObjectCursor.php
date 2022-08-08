@@ -80,11 +80,10 @@ class PostObjectCursor {
 		/**
 		 * Get the cursor offset if any
 		 */
-		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$offset              = $this->query_vars[ 'graphql_' . $cursor . '_cursor' ] ?? $offset;
+		$offset              = $this->get_query_var( 'graphql_' . $cursor . '_cursor' );
 		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
 
-		$compare       = $query->get( 'graphql_cursor_compare' ) ?: '>';
+		$compare       = $this->get_query_var( 'graphql_cursor_compare' ) ?: '>';
 		$this->compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
 
 		if ( 'before' === $cursor ) {

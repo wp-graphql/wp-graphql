@@ -197,21 +197,21 @@ class Config {
 	 */
 	public function graphql_wp_query_cursor_pagination_support( string $where, WP_Query $query ) {
 
-		/**
-		 * If there's a graphql_cursor_offset in the query, we should check to see if
-		 * it should be applied to the query
-		 */
-		if ( true === is_graphql_request() ) {
+		// if it's not a graphql request, return early
+		if ( true !== is_graphql_request() ) {
+			return $where;
+		}
 
-			if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-				$after_cursor = new PostObjectCursor( $query, 'after' );
-				$where        = $where . $after_cursor->get_where();
-			}
+		// apply the after cursor to the query
+		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
+			$after_cursor = new PostObjectCursor( $query, 'after' );
+			$where       .= $after_cursor->get_where();
+		}
 
-			if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-				$before_cursor = new PostObjectCursor( $query, 'before' );
-				$where         = $where . $before_cursor->get_where();
-			}
+		// apply the before cursor to the query
+		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
+			$before_cursor = new PostObjectCursor( $query, 'before' );
+			$where        .= $before_cursor->get_where();
 		}
 
 		return $where;
@@ -250,21 +250,21 @@ class Config {
 	 */
 	public function graphql_wp_user_query_cursor_pagination_support( $where, \WP_User_Query $query ) {
 
-		/**
-		 * If there's a graphql_cursor_offset in the query, we should check to see if
-		 * it should be applied to the query
-		 */
-		if ( true === is_graphql_request() ) {
+		// if it's not a graphql request, return early
+		if ( true !== is_graphql_request() ) {
+			return $where;
+		}
 
-			if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-				$after_cursor = new UserCursor( $query, 'after' );
-				$where        = $where . $after_cursor->get_where();
-			}
+		// apply the after cursor to the query
+		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
+			$after_cursor = new UserCursor( $query, 'after' );
+			$where        = $where . $after_cursor->get_where();
+		}
 
-			if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-				$before_cursor = new UserCursor( $query, 'before' );
-				$where         = $where . $before_cursor->get_where();
-			}
+		// apply the before cursor to the query
+		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
+			$before_cursor = new UserCursor( $query, 'before' );
+			$where         = $where . $before_cursor->get_where();
 		}
 
 		return $where;
@@ -284,22 +284,26 @@ class Config {
 	 */
 	public function graphql_wp_term_query_cursor_pagination_support( array $pieces, array $taxonomies, array $args ) {
 
-		if ( true === is_graphql_request() ) {
+		// if it's not a graphql request, return early
+		if ( true !== is_graphql_request() ) {
+			return $pieces;
+		}
 
-			if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
-				$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
-			}
+		// determine the limit for the query
+		if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
+			$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
+		}
 
-			if ( ! empty( $args['graphql_after_cursor'] ) ) {
+		// apply the after cursor
+		if ( ! empty( $args['graphql_after_cursor'] ) ) {
+			$after_cursor    = new TermObjectCursor( $args, 'after' );
+			$pieces['where'] = $pieces['where'] . $after_cursor->get_where();
+		}
 
-				$after_cursor    = new TermObjectCursor( $args, 'after' );
-				$pieces['where'] = $pieces['where'] . $after_cursor->get_where();
-			}
-
-			if ( ! empty( $args['graphql_before_cursor'] ) ) {
-				$before_cursor   = new TermObjectCursor( $args, 'before' );
-				$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
-			}
+		// apply the before cursor
+		if ( ! empty( $args['graphql_before_cursor'] ) ) {
+			$before_cursor   = new TermObjectCursor( $args, 'before' );
+			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
 		}
 
 		return $pieces;
@@ -308,7 +312,7 @@ class Config {
 
 	/**
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
-	 * is a GraphQL Request and the query has a graphql_cursor_offset defined
+	 * is a GraphQL Request and before or after cursors are passed to the query
 	 *
 	 * @param array            $pieces A compacted array of comment query clauses.
 	 * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
@@ -330,8 +334,7 @@ class Config {
 		}
 
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-			$before_cursor = new CommentObjectCursor( $query, 'before' );
-
+			$before_cursor    = new CommentObjectCursor( $query, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
 

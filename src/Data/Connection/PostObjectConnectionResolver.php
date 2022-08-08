@@ -203,23 +203,16 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['posts_per_page'] = $this->one_to_one ? 1 : min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
 
-		/**
-		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_query_cursor_pagination_support
-		 * to filter the WP_Query to support cursor pagination
-		 */
-		$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
-
-		$query_args['graphql_cursor_offset']  = $cursor_offset;
+		// set the graphql cursor args
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
-
 		$query_args['graphql_after_cursor']  = $this->get_after_offset();
 		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
-		 * If the starting offset is not 0 sticky posts will not be queried as the automatic checks in wp-query don't
-		 * trigger due to the page parameter not being set in the query_vars, fixes #732
+		 * If the cursor offsets not empty,
+		 * ignore sticky posts on the query
 		 */
-		if ( 0 !== $cursor_offset ) {
+		if ( ! empty( $this->get_after_offset() ) || ! empty( $this->get_after_offset() ) ) {
 			$query_args['ignore_sticky_posts'] = true;
 		}
 

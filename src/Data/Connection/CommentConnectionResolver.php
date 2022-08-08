@@ -104,9 +104,10 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Set the graphql_cursor_offset
+		 * Set the graphql_cursor_compare to determine
+		 * whether the data is being paginated forward (>) or backward (<)
+		 * default to forward
 		 */
-		$query_args['graphql_cursor_offset']  = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
 		$query_args['graphql_cursor_compare'] = ( isset( $last ) ) ? '>' : '<';
 
 		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors
