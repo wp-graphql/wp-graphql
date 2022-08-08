@@ -1,10 +1,12 @@
 <?php
 namespace WPGraphQL\Data\Cursor;
 
+use WP_Term;
+
 class TermObjectCursor extends AbstractCursor {
 
 	/**
-	 * @var ?\WP_Term;
+	 * @var ?WP_Term;
 	 */
 	public $cursor_node;
 
@@ -18,12 +20,12 @@ class TermObjectCursor extends AbstractCursor {
 	/**
 	 * @param string $name The name of the query var to get
 	 *
-	 * @deprecated @todo
+	 * @deprecated 1.9.0
 	 *
 	 * @return mixed|null
 	 */
 	public function get_query_arg( string $name ) {
-		_deprecated_function( __FUNCTION__, '@todo', self::class . '::get_query_var()' );
+		_deprecated_function( __FUNCTION__, '1.9.0', self::class . '::get_query_var()' );
 
 		return $this->get_query_var( $name );
 	}
@@ -31,24 +33,24 @@ class TermObjectCursor extends AbstractCursor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ?\WP_Term;
+	 * @return ?WP_Term;
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
-		$term = \WP_Term::get_instance( $this->cursor_offset );
+		$term = WP_Term::get_instance( $this->cursor_offset );
 
-		return $term instanceof \WP_Term ? $term : null;
+		return $term instanceof WP_Term ? $term : null;
 	}
 
 	/**
-	 * @deprecated @todo
-	 * @return ?\WP_Term;
+	 * @return ?WP_Term;
+	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_term() {
-		_deprecated_function( __FUNCTION__, '@todo', self::class . '::get_cursor_node()' );
+		_deprecated_function( __FUNCTION__, '1.9.0', self::class . '::get_cursor_node()' );
 
 		return $this->cursor_node;
 	}

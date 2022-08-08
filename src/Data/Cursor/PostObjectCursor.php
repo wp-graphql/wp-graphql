@@ -31,7 +31,7 @@ class PostObjectCursor extends AbstractCursor {
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
 		if ( $query_vars instanceof \WP_Query ) {
-			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '@todo' );
+			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '1.9.0' );
 			$query_vars = $query_vars->query_vars;
 		}
 
@@ -55,12 +55,12 @@ class PostObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @deprecated @todo
+	 * @deprecated 1.9.0
 	 *
 	 * @return ?\WP_Post
 	 */
 	public function get_cursor_post() {
-		_deprecated_function( __FUNCTION__, '@todo', self::class . '::get_cursor_node()' );
+		_deprecated_function( __FUNCTION__, '1.9.0', self::class . '::get_cursor_node()' );
 
 		return $this->cursor_node;
 	}

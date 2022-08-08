@@ -2,6 +2,9 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_User;
+use WP_User_Query;
+
 /**
  * User Cursor
  *
@@ -12,7 +15,7 @@ namespace WPGraphQL\Data\Cursor;
 class UserCursor extends AbstractCursor {
 
 	/**
-	 * @var ?\WP_User
+	 * @var ?WP_User
 	 */
 	public $cursor_node;
 
@@ -26,15 +29,15 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * UserCursor constructor.
 	 *
-	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null         $cursor Whether to generate the before or after cursor
+	 * @param array|WP_User_Query $query_vars The query vars to use when building the SQL statement.
+	 * @param string|null         $cursor     Whether to generate the before or after cursor
 	 *
 	 * @return void
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
-		if ( $query_vars instanceof \WP_User_Query ) {
-			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '@todo' );
+		if ( $query_vars instanceof WP_User_Query ) {
+			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '1.9.0' );
 			$query_vars = $query_vars->query_vars;
 		}
 
@@ -57,7 +60,7 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ?\WP_User
+	 * @return ?WP_User
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
@@ -70,12 +73,11 @@ class UserCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @deprecated @todo
-	 *
-	 * @return ?\WP_User
+	 * @return ?WP_User
+	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_user() {
-		_deprecated_function( __FUNCTION__, '@todo', self::class . '::get_cursor_node()' );
+		_deprecated_function( __FUNCTION__, '1.9.0', self::class . '::get_cursor_node()' );
 
 		return $this->cursor_node;
 	}

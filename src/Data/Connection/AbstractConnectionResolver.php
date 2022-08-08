@@ -363,7 +363,7 @@ abstract class AbstractConnectionResolver {
 	 * instead throws an exception. Classes that extend AbstractConnectionResolver should
 	 * override this method, instead of AbstractConnectionResolver::get_ids().
 	 *
-	 * @since @todo
+	 * @since 1.9.0
 	 *
 	 * @throws Exception if child class forgot to implement this.
 	 *
@@ -529,7 +529,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @param array $ids The array of IDs from the query to slice, ordered as expected by the GraphQL query.
 	 *
-	 * @since @todo
+	 * @since 1.9.0
 	 *
 	 * @return array
 	 */
@@ -584,12 +584,12 @@ abstract class AbstractConnectionResolver {
 	 * This returns the offset to be used in the $query_args based on the $args passed to the
 	 * GraphQL query.
 	 *
-	 * @deprecated @todo
+	 * @deprecated 1.9.0
 	 *
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-			_deprecated_function( __FUNCTION__, '@todo', get_class( $this ) . '::get_offset_for_cursor()' );
+			_deprecated_function( __FUNCTION__, '1.9.0', get_class( $this ) . '::get_offset_for_cursor()' );
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
