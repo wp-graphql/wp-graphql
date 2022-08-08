@@ -205,8 +205,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 		// set the graphql cursor args
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
-		$query_args['graphql_after_cursor']  = $this->get_after_offset();
-		$query_args['graphql_before_cursor'] = $this->get_before_offset();
+		$query_args['graphql_after_cursor']   = $this->get_after_offset();
+		$query_args['graphql_before_cursor']  = $this->get_before_offset();
 
 		/**
 		 * If the cursor offsets not empty,

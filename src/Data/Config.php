@@ -238,7 +238,6 @@ class Config {
 		return $orderby;
 	}
 
-
 	/**
 	 * This filters the WP_User_Query 'where' $args, enforcing the query to return results before or
 	 * after the referenced cursor
@@ -269,7 +268,6 @@ class Config {
 
 		return $where;
 	}
-
 
 	/**
 	 * This filters the term_clauses in the WP_Term_Query to support cursor based pagination, where
@@ -329,12 +327,12 @@ class Config {
 		}
 
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-			$after_cursor     = new CommentObjectCursor( $query, 'after' );
+			$after_cursor     = new CommentObjectCursor( $query->query_vars, 'after' );
 			$pieces['where'] .= $after_cursor->get_where();
 		}
 
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-			$before_cursor    = new CommentObjectCursor( $query, 'before' );
+			$before_cursor    = new CommentObjectCursor( $query->query_vars, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
 

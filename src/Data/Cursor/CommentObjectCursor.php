@@ -3,143 +3,60 @@
 namespace WPGraphQL\Data\Cursor;
 
 use WP_Comment;
-use WP_Comment_Query;
-use wpdb;
-use function Symfony\Component\String\s;
 
 /**
  * Comment Cursor
  *
  * This class generates the SQL and operators for cursor based pagination for comments
+ *
+ * @package WPGraphQL\Data\Cursor
  */
-class CommentObjectCursor {
+class CommentObjectCursor extends AbstractCursor {
 
 	/**
-	 * @var CursorBuilder
+	 * @var ?\WP_Comment
 	 */
-	public $builder;
+	public $cursor_node;
 
 	/**
-	 * @var string
-	 */
-	public $compare;
-
-	/**
-	 * @var int
-	 */
-	public $cursor_offset;
-
-	/**
-	 * @var string|null
-	 */
-	public $cursor;
-
-	/**
-	 * @var WP_Comment_Query
-	 */
-	public $query;
-
-	/**
-	 * @var wpdb
-	 */
-	public $wpdb;
-
-	/**
-	 * @var array
-	 */
-	public $query_vars;
-
-	/**
-	 * @param WP_Comment_Query $query The instance of the WP_Comment_Query being executed
-	 * @param string|null      $cursor Whether to generate the before or after cursor. Default "after"
+	 * @param array|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
+	 * @param string|null            $cursor Whether to generate the before or after cursor. Default "after"
 	 *
 	 * @return void
 	 */
-	public function __construct( WP_Comment_Query $query, $cursor = '' ) {
-
-		global $wpdb;
-
-		$this->wpdb       = $wpdb;
-		$this->query      = $query;
-		$this->query_vars = $this->query->query_vars;
-		$this->cursor     = $cursor;
-
-		$offset              = $this->get_query_var( 'graphql_' . $cursor . '_cursor' );
-		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
-
-		$raw_compare   = $this->get_query_var( 'graphql_cursor_compare' ) ?: '>';
-		$this->compare = in_array( $raw_compare, [ '>', '<' ], true ) ? $raw_compare : '>';
-
-		if ( 'before' === $cursor ) {
-			$this->compare = '>';
-		} elseif ( 'after' === $cursor ) {
-			$this->compare = '<';
+	public function __construct( $query_vars, $cursor = 'after' ) {
+		// Handle deprecated use of $query.
+		if ( $query_vars instanceof \WP_Comment_Query ) {
+			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Comment_Query object', '@todo' );
+			$query_vars = $query_vars->query_vars;
 		}
 
-		$this->builder = new CursorBuilder( $this->compare );
+		// Initialize the class properties.
+		parent::__construct( $query_vars, $cursor );
 
 	}
 
 	/**
-	 * Get the comment instance for the cursor
+	 * {@inheritDoc}
 	 *
-	 * This is cached internally so it should not generate additional queries
-	 *
-	 * @return false|WP_Comment|null
+	 * @return ?WP_Comment
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
-		return WP_Comment::get_instance( $this->cursor_offset );
+		$comment = WP_Comment::get_instance( $this->cursor_offset );
+
+		return false !== $comment ? $comment : null;
 	}
 
 	/**
-	 * @param string $name The name of the query var to get
-	 *
-	 * @return mixed|null
-	 */
-	public function get_query_var( string $name ) {
-		return isset( $this->query->query_vars[ $name ] ) ? $this->query->query_vars[ $name ] : null;
-	}
-
-	/**
-	 * Get AND operator for given order by key
-	 *
-	 * @param string $by    The order by key
-	 * @param string $order The order direction ASC or DESC
-	 *
-	 * @return void
-	 */
-	public function compare_with( $by, $order ) {
-
-		$type = null;
-
-		if ( 'comment_date' === $by ) {
-			$type = 'DATETIME';
-		}
-
-		$value = $this->get_cursor_node()->{$by} ?? null;
-		if ( ! empty( $value ) ) {
-			$this->builder->add_field( "{$this->wpdb->comments}.{$by}", $value, $type );
-			return;
-		}
-
-	}
-
-	/**
-	 * Return the additional AND operators for the where statement
-	 *
-	 * @return string|null
+	 * {@inheritDoc}
 	 */
 	public function get_where() {
-
-		if ( ! is_int( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
-			return '';
-		}
-
-		if ( ! $this->get_cursor_node() ) {
+		// If we have a bad cursor, just skip.
+		if ( ! $this->is_valid_offset_and_node() ) {
 			return '';
 		}
 
@@ -163,18 +80,42 @@ class CommentObjectCursor {
 	}
 
 	/**
+	 * Get AND operator for given order by key
+	 *
+	 * @param string $by    The order by key
+	 * @param string $order The order direction ASC or DESC
+	 *
+	 * @return void
+	 */
+	public function compare_with( $by, $order ) {
+
+		$type = null;
+
+		if ( 'comment_date' === $by ) {
+			$type = 'DATETIME';
+		}
+
+		$value = $this->cursor_node->{$by} ?? null;
+		if ( ! empty( $value ) ) {
+			$this->builder->add_field( "{$this->wpdb->comments}.{$by}", $value, $type );
+			return;
+		}
+
+	}
+
+	/**
 	 * Use comment date based comparison
 	 *
 	 * @return void
 	 */
 	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->comments}.comment_date", $this->get_cursor_node()->comment_date ?? null, 'DATETIME' );
+		$this->builder->add_field( "{$this->wpdb->comments}.comment_date", $this->cursor_node->comment_date ?? null, 'DATETIME' );
 	}
 
 	/**
-	 * @return string
+	 *{@inheritDoc}
 	 */
-	private function to_sql() {
+	public function to_sql() {
 		$sql = $this->builder->to_sql();
 		return ! empty( $sql ) ? ' AND ' . $sql : '';
 	}
