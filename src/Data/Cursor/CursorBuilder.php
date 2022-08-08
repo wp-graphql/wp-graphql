@@ -80,8 +80,8 @@ class CursorBuilder {
 		$escaped_field = [];
 
 		// Escape the filtered array
-		foreach ( $field as $key => $value ) {
-			$escaped_field[ $key ] = esc_sql( $value );
+		foreach ( $field as $field_key => $value ) {
+			$escaped_field[ $field_key ] = esc_sql( $value );
 		}
 
 		$this->fields[] = $escaped_field;
