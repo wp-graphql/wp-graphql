@@ -423,8 +423,8 @@ class NodeResolver {
 				return null;
 			}
 
-			if ( get_option( 'page_for_posts', 0 ) === $post->ID ) {
-				return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
+			if ( (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
+				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 			}
 
 			return $this->context->get_loader( 'post' )->load_deferred( $post->ID );

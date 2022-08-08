@@ -3,8 +3,8 @@
 class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
-		WPGraphQL::clear_schema();
 		parent::setUp();
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
@@ -43,7 +43,7 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		 * Set the current user so we can properly test the viewer query
 		 */
 		wp_set_current_user( $user_id );
-		$actual = graphql([ 'query' => $query ]);
+		$actual = graphql( [ 'query' => $query ] );
 
 		codecept_debug( $actual );
 

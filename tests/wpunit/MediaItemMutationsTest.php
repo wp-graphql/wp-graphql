@@ -1114,7 +1114,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for MediaItemMutationsTest',
 			'post_content' => 'Original Content',
 		];
 

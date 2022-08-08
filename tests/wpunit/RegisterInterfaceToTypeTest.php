@@ -4,9 +4,9 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 	public function setUp(): void {
 		// before
-		$this->clearSchema();
 		parent::setUp();
 		// your set up methods here
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
@@ -27,9 +27,9 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		register_graphql_object_type( 'TestType', [
 			'fields' => [
 				'a' => [
-					'type' => 'String'
-				]
-			]
+					'type' => 'String',
+				],
+			],
 		]);
 
 		register_graphql_interface_type( 'TestInterface', [
@@ -46,32 +46,30 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$query = '
 		query GetType($name:String!) {
-		  __type(name: $name) {
-		    name
-		    kind
-		    interfaces {
-		      name
-		    }
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $name) {
+				name
+				kind
+				interfaces {
+					name
+				}
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'name' => $type_name,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'a' ] ),
-			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] )
+			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
 		] );
 
 	}
@@ -87,9 +85,9 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		register_graphql_object_type( 'TestType', [
 			'fields' => [
 				'a' => [
-					'type' => 'String'
-				]
-			]
+					'type' => 'String',
+				],
+			],
 		]);
 
 		register_graphql_interface_type( 'TestInterface', [
@@ -108,7 +106,6 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			],
 		]);
 
-
 		register_graphql_interfaces_to_types( [ 'TestInterfaceTwo' ], [ 'TestInterface' ] );
 		register_graphql_interfaces_to_types( [ 'TestInterfaceTwo', 'TestInterface' ], [ 'TestType' ] );
 
@@ -116,48 +113,44 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$query = '
 		query GetType($name:String!) {
-		  __type(name: $name) {
-		    name
-		    kind
-		    interfaces {
-		      name
-		    }
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $name) {
+				name
+				kind
+				interfaces {
+					name
+				}
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'name' => $type_name,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'a' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
-			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] )
+			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] ),
 		] );
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'name' => 'TestInterface',
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertQuerySuccessful( $actual, [
 			$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterfaceTwo' ] ),
 			$this->expectedNode( '__type.fields', [ 'name' => 'b' ] ),
-			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] )
+			$this->expectedNode( '__type.fields', [ 'name' => 'c' ] ),
 		] );
 
 	}

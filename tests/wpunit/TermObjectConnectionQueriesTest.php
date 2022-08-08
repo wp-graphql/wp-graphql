@@ -1,12 +1,12 @@
 <?php
 
-class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
-	public $created_post_ids;
 	public $admin;
+	public $current_date_gmt;
+	public $current_date;
+	public $created_term_ids;
+	public $current_time;
 
 	public function setUp(): void {
 		// before
@@ -64,15 +64,19 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @return array
 	 */
 	public function create_terms() {
+		$alphabet = range( 'A', 'Z' );
 
 		// Create 20 posts
-		$created_terms = [];
-		for ( $i = 1; $i <= 20; $i ++ ) {
+		$created_terms = [
+			1 => 1, // id 1 is reserved for 'uncategorized'
+		];
+
+		for ( $i = 2; $i <= 6; $i ++ ) {
 			$term_id             = $this->createTermObject(
 				[
 					'taxonomy'    => 'category',
-					'description' => $i,
-					'name'        => $i,
+					'description' => $alphabet[ $i ],
+					'name'        => 'term-' . $alphabet[ $i ],
 				]
 			);
 			$created_terms[ $i ] = $term_id;
@@ -82,183 +86,266 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function categoriesQuery( $variables ) {
-
-		$query = 'query categoriesQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToCategoryConnectionWhereArgs){
-			categories( first:$first last:$last after:$after before:$before where:$where ) {
-				pageInfo {
-					hasNextPage
-					hasPreviousPage
-					startCursor
-					endCursor
-				}
-				edges {
-					cursor
-					node {
-						id
-                        categoryId
-				        name
-				        description
-				        slug
+	public function getQuery() {
+		return '
+			query categoriesQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToCategoryConnectionWhereArgs){
+				categories( first:$first last:$last after:$after before:$before where:$where ) {
+					pageInfo {
+						hasNextPage
+						hasPreviousPage
+						startCursor
+						endCursor
+					}
+					edges {
+						cursor
+						node {
+							id
+							databaseId
+							name
+							description
+							slug
+						}
+					}
+					nodes {
+						databaseId
 					}
 				}
-				nodes {
-				  categoryId
-				}
 			}
-		}';
-
-		return do_graphql_request( $query, 'categoriesQuery', $variables );
-
+		';
 	}
 
-	public function testfirstCategory() {
+	public function testForwardPagination() {
+		$query    = $this->getQuery();
+		$wp_query = new WP_Term_Query();
+
 		/**
-		 * Here we're querying the first category in our dataset
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'first' => 2,
+		];
+
+		// Set the variables to use in the WP query.
+		$query_args = [
+			'taxonomy'   => 'category',
+			'number'     => 2,
+			'offset'     => 0,
+			'order'      => 'ASC',
+			'orderby'    => 'name',
+			'parent'     => 0,
+			'hide_empty' => false,
+		];
+
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['after'] = '';
+		$expected           = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['after'] = $actual['data']['categories']['pageInfo']['endCursor'];
+
+		// Set the variables to use in the WP query.
+		$query_args['offset'] = 2;
+
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['after'] = $actual['data']['categories']['pageInfo']['endCursor'];
+
+		// Set the variables to use in the WP query.
+		$query_args['offset'] = 4;
+
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
 		 */
 		$variables = [
-			'first' => 1,
+			'last' => 2,
 		];
-		$results   = $this->categoriesQuery( $variables );
+		$expected  = $actual;
 
-		/**
-		 * Let's query the first post in our data set so we can test against it
-		 */
-		$query = new WP_Term_Query(
-			[
-				'taxonomy'   => 'category',
-				'number'     => 1,
-				'parent'     => 0,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-				'hide_empty' => false,
-			]
-		);
-		$terms = $query->get_terms();
-
-		$first_term_id   = $terms[0]->term_id;
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_term_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
-		$this->assertEquals( $first_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
-		$this->assertEquals( $first_term_id, $results['data']['categories']['nodes'][0]['categoryId'] );
-		$this->assertEquals( false, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasNextPage'] );
-		$this->forwardPagination( $results['data']['categories']['pageInfo']['endCursor'] );
-
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
 	}
 
-	public function forwardPagination( $cursor ) {
-
-		$variables = [
-			'first' => 1,
-			'after' => $cursor,
-		];
-
-		$results = $this->categoriesQuery( $variables );
-
-		codecept_debug(  $results );
-
-		$offset = 1;
-		$query  = new WP_Term_Query(
-			[
-				'taxonomy'   => 'category',
-				'number'     => 1,
-				'offset'     => $offset,
-				'parent'     => 0,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-				'hide_empty' => false,
-			]
-		);
-		$terms  = $query->get_terms();
-
-		$second_term_id  = $terms[ $offset ]->term_id;
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_term_id );
-		$this->assertNotEmpty( $results );
-
-		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
-		$this->assertEquals( $second_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
-	}
-
-	public function testLastPost() {
-		/**
-		 * Here we're trying to query the last post in our dataset
-		 */
-		$variables = [
-			'last' => 1,
-		];
-		$results   = $this->categoriesQuery( $variables );
+	public function testBackwardPagination() {
+		$query    = $this->getQuery();
+		$wp_query = new WP_Term_Query();
 
 		/**
-		 * Let's query the last post in our data set so we can test against it
+		 * Test the first two results.
 		 */
-		$query = new WP_Term_Query(
-			[
-				'taxonomy'   => 'category',
-				'number'     => 1,
-				'parent'     => 0,
-				'orderby'    => 'name',
-				'order'      => 'DESC',
-				'hide_empty' => false,
-			]
-		);
-		$terms = $query->get_terms();
 
-		$last_term_id    = $terms[0]->term_id;
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_term_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
-		$this->assertEquals( $last_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $results['data']['categories']['pageInfo']['hasNextPage'] );
-
-		$this->backwardPagination( $expected_cursor );
-
-	}
-
-	public function backwardPagination( $cursor ) {
-
+		// Set the variables to use in the GraphQL query.
 		$variables = [
-			'last'   => 1,
-			'before' => $cursor,
+			'last' => 2,
 		];
 
-		$results = $this->categoriesQuery( $variables );
+		// Set the variables to use in the WP query.
+		$query_args = [
+			'taxonomy'   => 'category',
+			'number'     => 2,
+			'offset'     => 0,
+			'order'      => 'DESC',
+			'orderby'    => 'name',
+			'parent'     => 0,
+			'hide_empty' => false,
+		];
 
-		$offset = 1;
-		$query  = new WP_Term_Query(
-			[
-				'taxonomy'   => 'category',
-				'number'     => 1,
-				'parent'     => 0,
-				'offset'     => $offset,
-				'orderby'    => 'name',
-				'order'      => 'DESC',
-				'hide_empty' => false,
-			]
-		);
-		$terms  = $query->get_terms();
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+		$expected = array_reverse( $expected );
 
-		$second_last_term_id = $terms[ $offset ]->term_id;
-		$expected_cursor     = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_last_term_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['categories']['edges'] ) );
-		$this->assertEquals( $second_last_term_id, $results['data']['categories']['edges'][0]['node']['categoryId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['categories']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['categories']['pageInfo']['hasNextPage'] );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['before'] = '';
+		$expected            = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['before'] = $actual['data']['categories']['pageInfo']['startCursor'];
+
+		// Set the variables to use in the WP query.
+		$query_args['offset'] = 2;
+
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+		$expected = array_reverse( $expected );
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables['before'] = $actual['data']['categories']['pageInfo']['startCursor'];
+
+		// Set the variables to use in the WP query.
+		$query_args['offset'] = 4;
+
+		// Run the GraphQL Query
+		$expected = $wp_query->query( $query_args );
+		$expected = array_reverse( $expected );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasNextPage'] );
+		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
+
+		/**
+		 * Test the last two results are equal to `first:2`.
+		 */
+		$variables = [
+			'first' => 2,
+		];
+		$expected  = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+	}
+
+	public function testQueryWithFirstAndLast() {
+		$query = $this->getQuery();
+
+		$variables = [
+			'first' => 5,
+		];
+
+		/**
+		 * Test `first`.
+		 */
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$after_cursor  = $actual['data']['categories']['edges'][1]['cursor'];
+		$before_cursor = $actual['data']['categories']['edges'][3]['cursor'];
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$variables = [
+			'first'  => 5,
+			'after'  => $after_cursor,
+			'before' => $before_cursor,
+		];
+
+		$expected = $actual['data']['categories']['nodes'][2];
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['categories']['nodes'][0] );
+
+		/**
+		 * Test `last`.
+		 */
+		$variables['last'] = 5;
+
+		// Using first and last should throw an error.
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		unset( $variables['first'] );
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['categories']['nodes'][0] );
 
 	}
 
@@ -266,12 +353,12 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$category_id = $this->factory()->term->create([
 			'taxonomy' => 'category',
-			'name' => 'high count'
+			'name'     => 'high count',
 		]);
 
-		for ( $x = 0; $x <= 10; $x++) {
+		for ( $x = 0; $x <= 10; $x++ ) {
 			$post_id = $this->factory()->post->create([
-				'post_type' => 'post',
+				'post_type'   => 'post',
 				'post_status' => 'publish',
 			]);
 
@@ -280,37 +367,66 @@ class TermObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetCategoriesWithCustomOrder( $order:OrderEnum ){
-		  categories( where: { orderby: COUNT order: $order } ) {
-		    nodes {
-		      id
-		      databaseId
-		      name
-		      count
-		    }
-		  }
+			categories( where: { orderby: COUNT order: $order } ) {
+				nodes {
+					id
+					databaseId
+					name
+					count
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'order' => 'DESC'
-			]
+				'order' => 'DESC',
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $category_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'order' => 'ASC'
-			]
+				'order' => 'ASC',
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $category_id !== $actual['data']['categories']['nodes'][0]['databaseId'] );
 
+	}
+
+	/**
+	 * Common asserts for testing pagination.
+	 *
+	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+	 * @param array $actual The GraphQL results.
+	 */
+	public function assertValidPagination( $expected, $actual ) {
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 2, count( $actual['data']['categories']['edges'] ) );
+		$expected = array_values( $expected );
+
+		$first  = $expected[0];
+		$second = $expected[1];
+
+		$start_cursor = $this->toRelayId( 'arrayconnection', $first->term_id );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $second->term_id );
+
+		$this->assertEquals( $first->term_id, $actual['data']['categories']['edges'][0]['node']['databaseId'] );
+		$this->assertEquals( $first->term_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $start_cursor, $actual['data']['categories']['edges'][0]['cursor'] );
+		$this->assertEquals( $second->term_id, $actual['data']['categories']['edges'][1]['node']['databaseId'] );
+		$this->assertEquals( $second->term_id, $actual['data']['categories']['nodes'][1]['databaseId'] );
+		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][1]['cursor'] );
+		$this->assertEquals( $start_cursor, $actual['data']['categories']['pageInfo']['startCursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['categories']['pageInfo']['endCursor'] );
 	}
 
 }

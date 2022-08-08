@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
@@ -10,7 +10,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
@@ -33,7 +33,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -47,7 +47,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'post_content'  => 'Test page content',
 			'post_excerpt'  => 'Test excerpt',
 			'post_status'   => 'publish',
-			'post_title'    => 'Test Title',
+			'post_title'    => 'Test Post for PostObjectConnectionQueriesTest',
 			'post_type'     => 'post',
 			'post_date'     => $this->current_date,
 			'has_password'  => false,
@@ -84,7 +84,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Creates several posts (with different timestamps) for use in cursor query tests
 	 *
-	 * @param  int $count Number of posts to create.
+	 * @param   int $count Number of posts to create.
 	 *
 	 * @return array
 	 */
@@ -100,7 +100,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					'post_type'   => 'post',
 					'post_date'   => $date,
 					'post_status' => 'publish',
-					'post_title'  => $i,
+					'post_title'  => 'Test post for PostObjectConnectionQueriesTest ' . $i,
 				]
 			);
 		}
@@ -131,8 +131,8 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 					}
 				}
 				nodes {
-				  id
-				  postId
+					id
+					postId
 				}
 			}
 		}';
@@ -152,134 +152,6 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		return $data;
-
-	}
-
-	public function testFirstPost() {
-
-		/**
-		 * Here we're querying the first post in our dataset
-		 */
-		$variables = [
-			'first' => 1,
-		];
-		$results   = $this->postsQuery( $variables );
-
-		codecept_debug( $results );
-
-		/**
-		 * Let's query the first post in our data set so we can test against it
-		 */
-		$first_post      = new WP_Query(
-			[
-				'posts_per_page' => 1,
-			]
-		);
-		$first_post_id   = $first_post->posts[0]->ID;
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $first_post_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
-		$this->assertEquals( $first_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
-		$this->assertEquals( $first_post_id, $results['data']['posts']['nodes'][0]['postId'] );
-		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
-
-		$this->forwardPagination( $expected_cursor );
-
-	}
-
-	public function testLastPost() {
-		/**
-		 * Here we're trying to query the last post in our dataset
-		 */
-		$variables = [
-			'last' => 1,
-		];
-		$results   = $this->postsQuery( $variables );
-
-		/**
-		 * Let's query the last post in our data set so we can test against it
-		 */
-		$last_post    = new WP_Query(
-			[
-				'posts_per_page' => 1,
-				'order'          => 'ASC',
-			]
-		);
-		$last_post_id = $last_post->posts[0]->ID;
-
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $last_post_id );
-
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
-		$this->assertEquals( $last_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
-		$this->assertEquals( false, $results['data']['posts']['pageInfo']['hasNextPage'] );
-
-		$this->backwardPagination( $expected_cursor );
-
-	}
-
-	public function forwardPagination( $cursor ) {
-
-		$variables = [
-			'first' => 1,
-			'after' => $cursor,
-		];
-
-		$results = $this->postsQuery( $variables );
-
-		codecept_debug( $results );
-
-		$second_post     = new WP_Query(
-			[
-				'posts_per_page' => 1,
-				'paged'          => 2,
-			]
-		);
-		$second_post_id  = $second_post->posts[0]->ID;
-		$expected_cursor = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_post_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
-		$this->assertEquals( $second_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasPreviousPage'] );
-
-	}
-
-	public function backwardPagination( $cursor ) {
-
-		$variables = [
-			'last'   => 1,
-			'before' => $cursor,
-		];
-
-		$results = $this->postsQuery( $variables );
-
-		$second_to_last_post    = new WP_Query(
-			[
-				'posts_per_page' => 1,
-				'paged'          => 2,
-				'order'          => 'ASC',
-			]
-		);
-		$second_to_last_post_id = $second_to_last_post->posts[0]->ID;
-		$expected_cursor        = \GraphQLRelay\Connection\ArrayConnection::offsetToCursor( $second_to_last_post_id );
-		$this->assertNotEmpty( $results );
-		$this->assertEquals( 1, count( $results['data']['posts']['edges'] ) );
-		$this->assertEquals( $second_to_last_post_id, $results['data']['posts']['edges'][0]['node']['postId'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['edges'][0]['cursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['startCursor'] );
-		$this->assertEquals( $expected_cursor, $results['data']['posts']['pageInfo']['endCursor'] );
-		$this->assertEquals( true, $results['data']['posts']['pageInfo']['hasNextPage'] );
 
 	}
 
@@ -304,7 +176,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function() {
+			function () {
 				return 20;
 			}
 		);
@@ -316,7 +188,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function() {
+			function () {
 				return 100;
 			}
 		);
@@ -405,9 +277,9 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 				children {
 					edges {
 						node {
-						    ...on Page {
-							  id
-							  pageId
+								...on Page {
+								id
+								pageId
 							}
 						}
 					}
@@ -499,7 +371,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsWithProperCaps() {
 
 		$post_args = [
-			'post_title'  => 'Private post WITH caps',
+			'post_title'  => 'Private post WITH caps for PostObjectConnectionQueriesTest',
 			'post_status' => 'private',
 			'post_author' => $this->subscriber,
 		];
@@ -579,26 +451,26 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  posts( where:{in:[\"{$parent_post}\"]}){
-		    edges{
-		      node{
-		        postId
-		        id
-		        title
-		        content
-		        revisions{
-		          edges {
-		            node{
-		              id
-		              postId
-		              title
-		              content
-		            }
-		          }
-		        }
-		      }
-		    }
-		  }
+			posts( where:{in:[\"{$parent_post}\"]}){
+				edges{
+					node{
+						postId
+						id
+						title
+						content
+						revisions{
+							edges {
+								node{
+									id
+									postId
+									title
+									content
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		";
 
@@ -624,7 +496,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$public_post = $this->createPostObject( [] );
 		$draft_args  = [
-			'post_title'   => 'Draft Title',
+			'post_title'   => 'Draft Title for DraftPosts',
 			'post_content' => 'Draft Post Content Here',
 			'post_status'  => 'draft',
 		];
@@ -678,7 +550,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$public_post = $this->createPostObject( [] );
 		$draft_args  = [
-			'post_title'   => 'Trash Title',
+			'post_title'   => 'Trash Title TrashPosts',
 			'post_content' => 'Trash Post Content Here',
 			'post_status'  => 'trash',
 		];
@@ -741,28 +613,28 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
 
 		$public_post_id = $this->factory()->post->create( [
-			'post_type' => 'Post',
+			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post for PrivatePostsNotReturnedToPublicUserInConnection',
 		] );
 
 		$private_post_id = $this->factory()->post->create( [
-			'post_type' => 'Post',
+			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title' => 'Private Post',
+			'post_title'  => 'Private Post for PrivatePostsNotReturnedToPublicUserInConnection',
 		] );
 
 		update_post_meta( $private_post_id, '_private_key', true );
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		      databaseId
-		      title
-		    }
-		  }
+			posts {
+				nodes {
+					id
+					databaseId
+					title
+				}
+			}
 		}
 		';
 
@@ -775,7 +647,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$ids = [];
 		foreach ( $nodes as $node ) {
-			$ids[$node['databaseId']] = $node;
+			$ids[ $node['databaseId'] ] = $node;
 		}
 
 		$this->assertArrayHasKey( $private_post_id, $ids );
@@ -785,7 +657,7 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * should NOT be returned as nodes at all. They should be stripped before
 		 * nodes array is returned.
 		 */
-		add_filter( 'graphql_data_is_private', function( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
+		add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
 			if ( 'PostObject' === $model_name ) {
 				$is_private_meta = get_post_meta( $data->ID, '_private_key' );
 				if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
@@ -807,19 +679,18 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$ids = [];
 		foreach ( $nodes as $node ) {
-			$ids[$node['databaseId']] = $node;
+			$ids[ $node['databaseId'] ] = $node;
 		}
 
 		$this->assertArrayNotHasKey( $private_post_id, $ids );
-
 
 	}
 
 	public function testSuppressFiltersThrowsException() {
 
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 
-		add_filter( 'graphql_post_object_connection_query_args', function( $args ) {
+		add_filter( 'graphql_post_object_connection_query_args', function ( $args ) {
 			$args['suppress_filters'] = true;
 			return $args;
 		} );
@@ -827,14 +698,14 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$actual = graphql([
 			'query' => '
 			{
-			  posts {
-			    nodes {
-			      id
-			      title
-			    }
-			  }
+				posts {
+					nodes {
+						id
+						title
+					}
+				}
 			}
-			'
+			',
 		]);
 
 		codecept_debug( $actual );
@@ -849,50 +720,50 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostInArgumentWorksWithCursors() {
 
 		$post_1 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_2 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_3 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_4 = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Public Post',
+			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
 		] );
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
 		$query = '
 		query GetPostsByIds($post_ids: [ID] $first: Int, $after: String, $last: Int, $before: String) {
-		  posts(where: {in: $post_ids} first: $first, after: $after, last: $last, before: $before) {
-		    edges {
-		      cursor
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			posts(where: {in: $post_ids} first: $first, after: $after, last: $last, before: $before) {
+				edges {
+					cursor
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
 		$actual = graphql( [
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'after' => null,
-			]
+				'after'    => null,
+			],
 		] );
 
 		$actual_ids = [];
@@ -910,11 +781,11 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'after' => $cursor
-			]
+				'after'    => $cursor,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -932,19 +803,21 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( 'line 932...' );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'post_ids' => $post_ids,
-				'before' => $cursor,
-				'last' => 1,
-			]
+				'before'   => $cursor,
+				'last'     => 1,
+			],
 		]);
 
-		codecept_debug( [ 'variables' => [
-			'post_ids' => $post_ids,
-			'before' => $cursor,
-			'last' => 1,
-		] ]);
+		codecept_debug( [
+			'variables' => [
+				'post_ids' => $post_ids,
+				'before'   => $cursor,
+				'last'     => 1,
+			],
+		]);
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -965,61 +838,61 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$post_1 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_2 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_3 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_4 = $this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title'  => 'Public Post',
+			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
 		] );
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
 		register_graphql_connection([
 			'connectionTypeName' => 'OrderbyDebug',
-			'description' => __( 'debugging', 'wp-graphql' ),
-			'fromType' => 'RootQuery',
-			'toType' => 'MediaItem',
-			'fromFieldName' => 'postOrderbyDebug',
-			'resolve' => function( $root, $args, $context, $info ) use ( $post_ids ) {
+			'description'        => __( 'debugging', 'wp-graphql' ),
+			'fromType'           => 'RootQuery',
+			'toType'             => 'MediaItem',
+			'fromFieldName'      => 'postOrderbyDebug',
+			'resolve'            => function ( $root, $args, $context, $info ) use ( $post_ids ) {
 				$args['where']['in'] = $post_ids;
-				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
+				$resolver            = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
 				return $resolver->get_connection();
-			}
+			},
 		]);
 
 		$query = '
 		query GetPostsWithSpecificIdsInResolver($after:String $before:String) {
-		  posts: postOrderbyDebug(after:$after before:$before) {
-		    edges {
-		      cursor
-		      node {
-		        databaseId
-		      }
-		    }
-		  }
+			posts: postOrderbyDebug(after:$after before:$before) {
+				edges {
+					cursor
+					node {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
 		$actual = graphql( [
 			'query'     => $query,
 			'variables' => [
-				'after'    => null,
+				'after'  => null,
 				'before' => null,
-			]
+			],
 		] );
 
 		codecept_debug( $actual );
@@ -1035,10 +908,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$cursor_from_first_query = $actual['data']['posts']['edges'][1]['cursor'];
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'after' => $cursor_from_first_query
-			]
+				'after' => $cursor_from_first_query,
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1050,10 +923,10 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( [ $post_ids[2], $post_ids[3] ], $actual_ids );
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'before' => $cursor_from_first_query,
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1064,9 +937,5 @@ class PostObjectConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( [ $post_ids[0] ], $actual_ids );
 
-
 	}
-
-
-
 }

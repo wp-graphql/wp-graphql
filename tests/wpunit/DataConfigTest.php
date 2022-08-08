@@ -24,9 +24,9 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 
 		$posts = array_map( function ( $offset ) use ( $timestamp, $offset_multiplier ) {
 			return $this->factory->post->create_and_get(
-				array(
+				[
 					'post_date' => date( 'Y-m-d H:i:s', $timestamp + ( $offset * $offset_multiplier ) ),
-				)
+				]
 			);
 		}, $iterable );
 
@@ -46,12 +46,12 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 	 * Data provider for testGraphqlWpQueryCursorPaginationSupportMethod
 	 */
 	public function get_create_posts_args() {
-		return array(
-			array( '<', 1 ),
-			array( '<', -1 ),
-			array( '>', 1 ),
-			array( '>', -1 ),
-		);
+		return [
+			[ '<', 1 ],
+			[ '<', -1 ],
+			[ '>', 1 ],
+			[ '>', -1 ],
+		];
 	}
 
 	/**
@@ -72,12 +72,12 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 		//   first: 10
 		// )
 		$query = new WP_Query(
-			array(
+			[
 				'graphql_after_cursor' => $posts[9]->ID,
-				'order' => '<' === $operator ? 'DESC' : 'ASC',
-				'orderby' => 'date',
-				'posts_per_page' => 11,
-			)
+				'order'                => '<' === $operator ? 'DESC' : 'ASC',
+				'orderby'              => 'date',
+				'posts_per_page'       => 11,
+			]
 		);
 		WPGraphQL::set_is_graphql_request( true );
 
@@ -90,6 +90,8 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $posts[ $index + 10 ]->ID, $post->ID );
 		}
 
-		add_filter( 'is_graphql_request', function() use ( $is_graphql_request ) { return $is_graphql_request; }  );
+		add_filter( 'is_graphql_request', function () use ( $is_graphql_request ) {
+			return $is_graphql_request;
+		} );
 	}
 }

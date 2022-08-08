@@ -1,6 +1,6 @@
 <?php
 
-class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
+class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post;
 	public $page;
@@ -11,28 +11,23 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public $custom_taxonomy;
 
 	public function setUp(): void {
+		parent::setUp();
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
-		WPGraphQL::clear_schema();
-
-		register_post_type('custom_type', [
-			'show_in_graphql' => true,
+		register_post_type('by_uri_cpt', [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
-			'public' => true,
+			'public'              => true,
 		]);
 
-		register_taxonomy( 'custom_tax', 'custom_type', [
-			'show_in_graphql' => true,
+		register_taxonomy( 'by_uri_tax', 'by_uri_cpt', [
+			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
 		]);
 
-		global $wp_rewrite;
-		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
-		create_initial_taxonomies();
-		$GLOBALS['wp_rewrite']->init();
-		flush_rewrite_rules();
-		WPGraphQL::show_in_graphql();
+		$this->clearSchema();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
@@ -47,52 +42,51 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->custom_taxonomy = $this->factory()->term->create([
-			'taxonomy' => 'custom_tax',
+			'taxonomy' => 'by_uri_tax',
 		]);
 
 		$this->post = $this->factory()->post->create( [
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
-			'post_title' => 'Test',
+			'post_title'  => 'Test for NodeByUriTest',
 			'post_author' => $this->user,
 		] );
 
 		$this->page = $this->factory()->post->create( [
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title' => 'Test Page',
-			'post_author' => $this->user
+			'post_title'  => 'Test Page for NodeByUriTest',
+			'post_author' => $this->user,
 		] );
 
 		$this->custom_type = $this->factory()->post->create( [
-			'post_type' => 'custom_type',
+			'post_type'   => 'by_uri_cpt',
 			'post_status' => 'publish',
-			'post_title' => 'Test Page',
-			'post_author' => $this->user
+			'post_title'  => 'Test CPT for NodeByUriTest',
+			'post_author' => $this->user,
 		] );
-
-		parent::setUp();
-
 	}
 
 	public function tearDown(): void {
-
-		unregister_post_type( 'custom_type' );
-		WPGraphQL::clear_schema();
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
-		parent::tearDown();
-		wp_delete_post( $this->post );
-		wp_delete_post( $this->page );
-		wp_delete_post( $this->custom_post_type );
+		wp_delete_post( $this->post, true );
+		wp_delete_post( $this->page, true );
+		wp_delete_post( $this->custom_type, true );
 		wp_delete_term( $this->tag, 'post_tag' );
 		wp_delete_term( $this->category, 'category' );
-		wp_delete_term( $this->custom_taxonomy, 'custom_tax' );
+		wp_delete_term( $this->custom_taxonomy, 'by_uri_tax' );
 		wp_delete_user( $this->user );
+		unregister_post_type( 'by_uri_cpt' );
+		unregister_taxonomy( 'by_uri_tax' );
 
+		$this->clearSchema();
+		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+
+		parent::tearDown();
 	}
 
 	/**
 	 * Get a Post by it's permalink
+	 *
 	 * @throws Exception
 	 */
 	public function testPostByUri() {
@@ -101,7 +95,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Post {
-				  postId
+					postId
 				}
 				isContentNode
 				isTermNode
@@ -109,18 +103,17 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		codecept_debug( get_permalink( $this->post ) );
+		$uri = wp_make_link_relative( get_permalink( $this->post ) );
+		codecept_debug( $uri );
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->post ),
+				'uri' => $uri,
 			],
 		]);
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->post, $actual['data']['nodeByUri']['postId'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
@@ -128,17 +121,18 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->set_permalink_structure( '' );
 
-		$actual = graphql([
-			'query' => $query,
+		$uri = wp_make_link_relative( get_permalink( $this->post ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->post ),
+				'uri' => $uri,
 			],
 		]);
 
-		codecept_debug( get_permalink( $this->post ) );
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->post, $actual['data']['nodeByUri']['postId'] );
 	}
@@ -152,7 +146,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Page {
-				  pageId
+					pageId
 				}
 				isTermNode
 				isContentNode
@@ -160,38 +154,38 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$uri = wp_make_link_relative( get_permalink( $this->page ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->page ),
+				'uri' => $uri,
 			],
 		]);
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
 
 		$this->set_permalink_structure( '' );
+		$uri = wp_make_link_relative( get_permalink( $this->page ) );
 
-		$actual = graphql([
-			'query' => $query,
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->page ),
+				'uri' => $uri,
 			],
 		]);
 
-
-		codecept_debug( get_permalink( $this->page ) );
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
-
 
 	}
 
@@ -207,7 +201,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomType {
-				  customTypeId
+					customTypeId
 				}
 			}
 		}
@@ -215,37 +209,37 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		flush_rewrite_rules( true );
 
-		$actual = graphql([
-			'query' => $query,
+		$uri = wp_make_link_relative( get_permalink( $this->custom_type ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->custom_type ),
+				'uri' => $uri,
 			],
 		]);
 
-		codecept_debug( get_permalink( $this->custom_type ) );
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_post_type_object( 'custom_type' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
 
 		$this->set_permalink_structure( '' );
 
-		$actual = graphql([
-			'query' => $query,
+		$uri = wp_make_link_relative( get_permalink( $this->custom_type ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => get_permalink( $this->custom_type ),
+				'uri' => $uri,
 			],
 		]);
 
-
-		codecept_debug( get_permalink( $this->page ) );
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_post_type_object( 'custom_type' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
-
 
 	}
 
@@ -258,7 +252,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Category {
-				  categoryId
+					categoryId
 				}
 				isTermNode
 				isContentNode
@@ -268,21 +262,18 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		codecept_debug( get_term_link( $this->category ) );
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $this->category ),
 			],
 		]);
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'category' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->category, $actual['data']['nodeByUri']['categoryId'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
-
 
 	}
 
@@ -296,7 +287,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Tag {
-				  tagId
+					tagId
 				}
 				isTermNode
 				isContentNode
@@ -304,16 +295,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $this->tag ),
 			],
 		]);
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'post_tag' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->tag, $actual['data']['nodeByUri']['tagId'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
@@ -331,23 +320,22 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomTax {
-				  customTaxId
+					customTaxId
 				}
 			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'uri' => get_term_link( $this->custom_taxonomy ),
 			],
 		]);
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'Errors', $actual );
-		$this->assertSame( ucfirst( get_taxonomy( 'custom_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['nodeByUri'] );
+		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
 
 	}
@@ -357,29 +345,29 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testHomePageByUri() {
 
-		$title = 'Home Test' . uniqid();
+		$title   = 'Home Test' . uniqid();
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'page',
+			'post_type'   => 'page',
 			'post_status' => 'publish',
-			'post_title' => $title
+			'post_title'  => $title,
 		]);
 
 		$query = '
 		{
-		  nodeByUri(uri: "/") {
-		    __typename
-		    uri
-		    ... on Page {
-		      title
-		      isPostsPage
-		      isFrontPage
-		    }
-		    ... on ContentType {
-		      name
-		      isPostsPage
-		      isFrontPage
-		    }
-		  }
+			nodeByUri(uri: "/") {
+				__typename
+				uri
+				... on Page {
+					title
+					isPostsPage
+					isFrontPage
+				}
+				... on ContentType {
+					name
+					isPostsPage
+					isFrontPage
+				}
+			}
 		}
 		';
 
@@ -387,8 +375,7 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'page_for_posts', 0 );
 		update_option( 'show_on_front', 'posts' );
 
-		$actual = graphql([ 'query' => $query ]);
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// When the page_on_front, page_for_posts and show_on_front are all not set, the `/` uri should return
 		// the post ContentType as the homepage node
@@ -402,8 +389,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		// if the "show_on_front" is set to page, but no page is specifically set, the
 		// homepage should still be the Post ContentType
 		update_option( 'show_on_front', 'page' );
-		$actual = graphql([ 'query' => $query ]);
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotNull( $actual['data']['nodeByUri'] );
 		$this->assertSame( '/', $actual['data']['nodeByUri']['uri'] );
@@ -414,8 +401,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		// If the "show_on_front" and "page_on_front" value are both set,
 		// the node should be the Page that is set
 		update_option( 'page_on_front', $post_id );
-		$actual = graphql([ 'query' => $query ]);
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
+
 		$this->assertSame( $title, $actual['data']['nodeByUri']['title'] );
 		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isFrontPage'] );
@@ -426,8 +413,8 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 	public function testPageQueryWhenPageIsSetToHomePage() {
 
 		$page_id = $this->factory()->post->create([
-			'post_type' => 'page',
-			'post_status' => 'publish'
+			'post_type'   => 'page',
+			'post_status' => 'publish',
 		]);
 
 		update_option( 'page_on_front', $page_id );
@@ -435,14 +422,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  page( id:"/" idType: URI ) {
-		    __typename
-		    databaseId
-		    isPostsPage
-		    isFrontPage
-		    title
-		    uri
-		  }
+			page( id:"/" idType: URI ) {
+				__typename
+				databaseId
+				isPostsPage
+				isFrontPage
+				title
+				uri
+			}
 		}
 		';
 
@@ -451,21 +438,19 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $page_id, $actual['data']['page']['databaseId']);
+		$this->assertSame( $page_id, $actual['data']['page']['databaseId'] );
 		$this->assertTrue( $actual['data']['page']['isFrontPage'] );
-		$this->assertSame( '/', $actual['data']['page']['uri']);
+		$this->assertSame( '/', $actual['data']['page']['uri'] );
 
 		update_option( 'page_on_front', $page_id );
 		update_option( 'show_on_front', 'posts' );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( null, $actual['data']['page']);
+		$this->assertSame( null, $actual['data']['page'] );
 
 	}
 
@@ -481,14 +466,14 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 			'show_in_menu'        => true,
 			'query_var'           => true,
 			'rewrite'             => [
-				'slug' => 'test_hierarchical',
-				'with_front' => false
+				'slug'       => 'test_hierarchical',
+				'with_front' => false,
 			],
 			'capability_type'     => 'page',
 			'has_archive'         => false,
 			'hierarchical'        => true,
 			'menu_position'       => null,
-			'supports'            => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'page-attributes' ),
+			'supports'            => [ 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'page-attributes' ],
 			'show_in_rest'        => true,
 			'rest_base'           => 'test-hierarchical',
 			'show_in_graphql'     => true,
@@ -499,35 +484,34 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		flush_rewrite_rules( true );
 
 		$parent = $this->factory()->post->create([
-			'post_type' => 'test_hierarchical',
-			'post_title' => 'test',
+			'post_type'    => 'test_hierarchical',
+			'post_title'   => 'Test for HierarchicalCptNodesByUri',
 			'post_content' => 'test',
-			'post_status' => 'publish',
+			'post_status'  => 'publish',
 		]);
 
 		$child = $this->factory()->post->create([
-			'post_type' => 'test_hierarchical',
-			'post_title' => 'child',
+			'post_type'    => 'test_hierarchical',
+			'post_title'   => 'Test child for HierarchicalCptNodesByUri',
 			'post_content' => 'child',
-			'post_parent' => $parent,
-			'post_status' => 'publish',
+			'post_parent'  => $parent,
+			'post_status'  => 'publish',
 		]);
 
 		$query = '
 		{
-		  testHierarchicals {
-		    nodes {
-		      id
-		      databaseId
-		      title
-		      uri
-		    }
-		  }
+			testHierarchicals {
+				nodes {
+					id
+					databaseId
+					title
+					uri
+				}
+			}
 		}
 		';
 
-		$actual = graphql(['query' => $query]);
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 		codecept_debug( parse_url( get_permalink( $child ), PHP_URL_PATH ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -538,48 +522,47 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query NodeByUri( $uri: String! ) {
-		  nodeByUri( uri: $uri ) {
-		     uri
-		     __typename
-		     ...on DatabaseIdentifier {
-		       databaseId
-		     }
-		  }
+			nodeByUri( uri: $uri ) {
+				uri
+				__typename
+				...on DatabaseIdentifier {
+					databaseId
+				}
+			}
 		}
 		';
 
-		$child_uri = parse_url( get_permalink( $child ), PHP_URL_PATH );
+		$child_uri = wp_make_link_relative( get_permalink( $child ) );
+
 		codecept_debug( $child_uri );
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'uri' => $child_uri,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $child_uri, $actual['data']['nodeByUri']['uri'], 'Makes sure the uri of the node matches the uri queried with' );
 		$this->assertSame( 'TestHierarchical', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $child, $actual['data']['nodeByUri']['databaseId'] );
 
-		codecept_debug( $actual );
+		$parent_uri = wp_make_link_relative( get_permalink( $parent ) );
 
-		$parent_uri = parse_url( get_permalink( $parent ), PHP_URL_PATH );
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'uri' => $parent_uri,
 			],
 		]);
 
-		codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $parent_uri, $actual['data']['nodeByUri']['uri'], 'Makes sure the uri of the node matches the uri queried with' );
 		$this->assertSame( 'TestHierarchical', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
+
+		unregister_post_type( 'test_hierarchical' );
 
 	}
 
@@ -587,21 +570,21 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query NodeByUri( $uri: String! ) {
-		  nodeByUri( uri: $uri ) {
-		     uri
-		     __typename
-		     ...on DatabaseIdentifier {
-		       databaseId
-		     }
-		  }
+			nodeByUri( uri: $uri ) {
+				uri
+				__typename
+				...on DatabaseIdentifier {
+					databaseId
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
-				'uri' => 'https://external-uri.com/path-to-thing'
-			]
+				'uri' => 'https://external-uri.com/path-to-thing',
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -613,42 +596,38 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query Media( $uri: ID! ){
-		  mediaItem(id: $uri, idType: URI) {
-		    id
-		    title
-		  }
+			mediaItem(id: $uri, idType: URI) {
+				id
+				title
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
-			]
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg',
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( null, $actual['data']['mediaItem'] );
 
 		$query = '
 		query Media( $uri: ID! ){
-		  mediaItem(id: $uri, idType: SOURCE_URL) {
-		    id
-		    title
-		  }
+			mediaItem(id: $uri, idType: SOURCE_URL) {
+				id
+				title
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
-				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg'
-			]
+				'uri' => 'https://icd.wordsinspace.net/wp-content/uploads/2020/10/955000_2-scaled.jpg',
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( null, $actual['data']['mediaItem'] );
@@ -668,26 +647,25 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		// We hook into parse_request
 		// set the value of $value to the value of the $wp argument
 		// that comes through the filter
-		add_action( 'parse_request', function( WP $wp ) use ( &$value ) {
+		add_action( 'parse_request', function ( WP $wp ) use ( &$value ) {
 			if ( is_graphql_request() ) {
 				$value = $wp;
 			}
 		});
 
-
 		$query = '
 		{
-		  nodeByUri(uri:"/about") {
-		     __typename
-		     id
-		     uri
-		  }
+			nodeByUri(uri:"/about") {
+				__typename
+				id
+				uri
+			}
 		}
 		';
 
 		// execute a nodeByUri query
 		graphql([
-			'query' => $query
+			'query' => $query,
 		]);
 
 		codecept_debug( $value );
@@ -696,6 +674,51 @@ class NodeByUriTest extends \Codeception\TestCase\WPTestCase {
 		// as set by the filter in the node resolver
 		$this->assertNotNull( $value );
 		$this->assertInstanceOf( 'Wp', $value );
+
+	}
+
+	public function testNodeByUriReturnsContentTypeWhenPageIsSetToPageForPosts() {
+
+		$page_id = self::factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Blog'
+		]);
+
+		update_option( 'page_for_posts', $page_id );
+
+		$query = '
+		query NodeByUri($uri:String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/blog'
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+
+		delete_option( 'page_for_posts' );
+
+		$actual = graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/blog'
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
 
 	}
 

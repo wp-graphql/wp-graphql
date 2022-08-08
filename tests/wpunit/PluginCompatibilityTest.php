@@ -12,7 +12,7 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		parent::setUp();
 
 		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator'
+			'role' => 'administrator',
 		] );
 	}
 
@@ -24,28 +24,31 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testAmpWpCompatibility() {
 
-		add_filter( 'parse_request', function( \WP $wp ) {
+		add_filter( 'parse_request', function ( \WP $wp ) {
 			return $wp;
 		});
 
 		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
+			'post_type'   => 'post',
 			'post_status' => 'publish',
 		]);
 
 		$slug = get_post( $post_id )->post_name;
 
-		$query = '
+		$query  = '
 		query PostBySlug( $slug: ID! ) {
 		  post( id: $slug idType: SLUG ) {
 		    databaseId
 		  }
 		}
 		';
-		$actual = graphql([ 'query' => $query, 'variables' => [ 'slug' => $slug ] ]);
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [ 'slug' => $slug ],
+		] );
 
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'post.databaseId', $post_id )
+			$this->expectedField( 'post.databaseId', $post_id ),
 		]);
 
 	}

@@ -1,21 +1,20 @@
 <?php
 
-class RevisionTest extends \Codeception\TestCase\WPTestCase {
+class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $subscriber;
 
 	public function setUp(): void {
+		parent::setUp();
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		$this->subscriber = $this->factory()->user->create([
-			'role' => 'subscriber'
+			'role' => 'subscriber',
 		]);
-
-		parent::setUp();
 	}
 
 	public function tearDown(): void {
@@ -24,6 +23,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test querying revisions as an admin
+	 *
 	 * @throws Exception
 	 */
 	public function testQueryRootRevisionsAsPublicUser() {
@@ -37,16 +37,15 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query RootRevisions {
@@ -54,7 +53,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					__typename
 					...on Post {
-					    id
+						id
 						postId
 						title
 						content
@@ -64,9 +63,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ] );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * This query should not return any revisions because
@@ -79,6 +76,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test querying revisions as an admin
+	 *
 	 * @throws Exception
 	 */
 	public function testQueryRootRevisionsAsAdmin() {
@@ -92,16 +90,15 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query RootRevisions {
@@ -109,17 +106,17 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 				nodes {
 					__typename
 					...on Post {
-					    id
+						id
 						postId
 						title
 						content
 						revisionOf {
-						  node {
-							__typename
-							...on Post {
-							  postId
+							node {
+								__typename
+								...on Post {
+									postId
+								}
 							}
-						  }
 						}
 					}
 				}
@@ -127,9 +124,7 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [ 'query' => $query ] );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * This query should NOT error, because the user is asking for
@@ -163,22 +158,21 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 			'post_status'  => 'publish',
 			'post_type'    => 'post',
 			'post_content' => 'Test',
-			'post_author' =>  $this->admin,
+			'post_author'  => $this->admin,
 		] );
 
 		/**
 		 * Revise the post
 		 */
 		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test'
+			'post_content' => 'Revised Test',
 		] );
-
 
 		$query = '
 		query PostBy ($postId: Int) {
 			postBy(postId: $postId) {
-			    __typename
-			    id
+				__typename
+				id
 				postId
 				title
 				content
@@ -186,12 +180,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 					nodes {
 						__typename
 						revisionOf {
-						  node {
-							__typename
-							...on Post {
-							  postId
+							node {
+								__typename
+								...on Post {
+									postId
+								}
 							}
-						  }
 						}
 					}
 				}
@@ -199,14 +193,12 @@ class RevisionTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = graphql( [
-			'query' => $query,
+		$actual = $this->graphql( [
+			'query'     => $query,
 			'variables' => [
 				'postId' => $post_id,
-			]
+			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * This query should NOT error, because the user is asking for

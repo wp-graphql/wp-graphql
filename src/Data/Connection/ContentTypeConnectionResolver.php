@@ -11,6 +11,12 @@ use WPGraphQL\AppContext;
  * @package WPGraphQL\Data\Connection
  */
 class ContentTypeConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $query;
 
 	/**
 	 * ContentTypeConnectionResolver constructor.
@@ -27,62 +33,37 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return bool|int|mixed|null|string
+	 * {@inheritDoc}
 	 */
-	public function get_offset() {
-		$offset = null;
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
-		}
-		return $offset;
-	}
-
-	/**
-	 * Get the IDs from the source
-	 *
-	 * @return array|mixed|null
-	 */
-	public function get_ids() {
-
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
-		}
+	public function get_ids_from_query() {
 
 		$ids     = [];
-		$queried = $this->get_query();
+		$queried = $this->query;
 
 		if ( empty( $queried ) ) {
 			return $ids;
 		}
 
-		foreach ( $queried as $key => $item ) {
-			$ids[ $key ] = $item;
+		foreach ( $queried as $item ) {
+			$ids[] = $item;
 		}
 
 		return $ids;
-
 	}
 
 	/**
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-
-		$query_args = [
-			'show_in_graphql' => true,
-		];
-
-		return $query_args;
-
+		// If any args are added to filter/sort the connection
+		return [];
 	}
 
 
 	/**
 	 * Get the items from the source
 	 *
-	 * @return array|mixed|null
+	 * @return array
 	 */
 	public function get_query() {
 
@@ -90,42 +71,12 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 			return $this->query_args['contentTypeNames'];
 		}
 
-		$query_args = $this->get_query_args();
-		return array_values( \WPGraphQL::get_allowed_post_types( 'names', $query_args ) );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
-			return [];
+		if ( isset( $this->query_args['name'] ) ) {
+			return [ $this->query_args['name'] ];
 		}
 
-		$ids = $this->ids;
-
-		// If pagination is going backwards, revers the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		if ( ! empty( $this->get_offset() ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
-		}
-
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
-
-		return $ids;
+		$query_args = $this->query_args;
+		return \WPGraphQL::get_allowed_post_types( 'names', $query_args );
 	}
 
 	/**
@@ -145,7 +96,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		return (bool) get_post_type_object( $offset );
 	}
 
 	/**

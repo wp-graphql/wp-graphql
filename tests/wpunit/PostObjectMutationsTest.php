@@ -252,7 +252,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$parent_page_id = $this->factory()->post->create(  [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
-			'post_title'   => 'Parent Page',
+			'post_title'   => 'Parent Page for PostObjectMutationsTest',
 			'post_content' => 'Parent Content',
 		] );
 
@@ -519,7 +519,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Create a post to test against and set global ID
 		 */
 		$test_post = $this->factory()->post->create( [
-			'post_title'  => 'My Test Post',
+			'post_title'  => 'My Test Post for PostObjectMutationsTest',
 			'post_status' => 'draft',
 		] );
 
@@ -600,7 +600,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$args = [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for DeletePageMutation',
 			'post_content' => 'Original Content',
 		];
 
@@ -618,7 +618,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Verify the page was created with the original content as expected
 		 */
 		$this->assertEquals( $new_page->post_type, 'page' );
-		$this->assertEquals( $new_page->post_title, 'Original Title' );
+		$this->assertEquals( $new_page->post_title, 'Original Title for DeletePageMutation' );
 		$this->assertEquals( $new_page->post_content, 'Original Content' );
 
 		/**
@@ -693,7 +693,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
 				'page'      => [
 					'id'         => \GraphQLRelay\Relay::toGlobalId( 'post', $page_id ),
-					'title'      => apply_filters( 'the_title', 'Original Title' ),
+					'title'      => apply_filters( 'the_title', 'Original Title for DeletePageMutation' ),
 					'content'    => apply_filters( 'the_content', 'Original Content' ),
 					'databaseId' => $page_id,
 				],
@@ -761,7 +761,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$args = [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for DeletePageMutation',
 			'post_content' => 'Original Content',
 		];
 
@@ -801,7 +801,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$args = [
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for UpdatePageMutation',
 			'post_content' => 'Original Content',
 		];
 
@@ -819,7 +819,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Verify the page was created with the original content as expected
 		 */
 		$this->assertEquals( $new_page->post_type, 'page' );
-		$this->assertEquals( $new_page->post_title, 'Original Title' );
+		$this->assertEquals( $new_page->post_title, 'Original Title for UpdatePageMutation' );
 		$this->assertEquals( $new_page->post_content, 'Original Content' );
 
 		/**
