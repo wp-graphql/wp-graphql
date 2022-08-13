@@ -207,4 +207,18 @@ class Utils {
 
 		return ! empty( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
 	}
+
+	/**
+	 * Parses a single or list of GraphQL ID types into a list of database IDs.
+	 *
+	 * @param int|string|array<int|string> $ids
+	 */
+	public static function parse_input_ids( $ids ) {
+		// If the value is an array, we need to map each item to a database ID.
+		if ( is_array( $ids ) ) {
+			return array_map( [ __CLASS__, 'get_database_id_from_id' ], $ids );
+		}
+
+		return self::get_database_id_from_id( $ids );
+	}
 }

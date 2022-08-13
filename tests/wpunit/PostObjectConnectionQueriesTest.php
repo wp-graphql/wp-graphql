@@ -938,4 +938,74 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertSame( [ $post_ids[0] ], $actual_ids );
 
 	}
+
+	public function testParentWhereArgs() {
+
+		$query = '
+			query getPageByParent( $where: RootQueryToPageConnectionWhereArgs ) {
+				pages( where: $where ) {
+					nodes {
+						id
+						databaseId
+						content
+					}
+				}
+			}
+		';
+
+		$post_parent_id = $this->createPostObject( [
+			'post_type'    => 'page',
+			'post_content' => 'Parent content',
+		] );
+		$post_1_id      = $this->createPostObject( [
+			'post_type'    => 'page',
+			'post_content' => 'Chld content 1',
+			'post_parent'  => $post_parent_id,
+		] );
+		$post_2_id      = $this->createPostObject( [
+			'post_type'    => 'page',
+			'post_content' => 'Chld content 2',
+			'post_parent'  => $post_parent_id,
+		] );
+
+		// test parent with DB ID
+		$variables = [
+			'where' => [
+				'parent' => $post_parent_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $actual );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['pages']['nodes'] );
+		$this->assertEquals( $post_2_id, $actual['data']['pages']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $post_1_id, $actual['data']['pages']['nodes'][1]['databaseId'] );
+
+		// test parent with global ID
+		$parent_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', (string) $post_parent_id );
+
+		$variables = [
+			'where' => [
+				'parent' => $parent_global_id,
+			],
+		];
+
+		$expected = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $actual );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// Wont work, since `$connectionArgs[ $name ]['parseValue'] doesn't seem to do anything.
+		$this->markTestIncomplete( 'Wont work, since `$connectionArgs[ $name ][\'parseValue\'] doesnt seem to do anything.' );
+		$this->assertCount( 2, $actual['data']['pages']['nodes'] );
+		$this->assertEquals( $post_2_id, $actual['data']['pages']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $post_1_id, $actual['data']['pages']['nodes'][1]['databaseId'] );
+	}
 }

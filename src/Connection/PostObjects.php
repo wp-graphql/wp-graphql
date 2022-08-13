@@ -14,6 +14,7 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostObjects
@@ -412,30 +413,45 @@ class PostObjects {
 			'parent'      => [
 				'type'        => 'ID',
 				'description' => __( 'Use ID to return only children. Use 0 to return only top-level items', 'wp-graphql' ),
+				'parseValue'  => function ( $value ) {
+					return Utils::parse_input_ids( $value );
+				},
 			],
 			'parentIn'    => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Specify objects whose parent is in an array', 'wp-graphql' ),
+				'parseValue'  => function ( $value ) {
+					return Utils::parse_input_ids( $value );
+				},
 			],
 			'parentNotIn' => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Specify posts whose parent is not in an array', 'wp-graphql' ),
+				'parseValue'  => function ( $value ) {
+					return Utils::parse_input_ids( $value );
+				},
 			],
 			'in'          => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Array of IDs for the objects to retrieve', 'wp-graphql' ),
+				'parseValue'  => function ( $value ) {
+					return Utils::parse_input_ids( $value );
+				},
 			],
 			'notIn'       => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
+				'parseValue'  => function ( $value ) {
+					return Utils::parse_input_ids( $value );
+				},
 			],
 			'nameIn'      => [
 				'type'        => [
@@ -594,12 +610,18 @@ class PostObjects {
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Find objects connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 				$fields['authorNotIn'] = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Find objects NOT connected to author(s) in the array of author\'s userIds', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 			}
 
@@ -624,12 +646,18 @@ class PostObjects {
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Array of category IDs, used to display objects from one category OR another', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 				$fields['categoryNotIn'] = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Array of category IDs, used to display objects from one category OR another', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 			}
 
@@ -647,18 +675,27 @@ class PostObjects {
 				$fields['tagId']      = [
 					'type'        => 'String',
 					'description' => __( 'Use Tag ID', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 				$fields['tagIn']      = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 				$fields['tagNotIn']   = [
 					'type'        => [
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Array of tag IDs, used to display objects from one tag OR another', 'wp-graphql' ),
+					'parseValue'  => function ( $value ) {
+						return Utils::parse_input_ids( $value );
+					},
 				];
 				$fields['tagSlugAnd'] = [
 					'type'        => [
