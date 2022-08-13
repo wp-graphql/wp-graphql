@@ -123,11 +123,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array $args The GraphQL args passed to the resolver.
+		 * @param array                      $args                The GraphQL args passed to the resolver.
+		 * @param MenuItemConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
 		 * @since @todo
 		 */
-		$args = apply_filters( 'graphql_menu_item_connection_args', $args );
+		$args = apply_filters( 'graphql_menu_item_connection_args', $args, $this );
 
 		return $args;
 
