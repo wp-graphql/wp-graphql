@@ -169,8 +169,8 @@ class Router {
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 
-				$host = wp_unslash( $_SERVER['HTTP_HOST'] );  // phpcs:ignore
-				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
+				$host = wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 				if ( ! is_string( $host ) ) {
 					return false;
