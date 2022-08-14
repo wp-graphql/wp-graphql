@@ -2,12 +2,6 @@
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<!-- Load WordPress Coding standards -->
-	<rule ref="WordPress" />
-
-	<!-- Load PHPCompatibilityWP standards -->
-	<rule ref="PHPCompatibilityWP" />
-
 	<!-- Configure the PHP version -->
 	<config name="testVersion" value="7.1-" />
 
@@ -25,7 +19,7 @@
 	<arg name="colors" />
 
 	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
-	<arg name="cache" value=".phpcs/cache.json" />
+	<arg name="cache" value="tests/_output/cache.json" />
 
 	<!-- Check 20 files in parallel. -->
 	<arg name="parallel" value="20" />
@@ -56,6 +50,10 @@
 	</rule>
 
 	<!-- Rules -->
+
+	<!-- Load PHPCompatibilityWP standards -->
+	<rule ref="PHPCompatibilityWP" />
+
 	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 
 	<rule ref="WordPress-Core">
@@ -71,17 +69,21 @@
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
 	</rule>
 
+	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
-		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
-		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.Files.FileName"/>
+
+		<!-- Definitely should not be added back -->
 		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
+
+		<!-- Should maybe Add Back Later -->
 		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
-		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
-		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_value"/>
-		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_key"/>
-		<exclude name="WordPress.WP.GlobalVariablesOverride.Prohibited"/>
-		<exclude name="WordPress.Files.FileName"/>
+		
+		<!-- Should probably not be added back -->
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->

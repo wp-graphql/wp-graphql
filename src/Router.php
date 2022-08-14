@@ -428,7 +428,7 @@ class Router {
 			 *
 			 * See serve_request in wp-includes/rest-api/class-wp-rest-server.php.
 			 */
-			$current_user = null;
+			$current_user = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		}
 
 		/**

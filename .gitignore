@@ -16,6 +16,9 @@ vendor
 # Test suite config files. Used to overried the *.suite.dist.yml configs
 /tests/*.suite.yml
 
+# PHPCS cached files.
+/tests/_output/*.json
+
 # Directory used to generate the .zip for deploying to WordPress.org
 plugin-build
 
@@ -24,8 +27,6 @@ coverage/*
 
 # Generated Schema used in some tooling. Versioned Schema is uploaded as a Release artifact to Github.
 schema.graphql
-
-.phpcs/*.json
 
 # Used to override phpcs.xml.dist
 phpcs.xml
