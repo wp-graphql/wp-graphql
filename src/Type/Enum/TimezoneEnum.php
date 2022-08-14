@@ -8,6 +8,8 @@ class TimezoneEnum {
 
 	/**
 	 * Register the TimezoneEnum Type to the Schema
+	 *
+	 * @return void
 	 */
 	public static function register_type() {
 		/**

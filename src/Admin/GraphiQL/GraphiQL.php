@@ -110,6 +110,8 @@ class GraphiQL {
 
 	/**
 	 * Render the markup to load GraphiQL to.
+	 *
+	 * @return void
 	 */
 	public function render_graphiql_admin_page() {
 		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
