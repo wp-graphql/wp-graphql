@@ -58,7 +58,7 @@ class UserCreate {
 			],
 			'websiteUrl'  => [
 				'type'        => 'String',
-				'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-grapql' ),
+				'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-graphql' ),
 			],
 			'email'       => [
 				'type'        => 'String',

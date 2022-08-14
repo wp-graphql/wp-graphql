@@ -51,7 +51,7 @@ class NodeResolver {
 		}
 
 		$permalink    = get_permalink( $post );
-		$parsed_path  = $permalink ? parse_url( $permalink, PHP_URL_PATH ) : null;
+		$parsed_path  = $permalink ? wp_parse_url( $permalink, PHP_URL_PATH ) : null;
 		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
 		$uri_path     = rtrim( ltrim( $this->wp->query_vars['uri'], '/' ), '/' );
 		if ( $trimmed_path !== $uri_path ) {
@@ -276,8 +276,8 @@ class NodeResolver {
 
 			if ( isset( $this->wp->extra_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $this->wp->extra_query_vars[ $wpvar ];
-			} elseif ( isset( $_GET[ $wpvar ] ) ) {
-				$this->wp->query_vars[ $wpvar ] = $_GET[ $wpvar ];
+			} elseif ( isset( $_GET[ $wpvar ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				$this->wp->query_vars[ $wpvar ] = $_GET[ $wpvar ]; // phpcs:ignore
 			} elseif ( isset( $perma_query_vars[ $wpvar ] ) ) {
 				$this->wp->query_vars[ $wpvar ] = $perma_query_vars[ $wpvar ];
 			} elseif ( isset( $parsed_query[ $wpvar ] ) ) {

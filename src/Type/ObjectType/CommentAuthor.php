@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use WPGraphQL\Data\DataSource;
-
 class CommentAuthor {
 
 	/**
@@ -47,7 +45,7 @@ class CommentAuthor {
 							],
 							'forceDefault' => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
+								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false', 'wp-graphql' ),
 							],
 							'rating'       => [
 								'type'        => 'AvatarRatingEnum',

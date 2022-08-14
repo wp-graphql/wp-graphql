@@ -26,7 +26,7 @@ class Menu {
 					'menuId'       => [
 						'type'              => 'Int',
 						'description'       => __( 'WP ID of the nav menu.', 'wp-graphql' ),
-						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'ID' ),
+						'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 					],
 					'name'         => [
 						'type'        => 'String',

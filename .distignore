@@ -18,6 +18,7 @@
 /node_modules
 /packages
 /artifacts
+/.phpcs
 
 .DS_Store
 .coveralls.yml

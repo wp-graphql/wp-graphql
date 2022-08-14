@@ -109,13 +109,11 @@ class GraphiQL {
 	}
 
 	/**
-	 * Render the markup to load GraphiQL to
-	 *
-	 * @return void
+	 * Render the markup to load GraphiQL to.
 	 */
 	public function render_graphiql_admin_page() {
 		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
-		echo $rendered;
+		echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -129,7 +127,7 @@ class GraphiQL {
 			return;
 		}
 
-		$asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/index.asset.php' );
+		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/index.asset.php';
 
 		// Setup some globals that can be used by GraphiQL
 		// and extending scripts
@@ -141,7 +139,7 @@ class GraphiQL {
 			true
 		);
 
-		$app_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/app.asset.php' );
+		$app_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/app.asset.php';
 
 		wp_enqueue_script(
 			'wp-graphiql-app', // Handle.
@@ -183,7 +181,7 @@ class GraphiQL {
 	 */
 	public function graphiql_enqueue_auth_switch() {
 
-		$auth_switch_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php' );
+		$auth_switch_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php';
 
 		wp_enqueue_script(
 			'wp-graphiql-auth-switch', // Handle.
@@ -205,7 +203,7 @@ class GraphiQL {
 		// Enqueue the assets for the Explorer before enqueueing the app,
 		// so that the JS in the exporter that hooks into the app will be available
 		// by time the app is enqueued
-		$composer_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlQueryComposer.asset.php' );
+		$composer_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlQueryComposer.asset.php';
 
 		wp_enqueue_script(
 			'wp-graphiql-query-composer', // Handle.
@@ -232,7 +230,7 @@ class GraphiQL {
 	 */
 	public function graphiql_enqueue_fullscreen_toggle() {
 
-		$fullscreen_toggle_asset_file = include( WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php' );
+		$fullscreen_toggle_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php';
 
 		wp_enqueue_script(
 			'wp-graphiql-fullscreen-toggle', // Handle.

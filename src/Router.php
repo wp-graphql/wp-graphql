@@ -160,7 +160,7 @@ class Router {
 		$is_graphql_http_request = false;
 
 		// Support wp-graphiql style request to /index.php?graphql.
-		if ( isset( $_GET[ self::$route ] ) ) {
+		if ( isset( $_GET[ self::$route ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 
 			$is_graphql_http_request = true;
 
@@ -169,8 +169,8 @@ class Router {
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 
-				$host = wp_unslash( $_SERVER['HTTP_HOST'] );
-				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
+				$host = wp_unslash( $_SERVER['HTTP_HOST'] );  // phpcs:ignore
+				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
 
 				if ( ! is_string( $host ) ) {
 					return false;
@@ -180,14 +180,13 @@ class Router {
 					return false;
 				}
 
-				$parsed_site_url    = parse_url( site_url( self::$route ), PHP_URL_PATH );
+				$parsed_site_url    = wp_parse_url( site_url( self::$route ), PHP_URL_PATH );
 				$graphql_url        = ! empty( $parsed_site_url ) ? wp_unslash( $parsed_site_url ) : self::$route;
-				$parsed_request_url = parse_url( $uri, PHP_URL_PATH );
+				$parsed_request_url = wp_parse_url( $uri, PHP_URL_PATH );
 				$request_url        = ! empty( $parsed_request_url ) ? wp_unslash( $parsed_request_url ) : '';
 
 				// Determine if the route is indeed a graphql request
 				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
-
 			}
 		}
 
@@ -414,7 +413,6 @@ class Router {
 	 * @since  0.0.1
 	 */
 	public static function process_http_request() {
-		/* @var WP_User|null $current_user */
 		global $current_user;
 
 		if ( $current_user instanceof WP_User && ! $current_user->exists() ) {
@@ -491,7 +489,7 @@ class Router {
 				$error,
 				$request
 			);
-		} // End try().
+		}
 
 		// Previously there was a small distinction between the response and the result, but
 		// now that we are delegating to Request, just send the response for both.

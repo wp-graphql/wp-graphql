@@ -343,9 +343,9 @@ class Request {
 			$nonce = null;
 
 			if ( isset( $_REQUEST['_wpnonce'] ) ) {
-				$nonce = $_REQUEST['_wpnonce'];
+				$nonce = $_REQUEST['_wpnonce']; // phpcs:ignore
 			} elseif ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
-				$nonce = $_SERVER['HTTP_X_WP_NONCE'];
+				$nonce = $_SERVER['HTTP_X_WP_NONCE']; // phpcs:ignore
 			}
 
 			if ( null === $nonce ) {
@@ -437,7 +437,7 @@ class Request {
 
 		if ( ! empty( $this->global_wp_the_query ) ) {
 			$GLOBALS['wp_the_query'] = $this->global_wp_the_query;
-			wp_reset_query();
+			wp_reset_query(); // phpcs:ignore WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query
 		}
 
 		if ( ! empty( $this->global_post ) ) {

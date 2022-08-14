@@ -16,8 +16,10 @@ on:
 
 jobs:
   continuous_integration:
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php: [ '7.4', '7.3' ]
         wordpress: [ '5.9', '5.8', '5.7.2', '5.6.2' ]
@@ -38,31 +40,22 @@ jobs:
           - php: '7.4'
             wordpress: '5.8'
             coverage: 1
-      fail-fast: false
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          tools: composer:v2
           extensions: json, mbstring
-
-      - name: Get Composer Cache Directory
-        id: composercache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composercache.outputs.dir }}
-          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: php-${{ matrix.php }}-${{ runner.os }}-composer-
-
+      
       - name: Install dependencies
-        run: composer install --no-dev
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-dev"
 
       - name: Build "testing" Docker Image
         env:

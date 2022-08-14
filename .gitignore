@@ -25,6 +25,8 @@ coverage/*
 # Generated Schema used in some tooling. Versioned Schema is uploaded as a Release artifact to Github.
 schema.graphql
 
+.phpcs/*.json
+
 # Used to override phpcs.xml.dist
 phpcs.xml
 
