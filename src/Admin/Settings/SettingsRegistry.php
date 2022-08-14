@@ -722,7 +722,7 @@ class SettingsRegistry {
 				}
 				$('.group .collapsed').each(function () {
 					$(this).find('input:checked').parent().parent().parent().nextAll().each(
-						public function () {
+						function () {
 							if ($(this).hasClass('last')) {
 								$(this).removeClass('hidden');
 								return false;
