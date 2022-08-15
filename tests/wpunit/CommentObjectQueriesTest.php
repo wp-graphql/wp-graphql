@@ -1,6 +1,6 @@
 <?php
 
-class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -39,15 +39,16 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Set up the $defaults
 		 */
 		$defaults = [
-			'comment_post_ID'  => $post_id,
-			'comment_parent'   => 0,
-			'comment_author'   => get_user_by( 'id', $this->admin )->user_email,
-			'comment_content'  => 'Test comment content',
-			'comment_approved' => 1,
-			'comment_date'     => $this->current_date,
-			'comment_date_gmt' => $this->current_date_gmt,
-			'user_id'          => $this->admin,
-			'comment_type'     => 'comment',
+			'comment_post_ID'      => $post_id,
+			'comment_parent'       => 0,
+			'comment_author'       => get_user_by( 'id', $this->admin )->user_email,
+			'comment_author_email' => get_user_by( 'id', $this->admin )->user_email,
+			'comment_content'      => 'Test comment content',
+			'comment_approved'     => 1,
+			'comment_date'         => $this->current_date,
+			'comment_date_gmt'     => $this->current_date_gmt,
+			'user_id'              => $this->admin,
+			'comment_type'         => 'comment',
 		];
 
 		/**
@@ -93,16 +94,16 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
-		query {
-			comment(id: \"{$global_id}\") {
+		$query = '
+		query testCommentQuery( $id: ID! ) {
+			comment(id: $id ) {
 				agent
 				approved
 				author{
-				   node {
-					    __typename
+					node {
+						__typename
 						...on User {
-						  userId
+							userId
 						}
 					}
 				}
@@ -114,7 +115,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							id
 							commentId
 							parent {
-							    node {
+								node {
 									commentId
 								}
 							}
@@ -132,20 +133,21 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				id
 				karma
 				parent {
-				   node {
-					  id
+					node {
+						id
 					}
 				}
-				
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -209,37 +211,36 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', (string) $comment_id );
 
-		codecept_debug( $global_id );
-
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
-		query {
-			comment(id: \"{$global_id}\") {
+		$query = '
+		query testCommentWithCommentAuthor ( $id: ID! ) {
+			comment(id: $id ) {
 				agent
 				approved
-				author{
-				    node {
+				author {
+					node {
 						...on CommentAuthor {
-						  id
-						  databaseId
-						  name
-						  email
-						  url
+							id
+							databaseId
+							name
+							email
+							url
 						}
 					}
 				}
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $comment_id );
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -267,9 +268,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -362,7 +361,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				commentId
 				commentedOn {
-				    node {
+					node {
 						... on Post {
 							content
 						}
@@ -370,7 +369,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				content
 				parent {
-				    node {
+					node {
 						commentId
 						content
 					}
@@ -381,9 +380,7 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -458,28 +455,36 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query commentQuery( $id:ID! ) {
-		  comment(id: $id) {
+			comment(id: $id) {
 			commentId
-		    id
-		    authorIp
-		    agent
-		    approved
-		    karma
-		    content
-		    commentedOn{
-		      node {
-			      ... on Post{
-			        postId
-			      }
-		      }
-		    }
-		  }
+				id
+				authorIp
+				agent
+				approved
+				karma
+				content
+				commentedOn{
+					node {
+						... on Post{
+							postId
+						}
+					}
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $this->{$user} );
-		$admin_actual      = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
-		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
+
+		$variables    = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ),
+		];
+		$admin_actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$variables         = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ),
+		];
+		$subscriber_actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $admin_actual );
 		$this->assertArrayNotHasKey( 'errors', $subscriber_actual );
@@ -533,33 +538,36 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query commentQuery( $id:ID! ) {
-		  comment(id: $id) {
-			commentId
-		    id
-		    authorIp
-		    agent
-		    approved
-		    karma
-		    content
-		    commentedOn{
-		      node {
-			    ... on Post{
-			      postId
-			    }
-		      }
-		    }
-		  }
+			comment(id: $id) {
+				commentId
+				id
+				authorIp
+				agent
+				approved
+				karma
+				content
+				commentedOn{
+					node {
+						... on Post{
+							postId
+						}
+					}
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $this->{$user} );
-		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ) ] ) );
 
-		codecept_debug( $admin_actual );
+		$variables    = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $admin_comment ),
+		];
+		$admin_actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$subscriber_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ) ] ) );
-
-		codecept_debug( $subscriber_actual );
+		$variables         = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $subscriber_comment ),
+		];
+		$subscriber_actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		if ( true === $should_display ) {
 			$this->assertArrayNotHasKey( 'errors', $admin_actual );
@@ -601,33 +609,33 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query commentQuery( $id:ID! ) {
-		  comment(id: $id) {
-			commentId
-		    id
-		    authorIp
-		    agent
-		    approved
-		    karma
-		    content
-		    commentedOn{
-		      node {
-			    ... on Post{
-			      postId
-			    }
-		      }
-		    }
-		  }
+			comment(id: $id) {
+				commentId
+				id
+				authorIp
+				agent
+				approved
+				karma
+				content
+				commentedOn{
+					node {
+						... on Post{
+							postId
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$public_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment ) ] ) );
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment ),
+		];
 
-		codecept_debug( $public_actual );
+		$public_actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		wp_set_current_user( $this->admin );
-		$admin_actual = do_graphql_request( $query, 'commentQuery', wp_json_encode( [ 'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment ) ] ) );
-
-		codecept_debug( $admin_actual );
+		$admin_actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Verify there are no errors.
 		$this->assertArrayNotHasKey( 'errors', $public_actual );
@@ -664,60 +672,75 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		// create a comment with a guest author as the author
 		$comment_by_comment_author_id = $this->createCommentObject([
-			'user_id' => 0
+			'user_id'              => 0,
+			'comment_author_email' => 'guest@email.test',
 		]);
 
 		$comment_by_user_id = $this->createCommentObject();
 
 		$query = '
 		query GetCommentAuthorWithAvatar($id:ID!){
-		  comment( id: $id ) {
-		    author {
-              node {
-                __typename
-                url
-                name
-                avatar {
-                  url
-                }
-              }
-            }
-		  }
+			comment( id: $id ) {
+				author {
+					node {
+						__typename
+						url
+						name
+						avatar {
+							url
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_by_comment_author_id );
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_by_comment_author_id ),
+		];
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_id,
-			],
-		] );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
 
 		$typename = $actual['data']['comment']['author']['node']['__typename'];
 
 		$this->assertSame( 'CommentAuthor', $typename );
 		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
 
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_by_user_id );
+		// Ensure avatar is the same when logged in.
+		$expected = $actual['data']['comment']['author']['node']['avatar']['url'];
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_id,
-			],
-		] );
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
+		$this->assertSame( $expected, $actual['data']['comment']['author']['node']['avatar']['url'] );
+
+		// Test with user ID.
+
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_by_user_id ),
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$typename = $actual['data']['comment']['author']['node']['__typename'];
 
 		$this->assertSame( 'User', $typename );
 		$this->assertNotEmpty( $actual['data']['comment']['author']['node']['avatar']['url'] );
+
+		// Ensure avatar is the same when logged in.
+		$expected = $actual['data']['comment']['author']['node']['avatar']['url'];
+
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['comment']['author']['node']['avatar']['url'] );
 
 		wp_delete_comment( $comment_by_user_id );
 		wp_delete_comment( $comment_by_comment_author_id );
@@ -739,31 +762,30 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetCommentAuthorWithAvatar($id:ID!){
-		  comment( id: $id ) {
-		    author {
-              node {
-                __typename
-                url
-                name
-                avatar {
-                  url
-                }
-              }
-            }
-		  }
+			comment( id: $id ) {
+				author {
+					node {
+						__typename
+						url
+						name
+						avatar {
+							url
+						}
+					}
+				}
+			}
 		}
 		';
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $global_id,
 			],
 		] );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		codecept_debug( $actual );
 
 		$typename = $actual['data']['comment']['author']['node']['__typename'];
 
@@ -788,22 +810,20 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query GetComment($id:ID!){
-		  comment(id:$id) {
-	       id
-	       databaseId
-	       content
-		  }
+			comment(id:$id) {
+				id
+				databaseId
+				content
+			}
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $global_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $content, null ), $actual['data']['comment']['content'] );
@@ -815,14 +835,12 @@ class CommentObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			return $filtered;
 		}, 10, 2 );
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => $global_id,
 			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $filtered, null ), $actual['data']['comment']['content'] );
