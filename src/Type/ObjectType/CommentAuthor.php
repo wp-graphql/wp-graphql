@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use WPGraphQL\Data\DataSource;
-
 class CommentAuthor {
 
 	/**
@@ -56,8 +54,10 @@ class CommentAuthor {
 
 						],
 						'resolve' => function ( $comment_author, $args, $context, $info ) {
+							// If the user cant see the CommentAuthor's email, grab it from the comment.
+							$comment_author_email = ! empty( $comment_author->email ) ? $comment_author->email : get_comment_author_email( $comment_author->databaseId );
 
-							if ( ! isset( $comment_author->email ) ) {
+							if ( empty( $comment_author_email ) ) {
 								return null;
 							}
 
@@ -77,7 +77,7 @@ class CommentAuthor {
 								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
-							$avatar = get_avatar_data( $comment_author->email, $avatar_args );
+							$avatar = get_avatar_data( $comment_author_email, $avatar_args );
 
 							// if there's no url returned, return null
 							if ( empty( $avatar['url'] ) ) {
