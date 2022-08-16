@@ -115,7 +115,8 @@ class GraphiQL {
 	 */
 	public function render_graphiql_admin_page() {
 		$rendered = apply_filters( 'graphql_render_admin_page', '<div class="wrap"><div id="graphiql" class="graphiql-container">Loading ...</div></div>' );
-		echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		echo wp_kses_post( $rendered );
 	}
 
 	/**
