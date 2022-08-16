@@ -1,5 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
+
 use WPGraphQL\Registry\TypeRegistry;
 
 /**

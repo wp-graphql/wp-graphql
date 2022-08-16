@@ -85,7 +85,7 @@ class Term extends Model {
 			/**
 			 * Reset global post
 			 */
-			$GLOBALS['post'] = get_post( 0 );
+			$GLOBALS['post'] = get_post( 0 ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 
 			/**
 			 * Parse the query to tell WordPress
@@ -107,9 +107,7 @@ class Term extends Model {
 
 			$wp_query->queried_object    = get_term( $this->data->term_id, $this->data->taxonomy );
 			$wp_query->queried_object_id = $this->data->term_id;
-
 		}
-
 	}
 
 	/**
@@ -119,7 +117,7 @@ class Term extends Model {
 	 * @return void
 	 */
 	public function tear_down() {
-		$GLOBALS['post'] = $this->global_post;
+		$GLOBALS['post'] = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		wp_reset_postdata();
 	}
 

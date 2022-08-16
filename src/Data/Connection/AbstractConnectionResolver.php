@@ -6,7 +6,6 @@ use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Connection\ArrayConnection;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Loader\AbstractDataLoader;
 use WPGraphQL\Model\Model;
@@ -589,7 +588,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-			_deprecated_function( __FUNCTION__, '1.9.0', get_class( $this ) . '::get_offset_for_cursor()' );
+		_deprecated_function( __FUNCTION__, '1.9.0', get_class( $this ) . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
@@ -610,7 +609,7 @@ abstract class AbstractConnectionResolver {
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
 		if ( ! empty( $cursor ) ) {
-			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
+			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		}
 
 		/**
@@ -766,7 +765,7 @@ abstract class AbstractConnectionResolver {
 	 * @return string
 	 */
 	protected function get_cursor_for_node( $id ) {
-		return base64_encode( 'arrayconnection:' . $id );
+		return base64_encode( 'arrayconnection:' . $id ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 	/**

@@ -29,7 +29,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 */
 		$file_path = get_temp_dir() . 'schema.graphql';
 
-		if ( ! defined( 'GRAPHQL_REQUEST') ) {
+		if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 			define( 'GRAPHQL_REQUEST', true );
 		}
 
@@ -51,7 +51,8 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 * Save the Schema to the file
 		 */
 		WP_CLI::line( 'Saving the Schema...' );
-		file_put_contents( $file_path, $printed );
+
+		file_put_contents( $file_path, $printed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 
 		/**
 		 * All done!

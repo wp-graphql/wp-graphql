@@ -78,7 +78,7 @@ abstract class AbstractCursor {
 			$offset = $this->get_query_var( 'graphql_cursor_offset' );
 
 			if ( ! empty( $offset ) ) {
-				_doing_it_wrong( self::class . "::get_query_var('graphql_cursor_offset')", "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead.", '1.9.0' );
+				_doing_it_wrong( self::class . "::get_query_var('graphql_cursor_offset')", "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead.", '1.9.0' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
 

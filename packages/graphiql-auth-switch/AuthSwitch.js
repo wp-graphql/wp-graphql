@@ -39,20 +39,26 @@ const AuthSwitch = () => {
           placement="bottom"
           title={title}
         >
-          <Badge dot={!usePublicFetcher} status="success">
-            <Avatar
+          <button
+              aria-label={title}
+              type="button"
               onClick={toggleUsePublicFetcher}
-              shape={"circle"}
-              size={"small"}
-              title={title}
-              src={window?.wpGraphiQLSettings?.avatarUrl ?? null}
-              icon={
-                window?.wpGraphiQLSettings?.avatarUrl ? null : (
-                  <UserAddOutlined />
-                )
-              }
-            />
-          </Badge>
+              className="toolbar-button"
+          >
+              <Badge dot={!usePublicFetcher} status="success">
+                <Avatar
+                  shape={"circle"}
+                  size={"small"}
+                  title={title}
+                  src={window?.wpGraphiQLSettings?.avatarUrl ?? null}
+                  icon={
+                    window?.wpGraphiQLSettings?.avatarUrl ? null : (
+                      <UserAddOutlined />
+                    )
+                  }
+                />
+              </Badge>
+          </button>
         </Tooltip>
       </span>
     </StyledAvatar>
