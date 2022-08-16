@@ -191,4 +191,22 @@ describe('Graphiql', function () {
         expect(userToggleButtonLabel).toContain( 'public user' );
     })
 
+    it( 'loads when invalid JSON has been saved as variables to local storage', async() => {
+
+        const invalidJson = "{ invalid json";
+
+        await page.evaluate((val) => {
+            window.localStorage.setItem( 'graphiql:variables', val )
+        }, invalidJson);
+
+        const actualVariables = await page.evaluate(() => { return window.localStorage.getItem( "graphiql:variables" ) } );
+
+        expect(actualVariables).toEqual(invalidJson);
+
+        await loadGraphiQL();
+        const graphiqlContainer = await page.$( '.graphiql-container .editorWrap' );
+        expect( graphiqlContainer ).toBeTruthy()
+
+    })
+
 })
