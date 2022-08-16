@@ -61,7 +61,7 @@ class CommentAuthor {
 							 * If the email isn't visible, we use the comment ID to retrieve it, then use it to resolve the avatar.
 							 *
 							 * The email address is not publicly exposed, adhering to the rules of the User model.
-							*/
+							 */
 							$comment_author_email = ! empty( $comment_author->email ) ? $comment_author->email : get_comment_author_email( $comment_author->databaseId );
 
 							if ( empty( $comment_author_email ) ) {

@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.8.7
+Stable tag: 1.9.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -87,6 +87,31 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 1.9.0 =
+
+There are 2 changes that **might** require action when updating to 1.9.0.
+
+
+1. ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464))
+
+When querying for a `nodeByUri`, if your site has the "page_for_posts" setting configured, the behavior of the `nodeByUri` query for that uri might be different for you.
+
+Previously a bug caused this query to return a "Page" type, when it should have returned a "ContentType" Type.
+
+The bug fix might change your application if you were using the bug as a feature.
+
+
+
+2. ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457))
+
+There were a lot of bug fixes related to connections to ensure they behave as intended. If you were querying lists of data, in some cases the data might be returned in a different order than it was before.
+
+For example, using the "last" input on a Comment or User query should still return the same nodes, but in a different order than before.
+
+This might cause behavior you don't want in your application because you had coded around the bug. This change was needed to support proper backward pagination.
+
+
+
 = 1.6.7 =
 
 There's been a bugfix in the Post Model layer which _might_ break existing behaviors.
@@ -130,6 +155,44 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.9.0 =
+
+**Upgrading**
+
+There are 2 changes that **might** require action when updating to 1.9.0.
+
+
+1. ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464))
+
+When querying for a `nodeByUri`, if your site has the "page_for_posts" setting configured, the behavior of the `nodeByUri` query for that uri might be different for you.
+
+Previously a bug caused this query to return a "Page" type, when it should have returned a "ContentType" Type.
+
+The bug fix might change your application if you were using the bug as a feature.
+
+
+
+2. ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457))
+
+There were a lot of bug fixes related to connections to ensure they behave as intended. If you were querying lists of data, in some cases the data might be returned in a different order than it was before.
+
+For example, using the "last" input on a Comment or User query should still return the same nodes, but in a different order than before.
+
+This might cause behavior you don't want in your application because you had coded around the bug. This change was needed to support proper backward pagination.
+
+### Chores / Bugfixes
+
+- ([#2450](https://github.com/wp-graphql/wp-graphql/pull/2450)): Fix PHPCompatibility lint config. Thanks @justlevine!
+- ([#2452](https://github.com/wp-graphql/wp-graphql/pull/2452)): Fixes a bug with `Comment.author` connections not properly resolving for public (non-authenticated) requests.
+- ([#2453](https://github.com/wp-graphql/wp-graphql/pull/2453)): Update Github Workflows to use PHP 7.3. Thanks @justlevine!
+- ([#2454](https://github.com/wp-graphql/wp-graphql/pull/2454)): Add linter to ensure Pull Requests use "Conventional Commit" standards.
+- ([#2455](https://github.com/wp-graphql/wp-graphql/pull/2455)): Refactors and Lints the WPUnit tests. Cleans up some "leaky" data in test suites. Thanks @justlevine!
+- ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457)): Refactor Connection Resolvers to better adhere to Relay Connection spec. This fixes several bugs related to pagination across connections, specifically User and Comment connections which didn't properly support backward pagination at all. Thanks @justlevine!
+- ([#2460](https://github.com/wp-graphql/wp-graphql/pull/2460)): Update documentation for running tests with Docker. Thanks @markkelnar!
+- ([#2463](https://github.com/wp-graphql/wp-graphql/pull/2463)): Add Issue templates to the repo. Thanks @justlevine!
+- ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464)): Fixes node resolver when "page_for_posts" setting is set to a page.
+
 
 = 1.8.7 =
 
