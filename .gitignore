@@ -16,6 +16,9 @@ vendor
 # Test suite config files. Used to overried the *.suite.dist.yml configs
 /tests/*.suite.yml
 
+# PHPCS cached files.
+/tests/_output/*.json
+
 # Directory used to generate the .zip for deploying to WordPress.org
 plugin-build
 

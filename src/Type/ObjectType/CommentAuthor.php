@@ -45,7 +45,7 @@ class CommentAuthor {
 							],
 							'forceDefault' => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
+								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false', 'wp-graphql' ),
 							],
 							'rating'       => [
 								'type'        => 'AvatarRatingEnum',

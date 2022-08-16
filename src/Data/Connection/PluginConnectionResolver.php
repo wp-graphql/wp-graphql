@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
@@ -18,20 +14,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 * @var array
 	 */
 	protected $query;
-
-	/**
-	 * PluginConnectionResolver constructor.
-	 *
-	 * @param mixed       $source     source passed down from the resolve tree
-	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
-	 *
-	 * @throws Exception
-	 */
-	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		parent::__construct( $source, $args, $context, $info );
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -216,7 +198,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 					$all_plugins,
 					function ( $plugin ) use ( $s ) {
 						foreach ( $plugin as $value ) {
-							if ( is_string( $value ) && false !== stripos( strip_tags( $value ), $s ) ) {
+							if ( is_string( $value ) && false !== stripos( wp_strip_all_tags( $value ), $s ) ) {
 								return true;
 							}
 						}

@@ -6,7 +6,6 @@ use Exception;
 use GraphQLRelay\Relay;
 use WP_Post;
 use WP_User;
-use WPGraphQL;
 
 /**
  * Class User - Models the data for the User object type
@@ -119,7 +118,7 @@ class User extends Model {
 
 			// Setup globals
 			$wp_query->is_author         = true;
-			$GLOBALS['authordata']       = $this->data;
+			$GLOBALS['authordata']       = $this->data; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 		}
@@ -133,8 +132,8 @@ class User extends Model {
 	 * @return void
 	 */
 	public function tear_down() {
-		$GLOBALS['authordata'] = $this->global_authordata;
-		$GLOBALS['post']       = $this->global_post;
+		$GLOBALS['authordata'] = $this->global_authordata; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+		$GLOBALS['post']       = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		wp_reset_postdata();
 	}
 

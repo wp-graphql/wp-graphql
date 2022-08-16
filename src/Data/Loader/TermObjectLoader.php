@@ -42,7 +42,7 @@ class TermObjectLoader extends AbstractDataLoader {
 				if ( empty( $term->fields ) ) {
 					return null;
 				} else {
-					return  $term;
+					return $term;
 				}
 			}
 		}

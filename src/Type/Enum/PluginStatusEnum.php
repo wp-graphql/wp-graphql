@@ -46,7 +46,7 @@ class PluginStatusEnum {
 			],
 			'PAUSED'          => [
 				'value'       => 'paused',
-				'description' => __( 'The plugin is technically active but was paused while loading.' ),
+				'description' => __( 'The plugin is technically active but was paused while loading.', 'wp-graphql' ),
 			],
 			'RECENTLY_ACTIVE' => [
 				'value'       => 'recently_activated',
@@ -54,7 +54,7 @@ class PluginStatusEnum {
 			],
 			'UPGRADE'         => [
 				'value'       => 'upgrade',
-				'description' => __( 'The plugin has an upgrade available.' ),
+				'description' => __( 'The plugin has an upgrade available.', 'wp-graphql' ),
 			],
 		];
 

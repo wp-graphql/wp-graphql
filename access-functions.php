@@ -511,7 +511,7 @@ function register_graphql_settings_field( string $group, array $config ) {
  * @return void
  */
 function graphql_debug( $message, $config = [] ) {
-	$debug_backtrace     = debug_backtrace();
+	$debug_backtrace     = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 	$config['backtrace'] = ! empty( $debug_backtrace )
 		?
 		array_values(

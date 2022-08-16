@@ -1,5 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Loader;
+
 use Exception;
 use WPGraphQL\Model\CommentAuthor;
 

@@ -7,7 +7,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_User;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\User;
 
 class SendPasswordResetEmail {
 
@@ -60,7 +59,7 @@ class SendPasswordResetEmail {
 					// @phpstan-ignore-next-line
 					if ( is_wp_error( $email_sent ) ) {
 
-						$message = __( 'The email could not be sent.' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.' );
+						$message = __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' );
 						if ( ! \WPGraphQL::debug() ) {
 							throw new UserError( $message );
 						} else {
@@ -148,7 +147,7 @@ class SendPasswordResetEmail {
 	 */
 	private static function get_email_subject( $user_data ) {
 		/* translators: Password reset email subject. %s: Site name */
-		$title = sprintf( __( '[%s] Password Reset' ), self::get_site_name() );
+		$title = sprintf( __( '[%s] Password Reset', 'wp-graphql' ), self::get_site_name() );
 
 		/**
 		 * Filters the subject of the password reset email.
@@ -190,13 +189,13 @@ class SendPasswordResetEmail {
 	 * @return string
 	 */
 	private static function get_email_message( $user_data, $key ) {
-		$message = __( 'Someone has requested a password reset for the following account:' ) . "\r\n\r\n";
+		$message = __( 'Someone has requested a password reset for the following account:', 'wp-graphql' ) . "\r\n\r\n";
 		/* translators: %s: site name */
-		$message .= sprintf( __( 'Site Name: %s' ), self::get_site_name() ) . "\r\n\r\n";
+		$message .= sprintf( __( 'Site Name: %s', 'wp-graphql' ), self::get_site_name() ) . "\r\n\r\n";
 		/* translators: %s: user login */
-		$message .= sprintf( __( 'Username: %s' ), $user_data->user_login ) . "\r\n\r\n";
-		$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.' ) . "\r\n\r\n";
-		$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
+		$message .= sprintf( __( 'Username: %s', 'wp-graphql' ), $user_data->user_login ) . "\r\n\r\n";
+		$message .= __( 'If this was a mistake, just ignore this email and nothing will happen.', 'wp-graphql' ) . "\r\n\r\n";
+		$message .= __( 'To reset your password, visit the following address:', 'wp-graphql' ) . "\r\n\r\n";
 		$message .= '<' . network_site_url( "wp-login.php?action=rp&key={$key}&login=" . rawurlencode( $user_data->user_login ), 'login' ) . ">\r\n";
 
 		/**
