@@ -160,7 +160,7 @@ class MediaItemCreate {
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
-			$file_contents = file_get_contents( $input['filePath'] );
+			$file_contents = file_get_contents( $input['filePath'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 			/**
 			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder

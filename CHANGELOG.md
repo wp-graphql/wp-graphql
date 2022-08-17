@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.1
+
+### Chores / Bugfixes
+
+- ([#2471](https://github.com/wp-graphql/wp-graphql/pull/2471)): feat: PHPCS: enhancements to the Coding Standards Setup. Thanks @renatonascalves!
+- ([#2472](https://github.com/wp-graphql/wp-graphql/pull/2472)): fix: return CommentAuthor avatar urls to public users. Thanks @justlevine!
+- ([#2473](https://github.com/wp-graphql/wp-graphql/pull/2473)): fix: Update GraphiQL "user switch" to be accessible. Thanks @nickcernis!
+- ([#2477](https://github.com/wp-graphql/wp-graphql/pull/2477)): fix(graphiql): graphiql fails if variables are invalid json
+
+
 ## 1.9.0
 
 ### Upgrading

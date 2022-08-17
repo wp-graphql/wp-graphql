@@ -246,7 +246,7 @@ class Post extends Model {
 			}
 
 			$wp_query->setup_postdata( $data );
-			$GLOBALS['post']             = $data;
+			$GLOBALS['post']             = $data; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			$wp_query->queried_object    = get_post( $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 

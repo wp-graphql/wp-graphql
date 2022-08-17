@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.9.0' );
+			define( 'WPGRAPHQL_VERSION', '1.9.1' );
 		}
 
 		// Plugin Folder Path.
@@ -197,7 +197,7 @@ final class WPGraphQL {
 							'<div class="notice notice-error">' .
 							'<p>%s</p>' .
 							'</div>',
-							__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
+							esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
 						);
 					}
 				);
@@ -511,7 +511,7 @@ final class WPGraphQL {
 					throw new UserError(
 						sprintf(
 						/* translators: %s will replaced with the registered type */
-							__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql-plugin-name' ),
+							__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 							$post_type_object->name
 						)
 					);

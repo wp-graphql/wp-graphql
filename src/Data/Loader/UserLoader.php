@@ -74,7 +74,7 @@ class UserLoader extends AbstractDataLoader {
 
 		global $wpdb;
 
-		$results = $wpdb->get_results(
+		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			$wpdb->prepare(

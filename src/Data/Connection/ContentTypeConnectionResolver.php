@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-
 /**
  * Class ContentTypeConnectionResolver
  *
@@ -17,20 +13,6 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @var array
 	 */
 	protected $query;
-
-	/**
-	 * ContentTypeConnectionResolver constructor.
-	 *
-	 * @param mixed       $source     source passed down from the resolve tree
-	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
-	 *
-	 * @throws Exception
-	 */
-	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		parent::__construct( $source, $args, $context, $info );
-	}
 
 	/**
 	 * {@inheritDoc}

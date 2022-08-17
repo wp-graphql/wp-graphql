@@ -45,15 +45,15 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
 
 		if ( isset( $this->args['where']['parentDatabaseId'] ) ) {
-			$query_args['meta_key']   = '_menu_item_menu_item_parent';
-			$query_args['meta_value'] = (int) $this->args['where']['parentDatabaseId'];
+			$query_args['meta_key']   = '_menu_item_menu_item_parent'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$query_args['meta_value'] = (int) $this->args['where']['parentDatabaseId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
 		if ( isset( $this->args['where']['parentId'] ) ) {
 			$id_parts = Relay::fromGlobalId( $this->args['where']['parentId'] );
 			if ( isset( $id_parts['id'] ) ) {
-				$query_args['meta_key']   = '_menu_item_menu_item_parent';
-				$query_args['meta_value'] = (int) $id_parts['id'];
+				$query_args['meta_key']   = '_menu_item_menu_item_parent'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				$query_args['meta_value'] = (int) $id_parts['id']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			}
 		}
 
