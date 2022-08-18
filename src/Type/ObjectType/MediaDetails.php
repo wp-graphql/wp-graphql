@@ -32,12 +32,14 @@ class MediaDetails {
 							'list_of' => 'MediaSize',
 						],
 						'description' => __( 'The available sizes of the mediaItem', 'wp-graphql' ),
-						'resolve'     => function ( $media_details, $args, $context, $info ) {
+						'resolve'     => function ( $media_details ) {
+							$sizes = [];
 							if ( ! empty( $media_details['sizes'] ) ) {
 								foreach ( $media_details['sizes'] as $size_name => $size ) {
-									$size['ID']   = $media_details['ID'];
-									$size['name'] = $size_name;
-									$sizes[]      = $size;
+									$sizes[] = [
+										'ID'   => $media_details['ID'],
+										'name' => $size_name,
+									];
 								}
 							}
 
@@ -47,11 +49,10 @@ class MediaDetails {
 					'meta'   => [
 						'type'        => 'MediaItemMeta',
 						'description' => __( 'Meta information associated with the mediaItem', 'wp-graphql' ),
-						'resolve'     => function ( $media_details, $args, $context, $info ) {
+						'resolve'     => function ( $media_details ) {
 							return ! empty( $media_details['image_meta'] ) ? $media_details['image_meta'] : null;
 						},
 					],
-
 				],
 			]
 		);

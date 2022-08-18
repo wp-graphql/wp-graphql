@@ -28,6 +28,8 @@ class MediaItemMutation {
 	 */
 	public static function prepare_media_item( array $input, WP_Post_Type $post_type_object, string $mutation_name, $file ) {
 
+		$insert_post_args = [];
+		
 		/**
 		 * Set the post_type (attachment) for the insert
 		 */
