@@ -36,10 +36,9 @@ class MediaDetails {
 							$sizes = [];
 							if ( ! empty( $media_details['sizes'] ) ) {
 								foreach ( $media_details['sizes'] as $size_name => $size ) {
-									$sizes[] = [
-										'ID'   => $media_details['ID'],
-										'name' => $size_name,
-									];
+									$size['ID']   = $media_details['ID'];
+									$size['name'] = $size_name;
+									$sizes[]      = $size;
 								}
 							}
 
