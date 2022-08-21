@@ -115,6 +115,7 @@ use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
 use WPGraphQL\Type\ObjectType\Settings;
+use WPGraphQL\Type\Scalar\Upload;
 use WPGraphQL\Type\Union\TermObjectUnion;
 use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
@@ -336,6 +337,11 @@ class TypeRegistry {
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
+
+		/**
+		 * Register scalar.
+		 */
+		Upload::register_type();
 
 		/**
 		 * Register core connections

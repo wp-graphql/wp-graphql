@@ -2,20 +2,18 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Data\MediaItemMutation;
 use WPGraphQL\Utils\Utils;
 
 class MediaItemCreate {
+
 	/**
 	 * Registers the MediaItemCreate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -71,6 +69,10 @@ class MediaItemCreate {
 				'type'        => 'MimeTypeEnum',
 				'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
 			],
+			'file'          => [
+				'type'        => 'Upload',
+				'description' => __( 'Upload a local file using Multipart.', 'wp-graphql' ),
+			],
 			'slug'          => [
 				'type'        => 'String',
 				'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
@@ -108,7 +110,8 @@ class MediaItemCreate {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}
-					return DataSource::resolve_post_object( $payload['postObjectId'], $context );
+
+					return $context->get_loader( 'post' )->load_deferred( $payload['postObjectId'] );
 				},
 			],
 		];
@@ -117,12 +120,15 @@ class MediaItemCreate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
+	 * @throws UserError User error.
+	 *
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
+
 			/**
-			 * Stop now if a user isn't allowed to upload a mediaItem
+			 * Stop now if a user isn't allowed to upload a mediaItem.
 			 */
 			if ( ! current_user_can( 'upload_files' ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to upload mediaItems', 'wp-graphql' ) );
@@ -148,52 +154,62 @@ class MediaItemCreate {
 			}
 
 			/**
-			 * Set the file name, whether it's a local file or from a URL.
-			 * Then set the url for the uploaded file
-			 */
-			$file_name         = basename( $input['filePath'] );
-			$uploaded_file_url = $input['filePath'];
-
-			/**
 			 * Require the file.php file from wp-admin. This file includes the
 			 * download_url and wp_handle_sideload methods
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
-			$file_contents = file_get_contents( $input['filePath'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			if ( empty( $input['file'] ) ) {
 
-			/**
-			 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
-			 */
-			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
-				$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
-				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
+				/**
+				 * Set the file name, whether it's a local file or from a URL.
+				 * Then set the url for the uploaded file
+				 */
+				$file_name         = basename( $input['filePath'] );
+				$uploaded_file_url = $input['filePath'];
+
+				$file_contents = file_get_contents( $input['filePath'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+				/**
+				 * If the mediaItem file is from a local server, use wp_upload_bits before saving it to the uploads folder
+				 */
+				if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
+					$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
+					$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
+				}
+
+				/**
+				 * URL data for the mediaItem, timeout value is the default, see:
+				 * https://developer.wordpress.org/reference/functions/download_url/
+				 */
+				$timeout_seconds = 300;
+				$temp_file       = download_url( $uploaded_file_url, $timeout_seconds );
+
+				/**
+				 * Handle the error from download_url if it occurs
+				 */
+				if ( is_wp_error( $temp_file ) ) {
+					throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
+				}
+
+				/**
+				 * Build the file data for side loading
+				 */
+				$file_data = [
+					'name'     => $file_name,
+					'type'     => ! empty( $input['fileType'] ) ? $input['fileType'] : wp_check_filetype( $temp_file ),
+					'tmp_name' => $temp_file,
+					'error'    => 0,
+					'size'     => filesize( $temp_file ),
+				];
+			} else {
+				
+				if ( empty( $input['file'] ) ) {
+					throw new UserError( __( 'Sorry, the local file is invalid, make sure the file exists.', 'wp-graphql' ) );
+				}
+
+				$file_data = $input['file'];
 			}
-
-			/**
-			 * URL data for the mediaItem, timeout value is the default, see:
-			 * https://developer.wordpress.org/reference/functions/download_url/
-			 */
-			$timeout_seconds = 300;
-			$temp_file       = download_url( $uploaded_file_url, $timeout_seconds );
-
-			/**
-			 * Handle the error from download_url if it occurs
-			 */
-			if ( is_wp_error( $temp_file ) ) {
-				throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
-			}
-
-			/**
-			 * Build the file data for side loading
-			 */
-			$file_data = [
-				'name'     => $file_name,
-				'type'     => ! empty( $input['fileType'] ) ? $input['fileType'] : wp_check_filetype( $temp_file ),
-				'tmp_name' => $temp_file,
-				'error'    => 0,
-				'size'     => filesize( $temp_file ),
-			];
 
 			/**
 			 * Tells WordPress to not look for the POST form fields that would normally be present as
@@ -205,12 +221,12 @@ class MediaItemCreate {
 			];
 
 			/**
-			 * Insert the mediaItem and retrieve it's data
+			 * Insert the mediaItem and retrieve it's data.
 			 */
 			$file = wp_handle_sideload( $file_data, $overrides );
 
 			/**
-			 * Handle the error from wp_handle_sideload if it occurs
+			 * Handle the error from wp_handle_sideload if it occurs.
 			 */
 			if ( ! empty( $file['error'] ) ) {
 				throw new UserError( __( 'Sorry, the URL for this file is invalid, it must be a path to the mediaItem file', 'wp-graphql' ) );
@@ -261,7 +277,7 @@ class MediaItemCreate {
 					throw new UserError( esc_html( $error_message ) );
 				}
 
-				throw new UserError( __( 'The media item failed to create but no error was provided', 'wp-graphql' ) );
+				throw new UserError( __( 'The media item failed to be created but no specific error was provided.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -271,6 +287,7 @@ class MediaItemCreate {
 
 			/**
 			 * Generate and update the mediaItem's metadata.
+			 *
 			 * If we make it this far the file and attachment
 			 * have been validated and we will not receive any errors
 			 */
@@ -278,7 +295,7 @@ class MediaItemCreate {
 			wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
 			/**
-			 * Update alt text postmeta for mediaItem
+			 * Update alt text postmeta for mediaItem.
 			 */
 			MediaItemMutation::update_additional_media_item_data( $attachment_id, $input, $post_type_object, 'createMediaItem', $context, $info );
 

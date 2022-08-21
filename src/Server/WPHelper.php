@@ -17,11 +17,12 @@ class WPHelper extends Helper {
 	 * Parses normalized request params and returns instance of OperationParams
 	 * or array of OperationParams in case of batch operation.
 	 *
+	 * @throws RequestError Throws RequestError.
+	 *
 	 * @param string $method The method of the request (GET, POST, etc).
 	 * @param array  $bodyParams The params passed to the body of the request.
 	 * @param array  $queryParams The query params passed to the request.
 	 * @return OperationParams|OperationParams[]
-	 * @throws RequestError Throws RequestError.
 	 */
 	public function parseRequestParams( $method, array $bodyParams, array $queryParams ) {
 		// Apply wp_unslash to query (GET) variables to undo wp_magic_quotes. We
@@ -37,6 +38,9 @@ class WPHelper extends Helper {
 			'body_params'  => ! empty( $parsed_body_params ) ? $parsed_body_params : null,
 		];
 
+		// Process multi-part requests.
+		$parsed_body_params = $this->process_multi_part_requests( $method, $parsed_body_params );
+
 		/**
 		 * Allow the request data to be filtered. Previously this filter was only
 		 * applied to non-HTTP requests. Since 0.2.0, we will apply it to all
@@ -46,20 +50,77 @@ class WPHelper extends Helper {
 		 * persisted queries (and ends up being a bit more flexible than
 		 * graphql-php's built-in persistentQueryLoader).
 		 *
-		 * @param array $data An array containing the pieces of the data of the GraphQL request
-		 * @param array $request_context An array containing the both body and query params
+		 * @param array  $parsed_body_params An array containing the pieces of the data of the GraphQL request.
+		 * @param array  $request_context    An array containing the both body and query params.
+		 * @param string $method             The method of the request (GET, POST, etc).
 		 */
+		$parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context, $method );
+
+		// In GET requests there cannot be any body params so it's empty.
 		if ( 'GET' === $method ) {
-			$parsed_query_params = apply_filters( 'graphql_request_data', $parsed_query_params, $request_context );
-			// In GET requests there cannot be any body params so it's empty.
 			return parent::parseRequestParams( $method, [], $parsed_query_params );
 		}
 
 		// In POST requests the query params are ignored by default but users can
 		// merge them into the body params manually using the $request_context if
 		// needed.
-		$parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context );
 		return parent::parseRequestParams( $method, $parsed_body_params, [] );
+	}
+
+	/**
+	 * Process multi part requests.
+	 *
+	 * @param string $method             The method of the request (GET, POST, etc).
+	 * @param array  $parsed_body_params An array containing the pieces of the data of the GraphQL request
+	 * @return mixed
+	 */
+	private function process_multi_part_requests( $method, array $parsed_body_params ) {
+		$contentType = wp_unslash( $_SERVER['CONTENT_TYPE'] ?? null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		// Bail early.
+		if ( 'POST' !== $method || stripos( $contentType, 'multipart/form-data' ) === false ) {
+			return $parsed_body_params;
+		}
+
+		if ( empty( $parsed_body_params['map'] ) ) {
+			throw new RequestError( __( 'The request must define a `map`', 'wp-graphql' ) );
+		}
+
+		$map    = $this->decode_json( $parsed_body_params['map'] );
+		$result = $this->decode_json( $parsed_body_params['operations'] );
+
+		foreach ( $map as $fileKey => $locations ) {
+			$items = &$result;
+
+			foreach ( $locations as $location ) {
+				foreach ( explode( '.', $location ) as $key ) {
+					if ( ! isset( $items[ $key ] ) || ! is_array( $items[ $key ] ) ) {
+						$items[ $key ] = [];
+					}
+
+					$items = &$items[ $key ];
+				}
+
+				$items = $_FILES[ $fileKey ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Decode json.
+	 *
+	 * @param mixed $json Json.
+	 * @return mixed
+	 */
+	private function decode_json( $json ) {
+
+		if ( ! is_string( $json ) ) {
+			return $json;
+		}
+
+		return json_decode( stripslashes( $json ), true );
 	}
 
 	/**
@@ -79,7 +140,7 @@ class WPHelper extends Helper {
 	/**
 	 * Parse query extensions.
 	 *
-	 * @param  array $params Request parameters.
+	 * @param array $params Request parameters.
 	 * @return array
 	 */
 	private function parse_extensions( $params ) {

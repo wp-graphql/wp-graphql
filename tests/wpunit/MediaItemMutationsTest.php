@@ -2,7 +2,6 @@
 
 class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-
 	public $altText;
 	public $authorId;
 	public $caption;
@@ -12,6 +11,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public $dateGmt;
 	public $description;
 	public $filePath;
+	public $file;
 	public $fileType;
 	public $slug;
 	public $status;
@@ -77,6 +77,13 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->dateGmt       = '2017-08-01T21:00:00';
 		$this->description   = 'This is a magic description.';
 		$this->filePath      = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
+		$test_image          = WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png';
+		$this->file          = [
+			'name'  => $test_image,
+			'error' => 0,
+			'type'  => 'image/png',
+			'size'  => filesize( $test_image ),
+		];
 		$this->fileType      = 'IMAGE_GIF';
 		$this->slug          = 'magic-shia';
 		$this->status        = 'INHERIT';
@@ -155,13 +162,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 				'forceDelete' => true,
 			],
 		];
-	}
-
-	public function tearDown(): void {
-		// your tear down methods here
-
-		// then
-		parent::tearDown();
 	}
 
 	/**
@@ -718,6 +718,82 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'slug'          => $this->slug,
 					'status'        => strtolower( $this->status ),
 					'mimeType'      => 'image/gif',
+					'parent'        => null,
+					'mediaType'     => 'image',
+					'sourceUrl'     => $attachment_url,
+					'mediaDetails'  => [
+						'file'   => $attachment_details['file'],
+						'height' => $attachment_details['height'],
+						'meta'   => [
+							'aperture'         => 0.0,
+							'credit'           => '',
+							'camera'           => '',
+							'caption'          => '',
+							'createdTimestamp' => null,
+							'copyright'        => '',
+							'focalLength'      => null,
+							'iso'              => 0,
+							'shutterSpeed'     => null,
+							'title'            => '',
+							'orientation'      => '0',
+						],
+						'width'  => $attachment_details['width'],
+						'sizes'  => [
+							0 => [
+								'name'      => 'thumbnail',
+								'file'      => $attachment_details['sizes']['thumbnail']['file'],
+								'width'     => (int) $attachment_details['sizes']['thumbnail']['width'],
+								'height'    => (int) $attachment_details['sizes']['thumbnail']['height'],
+								'mimeType'  => $attachment_details['sizes']['thumbnail']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+	}
+
+	/**
+	 * This function tests the createMediaItem mutation using a local file.
+	 *
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemCreate.php
+	 * @return void
+	 */
+	public function testCreateMediaItemWithFileMutation() {
+		wp_set_current_user( $this->admin );
+
+		// Set our local file.
+		$this->create_variables['input']['file'] = $this->file;
+		$this->create_variables['input']['slug'] = 'test-medium';
+
+		/**
+		 * Create the createMediaItem
+		 */
+		$actual = $this->createMediaItemMutation();
+
+		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
+		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
+		$attachment_url     = wp_get_attachment_url( $attachment_id );
+		$attachment_details = wp_get_attachment_metadata( $attachment_id );
+
+		$expected = [
+			'createMediaItem' => [
+				'mediaItem' => [
+					'id'            => $media_item_id,
+					'databaseId'    => $attachment_id,
+					'title'         => $this->title,
+					'description'   => apply_filters( 'the_content', $this->description ),
+					'altText'       => $this->altText,
+					'caption'       => apply_filters( 'the_content', $this->caption ),
+					'commentStatus' => $this->commentStatus,
+					'date'          => $this->date,
+					'dateGmt'       => $this->dateGmt,
+					'slug'          => 'test-medium',
+					'status'        => strtolower( $this->status ),
+					'mimeType'      => 'image/png',
 					'parent'        => null,
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
