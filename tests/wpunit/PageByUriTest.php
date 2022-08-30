@@ -78,11 +78,11 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query GetPageByUri($id:ID!) {
-		  page(id: $id, idType: URI) {
-            __typename
-          }
-        }
-		';
+			page(id: $id, idType: URI) {
+				__typename
+			}
+		}
+		run';
 
 		$actual = $this->graphql([
 			'query' => $query,

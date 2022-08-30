@@ -675,7 +675,7 @@ class RootQuery {
 									[
 										'post_type' => $post_type_object->name,
 										'archive'   => false,
-										'nodeType'  => 'Page',
+										'nodeType'  => 'ContentNode',
 									]
 								);
 							case 'database_id':
@@ -783,7 +783,7 @@ class RootQuery {
 								[
 									'post_type' => $post_type_object->name,
 									'archive'   => false,
-									'nodeType'  => 'Page',
+									'nodeType'  => 'ContentNode',
 								]
 							);
 						} elseif ( ! empty( $args['slug'] ) ) {
