@@ -683,11 +683,11 @@ class RootQuery {
 								break;
 							case 'source_url':
 								$url     = $args['id'];
-								$post_id = attachment_url_to_postid( $url );
+								$post_id = attachment_url_to_postid( $url ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid
 								if ( empty( $post_id ) ) {
 									return null;
 								}
-								$post_id = absint( attachment_url_to_postid( $url ) );
+								$post_id = absint( attachment_url_to_postid( $url ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid
 								break;
 							case 'global_id':
 							default:

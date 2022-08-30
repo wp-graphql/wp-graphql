@@ -480,6 +480,11 @@ class DataSource {
 		 */
 		$registered_settings = get_registered_settings();
 
+		/**
+		 * Set allowed settings variable.
+		 */
+		$allowed_settings = [];
+
 		if ( ! empty( $registered_settings ) ) {
 
 			/**
@@ -518,7 +523,6 @@ class DataSource {
 		 * @return array
 		 */
 		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
-
 	}
 
 	/**

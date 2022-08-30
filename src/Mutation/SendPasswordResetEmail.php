@@ -52,7 +52,11 @@ class SendPasswordResetEmail {
 					$subject = self::get_email_subject( $user_data );
 					$message = self::get_email_message( $user_data, $key );
 
-					$email_sent = wp_mail( $user_data->user_email, wp_specialchars_decode( $subject ), $message );
+					$email_sent = wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+						$user_data->user_email,
+						wp_specialchars_decode( $subject ),
+						$message
+					);
 
 					// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
 					// phpstan should ignore this check.

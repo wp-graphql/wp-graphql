@@ -410,7 +410,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			'parentIn'      => 'post_parent__in',
 			'parentNotIn'   => 'post_parent__not_in',
 			'in'            => 'post__in',
-			'notIn'         => 'post__not_in',
+			'notIn'         => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 			'nameIn'        => 'post_name__in',
 			'hasPassword'   => 'has_password',
 			'password'      => 'post_password',

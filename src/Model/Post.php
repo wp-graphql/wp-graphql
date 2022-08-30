@@ -821,7 +821,10 @@ class Post extends Model {
 						return ! empty( $source_url ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function () {
-						$sizes = get_intermediate_image_sizes();
+						/**
+						 * This returns an empty array on the VIP Go platform.
+						 */
+						$sizes = get_intermediate_image_sizes(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_intermediate_image_sizes_get_intermediate_image_sizes
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
 							foreach ( $sizes as $size ) {

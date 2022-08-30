@@ -392,16 +392,17 @@ class Router {
 	/**
 	 * Retrieves the raw request entity (body).
 	 *
-	 * @return string Raw request data.
-	 * @global string php://input Raw post data.
 	 * @since  0.0.5
+	 *
+	 * @global string php://input Raw post data.
+	 *
+	 * @return string|false Raw request data.
 	 */
 	public static function get_raw_data() {
-		$input = file_get_contents( 'php://input' );
+		$input = file_get_contents( 'php://input' ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile
 
 		return ! empty( $input ) ? $input : '';
 	}
-
 
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request

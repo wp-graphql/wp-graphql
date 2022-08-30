@@ -21,10 +21,8 @@ class UpdateSettings {
 	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public static function register_mutation( TypeRegistry $type_registry ) {
-
 		$output_fields = self::get_output_fields( $type_registry );
 		$input_fields  = self::get_input_fields( $type_registry );
 
@@ -98,7 +96,6 @@ class UpdateSettings {
 					'type'        => $setting['type'],
 					'description' => $setting['description'],
 				];
-
 			}
 		}
 
@@ -118,6 +115,8 @@ class UpdateSettings {
 		 * Get the allowed setting groups and their fields
 		 */
 		$allowed_setting_groups = DataSource::get_allowed_settings_by_group( $type_registry );
+
+		$output_fields = [];
 
 		/**
 		 * Get all of the settings, regardless of group

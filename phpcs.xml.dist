@@ -54,6 +54,9 @@
 	<!-- Load PHPCompatibilityWP standards -->
 	<rule ref="PHPCompatibilityWP" />
 
+	<!-- Load WordPress VIP Go standards - for use with projects on the (newer) VIP Go platform. -->
+	<rule ref="WordPress-VIP-Go" />
+
 	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 
 	<rule ref="WordPress-Core">
