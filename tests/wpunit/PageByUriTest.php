@@ -82,7 +82,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				__typename
 			}
 		}
-		run';
+		';
 
 		$actual = $this->graphql([
 			'query' => $query,
