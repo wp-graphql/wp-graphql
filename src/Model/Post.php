@@ -692,6 +692,15 @@ class Post extends Model {
 						return '/';
 					}
 
+					// if the page is set as the posts page
+					// the page node itself is not identifiable
+					// by URI. Instead, the uri would return the
+					// Post content type as that uri
+					// represents the blog archive instead of a page
+					if ( true === $this->isPostsPage ) {
+						return null;
+					}
+
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
 				'commentCount'              => function () {
