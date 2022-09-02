@@ -1,7 +1,7 @@
 # Number of days of inactivity before an issue becomes stale
 daysUntilStale: 60
-# Number of days of inactivity before a stale issue is closed
-daysUntilClose: 30
+# Stalebot will not close issues. See https://github.com/wp-graphql/wp-graphql/issues/2494
+daysUntilClose: false
 # Issues with these labels will never be considered stale
 exemptLabels:
   - not stale
