@@ -5,7 +5,11 @@ daysUntilStale: 90
 daysUntilClose: 90
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - not stale
+  - "not stale"
+  - "status: assigned"
+  - "status: blocked"
+  - "status: awaiting author response"
+  - "status: awaiting reviewer response"
 # Stalebot will mark issues as stale? after 90 days
 # If stale? issues haven't been triaged after another 90 days, they will be closed. 
 # See: 
