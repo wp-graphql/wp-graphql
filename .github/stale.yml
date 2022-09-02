@@ -6,13 +6,16 @@ daysUntilClose: 90
 # Issues with these labels will never be considered stale
 exemptLabels:
   - "not stale"
+  - "🚨 Importance: Critical"
+  - "Ready for Review"
+  - "Release"
+  - "Target: v2.0"
+  - "Work in Progress"
   - "status: assigned"
   - "status: blocked"
-  - "status: awaiting author response"
-  - "status: awaiting reviewer response"
 # Stalebot will mark issues as stale? after 90 days
 # If stale? issues haven't been triaged after another 90 days, they will be closed. 
-# See: 
+# See: https://github.com/wp-graphql/wp-graphql/issues/2494
 staleLabel: "stale?"
 # Comment to post when marking an issue as stale. Set to `false` to disable
 markComment: >
