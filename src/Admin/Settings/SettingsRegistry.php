@@ -32,15 +32,6 @@ class SettingsRegistry {
 	protected $settings_fields = [];
 
 	/**
-	 * SettingsRegistry constructor.
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function get_settings_sections() {
@@ -57,14 +48,22 @@ class SettingsRegistry {
 	/**
 	 * Enqueue scripts and styles
 	 *
+	 * @param string $hook_suffix The current admin page.
+	 *
 	 * @return void
 	 */
-	public function admin_enqueue_scripts() {
-		wp_enqueue_style( 'wp-color-picker' );
+	public function admin_enqueue_scripts( string $hook_suffix ) {
+		if ( 'graphql_page_graphql-settings' !== $hook_suffix ) {
+			return;
+		}
 
+		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'wp-color-picker' );
 		wp_enqueue_script( 'jquery' );
+
+		// Action to enqueue scripts on the WPGraphQL Settings page.
+		do_action( 'graphql_settings_enqueue_scripts' );
 	}
 
 	/**
@@ -151,7 +150,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function admin_init() {
-
 		// Action that fires when settings are being initialized
 		do_action( 'graphql_init_settings', $this );
 

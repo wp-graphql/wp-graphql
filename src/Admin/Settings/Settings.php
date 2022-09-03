@@ -29,9 +29,11 @@ class Settings {
 	public function init() {
 		$this->wp_environment = $this->get_wp_environment();
 		$this->settings_api   = new SettingsRegistry();
+
 		add_action( 'admin_menu', [ $this, 'add_options_page' ] );
 		add_action( 'init', [ $this, 'register_settings' ] );
 		add_action( 'admin_init', [ $this, 'initialize_settings_page' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'initialize_settings_page_scripts' ] );
 	}
 
 	/**
@@ -228,6 +230,15 @@ class Settings {
 	 */
 	public function initialize_settings_page() {
 		$this->settings_api->admin_init();
+	}
+
+	/**
+	 * Initialize the styles and scripts used on the settings admin page
+	 *
+	 * @param string $hook_suffix The current admin page.
+	 */
+	public function initialize_settings_page_scripts( string $hook_suffix ) : void {
+		$this->settings_api->admin_enqueue_scripts( $hook_suffix );
 	}
 
 	/**
