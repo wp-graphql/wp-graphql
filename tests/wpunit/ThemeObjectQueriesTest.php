@@ -1,6 +1,6 @@
 <?php
 
-class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 
@@ -30,8 +30,6 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testThemeQuery
-	 *
 	 * This tests creating a single theme with data and retrieving said theme via a GraphQL query
 	 *
 	 * @since 0.0.5
@@ -46,9 +44,9 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
-		query {
-			theme(id: \"{$global_id}\") {
+		$query = '
+		query testThemeQuery( $id:ID! ) {
+			theme(id: $id ) {
 				author
 				authorUri
 				description
@@ -60,13 +58,17 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				themeUri
 				version
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		codecept_debug( $actual );
 
@@ -96,8 +98,6 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testThemeQueryWhereThemeDoesNotExist
-	 *
 	 * Tests a query for non existant theme.
 	 *
 	 * @since 0.0.5
@@ -111,19 +111,21 @@ class ThemeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
-		query {
-			theme(id: \"{$global_id}\") {
+		$query = '
+		query testThemeQueryWhereThemeDoesNotExist( $id:ID! ) {
+			theme(id: $id ) {
 				slug
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
