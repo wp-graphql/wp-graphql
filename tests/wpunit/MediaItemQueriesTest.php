@@ -535,4 +535,81 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertEquals( sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $width ), $mediaItem['sizes'] );
 	}
 
+	/**
+	 * This tests filtering the MediaDetails sizes.
+	 *
+	 * @since 1.2.5
+	 */
+	public function testMediaDetailsSizesWithArgs() {
+
+		/**
+		 * Upload a medium size attachment
+		 */
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		/**
+		 * Create the global ID based on the post_type and the created $id
+		 */
+		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
+
+		$query = '
+		query testMediaDetailsSizesWithArgs( $id:ID!, $include: [MediaItemSizeEnum], $exclude: [MediaItemSizeEnum] ) {
+			mediaItem(id: $id) {
+				mediaDetails {
+					sizes( include: $include, exclude: $exclude ) {
+						name
+						sourceUrl
+					}
+				}
+			}
+		}';
+
+		// Get only the thumbnail size.
+		$variables = [
+			'id'      => $attachment_global_id,
+			'include' => 'THUMBNAIL',
+		];
+
+		/**
+		 * Run the GraphQL query
+		 */
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$actual_sizes = $actual['data']['mediaItem']['mediaDetails']['sizes'];
+
+		$this->assertCount( 1, $actual_sizes );
+		$this->assertEquals( 'thumbnail', $actual_sizes[0]['name'] );
+
+		// Get all sizes except the thumbnail.
+		$variables = [
+			'id'      => $attachment_global_id,
+			'exclude' => 'THUMBNAIL', // phpcs:ignore
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$actual_sizes = array_column( $actual['data']['mediaItem']['mediaDetails']['sizes'], 'name' );
+
+		$this->assertArrayNotHasKey( 'thumbnail', $actual_sizes );
+
+		// Ensure exclude overrides include.
+		$variables = [
+			'id'      => $attachment_global_id,
+			'include' => [ 'THUMBNAIL', 'MEDIUM' ],
+			'exclude' => 'MEDIUM', // phpcs:ignore
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$actual_sizes = $actual['data']['mediaItem']['mediaDetails']['sizes'];
+
+		$this->assertCount( 1, $actual_sizes );
+		$this->assertEquals( 'thumbnail', $actual_sizes[0]['name'] );
+	}
+
 }
