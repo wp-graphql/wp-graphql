@@ -1,6 +1,6 @@
 <?php
 
-class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
+class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -9,7 +9,8 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
+
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -23,7 +24,7 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -86,8 +87,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testPostQuery
-	 *
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @dataProvider provideImageMeta
@@ -156,88 +155,83 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
 
-		/**
-		 * Create the global ID based on the post_type and the created $id
-		 */
+		// Create the global ID based on the post_type and the created $id
 		$attachment_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$post_global_id       = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
-		/**
-		 * Create the query string to pass to the $query
-		 */
-		$query = "
-		query {
-			mediaItem(id: \"{$attachment_global_id}\") {
+		$query = '
+		query testMediaItemQuery( $id:ID! ) {
+			mediaItem(id: $id) {
 				altText
 				author{
-				  node {
-				    id
-				  }
+					node {
+						id
+					}
 				}
 				caption
 				commentCount
 				commentStatus
 				comments{
-				  edges{
-				    node{
-				      id
-				    }
-				  }
+					edges{
+						node{
+							id
+						}
+					}
 				}
 				date
 				dateGmt
 				description
 				desiredSlug
 				lastEditedBy{
-				  node {
-				    databaseId
-				  }
+					node {
+						databaseId
+					}
 				}
 				editingLockedBy{
-				  lockTimestamp
+					lockTimestamp
 				}
 				enclosure
 				guid
 				id
 				link
 				mediaDetails{
-				  file
-				  height
-				  meta{
-				    aperture
-				    credit
-				    camera
-				    caption
-				    createdTimestamp
-				    copyright
-				    focalLength
-				    iso
-				    shutterSpeed
-				    title
-				    orientation
-				    keywords
-				  }
-				  sizes{
-				    name
-				    file
-				    width
-				    height
-				    mimeType
-				    sourceUrl
-				  }
-				  width
+					file
+					height
+					meta{
+						aperture
+						credit
+						camera
+						caption
+						createdTimestamp
+						copyright
+						focalLength
+						iso
+						shutterSpeed
+						title
+						orientation
+						keywords
+					}
+					sizes {
+						name
+						file
+						width
+						height
+						mimeType
+						sourceUrl
+					}
+					width
 				}
 				mediaItemId
-				mediaType				
+				mediaType
 				mimeType
 				modified
 				modifiedGmt
 				parent{
-				  node {
-				    ...on Post{
-					  id
+					node {
+						...on Post{
+						id
 					}
-				  }
+					}
 				}
 				slug
 				sourceUrl
@@ -245,14 +239,16 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 				title
 				srcSet
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $attachment_global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$mediaItem = $actual['data']['mediaItem'];
 
@@ -335,8 +331,6 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testPostQuery
-	 *
 	 * This tests creates a single attachment and retrieves said post URL via a GraphQL query
 	 *
 	 * @since 0.3.6
@@ -349,20 +343,19 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$expected_filesize = filesize( $filename );
 
 		$query = '
-        query GET_MEDIA_ITEM( $id: Int! ) {
-          mediaItemBy(mediaItemId: $id) {
-            mediaItemUrl
-            fileSize
-          }
-        }
-        ';
+			query GET_MEDIA_ITEM( $id: Int! ) {
+				mediaItemBy(mediaItemId: $id) {
+					mediaItemUrl
+					fileSize
+				}
+			}
+		';
 
-		$result = graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $attachment_id,
-			],
-		]);
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$result = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = wp_get_attachment_url( $attachment_id );
 
@@ -424,25 +417,22 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
 
 		$query = '
-        query GET_MEDIA_ITEM( $id: ID! ) {
-          mediaItem(id: $id, idType: DATABASE_ID) {
-            sourceUrl
-            fileSize
-          }
-        }
-        ';
+			query GET_MEDIA_ITEM( $id: ID! ) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					sourceUrl
+					fileSize
+				}
+			}
+		';
 
-		$media_item = graphql( [
-			'query'     => $query,
-			'variables' => [ 'id' => $attachment_id ],
-		] );
+		$variables = [ 'id' => $attachment_id ];
 
-		codecept_debug( $media_item );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertArrayNotHasKey( 'errors', $media_item );
-		$this->assertEquals( $expected_filesize, $media_item['data']['mediaItem']['fileSize'] );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected_filesize, $actual['data']['mediaItem']['fileSize'] );
 
-		$source_url = $media_item['data']['mediaItem']['sourceUrl'];
+		$source_url = $actual['data']['mediaItem']['sourceUrl'];
 
 		/**
 		 * Mock saving the _wp_attached_file to meta
@@ -452,8 +442,8 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$dir  = wp_get_upload_dir();
 		$path = $source_url;
 
-		$site_url   = parse_url( $dir['url'] );
-		$image_path = parse_url( $path );
+		$site_url   = wp_parse_url( $dir['url'] );
+		$image_path = wp_parse_url( $path );
 
 		//force the protocols to match if needed
 		if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
@@ -468,32 +458,31 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $source_url );
 
 		$query_by_source_url = '
-	    query GetMediaItem($id:ID!) {
-            mediaItem(
+			query GetMediaItem($id:ID!) {
+				mediaItem(
 				id: $id, 
 				idType: SOURCE_URL
 			) {
-			    __typename
-                id
-                sourceUrl
-            }
+				__typename
+				id
+				sourceUrl
+			}
 		}
-	    ';
+		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query_by_source_url,
 			'variables' => [
 				'id' => $source_url,
 			],
 		]);
 
-		codecept_debug( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $source_url, $actual['data']['mediaItem']['sourceUrl'] );
 
 	}
 
 	/**
-	 * testPostQuery
-	 *
 	 * This tests creating a small size media item and retrieving bigger size image via a GraphQL query
 	 *
 	 * @since 1.2.5
@@ -514,20 +503,22 @@ class MediaItemQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
-		query {
-			mediaItem(id: \"{$attachment_global_id}\") {
+		$query = '
+		query testMediaItemNotExistingSizeQuery( $id:ID! ) {
+			mediaItem(id: $id) {
 				srcSet(size: LARGE)
-    			sizes(size: LARGE)
+				sizes(size: LARGE)
 			}
-		}";
+		}';
+
+		$variables = [
+			'id' => $attachment_global_id,
+		];
 
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$mediaItem = $actual['data']['mediaItem'];
 
