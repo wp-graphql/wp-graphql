@@ -399,7 +399,7 @@ class PostObjects {
 			 */
 			'id'          => [
 				'type'        => 'Int',
-				'description' => __( 'Specific ID of the object', 'wp-graphql' ),
+				'description' => __( 'Specific database ID of the object', 'wp-graphql' ),
 			],
 			'name'        => [
 				'type'        => 'String',
