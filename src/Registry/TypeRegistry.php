@@ -73,6 +73,7 @@ use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
 use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
+use WPGraphQL\Type\Enum\CommentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\MediaItemSizeEnum;
 use WPGraphQL\Type\Enum\MediaItemStatusEnum;
 use WPGraphQL\Type\Enum\MenuLocationEnum;
@@ -301,6 +302,7 @@ class TypeRegistry {
 
 		AvatarRatingEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
+		CommentNodeIdTypeEnum::register_type();
 		ContentNodeIdTypeEnum::register_type();
 		ContentTypeEnum::register_type();
 		ContentTypeIdTypeEnum::register_type();

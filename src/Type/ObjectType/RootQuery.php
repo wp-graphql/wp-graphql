@@ -148,17 +148,35 @@ class RootQuery {
 						'type'        => 'Comment',
 						'description' => __( 'Returns a Comment', 'wp-graphql' ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type'        => [
 									'non_null' => 'ID',
 								],
 								'description' => __( 'Unique identifier for the comment node.', 'wp-graphql' ),
 							],
+							'idType' => [
+								'type'        => 'CommentNodeIdTypeEnum',
+								'description' => __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' ),
+							],
 						],
 						'resolve'     => function ( $source, array $args, AppContext $context, $info ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
-							return DataSource::resolve_comment( $id_components['id'], $context );
+							switch ( $id_type ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$id = absint( $id_components['id'] );
+
+									break;
+							}
+
+							return $context->get_loader( 'comment' )->load_deferred( $id );
 						},
 					],
 					'contentNode' => [
