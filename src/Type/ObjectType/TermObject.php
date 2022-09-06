@@ -24,7 +24,7 @@ class TermObject {
 	 * @deprecated @todo
 	 */
 	public static function register_taxonomy_object_type( WP_Taxonomy $tax_object ) {
-		_deprecated_function( __FUNCTION__, '@todo', \WPGraphQL\Registry\Utils\TermObject::class . '::register_types()' );
+		_deprecated_function( __FUNCTION__, '@todo', esc_attr(\WPGraphQL\Registry\Utils\TermObject::class ) . '::register_types()' );
 
 		\WPGraphQL\Registry\Utils\TermObject::register_types( $tax_object );
 	}
