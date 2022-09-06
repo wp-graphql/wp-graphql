@@ -48,7 +48,7 @@ class RootQuery {
 						'connectionArgs'       => [
 							'id'       => [
 								'type'        => 'Int',
-								'description' => __( 'The ID of the object', 'wp-graphql' ),
+								'description' => __( 'The database ID of the object', 'wp-graphql' ),
 							],
 							'location' => [
 								'type'        => 'MenuLocationEnum',
