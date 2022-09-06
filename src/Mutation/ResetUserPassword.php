@@ -101,6 +101,9 @@ class ResetUserPassword {
 			 */
 			reset_password( $user, $input['password'] );
 
+			// Log in the user, since they already authenticated with the reset key.
+			wp_set_current_user( $user->ID );
+
 			/**
 			 * Return the user ID
 			 */

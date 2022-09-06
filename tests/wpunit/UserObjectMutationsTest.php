@@ -884,7 +884,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'password' => $new_password,
 		];
 
-		wp_set_current_user( $this->admin );
+		wp_set_current_user( $this->subscriber );
 
 		$actual = $this->resetUserPasswordMutation( $args );
 		codecept_debug( $actual );
