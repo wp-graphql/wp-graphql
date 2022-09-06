@@ -207,7 +207,7 @@ class NodeResolver {
 
 						if ( $wp_rewrite->use_verbose_page_rules && preg_match( '/pagename=\$matches\[([0-9]+)\]/', $query, $varmatch ) ) {
 							// This is a verbose page match, let's check to be sure about it.
-							$page = get_page_by_path( $matches[ $varmatch[1] ] );
+							$page = get_page_by_path( $matches[ $varmatch[1] ] ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
 							if ( ! $page ) {
 								continue;
 							}
@@ -389,7 +389,7 @@ class NodeResolver {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
 
-			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type );
+			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
 
 			unset( $this->wp->query_vars['uri'] );
 			$post = $post instanceof WP_Post ? $this->validate_post( $post ) : null;
@@ -411,7 +411,8 @@ class NodeResolver {
 
 			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : \WPGraphQL::get_allowed_post_types();
 
-			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type );
+			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
+
 			if ( ! $post instanceof WP_Post ) {
 				return null;
 			}
@@ -463,7 +464,7 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] && isset( $this->wp->query_vars['uri'] ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 
-				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type );
+				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
 
 				$post = isset( $post->ID ) ? $this->validate_post( $post ) : null;
 				return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;

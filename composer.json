@@ -28,6 +28,7 @@
 		"appsero/client": "^1.2"
 	},
 	"require-dev": {
+		"automattic/vipwpcs": "^2.2",
 		"lucatume/wp-browser": "3.1.0",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-phpbrowser": "^1.0",
@@ -36,10 +37,7 @@
 		"codeception/module-filesystem": "^1.0",
 		"codeception/module-cli": "^1.0",
 		"codeception/util-universalframework": "^1.0",
-		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
-		"wp-coding-standards/wpcs": "^2.3",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
-		"squizlabs/php_codesniffer": "^3.5.7",
 		"phpstan/phpstan": "^1.7",
 		"szepeviktor/phpstan-wordpress": "1.1.1",
 		"codeception/module-rest": "^1.2",

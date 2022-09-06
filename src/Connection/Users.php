@@ -134,7 +134,7 @@ class Users {
 				],
 				'description' => __( 'Array of userIds to include.', 'wp-graphql' ),
 			],
-			'exclude'           => [
+			'exclude'           => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				'type'        => [
 					'list_of' => 'Int',
 				],
