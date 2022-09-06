@@ -367,7 +367,7 @@ class NodeResolver {
 
 			} else {
 
-				if ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] ) {
+				if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) {
 					return null;
 				}
 
@@ -424,6 +424,11 @@ class NodeResolver {
 			}
 
 			if ( (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
+
+				if ( isset( $extra_query_vars['nodeType'] ) && 'ContentNode' === $extra_query_vars['nodeType'] ) {
+					return null;
+				}
+
 				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 			}
 
@@ -443,7 +448,7 @@ class NodeResolver {
 		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
 
 			// If the query is asking for a Page nodeType with the home uri, try and resolve it.
-			if ( '/' === $this->wp->query_vars['uri'] && ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] ) ) {
+			if ( '/' === $this->wp->query_vars['uri'] && ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) ) {
 
 				// If the post type is not a page, but the uri is for the home page, we can return null now
 				if ( 'page' !== $this->wp->query_vars['post_type'] ) {
@@ -456,7 +461,7 @@ class NodeResolver {
 			}
 
 			// If the query is asking for a Page nodeType with the uri, try and resolve it.
-			if ( isset( $this->wp->query_vars['nodeType'] ) && 'Page' === $this->wp->query_vars['nodeType'] && isset( $this->wp->query_vars['uri'] ) ) {
+			if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] && isset( $this->wp->query_vars['uri'] ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 
 				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
