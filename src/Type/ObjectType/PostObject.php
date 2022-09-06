@@ -43,7 +43,7 @@ class PostObject {
 	 * @return array
 	 */
 	public static function get_fields( $post_type_object, $type_registry ) {
-		_deprecated_function( __FUNCTION__, '@todo', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ). '::get_fields()' );
+		_deprecated_function( __FUNCTION__, '@todo', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::get_fields()' );
 
 		return \WPGraphQL\Registry\Utils\PostObject::get_fields( $post_type_object );
 	}
