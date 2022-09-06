@@ -663,7 +663,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// $this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
 		// $this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
 
-		unregister_taxonomy( 'with_imterface_kind' );
+		unregister_taxonomy( 'with_interface_kind' );
 		unregister_taxonomy( 'child_type_one' );
 		unregister_taxonomy( 'child_type_two' );
 
