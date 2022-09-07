@@ -826,7 +826,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			],
 		];
 
-		return graphql( compact( 'query', 'variables' ) );
+		return $this->graphql( compact( 'query', 'variables' ) );
 
 	}
 
@@ -884,10 +884,10 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'password' => $new_password,
 		];
 
-		wp_set_current_user( $this->subscriber );
+		// Ensure user is logged out
+		wp_set_current_user( 0 );
 
 		$actual = $this->resetUserPasswordMutation( $args );
-		codecept_debug( $actual );
 
 		$role_nodes = [];
 		foreach ( $roles as $role ) {
@@ -934,6 +934,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->resetUserPasswordMutation( $args );
 
 		// Try to authenticate user using new password.
+		wp_set_current_user( 0 );
+
 		$authenticated_user   = wp_authenticate( $login, $new_password );
 		$was_reset_successful = ! is_wp_error( $authenticated_user );
 
