@@ -28,6 +28,8 @@ class PostObjectMutation {
 	 */
 	public static function prepare_post_object( $input, $post_type_object, $mutation_name ) {
 
+		$insert_post_args = [];
+
 		/**
 		 * Set the post_type for the insert
 		 */

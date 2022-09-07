@@ -1,12 +1,22 @@
 # Number of days of inactivity before an issue becomes stale
-daysUntilStale: 60
-# Number of days of inactivity before a stale issue is closed
-daysUntilClose: 30
+daysUntilStale: 90
+# Stalebot will close issues marked "stale?" if they have not been triaged after 90 days. 
+# See https://github.com/wp-graphql/wp-graphql/issues/2494
+daysUntilClose: 90
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - not stale
-# Label to use when marking an issue as stale
-staleLabel: stale
+  - "not stale"
+  - "🚨 Importance: Critical"
+  - "Ready for Review"
+  - "Release"
+  - "Target: v2.0"
+  - "Work in Progress"
+  - "status: assigned"
+  - "status: blocked"
+# Stalebot will mark issues as stale? after 90 days
+# If stale? issues haven't been triaged after another 90 days, they will be closed. 
+# See: https://github.com/wp-graphql/wp-graphql/issues/2494
+staleLabel: "stale?"
 # Comment to post when marking an issue as stale. Set to `false` to disable
 markComment: >
   This issue has been automatically marked as stale because it has not had

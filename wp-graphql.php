@@ -57,7 +57,7 @@ if ( ! function_exists( 'graphql_init' ) ) {
 graphql_init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once 'cli/wp-cli.php';
+	require_once plugin_dir_path( __FILE__ ) . 'cli/wp-cli.php';
 }
 
 /**
@@ -67,7 +67,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  */
 function graphql_init_appsero_telemetry() {
 
-	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on
+	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on.
 	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
 		return;
 	}
@@ -76,7 +76,6 @@ function graphql_init_appsero_telemetry() {
 
 	// @phpstan-ignore-next-line
 	$client->insights()->init();
-
 }
 
 graphql_init_appsero_telemetry();

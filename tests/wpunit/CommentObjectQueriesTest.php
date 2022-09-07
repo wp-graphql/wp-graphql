@@ -95,8 +95,8 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		 * Create the query string to pass to the $query
 		 */
 		$query = '
-		query testCommentQuery( $id: ID! ) {
-			comment(id: $id ) {
+		query testCommentQuery( $id: ID!, $idType: CommentNodeIdTypeEnum ) {
+			comment(id: $id, idType: $idType ) {
 				agent
 				approved
 				author{
@@ -108,15 +108,15 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 					}
 				}
 				authorIp
-				commentId
+				databaseId
 				replies {
 					edges {
 						node {
 							id
-							commentId
+							databaseId
 							parent {
 								node {
-									commentId
+									databaseId
 								}
 							}
 						}
@@ -140,8 +140,10 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			}
 		}';
 
+		// Test with database_id.
 		$variables = [
-			'id' => $global_id,
+			'id'     => $comment_id,
+			'idType' => 'DATABASE_ID',
 		];
 
 		/**
@@ -166,7 +168,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'replies'     => [
 					'edges' => [],
 				],
-				'commentId'   => $comment_id,
+				'databaseId'  => $comment_id,
 				'commentedOn' => [
 					'node' => [
 						'__typename' => 'Post',
@@ -180,6 +182,16 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'parent'      => null,
 			],
 		];
+
+		$this->assertEqualSets( $expected, $actual['data'] );
+
+		// Test with global_id.
+		$variables = [
+			'id'     => $global_id,
+			'idType' => 'ID',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEqualSets( $expected, $actual['data'] );
 	}

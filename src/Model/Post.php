@@ -692,6 +692,15 @@ class Post extends Model {
 						return '/';
 					}
 
+					// if the page is set as the posts page
+					// the page node itself is not identifiable
+					// by URI. Instead, the uri would return the
+					// Post content type as that uri
+					// represents the blog archive instead of a page
+					if ( true === $this->isPostsPage ) {
+						return null;
+					}
+
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
 				'commentCount'              => function () {
@@ -821,7 +830,10 @@ class Post extends Model {
 						return ! empty( $source_url ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function () {
-						$sizes = get_intermediate_image_sizes();
+						/**
+						 * This returns an empty array on the VIP Go platform.
+						 */
+						$sizes = get_intermediate_image_sizes(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_intermediate_image_sizes_get_intermediate_image_sizes
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
 							foreach ( $sizes as $size ) {

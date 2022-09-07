@@ -355,7 +355,7 @@ final class WPGraphQL {
 	public function maybe_flush_permalinks() {
 		$rules = get_option( 'rewrite_rules' );
 		if ( ! isset( $rules[ Router::$route . '/?$' ] ) ) {
-			flush_rewrite_rules();
+			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 		}
 	}
 

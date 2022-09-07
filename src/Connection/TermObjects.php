@@ -267,7 +267,7 @@ class TermObjects {
 					],
 					'description' => __( 'Array of term ids to include. Default empty array.', 'wp-graphql' ),
 				],
-				'exclude'             => [
+				'exclude'             => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 					'type'        => [
 						'list_of' => 'ID',
 					],

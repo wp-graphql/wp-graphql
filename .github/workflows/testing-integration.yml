@@ -67,7 +67,7 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
           USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           SUITES: functional
           PHP_VERSION: ${{ matrix.php }}
@@ -78,7 +78,7 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
           USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
