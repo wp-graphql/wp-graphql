@@ -87,6 +87,19 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 1.10.0 =
+
+PR ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)) fixes a bug that some users were
+using as a feature.
+
+When a page is marked as the "Posts Page" WordPress does not resolve that page by URI, and this
+bugfix no longer will resolve that page by URI.
+
+You can [read more](https://github.com/wp-graphql/wp-graphql/issues/2486#issuecomment-1232169375)
+about why this change was made and find a snippet of code that will bring the old functionality back
+if you've built features around it.
+
+
 = 1.9.0 =
 
 There are 2 changes that **might** require action when updating to 1.9.0.

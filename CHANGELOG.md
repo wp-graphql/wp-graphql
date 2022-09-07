@@ -2,6 +2,15 @@
 
 ## 1.10.0
 
+### Upgrading
+
+PR ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)) fixes a bug that some users were using as a feature. 
+
+When a page is marked as the "Posts Page" WordPress does not resolve that page by URI, and this bugfix no longer will resolve that page by URI. 
+
+[Here](https://github.com/wp-graphql/wp-graphql/issues/2486#issuecomment-1232169375), you can read more about why this change was made and find a snippet of code that will bring the old functionality back if you've built features around it.
+
+
 ### New Features
 
 - ([#2503](https://github.com/wp-graphql/wp-graphql/pull/2503)): Enable codeception debugging via Github Actions. Thanks @justlevine!
