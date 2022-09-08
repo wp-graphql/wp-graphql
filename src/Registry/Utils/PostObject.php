@@ -64,10 +64,17 @@ class PostObject {
 		if ( 'interface' === $post_type_object->graphql_kind ) {
 			register_graphql_interface_type( $single_name, $config );
 		} elseif ( 'union' === $post_type_object->graphql_kind ) {
-			// Set the possible types for the union.
-			$config['typeNames'] = $post_type_object->graphql_union_types;
 
-			register_graphql_union_type( $single_name, $config );
+			if ( ! empty( $post_type_object->graphql_union_types ) && is_array( $post_type_object->graphql_union_types ) ) {
+
+				// Set the possible types for the union.
+				$config['typeNames'] = $post_type_object->graphql_union_types;
+
+				register_graphql_union_type( $single_name, $config );
+
+			} else {
+				graphql_debug( 'Registering a post type with "graphql_kind" => "union" requires "graphql_union_types" to also be set', [ 'registered_post_type_object' => $post_type_object ] );
+			}
 		}
 	}
 
@@ -297,11 +304,10 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
-	 *
 	 * @param WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return array
+	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
 	 */
 	public static function get_fields( WP_Post_Type $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
@@ -350,14 +356,14 @@ class PostObject {
 		}
 
 		if ( ! $post_type_object->hierarchical &&
-				! in_array(
-					$post_type_object->name,
-					[
-						'attachment',
-						'revision',
-					],
-					true
-				) ) {
+			! in_array(
+				$post_type_object->name,
+				[
+					'attachment',
+					'revision',
+				],
+				true
+			) ) {
 			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
 			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
 		}
@@ -439,7 +445,11 @@ class PostObject {
 						$image = wp_get_attachment_image_src( $source->ID, $size );
 						if ( $image ) {
 							list( $src, $width, $height ) = $image;
-							$sizes                        = wp_calculate_image_sizes( [ absint( $width ), absint( $height ) ], $src, null, $source->ID );
+							$sizes                        = wp_calculate_image_sizes( [
+								absint( $width ),
+								absint( $height ),
+							], $src, null, $source->ID );
+
 							return ! empty( $sizes ) ? $sizes : null;
 						}
 
