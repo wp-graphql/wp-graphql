@@ -94,8 +94,8 @@ final class WPGraphQL {
 	 * The whole idea of the singleton design pattern is that there is a single object
 	 * therefore, we don't want the object to be cloned.
 	 *
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
 	 */
 	public function __clone() {
 
@@ -107,8 +107,8 @@ final class WPGraphQL {
 	/**
 	 * Disable unserializing of the class.
 	 *
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
 	 */
 	public function __wakeup() {
 
@@ -120,8 +120,8 @@ final class WPGraphQL {
 	/**
 	 * Setup plugin constants.
 	 *
-	 * @since  0.0.1
 	 * @return void
+	 * @since  0.0.1
 	 */
 	private function setup_constants() {
 
@@ -159,8 +159,8 @@ final class WPGraphQL {
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
-	 * @since  0.0.1
 	 * @return bool
+	 * @since  0.0.1
 	 */
 	private function includes() {
 
@@ -229,7 +229,8 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution cycle
+	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution
+	 * cycle
 	 *
 	 * @return void
 	 */
@@ -308,9 +309,8 @@ final class WPGraphQL {
 	 * If the server is running a lower version than required, throw an exception and prevent
 	 * further execution.
 	 *
-	 * @throws Exception
-	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function min_php_version_check() {
 
@@ -382,7 +382,10 @@ final class WPGraphQL {
 		);
 
 		// Filter how metadata is retrieved during GraphQL requests
-		add_filter( 'get_post_metadata', [ Preview::class, 'filter_post_meta_for_previews' ], 10, 4 );
+		add_filter( 'get_post_metadata', [
+			Preview::class,
+			'filter_post_meta_for_previews',
+		], 10, 4 );
 
 		/**
 		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
@@ -396,12 +399,13 @@ final class WPGraphQL {
 				/**
 				 * Filters the interfaces applied to an object type
 				 *
-				 * @param array        $interfaces     List of interfaces applied to the Object Type
-				 * @param array        $config         The config for the Object Type
-				 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
+				 * @param array                              $interfaces List of interfaces applied to the Object Type
+				 * @param array                              $config     The config for the Object Type
+				 * @param mixed|WPInterfaceType|WPObjectType $type       The Type instance
 				 */
 				return apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $type );
 			}
+
 			return $interfaces;
 
 		}, 10, 3 );
@@ -421,16 +425,16 @@ final class WPGraphQL {
 	/**
 	 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
 	 *
-	 * @since  0.0.2
 	 * @return void
+	 * @since  0.0.2
 	 */
 	public static function show_in_graphql() {
 		add_filter( 'register_post_type_args', [ __CLASS__, 'setup_default_post_types' ], 10, 2 );
 		add_filter( 'register_taxonomy_args', [ __CLASS__, 'setup_default_taxonomies' ], 10, 2 );
 
 		// Run late so the user can filter the args themselves.
-		add_filter( 'register_post_type_args', [ __CLASS__, 'set_wp_type_args' ], 99, 2 );
-		add_filter( 'register_taxonomy_args', [ __CLASS__, 'set_wp_type_args' ], 99, 2 );
+		add_filter( 'register_post_type_args', [ __CLASS__, 'register_graphql_post_type_args' ], 99, 2 );
+		add_filter( 'register_taxonomy_args', [ __CLASS__, 'register_graphql_taxonomy_args' ], 99, 2 );
 	}
 
 	/**
@@ -463,8 +467,8 @@ final class WPGraphQL {
 	/**
 	 * Sets up the default taxonomies to show_in_graphql.
 	 *
-	 * @param array  $args      Array of arguments for registering a taxonomy.
-	 * @param string $taxonomy  Taxonomy key.
+	 * @param array  $args     Array of arguments for registering a taxonomy.
+	 * @param string $taxonomy Taxonomy key.
 	 *
 	 * @return array
 	 */
@@ -488,21 +492,64 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * This sets the post type /taxonomy GraphQL properties.
+	 * Set the GraphQL Post Type Args and pass them through a filter.
 	 *
-	 * @param array  $args      Array of arguments for registering the type.
-	 * @param string $wp_type   Post type / Taxonomy type key.
+	 * @param array  $args           The graphql specific args for the post type
+	 * @param string $post_type_name The name of the post type being registered
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function register_graphql_post_type_args( array $args, string $post_type_name ) {
+
+		$graphql_args = self::get_default_graphql_type_args();
+
+		/**
+		 * Filters the graphql args set on a post type
+		 *
+		 * @param array  $args           The graphql specific args for the post type
+		 * @param string $post_type_name The name of the post type being registered
+		 */
+		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
+
+		return wp_parse_args( $args, $graphql_args );
+
+	}
+
+	/**
+	 * Set the GraphQL Taxonomy Args and pass them through a filter.
+	 *
+	 * @param array  $args          The graphql specific args for the taxonomy
+	 * @param string $taxonomy_name The name of the taxonomy being registered
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ) {
+
+
+		$graphql_args = self::get_default_graphql_type_args();
+
+		/**
+		 * Filters the graphql args set on a taxonomy
+		 *
+		 * @param array  $args          The graphql specific args for the taxonomy
+		 * @param string $taxonomy_name The name of the taxonomy being registered
+		 */
+		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
+
+		return wp_parse_args( $args, $graphql_args );
+
+	}
+
+	/**
+	 * This sets the post type /taxonomy GraphQL properties.
 	 *
 	 * @return array
 	 */
-	public static function set_wp_type_args( $args, $wp_type ) {
+	public static function get_default_graphql_type_args() {
 
-		// Bail early if the post type is hidden from the WPGraphQL schema.
-		if ( empty( $args['show_in_graphql'] ) ) {
-			return $args;
-		}
-
-		$defaults = [
+		return [
 			// The "kind" of GraphQL type to register. Can be `interface`, `object`, or `union`.
 			'graphql_kind'                     => 'object',
 			// The callback used to resolve the type. Only used if `graphql_kind` is an `interface` or `union`.
@@ -521,40 +568,16 @@ final class WPGraphQL {
 			'graphql_register_root_field'      => true,
 			'graphql_register_root_connection' => true,
 		];
-
-		$args = wp_parse_args( $args, $defaults );
-
-		// Ensure a valid type resolver is set for interface and union types.
-		if ( ! is_callable( $args['graphql_resolve_type'] ) && ( 'interface' === $args['graphql_kind'] || 'union' === $args['graphql_kind'] ) ) {
-			throw new Exception(
-				sprintf(
-					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure $args[\'graphql_resolve_type\'] is a valid callback function.', 'wp-graphql' ),
-					$wp_type,
-					$args['graphql_kind']
-				)
-			);
-		}
-
-		// Ensure union types have a valid list of possible types.
-		if ( empty( $args['graphql_union_types'] ) && 'union' === $args['graphql_kind'] ) {
-			throw new Exception(
-				sprintf(
-					__( '%1$s is registered as a GraphQL Union, but has list of possible types. Ensure $args[\'graphql_union_types\'] is a valid array of GraphQL type names.', 'wp-graphql' ),
-					$wp_type
-				)
-			);
-		}
-
-		return $args;
 	}
 
 	/**
 	 * Get the post types that are allowed to be used in GraphQL.
-	 * This gets all post_types that are set to show_in_graphql, but allows for external code (plugins/theme) to
-	 * filter the list of allowed_post_types to add/remove additional post_types
+	 * This gets all post_types that are set to show_in_graphql, but allows for external code
+	 * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
 	 *
-	 * @param string|array $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
-	 * @param array $args Optional. Arguments to filter allowed post types
+	 * @param string|array $output Optional. The type of output to return. Accepts post type
+	 *                             'names' or 'objects'. Default 'names'.
+	 * @param array        $args   Optional. Arguments to filter allowed post types
 	 *
 	 * @return array
 	 * @since  0.0.4
@@ -605,13 +628,13 @@ final class WPGraphQL {
 			 * Pass through a filter to allow the post_types to be modified.
 			 * For example if a certain post_type should not be exposed to the GraphQL API.
 			 *
-			 * @since 0.0.2
-			 * @since 1.8.1 add $post_type_objects parameter.
-			 *
-			 * @param array $post_type_names Array of post type names.
+			 * @param array $post_type_names   Array of post type names.
 			 * @param array $post_type_objects Array of post type objects.
 			 *
 			 * @return array
+			 * @since 1.8.1 add $post_type_objects parameter.
+			 *
+			 * @since 0.0.2
 			 */
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
 
@@ -647,14 +670,16 @@ final class WPGraphQL {
 
 	/**
 	 * Get the taxonomies that are allowed to be used in GraphQL.
-	 * This gets all taxonomies that are set to "show_in_graphql" but allows for external code (plugins/themes) to
-	 * filter the list of allowed_taxonomies to add/remove additional taxonomies
+	 * This gets all taxonomies that are set to "show_in_graphql" but allows for external code
+	 * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
+	 * taxonomies
 	 *
-	 * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
-	 * @param array $args Optional. Arguments to filter allowed taxonomies.
+	 * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or
+	 *                       'objects'. Default 'names'.
+	 * @param array  $args   Optional. Arguments to filter allowed taxonomies.
 	 *
-	 * @since  0.0.4
 	 * @return array
+	 * @since  0.0.4
 	 */
 	public static function get_allowed_taxonomies( $output = 'names', $args = [] ) {
 
@@ -694,13 +719,13 @@ final class WPGraphQL {
 			 * Pass through a filter to allow the taxonomies to be modified.
 			 * For example if a certain taxonomy should not be exposed to the GraphQL API.
 			 *
-			 * @since 0.0.2
-			 * @since 1.8.1 add $tax_names and $tax_objects parameters.
-			 *
-			 * @param array $tax_names Array of taxonomy names
+			 * @param array $tax_names   Array of taxonomy names
 			 * @param array $tax_objects Array of taxonomy objects.
 			 *
 			 * @return array
+			 * @since 1.8.1 add $tax_names and $tax_objects parameters.
+			 *
+			 * @since 0.0.2
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
 
@@ -763,11 +788,11 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @since 0.0.5
-			 *
-			 * @param WPSchema   $schema      The executable Schema that GraphQL executes against
-			 * @param AppContext $app_context Object The AppContext object containing all of the
+			 * @param WPSchema   $schema                 The executable Schema that GraphQL executes against
+			 * @param AppContext $app_context            Object The AppContext object containing all of the
 			 *                                           information about the context we know at this point
+			 *
+			 * @since 0.0.5
 			 */
 			self::$schema = apply_filters( 'graphql_schema', $schema, self::get_app_context() );
 		}
@@ -819,11 +844,11 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @since 0.0.5
-			 *
-			 * @param TypeRegistry $type_registry The TypeRegistry for the API
-			 * @param AppContext   $app_context   Object The AppContext object containing all of the
+			 * @param TypeRegistry $type_registry          The TypeRegistry for the API
+			 * @param AppContext   $app_context            Object The AppContext object containing all of the
 			 *                                             information about the context we know at this point
+			 *
+			 * @since 0.0.5
 			 */
 			self::$type_registry = apply_filters( 'graphql_type_registry', $type_registry, self::get_app_context() );
 		}
