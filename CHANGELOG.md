@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.10.0
+
+### Upgrading
+
+PR ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)) fixes a bug that some users were using as a feature. 
+
+When a page is marked as the "Posts Page" WordPress does not resolve that page by URI, and this bugfix no longer will resolve that page by URI. 
+
+[Here](https://github.com/wp-graphql/wp-graphql/issues/2486#issuecomment-1232169375), you can read more about why this change was made and find a snippet of code that will bring the old functionality back if you've built features around it.
+
+
+### New Features
+
+- ([#2503](https://github.com/wp-graphql/wp-graphql/pull/2503)): Enable codeception debugging via Github Actions. Thanks @justlevine!
+- ([#2502](https://github.com/wp-graphql/wp-graphql/pull/2502)): Add `idType` arg to `RootQuery.comment`. Thanks @justlevine!
+- ([#2505](https://github.com/wp-graphql/wp-graphql/pull/2505)): Return user after `resetUserPassword` mutation. Thanks @justlevine!
+
+### Chores / Bugfixes
+
+- ([#2482](https://github.com/wp-graphql/wp-graphql/pull/2482)): Add PHP Code Sniffer support for the WordPress.com VIP GO standard. Thanks @renatonascalves!
+- ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)): Fix bug related to querying the page set as "Posts Page"
+- ([#2497](https://github.com/wp-graphql/wp-graphql/pull/2497)): Only enqueue admin scripts on the settings page. Thanks @justlevine!
+- ([#2498](https://github.com/wp-graphql/wp-graphql/pull/2498)): Add `include` and `exclude` args to `MediaDetails.sizes`. Thanks @justlevine!
+- ([#2499](https://github.com/wp-graphql/wp-graphql/pull/2499)): Check for multiple theme capabilities in the Theme Model. Thanks @justlevine!
+- ([#2504](https://github.com/wp-graphql/wp-graphql/pull/2504)): Filter `mediaItems` query by `mimeType`. Thanks @justlevine!
+- ([#2506](https://github.com/wp-graphql/wp-graphql/pull/2506)): Update descriptions for input fields that accept a `databaseId`. Thanks @justlevine!
+- ([#2511](https://github.com/wp-graphql/wp-graphql/pull/2511)): Update link in docs to point to correct "nonce" example. Thanks @NielsdeBlaauw!
+
+
 ## 1.9.1
 
 ### Chores / Bugfixes

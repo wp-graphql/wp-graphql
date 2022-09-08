@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.9.1' );
+			define( 'WPGRAPHQL_VERSION', '1.10.0' );
 		}
 
 		// Plugin Folder Path.
@@ -355,7 +355,7 @@ final class WPGraphQL {
 	public function maybe_flush_permalinks() {
 		$rules = get_option( 'rewrite_rules' );
 		if ( ! isset( $rules[ Router::$route . '/?$' ] ) ) {
-			flush_rewrite_rules();
+			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 		}
 	}
 

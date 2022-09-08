@@ -72,4 +72,43 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
 		$this->assertSame( str_ireplace( home_url(), '', get_permalink( $this->page ) ), $actual['data']['page']['uri'] );
 	}
+
+	public function testQueryPageForPostsByUriReturnsNull() {
+
+
+		$query = '
+		query GetPageByUri($id:ID!) {
+			page(id: $id, idType: URI) {
+				__typename
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => '/' . get_post( $this->page )->post_name,
+			]
+		]);
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'page.__typename', 'Page' ),
+		]);
+
+		// set the page as the page_for_posts
+		update_option( 'page_for_posts', $this->page );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => '/' . get_post( $this->page )->post_name,
+			]
+		]);
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'page', self::IS_NULL ),
+		]);
+
+	}
+
 }

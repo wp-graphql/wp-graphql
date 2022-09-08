@@ -48,7 +48,7 @@ class RootQuery {
 						'connectionArgs'       => [
 							'id'       => [
 								'type'        => 'Int',
-								'description' => __( 'The ID of the object', 'wp-graphql' ),
+								'description' => __( 'The database ID of the object', 'wp-graphql' ),
 							],
 							'location' => [
 								'type'        => 'MenuLocationEnum',
@@ -148,17 +148,35 @@ class RootQuery {
 						'type'        => 'Comment',
 						'description' => __( 'Returns a Comment', 'wp-graphql' ),
 						'args'        => [
-							'id' => [
+							'id'     => [
 								'type'        => [
 									'non_null' => 'ID',
 								],
 								'description' => __( 'Unique identifier for the comment node.', 'wp-graphql' ),
 							],
+							'idType' => [
+								'type'        => 'CommentNodeIdTypeEnum',
+								'description' => __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' ),
+							],
 						],
 						'resolve'     => function ( $source, array $args, AppContext $context, $info ) {
-							$id_components = Relay::fromGlobalId( $args['id'] );
+							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
-							return DataSource::resolve_comment( $id_components['id'], $context );
+							switch ( $id_type ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
+										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									}
+									$id = absint( $id_components['id'] );
+
+									break;
+							}
+
+							return $context->get_loader( 'comment' )->load_deferred( $id );
 						},
 					],
 					'contentNode' => [
@@ -675,7 +693,7 @@ class RootQuery {
 									[
 										'post_type' => $post_type_object->name,
 										'archive'   => false,
-										'nodeType'  => 'Page',
+										'nodeType'  => 'ContentNode',
 									]
 								);
 							case 'database_id':
@@ -683,11 +701,11 @@ class RootQuery {
 								break;
 							case 'source_url':
 								$url     = $args['id'];
-								$post_id = attachment_url_to_postid( $url );
+								$post_id = attachment_url_to_postid( $url ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid
 								if ( empty( $post_id ) ) {
 									return null;
 								}
-								$post_id = absint( attachment_url_to_postid( $url ) );
+								$post_id = absint( attachment_url_to_postid( $url ) ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid
 								break;
 							case 'global_id':
 							default:
@@ -783,7 +801,7 @@ class RootQuery {
 								[
 									'post_type' => $post_type_object->name,
 									'archive'   => false,
-									'nodeType'  => 'Page',
+									'nodeType'  => 'ContentNode',
 								]
 							);
 						} elseif ( ! empty( $args['slug'] ) ) {

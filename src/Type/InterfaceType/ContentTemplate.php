@@ -33,6 +33,7 @@ class ContentTemplate {
 	 * @return void
 	 */
 	public static function register_content_template_types() {
+		$page_templates            = [];
 		$page_templates['default'] = 'DefaultTemplate';
 
 		// Cycle through the registered post types and get the template information

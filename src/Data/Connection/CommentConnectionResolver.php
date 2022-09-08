@@ -7,7 +7,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Comment_Query;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -34,6 +33,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+
+		$query_args = [];
 
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
@@ -225,7 +226,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'contentAuthorNotIn' => 'post_author__not_in',
 			'contentId'          => 'post_id',
 			'contentIdIn'        => 'post__in',
-			'contentIdNotIn'     => 'post__not_in',
+			'contentIdNotIn'     => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 			'contentName'        => 'post_name',
 			'contentParent'      => 'post_parent',
 			'contentStatus'      => 'post_status',
