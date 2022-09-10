@@ -615,30 +615,43 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_resolve_type' => $this->resolve_type(),
 		]);
 
-		register_taxonomy( 'child_type_one', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeOne',
-			'graphql_plural_name' => 'ChildTypeOne',
-			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		register_graphql_object_type( 'ChildTypeOne', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'WithInterfaceKind' ],
+			'fields' => [
+				'isTypeOne' => [
+					'type' => 'Boolean',
+					'resolve' => function( $term ) {
+						return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
-		register_taxonomy( 'child_type_two', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeTwo',
-			'graphql_plural_name' => 'ChildTypeTwo',
-			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		register_graphql_object_type( 'ChildTypeTwo', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'WithInterfaceKind' ],
+			'fields' => [
+				'isTypeTwo' => [
+					'type' => 'Boolean',
+					'resolve' => function( $term ) {
+						return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
 		$term_one_id = $this->factory()->term->create( [
-			'taxonomy' => 'child_type_one',
+			'taxonomy' => 'with_interface_kind',
 			'name'     => 'Interface child 1',
 		] );
+		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
+
 		$term_two_id = $this->factory()->term->create( [
-			'taxonomy' => 'child_type_two',
+			'taxonomy' => 'with_interface_kind',
 			'name'     => 'Interface child 2',
 		] );
+		add_term_meta( $term_two_id, 'child_type', 'ChildTypeTwo' );
 
 		$this->clearSchema();
 
@@ -646,11 +659,13 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		{
 			withInterfaceKinds {
 				nodes {
-					... on ChildTypeOne{
+					__typename
 						databaseId
+					... on ChildTypeOne{
+						isTypeOne
 					}
 					... on ChildTypeTwo {
-						databaseId
+						isTypeTwo
 					}
 				}
 			}
@@ -658,16 +673,17 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// $this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		// $this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+
+		$this->assertEquals( $term_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeTwo', $actual['data']['withInterfaceKinds']['nodes'][0] );
+		$this->assertTrue( $actual['data']['withInterfaceKinds']['nodes'][0]['isTypeOne'] );
+
+		$this->assertEquals( $term_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeOne', $actual['data']['withInterfaceKinds']['nodes'][1] );
+		$this->assertTrue( $actual['data']['withInterfaceKinds']['nodes'][1]['isTypeTwo'] );
 
 		unregister_taxonomy( 'with_interface_kind' );
-		unregister_taxonomy( 'child_type_one' );
-		unregister_taxonomy( 'child_type_two' );
-
-		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
 	}
 
 	public function testRegisterTaxonomyWithUnionKind() {
@@ -684,28 +700,43 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		]);
 
-		register_taxonomy( 'child_type_one', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeOne',
-			'graphql_plural_name' => 'ChildTypeOne',
+		register_graphql_object_type( 'ChildTypeOne', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'TermNode' ],
+			'fields' => [
+				'isTypeOne' => [
+					'type' => 'Boolean',
+					'resolve' => function( $term ) {
+						return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
-		register_taxonomy( 'child_type_two', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeTwo',
-			'graphql_plural_name' => 'ChildTypeTwo',
+		register_graphql_object_type( 'ChildTypeTwo', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'TermNode' ],
+			'fields' => [
+				'isTypeTwo' => [
+					'type' => 'Boolean',
+					'resolve' => function( $term ) {
+						return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
 		$term_one_id = $this->factory()->term->create( [
-			'taxonomy' => 'child_type_one',
-			'name'     => 'Interface child 1',
+			'taxonomy' => 'with_union_kind',
+			'name'     => 'Union child 1',
 		] );
+		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
+
 		$term_two_id = $this->factory()->term->create( [
-			'taxonomy' => 'child_type_two',
-			'name'     => 'Interface child 2',
+			'taxonomy' => 'with_union_kind',
+			'name'     => 'Union child 2',
 		] );
+		add_term_meta( $term_two_id, 'child_type', 'ChildTypeTwo' );
 
 		$this->clearSchema();
 
@@ -713,11 +744,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		{
 			withUnionKinds {
 				nodes {
-					... on ChildTypeOne{
+					__typename
+					... on ChildTypeOne {
 						databaseId
+						isTypeOne
 					}
 					... on ChildTypeTwo {
 						databaseId
+						isTypeTwo
 					}
 				}
 			}
@@ -725,15 +759,17 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// $this->assertEquals( $term_one_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
-		// $this->assertEquals( $term_two_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+
+		$this->assertEquals( $term_one_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeTwo', $actual['data']['withUnionKinds']['nodes'][0] );
+		$this->assertTrue( $actual['data']['withUnionKinds']['nodes'][0]['isTypeOne'] );
+
+		$this->assertEquals( $term_two_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeOne', $actual['data']['withUnionKinds']['nodes'][1] );
+		$this->assertTrue( $actual['data']['withUnionKinds']['nodes'][1]['isTypeTwo'] );
 
 		unregister_taxonomy( 'with_union_kind' );
-		unregister_taxonomy( 'child_type_one' );
-		unregister_taxonomy( 'child_type_two' );
-		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
 	}
 
 
@@ -742,11 +778,11 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$type_registry = WPGraphQL::get_type_registry();
 
 			$type = null;
-			if ( isset( $value->taxonomyName ) ) {
-				$tax_object = get_taxonomy( $value->taxonomyName );
-				if ( isset( $tax_object->graphql_single_name ) ) {
-					$type = $type_registry->get_type( $tax_object->graphql_single_name );
-				}
+
+			$child_type_name = get_term_meta( $value->databaseId, 'child_type', true );
+
+			if ( ! empty( $child_type_name ) ) {
+				$type = $type_registry->get_type( $child_type_name );
 			}
 
 			return ! empty( $type ) ? $type : null;

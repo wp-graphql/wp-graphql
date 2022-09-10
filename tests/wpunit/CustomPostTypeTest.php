@@ -991,32 +991,48 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_resolve_type' => $this->resolve_type(),
 		]);
 
-		register_post_type( 'child_type_one', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeOne',
-			'graphql_plural_name' => 'ChildTypeOne',
-			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		register_graphql_object_type( 'ChildTypeOne', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'WithInterfaceKind' ],
+			'fields' => [
+				'isTypeOne' => [
+					'type' => 'Boolean',
+					'resolve' => function( $post ) {
+						return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
-		register_post_type( 'child_type_two', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeTwo',
-			'graphql_plural_name' => 'ChildTypeTwo',
-			'graphql_interfaces'  => [ 'WithInterfaceKind' ],
+		register_graphql_object_type( 'ChildTypeTwo', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'WithInterfaceKind' ],
+			'fields' => [
+				'isTypeTwo' => [
+					'type' => 'Boolean',
+					'resolve' => function( $post ) {
+						return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
 		$cpt_one_id = $this->factory()->post->create([
-			'post_type'   => 'child_type_one',
+			'post_type'   => 'with_interface_kind',
 			'post_status' => 'publish',
 			'post_title'  => 'Interface child 1',
+			'meta_input' => [
+				'child_type' => 'ChildTypeOne'
+			],
 		]);
 
 		$cpt_two_id = $this->factory()->post->create([
-			'post_type'   => 'child_type_two',
+			'post_type'   => 'with_interface_kind',
 			'post_status' => 'publish',
 			'post_title'  => 'Interface child 2',
+			'meta_input' => [
+				'child_type' => 'ChildTypeTwo'
+			],
 		]);
 
 		$this->clearSchema();
@@ -1025,11 +1041,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		{
 			withInterfaceKinds {
 				nodes {
-					... on ChildTypeOne{
 						databaseId
+					... on ChildTypeOne{
+						isTypeOne
 					}
 					... on ChildTypeTwo {
-						databaseId
+						isTypeTwo
 					}
 				}
 			}
@@ -1037,16 +1054,17 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// $this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
-		// $this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+
+		$this->assertEquals( $cpt_two_id, $actual['data']['withInterfaceKinds']['nodes'][0]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeOne', $actual['data']['withInterfaceKinds']['nodes'][0] );
+		$this->assertTrue( $actual['data']['withInterfaceKinds']['nodes'][0]['isTypeTwo'] );
+
+		$this->assertEquals( $cpt_one_id, $actual['data']['withInterfaceKinds']['nodes'][1]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeTwo', $actual['data']['withInterfaceKinds']['nodes'][1] );
+		$this->assertTrue( $actual['data']['withInterfaceKinds']['nodes'][1]['isTypeOne'] );
 
 		unregister_post_type( 'with_interface_kind' );
-		unregister_post_type( 'child_type_one' );
-		unregister_post_type( 'child_type_two' );
-
-		$this->markTestIncomplete( 'Connection is throwing duplicate fields error' );
 	}
 
 	public function testRegisterCustomPostTypeWithUnionKind() {
@@ -1063,30 +1081,48 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		]);
 
-		register_post_type( 'child_type_one', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeOne',
-			'graphql_plural_name' => 'ChildTypeOne',
+		register_graphql_object_type( 'ChildTypeOne', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'ContentNode' ],
+			'fields' => [
+				'isTypeOne' => [
+					'type' => 'Boolean',
+					'resolve' => function( $post ) {
+						return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
-		register_post_type( 'child_type_two', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'ChildTypeTwo',
-			'graphql_plural_name' => 'ChildTypeTwo',
+		register_graphql_object_type( 'ChildTypeTwo', [
+			'eagerlyLoadType' => true,
+			'interfaces' => [ 'ContentNode' ],
+			'fields' => [
+				'isTypeTwo' => [
+					'type' => 'Boolean',
+					'resolve' => function( $post ) {
+						return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
+					}
+				]
+			]
 		]);
 
 		$cpt_one_id = $this->factory()->post->create([
-			'post_type'   => 'child_type_one',
+			'post_type'   => 'with_union_kind',
 			'post_status' => 'publish',
 			'post_title'  => 'Union child 1',
+			'meta_input' => [
+				'child_type' => 'ChildTypeOne'
+			],
 		]);
 
 		$cpt_two_id = $this->factory()->post->create([
-			'post_type'   => 'child_type_two',
+			'post_type'   => 'with_union_kind',
 			'post_status' => 'publish',
 			'post_title'  => 'Union child 2',
+			'meta_input' => [
+				'child_type' => 'ChildTypeTwo'
+			],
 		]);
 
 		$this->clearSchema();
@@ -1095,11 +1131,13 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		{
 			withUnionKinds {
 				nodes {
-					... on ChildTypeOne{
+					... on ChildTypeOne {
 						databaseId
+						isTypeOne
 					}
 					... on ChildTypeTwo {
 						databaseId
+						isTypeTwo
 					}
 				}
 			}
@@ -1107,16 +1145,17 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		// $this->assertEquals( $cpt_one_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
-		// $this->assertEquals( $cpt_two_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+
+		$this->assertEquals( $cpt_two_id, $actual['data']['withUnionKinds']['nodes'][0]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeOne', $actual['data']['withUnionKinds']['nodes'][0] );
+		$this->assertTrue( $actual['data']['withUnionKinds']['nodes'][0]['isTypeTwo'] );
+
+		$this->assertEquals( $cpt_one_id, $actual['data']['withUnionKinds']['nodes'][1]['databaseId'] );
+		$this->assertArrayNotHasKey( 'isTypeTwo', $actual['data']['withUnionKinds']['nodes'][1] );
+		$this->assertTrue( $actual['data']['withUnionKinds']['nodes'][1]['isTypeOne'] );
 
 		unregister_post_type( 'with_union_kind' );
-		unregister_post_type( 'child_type_one' );
-		unregister_post_type( 'child_type_two' );
-
-		$this->markTestIncomplete( 'No nodes returned from resolve_type()' );
 	}
 
 	public function resolve_type() {
@@ -1124,12 +1163,10 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$type_registry = WPGraphQL::get_type_registry();
 
 			$type = null;
-			if ( isset( $value->post_type ) ) {
-				$post_type_object = get_post_type_object( $value->post_type );
 
-				if ( isset( $post_type_object->graphql_single_name ) ) {
-					$type = $type_registry->get_type( $post_type_object->graphql_single_name );
-				}
+			$child_type_name = get_post_meta( $value->ID, 'child_type', true );
+			if ( ! empty( $child_type_name ) ) {
+				$type = $type_registry->get_type( $child_type_name );
 			}
 
 			return ! empty( $type ) ? $type : null;
