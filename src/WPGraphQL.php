@@ -501,6 +501,10 @@ final class WPGraphQL {
 	 * @throws Exception
 	 */
 	public static function register_graphql_post_type_args( array $args, string $post_type_name ) {
+		// Bail early if the post type is hidden from the WPGraphQL schema.
+		if ( empty( $args['show_in_graphql'] ) ) {
+			return $args;
+		}
 
 		$graphql_args = self::get_default_graphql_type_args();
 
@@ -526,7 +530,10 @@ final class WPGraphQL {
 	 * @throws Exception
 	 */
 	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ) {
-
+		// Bail early if the taxonomy  is hidden from the WPGraphQL schema.
+		if ( empty( $args['show_in_graphql'] ) ) {
+			return $args;
+		}
 
 		$graphql_args = self::get_default_graphql_type_args();
 
@@ -544,10 +551,8 @@ final class WPGraphQL {
 
 	/**
 	 * This sets the post type /taxonomy GraphQL properties.
-	 *
-	 * @return array
 	 */
-	public static function get_default_graphql_type_args() {
+	public static function get_default_graphql_type_args() : array {
 
 		return [
 			// The "kind" of GraphQL type to register. Can be `interface`, `object`, or `union`.
