@@ -22,7 +22,7 @@ use WPGraphQL\Model\Term;
 class TermObject {
 
 	/**
-	 * Registers a post_type type to the schema as either a GraphQL object, interface, or union.
+	 * Registers a taxonomy type to the schema as either a GraphQL object, interface, or union.
 	 *
 	 * @param WP_Taxonomy $tax_object Taxonomy.
 	 *
@@ -52,11 +52,39 @@ class TermObject {
 		 *
 		 * It's assumed that the types used in `resolveType` have already been registered to the schema.
 		 */
+
+		// Bail early if graphql_resolve_type isnt a vallable callback.
+		if ( empty( $tax_object->graphql_resolve_type ) || ! is_callable( $tax_object->graphql_resolve_type ) ) {
+			graphql_debug(
+				sprintf(
+					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
+					$single_name,
+					$tax_object->graphql_kind
+				),
+				[ 'registered_taxonomy_object' => $tax_object ]
+			);
+
+			return;
+		}
+
 		$config['resolveType'] = $tax_object->graphql_resolve_type;
 
 		if ( 'interface' === $tax_object->graphql_kind ) {
 			register_graphql_interface_type( $single_name, $config );
+
+			return;
 		} elseif ( 'union' === $tax_object->graphql_kind ) {
+
+			// Bail early if graphql_union_types is not defined.
+			if ( empty( $tax_object->graphql_union_types ) || ! is_array( $tax_object->graphql_union_types ) ) {
+				graphql_debug(
+					__( 'Registering a taxonomy with "graphql_kind" => "union" requires "graphql_union_types" to be a valid array of possible GraphQL type names.', 'wp-graphql' ),
+					[ 'registered_taxonomy_object' => $tax_object ]
+				);
+
+				return;
+			}
+
 			// Set the possible types for the union.
 			$config['typeNames'] = $tax_object->graphql_union_types;
 

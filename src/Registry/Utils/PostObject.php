@@ -59,22 +59,43 @@ class PostObject {
 		 *
 		 * It's assumed that the types used in `resolveType` have already been registered to the schema.
 		 */
+
+		// Bail early if graphql_resolve_type isnt a vallable callback.
+		if ( empty( $post_type_object->graphql_resolve_type ) || ! is_callable( $post_type_object->graphql_resolve_type ) ) {
+			graphql_debug(
+				sprintf(
+					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
+					$single_name,
+					$post_type_object->graphql_kind
+				),
+				[ 'registered_post_type_object' => $post_type_object ]
+			);
+
+			return;
+		}
+
 		$config['resolveType'] = $post_type_object->graphql_resolve_type;
 
 		if ( 'interface' === $post_type_object->graphql_kind ) {
 			register_graphql_interface_type( $single_name, $config );
+
+			return;
 		} elseif ( 'union' === $post_type_object->graphql_kind ) {
 
-			if ( ! empty( $post_type_object->graphql_union_types ) && is_array( $post_type_object->graphql_union_types ) ) {
+			// Bail early if graphql_union_types is not defined.
+			if ( empty( $post_type_object->graphql_union_types ) || ! is_array( $post_type_object->graphql_union_types ) ) {
+				graphql_debug(
+					__( 'Registering a post type with "graphql_kind" => "union" requires "graphql_union_types" to be a valid array of possible GraphQL type names.', 'wp-graphql' ),
+					[ 'registered_post_type_object' => $post_type_object ]
+				);
 
-				// Set the possible types for the union.
-				$config['typeNames'] = $post_type_object->graphql_union_types;
-
-				register_graphql_union_type( $single_name, $config );
-
-			} else {
-				graphql_debug( 'Registering a post type with "graphql_kind" => "union" requires "graphql_union_types" to also be set', [ 'registered_post_type_object' => $post_type_object ] );
+				return;
 			}
+
+			// Set the possible types for the union.
+			$config['typeNames'] = $post_type_object->graphql_union_types;
+
+			register_graphql_union_type( $single_name, $config );
 		}
 	}
 
