@@ -766,8 +766,9 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		wp_set_current_user( $this->admin );
 
 		// Set our local file.
-		$this->create_variables['input']['file'] = $this->file;
-		$this->create_variables['input']['slug'] = 'test-medium';
+		$this->create_variables['input']['file']     = $this->file;
+		$this->create_variables['input']['slug']     = 'test-medium';
+		$this->create_variables['input']['filePath'] = null;
 
 		/**
 		 * Create the createMediaItem
