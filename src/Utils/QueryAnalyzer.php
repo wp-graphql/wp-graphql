@@ -465,8 +465,8 @@ class QueryAnalyzer {
 		}
 
 		if ( ! empty( $this->get_root_operation() ) ) {
-			 $headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
-			$keys[]                               = 'graphql:' . $this->get_root_operation();
+			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
+			$keys[]                              = 'graphql:' . $this->get_root_operation();
 		}
 
 		if ( ! empty( $keys ) ) {
