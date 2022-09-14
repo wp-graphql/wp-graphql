@@ -8,6 +8,25 @@ use WPGraphQL\Model\Model;
 class Utils {
 
 	/**
+	 * Given a GraphQL Query string, return a hash
+	 *
+	 * @param string $query The Query String to hash
+	 *
+	 * @return string|null
+	 */
+	public static function get_query_id( string $query ) {
+
+		try {
+			$query_ast = \GraphQL\Language\Parser::parse( $query );
+			$query     = \GraphQL\Language\Printer::doPrint( $query_ast );
+			return md5( $query );
+		} catch ( \Exception $exception ) {
+			return null;
+		}
+
+	}
+
+	/**
 	 * Maps new input query args and sanitizes the input
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
