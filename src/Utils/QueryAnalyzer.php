@@ -205,7 +205,7 @@ class QueryAnalyzer {
 	public function set_list_types( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param null $null Default value for the filter
+		 * @param array|null $null Default value for the filter
 		 * @param ?Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string $query The query string being requested
 		 */
@@ -286,7 +286,7 @@ class QueryAnalyzer {
 	public function set_query_types( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param null $null Default value for the filter
+		 * @param array|null $null Default value for the filter
 		 * @param ?Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string $query The query string being requested
 		 */
@@ -366,7 +366,7 @@ class QueryAnalyzer {
 	public function set_query_models( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param null $null Default value for the filter
+		 * @param array|null $null Default value for the filter
 		 * @param ?Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string $query The query string being requested
 		 */
