@@ -453,17 +453,19 @@ class QueryAnalyzer {
 
 		$keys = [];
 
-		if ( ! empty( $this->list_types ) ) {
+		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
+			$headers['X-GraphQL-List-Types'] = implode( ' ', array_unique( array_values( $this->get_list_types() ) ) );
 			$keys = array_merge( $keys, $this->get_list_types() );
 
 		}
 
-		if ( ! empty( $this->get_runtime_nodes() ) ) {
+		if ( ! empty( $this->get_runtime_nodes() ) && is_array( $this->get_runtime_nodes() ) ) {
+			$headers['X-GraphQL-Nodes'] = implode( ' ', array_unique( array_values( $this->get_runtime_nodes() ) ) );
 			$keys = array_merge( $keys, $this->get_runtime_nodes() );
 		}
 
 		if ( ! empty( $this->get_root_operation() ) ) {
-			$headers['X-GraphQL'] = $this->get_root_operation();
+			 $headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
 			$keys[]               = 'graphql:' . $this->get_root_operation();
 		}
 

@@ -27,7 +27,7 @@ class Utils {
 	}
 
 	/**
-	 * Maps new input query args and sanitizes the input
+	 * Maps new input query args and sa nitizes the input
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
