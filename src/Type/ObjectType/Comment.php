@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\ObjectType;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Model\Comment as CommentModel;
 
 /**
  * Class Comment
@@ -22,6 +23,7 @@ class Comment {
 			'Comment',
 			[
 				'description' => __( 'A Comment object', 'wp-graphql' ),
+				'model'       => CommentModel::class,
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'connections' => [
 					'author' => [

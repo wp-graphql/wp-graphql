@@ -89,6 +89,7 @@ class PostObject {
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
 				'interfaces'  => $interfaces,
 				'fields'      => self::get_post_object_fields( $post_type_object, $type_registry ),
+				'model'       => Post::class,
 			]
 		);
 

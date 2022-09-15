@@ -22,6 +22,7 @@ class MenuItem {
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'model'       => MenuItemModel::class,
 				'connections' => [
 					'connectedNode' => [
 						'toType'               => 'MenuItemLinkable',
