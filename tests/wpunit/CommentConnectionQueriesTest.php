@@ -27,6 +27,11 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	}
 
 	public function tearDown(): void {
+		foreach ( $this->created_comment_ids as $comment ) {
+			wp_delete_comment( $comment, true );
+		}
+		wp_delete_post( $this->post_id, true );
+
 		// then
 		parent::tearDown();
 	}
@@ -45,7 +50,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		 */
 		$defaults = [
 			'comment_post_ID'  => $post_id,
-			'comment_author'   => $this->admin,
+			'user_id'          => $this->admin,
 			'comment_content'  => 'Test comment content',
 			'comment_approved' => 1,
 		];
@@ -173,7 +178,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-//		$this->markTestIncomplete( 'Comments missing cursor pagination support' );
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasNextPage'] );
@@ -267,7 +271,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected = $wp_query->query( $query_args );
 		$expected = array_reverse( $expected );
 
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['comments']['pageInfo']['hasPreviousPage'] );
@@ -352,8 +356,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Using first and last should throw an error.
 		$actual = graphql( compact( 'query', 'variables' ) );
 
-
-
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		unset( $variables['first'] );
@@ -367,7 +369,96 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 	}
 
-	public function testWhereArgs() {
+	public function testAuthorWhereArgs() {
+		$query = $this->getQuery();
+
+		$author_one_id      = $this->factory()->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_email' => 'subscriber@wpgraphql.test',
+			]
+		);
+		$author_two_id      = $this->factory()->user->create(
+			[
+				'role'       => 'author',
+				'user_email' => 'author@wpgraphql.test',
+			]
+		);
+		$author_three_email = 'guest@wpgraphql.test';
+		$author_four_url    = 'https://myguestsite.test';
+
+		$comment_ids = [
+			$this->createCommentObject( [
+				'user_id'              => $author_one_id,
+				'comment_author_email' => 'subscriber@wpgraphql.test',
+			] ),
+			$this->createCommentObject( [
+				'user_id'              => $author_two_id,
+				'comment_author_email' => 'author@wpgraphql.test',
+				'comment_author_url'   => 'https://myguestsite.test',
+			] ),
+		];
+
+		// test authorEmail.
+		$variables = [
+			'where' => [
+				'authorEmail' => 'subscriber@wpgraphql.test',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['databaseId'] );
+
+		// test authorUrl.
+		$variables = [
+			'where' => [
+				'authorUrl' => 'https://myguestsite.test',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+
+		// test authorIn with ID + databaseId
+		$author_one_global_id = GraphQLRelay\Relay::toGlobalId( 'user', $author_one_id );
+
+		$variables = [
+			'where' => [
+				'authorIn' => [ $author_one_global_id, $author_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
+		$this->assertEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertEquals( $comment_ids[0], $actual['data']['comments']['nodes'][1]['databaseId'] );
+
+		// test authorNotIn with ID + databaseId
+
+		$variables = [
+			'where' => [
+				'authorNotIn' => [ $author_one_global_id, $author_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertCount( 6, $actual['data']['comments']['nodes'] );
+		$this->assertNotEquals( $comment_ids[1], $actual['data']['comments']['nodes'][0]['databaseId'] );
+		$this->assertNotEquals( $comment_ids[0], $actual['data']['comments']['nodes'][0]['databaseId'] );
+
+	}
+
+	public function testCommentTypeWhereArgs() {
 		$query = $this->getQuery();
 
 		$comment_type_one = 'custom-type-one';
