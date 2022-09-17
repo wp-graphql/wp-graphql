@@ -983,7 +983,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['contentTypes']['nodes'] );
 
-		$error_object_names = array_map( fn( $obj) => $obj->name , array_column( $actual['extensions']['debug'], 'registered_post_type_object' ) );
+		$error_object_names = array_map(
+			function ( $obj ){
+				return $obj->name;
+			},
+			array_column( $actual['extensions']['debug'], 'registered_post_type_object' )
+		);
 
 		codecept_debug( $error_object_names );
 
