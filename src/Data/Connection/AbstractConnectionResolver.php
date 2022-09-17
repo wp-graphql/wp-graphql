@@ -143,11 +143,6 @@ abstract class AbstractConnectionResolver {
 		$this->source = $source;
 
 		/**
-		 * Set the args for the resolver
-		 */
-		$this->args = $args;
-
-		/**
 		 * Set the context of the resolver
 		 */
 		$this->context = $context;
@@ -161,6 +156,22 @@ abstract class AbstractConnectionResolver {
 		 * Get the loader for the Connection
 		 */
 		$this->loader = $this->getLoader();
+
+		/**
+		 * Set the args for the resolver
+		 */
+		$this->args = $args;
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                      $args                The GraphQL args passed to the resolver.
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 *
+		 * @since @todo
+		 */
+		$this->args = apply_filters( 'graphql_connection_args', $this->getArgs(), $this );
 
 		/**
 		 * Determine the query amount for the resolver.
