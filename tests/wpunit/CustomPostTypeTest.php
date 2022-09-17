@@ -977,8 +977,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_resolve_type' => $this->resolve_type(),
 		]);
 
-
-
 		// Don't clutter up the log.
 		$actual = graphql( [ 'query' => $query ] );
 
