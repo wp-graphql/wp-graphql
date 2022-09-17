@@ -281,9 +281,13 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return AbstractConnectionResolver
 	 *
-	 * @deprecated in favor of set_query_arg
+	 * @deprecated 0.3.0
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
+		_deprecated_function( __FUNCTION__, '0.3.0', 'set_query_arg' );
+
 		return $this->set_query_arg( $key, $value );
 	}
 
