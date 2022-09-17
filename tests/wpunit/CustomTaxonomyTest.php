@@ -566,7 +566,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterTaxonomyWithGraphQLKindNoResolver() {
 		$query = '{
-			contentTypes {
+			taxonomies {
 				nodes {
 					__typename
 				}
@@ -601,13 +601,13 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotEmpty( $actual['data']['contentTypes']['nodes'] );
+		$this->assertNotEmpty( $actual['data']['taxonomies']['nodes'] );
 
 		$error_object_names = array_map(
 			function ( $obj ){
 				return $obj->name;
 			},
-			array_column( $actual['extensions']['debug'], 'registered_post_type_object' )
+			array_column( $actual['extensions']['debug'], 'registered_taxonomy_object' )
 		);
 
 		codecept_debug( $error_object_names );
