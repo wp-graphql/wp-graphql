@@ -230,7 +230,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @deprecated @todo
 	 *
-	 * @return array
+	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
 		_deprecated_function( __FUNCTION__, '@todo', 'get_args' );
@@ -611,6 +611,8 @@ abstract class AbstractConnectionResolver {
 	 * GraphQL query.
 	 *
 	 * @deprecated 1.9.0
+	 *
+	 * @codeCoverageIgnore
 	 *
 	 * @return int|mixed
 	 */
