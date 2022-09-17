@@ -565,40 +565,51 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithGraphQLKindNoResolver() {
+		$query = '{
+			contentTypes {
+				nodes {
+					__typename
+				}
+			}
+		}';
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
-				'public'              => true,
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'WithInterfaceKind',
-				'graphql_plural_name' => 'WithInterfaceKinds',
-				'graphql_kind'        => 'interface',
-			]);
+		register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'WithInterfaceKind',
+			'graphql_plural_name' => 'WithInterfaceKinds',
+			'graphql_kind'        => 'interface',
+		]);
+		register_taxonomy( 'with_union_kind_one', [ 'test_custom_tax_cpt' ], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'WithUnionKindOne',
+			'graphql_plural_name' => 'WithUnionKindOnes',
+			'graphql_kind'        => 'union',
+		]);
 
-		} );
+		register_taxonomy( 'with_union_kind_two', [ 'test_custom_tax_cpt' ], [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithUnionKindTwo',
+			'graphql_plural_name'  => 'WithUnionKindTwos',
+			'graphql_kind'         => 'union',
+			'graphql_resolve_type' => $this->resolve_type(),
+		]);
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_taxonomy( 'with_union_kind_one', [ 'test_custom_tax_cpt' ], [
-				'public'              => true,
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'WithUnionKind',
-				'graphql_plural_name' => 'WithUnionKinds',
-				'graphql_kind'        => 'union',
-			]);
+		// Don't clutter up the log.
+		$actual = graphql( [ 'query' => $query ] );
 
-		} );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['contentTypes']['nodes'] );
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_taxonomy( 'with_union_kind_two', [ 'test_custom_tax_cpt' ], [
-				'public'               => true,
-				'show_in_graphql'      => true,
-				'graphql_single_name'  => 'WithUnionKind',
-				'graphql_plural_name'  => 'WithUnionKinds',
-				'graphql_kind'         => 'union',
-				'graphql_resolve_type' => $this->resolve_type(),
-			]);
+		$error_object_names = array_map( fn( $obj) => $obj->name , array_column( $actual['extensions']['debug'], 'registered_taxonomy_object' ) );
 
-		} );
+		codecept_debug( $error_object_names );
+
+		$this->assertEquals( 'with_interface_kind', $error_object_names[0] );
+		$this->assertEquals( 'with_union_kind_one', $error_object_names[1] );
+		$this->assertEquals( 'with_union_kind_two', $error_object_names[2] );
 
 		unregister_taxonomy( 'with_interface_kind' );
 		unregister_taxonomy( 'with_union_kind_one' );

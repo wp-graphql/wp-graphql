@@ -941,40 +941,57 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterCustomPostTypeWithGraphQLKindNoResolver() {
+		$query = '{
+			contentTypes {
+				nodes {
+					__typename
+				}
+			}
+		}';
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_post_type( 'with_interface_kind', [
-				'public'              => true,
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'WithInterfaceKind',
-				'graphql_plural_name' => 'WithInterfaceKinds',
-				'graphql_kind'        => 'interface',
-			]);
+		// Test with interface.
+		register_post_type( 'with_interface_kind', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'WithInterfaceKind',
+			'graphql_plural_name' => 'WithInterfaceKinds',
+			'graphql_kind'        => 'interface',
+		]);
 
-		} );
+		register_post_type( 'with_union_kind_one', [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'WithUnionKindOne',
+			'graphql_plural_name' => 'WithUnionKindOnes',
+			'graphql_kind'        => 'union',
+		]);
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_post_type( 'with_union_kind_one', [
-				'public'              => true,
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'WithUnionKind',
-				'graphql_plural_name' => 'WithUnionKinds',
-				'graphql_kind'        => 'union',
-			]);
+		
+		// Test with union, where a resolve type is set, but no graphql_union_types. 
+		register_post_type( 'with_union_kind_two', [
+			'public'               => true,
+			'show_in_graphql'      => true,
+			'graphql_single_name'  => 'WithUnionKindTwo',
+			'graphql_plural_name'  => 'WithUnionKindTwos',
+			'graphql_kind'         => 'union',
+			'graphql_resolve_type' => $this->resolve_type(),
+		]);
 
-		} );
 
-		$this->tester->expectThrowable( \Exception::class, function () {
-			register_post_type( 'with_union_kind_two', [
-				'public'               => true,
-				'show_in_graphql'      => true,
-				'graphql_single_name'  => 'WithUnionKind',
-				'graphql_plural_name'  => 'WithUnionKinds',
-				'graphql_kind'         => 'union',
-				'graphql_resolve_type' => $this->resolve_type(),
-			]);
 
-		} );
+		// Don't clutter up the log.
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['contentTypes']['nodes'] );
+
+		$error_object_names = array_map( fn( $obj) => $obj->name , array_column( $actual['extensions']['debug'], 'registered_post_type_object' ) );
+
+		codecept_debug( $error_object_names );
+
+		$this->assertEquals( 'with_interface_kind', $error_object_names[0] );
+		$this->assertEquals( 'with_union_kind_one', $error_object_names[1] );
+		$this->assertEquals( 'with_union_kind_two', $error_object_names[2] );
 
 		unregister_post_type( 'with_interface_kind' );
 		unregister_post_type( 'with_union_kind_one' );
