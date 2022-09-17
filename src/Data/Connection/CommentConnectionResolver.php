@@ -236,10 +236,16 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
 						break;
 					case 'includeUnapproved':
-						if ( is_email( $input_value ) ) {
-							break;
+						if ( is_string( $input_value ) ) {
+							$input_value = [ $input_value ];
 						}
-						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						$args['where'][ $input_key ] = array_map( function ( $id ) {
+							if ( is_email( $id ) ) {
+								return $id;
+							}
+
+							return Utils::get_database_id_from_id( $id );
+						}, $input_value );
 						break;
 				}
 			}
