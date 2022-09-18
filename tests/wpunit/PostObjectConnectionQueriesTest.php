@@ -199,120 +199,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertTrue( $actual['data']['posts']['pageInfo']['hasNextPage'] );
 	}
 
-	public function testPostHasPassword() {
-		// Create a test post with a password
-		$this->createPostObject(
-			[
-				'post_title'    => 'Password protected',
-				'post_type'     => 'post',
-				'post_status'   => 'publish',
-				'post_password' => 'password',
-			]
-		);
-
-		/**
-		 * WP_Query posts with a password
-		 */
-		$wp_query_posts_with_password = new WP_Query(
-			[
-				'has_password' => true,
-			]
-		);
-
-		$query = $this->getQuery();
-
-		/**
-		 * GraphQL query posts that have a password
-		 */
-		$variables = [
-			'where' => [
-				'hasPassword' => true,
-			],
-		];
-
-		wp_set_current_user( $this->admin );
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-
-		$this->assertNotEmpty( $actual );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$edges = $actual['data']['posts']['edges'];
-		$this->assertNotEmpty( $edges );
-
-		/**
-		 * Loop through all the returned posts
-		 */
-		foreach ( $edges as $edge ) {
-
-			/**
-			 * Assert that all posts returned have a password, since we queried for
-			 * posts using "has_password => true"
-			 */
-			$password = get_post( $edge['node']['postId'] )->post_password;
-			$this->assertNotEmpty( $password );
-
-		}
-
-	}
-
-	public function testPageWithChildren() {
-
-		$parent_id = $this->factory->post->create(
-			[
-				'post_type' => 'page',
-			]
-		);
-
-		$child_id = $this->factory->post->create(
-			[
-				'post_type'   => 'page',
-				'post_parent' => $parent_id,
-			]
-		);
-
-		$global_id       = \GraphQLRelay\Relay::toGlobalId( 'post', $parent_id );
-		$global_child_id = \GraphQLRelay\Relay::toGlobalId( 'post', $child_id );
-
-		$query = '
-		{
-			page( id: "' . $global_id . '" ) {
-				id
-				pageId
-				children {
-					edges {
-						node {
-								...on Page {
-								id
-								pageId
-							}
-						}
-					}
-				}
-			}
-		}
-		';
-
-		$actual = do_graphql_request( $query );
-
-		/**
-		 * Make sure the query didn't return any errors
-		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$parent = $actual['data']['page'];
-		$child  = $parent['children']['edges'][0]['node'];
-
-		/**
-		 * Make sure the child and parent data matches what we expect
-		 */
-		$this->assertEquals( $global_id, $parent['id'] );
-		$this->assertEquals( $parent_id, $parent['pageId'] );
-		$this->assertEquals( $global_child_id, $child['id'] );
-		$this->assertEquals( $child_id, $child['pageId'] );
-
-	}
-
 	/**
 	 * Test to assert that the global post object is being set correctly
 	 */
@@ -959,6 +845,252 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	}
 
-	public function testWhereArgs() {
+	/**
+	 * Test the scenario where a post is assigned to an author
+	 * who is not a user on the site. This could happen for instance,
+	 * if the user was deleted, but their posts were never trashed
+	 * or assigned to another user.
+	 */
+	public function testQueryPostsWithOrphanedAuthorDoesntThrowErrors() {
+		global $wpdb;
+
+		$highest_user_id     = (int) $wpdb->get_var( "SELECT ID FROM {$wpdb->users} ORDER BY ID DESC limit 0,1" );
+		$nonexistent_user_id = $highest_user_id + 1;
+
+		// Create a new post assigned to a nonexistent user ID.
+		$post_id = wp_insert_post( [
+			'post_title'   => 'Post assigned to a non-existent user',
+			'post_content' => 'Post assigned to a non-existent user',
+			'post_status'  => 'publish',
+			'post_author'  => $nonexistent_user_id,
+		] );
+
+		$query = '
+		{
+			posts(first: 5) {
+				nodes {
+					postId
+					author {
+						node {
+						userId
+						name
+						}
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql( [ 'query' => $query ] );
+
+		$this->assertTrue( $post_id && ! is_wp_error( $post_id ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Verify that the ID of the first post matches the one we just created.
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['postId'] );
+
+		// Verify that the 'author' field is set to null, since the user ID is invalid.
+		$this->assertEquals( null, $actual['data']['posts']['nodes'][0]['author'] );
+
+		wp_delete_post( $post_id, true );
+
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testUriFieldAvailableForPublicQueries() {
+
+		/**
+		 * Create a password protected post
+		 * so that we can query for it and make sure the link and uri fields are exposed
+		 * to public requests.
+		 *
+		 * @see: https://github.com/wp-graphql/wp-graphql/issues/1338
+		 */
+		$post_id = $this->factory()->post->create([
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
+			'post_password' => 'test',
+			'post_title'    => 'Post with password',
+			'post_content'  => 'Protected content',
+			'post_author'   => $this->admin,
+		]);
+
+		$query = '
+		query {
+			posts(first: 1, where: {status: PUBLISH}) {
+				nodes {
+					databaseId
+					uri
+					link
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['uri'], 'Ensure the uri is not empty for public requests' );
+		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['link'], 'Ensure the link field is not empty for public requests' );
+
+	}
+
+	public function testQueryPasswordProtectedPost() {
+
+		$title   = 'Test Title for QueryPasswordProtectedPost' . uniqid();
+		$content = 'Test Content for QueryPasswordProtectedPost' . uniqid();
+
+		$this->factory()->post->create([
+			'post_type'     => 'post',
+			'post_status'   => 'publish',
+			'post_password' => 'publish',
+			'post_content'  => $content,
+			'post_title'    => $title,
+		]);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+					title
+					content
+				}
+			}
+		}
+		';
+
+		wp_set_current_user( 0 );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['posts']['nodes'][0]['content'] );
+		// The content should be null for public users because no password was entered
+		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		// The content should be public for an admin
+		$this->assertSame( apply_filters( 'the_content', $content ), $actual['data']['posts']['nodes'][0]['content'] );
+		$this->assertSame( $title, $actual['data']['posts']['nodes'][0]['title'] );
+	}
+
+	public function testIsStickyFieldOnPost() {
+
+		$sticky_post_id = $this->factory()->post->create([
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Sticky Post',
+			'post_content' => 'Sticky post content',
+			'post_author'  => $this->admin,
+		]);
+
+		$nonsticky_post_id = $this->factory()->post->create([
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Non-sticky Post',
+			'post_content' => 'Non-sticky post content',
+			'post_author'  => $this->admin,
+		]);
+
+		update_option( 'sticky_posts', [ $sticky_post_id ] );
+
+		$query = '
+		query testStickyPost($ids: [ID]) {
+			posts(first: 2, where: { in: $ids }) {
+				nodes {
+					databaseId
+					uri
+					link
+					isSticky
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'ids' => [
+					$sticky_post_id,
+					$nonsticky_post_id,
+				],
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
+		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
+	}
+
+	public function testHasPasswordWhereArgs() {
+		// Create a test post with a password
+		$this->createPostObject(
+			[
+				'post_title'    => 'Password protected',
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'password',
+			]
+		);
+
+		/**
+		 * WP_Query posts with a password
+		 */
+		$wp_query_posts_with_password = new WP_Query(
+			[
+				'has_password' => true,
+			]
+		);
+
+		$query = $this->getQuery();
+
+		/**
+		 * GraphQL query posts that have a password
+		 */
+		$variables = [
+			'where' => [
+				'hasPassword' => true,
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$edges = $actual['data']['posts']['edges'];
+		$this->assertNotEmpty( $edges );
+
+		/**
+		 * Loop through all the returned posts
+		 */
+		foreach ( $edges as $edge ) {
+
+			/**
+			 * Assert that all posts returned have a password, since we queried for
+			 * posts using "has_password => true"
+			 */
+			$password = get_post( $edge['node']['postId'] )->post_password;
+			$this->assertNotEmpty( $password );
+
+		}
+
+	}
+
 }
