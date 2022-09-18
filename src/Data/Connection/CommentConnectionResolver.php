@@ -260,10 +260,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since @todo
 		 */
-		$args = apply_filters( 'graphql_comment_connection_args', $args, $this );
-
-		return $args;
-
+		return apply_filters( 'graphql_comment_connection_args', $args, $this );
 	}
 
 	/**
