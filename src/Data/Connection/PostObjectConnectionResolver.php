@@ -573,6 +573,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					case 'authorNotIn':
 					case 'categoryIn':
 					case 'categoryNotIn':
+					case 'tagId':
 					case 'tagIn':
 					case 'tagNotIn':
 						if ( is_array( $input_value ) ) {
