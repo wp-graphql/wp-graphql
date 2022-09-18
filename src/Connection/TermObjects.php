@@ -328,10 +328,10 @@ class TermObjects {
 					'description' => __( 'Array of slugs to return term(s) for. Default empty.', 'wp-graphql' ),
 				],
 				'termTaxonomId'       => [
-					'type'        => [
+					'type'              => [
 						'list_of' => 'ID',
 					],
-					'description' => __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' ),
+					'description'       => __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' ),
 					'deprecationReason' => __( 'Use `termTaxonomyId` instead', 'wp-graphql' ),
 				],
 				'termTaxonomyId'      => [

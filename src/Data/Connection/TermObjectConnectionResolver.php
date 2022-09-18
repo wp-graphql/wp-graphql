@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TermObjectConnectionResolver
@@ -255,6 +256,55 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
+	}
+
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args() {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'exclude':
+					case 'excludeTree':
+					case 'include':
+					case 'objectIds':
+					case 'termTaxonomId':
+					case 'termTaxonomyId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                     $args                The GraphQL args passed to the resolver.
+		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 *
+		 * @since @todo
+		 */
+		$args = apply_filters( 'graphql_comment_connection_args', $args, $this );
+
+		return $args;
 
 	}
 
@@ -270,5 +320,4 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
-
 }
