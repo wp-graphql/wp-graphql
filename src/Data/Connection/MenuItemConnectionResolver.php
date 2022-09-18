@@ -123,10 +123,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 *
 		 * @since @todo
 		 */
-		$args = apply_filters( 'graphql_menu_item_connection_args', $args );
-
-		return $args;
-
+		return apply_filters( 'graphql_menu_item_connection_args', $args );
 	}
 
 }
