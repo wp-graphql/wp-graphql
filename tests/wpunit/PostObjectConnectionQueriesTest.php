@@ -1,5 +1,7 @@
 <?php
 
+use GraphQLRelay\Relay;
+
 class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $current_time;
 	public $current_date;
@@ -88,7 +90,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 *
 	 * @return array
 	 */
-	public function create_posts( $count = 20 ) {
+	public function create_posts( $count = 6 ) {
 
 		// Create posts
 		$created_posts = [];
@@ -123,7 +125,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 					cursor
 					node {
 						id
-						postId
+						databaseId
 						title
 						date
 						content
@@ -132,7 +134,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 				}
 				nodes {
 					id
-					postId
+					databaseId
 				}
 			}
 		}
@@ -292,6 +294,18 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
 
+		// Test with single status
+		$variables = [
+			'where' => [
+				'status' => 'PRIVATE',
+			]
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 	}
 
 	public function testPrivatePostsForCurrentUser() {
@@ -356,7 +370,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			posts( where:{in:[\"{$parent_post}\"]}){
 				edges{
 					node{
-						postId
+						databaseId
 						id
 						title
 						content
@@ -364,7 +378,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 							edges {
 								node{
 									id
-									postId
+									databaseId
 									title
 									content
 								}
@@ -384,7 +398,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 		if ( true === $show_revisions ) {
-			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['postId'] );
+			$this->assertEquals( $revision, $actual['data']['posts']['edges'][0]['node']['revisions']['edges'][0]['node']['databaseId'] );
 		} else {
 			$this->assertEmpty( $actual['data']['posts']['edges'][0]['node']['revisions']['edges'] );
 		}
@@ -869,7 +883,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		{
 			posts(first: 5) {
 				nodes {
-					postId
+					databaseId
 					author {
 						node {
 						userId
@@ -887,7 +901,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		// Verify that the ID of the first post matches the one we just created.
-		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['postId'] );
+		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// Verify that the 'author' field is set to null, since the user ID is invalid.
 		$this->assertEquals( null, $actual['data']['posts']['nodes'][0]['author'] );
@@ -1036,7 +1050,368 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertFalse( $actual['data']['posts']['nodes'][1]['isSticky'] );
 	}
 
-	public function testHasPasswordWhereArgs() {
+	public function testWhereArgs() {
+		$query = $this->getQuery();
+
+		// test id
+		$variables = [
+			'where' => [
+				'id' => $this->created_post_ids[1],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test in with global + db id
+		$global_id = Relay::toGlobalId( 'post', $this->created_post_ids[1] );
+
+		$variables = [
+			'where' => [
+				'in' => [ $global_id, $this->created_post_ids[2] ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test notIn with global + db id
+		$variables = [
+			'where' => [
+				'notIn' => [ $global_id, $this->created_post_ids[2] ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(4, $actual['data']['posts']['nodes']);
+
+		// test name
+		$post_one_name = get_post_field( 'post_name', $this->created_post_ids[1] );
+
+		$variables = [
+			'where' => [
+				'name' => $post_one_name,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test nameIn
+		$post_two_name = get_post_field( 'post_name', $this->created_post_ids[2] );
+
+		$variables = [
+			'where' => [
+				'nameIn' => [ $post_one_name, $post_two_name ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test title
+		$title = get_post_field( 'post_title', $this->created_post_ids[1] );
+
+		$variables = [
+			'where' => [
+				'title' => $title,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+	}
+
+	public function testAuthorWhereArgs() {
+		$author_one_id = $this->factory()->user->create( [
+			'role' => 'author',
+			'user_nicename' => 'author-one',
+		] );
+		$author_two_id = $this->factory()->user->create( [
+			'role' => 'author',
+			'user_nicename' => 'author-two',
+		] );
+
+		$post_one_id = $this->factory()->post->create( [
+			'post_author' => $author_one_id,
+			'post_status' => 'publish',
+		] );
+		$post_two_id = $this->factory()->post->create( [
+			'post_author' => $author_two_id,
+			'post_status' => 'publish',
+		] );
+
+		$query = $this->getQuery();
+
+		// test author
+		$variables = [
+			'where' => [
+				'author' => $author_one_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $post_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test authorName
+		$variables = [
+			'where' => [
+				'authorName' => 'author-one',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $post_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test authorIn with global + db id
+		$author_one_global_id = Relay::toGlobalId( 'user', $author_one_id );
+
+		$variables = [
+			'where' => [
+				'authorIn' => [ $author_one_global_id, $author_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test authorNotIn with global + db id
+		$variables = [
+			'where' => [
+				'authorNotIn' => [ $author_one_global_id, $author_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(6, $actual['data']['posts']['nodes']);
+	}
+
+	public function testCategoryWhereArgs() {
+		$term_one_id = $this->factory()->term->create( [
+			'taxonomy' => 'category',
+			'name' => 'term-one',
+		] );
+		$term_two_id = $this->factory()->term->create( [
+			'taxonomy' => 'category',
+			'name' => 'term-two',
+		] );
+
+		wp_set_object_terms( $this->created_post_ids[1], [ $term_one_id ], 'category' );
+		wp_set_object_terms( $this->created_post_ids[2], [ $term_two_id ], 'category' );
+
+		$query = $this->getQuery();
+
+		// test categoryId
+		$variables = [
+			'where' => [
+				'categoryId' => $term_one_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test categoryName
+		$variables = [
+			'where' => [
+				'categoryName' => 'term-one',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test categoryIn with global + db id
+		$term_one_global_id = Relay::toGlobalId( 'term', $term_one_id );
+
+		$variables = [
+			'where' => [
+				'categoryIn' => [ $term_one_global_id, $term_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test categoryNotIn with global + db id
+		$variables = [
+			'where' => [
+				'categoryNotIn' => [ $term_one_global_id, $term_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(4, $actual['data']['posts']['nodes']);
+	}
+
+	public function testContentTypesWhereArgs() {
+		$page_id = $this->factory()->post->create( [
+			'post_type' => 'page',
+			'post_status' => 'publish',
+		] );
+
+		$query ='
+		query contentNodesQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToContentNodeConnectionWhereArgs ){
+			contentNodes( first:$first last:$last after:$after before:$before where:$where ) {
+				nodes {
+					id
+					databaseId
+				}
+			}
+		}
+		';
+
+		// test contentTypes
+		$variables = [
+			'where' => [
+				'contentTypes' => [ 'PAGE' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['contentNodes']['nodes']);
+		$this->assertEquals( $page_id, $actual['data']['contentNodes']['nodes'][0]['databaseId'] );
+
+		// test contentTypes with post + page
+		$variables = [
+			'where' => [
+				'contentTypes' => [ 'POST', 'PAGE' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(7, $actual['data']['contentNodes']['nodes']);
+	}
+
+	public function testParentWhereArgs() {
+		$query = $this->getQuery();
+
+		$parent_one_id = $this->created_post_ids[1];
+		$parent_two_id = $this->created_post_ids[2];
+
+		$child_one_id = $this->factory()->post->create([
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Child Post',
+			'post_content' => 'Child post content',
+			'post_author'  => $this->admin,
+			'post_parent'  => $parent_one_id,
+		]);
+
+		$child_two_id = $this->factory()->post->create([
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Child Post',
+			'post_content' => 'Child post content',
+			'post_author'  => $this->admin,
+			'post_parent'  => $parent_two_id,
+		]);
+
+		// test Parent with for top-level posts
+		$variables = [
+			'where' => [
+				'parent' => 0,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(6, $actual['data']['posts']['nodes']);
+
+		// test parent with database Id
+		$variables = [
+			'where' => [
+				'parent' => $parent_one_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $child_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test parent with global Id
+		$parent_one_global_id = Relay::toGlobalId( 'post', $parent_one_id );
+
+		$variables = [
+			'where' => [
+				'parent' => $parent_one_global_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $child_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test parentIn with global + db ID
+		$variables = [
+			'where' => [
+				'parentIn' => [ $parent_one_global_id, $parent_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test parentNotIn with global + db ID
+		$variables = [
+			'where' => [
+				'parentNotIn' => [ $parent_one_global_id, $parent_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(6, $actual['data']['posts']['nodes']);
+	}
+
+	public function testPasswordWhereArgs() {
 		// Create a test post with a password
 		$this->createPostObject(
 			[
@@ -1058,6 +1433,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$query = $this->getQuery();
 
+		wp_set_current_user( $this->admin );
+
 		/**
 		 * GraphQL query posts that have a password
 		 */
@@ -1067,9 +1444,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			],
 		];
 
-		wp_set_current_user( $this->admin );
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
 
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1086,11 +1461,152 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			 * Assert that all posts returned have a password, since we queried for
 			 * posts using "has_password => true"
 			 */
-			$password = get_post( $edge['node']['postId'] )->post_password;
+			$password = get_post( $edge['node']['databaseId'] )->post_password;
 			$this->assertNotEmpty( $password );
 
 		}
 
+		// Test with specific password
+		$variables = [
+			'where' => [
+				'password' => 'password',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$edges = $actual['data']['posts']['edges'];
+		$this->assertNotEmpty( $edges );
+
+		/**
+		 * Loop through all the returned posts
+		 */
+		foreach ( $edges as $edge ) {
+
+			/**
+			 * Assert that all posts returned have the correct password
+			 */
+			$password = get_post( $edge['node']['databaseId'] )->post_password;
+			$this->assertEquals( $password, 'password' );
+		}
+
+	}
+
+	public function testTagWhereArgs() {
+		$query = $this->getQuery();
+
+		$tag_one_id = $this->factory()->tag->create([
+			'name' => 'test',
+		]);
+		$tag_two_id = $this->factory()->tag->create([
+			'name' => 'test2',
+		]);
+
+		wp_set_object_terms( $this->created_post_ids[1], [ $tag_one_id ], 'post_tag' );
+		wp_set_object_terms( $this->created_post_ids[2], [ $tag_two_id ], 'post_tag' );
+
+		// test tag
+		$variables = [
+			'where' => [
+				'tag' => 'test',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test tagId with database Id
+		$variables = [
+			'where' => [
+				'tagId' => (string) $tag_one_id, // the input expects a type 'string'.
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test tagId with global Id
+		$tag_one_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $tag_one_id );
+
+		$variables = [
+			'where' => [
+				'tagId' => $tag_one_global_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test tagIn with global + db id
+		$variables = [
+			'where' => [
+				'tagIn' => [ $tag_one_global_id, $tag_two_id ],
+			],
+		];
+
+		
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
+
+		// test tagNotIn with global + db id
+		$variables = [
+			'where' => [
+				'tagNotIn' => [ $tag_one_global_id,  $tag_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(4, $actual['data']['posts']['nodes']);
+
+		// test tagSlugAnd
+		$variables = [
+			'where' => [
+				'tagSlugAnd' => [ 'test', 'test2' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(0, $actual['data']['posts']['nodes']);
+
+		// add second tag to first post
+		wp_set_object_terms( $this->created_post_ids[1], [ $tag_one_id, $tag_two_id ], 'post_tag' );
+
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
+
+		// test tagSlugIn
+		$variables = [
+			'where' => [
+				'tagSlugIn' => [ 'test', 'test2' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount(2, $actual['data']['posts']['nodes']);
 	}
 
 }
