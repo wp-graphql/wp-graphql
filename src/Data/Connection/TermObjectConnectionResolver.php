@@ -209,6 +209,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			'hideEmpty'           => 'hide_empty',
 			'excludeTree'         => 'exclude_tree',
 			'termTaxonomId'       => 'term_taxonomy_id',
+			'termTaxonomyId'      => 'term_taxonomy_id',
 			'nameLike'            => 'name__like',
 			'descriptionLike'     => 'description__like',
 			'padCounts'           => 'pad_counts',
@@ -219,6 +220,16 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		];
 
 		$where_args = ! empty( $this->args['where'] ) ? $this->args['where'] : null;
+
+		// Deprecate usage of 'termTaxonomId'.
+		if ( ! empty( $where_args['termTaxonomId'] ) ) {
+			_deprecated_argument( 'where.termTaxonomId', '@todo', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
+
+			// Only convert value if 'termTaxonomyId' isnt already set.
+			if ( empty( $where_args['termTaxonomyId'] ) ) {
+				$where_args['termTaxonomyId'] = $where_args['termTaxonomId'];
+			}
+		}
 
 		/**
 		 * Map and sanitize the input args to the WP_Term_Query compatible args

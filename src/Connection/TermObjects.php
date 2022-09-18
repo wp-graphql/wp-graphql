@@ -332,6 +332,13 @@ class TermObjects {
 						'list_of' => 'ID',
 					],
 					'description' => __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' ),
+					'deprecationReason' => __( 'Use `termTaxonomyId` instead', 'wp-graphql' ),
+				],
+				'termTaxonomyId'      => [
+					'type'        => [
+						'list_of' => 'ID',
+					],
+					'description' => __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' ),
 				],
 				'updateTermMetaCache' => [
 					'type'        => 'Boolean',
