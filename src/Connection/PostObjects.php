@@ -672,13 +672,13 @@ class PostObjects {
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
+					'description' => __( 'Array of tag slugs, used to display objects from one tag AND another', 'wp-graphql' ),
 				];
 				$fields['tagSlugIn']  = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
+					'description' => __( 'Array of tag slugs, used to include objects in ANY specified tags', 'wp-graphql' ),
 				];
 			}
 		} elseif ( $post_type_object instanceof WP_Taxonomy ) {
