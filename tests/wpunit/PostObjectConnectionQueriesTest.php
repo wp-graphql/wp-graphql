@@ -109,9 +109,9 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	}
 
-	public function postsQuery( $variables ) {
-
-		$query = 'query postsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToPostConnectionWhereArgs ){
+	public function getQuery() {
+		return '
+		query postsQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToPostConnectionWhereArgs ){
 			posts( first:$first last:$last after:$after before:$before where:$where ) {
 				pageInfo {
 					hasNextPage
@@ -135,10 +135,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 					postId
 				}
 			}
-		}';
-
-		return do_graphql_request( $query, 'postsQuery', $variables );
-
+		}
+		';
 	}
 
 	private function getReturnField( $data, $post, $field = '' ) {
@@ -159,17 +157,20 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		// Create some additional posts to test a large query.
 		$this->create_posts( 150 );
 
+		$query = $this->getQuery();
+
 		$variables = [
 			'first' => 150,
 		];
-		$results   = $this->postsQuery( $variables );
-		$this->assertNotEmpty( $results );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertNotEmpty( $actual );
 
 		/**
 		 * The max that can be queried by default is 100 items
 		 */
-		$this->assertCount( 100, $results['data']['posts']['edges'] );
-		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertCount( 100, $actual['data']['posts']['edges'] );
+		$this->assertTrue( $actual['data']['posts']['pageInfo']['hasNextPage'] );
 
 		/**
 		 * Test the filter to make sure it's capping the results properly
@@ -184,7 +185,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$variables = [
 			'first' => 150,
 		];
-		$results   = $this->postsQuery( $variables );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		add_filter(
 			'graphql_connection_max_query_amount',
@@ -193,8 +195,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			}
 		);
 
-		$this->assertCount( 20, $results['data']['posts']['edges'] );
-		$this->assertTrue( $results['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertCount( 20, $actual['data']['posts']['edges'] );
+		$this->assertTrue( $actual['data']['posts']['pageInfo']['hasNextPage'] );
 	}
 
 	public function testPostHasPassword() {
@@ -217,6 +219,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
+		$query = $this->getQuery();
+
 		/**
 		 * GraphQL query posts that have a password
 		 */
@@ -227,12 +231,13 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		];
 
 		wp_set_current_user( $this->admin );
-		$request = $this->postsQuery( $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertNotEmpty( $request );
-		$this->assertArrayNotHasKey( 'errors', $request );
 
-		$edges = $request['data']['posts']['edges'];
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$edges = $actual['data']['posts']['edges'];
 		$this->assertNotEmpty( $edges );
 
 		/**
@@ -326,12 +331,20 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$post_1_id = $this->createPostObject( $post_1_args );
 		$post_2_id = $this->createPostObject( $post_2_args );
 
-		$request = $this->postsQuery( [ 'where' => [ 'in' => [ $post_1_id, $post_2_id ] ] ] );
+		$query = $this->getQuery();
 
-		$this->assertNotEmpty( $request );
-		$this->assertArrayNotHasKey( 'errors', $request );
+		$variables = [
+			'where' => [
+				'in' => [ $post_1_id, $post_2_id ]
+			]
+		];
 
-		$edges = $request['data']['posts']['edges'];
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertNotEmpty( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$edges = $actual['data']['posts']['edges'];
 		$this->assertNotEmpty( $edges );
 
 		$this->assertNotEquals( $edges[0]['node']['excerpt'], $edges[1]['node']['excerpt'] );
@@ -352,20 +365,21 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery(
-			[
-				'where' => [
-					'in'    => [ $private_post, $public_post ],
-					'stati' => [ 'PUBLISH', 'PRIVATE' ],
-				],
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'in' => [ $private_post, $public_post ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ],
 			]
-		);
+		];
+
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		$this->assertNotEmpty( $this->getReturnField( $actual, 0, 'id' ) );
 		$this->assertEmpty( $this->getReturnField( $actual, 1 ) );
-
 	}
 
 	public function testPrivatePostsWithProperCaps() {
@@ -378,17 +392,17 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$post_id = $this->createPostObject( $post_args );
 
-		wp_set_current_user( $this->admin );
-		$actual = $this->postsQuery(
-			[
-				'where' => [
-					'in'    => [ $post_id ],
-					'stati' => [ 'PUBLISH', 'PRIVATE' ],
-				],
-			]
-		);
+		$query = $this->getQuery();
 
-		codecept_debug( $actual );
+		$variables = [
+			'where' => [
+				'in' => [ $post_id ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ],
+			]
+		];
+
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( $post_args['post_title'], $this->getReturnField( $actual, 0, 'title' ) );
 
@@ -404,15 +418,17 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$post_id = $this->createPostObject( $post_args );
 
-		wp_set_current_user( $this->subscriber );
-		$actual = $this->postsQuery(
-			[
-				'where' => [
-					'in'    => [ $post_id ],
-					'stati' => [ 'PUBLISH', 'PRIVATE' ],
-				],
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'in' => [ $post_id ],
+				'stati' => [ 'PUBLISH', 'PRIVATE' ],
 			]
-		);
+		];
+
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		/**
 		 * Since we're querying for a private post, we want to make sure a subscriber, even if they
@@ -504,14 +520,16 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery(
-			[
-				'where' => [
-					'in'    => [ $public_post, $draft_post ],
-					'stati' => [ 'PUBLISH', 'DRAFT' ],
-				],
-			]
-		);
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'in'    => [ $public_post, $draft_post ],
+				'stati' => [ 'PUBLISH', 'DRAFT' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		if ( 'admin' === $role ) {
 
@@ -558,14 +576,16 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_set_current_user( $this->{$role} );
 
-		$actual = $this->postsQuery(
-			[
-				'where' => [
-					'in'    => [ $public_post, $draft_post ],
-					'stati' => [ 'PUBLISH', 'TRASH' ],
-				],
-			]
-		);
+		$query = $this->getQuery();
+
+		$variables = [
+			'where' => [
+				'in'    => [ $public_post, $draft_post ],
+				'stati' => [ 'PUBLISH', 'TRASH' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		if ( 'admin' === $role ) {
 			/**
@@ -937,5 +957,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertSame( [ $post_ids[0] ], $actual_ids );
 
+	}
+
+	public function testWhereArgs() {
 	}
 }
