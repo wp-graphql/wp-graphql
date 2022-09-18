@@ -298,7 +298,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                     $args                The GraphQL args passed to the resolver.
-		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
 		 * @since @todo
 		 */
