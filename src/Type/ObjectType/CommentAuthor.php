@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use \WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
+
 class CommentAuthor {
 
 	/**
@@ -15,6 +17,7 @@ class CommentAuthor {
 			[
 				'description'     => __( 'A Comment Author object', 'wp-graphql' ),
 				'interfaces'      => [ 'Node', 'Commenter' ],
+				'model'           => CommentAuthorModel::class,
 				'eagerlyLoadType' => true,
 				'fields'          => [
 					'id'           => [

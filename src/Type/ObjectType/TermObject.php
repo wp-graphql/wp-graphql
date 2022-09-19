@@ -41,6 +41,7 @@ class TermObject {
 			[
 				'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
 				'interfaces'  => $interfaces,
+				'model'       => Term::class,
 				'fields'      => [
 					$single_name . 'Id' => [
 						'type'              => 'Int',

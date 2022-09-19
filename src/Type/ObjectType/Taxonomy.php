@@ -21,6 +21,7 @@ class Taxonomy {
 			[
 				'description' => __( 'A taxonomy object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],
+				'model'       => TaxonomyModel::class,
 				'connections' => [
 					'connectedContentTypes' => [
 						'toType'               => 'ContentType',

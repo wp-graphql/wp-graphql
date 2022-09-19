@@ -61,9 +61,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			} 
 		}';
 
-		$variables = wp_json_encode( [
+		$variables = [
 			'id' => $global_id,
-		] );
+		];
 
 		/**
 		 * Run the GraphQL query
@@ -130,7 +130,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query, '', '' );
+		$actual = do_graphql_request( $query );
 
 		/**
 		 * Establish the expectation for the output of the query

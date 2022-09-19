@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Model\UserRole as UserRoleModel;
+
 class UserRole {
 
 	/**
@@ -14,6 +16,7 @@ class UserRole {
 			'UserRole',
 			[
 				'description' => __( 'A user role object', 'wp-graphql' ),
+				'model'       => UserRoleModel::class,
 				'interfaces'  => [ 'Node' ],
 				'fields'      => [
 					'id'           => [

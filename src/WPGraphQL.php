@@ -245,7 +245,8 @@ final class WPGraphQL {
 			function () {
 
 				new \WPGraphQL\Data\Config();
-				new Router();
+				$router = new Router();
+				$router->init();
 				$instance = self::instance();
 
 				/**
