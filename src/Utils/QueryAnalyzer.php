@@ -78,11 +78,11 @@ class QueryAnalyzer {
 	 * @param Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
-		$this->request = $request;
-		$this->schema  = $request->schema;
+		$this->request       = $request;
+		$this->schema        = $request->schema;
 		$this->runtime_nodes = [];
-		$this->models = [];
-		$this->list_types = [];
+		$this->models        = [];
+		$this->list_types    = [];
 		$this->queried_types = [];
 	}
 
@@ -445,9 +445,9 @@ class QueryAnalyzer {
 			/**
 			 * Filter the node ID before returning to the list of resolved nodes
 			 *
-			 * @param int   $model_id      The ID of the model (node) being returned
-			 * @param Model $model         The Model object being returned
-			 * @param array $runtime_nodes The runtimes nodes already collected
+			 * @param int    $model_id      The ID of the model (node) being returned
+			 * @param object $model         The Model object being returned
+			 * @param array  $runtime_nodes The runtimes nodes already collected
 			 */
 			$node_id = apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
 
