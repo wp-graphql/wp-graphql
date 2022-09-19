@@ -632,7 +632,6 @@ class Request {
 			 * Initialize the GraphQL Request
 			 */
 			$this->before_execute();
-
 			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
 			if ( null === $response ) {
