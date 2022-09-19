@@ -51,7 +51,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		}
 
 		if ( ! empty( $this->args['where']['parentId'] ) ) {
-			
+
 				$query_args['meta_key']   = '_menu_item_menu_item_parent'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				$query_args['meta_value'] = $this->args['where']['parentId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
@@ -97,7 +97,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_args() {
+	public function get_args(): array {
 		$args = $this->args;
 
 		if ( ! empty( $args['where'] ) ) {
@@ -121,7 +121,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 *
 		 * @param array $args The GraphQL args passed to the resolver.
 		 *
-		 * @since @todo
+		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_menu_item_connection_args', $args );
 	}

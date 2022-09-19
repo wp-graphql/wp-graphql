@@ -203,7 +203,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_args() {
+	public function get_args(): array {
 		$args = $this->args;
 
 		if ( ! empty( $args['where'] ) ) {
@@ -258,7 +258,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * @param array                     $args                The GraphQL args passed to the resolver.
 		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
-		 * @since @todo
+		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_comment_connection_args', $args, $this );
 	}

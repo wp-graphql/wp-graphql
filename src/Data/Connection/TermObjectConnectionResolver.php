@@ -224,7 +224,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 		// Deprecate usage of 'termTaxonomId'.
 		if ( ! empty( $where_args['termTaxonomId'] ) ) {
-			_deprecated_argument( 'where.termTaxonomId', '@todo', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
+			_deprecated_argument( 'where.termTaxonomId', '1.11.0', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
 
 			// Only convert value if 'termTaxonomyId' isnt already set.
 			if ( empty( $where_args['termTaxonomyId'] ) ) {
@@ -263,7 +263,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array
 	 */
-	public function get_args() {
+	public function get_args(): array {
 		$args = $this->args;
 
 		if ( ! empty( $args['where'] ) ) {
@@ -300,7 +300,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array                     $args                The GraphQL args passed to the resolver.
 		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
-		 * @since @todo
+		 * @since 1.11.0
 		 */
 		return apply_filters( 'graphql_term_object_connection_args', $args, $this );
 	}
