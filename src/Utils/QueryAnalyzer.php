@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
+use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
 
 /**
@@ -77,8 +78,12 @@ class QueryAnalyzer {
 	 * @param Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
-		$this->request = $request;
-		$this->schema  = $request->schema;
+		$this->request       = $request;
+		$this->schema        = $request->schema;
+		$this->runtime_nodes = [];
+		$this->models        = [];
+		$this->list_types    = [];
+		$this->queried_types = [];
 	}
 
 	/**
@@ -154,28 +159,28 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_list_types(): array {
-		return $this->list_types;
+		return array_unique( $this->list_types );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_types(): array {
-		return $this->queried_types;
+		return array_unique( $this->queried_types );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_models(): array {
-		return $this->models;
+		return array_unique( $this->models );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_runtime_nodes(): array {
-		return $this->runtime_nodes;
+		return array_unique( $this->runtime_nodes );
 	}
 
 	/**
@@ -433,9 +438,20 @@ class QueryAnalyzer {
 	 * @return mixed
 	 */
 	public function track_nodes( $model ) {
-		if ( isset( $model->id ) && in_array( get_class( $model ), $this->models, true ) ) {
+
+		if ( isset( $model->id ) && in_array( get_class( $model ), $this->get_query_models(), true ) ) {
 			// Is this model type part of the requested/returned data in the asked for query?
-			$this->runtime_nodes[] = $model->id;
+
+			/**
+			 * Filter the node ID before returning to the list of resolved nodes
+			 *
+			 * @param int    $model_id      The ID of the model (node) being returned
+			 * @param object $model         The Model object being returned
+			 * @param array  $runtime_nodes The runtimes nodes already collected
+			 */
+			$node_id = apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
+
+			$this->runtime_nodes[] = $node_id;
 		}
 
 		return $model;
