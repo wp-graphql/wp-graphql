@@ -7,6 +7,7 @@
 
 use GraphQL\Type\Definition\Type;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Request;
 use WPGraphQL\Router;
 
 /**
@@ -48,25 +49,31 @@ function graphql_format_type_name( $type_name ) {
 	if ( ! empty( $replace_type_name ) ) {
 		$type_name = $replace_type_name;
 	}
-	$type_name = ucfirst( $type_name );
-
-	return $type_name;
+	return ucfirst( $type_name );
 }
 
 
 /**
- * Provides a simple way to run a GraphQL query with out posting a request to the endpoint.
+ * Provides a simple way to run a GraphQL query without posting a request to the endpoint.
  *
- * @param array $request_data The GraphQL request data (query, variables, operation_name).
+ * @param array $request_data   The GraphQL request data (query, variables, operation_name).
+ * @param bool  $return_request If true, return the Request object, else return the results of the request execution
  *
- * @return array
+ * @return array | Request
  * @throws Exception
  * @since  0.2.0
  */
-function graphql( $request_data = [] ) {
-	$request = new \WPGraphQL\Request( $request_data );
+function graphql( array $request_data = [], bool $return_request = false ) {
+	$request = new Request( $request_data );
+
+	// allow calls to graphql() to return the full Request instead of
+	// just the results of the request execution
+	if ( true === $return_request ) {
+		return $request;
+	}
 
 	return $request->execute();
+
 }
 
 /**
@@ -76,18 +83,20 @@ function graphql( $request_data = [] ) {
  * @param string $query          The GraphQL query to run
  * @param string $operation_name The name of the operation
  * @param array  $variables      Variables to be passed to your GraphQL request
+ * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
  *
- * @return array
- * @throws \Exception
+ * @return array | Request
+ * @throws Exception
  * @since  0.0.2
  */
-function do_graphql_request( $query, $operation_name = '', $variables = [] ) {
+function do_graphql_request( $query, $operation_name = '', $variables = [], $return_requst = false ) {
 	return graphql(
 		[
 			'query'          => $query,
 			'variables'      => $variables,
 			'operation_name' => $operation_name,
-		]
+		],
+		$return_requst
 	);
 }
 

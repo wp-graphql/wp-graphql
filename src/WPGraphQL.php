@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.10.0' );
+			define( 'WPGRAPHQL_VERSION', '1.11.0' );
 		}
 
 		// Plugin Folder Path.
@@ -245,7 +245,8 @@ final class WPGraphQL {
 			function () {
 
 				new \WPGraphQL\Data\Config();
-				new Router();
+				$router = new Router();
+				$router->init();
 				$instance = self::instance();
 
 				/**

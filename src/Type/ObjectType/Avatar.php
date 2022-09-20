@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Model\Avatar as AvatarModel;
+
 class Avatar {
 
 	/**
@@ -14,6 +16,7 @@ class Avatar {
 			'Avatar',
 			[
 				'description' => __( 'Avatars are profile images for users. WordPress by default uses the Gravatar service to host and fetch avatars from.', 'wp-graphql' ),
+				'model'       => AvatarModel::class,
 				'fields'      => [
 					'size'         => [
 						'type'        => 'Int',

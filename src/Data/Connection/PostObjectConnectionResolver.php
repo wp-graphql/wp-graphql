@@ -549,6 +549,59 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'in':
+					case 'notIn':
+					case 'parent':
+					case 'parentIn':
+					case 'parentNotIn':
+					case 'authorIn':
+					case 'authorNotIn':
+					case 'categoryIn':
+					case 'categoryNotIn':
+					case 'tagId':
+					case 'tagIn':
+					case 'tagNotIn':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                        $args                The GraphQL args passed to the resolver.
+		 * @param PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 *
+		 * @since 1.11.0
+		 */
+		return apply_filters( 'graphql_post_object_connection_args', $args, $this );
+	}
+
+	/**
 	 * Determine whether or not the the offset is valid, i.e the post corresponding to the offset
 	 * exists. Offset is equivalent to post_id. So this function is equivalent to checking if the
 	 * post with the given ID exists.

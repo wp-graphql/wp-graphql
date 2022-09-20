@@ -401,13 +401,27 @@ class PostObjects {
 				'type'        => 'Int',
 				'description' => __( 'Specific database ID of the object', 'wp-graphql' ),
 			],
+			'in'          => [
+				'type'        => [
+					'list_of' => 'ID',
+				],
+				'description' => __( 'Array of IDs for the objects to retrieve', 'wp-graphql' ),
+			],
+			'notIn'       => [
+				'type'        => [
+					'list_of' => 'ID',
+				],
+				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
+			],
 			'name'        => [
 				'type'        => 'String',
 				'description' => __( 'Slug / post_name of the object', 'wp-graphql' ),
 			],
-			'title'       => [
-				'type'        => 'String',
-				'description' => __( 'Title of the object', 'wp-graphql' ),
+			'nameIn'      => [
+				'type'        => [
+					'list_of' => 'String',
+				],
+				'description' => __( 'Specify objects to retrieve. Use slugs', 'wp-graphql' ),
 			],
 			'parent'      => [
 				'type'        => 'ID',
@@ -425,23 +439,9 @@ class PostObjects {
 				],
 				'description' => __( 'Specify posts whose parent is not in an array', 'wp-graphql' ),
 			],
-			'in'          => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of IDs for the objects to retrieve', 'wp-graphql' ),
-			],
-			'notIn'       => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Specify IDs NOT to retrieve. If this is used in the same query as "in", it will be ignored', 'wp-graphql' ),
-			],
-			'nameIn'      => [
-				'type'        => [
-					'list_of' => 'String',
-				],
-				'description' => __( 'Specify objects to retrieve. Use slugs', 'wp-graphql' ),
+			'title'       => [
+				'type'        => 'String',
+				'description' => __( 'Title of the object', 'wp-graphql' ),
 			],
 
 			/**
@@ -478,10 +478,6 @@ class PostObjects {
 				'type'        => 'PostStatusEnum',
 				'description' => __( 'Show posts with a specific status.', 'wp-graphql' ),
 			],
-
-			/**
-			 * List of post status parameters
-			 */
 			'stati'       => [
 				'type'        => [
 					'list_of' => 'PostStatusEnum',
@@ -501,10 +497,22 @@ class PostObjects {
 				],
 				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
 			],
+
+			/**
+			 * Date parameters
+			 *
+			 * @see https://developer.wordpress.org/reference/classes/wp_query/#date-parameters
+			 */
 			'dateQuery'   => [
 				'type'        => 'DateQueryInput',
 				'description' => __( 'Filter the connection based on dates', 'wp-graphql' ),
 			],
+
+			/**
+			 * Mime type parameters
+			 *
+			 * @see https://developer.wordpress.org/reference/classes/wp_query/#mime-type-parameters
+			 */
 			'mimeType'    => [
 				'type'        => 'MimeTypeEnum',
 				'description' => __( 'Get objects with a specific mimeType property', 'wp-graphql' ),
@@ -664,13 +672,13 @@ class PostObjects {
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to display objects from one tag OR another', 'wp-graphql' ),
+					'description' => __( 'Array of tag slugs, used to display objects from one tag AND another', 'wp-graphql' ),
 				];
 				$fields['tagSlugIn']  = [
 					'type'        => [
 						'list_of' => 'String',
 					],
-					'description' => __( 'Array of tag slugs, used to exclude objects in specified tags', 'wp-graphql' ),
+					'description' => __( 'Array of tag slugs, used to include objects in ANY specified tags', 'wp-graphql' ),
 				];
 			}
 		} elseif ( $post_type_object instanceof WP_Taxonomy ) {

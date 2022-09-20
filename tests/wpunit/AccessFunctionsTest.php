@@ -120,9 +120,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 		$response = $this->graphql( compact( 'query' ) );
 
+		codecept_debug( $response );
+
 		$this->assertArrayHasKey( 'debug', $response['extensions'] );
 
-		$has_debug_message = null;
+		$has_debug_message = false;
 
 		foreach ( $response['extensions']['debug'] as $debug_message ) {
 			if (
@@ -131,6 +133,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'INVALID_FIELD_NAME' === $debug_message['type']
 			) {
 				$has_debug_message = true;
+				break;
 			}
 		}
 
