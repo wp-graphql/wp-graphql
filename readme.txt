@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.11.0
+Stable tag: 1.11.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -168,6 +168,13 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.11.1 =
+
+**Chores / Bugfixes**
+
+- ([#2530](https://github.com/wp-graphql/wp-graphql/pull/2530)): Fixes a regression introduced in v1.11.0 where querying menuItems with parentId where arg set to 0 was returning all menuItems instead of just top level items.
+
 
 = 1.11.0 =
 
