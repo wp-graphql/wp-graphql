@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.1
+
+## Chores / Bugfixes
+
+- ([#2530](https://github.com/wp-graphql/wp-graphql/pull/2530)): Fixes a regression introduced in v1.11.0 where querying menuItems with parentId where arg set to 0 was returning all menuItems instead of just top level items.
+
 ## 1.11.0
 
 ## New Features
