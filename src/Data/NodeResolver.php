@@ -339,6 +339,20 @@ class NodeResolver {
 		/**
 		 * Filters the array of parsed query variables.
 		 *
+		 * @param mixed|null $node The node, defaults to nothing.
+		 * @param string $uri The uri being searched.
+		 * @param AppContext $content The app context.
+		 * @param WP $wp WP object.
+		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
+		 */
+		$node = apply_filters( 'graphql_resolve_uri_query_vars', null, $uri, $this->context, $this->wp, $extra_query_vars );
+		if ( ! empty( $node ) ) {
+			return $node;
+		}
+
+		/**
+		 * Filters the array of parsed query variables.
+		 *
 		 * @param array $query_vars The array of requested query variables.
 		 *
 		 * @since 2.1.0
