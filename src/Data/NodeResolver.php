@@ -345,7 +345,7 @@ class NodeResolver {
 		 * @param WP $wp WP object.
 		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
 		 */
-		$node = apply_filters( 'graphql_resolve_uri_query_vars', null, $uri, $this->context, $this->wp, $extra_query_vars );
+		$node = apply_filters( 'graphql_pre_resolve_uri_with_query_vars', null, $uri, $this->context, $this->wp, $extra_query_vars );
 		if ( ! empty( $node ) ) {
 			return $node;
 		}
