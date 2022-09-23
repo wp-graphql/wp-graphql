@@ -21,6 +21,7 @@ class NodeWithTitle {
 		register_graphql_interface_type(
 			'NodeWithTitle',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
 				'fields'      => [
 					'title' => [

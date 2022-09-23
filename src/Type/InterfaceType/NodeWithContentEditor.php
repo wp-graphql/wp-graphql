@@ -15,6 +15,7 @@ class NodeWithContentEditor {
 		register_graphql_interface_type(
 			'NodeWithContentEditor',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that supports the content editor', 'wp-graphql' ),
 				'fields'      => [
 					'content' => [
