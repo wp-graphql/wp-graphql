@@ -13,6 +13,7 @@
  * @property string[] $graphql_union_types
  * @property bool $graphql_register_root_field
  * @property bool $graphql_register_root_connection
+ * @property string[] $graphql_exclude_mutations
  */
 final class WP_Post_Type {
 }

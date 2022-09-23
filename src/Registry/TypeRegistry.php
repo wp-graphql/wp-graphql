@@ -378,6 +378,7 @@ class TypeRegistry {
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
+
 		foreach ( $allowed_post_types as $post_type_object ) {
 			PostObject::register_types( $post_type_object );
 
@@ -392,12 +393,19 @@ class TypeRegistry {
 				 * they aren't created manually.
 				 */
 				if ( 'revision' !== $post_type_object->name ) {
-					PostObjectCreate::register_mutation( $post_type_object );
-					PostObjectUpdate::register_mutation( $post_type_object );
+
+					if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'create', $post_type_object->graphql_exclude_mutations, true ) ) {
+						PostObjectCreate::register_mutation( $post_type_object );
+					}
+
+					if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'update', $post_type_object->graphql_exclude_mutations, true ) ) {
+						PostObjectUpdate::register_mutation( $post_type_object );
+					}
 				}
 
-				PostObjectDelete::register_mutation( $post_type_object );
-
+				if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'delete', $post_type_object->graphql_exclude_mutations, true ) ) {
+					PostObjectDelete::register_mutation( $post_type_object );
+				}
 			}
 
 			foreach ( $allowed_taxonomies as $tax_object ) {
@@ -455,10 +463,20 @@ class TypeRegistry {
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
 			TermObject::register_types( $tax_object );
-			TermObjectCreate::register_mutation( $tax_object );
-			TermObjectUpdate::register_mutation( $tax_object );
-			TermObjectDelete::register_mutation( $tax_object );
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'create', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectCreate::register_mutation( $tax_object );
+			}
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'update', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectUpdate::register_mutation( $tax_object );
+			}
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'delete', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectDelete::register_mutation( $tax_object );
+			}
 		}
+
 
 		/**
 		 * Create the root query fields for any setting type in

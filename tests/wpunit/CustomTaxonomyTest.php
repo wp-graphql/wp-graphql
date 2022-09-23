@@ -805,4 +805,121 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		};
 	}
 
+	public function testExcludeCreateMutation() {
+
+		register_taxonomy( 'without_create', 'post', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'WithoutCreate',
+			'graphql_plural_name' => 'WithoutCreates',
+			'graphql_exclude_mutations' => [ 'create' ],
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		query {
+		  __type(name:"RootMutation") {
+		    fields { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+		$this->assertContains(  'deleteWithoutCreate', $field_names );
+		$this->assertContains(  'updateWithoutCreate', $field_names );
+
+		// we excluded this mutation
+		$this->assertNotContains(  'createWithoutCreate', $field_names );
+
+		unregister_taxonomy( 'without_create' );
+	}
+
+	public function testExcludeDeleteMutation() {
+
+
+		register_taxonomy( 'without_delete', 'post', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'WithoutDelete',
+			'graphql_plural_name' => 'WithoutDeletes',
+			'graphql_exclude_mutations' => [ 'delete' ],
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		query {
+		  __type(name:"RootMutation") {
+		    fields { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+		$this->assertContains(  'createWithoutDelete', $field_names );
+		$this->assertContains(  'updateWithoutDelete', $field_names );
+
+		// we excluded this mutation
+		$this->assertNotContains(  'deleteWithoutDelete', $field_names );
+
+		unregister_taxonomy( 'without_delete' );
+
+	}
+
+	public function testExcludeUpdateMutation() {
+
+
+		register_taxonomy( 'without_update', 'post', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'WithoutUpdate',
+			'graphql_plural_name' => 'WithoutUpdates',
+			'graphql_exclude_mutations' => [ 'update' ],
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		query {
+		  __type(name:"RootMutation") {
+		    fields { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+		$this->assertContains(  'createWithoutUpdate', $field_names );
+		$this->assertContains(  'deleteWithoutUpdate', $field_names );
+
+		// we excluded this mutation
+		$this->assertNotContains(  'updateWithoutUpdate', $field_names );
+
+		unregister_taxonomy( 'without_update' );
+
+	}
+
 }

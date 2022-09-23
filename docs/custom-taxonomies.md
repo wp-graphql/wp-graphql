@@ -7,9 +7,19 @@ title: "Custom Taxonomies"
 
 In order to use Custom Taxonomies with WPGraphQL, you must configure the Taxonomy to `show_in_graphql` using the following fields:
 
-- **show_in_graphql** (boolean): true or false
-- **graphql_single_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the plural name.
-- **graphql_plural_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the single name.
+- **show_in_graphql** | boolean (required): true or false
+- **graphql_single_name** string | (required): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). 
+- **graphql_plural_name** string | (optional): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). 
+- **graphql_kind** string | (optional): Allows the type representing the taxonomy to be added to the graph as an object type, interface type or union type. Possible values are 'object', 'interface' or 'union'. Default is 'object'.
+- **graphql_resolve_type** callable | (optional): The callback used to resolve the type. Only used if "graphql_kind" is set to "union" or "interface".
+- **graphql_interfaces** array<string> | (optional): List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node".
+- **graphql_exclude_interfaces** array<string> | (optional): List of Interface names the type _should not_ implement. This is applied after default and custom interfaces are added, so this can remove default interfaces such as Node.
+- **graphql_connections** | array<array> | (optional): Array of connection configs to register to the type. Only applied if the "graphql_kind" is "object" or "interface".
+- **graphql_exclude_connections** | array<string> | (optional): Array of connection names to exclude from the type.
+- **graphql_union_types** | array<string> | (optional): Array of possible types the union can resolve to. Only used if "graphql_kind" is set to "union".
+- **graphql_register_root_field** | boolean (optional): Whether to register a field to the RootQuery to query a single node of this type. Default true.
+- **graphql_register_root_connection** | boolean | (optional): Whether to register a connection to the RootQuery to query multiple nodes of this type. Default true.
+- **graphql_exclude_mutations** | array<string> | (optional): Array of mutations to prevent from being registered. Possible values are "create", "update", "delete". 
 
 ### Registering a new Custom Taxonomy
 
@@ -30,7 +40,7 @@ add_action('init', function() {
 
 ### Filtering an Existing Custom Taxonomy
 
-If you want to expose a Taxonomy that you don’t control the registration for, such as a taxonomy registered by a third-party plugin, you can filter the Taxonomy registration like so:
+If you want to expose a Taxonomy that you don’t control the registration for, such as a taxonomy registered by a third-party plugin, you can filter the Taxonomy registration like so, adding any of the arguments documented above:
 
 ```php
 add_filter( 'register_taxonomy_args', function( $args, $taxonomy ) {

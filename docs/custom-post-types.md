@@ -7,9 +7,19 @@ title: "Custom Post Types"
 
 In order to use Custom Post Types with WPGraphQL, you must configure the Post Type to `show_in_graphql` using the following fields:
 
-- **show_in_graphql** (boolean): true or false
-- **graphql_single_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the plural name.
-- **graphql_plural_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the single name.
+- **show_in_graphql** | _boolean_ | (required): true or false. If true, show the post type in the GraphQL Schema.
+- **graphql_single_name** | _string_ | (required): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). 
+- **graphql_plural_name**  | _string_ | (optional): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). 
+- **graphql_kind** | _string_ | (optional): Allows the type representing the post type to be added to the graph as an object type, interface type or union type. Possible values are 'object', 'interface' or 'union'. Default is 'object'.
+- **graphql_resolve_type** | _callable_ | (optional): The callback used to resolve the type. Only used if "graphql_kind" is set to "union" or "interface".
+- **graphql_interfaces** | _array<string>_ | (optional): List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node".
+- **graphql_exclude_interfaces** | _array<string>_ | (optional): List of Interface names the type _should not_ implement. This is applied after default and custom interfaces are added, so this can remove default interfaces such as Node.
+- **graphql_connections** | _array<$config>_ | (optional): Array of connection configs to register to the type. Only applied if the "graphql_kind" is "object" or "interface".
+- **graphql_exclude_connections** | _array<string>_ | (optional): Array of connection names to exclude from the type.
+- **graphql_union_types** | _array<string>_ | (optional): Array of possible types the union can resolve to. Only used if "graphql_kind" is set to "union".
+- **graphql_register_root_field** | _boolean_ | (optional): Whether to register a field to the RootQuery to query a single node of this type. Default true.
+- **graphql_register_root_connection** | _boolean_ | (optional): Whether to register a connection to the RootQuery to query multiple nodes of this type. Default true.
+- **graphql_exclude_mutations** | _array<string>_ | (optional): Array of mutations to prevent from being registered. Possible values are "create", "update", "delete".
 
 ## Registering a new Custom Post Type
 
@@ -26,7 +36,7 @@ add_action( 'init', function() {
       'hierarchical' => true, # set to false if you don't want parent/child relationships for the entries
       'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
       'graphql_single_name' => 'document', 
-      'graphql_plural_name' => 'documents', # If not set, will default to `all${graphql_single_name}`, i.e. `allDocument`.
+      'graphql_plural_name' => 'documents', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
       'public' => true, # set to false if entries of the post_type should not have public URIs per entry
       'publicly_queryable' => true, # Set to false if entries should only be queryable in WPGraphQL by authenticated requests
    ] );
@@ -35,7 +45,8 @@ add_action( 'init', function() {
 
 ## Filtering an Existing Post Type
 
-If you want to expose a Post Type that you don’t control the registration for, such as a post type registered in a third-party plugin, you can filter the Post Type registration like so:
+If you want to expose a Post Type that you don’t control the registration for, such as a post type registered in a third-party plugin, you can filter the Post Type registration like so, applying any of the arguments
+listed above:
 
 ```php
 add_filter( 'register_post_type_args', function( $args, $post_type ) {
