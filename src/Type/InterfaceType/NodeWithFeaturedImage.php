@@ -24,7 +24,7 @@ class NodeWithFeaturedImage {
 			'NodeWithFeaturedImage',
 			[
 				'description' => __( 'A node that can have a featured image set', 'wp-graphql' ),
-				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'interfaces'  => [ 'Node' ],
 				'connections' => [
 					'featuredImage' => [
 						'toType'   => 'MediaItem',
