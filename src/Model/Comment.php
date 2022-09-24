@@ -177,15 +177,14 @@ class Comment extends Model {
 				},
 				'approved'           => function () {
 					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '@todo' );
-					return isset( $this->data->comment_approved ) ? $this->data->comment_approved : null;
+					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
 				},
 				'status'             => function () {
-					$status = isset( $this->data->comment_approved ) ? $this->data->comment_approved : null;
-
-					if ( ! is_numeric( $status ) ) {
-						return $status;
+					if ( ! is_numeric( $this->data->comment_approved ) ) {
+						return $this->data->comment_approved;
 					}
-					return ! empty( $status ) ? 'approve' : 'hold';
+
+					return '1' === $this->data->comment_approved ? 'approve' : 'hold';
 				},
 				'agent'              => function () {
 					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
