@@ -51,9 +51,17 @@ class SendPasswordResetEmail {
 	 */
 	public static function get_output_fields() {
 		return [
-			'user' => [
-				'type'        => 'User',
-				'description' => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
+			'user'    => [
+				'type'              => 'User',
+				'description'       => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
+				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
+				'resolve'           => function ( $payload, $args, AppContext $context, ) {
+					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
+				},
+			],
+			'success' => [
+				'type'        => 'Boolean',
+				'description' => __( 'Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent.', 'wp-graphql' ),
 			],
 		];
 	}
@@ -68,15 +76,29 @@ class SendPasswordResetEmail {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
 			}
+
+			// We obsfucate the actual success of this mutation to prevent user enumeration.
+			$payload = [
+				'success' => true,
+			];
+
 			$user_data = self::get_user_data( $input['username'] );
 
 			if ( ! $user_data ) {
-				throw new UserError( self::get_user_not_found_error_message( $input['username'] ) );
+				graphql_debug( self::get_user_not_found_error_message( $input['username'] ) );
+
+				return $payload;
 			}
+
+			// Get the password reset key.
 			$key = get_password_reset_key( $user_data );
 			if ( is_wp_error( $key ) ) {
-				throw new UserError( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
+				graphql_debug( __( 'Unable to generate a password reset key.', 'wp-graphql' ) );
+
+				return $payload;
 			}
+
+			// Mail the reset key.
 			$subject = self::get_email_subject( $user_data );
 			$message = self::get_email_message( $user_data, $key );
 
@@ -90,21 +112,17 @@ class SendPasswordResetEmail {
 			// phpstan should ignore this check.
 			// @phpstan-ignore-next-line
 			if ( is_wp_error( $email_sent ) ) {
+				graphql_debug( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
 
-				$message = __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' );
-				if ( ! \WPGraphQL::debug() ) {
-					throw new UserError( $message );
-				} else {
-					graphql_debug( $message );
-				}
+				return $payload;
 			}
 
 			/**
 			 * Return the ID of the user
 			 */
 			return [
-				'id'   => $user_data->ID,
-				'user' => $context->get_loader( 'user' )->load_deferred( $user_data->ID ),
+				'id'      => $user_data->ID,
+				'success' => true,
 			];
 		};
 	}
