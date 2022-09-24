@@ -120,6 +120,10 @@ class Comment {
 						'type'        => 'Int',
 						'description' => __( 'The database id of the parent comment node or null if it is the root comment', 'wp-graphql' ),
 					],
+					'status'           => [
+						'type'        => 'CommentStatusEnum',
+						'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
+					],
 					'type'             => [
 						'type'        => 'String',
 						'description' => __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the "comment_type" column in SQL.', 'wp-graphql' ),
