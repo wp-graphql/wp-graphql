@@ -60,8 +60,12 @@ class Comment {
 						'description' => __( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the "comment_agent" column in SQL.', 'wp-graphql' ),
 					],
 					'approved'         => [
-						'type'        => 'Boolean',
-						'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
+						'type'              => 'Boolean',
+						'description'       => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of the `status` field', 'wp-graphql' ),
+						'resolve'           => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
+							return 'approve' === $comment->status;
+						},
 					],
 					'authorIp'         => [
 						'type'        => 'String',
