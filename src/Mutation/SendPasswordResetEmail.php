@@ -72,7 +72,7 @@ class SendPasswordResetEmail {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() : callable {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return function ( $input ) {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
 			}
@@ -81,7 +81,6 @@ class SendPasswordResetEmail {
 			$payload = [
 				'success' => true,
 				'id'      => null,
-				'user'    => null,
 			];
 
 			$user_data = self::get_user_data( $input['username'] );
