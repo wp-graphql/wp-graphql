@@ -188,7 +188,8 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		$plugins_by_status['all'] = array_flip( array_keys( $all_plugins ) );
 
 		// Filter the plugins by stati.
-		$filtered_plugins = ! empty( $active_stati ) ? array_merge( ... array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) ) : $plugins_by_status['all'];
+		// @phpstan-ignore-next-line
+		$filtered_plugins = ! empty( $active_stati ) ? array_merge( ...array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) ) : $plugins_by_status['all'];
 
 		if ( ! empty( $this->args['where']['search'] ) ) {
 			// Filter by search args.
