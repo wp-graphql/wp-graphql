@@ -56,7 +56,8 @@ class TermObject {
 							$url = $term->link;
 							if ( ! empty( $url ) ) {
 								$parsed = wp_parse_url( $url );
-								if ( isset( $parsed ) ) {
+
+								if ( is_array( $parsed ) ) {
 									$path  = isset( $parsed['path'] ) ? $parsed['path'] : '';
 									$query = isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
 									return trim( $path . $query );
