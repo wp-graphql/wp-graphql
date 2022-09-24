@@ -35,8 +35,9 @@ class CommentCreate {
 	public static function get_input_fields() {
 		return [
 			'approved'    => [
-				'type'        => 'String',
-				'description' => __( 'The approval status of the comment.', 'wp-graphql' ),
+				'type'              => 'String',
+				'description'       => __( 'The approval status of the comment.', 'wp-graphql' ),
+				'deprecationReason' => __( 'Deprecated in favor of the status field', 'wp-graphql' ),
 			],
 			'author'      => [
 				'type'        => 'String',
@@ -65,6 +66,10 @@ class CommentCreate {
 			'parent'      => [
 				'type'        => 'ID',
 				'description' => __( 'Parent comment ID of current comment.', 'wp-graphql' ),
+			],
+			'status'      => [
+				'type'        => 'CommentStatusEnum',
+				'description' => __( 'The approval status of the comment', 'wp-graphql' ),
 			],
 			'type'        => [
 				'type'        => 'String',
