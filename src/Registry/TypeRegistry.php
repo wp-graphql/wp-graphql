@@ -305,6 +305,7 @@ class TypeRegistry {
 		CommentNodeIdTypeEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentStatusEnum::register_type();
+		ContentNodeIdTypeEnum::register_type();
 		ContentTypeEnum::register_type();
 		ContentTypeIdTypeEnum::register_type();
 		MediaItemSizeEnum::register_type();
