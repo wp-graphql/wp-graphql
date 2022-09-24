@@ -31,6 +31,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		] );
 
 		WPGraphQL::clear_schema();
+
 	}
 
 
@@ -123,6 +124,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 							}
 						}
 					}
+					status
 				}
 			}
 		}
@@ -145,6 +147,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 		$this->assertEquals( $expected_content, $actual['data']['createComment']['comment']['content'] );
+		$this->assertEquals( 'APPROVE', $actual['data']['createComment']['comment']['status'] );
 
 		$count = wp_count_comments( $post_id );
 		$this->assertEquals( '1', $count->total_comments );
@@ -156,6 +159,8 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( 'HOLD', $actual['data']['createComment']['comment']['status'] );
+
 
 		// Test logged in user different than author.
 		wp_set_current_user( $this->admin );
@@ -181,6 +186,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 	}
+
 
 	public function testCreateChildComment() {
 		// Create parent comment.
@@ -302,6 +308,66 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
+	}
+
+	public function testUpdateCommentWithStatus() {
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$comment = get_comment( $comment_id );
+
+		$query = '
+		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
+			updateComment( 
+				input: {
+					id: $id
+					status: $status
+				}
+			)
+			{
+				comment {
+					databaseId
+					status
+				}
+			}
+		}
+		';
+
+		// Test HOLD status.
+		$variables = [
+			'id'     => $comment_id,
+			'status' => 'HOLD',
+		];
+
+		// Test without permissions.
+		wp_set_current_user( 0 );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions.
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'HOLD', $actual['data']['updateComment']['comment']['status'] );
+		
+		// Test with SPAM status.
+		$variables['status'] = 'SPAM';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'SPAM', $actual['data']['updateComment']['comment']['status'] );
+
+		// Test with TRASH status.
+		$variables['status'] = 'TRASH';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'TRASH', $actual['data']['updateComment']['comment']['status'] );
 	}
 
 	public function testDeleteCommentWithPostConnection() {
