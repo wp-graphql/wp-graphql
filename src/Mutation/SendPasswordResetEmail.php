@@ -33,7 +33,7 @@ class SendPasswordResetEmail {
 	 *
 	 * @return array
 	 */
-	public static function get_input_fields() {
+	public static function get_input_fields() : array {
 		return [
 			'username' => [
 				'type'        => [
@@ -49,7 +49,7 @@ class SendPasswordResetEmail {
 	 *
 	 * @return array
 	 */
-	public static function get_output_fields() {
+	public static function get_output_fields() : array {
 		return [
 			'user'    => [
 				'type'              => 'User',
@@ -71,7 +71,7 @@ class SendPasswordResetEmail {
 	 *
 	 * @return callable
 	 */
-	public static function mutate_and_get_payload() {
+	public static function mutate_and_get_payload() : callable {
 		return function ( $input, AppContext $context, ResolveInfo $info ) {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
@@ -80,6 +80,8 @@ class SendPasswordResetEmail {
 			// We obsfucate the actual success of this mutation to prevent user enumeration.
 			$payload = [
 				'success' => true,
+				'id'      => null,
+				'user'    => null,
 			];
 
 			$user_data = self::get_user_data( $input['username'] );
