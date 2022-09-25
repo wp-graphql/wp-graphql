@@ -398,7 +398,7 @@ final class WPGraphQL {
 				 * @param array        $config         The config for the Object Type
 				 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
 				 */
-				return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '@todo', 'graphql_type_interfaces' );
+				return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 			}
 			return $interfaces;
 

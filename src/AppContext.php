@@ -155,7 +155,7 @@ class AppContext {
 	 * @deprecated Use get_loader instead.
 	 */
 	public function getLoader( $key ) {
-		_deprecated_function( __METHOD__, '@todo', __CLASS__ . '::get_loader()' );
+		_deprecated_function( __METHOD__, '0.8.4', __CLASS__ . '::get_loader()' );
 		return $this->get_loader( $key );
 	}
 
@@ -181,7 +181,7 @@ class AppContext {
 	 * @return array|mixed
 	 */
 	public function getConnectionArgs() {
-		_deprecated_function( __METHOD__, '@todo', __CLASS__ . '::get_connection_args()' );
+		_deprecated_function( __METHOD__, '0.8.4', __CLASS__ . '::get_connection_args()' );
 		return $this->get_connection_args();
 	}
 
