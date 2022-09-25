@@ -145,7 +145,7 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with_meta_field( string $meta_key, string $order ) {
-		$meta_type  = $this->get_query_arg( 'meta_type' );
+		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_term_meta( $this->cursor_offset, $meta_key, true );
 
 		$key = "{$this->wpdb->termmeta}.meta_value";
@@ -173,7 +173,7 @@ class TermObjectCursor extends AbstractCursor {
 	private function get_meta_key( string $by ) {
 
 		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
-			return $this->get_query_arg( 'meta_key' );
+			return $this->get_query_var( 'meta_key' );
 		}
 
 		/**
