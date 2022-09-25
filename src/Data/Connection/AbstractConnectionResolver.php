@@ -231,7 +231,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
-		_deprecated_function( __FUNCTION__, '1.11.0', 'get_args' );
+		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $this->get_args();
 	}
 
@@ -284,7 +284,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
-		_deprecated_function( __FUNCTION__, '0.3.0', 'set_query_arg' );
+		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		return $this->set_query_arg( $key, $value );
 	}
@@ -619,7 +619,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-		_deprecated_function( __FUNCTION__, '1.9.0', get_class( $this ) . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
