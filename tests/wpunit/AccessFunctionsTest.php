@@ -361,6 +361,265 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		WPGraphQL::clear_schema();
 	}
 
+	public function testRegisterEdgeField() {
+		// Register cpt for connection.
+		register_post_type( 'register_edge_cpt', [
+			'label'               => __( 'Register Edge Field CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Edge Field CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Edge Field CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'EdgeFieldCpt',
+			'graphql_plural_name' => 'EdgeFieldCpts',
+			'public'              => true,
+		] );
+
+		// Register the edge field
+		register_graphql_edge_field(
+			'RootQuery',
+			'EdgeFieldCpt',
+			'testEdgeField',
+			[
+				'type'        => 'String',
+				'description' => 'just testing here',
+				'resolve'     => function () {
+					return 'test';
+				},
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'register_edge_cpt',
+			'post_title'  => 'Test Register Edge CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			edgeFieldCpts {
+				edges {
+					testEdgeField
+					node {
+						id
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'test', $actual['data']['edgeFieldCpts']['edges'][0]['testEdgeField'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToEdgeFieldCptConnectionEdge', 'testEdgeField' );
+		unregister_post_type( 'register_edge_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterEdgeFields() {
+		// Register cpt for connection.
+		register_post_type( 'edge_fields_cpt', [
+			'label'               => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'EdgeFieldsCpt',
+			'graphql_plural_name' => 'EdgeFieldsCpts',
+			'public'              => true,
+		] );
+
+		// Register the edge field
+		register_graphql_edge_fields(
+			'RootQuery',
+			'EdgeFieldsCpt',
+			[
+				'testEdgeField1' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+					'resolve'     => function () {
+						return 'test';
+					},
+				],
+				'testEdgeField2' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+					'resolve'     => function () {
+						return 'test2';
+					},
+				],
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'edge_fields_cpt',
+			'post_title'  => 'Test Register Edge CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			edgeFieldsCpts {
+				edges {
+					testEdgeField1
+					testEdgeField2
+					node {
+						id
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'test', $actual['data']['edgeFieldsCpts']['edges'][0]['testEdgeField1'] );
+		$this->assertEquals( 'test2', $actual['data']['edgeFieldsCpts']['edges'][0]['testEdgeField2'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToEdgeFieldsCptConnectionEdge', 'testEdgeField1' );
+		deregister_graphql_field( 'RootQueryToEdgeFieldsCptConnectionEdge', 'testEdgeField2' );
+		unregister_post_type( 'edge_fields_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterConnectionInput() {
+		// Register cpt for connection.
+		register_post_type( 'connect_input_cpt', [
+			'label'               => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ConnectionInputCpt',
+			'graphql_plural_name' => 'ConnectionInputCpts',
+			'public'              => true,
+		] );
+
+		register_graphql_connection_input(
+			'RootQuery',
+			'ConnectionInputCpt',
+			'testInputField', 
+			[
+				'type'        => 'String',
+				'description' => 'just testing here',
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'connect_input_cpt',
+			'post_title'  => 'Test Register Connection Inputs CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			connectionInputCpts( where: { testInputField: "test" } ) {
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['connectionInputCpts']['edges'][0]['node']['databaseId'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToConnectionInputCptConnectionWhereArgs', 'testInputField' );
+		unregister_post_type( 'connect_input_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterConnectionInputs() {
+		// Register cpt for connection.
+		register_post_type( 'connect_inputs_cpt', [
+			'label'               => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ConnectionInputsCpt',
+			'graphql_plural_name' => 'ConnectionInputsCpts',
+			'public'              => true,
+		] );
+
+		register_graphql_connection_inputs(
+			'RootQuery',
+			'ConnectionInputsCpt',
+			[
+				'testInputField1' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+				'testInputField2' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'connect_inputs_cpt',
+			'post_title'  => 'Test Register Connection Inputs CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			connectionInputsCpts( where: { testInputField1: "test", testInputField2: "test2" } ) {
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['connectionInputsCpts']['edges'][0]['node']['databaseId'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToConnectionInputsCpt', 'testInputField1' );
+		deregister_graphql_field( 'RootQueryToConnectionInputsCpt', 'testInputField2' );
+		unregister_post_type( 'connect_inputs_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
 	public function testRenameGraphQLFieldName() {
 
 		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
