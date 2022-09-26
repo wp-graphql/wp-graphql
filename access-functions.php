@@ -306,6 +306,83 @@ function register_graphql_fields( string $type_name, array $fields ) {
 	);
 }
 
+/**
+ * Adds a field to the Connection Edge between the provided 'From' Type Name and 'To' Type Name.
+ *
+ * @param string $from_type  The name of the Type the connection is coming from.
+ * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param string $field_name The name of the field to add to the connection edge.
+ * @param array $config      The field config.
+ */
+function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
+	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
+
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $connection_name, $field_name, $config ) {
+			$type_registry->register_field( $connection_name, $field_name, $config );
+		},
+		10
+	);
+}
+
+/**
+ * Adds several fields to the Connection Edge between the provided 'From' Type Name and 'To' Type Name.
+ *
+ * @param string $from_type The name of the Type the connection is coming from.
+ * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param array  $fields    An array of field configs.
+ */
+function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
+	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
+
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $connection_name, $fields ) {
+			$type_registry->register_fields( $connection_name, $fields );
+		},
+		10
+	);
+}
+
+/**
+ * Adds an input field to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name.
+ *
+ * @param string $from_type  The name of the Type the connection is coming from.
+ * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param string $field_name The name of the field to add to the connection edge.
+ * @param array $config      The field config.
+ */
+function register_graphql_connection_input( string $from_type, string $to_type, string $field_name, array $config ) : void {
+	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
+
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $connection_name, $field_name, $config ) {
+			$type_registry->register_field( $connection_name, $field_name, $config );
+		},
+		10
+	);
+}
+
+/**
+ * Adds several input fields to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name.
+ *
+ * @param string $from_type The name of the Type the connection is coming from.
+ * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param array  $fields    An array of field configs.
+ */
+function register_graphql_connection_inputs( string $from_type, string $to_type, array $fields ) : void {
+	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
+
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $connection_name, $fields ) {
+			$type_registry->register_fields( $connection_name, $fields );
+		},
+		10
+	);
+}
 
 /**
  * Renames a GraphQL field.
