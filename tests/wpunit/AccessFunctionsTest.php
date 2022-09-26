@@ -294,6 +294,73 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterFields() {
+		/**
+		 * Register Input Field CPT
+		 */
+		register_post_type( 'register_fields_cpt', [
+			'label'               => __( 'Register Fields CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Fields CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Fields CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'RegisterFieldsCpt',
+			'graphql_plural_name' => 'RegisterFieldsCpts',
+		] );
+
+		/**
+		 * Register a GraphQL Input Field to the connection where args
+		 */
+		register_graphql_fields(
+			'RootQueryToRegisterFieldsCptConnectionWhereArgs',
+			[
+				'firstTestField'  => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+				'secondTestField' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+			]
+		);
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			__type( name: "RootQueryToRegisterFieldsCptConnectionWhereArgs" ) { 
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		/**
+		 * Get an array of names from the inputFields
+		 */
+		$names = array_column( $response['data']['__type']['inputFields'], 'name' );
+
+		/**
+		 * Assert that `testTest` exists in the $names (the field was properly registered)
+		 */
+		$this->assertTrue( in_array( 'firstTestField', $names, true ) );
+		$this->assertTrue( in_array( 'secondTestField', $names, true ) );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToRegisterFieldsCptConnectionWhereArgs', 'firstTestField' );
+		deregister_graphql_field( 'RootQueryToRegisterFieldsCptConnectionWhereArgs', 'secondTestField' );
+		unregister_post_type( 'register_fields_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
 	public function testRenameGraphQLFieldName() {
 
 		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
