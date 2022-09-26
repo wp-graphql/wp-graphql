@@ -276,6 +276,7 @@ function register_graphql_enum_type( string $type_name, array $config ) {
  * @param array  $config     The Type config
  *
  * @return void
+ * @since 0.1.0
  */
 function register_graphql_field( string $type_name, string $field_name, array $config ) {
 	add_action(
@@ -295,6 +296,7 @@ function register_graphql_field( string $type_name, string $field_name, array $c
  * @param array  $fields    An array of field configs
  *
  * @return void
+ * @since 0.1.0
  */
 function register_graphql_fields( string $type_name, array $fields ) {
 	add_action(
@@ -313,6 +315,8 @@ function register_graphql_fields( string $type_name, array $fields ) {
  * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param string $field_name The name of the field to add to the connection edge.
  * @param array $config      The field config.
+ *
+ * @since @todo
  */
 function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
@@ -332,6 +336,8 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
  * @param string $from_type The name of the Type the connection is coming from.
  * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param array  $fields    An array of field configs.
+ *
+ * @since @todo
  */
 function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
@@ -352,6 +358,8 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param string $field_name The name of the field to add to the connection edge.
  * @param array $config      The field config.
+ *
+ * @since @todo
  */
 function register_graphql_connection_input( string $from_type, string $to_type, string $field_name, array $config ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
@@ -371,6 +379,8 @@ function register_graphql_connection_input( string $from_type, string $to_type, 
  * @param string $from_type The name of the Type the connection is coming from.
  * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param array  $fields    An array of field configs.
+ *
+ * @since @todo
  */
 function register_graphql_connection_inputs( string $from_type, string $to_type, array $fields ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
@@ -392,6 +402,7 @@ function register_graphql_connection_inputs( string $from_type, string $to_type,
  * @param string $new_field_name  New field name.
  *
  * @return void
+ * @since 1.3.4
  */
 function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
 	add_filter(
@@ -413,6 +424,8 @@ function rename_graphql_field( string $type_name, string $field_name, string $ne
  *
  * @return void
  * @throws Exception
+ *
+ * @since 1.3.4
  */
 function rename_graphql_type( string $type_name, string $new_type_name ) {
 	add_filter(
@@ -448,6 +461,8 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
  *
  * @throws Exception
  * @return void
+ *
+ * @since 0.1.0
  */
 function register_graphql_connection( array $config ) {
 	add_action(
@@ -467,6 +482,8 @@ function register_graphql_connection( array $config ) {
  *
  * @throws Exception
  * @return void
+ *
+ * @since 0.8.4
  */
 function register_graphql_scalar( string $type_name, array $config ) {
 	add_action(
@@ -485,6 +502,8 @@ function register_graphql_scalar( string $type_name, array $config ) {
  * @param string $field_name The name of the field to remove
  *
  * @return void
+ *
+ * @since 0.1.0
  */
 function deregister_graphql_field( string $type_name, string $field_name ) {
 	add_action(
@@ -505,6 +524,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  * @throws Exception
  *
  * @return void
+ * @since 0.1.0
  */
 function register_graphql_mutation( string $mutation_name, array $config ) {
 	add_action(
@@ -557,6 +577,7 @@ function is_graphql_http_request() {
  * @param array  $config Array configuring the section. Should include: title
  *
  * @return void
+ * @since 0.13.0
  */
 function register_graphql_settings_section( string $slug, array $config ) {
 	add_action(
@@ -574,6 +595,7 @@ function register_graphql_settings_section( string $slug, array $config ) {
  * @param array  $config The config for the settings field being registered
  *
  * @return void
+ * @since 0.13.0
  */
 function register_graphql_settings_field( string $group, array $config ) {
 	add_action(
@@ -595,6 +617,7 @@ function register_graphql_settings_field( string $group, array $config ) {
  *                                    merged into the debug entry.
  *
  * @return void
+ * @since 0.14.0
  */
 function graphql_debug( $message, $config = [] ) {
 	$debug_backtrace     = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
@@ -631,6 +654,7 @@ function graphql_debug( $message, $config = [] ) {
  * @param string $type_name The name of the type to validate
  *
  * @return bool
+ * @since 0.14.0
  */
 function is_valid_graphql_name( string $type_name ) {
 	if ( preg_match( '/^\d/', $type_name ) ) {
@@ -647,6 +671,7 @@ function is_valid_graphql_name( string $type_name ) {
  * @param array  $fields Array of field configs to register to the group
  *
  * @return void
+ * @since 0.13.0
  */
 function register_graphql_settings_fields( string $group, array $fields ) {
 	add_action(
@@ -665,6 +690,7 @@ function register_graphql_settings_fields( string $group, array $fields ) {
  * @param string $section_name The settings group section that the option belongs to
  *
  * @return mixed|string|int|boolean
+ * @since 0.13.0
  */
 function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
 
@@ -700,6 +726,8 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
  * Polyfill for PHP versions below 7.3
  *
  * @return int|string|null
+ *
+ * @since 0.10.0
  */
 if ( ! function_exists( 'array_key_first' ) ) {
 
@@ -720,6 +748,8 @@ if ( ! function_exists( 'array_key_first' ) ) {
  * Polyfill for PHP versions below 7.3
  *
  * @return mixed|string|int
+ *
+ * @since 0.10.0
  */
 if ( ! function_exists( 'array_key_last' ) ) {
 
