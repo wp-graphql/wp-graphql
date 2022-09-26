@@ -100,7 +100,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	// tests
-	public function testMe() {
+	public function testFormatFieldName() {
 		$actual   = graphql_format_field_name( 'This is some field name' );
 		$expected = 'thisIsSomeFieldName';
 		self::assertEquals( $expected, $actual );
@@ -144,7 +144,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRegisterInputField() {
 
 		/**
-		 * Register Register Input Field CPT
+		 * Register Input Field CPT
 		 */
 		register_post_type( 'access_functions_cpt', [
 			'label'               => __( 'Register Input Field CPT', 'wp-graphql' ),
@@ -397,11 +397,21 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphqlInResolver',
 			[
 				'type'        => 'String',
-				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-graphql' ),
 				'resolve'     => function () {
+					$query = '
+						{
+							posts {
+								nodes {
+									id
+								}
+							}
+						}
+					';
+
 					$graphql = \graphql(
 						[
-							'query' => '{posts{nodes{id}}}',
+							'query' => $query,
 						]
 					);
 
@@ -414,9 +424,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-		{
-			graphqlInResolver
-		}
+			{
+				graphqlInResolver
+			}
 		';
 
 		$actual = $this->graphql([
@@ -436,11 +446,21 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphqlInResolver',
 			[
 				'type'        => 'String',
-				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-graphql' ),
 				'resolve'     => function () {
+					$query = '
+						{
+							posts {
+								nodes {
+									id
+								}
+							}
+						}
+					';
+
 					$graphql = \graphql(
 						[
-							'query' => '{posts{nodes{id}}}',
+							'query' => $query,
 						]
 					);
 
