@@ -22,6 +22,8 @@
  */
 
 // Exit if accessed directly.
+use GraphQLRelay\Relay;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -79,3 +81,14 @@ function graphql_init_appsero_telemetry() {
 }
 
 graphql_init_appsero_telemetry();
+
+
+add_filter( 'graphql_query_analyzer_get_runtime_nodes', function ( $nodes ) {
+
+	$keys = [];
+	for ( $i = 1; $i <= 2000; $i++ ) {
+		$keys[] = Relay::toGlobalId( 'post', $i );
+	}
+	return array_merge( $keys, $nodes );
+
+});

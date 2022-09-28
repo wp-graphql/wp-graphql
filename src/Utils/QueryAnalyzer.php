@@ -179,28 +179,34 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_list_types(): array {
-		return array_unique( $this->list_types );
+		$list_types = apply_filters( 'graphql_query_analyzer_get_list_types', $this->list_types );
+		return is_array( $list_types ) ? array_unique( $list_types ) : [];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_types(): array {
-		return array_unique( $this->queried_types );
+		$query_types = apply_filters( 'graphql_query_analyzer_get_query_types', $this->queried_types );
+		return is_array( $query_types ) ? array_unique( $query_types ) : [];
+
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_query_models(): array {
-		return array_unique( $this->models );
+		$models = apply_filters( 'graphql_query_analyzer_get_query_models', $this->models );
+		return is_array( $models ) ? array_unique( $models ) : [];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_runtime_nodes(): array {
-		return array_unique( $this->runtime_nodes );
+		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
+		return is_array( $runtime_nodes ) ? array_unique( $runtime_nodes ) : [];
+
 	}
 
 	/**
@@ -489,6 +495,15 @@ class QueryAnalyzer {
 
 		$keys = [];
 
+		if ( $this->get_query_id() ) {
+			$keys[] = $this->get_query_id();
+		}
+
+		if ( ! empty( $this->get_root_operation() ) ) {
+			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
+			$keys[]                              = 'graphql:' . $this->get_root_operation();
+		}
+
 		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
 			$headers['X-GraphQL-List-Types'] = implode( ' ', array_unique( array_values( $this->get_list_types() ) ) );
 			$keys                            = array_merge( $keys, $this->get_list_types() );
@@ -500,25 +515,17 @@ class QueryAnalyzer {
 			$keys                       = array_merge( $keys, $this->get_runtime_nodes() );
 		}
 
-		if ( ! empty( $this->get_root_operation() ) ) {
-			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
-			$keys[]                              = 'graphql:' . $this->get_root_operation();
-		}
-
 		if ( ! empty( $keys ) ) {
-
-			if ( $this->get_query_id() ) {
-				$keys[] = $this->get_query_id();
-			}
 
 			$headers['X-GraphQL-Query-ID'] = $this->query_id;
 
 			$key_string = implode( ' ', array_unique( array_values( $keys ) ) );
 
-			// Use the header key limit to wrap the words with a separator
+			// Use the header_length_limit to wrap the words with a separator
 			$wrapped = wordwrap( $key_string, $this->header_length_limit, '|||' );
 
-			// explode the string at the separator
+			// explode the string at the separator. This creates an array of chunks that
+			// can be used to expose the keys in multiple headers, each under the header_length_limit
 			$chunks = explode( '|||', $wrapped );
 
 			// Iterate over the chunks
