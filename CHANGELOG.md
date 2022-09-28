@@ -5,6 +5,8 @@
 ## Chores / Bugfixes
 
 - ([#2551](https://github.com/wp-graphql/wp-graphql/pull/2551)): Chunks X-GraphQL-Keys header into multiple headers under a set max header limit length.
+- ([#2539](https://github.com/wp-graphql/wp-graphql/pull/2539)): Set IDE direction to prevent breaks in RTL mode. Thanks @justlevine!
+- ([#2549](https://github.com/wp-graphql/wp-graphql/pull/2549)): Fix bug_report.yml field to be textarea instead of input. Thanks @justlevine!
 
 ## 1.11.1
 

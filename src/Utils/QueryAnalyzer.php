@@ -197,8 +197,7 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_query_types(): array {
-		return array_unique( $this->query_types );
-
+		return array_unique( $this->queried_types );
 	}
 
 	/**
@@ -216,7 +215,7 @@ class QueryAnalyzer {
 		 * @param array $runtime_nodes Nodes that were resolved during execution
 		 */
 		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
-		return is_array( $runtime_nodes ) ? array_unique( $runtime_nodes ) : [];
+		return array_unique( $runtime_nodes );
 
 	}
 
