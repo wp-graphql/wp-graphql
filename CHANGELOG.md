@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.2
+
+## Chores / Bugfixes
+
+- ([#2551](https://github.com/wp-graphql/wp-graphql/pull/2551)): Chunks X-GraphQL-Keys header into multiple headers under a set max header limit length.
+
 ## 1.11.1
 
 ## Chores / Bugfixes

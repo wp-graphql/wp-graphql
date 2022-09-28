@@ -105,6 +105,12 @@ class QueryAnalyzer {
 	public function init(): void {
 
 		// allow query analyzer functionality to be disabled
+		/**
+		 * Filters whether to analyze queries or not
+		 *
+		 * @param bool $should_analyze_queries Whether to analyze queries or not. Default true
+		 * @param QueryAnalyzer $query_analyzer The QueryAnalyzer instance
+		 */
 		$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', true, $this );
 
 		// If query analyzer is disabled, bail
@@ -112,18 +118,23 @@ class QueryAnalyzer {
 			return;
 		}
 
-		// Filter the header key limit. Default is 8000 (8k) to play nice
-		// with common clients such as:
-		//
-		// Next: https://vercel.com/docs/concepts/functions/edge-functions/limitations#limits-on-requests
-		// Varnish: https://varnish-cache.org/docs/4.1/reference/varnishd.html?highlight=storage%20types#http-req-hdr-len,
-		// Node: https://nodejs.org/api/cli.html#--max-http-header-sizesize
-		// Fastly: https://docs.fastly.com/en/guides/resource-limits#request-and-response-limits
-		//
-		// Next, Varnish, Node, Fastly and others. (some support 16k).
-		// 8k will be the default, but filter away.
-		//
-		// and others.
+
+		/**
+		 * Filter the header key limit. Default is 8000 (8k) to play nice
+		 * with common clients such as:
+		 *
+		 * Next: https://vercel.com/docs/concepts/functions/edge-functions/limitations#limits-on-requests
+		 * Varnish: https://varnish-cache.org/docs/4.1/reference/varnishd.html?highlight=storage%20types#http-req-hdr-len,
+		 * Node: https://nodejs.org/api/cli.html#--max-http-header-sizesize
+		 * Fastly: https://docs.fastly.com/en/guides/resource-limits#request-and-response-limits
+		 *
+		 * Next, Varnish, Node, Fastly and others. (some support 16k).
+		 * 8k will be the default, but filter away.
+		 *
+		 * and others.
+		 *
+		 * @param int $header_length_limit The max limit headers should be. Longer than this, they're chunked into multiple headers.
+		 */
 		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 8192 );
 
 		// track keys related to the query
@@ -295,6 +306,10 @@ class QueryAnalyzer {
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
 		// @phpcs:ignore
+
+		/**
+		 * Filter teh list types
+		 */
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
 
