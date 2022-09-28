@@ -22,8 +22,6 @@
  */
 
 // Exit if accessed directly.
-use GraphQLRelay\Relay;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
