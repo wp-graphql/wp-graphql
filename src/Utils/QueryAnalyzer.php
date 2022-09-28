@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
+use GraphQLRelay\Relay;
 use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
 
@@ -75,6 +76,11 @@ class QueryAnalyzer {
 	protected $request;
 
 	/**
+	 * @var Int The character length limit for headers
+	 */
+	protected $header_length_limit;
+
+	/**
 	 * @param Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
@@ -105,6 +111,20 @@ class QueryAnalyzer {
 		if ( true !== $should_analyze_queries ) {
 			return;
 		}
+
+		// Filter the header key limit. Default is 8000 (8k) to play nice
+		// with common clients such as:
+		//
+		// Next: https://vercel.com/docs/concepts/functions/edge-functions/limitations#limits-on-requests
+		// Varnish: https://varnish-cache.org/docs/4.1/reference/varnishd.html?highlight=storage%20types#http-req-hdr-len,
+		// Node: https://nodejs.org/api/cli.html#--max-http-header-sizesize
+		// Fastly: https://docs.fastly.com/en/guides/resource-limits#request-and-response-limits
+		//
+		// Next, Varnish, Node, Fastly and others. (some support 16k).
+		// 8k will be the default, but filter away.
+		//
+		// and others.
+		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 8192 );
 
 		// track keys related to the query
 		add_action( 'do_graphql_request', [ $this, 'determine_graphql_keys' ], 10, 4 );
@@ -491,12 +511,26 @@ class QueryAnalyzer {
 				$keys[] = $this->get_query_id();
 			}
 
+			$headers['X-GraphQL-Query-ID'] = $this->query_id;
+
 			$key_string = implode( ' ', array_unique( array_values( $keys ) ) );
 
-			$headers['X-GraphQL-Query-ID']  = $this->query_id;
-			$headers['X-GraphQL-Keys']      = $key_string;
-			$headers['X-GraphQL-Keys-Size'] = strlen( $key_string ); // calculate the bytes of the keys
+			// Use the header key limit to wrap the words with a separator
+			$wrapped = wordwrap( $key_string, $this->header_length_limit, '|||' );
 
+			// explode the string at the separator
+			$chunks = explode( '|||', $wrapped );
+
+			// Iterate over the chunks
+			foreach ( $chunks as $index => $chunk ) {
+				if ( 0 === $index ) {
+					$headers['X-GraphQL-Keys']      = $chunk;
+					$headers['X-GraphQL-Keys-Size'] = strlen( $chunk );
+				} else {
+					$headers[ 'X-GraphQL-Skipped-Keys-' . $index ]           = $chunk;
+					$headers[ 'X-GraphQL-Skipped-Keys-' . $index . '-Size' ] = strlen( $chunk );
+				}
+			}
 		}
 
 		return $headers;
