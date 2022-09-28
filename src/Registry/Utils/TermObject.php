@@ -242,8 +242,10 @@ class TermObject {
 		}
 
 		// Remove excluded connections.
-		foreach ( $tax_object->graphql_exclude_connections as $connection_name ) {
-			unset( $connections[ lcfirst( $connection_name ) ] );
+		if ( ! empty( $tax_object->graphql_exclude_connections ) ) {
+			foreach ( $tax_object->graphql_exclude_connections as $connection_name ) {
+				unset( $connections[ lcfirst( $connection_name ) ] );
+			}
 		}
 
 		return $connections;
@@ -316,6 +318,18 @@ class TermObject {
 				},
 			],
 		];
+
+		// Merge with fields set in register_taxonomy.
+		if ( ! empty( $tax_object->graphql_fields ) ) {
+			$fields = array_merge( $fields, $tax_object->graphql_fields );
+		}
+
+		// Remove excluded fields.
+		if ( ! empty( $tax_object->graphql_exclude_fields ) ) {
+			foreach ( $tax_object->graphql_exclude_fields as $field_name ) {
+				unset( $fields[ $field_name ] );
+			}
+		}
 
 		return $fields;
 	}

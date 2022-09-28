@@ -14,6 +14,8 @@
  * @property bool $graphql_register_root_field
  * @property bool $graphql_register_root_connection
  * @property string[] $graphql_exclude_mutations
+ * @property array $graphql_fields
+ * @property string[] $graphql_exclude_fields
  */
 final class WP_Post_Type {
 }

@@ -237,8 +237,10 @@ class PostObject {
 		}
 
 		// Remove excluded connections.
-		foreach ( $post_type_object->graphql_exclude_connections as $connection_name ) {
-			unset( $connections[ lcfirst( $connection_name ) ] );
+		if ( ! empty( $post_type_object->graphql_exclude_connections ) ) {
+			foreach ( $post_type_object->graphql_exclude_connections as $connection_name ) {
+				unset( $connections[ lcfirst( $connection_name ) ] );
+			}
 		}
 
 		return $connections;
@@ -385,8 +387,20 @@ class PostObject {
 				],
 				true
 			) ) {
-			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typcially will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typcially will not have a parent', 'wp-graphql' );
+			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
+			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
+		}
+
+		// Merge with fields set in register_post_type.
+		if ( ! empty( $post_type_object->graphql_fields ) ) {
+			$fields = array_merge( $fields, $post_type_object->graphql_fields );
+		}
+
+		// Remove excluded fields.
+		if ( ! empty( $post_type_object->graphql_exclude_fields ) ) {
+			foreach ( $post_type_object->graphql_exclude_fields as $field_name ) {
+				unset( $fields[ $field_name ] );
+			}
 		}
 
 		return $fields;
