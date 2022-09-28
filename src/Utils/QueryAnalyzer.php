@@ -120,7 +120,7 @@ class QueryAnalyzer {
 
 
 		/**
-		 * Filter the header key limit. Default is 8000 (8k) to play nice
+		 * Filter the header key limit. Default is 8192 (8k) to play nice
 		 * with common clients such as:
 		 *
 		 * Next: https://vercel.com/docs/concepts/functions/edge-functions/limitations#limits-on-requests
@@ -133,7 +133,7 @@ class QueryAnalyzer {
 		 *
 		 * and others.
 		 *
-		 * @param int $header_length_limit The max limit headers should be. Longer than this, they're chunked into multiple headers.
+		 * @param int $header_length_limit The max limit in (binary) bytes headers should be. Longer than this, they're chunked into multiple headers.
 		 */
 		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 8192 );
 
@@ -197,7 +197,8 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_query_types(): array {
-		return array_unique( $this->queried_types );
+		return array_unique( $this->query_types );
+
 	}
 
 	/**
@@ -211,7 +212,12 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_runtime_nodes(): array {
-		return array_unique( $this->runtime_nodes );
+		/**
+		 * @param array $runtime_nodes Nodes that were resolved during execution
+		 */
+		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
+		return is_array( $runtime_nodes ) ? array_unique( $runtime_nodes ) : [];
+
 	}
 
 	/**
@@ -306,10 +312,6 @@ class QueryAnalyzer {
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
 		// @phpcs:ignore
-
-		/**
-		 * Filter teh list types
-		 */
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
 
@@ -504,6 +506,15 @@ class QueryAnalyzer {
 
 		$keys = [];
 
+		if ( $this->get_query_id() ) {
+			$keys[] = $this->get_query_id();
+		}
+
+		if ( ! empty( $this->get_root_operation() ) ) {
+			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
+			$keys[]                              = 'graphql:' . $this->get_root_operation();
+		}
+
 		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
 			$headers['X-GraphQL-List-Types'] = implode( ' ', array_unique( array_values( $this->get_list_types() ) ) );
 			$keys                            = array_merge( $keys, $this->get_list_types() );
@@ -515,26 +526,18 @@ class QueryAnalyzer {
 			$keys                       = array_merge( $keys, $this->get_runtime_nodes() );
 		}
 
-		if ( ! empty( $this->get_root_operation() ) ) {
-			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
-			$keys[]                              = 'graphql:' . $this->get_root_operation();
-		}
-
 		if ( ! empty( $keys ) ) {
-
-			if ( $this->get_query_id() ) {
-				$keys[] = $this->get_query_id();
-			}
 
 			$headers['X-GraphQL-Query-ID'] = $this->query_id;
 
 			$key_string = implode( ' ', array_unique( array_values( $keys ) ) );
 
-			// Use the header key limit to wrap the words with a separator
-			$wrapped = wordwrap( $key_string, $this->header_length_limit, '|||' );
+			// Use the header_length_limit to wrap the words with a separator
+			$wrapped = wordwrap( $key_string, $this->header_length_limit, '\n' );
 
-			// explode the string at the separator
-			$chunks = explode( '|||', $wrapped );
+			// explode the string at the separator. This creates an array of chunks that
+			// can be used to expose the keys in multiple headers, each under the header_length_limit
+			$chunks = explode( '\n', $wrapped );
 
 			// Iterate over the chunks
 			foreach ( $chunks as $index => $chunk ) {
