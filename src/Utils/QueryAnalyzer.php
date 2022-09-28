@@ -522,11 +522,11 @@ class QueryAnalyzer {
 			$key_string = implode( ' ', array_unique( array_values( $keys ) ) );
 
 			// Use the header_length_limit to wrap the words with a separator
-			$wrapped = wordwrap( $key_string, $this->header_length_limit, '|||' );
+			$wrapped = wordwrap( $key_string, $this->header_length_limit, '\n' );
 
 			// explode the string at the separator. This creates an array of chunks that
 			// can be used to expose the keys in multiple headers, each under the header_length_limit
-			$chunks = explode( '|||', $wrapped );
+			$chunks = explode( '\n', $wrapped );
 
 			// Iterate over the chunks
 			foreach ( $chunks as $index => $chunk ) {
