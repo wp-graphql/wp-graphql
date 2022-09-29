@@ -15,6 +15,7 @@ use GraphQL\Utils\TypeInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
+use WPGraphQL\WPSchema;
 
 /**
  * This class is used to identify "keys" relevant to the GraphQL Request.
@@ -81,6 +82,16 @@ class QueryAnalyzer {
 	protected $header_length_limit;
 
 	/**
+	 * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header
+	 */
+	protected $skipped_keys = '';
+
+	/**
+	 * @var array
+	 */
+	protected $graphql_keys = [];
+
+	/**
 	 * @param Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
@@ -118,30 +129,38 @@ class QueryAnalyzer {
 			return;
 		}
 
+		$this->graphql_keys = [];
+		$this->skipped_keys = '';
 
 		/**
-		 * Filter the header key limit. Default is 8192 (8k) to play nice
-		 * with common clients such as:
+		 * Many clients have an 8k (8192 characters) header length cap.
 		 *
-		 * Next: https://vercel.com/docs/concepts/functions/edge-functions/limitations#limits-on-requests
-		 * Varnish: https://varnish-cache.org/docs/4.1/reference/varnishd.html?highlight=storage%20types#http-req-hdr-len,
-		 * Node: https://nodejs.org/api/cli.html#--max-http-header-sizesize
-		 * Fastly: https://docs.fastly.com/en/guides/resource-limits#request-and-response-limits
+		 * This is the total for ALL headers, not just individual headers.
 		 *
-		 * Next, Varnish, Node, Fastly and others. (some support 16k).
-		 * 8k will be the default, but filter away.
+		 * SEE: https://nodejs.org/en/blog/vulnerability/november-2018-security-releases/#denial-of-service-with-large-http-headers-cve-2018-12121
 		 *
-		 * and others.
+		 * In order to respect this, we have a default limit of 4000 characters for the X-GraphQL-Keys header
+		 * to allow for other headers to total up to 8k.
 		 *
-		 * @param int $header_length_limit The max limit in (binary) bytes headers should be. Longer than this, they're chunked into multiple headers.
+		 * This value can be filtered to be increased or decreased.
+		 *
+		 * If you see "Parse Error: Header overflow" errors in your client, you might want to decrease this value.
+		 *
+		 * On the other hand, if you've increased your allowed header length in your client
+		 * (i.e. https://github.com/wp-graphql/wp-graphql/issues/2535#issuecomment-1262499064) then you might want to increase this so that keys are not truncated.
+		 *
+		 * @param int $header_length_limit The max limit in (binary) bytes headers should be. Anything longer will be truncated.
 		 */
-		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 8192 );
+		$this->header_length_limit = apply_filters( 'graphql_query_analyzer_header_length_limit', 4000 );
 
 		// track keys related to the query
 		add_action( 'do_graphql_request', [ $this, 'determine_graphql_keys' ], 10, 4 );
 
 		// Track models loaded during execution
 		add_filter( 'graphql_dataloader_get_model', [ $this, 'track_nodes' ], 10, 1 );
+
+		// Expose query analyzer data in extensions
+		add_filter( 'graphql_request_results', [ $this, 'show_query_analyzer_in_extensions' ], 10, 5 );
 
 	}
 
@@ -493,6 +512,68 @@ class QueryAnalyzer {
 		return $model;
 	}
 
+	/**
+	 * Returns graphql keys for use in debugging and headers.
+	 *
+	 * @return array
+	 */
+	public function get_graphql_keys() {
+
+		if ( ! empty( $this->graphql_keys ) ) {
+			return $this->graphql_keys;
+		}
+
+		$keys        = [];
+		$return_keys = '';
+
+		if ( $this->get_query_id() ) {
+			$keys[] = $this->get_query_id();
+		}
+
+		if ( ! empty( $this->get_root_operation() ) ) {
+			$keys[] = 'graphql:' . $this->get_root_operation();
+		}
+
+		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
+			$keys = array_merge( $keys, $this->get_list_types() );
+		}
+
+		if ( ! empty( $this->get_runtime_nodes() ) && is_array( $this->get_runtime_nodes() ) ) {
+			$keys = array_merge( $keys, $this->get_runtime_nodes() );
+		}
+
+		if ( ! empty( $keys ) ) {
+
+			$all_keys = implode( ' ', array_unique( array_values( $keys ) ) );
+
+			// Use the header_length_limit to wrap the words with a separator
+			$wrapped = wordwrap( $all_keys, $this->header_length_limit, '\n' );
+
+			// explode the string at the separator. This creates an array of chunks that
+			// can be used to expose the keys in multiple headers, each under the header_length_limit
+			$chunks = explode( '\n', $wrapped );
+
+			// Iterate over the chunks
+			foreach ( $chunks as $index => $chunk ) {
+				if ( 0 === $index ) {
+					$return_keys = $chunk;
+				} else {
+					$this->skipped_keys = trim( $this->skipped_keys . ' ' . $chunk );
+				}
+			}
+		}
+
+		$this->graphql_keys = [
+			'keys'             => $return_keys,
+			'keysLength'       => strlen( $return_keys ),
+			'skippedKeys'      => $this->skipped_keys,
+			'skippedKeysCount' => count( array_values( explode( ' ', $this->skipped_keys ) ) ),
+		];
+
+		return $this->graphql_keys;
+
+	}
+
 
 	/**
 	 * Return headers
@@ -503,54 +584,58 @@ class QueryAnalyzer {
 	 */
 	public function get_headers( array $headers = [] ): array {
 
-		$keys = [];
-
-		if ( $this->get_query_id() ) {
-			$keys[] = $this->get_query_id();
-		}
-
-		if ( ! empty( $this->get_root_operation() ) ) {
-			$headers['X-GraphQL-Operation-Type'] = $this->get_root_operation();
-			$keys[]                              = 'graphql:' . $this->get_root_operation();
-		}
-
-		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
-			$headers['X-GraphQL-List-Types'] = implode( ' ', array_unique( array_values( $this->get_list_types() ) ) );
-			$keys                            = array_merge( $keys, $this->get_list_types() );
-
-		}
-
-		if ( ! empty( $this->get_runtime_nodes() ) && is_array( $this->get_runtime_nodes() ) ) {
-			$headers['X-GraphQL-Nodes'] = implode( ' ', array_unique( array_values( $this->get_runtime_nodes() ) ) );
-			$keys                       = array_merge( $keys, $this->get_runtime_nodes() );
-		}
+		$keys = $this->get_graphql_keys();
 
 		if ( ! empty( $keys ) ) {
 
-			$headers['X-GraphQL-Query-ID'] = $this->query_id;
+			$headers['X-GraphQL-Query-ID']           = $this->query_id ?: null;
+			$headers['X-GraphQL-Keys']               = $keys['keys'] ?: null;
+			$headers['X-GraphQL-Keys-Size']          = strlen( $keys['keys'] ) ?: 0;
+			$headers['X-GraphQL-Skipped-Keys-Count'] = $keys['skippedKeysCount'] ?: 0;
 
-			$key_string = implode( ' ', array_unique( array_values( $keys ) ) );
-
-			// Use the header_length_limit to wrap the words with a separator
-			$wrapped = wordwrap( $key_string, $this->header_length_limit, '\n' );
-
-			// explode the string at the separator. This creates an array of chunks that
-			// can be used to expose the keys in multiple headers, each under the header_length_limit
-			$chunks = explode( '\n', $wrapped );
-
-			// Iterate over the chunks
-			foreach ( $chunks as $index => $chunk ) {
-				if ( 0 === $index ) {
-					$headers['X-GraphQL-Keys']      = $chunk;
-					$headers['X-GraphQL-Keys-Size'] = strlen( $chunk );
-				} else {
-					$headers[ 'X-GraphQL-Skipped-Keys-' . $index ]           = $chunk;
-					$headers[ 'X-GraphQL-Skipped-Keys-' . $index . '-Size' ] = strlen( $chunk );
-				}
-			}
 		}
 
 		return $headers;
+	}
+
+	/**
+	 *
+	 * @param mixed    $response
+	 * @param WPSchema $schema         The WPGraphQL Schema
+	 * @param string   $operation_name The operation name being executed
+	 * @param string   $request        The GraphQL Request being made
+	 * @param array    $variables      The variables sent with the request
+	 *
+	 * @return array|mixed
+	 */
+	public function show_query_analyzer_in_extensions( $response, $schema, $operation_name, $request, $variables ) {
+
+
+		$should = \WPGraphQL::debug();
+
+		/**
+		 * @param bool     $should         Whether the query analyzer output should be displayed in the Extensions output. Default to the value of WPGraphQL Debug.
+		 * @param mixed    $response       The response of the WPGraphQL Request being executed
+		 * @param WPSchema $schema         The WPGraphQL Schema
+		 * @param string   $operation_name The operation name being executed
+		 * @param string   $request        The GraphQL Request being made
+		 * @param array    $variables      The variables sent with the request
+		 */
+		$should_show_query_analyzer_in_extensions = apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
+
+		$keys = $this->get_graphql_keys();
+
+		if ( ! empty( $response ) ) {
+			if ( is_array( $response ) ) {
+				$response['extensions']['queryAnalyzer'] = $keys ?: null;
+			} elseif ( is_object( $response ) ) {
+				// @phpstan-ignore-next-line
+				$response->extensions['queryAnalyzer'] = $keys ?: null;
+			}
+		}
+
+		return $response;
+
 	}
 
 }
