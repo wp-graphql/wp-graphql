@@ -590,13 +590,12 @@ class QueryAnalyzer {
 
 		if ( ! empty( $keys ) ) {
 
-			$headers['X-GraphQL-Query-ID']           = $this->query_id ?: null;
-			$headers['X-GraphQL-Keys']               = $keys['keys'] ?: null;
-			$headers['X-GraphQL-Keys-Size']          = strlen( $keys['keys'] ) ?: 0;
+			$headers['X-GraphQL-Query-ID']  = $this->query_id ?: null;
+			$headers['X-GraphQL-Keys']      = $keys['keys'] ?: null;
+			$headers['X-GraphQL-Keys-Size'] = strlen( $keys['keys'] ) ?: 0;
 			if ( 0 < absint( $keys['skippedKeysCount'] ) ) {
 				$headers['X-GraphQL-Skipped-Keys-Count'] = $keys['skippedKeysCount'] ?: 0;
-			}
-
+			}       
 		}
 
 		return $headers;
