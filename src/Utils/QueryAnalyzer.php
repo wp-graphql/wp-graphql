@@ -563,11 +563,13 @@ class QueryAnalyzer {
 			}
 		}
 
+		$skipped_keys_array = ! empty( $this->skipped_keys ) ? explode( ' ', $this->skipped_keys ) : '';
+
 		$this->graphql_keys = [
 			'keys'             => $return_keys,
 			'keysLength'       => strlen( $return_keys ),
 			'skippedKeys'      => $this->skipped_keys,
-			'skippedKeysCount' => count( array_values( explode( ' ', $this->skipped_keys ) ) ),
+			'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0,
 		];
 
 		return $this->graphql_keys;
@@ -591,7 +593,9 @@ class QueryAnalyzer {
 			$headers['X-GraphQL-Query-ID']           = $this->query_id ?: null;
 			$headers['X-GraphQL-Keys']               = $keys['keys'] ?: null;
 			$headers['X-GraphQL-Keys-Size']          = strlen( $keys['keys'] ) ?: 0;
-			$headers['X-GraphQL-Skipped-Keys-Count'] = $keys['skippedKeysCount'] ?: 0;
+			if ( 0 < absint( $keys['skippedKeysCount'] ) ) {
+				$headers['X-GraphQL-Skipped-Keys-Count'] = $keys['skippedKeysCount'] ?: 0;
+			}
 
 		}
 
@@ -622,6 +626,12 @@ class QueryAnalyzer {
 		 * @param array    $variables      The variables sent with the request
 		 */
 		$should_show_query_analyzer_in_extensions = apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
+
+		// If the query analyzer output is disabled,
+		// don't show the output in the response
+		if ( false === $should_show_query_analyzer_in_extensions ) {
+			return $response;
+		}
 
 		$keys = $this->get_graphql_keys();
 
