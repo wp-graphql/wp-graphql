@@ -87,7 +87,7 @@ class QueryAnalyzer {
 	protected $skipped_keys = '';
 
 	/**
-	 * @var array
+	 * @var array The GraphQL keys to return in the X-GraphQL-Keys header.
 	 */
 	protected $graphql_keys = [];
 
