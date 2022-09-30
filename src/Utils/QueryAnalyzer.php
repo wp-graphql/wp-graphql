@@ -82,7 +82,7 @@ class QueryAnalyzer {
 	protected $header_length_limit;
 
 	/**
-	 * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header
+	 * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header.
 	 */
 	protected $skipped_keys = '';
 
