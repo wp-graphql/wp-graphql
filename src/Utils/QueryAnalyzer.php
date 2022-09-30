@@ -115,7 +115,6 @@ class QueryAnalyzer {
 	 */
 	public function init(): void {
 
-		// allow query analyzer functionality to be disabled
 		/**
 		 * Filters whether to analyze queries or not
 		 *
