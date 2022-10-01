@@ -1198,6 +1198,8 @@ class TypeRegistry {
 
 	/**
 	 * Get the list of GraphQL type names to exclude from the schema.
+	 *
+	 * @since @todo
 	 */
 	public function get_excluded_types() : array {
 		/**
@@ -1207,8 +1209,10 @@ class TypeRegistry {
 		 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
 		 *
 		 * @param array $excluded_types The names of the GraphQL Types to exclude.
+		 *
+		 * @since @todo
 		 */
-		return apply_filters( 'graphql_excluded_types', [ 'Post' ] );
+		return apply_filters( 'graphql_excluded_types', [] );
 	}
 
 	/**

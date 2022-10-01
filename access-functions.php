@@ -406,7 +406,7 @@ function register_graphql_scalar( string $type_name, array $config ) {
  *
  * @param string $type_name The name of the Type to remove.
  *
- * @return void
+ * @since @todo
  */
 function deregister_graphql_type( string $type_name ) : void {
 	// Prevent the type from being registered to the scheme directly.
