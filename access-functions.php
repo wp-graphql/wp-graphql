@@ -438,20 +438,6 @@ function deregister_graphql_type( string $type_name ) : void {
 		},
 		10
 	);
-
-	// Prevent the type from being added as possible type in a union.
-	add_filter(
-		'graphql_union_possible_types',
-		function ( $possible_types ) use ( $type_name ) : array {
-			$key = array_search( $type_name, $possible_types, true );
-			if ( false !== $key ) {
-				unset( $possible_types[ $key ] );
-			}
-
-			return $possible_types;
-		},
-		10
-	);
 }
 
 /**
