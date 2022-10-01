@@ -1202,8 +1202,9 @@ class TypeRegistry {
 	public function get_excluded_types() : array {
 		/**
 		 * Filter the list of GraphQL types to exclude from the schema.
-		 *
-		 * Useful for excluding types that are registered by plugins or themes
+		 * 
+		 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
+		 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
 		 *
 		 * @param array $excluded_types The names of the GraphQL Types to exclude.
 		 */
