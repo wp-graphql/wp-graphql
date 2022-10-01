@@ -1036,10 +1036,7 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_connection( array $config ) {
-
-		$connection = new WPConnectionType( $config, $this );
-		$connection->register_connection();
-
+		new WPConnectionType( $config, $this );
 	}
 
 	/**

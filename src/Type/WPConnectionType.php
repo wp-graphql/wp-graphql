@@ -4,7 +4,6 @@ namespace WPGraphQL\Type;
 use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
-use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -159,6 +158,7 @@ class WPConnectionType {
 		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
 		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
+		$this->register_connection();
 	}
 
 	/**
@@ -456,7 +456,9 @@ class WPConnectionType {
 	}
 
 	/**
-	 * Registers the connection Types and field to the Schema
+	 * Registers the connection Types and field to the Schema.
+	 *
+	 * @todo change to 'Protected'. This is public for now to allow for backwards compatibility.
 	 *
 	 * @return void
 	 *
