@@ -158,6 +158,14 @@ class WPConnectionType {
 		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
 		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
+		/**
+		 * Run an action when the WPConnectionType is instantiating
+		 *
+		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 */
+		do_action( 'graphql_wp_connection_type', $config, $this );
+
 		$this->register_connection();
 	}
 
