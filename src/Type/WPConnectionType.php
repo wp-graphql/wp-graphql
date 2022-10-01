@@ -139,6 +139,14 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
+		/**
+		 * Bail if one of the connection types has been excluded from the schema.
+		 */
+		$excluded_types = $type_registry->get_excluded_types();
+		if ( in_array( ucfirst( $config['fromType'] ), $excluded_types, true ) || in_array( ucfirst( $config['toType'] ), $excluded_types, true ) ) {
+			return;
+		}
+
 		$this->config                = $config;
 		$this->type_registry         = $type_registry;
 		$this->from_type             = $config['fromType'];

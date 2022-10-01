@@ -599,6 +599,13 @@ class TypeRegistry {
 	 */
 	public function register_type( string $type_name, $config ) {
 		/**
+		 * If the type should be excpluded from the schema, skip it.
+		 */
+		if ( in_array( ucfirst( $type_name ), $this->get_excluded_types(), true ) ) {
+			return;
+		}
+		
+		/**
 		 * If the Type Name starts with a number, skip it.
 		 */
 		if ( ! is_valid_graphql_name( $type_name ) ) {
@@ -869,6 +876,11 @@ class TypeRegistry {
 		 * is called since it passes `is_callable`.
 		 */
 		if ( is_string( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			if ( in_array( ucfirst( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->get_type( $field_config['type'] );
 			};
@@ -879,14 +891,35 @@ class TypeRegistry {
 		 * Create a callable wrapper to preserve lazy-loading.
 		 */
 		if ( is_array( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			$unmodified_type_name = $this->get_unmodified_type_name( $field_config['type'] );
+
+			if ( empty( $unmodified_type_name ) || in_array( ucfirst( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->setup_type_modifiers( $field_config['type'] );
 			};
 		}
 
+		/**
+		 * If the field has arguments, they need to be prepared as well.
+		 */
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$field_config['args'][ $arg_name ] = $this->prepare_field( $arg_name, $arg_config, $type_name );
+				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name, $field_name );
+				// Bail if the field prepared field is invalid.
+				if ( empty( $arg ) ) {
+					unset( $field_config['args'][ $arg_name ] );
+					continue;
+				}
+
+				$field_config['args'][ $arg_name ] = $arg;
+			}
+			// Ensure the array still isn't empty.
+			if ( empty( $field_config['args'] ) ) {
+				unset( $field_config['args'] );
 			}
 		} else {
 			unset( $field_config['args'] );
@@ -952,7 +985,6 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ) {
-
 		add_filter(
 			'graphql_' . $type_name . '_fields',
 			function ( $fields ) use ( $type_name, $field_name, $config ) {
@@ -1049,6 +1081,13 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
+
+		/**
+		 * If the type should be excpluded from the schema, skip it.
+		 */
+		if ( in_array( $mutation_name, $this->get_excluded_types(), true ) ) {
+			return;
+		}
 
 		$output_fields = [
 			'clientMutationId' => [
@@ -1163,6 +1202,37 @@ class TypeRegistry {
 		}
 
 		return Type::listOf( $type );
+	}
+
+	/**
+	 * Get the list of GraphQL type names to exclude from the schema.
+	 */
+	public function get_excluded_types() : array {
+		/**
+		 * Filter the list of GraphQL types to exclude from the schema.
+		 *
+		 * Useful for excluding types that are registered by plugins or themes
+		 *
+		 * @param array $excluded_types The names of the GraphQL Types to exclude.
+		 */
+		return apply_filters( 'graphql_excluded_types', [ 'Post' ] );
+	}
+
+	/**
+	 * Gets the actual type name, stripped of possible NonNull and ListOf wrappers.
+	 *
+	 * Returns an empty string if the type modifiers are malformed.
+	 *
+	 * @param string|array $type The (possibly-wrapped) type name.
+	 */
+	protected function get_unmodified_type_name( $type ) : string {
+		if ( ! is_array( $type ) ) {
+			return $type;
+		}
+
+		$type = array_values( $type )[0] ?? '';
+
+		return $this->get_unmodified_type_name( $type );
 	}
 
 }

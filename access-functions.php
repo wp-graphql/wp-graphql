@@ -402,6 +402,59 @@ function register_graphql_scalar( string $type_name, array $config ) {
 }
 
 /**
+ * Given a Type Name, this removes the type from the entire schema
+ *
+ * @param string $type_name The name of the Type to remove.
+ *
+ * @return void
+ */
+function deregister_graphql_type( string $type_name ) : void {
+	// Prevent the type from being registered to the scheme directly.
+	add_filter(
+		'graphql_excluded_types',
+		function ( $excluded_types ) use ( $type_name ) : array {
+			// Transform the type name, just in case a user provided graphql_single_name instead.
+			$type_name = ucfirst( $type_name );
+			// If the type isn't already excluded, add it to the array.
+			if ( ! in_array( $type_name, $excluded_types, true ) ) {
+				$excluded_types[] = $type_name;
+			}
+
+			return $excluded_types;
+		},
+		10
+	);
+
+	// Prevent the type from being inherited as an interface.
+	add_filter(
+		'graphql_type_interfaces',
+		function ( $interfaces ) use ( $type_name ) : array {
+			$key = array_search( $type_name, $interfaces, true );
+			if ( false !== $key ) {
+				unset( $interfaces[ $key ] );
+			}
+
+			return $interfaces;
+		},
+		10
+	);
+
+	// Prevent the type from being added as possible type in a union.
+	add_filter(
+		'graphql_union_possible_types',
+		function ( $possible_types ) use ( $type_name ) : array {
+			$key = array_search( $type_name, $possible_types, true );
+			if ( false !== $key ) {
+				unset( $possible_types[ $key ] );
+			}
+
+			return $possible_types;
+		},
+		10
+	);
+}
+
+/**
  * Given a Type Name and Field Name, this removes the field from the TypeRegistry
  *
  * @param string $type_name  The name of the Type to remove the field from
