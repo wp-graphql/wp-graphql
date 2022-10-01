@@ -598,14 +598,8 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
-
-		if ( is_array( $config ) && isset( $config['connections'] ) ) {
-			$config['name'] = ucfirst( $type_name );
-			$this->register_connections_from_config( $config );
-		}
-
 		/**
-		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
+		 * If the Type Name starts with a number, skip it.
 		 */
 		if ( ! is_valid_graphql_name( $type_name ) ) {
 			graphql_debug(
@@ -618,6 +612,9 @@ class TypeRegistry {
 			return;
 		}
 
+		/**
+		 * If the Type Name is already registered, skip it.
+		 */
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) || isset( $this->type_loaders[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
 				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
@@ -627,6 +624,14 @@ class TypeRegistry {
 				]
 			);
 			return;
+		}
+
+		/**
+		 * Register any connections that were passed through the Type config
+		 */
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
 		}
 
 		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
