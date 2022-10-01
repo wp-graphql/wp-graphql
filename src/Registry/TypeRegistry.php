@@ -1081,14 +1081,6 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
-
-		/**
-		 * If the type should be excpluded from the schema, skip it.
-		 */
-		if ( in_array( $mutation_name, $this->get_excluded_types(), true ) ) {
-			return;
-		}
-
 		$output_fields = [
 			'clientMutationId' => [
 				'type'        => 'String',
