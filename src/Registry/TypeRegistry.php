@@ -908,7 +908,7 @@ class TypeRegistry {
 		 */
 		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name, $field_name );
+				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name );
 				// Bail if the field prepared field is invalid.
 				if ( empty( $arg ) ) {
 					unset( $field_config['args'][ $arg_name ] );
