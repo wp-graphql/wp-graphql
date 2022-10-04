@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQLRelay\Relay;
+use Hoa\Math\Util;
 use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
@@ -67,6 +68,11 @@ class QueryAnalyzer {
 	protected $runtime_nodes = [];
 
 	/**
+	 * @var array
+	 */
+	protected $runtime_nodes_by_type = [];
+
+	/**
 	 * @var string
 	 */
 	protected $query_id;
@@ -87,7 +93,7 @@ class QueryAnalyzer {
 	protected $skipped_keys = '';
 
 	/**
-	 * @var array
+	 * @var array The GraphQL keys to return in the X-GraphQL-Keys header.
 	 */
 	protected $graphql_keys = [];
 
@@ -119,8 +125,8 @@ class QueryAnalyzer {
 		/**
 		 * Filters whether to analyze queries or not
 		 *
-		 * @param bool $should_analyze_queries Whether to analyze queries or not. Default true
-		 * @param QueryAnalyzer $query_analyzer The QueryAnalyzer instance
+		 * @param bool          $should_analyze_queries Whether to analyze queries or not. Default true
+		 * @param QueryAnalyzer $query_analyzer         The QueryAnalyzer instance
 		 */
 		$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', true, $this );
 
@@ -160,7 +166,10 @@ class QueryAnalyzer {
 		add_filter( 'graphql_dataloader_get_model', [ $this, 'track_nodes' ], 10, 1 );
 
 		// Expose query analyzer data in extensions
-		add_filter( 'graphql_request_results', [ $this, 'show_query_analyzer_in_extensions' ], 10, 5 );
+		add_filter( 'graphql_request_results', [
+			$this,
+			'show_query_analyzer_in_extensions',
+		], 10, 5 );
 
 	}
 
@@ -170,7 +179,9 @@ class QueryAnalyzer {
 	 * @param ?string         $query     The GraphQL query
 	 * @param ?string         $operation The name of the operation
 	 * @param ?array          $variables Variables to be passed to your GraphQL request
-	 * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+	 * @param OperationParams $params    The Operation Params. This includes any extra params, such
+	 *                                   as extenions or any other modifications to the request
+	 *                                   body
 	 *
 	 * @return void
 	 * @throws Exception
@@ -199,7 +210,7 @@ class QueryAnalyzer {
 
 		/**
 		 * @param QueryAnalyzer $query_analyzer The instance of the query analyzer
-		 * @param string $query The query string being executed
+		 * @param string        $query          The query string being executed
 		 */
 		do_action( 'graphql_determine_graphql_keys', $this, $query );
 
@@ -234,6 +245,7 @@ class QueryAnalyzer {
 		 * @param array $runtime_nodes Nodes that were resolved during execution
 		 */
 		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
+
 		return array_unique( $runtime_nodes );
 
 	}
@@ -265,9 +277,9 @@ class QueryAnalyzer {
 	public function set_list_types( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param array|null $null Default value for the filter
-		 * @param ?Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string $query The query string being requested
+		 * @param array|null $null   Default value for the filter
+		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?string    $query  The query string being requested
 		 */
 		$null               = null;
 		$pre_get_list_types = apply_filters( 'graphql_pre_query_analyzer_get_list_types', $null, $schema, $query );
@@ -346,9 +358,9 @@ class QueryAnalyzer {
 	public function set_query_types( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param array|null $null Default value for the filter
-		 * @param ?Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string $query The query string being requested
+		 * @param array|null $null   Default value for the filter
+		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?string    $query  The query string being requested
 		 */
 		$null                = null;
 		$pre_get_query_types = apply_filters( 'graphql_pre_query_analyzer_get_query_types', $null, $schema, $query );
@@ -414,8 +426,8 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * Given the Schema and a query string, return a list of GraphQL model names that are being asked for
-	 * by the query.
+	 * Given the Schema and a query string, return a list of GraphQL model names that are being
+	 * asked for by the query.
 	 *
 	 * @param ?Schema $schema The WPGraphQL Schema
 	 * @param ?string $query  The query string
@@ -426,9 +438,9 @@ class QueryAnalyzer {
 	public function set_query_models( ?Schema $schema, ?string $query ): array {
 
 		/**
-		 * @param array|null $null Default value for the filter
-		 * @param ?Schema $schema The WPGraphQL Schema for the current request
-		 * @param ?string $query The query string being requested
+		 * @param array|null $null   Default value for the filter
+		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?string    $query  The query string being requested
 		 */
 		$null           = null;
 		$pre_get_models = apply_filters( 'graphql_pre_query_analyzer_get_models', $null, $schema, $query );
@@ -506,6 +518,12 @@ class QueryAnalyzer {
 			 */
 			$node_id = apply_filters( 'graphql_query_analyzer_runtime_node', $model->id, $model, $this->runtime_nodes );
 
+			$node_type = Utils::get_node_type_from_id( $node_id );
+
+			if ( empty( $this->runtime_nodes_by_type[ $node_type ] ) || ! in_array( $node_id, $this->runtime_nodes_by_type[ $node_type ], true ) ) {
+				$this->runtime_nodes_by_type[ $node_type ][] = $node_id;
+			}
+
 			$this->runtime_nodes[] = $node_id;
 		}
 
@@ -563,14 +581,48 @@ class QueryAnalyzer {
 			}
 		}
 
-		$skipped_keys_array = ! empty( $this->skipped_keys ) ? explode( ' ', $this->skipped_keys ) : '';
+		$skipped_keys_array = ! empty( $this->skipped_keys ) ? explode( ' ', $this->skipped_keys ) : [];
+		$return_keys_array  = ! empty( $return_keys ) ? explode( ' ', $return_keys ) : [];
+		$skipped_types      = [];
 
-		$this->graphql_keys = [
+		$runtime_node_types = array_keys( $this->runtime_nodes_by_type );
+
+		if ( ! empty( $skipped_keys_array ) ) {
+			foreach ( $skipped_keys_array as $skipped_key ) {
+				foreach ( $runtime_node_types as $node_type ) {
+					if ( in_array( 'skipped:' . $node_type, $skipped_types, true ) ) {
+						continue;
+					}
+					if ( in_array( $skipped_key, $this->runtime_nodes_by_type[ $node_type ], true ) ) {
+						$skipped_types[] = 'skipped:' . $node_type;
+						break;
+					}
+				}
+			}
+		}
+
+		// If there are any skipped types, append them to the GraphQL Keys
+		if ( ! empty( $skipped_types ) ) {
+			$skipped_types_string = implode( ' ', $skipped_types );
+			$return_keys         .= ' ' . $skipped_types_string;
+		}
+
+		/**
+		 * @param array  $graphql_keys       Information about the keys and skipped keys returned by the Query Analyzer
+		 * @param string $return_keys        The keys returned to the X-GraphQL-Keys header
+		 * @param string $skipped_keys       The Keys that were skipped (truncated due to size limit) from the X-GraphQL-Keys header
+		 * @param array  $return_keys_array  The keys returned to the X-GraphQL-Keys header, in array instead of string
+		 * @param array  $skipped_keys_array The keys skipped, in array instead of string
+		 */
+		$this->graphql_keys = apply_filters( 'graphql_query_analyzer_graphql_keys', [
 			'keys'             => $return_keys,
 			'keysLength'       => strlen( $return_keys ),
+			'keysCount'        => ! empty( $return_keys_array ) ? count( $return_keys_array ) : 0,
 			'skippedKeys'      => $this->skipped_keys,
+			'skippedKeysSize'  => strlen( $this->skipped_keys ),
 			'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0,
-		];
+			'skippedTypes'     => $skipped_types,
+		], $return_keys, $this->skipped_keys, $return_keys_array, $skipped_keys_array );
 
 		return $this->graphql_keys;
 
@@ -590,39 +642,35 @@ class QueryAnalyzer {
 
 		if ( ! empty( $keys ) ) {
 
-			$headers['X-GraphQL-Query-ID']  = $this->query_id ?: null;
-			$headers['X-GraphQL-Keys']      = $keys['keys'] ?: null;
-			$headers['X-GraphQL-Keys-Size'] = strlen( $keys['keys'] ) ?: 0;
-			if ( 0 < absint( $keys['skippedKeysCount'] ) ) {
-				$headers['X-GraphQL-Skipped-Keys-Count'] = $keys['skippedKeysCount'] ?: 0;
-			}       
+			$headers['X-GraphQL-Query-ID'] = $this->query_id ?: null;
+			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
 		}
 
 		return $headers;
 	}
 
 	/**
+	 * Outputs Query Analyzer data in the extensions response
 	 *
-	 * @param mixed    $response
-	 * @param WPSchema $schema         The WPGraphQL Schema
-	 * @param string   $operation_name The operation name being executed
-	 * @param string   $request        The GraphQL Request being made
-	 * @param array    $variables      The variables sent with the request
+	 * @param mixed       $response
+	 * @param WPSchema    $schema         The WPGraphQL Schema
+	 * @param string|null $operation_name The operation name being executed
+	 * @param string      $request        The GraphQL Request being made
+	 * @param array|null  $variables      The variables sent with the request
 	 *
-	 * @return array|mixed
+	 * @return array|object|null
 	 */
-	public function show_query_analyzer_in_extensions( $response, $schema, $operation_name, $request, $variables ) {
-
+	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, string $request, ?array $variables ) {
 
 		$should = \WPGraphQL::debug();
 
 		/**
-		 * @param bool     $should         Whether the query analyzer output should be displayed in the Extensions output. Default to the value of WPGraphQL Debug.
-		 * @param mixed    $response       The response of the WPGraphQL Request being executed
-		 * @param WPSchema $schema         The WPGraphQL Schema
-		 * @param string   $operation_name The operation name being executed
-		 * @param string   $request        The GraphQL Request being made
-		 * @param array    $variables      The variables sent with the request
+		 * @param bool        $should         Whether the query analyzer output should be displayed in the Extensions output. Default to the value of WPGraphQL Debug.
+		 * @param mixed       $response       The response of the WPGraphQL Request being executed
+		 * @param WPSchema    $schema         The WPGraphQL Schema
+		 * @param string|null $operation_name The operation name being executed
+		 * @param string      $request        The GraphQL Request being made
+		 * @param array|null  $variables      The variables sent with the request
 		 */
 		$should_show_query_analyzer_in_extensions = apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
 
