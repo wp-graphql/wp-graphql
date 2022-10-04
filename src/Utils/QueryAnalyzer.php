@@ -88,7 +88,7 @@ class QueryAnalyzer {
 	protected $header_length_limit;
 
 	/**
-	 * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header
+	 * @var string The keys that were skipped from being returned in the X-GraphQL-Keys header.
 	 */
 	protected $skipped_keys = '';
 
@@ -121,7 +121,6 @@ class QueryAnalyzer {
 	 */
 	public function init(): void {
 
-		// allow query analyzer functionality to be disabled
 		/**
 		 * Filters whether to analyze queries or not
 		 *
