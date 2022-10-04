@@ -226,4 +226,20 @@ class Utils {
 
 		return ! empty( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
 	}
+
+	/**
+	 * Get the node type from the ID
+	 *
+	 * @param int|string $id The encoded Node ID.
+	 *
+	 * @return bool|null
+	 */
+	public static function get_node_type_from_id( $id ) {
+		if ( is_numeric( $id ) ) {
+			return null;
+		}
+
+		$id_parts = Relay::fromGlobalId( $id );
+		return $id_parts['type'] ?: null;
+	}
 }
