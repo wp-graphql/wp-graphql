@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.3
+
+## Chores / Bugfixes
+
+- ([#2555](https://github.com/wp-graphql/wp-graphql/pull/2555)): Further changes to `X-GraphQL-Keys` header output. Truncate keys based on a filterable max length. Output the skipped keys in extensions payload for debugging, and add `skipped:$type` keys to the X-GraphQL-Keys header for nodes that are skipped.
+
 ## 1.11.2
 
 ## Chores / Bugfixes
