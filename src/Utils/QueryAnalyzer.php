@@ -668,7 +668,7 @@ class QueryAnalyzer {
 		 * @param mixed       $response       The response of the WPGraphQL Request being executed
 		 * @param WPSchema    $schema         The WPGraphQL Schema
 		 * @param string|null $operation_name The operation name being executed
-		 * @param string      $request        The GraphQL Request being made
+		 * @param string|null      $request        The GraphQL Request being made
 		 * @param array|null  $variables      The variables sent with the request
 		 */
 		$should_show_query_analyzer_in_extensions = apply_filters( 'graphql_should_show_query_analyzer_in_extensions', $should, $response, $schema, $operation_name, $request, $variables );
