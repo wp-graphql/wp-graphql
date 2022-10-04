@@ -654,12 +654,12 @@ class QueryAnalyzer {
 	 * @param mixed       $response
 	 * @param WPSchema    $schema         The WPGraphQL Schema
 	 * @param string|null $operation_name The operation name being executed
-	 * @param string      $request        The GraphQL Request being made
+	 * @param string|null $request        The GraphQL Request being made
 	 * @param array|null  $variables      The variables sent with the request
 	 *
 	 * @return array|object|null
 	 */
-	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, string $request, ?array $variables ) {
+	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables ) {
 
 		$should = \WPGraphQL::debug();
 
