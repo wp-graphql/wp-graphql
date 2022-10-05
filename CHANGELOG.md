@@ -1,8 +1,14 @@
 # Changelog
 
+## 1.11.3
+
+### Chores / Bugfixes
+
+- ([#2555](https://github.com/wp-graphql/wp-graphql/pull/2555)): Further changes to `X-GraphQL-Keys` header output. Truncate keys based on a filterable max length. Output the skipped keys in extensions payload for debugging, and add `skipped:$type` keys to the X-GraphQL-Keys header for nodes that are skipped.
+
 ## 1.11.2
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2551](https://github.com/wp-graphql/wp-graphql/pull/2551)): Chunks X-GraphQL-Keys header into multiple headers under a set max header limit length.
 - ([#2539](https://github.com/wp-graphql/wp-graphql/pull/2539)): Set IDE direction to prevent breaks in RTL mode. Thanks @justlevine!
@@ -10,13 +16,13 @@
 
 ## 1.11.1
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2530](https://github.com/wp-graphql/wp-graphql/pull/2530)): Fixes a regression introduced in v1.11.0 where querying menuItems with parentId where arg set to 0 was returning all menuItems instead of just top level items.
 
 ## 1.11.0
 
-## New Features
+### New Features
 
 - ([#2519](https://github.com/wp-graphql/wp-graphql/pull/2519)): Add new "QueryAnalyzer" class which tracks Types, Models and Nodes asked for and returned in a request and adds them to the response headers. 
 - ([#2519](https://github.com/wp-graphql/wp-graphql/pull/2519)): Add 2nd argument to `graphql()` function that will return the `Request` object instead executing and returning the response.
@@ -25,7 +31,7 @@
 - ([#2524](https://github.com/wp-graphql/wp-graphql/pull/2524)): Allow global/database IDs in Term connection where args ID Inputs. Thanks @justlevine!
 - ([#2525](https://github.com/wp-graphql/wp-graphql/pull/2525)): Allow global/database IDs in Post connection where args ID Inputs. Thanks @justlevine!
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2521](https://github.com/wp-graphql/wp-graphql/pull/2521)): Refactor `$args` in AbstractConnectionResolver. Thanks @justlevine!
 - ([#2526](https://github.com/wp-graphql/wp-graphql/pull/2526)): Ensure tracked data in QueryAnalyzer is unique.
