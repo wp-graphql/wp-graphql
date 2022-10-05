@@ -5,7 +5,6 @@ namespace WPGraphQL\Registry;
 use Exception;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
 use WPGraphQL\Connection\Comments;
@@ -121,6 +120,7 @@ use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
+use WPGraphQL\Type\WPMutationType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
@@ -1029,82 +1029,8 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
-
-		$output_fields = [
-			'clientMutationId' => [
-				'type'        => 'String',
-				'description' => __( 'If a \'clientMutationId\' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
-			],
-		];
-
-		if ( ! empty( $config['outputFields'] ) && is_array( $config['outputFields'] ) ) {
-			$output_fields = array_merge( $config['outputFields'], $output_fields );
-		}
-
-		$this->register_object_type(
-			$mutation_name . 'Payload',
-			[
-				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'fields'      => $output_fields,
-			]
-		);
-
-		$input_fields = [
-			'clientMutationId' => [
-				'type'        => 'String',
-				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
-			],
-		];
-
-		if ( ! empty( $config['inputFields'] ) && is_array( $config['inputFields'] ) ) {
-			$input_fields = array_merge( $config['inputFields'], $input_fields );
-		}
-
-		$this->register_input_type(
-			$mutation_name . 'Input',
-			[
-				'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'fields'      => $input_fields,
-			]
-		);
-
-		$mutateAndGetPayload = ! empty( $config['mutateAndGetPayload'] ) ? $config['mutateAndGetPayload'] : null;
-
-		$this->register_field(
-			'rootMutation',
-			$mutation_name,
-			array_merge( $config, [
-				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'args'        => [
-					'input' => [
-						'type'        => [
-							'non_null' => $mutation_name . 'Input',
-						],
-						'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
-					],
-				],
-				'type'        => $mutation_name . 'Payload',
-				'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
-					if ( ! is_callable( $mutateAndGetPayload ) ) {
-						// Translators: The placeholder is the name of the mutation
-						throw new Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
-					}
-
-					$filtered_input = apply_filters( 'graphql_mutation_input', $args['input'], $context, $info, $mutation_name );
-
-					$payload = $mutateAndGetPayload( $filtered_input, $context, $info );
-
-					do_action( 'graphql_mutation_response', $payload, $filtered_input, $args['input'], $context, $info, $mutation_name );
-
-					if ( isset( $args['input']['clientMutationId'] ) && ! empty( $args['input']['clientMutationId'] ) ) {
-						$payload['clientMutationId'] = $args['input']['clientMutationId'];
-					}
-
-					return $payload;
-				},
-			])
-		);
-
+		$config['name'] = $mutation_name;
+		new WPMutationType( $config, $this );
 	}
 
 	/**
