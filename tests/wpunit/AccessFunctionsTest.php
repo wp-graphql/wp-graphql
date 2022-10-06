@@ -701,4 +701,25 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $expected, $actual['data']['isPrivateMutation']['test'] );
 
 	}
+
+	public function testGraphqlGetEndpoint() {
+		$actual = graphql_get_endpoint();
+		$this->assertNotEmpty( $actual );
+		$expected = trailingslashit( site_url() ) . get_graphql_setting( 'graphql_endpoint', 'graphql' );
+		$this->assertSame( $expected, $actual );
+	}
+	
+	public function testFilterGraphqlGetEndpoint() {
+
+		$expected = 'potatoes';
+
+		add_filter( 'graphql_get_endpoint', function() use ( $expected ) {
+			return $expected;
+		});
+
+		$actual = graphql_get_endpoint();
+		$this->assertNotEmpty( $actual );
+
+		$this->assertSame( $expected, $actual );
+	}
 }
