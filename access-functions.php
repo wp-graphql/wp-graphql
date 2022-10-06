@@ -620,20 +620,20 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 }
 
 /**
- * Return the GraphQL Endpoint for the site.
+ * Return the full url for the GraphQL Endpoint.
  *
  * @return string
  */
-function graphql_get_endpoint() {
+function graphql_get_endpoint_url() {
 
-	$graphql_endpoint = trailingslashit( site_url() ) . get_graphql_setting( 'graphql_endpoint', 'graphql' );
+	$graphql_endpoint = site_url( Router::$route );
 
 	/**
 	 * Filter the endpoint before returning
 	 *
 	 * @param string $graphql_endpoint The graphql endpoint for the site
 	 */
-	return apply_filters( 'graphql_get_endpoint', $graphql_endpoint );
+	return apply_filters( 'graphql_get_endpoint_url', $graphql_endpoint );
 }
 
 /**

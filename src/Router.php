@@ -343,7 +343,7 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
-			'X-GraphQL-Endpoint'           => graphql_get_endpoint(),
+			'X-GraphQL-URL'                => graphql_get_endpoint_url(),
 		];
 
 
