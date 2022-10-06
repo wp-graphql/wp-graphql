@@ -624,7 +624,7 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
  *
  * @return mixed|void
  */
-function get_graphql_endpoint() {
+function graphql_get_endpoint() {
 
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
@@ -640,7 +640,7 @@ function get_graphql_endpoint() {
  * @return string
  */
 function graphql_get_endpoint_url() {
-	return site_url( get_graphql_endpoint() );
+	return site_url( graphql_get_endpoint() );
 }
 
 /**

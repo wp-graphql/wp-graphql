@@ -51,7 +51,7 @@ class Router {
 	 */
 	public function init() {
 
-		self::$route       = get_graphql_endpoint();
+		self::$route = graphql_get_endpoint();
 
 		/**
 		 * Create the rewrite rule for the route
