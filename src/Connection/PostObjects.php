@@ -12,8 +12,8 @@ use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Model\User;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class PostObjects
@@ -165,26 +165,19 @@ class PostObjects {
 		] );
 
 		/**
-		 * Registers connections for each post_type that has a connection
-		 * to a taxonomy that's allowed in GraphQL
-		 *
-		 * @var \WP_Taxonomy[] $allowed_taxonomies
-		 */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
-
-		/**
 		 * Register Connections to PostObjects
 		 *
 		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+
 		foreach ( $allowed_post_types as $post_type_object ) {
 
 			/**
 			 * Registers the RootQuery connection for each post_type
 			 */
-			if ( 'revision' !== $post_type_object->name ) {
-				$root_query_from_field_name = lcfirst( $post_type_object->graphql_plural_name );
+			if ( true === $post_type_object->graphql_register_root_connection && 'revision' !== $post_type_object->name ) {
+				$root_query_from_field_name = Utils::format_field_name( $post_type_object->graphql_plural_name );
 
 				// Prevent field name conflicts with the singular PostObject type.
 				if ( $post_type_object->graphql_single_name === $post_type_object->graphql_plural_name ) {
@@ -199,30 +192,6 @@ class PostObjects {
 						]
 					)
 				);
-			}
-
-			if ( ! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
-				register_graphql_connection( [
-					'fromType'           => $post_type_object->graphql_single_name,
-					'toType'             => $post_type_object->graphql_single_name,
-					'fromFieldName'      => 'preview',
-					'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
-					'oneToOne'           => true,
-					'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-						if ( $post->isRevision ) {
-							return null;
-						}
-
-						if ( empty( $post->previewRevisionDatabaseId ) ) {
-							return null;
-						}
-
-						$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-						$resolver->set_query_arg( 'p', $post->previewRevisionDatabaseId );
-
-						return $resolver->one_to_one()->get_connection();
-					},
-				] );
 			}
 
 			/**
@@ -248,89 +217,6 @@ class PostObjects {
 					)
 				);
 			}
-
-			foreach ( $allowed_taxonomies as $tax_object ) {
-				// If the taxonomy is in the array of taxonomies registered to the post_type
-				if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
-
-					register_graphql_connection(
-						self::get_connection_config(
-							$post_type_object,
-							[
-								'fromType' => $tax_object->graphql_single_name,
-								'resolve'  => function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
-									$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
-									$resolver->set_query_arg( 'tax_query', [
-										[
-											'taxonomy' => $term->taxonomyName,
-											'terms'    => [ $term->term_id ],
-											'field'    => 'term_id',
-											'include_children' => false,
-										],
-									] );
-
-									return $resolver->get_connection();
-								},
-							]
-						)
-					);
-				}
-			}
-
-			/**
-			 * If the post_type has revisions enabled, add a connection from the Post Object to revisions
-			 */
-			if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
-				register_graphql_connection(
-					self::get_connection_config(
-						$post_type_object,
-						[
-							'connectionTypeName' => $post_type_object->graphql_single_name . 'ToRevisionConnection',
-							'fromType'           => $post_type_object->graphql_single_name,
-							'toType'             => $post_type_object->graphql_single_name,
-							'fromFieldName'      => 'revisions',
-							'resolve'            => function ( Post $post, $args, $context, $info ) {
-								$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-								$resolver->set_query_arg( 'post_parent', $post->ID );
-
-								return $resolver->get_connection();
-							},
-						]
-					)
-				);
-			}
-		}
-
-		// Register a connection from all taxonomies that are connected to
-		foreach ( $allowed_taxonomies as $tax_object ) {
-			if ( empty( $tax_object->object_type ) ) {
-				continue;
-			}
-
-			// Connection from the Taxonomy to Content Nodes
-			register_graphql_connection(
-				self::get_connection_config(
-					$tax_object,
-					[
-						'fromType'      => $tax_object->graphql_single_name,
-						'fromFieldName' => 'contentNodes',
-						'toType'        => 'ContentNode',
-						'resolve'       => function ( Term $term, $args, $context, $info ) {
-							$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
-							$resolver->set_query_arg( 'tax_query', [
-								[
-									'taxonomy'         => $term->taxonomyName,
-									'terms'            => [ $term->term_id ],
-									'field'            => 'term_id',
-									'include_children' => false,
-								],
-							] );
-
-							return $resolver->get_connection();
-						},
-					]
-				)
-			);
 		}
 	}
 

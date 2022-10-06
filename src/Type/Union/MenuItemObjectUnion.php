@@ -66,6 +66,7 @@ class MenuItemObjectUnion {
 		 */
 		$args = [
 			'show_in_nav_menus' => true,
+			'graphql_kind'      => 'object',
 		];
 
 		$possible_types = [];
