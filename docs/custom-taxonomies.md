@@ -14,8 +14,9 @@ In order to use Custom Taxonomies with WPGraphQL, you must configure the Taxonom
 - **graphql_resolve_type** | _callable_ | (optional): The callback used to resolve the type. Only used if "graphql_kind" is set to "union" or "interface".
 - **graphql_interfaces** | _array<string>_ | (optional): List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node".
 - **graphql_exclude_interfaces** | _array<string>_ | (optional): List of Interface names the type _should not_ implement. This is applied after default and custom interfaces are added, so this can remove default interfaces. Note: Interfaces applied by other interfaces will not be excluded unless that interface is also excluded.
-- **graphql_fields** | _array<$config>_ | (optional): Array of fields to add to the Type. Applied if "graphql_kind" is "interface" or "object".
-- **graphql_connections** | _array<$config>_ | (optional): Array of connection configs to register to the type. Only applied if the "graphql_kind" is "object" or "interface".
+- **graphql_fields** | _array<$config>_ | (optional): Array of fields to add to the Type. Applies if "graphql_kind" is "interface" or "object".
+- **graphql_exclude_fields** | _array<string>_ | (optional): Array of fields names to exclude from the type. Applies if "graphql_kind" is "interface" or "object". Note: any fields added by an interface will not be excluded with this option.
+- **graphql_connections** | _array<$config>_ | (optional): Array of connection configs to register to the type. Only applies if the "graphql_kind" is "object" or "interface".
 - **graphql_exclude_connections** | _array<string>_ | (optional): Array of connection names to exclude from the type. Only connections defined on the type will be excluded. Connections inherited from interfaces implemented on this type will remain even if "excluded" in this list.
 - **graphql_union_types** | _array<string>_ | (optional): Array of possible types the union can resolve to. Only used if "graphql_kind" is set to "union".
 - **graphql_register_root_field** | _boolean_ | (optional): Whether to register a field to the RootQuery to query a single node of this type. Default true.

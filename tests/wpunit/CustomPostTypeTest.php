@@ -1310,4 +1310,121 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterPostTypeWithGraphqlFields() {
+
+		register_post_type( 'graphql_fields', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'GraphqlField',
+			'graphql_plural_name' => 'GraphqlFields',
+
+			# we're testing that this field was added to the Schema when
+			# registering a post type
+			'graphql_fields' => [
+				'testField' => [
+					'type' => 'String',
+					'description' => 'test field',
+					'resolve' => function() {
+			           return 'test value';
+					}
+				]
+			]
+		] );
+
+		$this->clearSchema();
+
+		$post_id = $this->factory()->post->create([
+			'post_type' => 'graphql_fields',
+			'post_status' => 'publish',
+			'post_title' => 'Test GraphQL Fields',
+		]);
+
+		$query = '
+		{
+		  graphqlFields {
+		    nodes {
+		      id
+		      databaseId
+		      title
+		      testField
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'test value', $actual['data']['graphqlFields']['nodes'][0]['testField'] );
+		$this->assertSame( $post_id, $actual['data']['graphqlFields']['nodes'][0]['databaseId'] );
+
+		wp_delete_post( $post_id );
+		unregister_post_type( 'graphql_fields' );
+
+	}
+
+	public function testRegisterPostTypeWithGraphqlExcludeFields() {
+
+		register_post_type( 'gql_exclude_fields', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'GraphqlExcludeField',
+			'graphql_plural_name' => 'GraphqlExcludeFields',
+
+			# we're testing that this field was added to the Schema when
+			# registering a post type
+			'graphql_fields' => [
+				'testField' => [
+					'type' => 'String',
+					'description' => 'test field',
+					'resolve' => function() {
+						return 'test value';
+					}
+				],
+				'testFieldTwo' => [
+					'type' => 'String',
+					'description' => 'test field',
+					'resolve' => function() {
+						return 'test value';
+					}
+				]
+			],
+			'graphql_exclude_fields' => [ 'testField' ]
+		] );
+
+		$this->clearSchema();
+
+		$query = '
+		query {
+		  __type(name:"GraphqlExcludeField") {
+		    fields { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		// we included 2 fields, then excluded 1
+
+		// the excluded field should not be present
+		$this->assertNotContains(  'testField', $field_names );
+
+		// the included field that was not excluded should still remain
+		$this->assertContains(  'testFieldTwo', $field_names );
+
+		unregister_post_type( 'graphql_exclude_fields' );
+
+	}
+
+
 }
