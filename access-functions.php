@@ -622,16 +622,20 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 /**
  * Get the endpoint route for the WPGraphQL API
  *
- * @return mixed|void
+ * @return string
  */
 function graphql_get_endpoint() {
 
+	// get the endpoint from the setttings. default to 'graphql'
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
 	/**
 	 * @param string $endpoint The relative endpoint that graphql can be accessed at
 	 */
-	return apply_filters( 'graphql_endpoint', $endpoint );
+	$filtered_endpoint = apply_filters( 'graphql_endpoint', $endpoint );
+
+	// If the filtered endpoint has a value (not filtered to a falsy value), use it. else return the default endpoint
+	return ! empty( $filtered_endpoint ) ? $filtered_endpoint : $endpoint;
 }
 
 /**
