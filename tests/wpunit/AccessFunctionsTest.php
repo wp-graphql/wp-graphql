@@ -705,7 +705,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testGraphqlGetEndpointUrl() {
 		$actual = graphql_get_endpoint_url();
 		$this->assertNotEmpty( $actual );
-		$expected = trailingslashit( site_url() ) . get_graphql_setting( 'graphql_endpoint', 'graphql' );
+		$expected = site_url( graphql_get_endpoint() );
 		$this->assertSame( $expected, $actual );
 	}
 
@@ -713,13 +713,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$expected = 'potatoes';
 
-		add_filter( 'graphql_get_endpoint_url', function() use ( $expected ) {
+		add_filter( 'graphql_endpoint', function() use ( $expected ) {
 			return $expected;
 		});
 
 		$actual = graphql_get_endpoint_url();
 		$this->assertNotEmpty( $actual );
 
-		$this->assertSame( $expected, $actual );
+		$this->assertSame( site_url( $expected ), $actual );
 	}
 }

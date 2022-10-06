@@ -51,17 +51,7 @@ class Router {
 	 */
 	public function init() {
 
-		/**
-		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
-		 *
-		 * @return string
-		 * @since 0.0.1
-		 */
-		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
-		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
-		self::$route       = $endpoint;
-
-
+		self::$route       = get_graphql_endpoint();
 
 		/**
 		 * Create the rewrite rule for the route
