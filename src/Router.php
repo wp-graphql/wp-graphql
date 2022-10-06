@@ -343,6 +343,7 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
+			'X-GraphQL-Endpoint'           => trailingslashit( site_url() ) . get_graphql_setting( 'graphql_endpoint', 'graphql' ),
 		];
 
 
