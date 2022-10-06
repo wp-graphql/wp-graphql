@@ -620,6 +620,23 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 }
 
 /**
+ * Return the GraphQL Endpoint for the site.
+ *
+ * @return string
+ */
+function graphql_get_endpoint() {
+
+	$graphql_endpoint = trailingslashit( site_url() ) . get_graphql_setting( 'graphql_endpoint', 'graphql' );
+
+	/**
+	 * Filter the endpoint before returning
+	 *
+	 * @param string $graphql_endpoint The graphql endpoint for the site
+	 */
+	return apply_filters( 'graphql_get_endpoint', $graphql_endpoint );
+}
+
+/**
  * Polyfill for PHP versions below 7.3
  *
  * @return int|string|null
