@@ -27,6 +27,8 @@ add_filter( 'graphql_wp_interface_type_config', function( $config ) {
 
 - ([#2568](https://github.com/wp-graphql/wp-graphql/pull/2568)): Fix typo in docs. Thanks @altearius!
 - ([#2569](https://github.com/wp-graphql/wp-graphql/pull/2569)): Update Appsero Client SDK. 
+- ([#2571](https://github.com/wp-graphql/wp-graphql/pull/2571)): Dependabot bumps.
+- ([#2572](https://github.com/wp-graphql/wp-graphql/pull/2572)): Fixes a bug in the GraphiQL Query Composer when working with fields that return Unions. Thanks @chrisherold!
 
 ## 1.11.3
 
