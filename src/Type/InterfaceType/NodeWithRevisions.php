@@ -16,6 +16,7 @@ class NodeWithRevisions {
 		register_graphql_interface_type(
 			'NodeWithRevisions',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have revisions', 'wp-graphql' ),
 				'fields'      => [
 					'isRevision' => [
