@@ -20,9 +20,9 @@ const FieldView = (props) => {
 
   let _previousSelection;
 
-  const _addAllFieldsToSelections = (rawSubFields) => {
-    const subFields = !!rawSubFields
-      ? Object.keys(rawSubFields).map((fieldName) => {
+  const _addAllFieldsToSelections = (rawSubfields) => {
+    const subFields = !!rawSubfields
+      ? Object.keys(rawSubfields).map((fieldName) => {
           return {
             kind: "Field",
             name: { kind: "Name", value: fieldName },
@@ -60,7 +60,7 @@ const FieldView = (props) => {
     props.modifySelections(nextSelections);
   };
 
-  const _addFieldToSelections = (rawSubFields) => {
+  const _addFieldToSelections = (rawSubfields) => {
     const nextSelections = [
       ...props.selections,
       _previousSelection || {
@@ -83,12 +83,12 @@ const FieldView = (props) => {
       _removeFieldFromSelections();
     } else {
       const fieldType = getNamedType(props.field.type);
-      const rawSubFields = isObjectType(fieldType) && fieldType.getFields();
-      const shouldSelectAllSubfields = !!rawSubFields && event.altKey;
+      const rawSubfields = isObjectType(fieldType) && fieldType.getFields();
+      const shouldSelectAllSubfields = !!rawSubfields && event.altKey;
 
       shouldSelectAllSubfields
-        ? _addAllFieldsToSelections(rawSubFields)
-        : _addFieldToSelections(rawSubFields);
+        ? _addAllFieldsToSelections(rawSubfields)
+        : _addFieldToSelections(rawSubfields);
     }
   };
 
