@@ -21,8 +21,8 @@ const FieldView = (props) => {
   let _previousSelection;
 
   const _addAllFieldsToSelections = (rawSubFields) => {
-    const subFields = !!rawSubfields
-      ? Object.keys(rawSubfields).map((fieldName) => {
+    const subFields = !!rawSubFields
+      ? Object.keys(rawSubFields).map((fieldName) => {
           return {
             kind: "Field",
             name: { kind: "Name", value: fieldName },
@@ -83,13 +83,12 @@ const FieldView = (props) => {
       _removeFieldFromSelections();
     } else {
       const fieldType = getNamedType(props.field.type);
-      const rawSubfields = isObjectType(fieldType) && fieldType.getFields();
-
-      const shouldSelectAllSubfields = !!rawSubfields && event.altKey;
+      const rawSubFields = isObjectType(fieldType) && fieldType.getFields();
+      const shouldSelectAllSubfields = !!rawSubFields && event.altKey;
 
       shouldSelectAllSubfields
-        ? _addAllFieldsToSelections(rawSubfields)
-        : _addFieldToSelections(rawSubfields);
+        ? _addAllFieldsToSelections(rawSubFields)
+        : _addFieldToSelections(rawSubFields);
     }
   };
 
@@ -180,6 +179,12 @@ const FieldView = (props) => {
       ? props.availableFragments && props.availableFragments[type.name]
       : null;
 
+  const childSelections = selection
+    ? selection.selectionSet
+      ? selection.selectionSet.selections
+      : []
+    : [];
+
   const node = (
     <div className={className}>
       <span
@@ -256,12 +261,6 @@ const FieldView = (props) => {
                 if (conflictingNameCount > 0) {
                   newFragmentName = `${newFragmentName}${conflictingNameCount}`;
                 }
-
-                const childSelections = selection
-                  ? selection.selectionSet
-                    ? selection.selectionSet.selections
-                    : []
-                  : [];
 
                 const nextSelections = [
                   {
@@ -352,11 +351,6 @@ const FieldView = (props) => {
 
     // If the current field has nested fields
     if (fields) {
-      const childSelections = selection
-        ? selection.selectionSet
-          ? selection.selectionSet.selections
-          : []
-        : [];
       return (
         <div className={`graphiql-explorer-${field.name}`}>
           {node}
@@ -419,6 +413,30 @@ const FieldView = (props) => {
                     />
                   ))
               : null}
+          </div>
+        </div>
+      );
+    } else if (isUnionType(type)) {
+      return (
+        <div className={`graphiql-explorer-${field.name}`}>
+          {node}
+          <div style={{ marginLeft: 16 }}>
+            {schema.getPossibleTypes(type).map((type) => (
+              <AbstractView
+                key={type.name}
+                implementingType={type}
+                selections={childSelections}
+                modifySelections={_modifyChildSelections}
+                schema={schema}
+                getDefaultFieldNames={getDefaultFieldNames}
+                getDefaultScalarArgValue={props.getDefaultScalarArgValue}
+                makeDefaultArg={props.makeDefaultArg}
+                onRunOperation={props.onRunOperation}
+                styleConfig={props.styleConfig}
+                onCommit={props.onCommit}
+                definition={props.definition}
+              />
+            ))}
           </div>
         </div>
       );
