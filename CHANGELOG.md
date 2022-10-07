@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.12.0
+
+### Upgrading
+
+This release removes the `ContentNode` and `DatabaseIdentifier` interfaces from the `NodeWithFeaturedImage` Interface. 
+
+This is considered a breaking change for client applications using a `...on NodeWithFeaturedImage` fragment that reference fields applied by those interfaces. If you have client applications doing this (or are unsure if you do) you can use the following filter to bring back the previous behavior:
+
+```php
+add_filter( 'graphql_wp_interface_type_config', function( $config ) {
+	if ( $config['name'] === 'NodeWithFeaturedImage' ) {
+		$config['interfaces'][] = 'ContentNode';
+		$config['interfaces'][] = 'DatabaseIdentifier';
+	}
+	return $config;
+}, 10, 1 );
+```
+
+### New Features
+
+- ([#2399](https://github.com/wp-graphql/wp-graphql/pull/2399)): New Schema Customization options for register_post_type and register_taxonomy. Thanks @justlevine! Thanks also to @kidunot89 for prototyping features and starting discussions that lead to this!
+- ([#2565](https://github.com/wp-graphql/wp-graphql/pull/2565)): Expose X-GraphQL-URL header.
+
+### Chores / Bugfixes
+
+- ([#2568](https://github.com/wp-graphql/wp-graphql/pull/2568)): Fix typo in docs. Thanks @altearius!
+- ([#2569](https://github.com/wp-graphql/wp-graphql/pull/2569)): Update Appsero Client SDK. 
+- ([#2571](https://github.com/wp-graphql/wp-graphql/pull/2571)): Dependabot bumps.
+- ([#2572](https://github.com/wp-graphql/wp-graphql/pull/2572)): Fixes a bug in the GraphiQL Query Composer when working with fields that return Unions. Thanks @chrisherold!
+- ([#2556](https://github.com/wp-graphql/wp-graphql/pull/2556)): Updates script that installs test environment to use env vars. Makes spinning up environments more convenient for contributors. Thanks @justlevine!
+
 ## 1.11.3
 
 ### Chores / Bugfixes

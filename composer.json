@@ -39,7 +39,7 @@
 		"codeception/util-universalframework": "^1.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/phpstan": "^1.7",
-		"szepeviktor/phpstan-wordpress": "1.1.1",
+		"szepeviktor/phpstan-wordpress": "1.1.3",
 		"codeception/module-rest": "^1.2",
 		"wp-graphql/wp-graphql-testcase": "~2.3",
 		"phpunit/phpunit": "^9.5",
