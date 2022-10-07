@@ -547,7 +547,7 @@ At the root of the GraphQL Schema is a Query Type, but there can also be a Mutat
 
 Query and Mutation types are the same as all other Object Types, the difference is that they are at the root of the Schema and serve as the entry point to the API.
 
-Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for r retrieving data, and Mutations for *changing* data.
+Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for retrieving data, and Mutations for *changing* data.
 
 #### Scalar Types
 
