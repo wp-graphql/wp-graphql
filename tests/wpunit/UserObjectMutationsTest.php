@@ -44,6 +44,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function tearDown(): void {
 		// your tear down methods here
+		reset_phpmailer_instance();
+
 		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
@@ -984,8 +986,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// Run the mutation, passing in a valid username.
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		codecept_debug( $actual );
-
 		$expected = $this->getSendPasswordResetEmailExpected();
 		/**
 		 * Assert that the expected user data was returned.
@@ -1081,12 +1081,22 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function runSendPasswordResetEmailSentTest( $mutation_arg ) {
 		$email_sent        = true;
-		$update_email_sent = function () use ( &$email_sent ) {
+
+		$update_email_sent = function ( $error ) use ( &$email_sent ) {
+			codecept_debug( $error );
 			$email_sent = false;
 		};
+		$update_email_from = function() {
+			return 'valid-email@site.test';
+		};
+
 		add_action( 'wp_mail_failed', $update_email_sent );
+		add_action( 'wp_mail_from', $update_email_from );
+
 		$this->sendPasswordResetEmailMutation( $mutation_arg );
+
 		remove_action( 'wp_mail_failed', $update_email_sent );
+		remove_action( 'wp_mail_from', $update_email_from );
 
 		return $email_sent;
 	}
