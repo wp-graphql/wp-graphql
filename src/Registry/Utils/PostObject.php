@@ -19,6 +19,7 @@ use WPGraphQL\Model\Post;
  * Class PostObject
  *
  * @package WPGraphQL\Data
+ * @since   1.12.0
  */
 class PostObject {
 

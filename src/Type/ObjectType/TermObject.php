@@ -4,13 +4,12 @@ namespace WPGraphQL\Type\ObjectType;
 
 use Exception;
 use WP_Taxonomy;
-use WPGraphQL\Data\TermObjectType;
 
 /**
  * Class TermObject
  *
  * @package WPGraphQL\Type\Object
- * @deprecated @todo
+ * @deprecated 1.12.0
  */
 class TermObject {
 
@@ -21,10 +20,10 @@ class TermObject {
 	 *
 	 * @return void
 	 * @throws Exception
-	 * @deprecated @todo
+	 * @deprecated 1.12.0
 	 */
 	public static function register_taxonomy_object_type( WP_Taxonomy $tax_object ) {
-		_deprecated_function( __FUNCTION__, '@todo', esc_attr( \WPGraphQL\Registry\Utils\TermObject::class ) . '::register_types()' );
+		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\TermObject::class ) . '::register_types()' );
 
 		\WPGraphQL\Registry\Utils\TermObject::register_types( $tax_object );
 	}

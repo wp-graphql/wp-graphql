@@ -10,7 +10,7 @@ use WPGraphQL\Registry\TypeRegistry;
  * WPObject - PostObject
  *
  * @package WPGraphQL\Type
- * @deprecated @todo
+ * @deprecated 1.12.0
  */
 class PostObject {
 
@@ -22,11 +22,11 @@ class PostObject {
 	 *
 	 * @return void
 	 * @throws Exception
-	 * @deprecated @todo
+	 * @deprecated 1.12.0
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
 
-		_deprecated_function( __FUNCTION__, '@todo', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::register_types()' );
+		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::register_types()' );
 
 		\WPGraphQL\Registry\Utils\PostObject::register_types( $post_type_object );
 	}
@@ -38,12 +38,12 @@ class PostObject {
 	 * @param WP_Post_Type $post_type_object Post type.
 	 * @param TypeRegistry $type_registry    The Type Registry
 	 *
-	 * @deprecated @todo
+	 * @deprecated 1.12.0
 	 *
 	 * @return array
 	 */
 	public static function get_fields( $post_type_object, $type_registry ) {
-		_deprecated_function( __FUNCTION__, '@todo', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::get_fields()' );
+		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::get_fields()' );
 
 		return \WPGraphQL\Registry\Utils\PostObject::get_fields( $post_type_object );
 	}

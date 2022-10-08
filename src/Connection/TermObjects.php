@@ -2,12 +2,8 @@
 
 namespace WPGraphQL\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Utils\Utils;
 
 /**
