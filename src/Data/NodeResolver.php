@@ -96,12 +96,26 @@ class NodeResolver {
 
 		$parsed_url = wp_parse_url( $uri );
 
+		if ( false === $parsed_url ) {
+			graphql_debug( __( 'Cannot parse provided URI', 'wp-graphql' ), [
+				'uri' => $uri,
+			] );
+			return null;
+		}
+
 		if ( isset( $parsed_url['host'] ) ) {
+			$site_url = wp_parse_url( site_url() );
+			$home_url = wp_parse_url( home_url() );
+
+			/**
+			 * @var array $home_url
+			 * @var array $site_url
+			 */
 			if ( ! in_array(
 				$parsed_url['host'],
 				[
-					wp_parse_url( site_url() )['host'],
-					wp_parse_url( home_url() )['host'],
+					$site_url['host'],
+					$home_url['host'],
 				],
 				true
 			) ) {
@@ -115,7 +129,7 @@ class NodeResolver {
 		$this->wp->query_vars = [];
 		$post_type_query_vars = [];
 
-		if ( isset( $parsed_url['query'] ) && '/' === $parsed_url['path'] ) {
+		if ( isset( $parsed_url['query'] ) && ( empty( $parsed_url['path'] ) || '/' === $parsed_url['path'] ) ) {
 			$uri = $parsed_url['query'];
 		} elseif ( isset( $parsed_url['path'] ) ) {
 			$uri = $parsed_url['path'];
@@ -144,7 +158,7 @@ class NodeResolver {
 			$pathinfo         = str_replace( '%', '%25', $pathinfo );
 
 			list( $req_uri ) = explode( '?', $pathinfo );
-			$home_path       = trim( wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
+			$home_path       = trim( (string) wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
 			$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
 
 			// Trim path info from the end and the leading home path from the

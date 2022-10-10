@@ -620,6 +620,36 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 }
 
 /**
+ * Get the endpoint route for the WPGraphQL API
+ *
+ * @return string
+ * @since 1.12.0
+ */
+function graphql_get_endpoint() {
+
+	// get the endpoint from the setttings. default to 'graphql'
+	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
+
+	/**
+	 * @param string $endpoint The relative endpoint that graphql can be accessed at
+	 */
+	$filtered_endpoint = apply_filters( 'graphql_endpoint', $endpoint );
+
+	// If the filtered endpoint has a value (not filtered to a falsy value), use it. else return the default endpoint
+	return ! empty( $filtered_endpoint ) ? $filtered_endpoint : $endpoint;
+}
+
+/**
+ * Return the full url for the GraphQL Endpoint.
+ *
+ * @return string
+ * @since 1.12.0
+ */
+function graphql_get_endpoint_url() {
+	return site_url( graphql_get_endpoint() );
+}
+
+/**
  * Polyfill for PHP versions below 7.3
  *
  * @return int|string|null

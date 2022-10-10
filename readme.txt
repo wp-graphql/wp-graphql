@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 5.9.1
 Requires PHP: 7.1
-Stable tag: 1.11.3
+Stable tag: 1.12.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -87,6 +87,22 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 1.12.0 =
+
+This release removes the `ContentNode` and `DatabaseIdentifier` interfaces from the `NodeWithFeaturedImage` Interface.
+
+This is considered a breaking change for client applications using a `...on NodeWithFeaturedImage` fragment that reference fields applied by those interfaces. If you have client applications doing this (or are unsure if you do) you can use the following filter to bring back the previous behavior:
+
+```php
+add_filter( 'graphql_wp_interface_type_config', function( $config ) {
+	if ( $config['name'] === 'NodeWithFeaturedImage' ) {
+		$config['interfaces'][] = 'ContentNode';
+		$config['interfaces'][] = 'DatabaseIdentifier';
+	}
+	return $config;
+}, 10, 1 );
+```
+
 = 1.10.0 =
 
 PR ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)) fixes a bug that some users were
@@ -168,6 +184,39 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.12.0 =
+
+**Upgrading**
+
+This release removes the `ContentNode` and `DatabaseIdentifier` interfaces from the `NodeWithFeaturedImage` Interface.
+
+This is considered a breaking change for client applications using a `...on NodeWithFeaturedImage` fragment that reference fields applied by those interfaces. If you have client applications doing this (or are unsure if you do) you can use the following filter to bring back the previous behavior:
+
+```php
+add_filter( 'graphql_wp_interface_type_config', function( $config ) {
+	if ( $config['name'] === 'NodeWithFeaturedImage' ) {
+		$config['interfaces'][] = 'ContentNode';
+		$config['interfaces'][] = 'DatabaseIdentifier';
+	}
+	return $config;
+}, 10, 1 );
+```
+
+**New Features**
+
+- ([#2399](https://github.com/wp-graphql/wp-graphql/pull/2399)): New Schema Customization options for register_post_type and register_taxonomy. Thanks @justlevine!
+- ([#2565](https://github.com/wp-graphql/wp-graphql/pull/2565)): Expose X-GraphQL-URL header.
+
+**Chores / Bugfixes**
+
+- ([#2568](https://github.com/wp-graphql/wp-graphql/pull/2568)): Fix typo in docs. Thanks @altearius!
+- ([#2569](https://github.com/wp-graphql/wp-graphql/pull/2569)): Update Appsero Client SDK.
+- ([#2571](https://github.com/wp-graphql/wp-graphql/pull/2571)): Dependabot bumps.
+- ([#2572](https://github.com/wp-graphql/wp-graphql/pull/2572)): Fixes a bug in the GraphiQL Query Composer when working with fields that return Unions. Thanks @chrisherold!
+- ([#2556](https://github.com/wp-graphql/wp-graphql/pull/2556)): Updates script that installs test environment to use env vars. Makes spinning up environments more convenient for contributors. Thanks @justlevine!
+- ([#2538](https://github.com/wp-graphql/wp-graphql/pull/2538)): Updates phpstan and fixes surfaced issues. Thanks @justlevine!
+- ([#2545](https://github.com/wp-graphql/wp-graphql/pull/2545)): Update WPBrowser to v3.1.6 and update test for SendPasswordResetEmail. Thanks @justlevine!
 
 = 1.11.3 =
 

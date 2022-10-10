@@ -20,7 +20,7 @@ Running the app in dev mode allows for the changes to the code to be re-built im
 
 From the root of the plugin directory, run the following command:
 
-- `npm run dev`
+- `npm run start`
 
 ### Build the app
 

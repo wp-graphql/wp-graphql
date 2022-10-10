@@ -6,7 +6,6 @@ use Exception;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
-use WPGraphQL\Model\Post;
 use WPGraphQL\Model\User;
 
 /**
@@ -19,7 +18,9 @@ use WPGraphQL\Model\User;
 class Comments {
 
 	/**
-	 * Register connections to Comments
+	 * Register connections to Comments.
+	 *
+	 * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
 	 *
 	 * @return void
 	 * @throws Exception
@@ -73,43 +74,6 @@ class Comments {
 				]
 			)
 		);
-
-		/**
-		 * Register Connections from all existing PostObject Types to Comments
-		 *
-		 * @var \WP_Post_Type[] $allowed_post_types
-		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
-
-		if ( empty( $allowed_post_types ) ) {
-			return;
-		}
-
-		foreach ( $allowed_post_types as $post_type_object ) {
-			if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
-				register_graphql_connection(
-					self::get_connection_config(
-						[
-							'fromType'      => $post_type_object->graphql_single_name,
-							'toType'        => 'Comment',
-							'fromFieldName' => 'comments',
-							'resolve'       => function ( Post $post, $args, $context, $info ) {
-
-								if ( $post->isRevision ) {
-									$id = $post->parentDatabaseId;
-								} else {
-									$id = $post->ID;
-								}
-
-								$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
-
-								return $resolver->set_query_arg( 'post_id', absint( $id ) )->get_connection();
-							},
-						]
-					)
-				);
-			}
-		}
 	}
 
 	/**

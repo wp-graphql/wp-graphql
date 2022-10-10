@@ -15,6 +15,7 @@ class NodeWithComments {
 		register_graphql_interface_type(
 			'NodeWithComments',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have comments associated with it', 'wp-graphql' ),
 				'fields'      => [
 					'commentCount'  => [

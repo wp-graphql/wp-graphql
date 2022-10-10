@@ -1,6 +1,6 @@
 {
   "name": "wp-graphql",
-  "version": "1.8.6",
+  "version": "1.12.0",
   "description": "GraphQL API for WordPress",
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "author": "WPGraphQL <info@wpgraphql.com> (https://www.wpgraphql.com)",
@@ -53,7 +53,7 @@
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.2.3",
     "@wordpress/e2e-test-utils": "7.9.0",
-    "@wordpress/env": "4.9.0",
+    "@wordpress/env": "5.4.0",
     "@wordpress/jest-console": "5.4.0",
     "@wordpress/jest-puppeteer-axe": "4.0.2",
     "@wordpress/scripts": "23.5.0",
