@@ -623,6 +623,7 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
  * Get the endpoint route for the WPGraphQL API
  *
  * @return string
+ * @since 1.12.0
  */
 function graphql_get_endpoint() {
 
@@ -642,6 +643,7 @@ function graphql_get_endpoint() {
  * Return the full url for the GraphQL Endpoint.
  *
  * @return string
+ * @since 1.12.0
  */
 function graphql_get_endpoint_url() {
 	return site_url( graphql_get_endpoint() );

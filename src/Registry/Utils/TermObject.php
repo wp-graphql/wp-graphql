@@ -18,6 +18,7 @@ use WPGraphQL\Model\Term;
  * Class TermObjectType
  *
  * @package WPGraphQL\Data
+ * @since   1.12.0
  */
 class TermObject {
 

@@ -378,7 +378,6 @@ class TypeRegistry {
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-
 		foreach ( $allowed_post_types as $post_type_object ) {
 			PostObject::register_types( $post_type_object );
 
@@ -476,7 +475,6 @@ class TypeRegistry {
 				TermObjectDelete::register_mutation( $tax_object );
 			}
 		}
-
 
 		/**
 		 * Create the root query fields for any setting type in

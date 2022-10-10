@@ -471,6 +471,7 @@ final class WPGraphQL {
 	 * @param string $taxonomy Taxonomy key.
 	 *
 	 * @return array
+	 * @since 1.12.0
 	 */
 	public static function setup_default_taxonomies( $args, $taxonomy ) {
 		// Adds GraphQL support for categories.
@@ -499,6 +500,7 @@ final class WPGraphQL {
 	 *
 	 * @return array
 	 * @throws Exception
+	 * @since 1.12.0
 	 */
 	public static function register_graphql_post_type_args( array $args, string $post_type_name ) {
 		// Bail early if the post type is hidden from the WPGraphQL schema.
@@ -528,6 +530,7 @@ final class WPGraphQL {
 	 *
 	 * @return array
 	 * @throws Exception
+	 * @since 1.12.0
 	 */
 	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ) {
 		// Bail early if the taxonomy  is hidden from the WPGraphQL schema.
@@ -551,6 +554,8 @@ final class WPGraphQL {
 
 	/**
 	 * This sets the post type /taxonomy GraphQL properties.
+	 *
+	 * @since 1.12.0
 	 */
 	public static function get_default_graphql_type_args() : array {
 
@@ -679,8 +684,7 @@ final class WPGraphQL {
 	 * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
 	 * taxonomies
 	 *
-	 * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or
-	 *                       'objects'. Default 'names'.
+	 * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
 	 * @param array  $args   Optional. Arguments to filter allowed taxonomies.
 	 *
 	 * @return array
