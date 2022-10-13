@@ -613,6 +613,9 @@ class DataSource {
 				case $node instanceof CommentAuthor:
 					$type = 'CommentAuthor';
 					break;
+				case $node instanceof GuestCommenter:
+					$type = 'GuestCommenter';
+					break;
 				case $node instanceof Menu:
 					$type = 'Menu';
 					break;

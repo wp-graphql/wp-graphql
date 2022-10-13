@@ -49,7 +49,7 @@ class GuestCommenter extends Model {
 
 			$this->fields = [
 				'id'         => function () {
-					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment_author', $this->data->comment_ID ) : null;
+					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'guest_commenter', $this->data->comment_ID ) : null;
 				},
 				'databaseId' => function () {
 					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : null;
