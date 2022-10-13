@@ -666,7 +666,7 @@ class RootQuery {
 									break;
 							}
 
-							return ! empty( $id ) ? DataSource::resolve_guest_commenter( $id, $context ) : null;
+							return ! empty( $id ) ? DataSource::resolve_guest_commenter( $id ) : null;
 
 						},
 					]

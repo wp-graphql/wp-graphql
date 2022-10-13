@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Connection;
 
+use Exception;
 use WPGraphQL\Data\Connection\GuestCommenterConnectionResolver;
 
 

@@ -104,7 +104,6 @@ class AppContext {
 		 */
 		$loaders = [
 			'comment_author'      => new CommentAuthorLoader( $this ),
-			'guest_commenter'     => new GuestCommenterLoader( $this ),
 			'comment'             => new CommentLoader( $this ),
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
