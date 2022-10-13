@@ -20,7 +20,7 @@ class GuestCommenterLoader extends AbstractDataLoader {
 	 */
 	protected function get_model( $entry, $key ) {
 
-		if ( ! $entry instanceof \WP_Comment && ! empty( $entry->user_id )) {
+		if ( ! $entry instanceof \WP_Comment && ! empty( $entry->user_id ) ) {
 			return null;
 		}
 
@@ -44,7 +44,7 @@ class GuestCommenterLoader extends AbstractDataLoader {
 			'number'        => count( $keys ),
 			'no_found_rows' => true,
 			'count'         => false,
-			'user_id'		=> 0,
+			'user_id'       => 0,
 		];
 
 		/**

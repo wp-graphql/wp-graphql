@@ -64,17 +64,17 @@ class GuestCommenters {
 	 */
 	public static function get_connection_args() {
 		return [
-			'authorEmail'        => [
+			'authorEmail' => [
 				'type'        => 'String',
 				'description' => __( 'Guest commenter email address.', 'wp-graphql' ),
 			],
-			'authorIn'           => [
+			'authorIn'    => [
 				'type'        => [
 					'list_of' => 'ID',
 				],
 				'description' => __( 'Array of author IDs to include comments for.', 'wp-graphql' ),
 			],
-			'authorNotIn'        => [
+			'authorNotIn' => [
 				'type'        => [
 					'list_of' => 'ID',
 				],

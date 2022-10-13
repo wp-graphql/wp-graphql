@@ -26,11 +26,11 @@ class Comment {
 				'model'       => CommentModel::class,
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'connections' => [
-					'author' => [
+					'author'     => [
 						'toType'               => 'Commenter',
 						'connectionInterfaces' => [ 'CommenterConnection' ],
 						'description'          => __( 'The author of the comment', 'wp-graphql' ),
-						'deprecationReason'	   => __( 'Deprecated in favor of `authoredBy`'. 'wp-graphql'),	
+						'deprecationReason'    => __( 'Deprecated in favor of `authoredBy`', 'wp-graphql' ), 
 						'oneToOne'             => true,
 						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
 

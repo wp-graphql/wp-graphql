@@ -34,7 +34,7 @@ class GuestCommenterIdTypeEnum {
 				'name'        => 'DATABASE_ID',
 				'value'       => 'database_id',
 				'description' => __( 'The Database ID for the node', 'wp-graphql' ),
-			]
+			],
 		];
 	}
 }

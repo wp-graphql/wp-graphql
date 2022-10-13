@@ -137,14 +137,14 @@ class RootQuery {
 					],
 				],
 				'fields'      => [
-					'allSettings' => [
+					'allSettings'    => [
 						'type'        => 'Settings',
 						'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
 						'resolve'     => function () {
 							return true;
 						},
 					],
-					'comment'     => [
+					'comment'        => [
 						'type'        => 'Comment',
 						'description' => __( 'Returns a Comment', 'wp-graphql' ),
 						'args'        => [
@@ -179,7 +179,7 @@ class RootQuery {
 							return $context->get_loader( 'comment' )->load_deferred( $id );
 						},
 					],
-					'contentNode' => [
+					'contentNode'    => [
 						'type'        => 'ContentNode',
 						'description' => __( 'A node used to manage content', 'wp-graphql' ),
 						'args'        => [
@@ -254,7 +254,7 @@ class RootQuery {
 
 						},
 					],
-					'contentType' => [
+					'contentType'    => [
 						'type'        => 'ContentType',
 						'description' => __( 'Fetch a Content Type node by unique Identifier', 'wp-graphql' ),
 						'args'        => [
@@ -288,7 +288,7 @@ class RootQuery {
 
 						},
 					],
-					'taxonomy'    => [
+					'taxonomy'       => [
 						'type'        => 'Taxonomy',
 						'description' => __( 'Fetch a Taxonomy node by unique Identifier', 'wp-graphql' ),
 						'args'        => [
@@ -322,7 +322,7 @@ class RootQuery {
 
 						},
 					],
-					'node'        => [
+					'node'           => [
 						'type'        => 'Node',
 						'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
 						'args'        => [
@@ -335,7 +335,7 @@ class RootQuery {
 							return ! empty( $args['id'] ) ? DataSource::resolve_node( $args['id'], $context, $info ) : null;
 						},
 					],
-					'nodeByUri'   => [
+					'nodeByUri'      => [
 						'type'        => 'UniformResourceIdentifiable',
 						'description' => __( 'Fetches an object given its Unique Resource Identifier', 'wp-graphql' ),
 						'args'        => [
@@ -348,7 +348,7 @@ class RootQuery {
 							return ! empty( $args['uri'] ) ? $context->node_resolver->resolve_uri( $args['uri'] ) : null;
 						},
 					],
-					'menu'        => [
+					'menu'           => [
 						'type'        => 'Menu',
 						'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
 						'args'        => [
@@ -417,7 +417,7 @@ class RootQuery {
 							return ! empty( $id ) ? $context->get_loader( 'term' )->load_deferred( absint( $id ) ) : null;
 						},
 					],
-					'menuItem'    => [
+					'menuItem'       => [
 						'type'        => 'MenuItem',
 						'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
 						'args'        => [
@@ -452,7 +452,7 @@ class RootQuery {
 							return $context->get_loader( 'post' )->load_deferred( absint( $id ) );
 						},
 					],
-					'plugin'      => [
+					'plugin'         => [
 						'type'        => 'Plugin',
 						'description' => __( 'A WordPress plugin', 'wp-graphql' ),
 						'args'        => [
@@ -469,7 +469,7 @@ class RootQuery {
 							return ! empty( $id_components['id'] ) ? $context->get_loader( 'plugin' )->load_deferred( $id_components['id'] ) : null;
 						},
 					],
-					'termNode'    => [
+					'termNode'       => [
 						'type'        => 'TermNode',
 						'description' => __( 'A node in a taxonomy used to group and relate content nodes', 'wp-graphql' ),
 						'args'        => [
@@ -533,7 +533,7 @@ class RootQuery {
 
 						},
 					],
-					'theme'       => [
+					'theme'          => [
 						'type'        => 'Theme',
 						'description' => __( 'A Theme object', 'wp-graphql' ),
 						'args'        => [
@@ -550,7 +550,7 @@ class RootQuery {
 							return DataSource::resolve_theme( $id_components['id'] );
 						},
 					],
-					'user'        => [
+					'user'           => [
 						'type'        => 'User',
 						'description' => __( 'Returns a user', 'wp-graphql' ),
 						'args'        => [
@@ -611,7 +611,7 @@ class RootQuery {
 							return ! empty( $id ) ? DataSource::resolve_user( $id, $context ) : null;
 						},
 					],
-					'userRole'    => [
+					'userRole'       => [
 						'type'        => 'UserRole',
 						'description' => __( 'Returns a user role', 'wp-graphql' ),
 						'args'        => [
@@ -630,7 +630,7 @@ class RootQuery {
 
 						},
 					],
-					'viewer'      => [
+					'viewer'         => [
 						'type'        => 'User',
 						'description' => __( 'Returns the current user', 'wp-graphql' ),
 						'resolve'     => function ( $source, array $args, AppContext $context ) {
@@ -638,8 +638,8 @@ class RootQuery {
 						},
 					],
 					'guestCommenter' => [
-						'type'			=> 'GuestCommenter',
-						'description'	=> __( 'Returns a Guest Commenter', 'wp-graphql'),
+						'type'        => 'GuestCommenter',
+						'description' => __( 'Returns a Guest Commenter', 'wp-graphql' ),
 						'args'        => [
 							'id'     => [
 								'type'        => [
@@ -652,7 +652,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a guest commenter by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'       => function (  $source, array $args, AppContext $context ) {
+						'resolve'     => function ( $source, array $args, AppContext $context ) {
 							$idType = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							switch ( $idType ) {
@@ -669,7 +669,7 @@ class RootQuery {
 							return ! empty( $id ) ? DataSource::resolve_guest_commenter( $id ) : null;
 
 						},
-					]
+					],
 				],
 			]
 		);
