@@ -637,6 +637,39 @@ class RootQuery {
 							return ! empty( $context->viewer->ID ) ? $context->get_loader( 'user' )->load_deferred( $context->viewer->ID ) : null;
 						},
 					],
+					'guestCommenter' => [
+						'type'			=> 'GuestCommenter',
+						'description'	=> __( 'Returns a Guest Commenter', 'wp-graphql'),
+						'args'        => [
+							'id'     => [
+								'type'        => [
+									'non_null' => 'ID',
+								],
+								'description' => __( 'The globally unique identifier of the user.', 'wp-graphql' ),
+							],
+							'idType' => [
+								'type'        => 'GuestCommenterIdTypeEnum',
+								'description' => __( 'Type of unique identifier to fetch a guest commenter by. Default is Global ID', 'wp-graphql' ),
+							],
+						],
+						'resolve'       => function (  $source, array $args, AppContext $context ) {
+							$idType = isset( $args['idType'] ) ? $args['idType'] : 'id';
+
+							switch ( $idType ) {
+								case 'database_id':
+									$id = absint( $args['id'] );
+									break;
+								case 'id':
+								default:
+									$id_components = Relay::fromGlobalId( $args['id'] );
+									$id            = absint( $id_components['id'] );
+									break;
+							}
+
+							return ! empty( $id ) ? DataSource::resolve_guest_commenter( $id, $context ) : null;
+
+						},
+					]
 				],
 			]
 		);

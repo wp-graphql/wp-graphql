@@ -82,7 +82,7 @@ case "$subcommand" in
                 WP_VERSION=${WP_VERSION} PHP_VERSION=${PHP_VERSION} docker compose up app
                     ;;
                 t )
-                docker-compose run --rm \
+                docker compose run --rm \
                     -e COVERAGE=${COVERAGE-} \
                     -e USING_XDEBUG=${USING_XDEBUG-} \
                     -e DEBUG=${DEBUG-} \

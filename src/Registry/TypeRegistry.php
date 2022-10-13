@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
+use WPGraphQL\Connection\GuestCommenters;
 use WPGraphQL\Connection\Comments;
 use WPGraphQL\Connection\MenuItems;
 use WPGraphQL\Connection\PostObjects;
@@ -45,6 +46,7 @@ use WPGraphQL\Type\Enum\MenuNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\GuestCommenterIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
@@ -98,7 +100,7 @@ use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
-use WPGraphQL\Type\ObjectType\CommentAuthor;
+use WPGraphQL\Type\ObjectType\GuestCommenter;
 use WPGraphQL\Type\ObjectType\MediaDetails;
 use WPGraphQL\Type\ObjectType\MediaItemMeta;
 use WPGraphQL\Type\ObjectType\MediaSize;
@@ -281,7 +283,7 @@ class TypeRegistry {
 		RootMutation::register_type();
 		Avatar::register_type();
 		Comment::register_type();
-		CommentAuthor::register_type();
+		GuestCommenter::register_type();
 		ContentTemplate::register_content_template_types();
 		EnqueuedStylesheet::register_type();
 		EnqueuedScript::register_type();
@@ -301,6 +303,7 @@ class TypeRegistry {
 		UserRole::register_type();
 
 		AvatarRatingEnum::register_type();
+		GuestCommenterIdTypeEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentNodeIdTypeEnum::register_type();
 		ContentNodeIdTypeEnum::register_type();
@@ -342,6 +345,7 @@ class TypeRegistry {
 		/**
 		 * Register core connections
 		 */
+		GuestCommenters::register_connections();
 		Comments::register_connections();
 		MenuItems::register_connections();
 		PostObjects::register_connections();

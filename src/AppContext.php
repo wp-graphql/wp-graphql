@@ -5,6 +5,7 @@ namespace WPGraphQL;
 use GraphQL\Error\UserError;
 use WP_User;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
+use WPGraphQL\Data\Loader\GuestCommenterLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
 use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
@@ -103,6 +104,7 @@ class AppContext {
 		 */
 		$loaders = [
 			'comment_author'      => new CommentAuthorLoader( $this ),
+			'guest_commenter'     => new GuestCommenterLoader( $this ),
 			'comment'             => new CommentLoader( $this ),
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),

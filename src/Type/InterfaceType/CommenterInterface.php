@@ -23,8 +23,8 @@ class CommenterInterface {
 
 		register_graphql_interface_type( 'Commenter', [
 			'description' => __( 'The author of a comment', 'wp-graphql' ),
-			'resolveType' => function ( $comment_author ) use ( $type_registry ) {
-				if ( $comment_author instanceof User ) {
+			'resolveType' => function ( $commenter ) use ( $type_registry ) {
+				if ( $commenter instanceof User ) {
 					$type = $type_registry->get_type( 'User' );
 				} else {
 					$type = $type_registry->get_type( 'CommentAuthor' );
@@ -37,7 +37,7 @@ class CommenterInterface {
 					'type'        => [
 						'non_null' => 'ID',
 					],
-					'description' => __( 'The globally unique identifier for the comment author.', 'wp-graphql' ),
+					'description' => __( 'The globally unique identifier for the commenter.', 'wp-graphql' ),
 				],
 				'avatar'       => [
 					'type'        => 'Avatar',

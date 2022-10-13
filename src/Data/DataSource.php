@@ -19,6 +19,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Model\Avatar;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\CommentAuthor;
+use WPGraphQL\Model\GuestCommenter;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Plugin;
 use WPGraphQL\Model\Post;
@@ -73,16 +74,18 @@ class DataSource {
 	/**
 	 * Retrieves a WP_Comment object for the ID that gets passed
 	 *
-	 * @param int $comment_id The ID of the comment the comment author is associated with.
+	 * @param int $comment_id The ID of the comment the guest commenter is associated with.
 	 *
-	 * @return mixed|CommentAuthor|null
+	 * @return mixed|GuestCommenter|null
 	 * @throws Exception Throws Exception.
 	 */
-	public static function resolve_comment_author( int $comment_id ) {
+	public static function resolve_guest_commenter( int $comment_id ) {
 
-		$comment_author = get_comment( $comment_id );
+		$comment = get_comment( $comment_id );
 
-		return ! empty( $comment_author ) ? new CommentAuthor( $comment_author ) : null;
+
+
+		return ! empty( $comment ) && empty( $comment->user_id ) ? new GuestCommenter( $comment ) : null;
 	}
 
 	/**

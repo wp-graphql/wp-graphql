@@ -105,8 +105,8 @@ class CommentDelete {
 			} else {
 				// Get the current user id
 				$current_user_id = absint( get_current_user_id() );
-				// If the current user ID is the same as the comment author's ID, then the
-				// current user is the comment author and can delete the comment
+				// If the current user ID is the same as the commenter's ID, then the
+				// current user is the commenter and can delete the comment
 				if ( 0 !== $current_user_id && absint( $user_id ) === $current_user_id ) {
 					$not_allowed = false;
 				}
