@@ -16,7 +16,7 @@ class GuestCommenter {
 			'GuestCommenter',
 			[
 				'description'     => __( 'A commenter who is not a User', 'wp-graphql' ),
-				'interfaces'      => [ 'Node', 'Commenter' ],
+				'interfaces'      => [ 'Node', 'CommentWriter' ],
 				'model'           => GuestCommenterModel::class,
 				'eagerlyLoadType' => true,
 				'fields'          => [

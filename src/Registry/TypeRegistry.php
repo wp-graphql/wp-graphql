@@ -50,6 +50,7 @@ use WPGraphQL\Type\Enum\GuestCommenterIdTypeEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
+use WPGraphQL\Type\InterfaceType\CommentAuthorInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
@@ -257,6 +258,7 @@ class TypeRegistry {
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
+		CommentAuthorInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();

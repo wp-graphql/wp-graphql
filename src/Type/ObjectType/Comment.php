@@ -30,6 +30,7 @@ class Comment {
 						'toType'               => 'Commenter',
 						'connectionInterfaces' => [ 'CommenterConnection' ],
 						'description'          => __( 'The author of the comment', 'wp-graphql' ),
+						'deprecationReason'	   => __( 'Deprecated in favor of `authoredBy`'. 'wp-graphql'),	
 						'oneToOne'             => true,
 						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
 
@@ -44,6 +45,33 @@ class Comment {
 							// public comment author data
 							if ( ! $node || ( true === $node->isPrivate ) ) {
 								$node = ! empty( $comment->commentId ) ? $context->get_loader( 'comment_author' )->load( $comment->commentId ) : null;
+							}
+
+							return [
+								'node'   => $node,
+								'source' => $comment,
+							];
+
+						},
+					],
+					'authoredBy' => [
+						'toType'               => 'CommentWriter',
+						'connectionInterfaces' => [ 'CommentWriterConnection' ],
+						'description'          => __( 'The author of the comment', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
+
+							$node = null;
+
+							// try and load the user node
+							if ( ! empty( $comment->userId ) ) {
+								$node = $context->get_loader( 'user' )->load( absint( $comment->userId ) );
+							}
+
+							// If no node is loaded, fallback to the
+							// public comment author data
+							if ( ! $node || ( true === $node->isPrivate ) ) {
+								$node = ! empty( $comment->commentId ) ? $context->get_loader( 'guest_commenter' )->load( $comment->commentId ) : null;
 							}
 
 							return [
