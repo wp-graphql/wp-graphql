@@ -287,6 +287,7 @@ class WPConnectionType {
 						'node' => [
 							'type'        => $this->to_type,
 							'description' => __( 'The node of the connection, without the edges', 'wp-graphql' ),
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 					],
 					$this->edge_fields
@@ -318,10 +319,12 @@ class WPConnectionType {
 							'type'        => 'String',
 							'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
 							'resolve'     => $this->resolve_cursor,
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 						'node'   => [
 							'type'        => $this->to_type,
 							'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 					],
 					$this->edge_fields
