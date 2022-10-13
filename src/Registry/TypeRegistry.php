@@ -47,6 +47,7 @@ use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\GuestCommenterIdTypeEnum;
+use WPGraphQL\Type\Enum\GuestCommenterOrderbyEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
@@ -308,6 +309,7 @@ class TypeRegistry {
 
 		AvatarRatingEnum::register_type();
 		GuestCommenterIdTypeEnum::register_type();
+		GuestCommenterOrderbyEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
 		CommentNodeIdTypeEnum::register_type();
 		ContentNodeIdTypeEnum::register_type();

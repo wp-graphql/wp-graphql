@@ -68,30 +68,18 @@ class GuestCommenters {
 				'type'        => 'String',
 				'description' => __( 'Guest commenter email address.', 'wp-graphql' ),
 			],
-			'authorIn'    => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of author IDs to include comments for.', 'wp-graphql' ),
+			'authorUrl'   => [
+				'type'        => 'String',
+				'description' => __( 'Guest commenter domain', 'wp-graphql' ),
 			],
-			'authorNotIn' => [
-				'type'        => [
-					'list_of' => 'ID',
-				],
-				'description' => __( 'Array of author IDs to exclude comments for.', 'wp-graphql' ),
+			'orderby'     => [
+				'type'        => 'GuestCommenterOrderbyEnum',
+				'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
 			],
-			// 'orderby'            => [
-			// 	'type'        => 'CommentsConnectionOrderbyEnum',
-			// 	'description' => __( 'Field to order the comments by.', 'wp-graphql' ),
-			// ],
-			// 'order'              => [
-			// 	'type'        => 'OrderEnum',
-			// 	'description' => __( 'The cardinality of the order of the connection', 'wp-graphql' ),
-			// ],
-			// 'search'             => [
-			// 	'type'        => 'String',
-			// 	'description' => __( 'Search term(s) to retrieve matching comments for.', 'wp-graphql' ),
-			// ],
+			'order'       => [
+				'type'        => 'OrderEnum',
+				'description' => __( 'The cardinality of the order of the connection', 'wp-graphql' ),
+			],
 		];
 	}
 }
