@@ -100,6 +100,7 @@ use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
+use WPGraphQL\Type\ObjectType\CommentAuthor;
 use WPGraphQL\Type\ObjectType\GuestCommenter;
 use WPGraphQL\Type\ObjectType\MediaDetails;
 use WPGraphQL\Type\ObjectType\MediaItemMeta;
@@ -283,6 +284,7 @@ class TypeRegistry {
 		RootMutation::register_type();
 		Avatar::register_type();
 		Comment::register_type();
+		CommentAuthor::register_type();
 		GuestCommenter::register_type();
 		ContentTemplate::register_content_template_types();
 		EnqueuedStylesheet::register_type();

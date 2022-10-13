@@ -5,10 +5,10 @@ namespace WPGraphQL;
 use GraphQL\Error\UserError;
 use WP_User;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
-use WPGraphQL\Data\Loader\GuestCommenterLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
 use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
+use WPGraphQL\Data\Loader\GuestCommenterLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
@@ -108,8 +108,9 @@ class AppContext {
 			'comment'             => new CommentLoader( $this ),
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
-			'plugin'              => new PluginLoader( $this ),
+			'guest_commenter'     => new GuestCommenterLoader( $this ),
 			'nav_menu_item'       => new PostObjectLoader( $this ),
+			'plugin'              => new PluginLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
 			'taxonomy'            => new TaxonomyLoader( $this ),
