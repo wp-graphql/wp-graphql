@@ -1,4 +1,7 @@
-# WPGraphiQL
+---
+uri: "/docs/wp-graphiql/"
+title: "WPGraphiQL"
+---
 
 In this document, you will find information about developer APIs available to extend and customize
 WPGraphiQL.
