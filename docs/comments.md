@@ -29,7 +29,7 @@ Below is an example of querying a list of comments of a specific post.
 }
 ```
 
-![Example of querying a list of comments of a specific post](./comments-query-post.png)
+![Example of querying a list of comments of a specific post](./images/comments-query-post.png)
 
 ## Hierarchical Data
 
@@ -72,19 +72,19 @@ mutation CREATE_COMMENT {
 
 Public users can submit comments. Below is a screenshot of a successful `createComment` mutation from a public user. The mutation executes and the comment is placed in Moderation, so the comment is not returned in the Mutation, however a `success:true` value is returned so the client knows the comment mutation succeeded.
 
-![Screenshot of a createComment Mutation from a public user](./comments-mutation-public-user.png)
+![Screenshot of a createComment Mutation from a public user](./images/comments-mutation-public-user.png)
 
 **Unsuccessful Mutation: Duplicate Comment**
 
 WordPress protects against submitting duplicate comments. If the exact same mutation were executed again, the comment would not be created, and an error would be returned.
 
-![Screenshot of an unsuccessful mutation, failed because it's a duplicate](./comments-mutation-duplicate-error.png)
+![Screenshot of an unsuccessful mutation, failed because it's a duplicate](./images/comments-mutation-duplicate-error.png)
 
 **Unsuccessful Mutation: Comments closed**
 
 If comments are closed for a Post, a `createComment` Mutation will not create a comment, and will return an error. 
 
-![Screenshot of a failed createComment mutation because the post was closed to comments.](./comments-mutation-closed-failure.png)
+![Screenshot of a failed createComment mutation because the post was closed to comments.](./images/comments-mutation-closed-failure.png)
 
 ## Update Comment
 
@@ -108,13 +108,13 @@ mutation {
 
 If the user executing the Mutation is authenticated and has proper capabilities to update comments, the comment of the ID provided will be updated and the fields requested in response will be returned. 
 
-![Screenshot of a successful createComment Mutation](./comments-mutation-success.png)
+![Screenshot of a successful createComment Mutation](./images/comments-mutation-success.png)
 
 **Unsuccessful Mutation**
 
 If the user executing the Mutation is not authenticated, or does not have proper capabilities to update comments, the comment will not be modified in WordPress and an error will be returned. 
 
-![Screenshot of an unsuccessful updateComment Mutation](./comments-mutation-not-allowed.png)
+![Screenshot of an unsuccessful updateComment Mutation](./images/comments-mutation-not-allowed.png)
 
 ## Delete Comment
 
@@ -132,13 +132,13 @@ mutation {
 
 If the user executing the request is authenticated and has proper capabilities to delete comments, the comment will be deleted and the fields requested will be returned.
 
-![Example of successful deleting a comment](./comments-mutation-delete.png)
+![Example of successful deleting a comment](./images/comments-mutation-delete.png)
 
 **Unsuccessful Mutation**
 
 If the user executing the Mutation is not authenticated or does not have capabilities to delete comments, the comment will not be deleted from WordPress and an error will be returned.
 
-![Example comment deletion failure because of access permissions.](./comments-mutation-delete-denied.png)
+![Example comment deletion failure because of access permissions.](./images/comments-mutation-delete-denied.png)
 
 ## Restore Comment
 
@@ -159,10 +159,10 @@ mutation {
 
 If the user executing the request is authenticated and has proper capabilities to moderate comments, the deleted comment will be restored and the fields requested will be returned.
 
-![Screenshot of a successful restoreComment Mutation](./comments-mutation-restore-success.png)
+![Screenshot of a successful restoreComment Mutation](./images/comments-mutation-restore-success.png)
 
 **Unsuccessful Mutation**
 
 If the user executing the mutation is not authenticated or does not have proper capabilities to moderate comments, the comment will not be restored and an error will be returned.
 
-![Screenshot of an unsuccessful restoreComment Mutation](./comments-mutation-restore-not-allowed.png)
+![Screenshot of an unsuccessful restoreComment Mutation](./images/comments-mutation-restore-not-allowed.png)
