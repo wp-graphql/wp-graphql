@@ -13,7 +13,7 @@ GraphiQL is a React component that acts as an IDE for interacting with GraphQL A
 
 WPGraphQL ships with GraphiQL allowing you to search your GraphQL Schema and test GraphQL Queries and Mutations from your WordPress Admin.
 
-![Screenshot of GraphiQL in the WordPress Admin](./interacting-wordpress-admin-graphiql.png)
+![Screenshot of GraphiQL in the WordPress Admin](./images/interacting-wordpress-admin-graphiql.png)
 
 **Below is a non-comprehensive list of helpful tools to interact with your WPGraphQL API:**
 
@@ -69,7 +69,7 @@ fetch('https://content.wpgraphql.com/graphql', {
   .then(res => console.log(res.data))
 ```
 
-![Screenshot showing the request being made](./interacting-fetch-graphql-from-browser-console-1024x619.gif)
+![Screenshot showing the request being made](./images/interacting-fetch-graphql-from-browser-console-1024x619.gif)
 
 #### Fetch with .htaccess Auth
 

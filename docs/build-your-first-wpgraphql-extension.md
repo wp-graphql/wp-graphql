@@ -39,7 +39,7 @@ In your WordPress site, navigate in the file system to the `wp-content/plugins` 
 
 The below screenshot shows the plugins directory with a few plugins already there.
 
-![Screenshot of the file path of a WordPress plugin directory shown in Mac's Finder UI](./extension-wordpress-plugin-dir.png)
+![Screenshot of the file path of a WordPress plugin directory shown in Mac's Finder UI](./images/extension-wordpress-plugin-dir.png)
 
 ### Scaffold the plugin
 
@@ -47,7 +47,7 @@ Create a new folder. Let's call it `my-first-wpgraphql-extension`. It is conside
 
 Within that directory create a PHP file with the same name as the directory: `my-first-wpgraphql-extension.php`
 
-![Screenshot of the directory and file of the plugin](./extension-wordpress-plugin-filename.png)
+![Screenshot of the directory and file of the plugin](./images/extension-wordpress-plugin-filename.png)
 
 Open the PHP file in a text editor or IDE.
 
@@ -61,7 +61,7 @@ Add an [opening php tag](https://www.php.net/manual/en/language.basic-syntax.php
 
 Navigate to your WordPress Admin's Plugins page, and you should see "My First WPGraphQL Extension" plugin as a plugin available for activating.
 
-![Screenshot showing "My First WPGraphQL Extension" in the WordPress Plugins admin page](./extension-wordpress-admin-screen.png)
+![Screenshot showing "My First WPGraphQL Extension" in the WordPress Plugins admin page](./images/extension-wordpress-admin-screen.png)
 
 Click "Activate" to activate the plugin. With the plugin active, any code we write will now be executed by WordPress. Without activating the plugin, any code we write would not be executed by WordPress.
 
@@ -121,7 +121,7 @@ The `resolve` key of the config array is set to an anonymous function which will
 
 At this point, we can open up GraphiQL in the WordPress Dashboard and search the word "custom" and we should see our new "customField" field in the Schema.
 
-![Screenshot of GraphiQL searching the word "custom" in the docs explorer](./extension-graphiql-explorer-search.png)
+![Screenshot of GraphiQL searching the word "custom" in the docs explorer](./images/extension-graphiql-explorer-search.png)
 
 And since the field is on the RootQuery type, we can test querying for it like so:
 
@@ -133,7 +133,7 @@ And since the field is on the RootQuery type, we can test querying for it like s
 
 Executing this query returns the `"value..."` value that we defined in our resolve function for the field.
 
-![Screenshot of a query for "customField"](./extension-query-custom-field.png)
+![Screenshot of a query for "customField"](./images/extension-query-custom-field.png)
 
 ## Register a GraphQL Type
 
@@ -173,7 +173,7 @@ In our case, we passed an array of 2 fields: `testField` and `count`, defining t
 
 Now we have a type `CustomType` in our Schema and we can verify this by searching in GraphiQL.
 
-![Screenshot of "CustomType" type in GraphiQL Docs explorer](./extension-graphiql-explorer-custom-type.png)
+![Screenshot of "CustomType" type in GraphiQL Docs explorer](./images/extension-graphiql-explorer-custom-type.png)
 
 **Note:** *Anytime you change the Schema on the server, you will need to refresh GraphiQL to re-fetch the Schema and pick up your changes.*
 
@@ -233,7 +233,7 @@ Since the field `customField` no longer returns a string, but instead returns th
 
 Executing the query now should return results like so:
 
-![Screenshot of the customField query returning the CustomType type](./extension-query-custom-type.png)
+![Screenshot of the customField query returning the CustomType type](./images/extension-query-custom-type.png)
 
 ## Conclusion
 
