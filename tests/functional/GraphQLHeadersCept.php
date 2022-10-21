@@ -47,7 +47,7 @@ $I->assertNotEmpty( $x_graphql_keys );
 $I->assertNotEmpty( $x_graphql_url );
 $post_cache_key = base64_encode( 'post:' . $post_id );
 $I->assertContains( $post_cache_key, explode( ' ', $x_graphql_keys ) );
-$list_post_key = base64_encode( 'list:post' );
+$list_post_key = 'list:post';
 $I->assertContains( $list_post_key, explode( ' ', $x_graphql_keys ) );
 
 
@@ -65,5 +65,5 @@ $I->assertNotEmpty( $x_graphql_keys );
 $I->assertNotEmpty( $x_graphql_url );
 $post_cache_key = base64_encode( 'post:' . $post_id );
 $I->assertContains( $post_cache_key, explode( ' ', $x_graphql_keys ) );
-$list_post_key = base64_encode( 'list:post' );
+$list_post_key = 'list:post';
 $I->assertContains( $list_post_key, explode( ' ', $x_graphql_keys ) );
