@@ -242,9 +242,9 @@ Below is a GraphQL query getting exactly what we need in 1 request. Nothing more
 #### Fewer Functions Executing
 
 > The fastest code is the code that never runs.
->   -- [Robert Galanakis](https://news.ycombinator.com/item?id=10979240#:~:text=Robert%20Galanakis%3A%20%E2%80%9CThe%20fastest%20code,code%20that%20was%20never%20written.%E2%80%9D)
+> \-- [Robert Galanakis](https://news.ycombinator.com/item?id=10979240#:~:text=Robert%20Galanakis%3A%20%E2%80%9CThe%20fastest%20code,code%20that%20was%20never%20written.%E2%80%9D)
 
-With GraphQL, since you ask for the exact fields you need, this means that behind the scenes fewer functions are executing to get the data. For example, if you don't ask for the post's content, filters such as 'the_content' (which can be expensive for some sites) don't execute and this has real impact on processing time.
+With GraphQL, since you ask for the exact fields you need, this means that behind the scenes fewer functions are executing to get the data. For example, if you don't ask for the post's content, filters such as 'the\_content' (which can be expensive for some sites) don't execute and this has real impact on processing time.
 
 #### Less Data to Download
 
@@ -284,9 +284,9 @@ query {
 }
 ```
 
-This query will end up executing a WP_Query to get 5 posts. Then it will loop through the 5 posts and instead of getting the Author object immediately, it places the Author ID from the Post in a temporary buffer.
+This query will end up executing a WP\_Query to get 5 posts. Then it will loop through the 5 posts and instead of getting the Author object immediately, it places the Author ID from the Post in a temporary buffer.
 
-Then, one WP_User_Query is made to get all 5 Authors of the 5 posts.
+Then, one WP\_User\_Query is made to get all 5 Authors of the 5 posts.
 
 So, instead of:
 

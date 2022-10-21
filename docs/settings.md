@@ -70,7 +70,7 @@ This could now be queried like so:
 }
 ```
 
-> **NOTE: **If a setting is registered without a group defined it will appear under `generalSettings`.
+> \*\*NOTE: \*\*If a setting is registered without a group defined it will appear under `generalSettings`.
 
 ## Querying Settings
 
@@ -180,13 +180,13 @@ mutation {
 }
 ```
 
-**Unsuccessful Mutation**
+### Unsuccessful Mutation
 
 If the user executing the Mutation is not authenticated or does not have the capability to edit the setting, the setting will not be updated and an error will be returned:
 
 ![Screenshot of an unsuccessful Mutation to update the Site's title](./images/settings-mutation-not-authorized.png)
 
-**Successful Mutation**
+### Successful Mutation
 
 If the user executing the Mutation is authenticated and has proper capabilities to update the setting, the setting will be updated in WordPress and the specified fields will be returned.
 

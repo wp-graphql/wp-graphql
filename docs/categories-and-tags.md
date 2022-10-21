@@ -80,7 +80,7 @@ One of the primary differences between Categories and Tags is that Categories ar
 
 Queries for [Connections](/docs/connections/) (lists of nodes) can be filtered. Below are some examples of filtering using the `where` argument. There are many arguments available for filtering Terms.
 
-**Query Tags with similar name**
+#### Query Tags with similar name
 
 The following example shows querying tags with a name like "Gatsby".
 
@@ -118,7 +118,7 @@ Below is an example of querying a single term (of any Taxonomy) using the `termN
 }
 ```
 
-![Screenshot of a Query for a Category and a Tag using the `termNode` field](./images/categories-query-by-global-id.png)
+![Screenshot of a Query for a Category and a Tag using the termNode field](./images/categories-query-by-global-id.png)
 
 ### Single term by URI
 
@@ -162,13 +162,13 @@ mutation {
 
 This mutation will only succeed for users with proper capabilities to create Terms in the Category Taxonomy.
 
-**Successful Mutation**
+### Successful Mutation
 
 If the user executing the mutation is authenticated and has proper capabilities to create a Category, the category will be created and the fields asked for in response will be returned.
 
 ![Screenshot of a successful GraphQL Mutation to create a category](./images/categories-mutation-create-success.png)
 
-**Unsuccessful Mutation**
+### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a Category, no data will change in WordPress and an error will be returned.
 
@@ -190,13 +190,13 @@ mutation {
 }
 ```
 
-**Successful Mutation**
+### Successful Mutation
 
 If the user making the request is authenticated and has proper capabilities to update the Category term, the term will be updated and the specified fields will be returned in the response.
 
 ![Screenshot of a successful GraphQL mutation to update a Category](./images/categories-mutation-update-success.png)
 
-**Unsuccessful Mutation**
+### Unuccessful Mutation
 
 If the user making the request is not authenticated, or does not have proper capabilities to update Category terms, no data will change in WordPress and an error will be returned.
 
@@ -218,13 +218,13 @@ mutation {
 }
 ```
 
-**Successful Mutation**
+### Successful Mutation
 
 If the user making the request is authenticated and has proper capabilities to delete the Category term, the term will be deleted from WordPress and the specified fields will be returned in the response.
 
 ![](./images/categories-delete-success.png)
 
-**Unsuccessful Mutation**
+### Unuccessful Mutation
 
 If the user making the request is not authenticated, or does not have proper capabilities to delete Category terms, no data will change in WordPress and an error will be returned.
 

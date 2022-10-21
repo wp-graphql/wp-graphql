@@ -5,11 +5,11 @@ title: "WordPress as an Application Data Graph"
 
 WPGraphQL treats WordPress data like an [application data graph](https://en.wikipedia.org/wiki/Graph_theory).
 
-What this means, is that every uniquely identifiable object is considered a "node". 
+What this means, is that every uniquely identifiable object is considered a "node".
 
-Posts, Pages, Comments, Terms, Users are all considered nodes. And Nodes can have fields that resolve to concrete data. 
+Posts, Pages, Comments, Terms, Users are all considered nodes. And Nodes can have fields that resolve to concrete data.
 
-For example a "Post" node might have a "title" that resolves to the value "Hello World". 
+For example a "Post" node might have a "title" that resolves to the value "Hello World".
 
 ![A circle with the word "Post" representing a Post node. A line connecting to the word "title" and a line connecting "title" to "hello world".](./images/data-graph-hello-world.png)
 
@@ -17,15 +17,15 @@ The post might have connections to other Nodes in the Graph. For example, it mig
 
 ![A circle labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" circle to other circles labeled "Image", "Category" and "Category".](./images/data-graph-category-terms.png)
 
-And each Category node might have fields, such as a name. 
+And each Category node might have fields, such as a name.
 
 ![A circle representing a node labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" node to other nodes labeled "Image", "Category" and "Category". Each category with a name field.](./images/data-graph-category-term-connections.png)
 
-And those category nodes might have other connections to other nodes, with connections to other nodes, and so on. 
+And those category nodes might have other connections to other nodes, with connections to other nodes, and so on.
 
 ![](./images/data-graph-category-terms-connection-complex.png)
 
-An application data graph doesn't have a beginning or an end. It has nodes with fields, and WPGraphQL provides entry points to pluck nodes out of the Graph using GraphQL Queries. 
+An application data graph doesn't have a beginning or an end. It has nodes with fields, and WPGraphQL provides entry points to pluck nodes out of the Graph using GraphQL Queries.
 
 Take the following query, for example.
 
