@@ -42,13 +42,13 @@ In one terminal window, start the WordPress app:
 composer run-app
 ```
 
-In your web browser, open the site, [http://localhost:8091](http://localhost:8091).  And the WP admin at [http://localhost:8091/wp-admin](http://localhost:8091/wp-admin). Username is 'admin'. Password is 'password'.
+In your web browser, open the site, <http://localhost:8091>.  And the WP admin at <http://localhost:8091/wp-admin>. Username is 'admin'. Password is 'password'.
 
 ### Using XDebug
 
 #### Local WordPress Site With XDebug
 
-Use the environment variable USING_XDEBUG to start the docker image and WordPress with xdebug configured to use port 9003 to communicated with your IDE.
+Use the environment variable USING\_XDEBUG to start the docker image and WordPress with xdebug configured to use port 9003 to communicated with your IDE.
 
 ```shell
 export USING_XDEBUG=1
@@ -68,7 +68,7 @@ Start your IDE, like VSCode. Enable xdebug and set breakpoints. Load pages in yo
 
 See the testing page on running the unit test suite.  These instructions show how to enable xdebug for those unit tests and allow debugging in an IDE.
 
-Use the environment variable USING_XDEBUG to run tests with xdebug configured to use port 9003 to communicated with your IDE.
+Use the environment variable USING\_XDEBUG to run tests with xdebug configured to use port 9003 to communicated with your IDE.
 
 ```shell
 export USING_XDEBUG=1
@@ -82,6 +82,7 @@ Use the environment variable SUITES to specify individual test files for quicker
 Create or add the following configuration to your .vscode/launch.json in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
 If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
+
 ```json
 {
     "version": "0.2.0",

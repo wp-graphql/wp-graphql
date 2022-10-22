@@ -260,55 +260,56 @@ PHP_VERSION=8.1 WP_VERSION=6.0 SUITES=acceptance composer run-test
 
 **Notes:**
 
-- If you make a change that requires `composer install` to be rerun, run composer build-app again.
-- Leave the container shell by typing `exit`.
-- Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
+-   If you make a change that requires `composer install` to be rerun, run composer build-app again.
+
+-   Leave the container shell by typing `exit`.
+
+-   Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
     - Run this command: `docker system prune`
     - https://docs.docker.com/config/pruning/#prune-containers
-
 
 #### Advanced Testing Within Docker Shell
 
 Log into the docker shell prompt:
 
-```
+```shell
 docker-compose run --entrypoint bash -- testing
 ```
 
 Specify the PHP and/or WordPress versions to use that environment. Environment must have been built previously using instructions above.
 
-```
+```shell
 PHP_VERSION=8.1 WP_VERSION=6.0 docker-compose run --entrypoint bash -- testing
 ```
 
 Run the setup script, which also runs the test suite.  This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.
 
-```
+```shell
 /usr/local/bin/testing-entrypoint.sh
 ```
 
 If you want to skip the tests but initiate and setup the docker environment, use the following:
 
-```
+```shell
 SUITES= /usr/local/bin/testing-entrypoint.sh
 ```
 
 After running the initial entry point, change to the plugin diectory:
 
-```
+```shell
 cd wp-content/plugins/wp-graphql
 ```
 
 Run tests like this:
 
-```
+```shell
 vendor/bin/codecept run -c codeception.dist.yml wpunit
 ```
 
-```
+```shell
 vendor/bin/codecept run -c codeception.dist.yml acceptance
 ```
 
-```
+```shell
 vendor/bin/codecept run -c codeception.dist.yml functional:BasicPostListCept
 ```

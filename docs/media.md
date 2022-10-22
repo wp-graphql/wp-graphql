@@ -5,13 +5,11 @@ title: "Media"
 
 WPGraphQL provides support for querying Media Items, what WordPress calls "attachments".
 
-
 This page will be most useful for users what are familiar with [GraphQL Concepts](/docs/intro-to-graphql/) and understand the basics of [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
 
 ## Querying Media Items
 
 WPGraphQL supports querying Media Items in various ways.
-
 
 Below are some common examples of querying Media Items with WPGraphQL.
 

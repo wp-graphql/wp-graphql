@@ -11,7 +11,6 @@ If you prefer learning these concepts by reading, scroll down to the written tut
 
 https://youtu.be/0plIW5hf6lM
 
-
 ## Written Tutorial
 
 The following written tutorial should be helpful for developers of any experience level, but it will be most useful for developers that have some previous experience building WordPress plugins.
@@ -69,7 +68,7 @@ Click "Activate" to activate the plugin. With the plugin active, any code we wri
 
 Now that we have an active plugin, let's extend the WPGraphQL Schema by registering a new field to the Schema.
 
-We will make use of the [register_graphql_field](/functions/register_graphql_field/) function within the [graphql_register_types](/actions/graphql_register_types/) action.
+We will make use of the [register\_graphql\_field](/functions/register_graphql_field/) function within the [graphql\_register\_types](/actions/graphql_register_types/) action.
 
 Add the following snippet below the previous snippet that defined the plugin name:
 
@@ -99,7 +98,7 @@ The action `graphql_register_types` is fired by WPGraphQL when the GraphQL Schem
 
 Below is the function `add_custom_field_to_graphql_root_query`, which will execute as the Schema is being built.
 
-Here, we call another function "register_graphql_field", which accepts 3 parameters:
+Here, we call another function "register\_graphql\_field", which accepts 3 parameters:
 
 - **Type Name**: The name of the existing GraphQL Type to register a field to
 - **Field Name**: The name the registered field should have
@@ -179,7 +178,7 @@ Now we have a type `CustomType` in our Schema and we can verify this by searchin
 
 ## Use a Custom Type with a Custom Field
 
-We just registered a CustomType to the Schema, but it's not in use at all. In order to query data in the shape of the CustomType, it needs to be defined as the Type of a field. 
+We just registered a CustomType to the Schema, but it's not in use at all. In order to query data in the shape of the CustomType, it needs to be defined as the Type of a field.
 
 Let's change the `type` of our `customField` to be `CustomType` instead of `String`. And let's change the resolver to return something that matches the shape of `CustomType` so we can fulfill the contract we have with the Schema.
 
@@ -208,9 +207,9 @@ register_graphql_field( 'RootQuery', 'customField', [
 ] );
 ```
 
-Here we change the `type` to be `CustomType` and we change the resolve function to return an array with a key of "count" and a value of "5", and a key of "testField" with a value of "test value&#8230;".
+Here we change the `type` to be `CustomType` and we change the resolve function to return an array with a key of "count" and a value of "5", and a key of "testField" with a value of "test value…".
 
-Since the field `customField` no longer returns a string, but instead returns the type `CustomType` we would need to adjust our query to reflect. 
+Since the field `customField` no longer returns a string, but instead returns the type `CustomType` we would need to adjust our query to reflect.
 
 **Before**:
 

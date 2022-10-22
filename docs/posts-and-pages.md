@@ -55,7 +55,7 @@ query GetPosts {
 
 Queries for [Connections](/docs/connections/) can be filtered. Below are some examples of filtering using the `where` argument. There are many options available to filter posts, so it's recommended to use a tool such as GraphiQL to get familiar with the options available to filter.
 
-**Query posts written by a specific author**
+#### Query posts written by a specific author
 
 This example shows querying posts written by a specific author (using the author's DatabaseId)
 
@@ -77,13 +77,13 @@ This example shows querying posts written by a specific author (using the author
 
 ![Screenshot of a GraphQL Query for posts written by a specific author](./images/posts-query-filter-by-author.png)
 
-**Query posts by specific title**
+#### Query posts by specific title
 
 This example shows querying posts with a specific title.
 
 ![Screenshot of a GraphQL Query for posts for a specific title](./images/posts-query-filter-by-title.png)
 
-**Query posts by specific search keyword**
+#### Query posts by specific search keyword
 
 This example shows querying posts using a search keyword.
 
@@ -177,13 +177,13 @@ mutation CREATE_POST {
 
 This Mutation will only succeed for users with proper capabilities to create posts (of the post type being created).
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user executing the mutation is authenticated and has proper capabilities to create a post, the post will be created and the fields asked for in response will be returned.
 
 ![Screenshot showing a successful mutation to create a post](./images/posts-mutation-create-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a post, the post will not be created and an error will be returned.
 
@@ -210,13 +210,13 @@ mutation UPDATE_POST {
 }
 ```
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user making the request is authenticated and has proper capabilities to update the post, the post will be updated and the specified fields of the post being updated will be returned in the response.
 
 ![Screenshot of a successful Mutation to update a post](./images/posts-mutation-update-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a post, the post will not be created and an error will be returned.
 
@@ -240,13 +240,13 @@ mutation DELETE_POST {
 }
 ```
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user executing the mutation to delete a post is authenticated and has proper capabilities to delete the post of the provided ID, the post will be deleted from WordPress and the fields asked for will be returned.
 
 ![Screenshot of a successful Mutation to delete a post](./images/posts-mutation-delete-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation to delete a post is not authenticated or does not have proper capabilities to delete a post, the post will not be deleted from WordPress and an error will be returned.
 

@@ -30,7 +30,7 @@ Below are some of the enhancements to the GraphiQL IDE that are provided by WPGr
 When using WPGraphiQL, you can toggle between executing the request as the authenticated user in the
 WordPress dashboard, or as a public, non-authenticated user.
 
-Not all data that _can_ be queried will be returned. Data such as draft posts, previews, etc are often
+Not all data that *can* be queried will be returned. Data such as draft posts, previews, etc are often
 restricted to users that are authenticated (logged in) and have authorization (proper capabilities) to
 have the data returned to them.
 
@@ -48,7 +48,6 @@ returned. A public user will get a `null` response for data they cannot access.
 Then, the button to "switch to executing as an authenticated user" is clicked, and the query is
 executed again, showing the viewer data being returned instead of a `null` response.
 
-
 ### Full Screen Mode
 
 WPGraphiQL provides a button that allows you to interact with the GraphiQL IDE while covering the
@@ -57,7 +56,7 @@ full browser window.
 This arguably should be called "full-browser-window" than "full-screen" mode. Please forgive us.
 Naming is hard.
 
-_**NOTE:** This feature was built using the extension APIs outlined below!_
+> **NOTE:** This feature was built using the extension APIs outlined below!\*
 
 Below is a GIF showing this feature in action.
 
@@ -67,7 +66,6 @@ When the GraphiQL IDE is loaded, we see the WordPress admin bar, the WordPress d
 
 Clicking the "Fullscreen Toggle" button in the GraphiQL IDE Toolbar changes the IDE to cover the full
 browser window. Clicking the button toggles the IDE back to it's nested position within the app.
-
 
 ### Query Composer
 
