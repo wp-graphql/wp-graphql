@@ -99,8 +99,8 @@ If you have WordPress core files in a directory for local development, you can a
                 "show_hidden": 1
             },
             "pathMappings": {
-                "/var/www/html/wp-content/plugins/wp-graphql": "${workspaceFolder}",
-                "/var/www/html": "${workspaceFolder}/wordpress",
+                "var/www/html/wp-content/plugins/wp-graphql": "${workspaceFolder}",
+                "var/www/html": "${workspaceFolder}/wordpress",
             }
         }
     ]
