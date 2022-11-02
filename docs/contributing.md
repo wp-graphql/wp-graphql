@@ -42,7 +42,7 @@ In one terminal window, start the WordPress app:
 composer run-app
 ```
 
-In your web browser, open the site, [http://localhost:8091]().  And the WP admin at (http://localhost:8091/wp-admin). Username is `admin`. Password is `password`.
+In your web browser, open the site, [http://localhost:8091]().  And the WP admin at [http://localhost:8091/wp-admin](). Username is `admin`. Password is `password`.
 
 ### Using XDebug
 
