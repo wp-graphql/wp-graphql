@@ -801,7 +801,7 @@ class Request {
 		 *
 		 * @since 0.2.0
 		 */
-		do_action( 'graphql_server_config', $config, $this->params );
+		do_action( 'graphql_server_config', $config, $this->get_params() );
 
 		return new StandardServer( $config );
 

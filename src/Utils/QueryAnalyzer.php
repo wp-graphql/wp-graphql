@@ -257,6 +257,28 @@ class QueryAnalyzer {
 	}
 
 	/**
+	 * Returns the operation name of the query, if there is one
+	 *
+	 * @return string|null
+	 */
+	public function get_operation_name(): ?string {
+
+		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation: null;
+
+		if ( empty( $operation_name ) ) {
+
+			try {
+				$ast = Parser::parse( $this->request->params->query );
+				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
+			} catch ( SyntaxError $error ) {
+				return null;
+			}
+		}
+
+		return ! empty( $operation_name ) ? 'operation:' . $operation_name : null;
+	}
+
+	/**
 	 * @return string|null
 	 */
 	public function get_query_id(): ?string {
@@ -549,6 +571,10 @@ class QueryAnalyzer {
 
 		if ( ! empty( $this->get_root_operation() ) ) {
 			$keys[] = 'graphql:' . $this->get_root_operation();
+		}
+
+		if ( ! empty( $this->get_operation_name() ) ) {
+			$keys[] = $this->get_operation_name();
 		}
 
 		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
