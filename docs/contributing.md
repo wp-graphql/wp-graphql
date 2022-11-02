@@ -59,7 +59,7 @@ You should see output in the terminal like the following examples that indicate 
 
 ```shell
 app_1      | Enabling XDebug 3
-app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: `host.docker.internal:9003` (through   `xdebug.client_host/xdebug.client_port`) :-(
+app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9003 (through   xdebug.client_host/xdebug.client_port) :-(
 ```
 
 Start your IDE, like VSCode. Enable xdebug and set breakpoints. Load pages in your browsers and you should experience the IDE pausing the page load and showing the breakpoint.
