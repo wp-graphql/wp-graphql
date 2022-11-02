@@ -79,7 +79,7 @@ Use the environment variable SUITES to specify individual test files for quicker
 
 #### Configure VSCode IDE Launch File
 
-Create or add the following configuration to your .vscode/launch.json in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
+Create or add the following configuration to your `.vscode/launch.json` in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
 If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
 
