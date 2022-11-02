@@ -72,19 +72,17 @@ function graphql_init_appsero_telemetry() {
 		return;
 	}
 
-	$client = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WP GraphQL', __FILE__ );
+	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WP GraphQL', __FILE__ );
+	$insights = $client->insights();
 
-	// If the Appsero client is version 1.2.0 or higher, add plugin data
-	if (version_compare( $client->version, '1.2.1', '>=' ) ) {
+	// If the Appsero client has the add_plugin_data method, use it
+	if ( method_exists( $insights, 'add_plugin_data' ) ) {
 		// @phpstan-ignore-next-line
-		$client->insights()->add_plugin_data()->init();
-
-		// Else, initialize without the plugin data
-	} else {
-
-		// @phpstan-ignore-next-line
-		$client->insights()->init();
+		$insights->add_plugin_data();
 	}
+
+	// @phpstan-ignore-next-line
+	$insights->init();
 }
 
 graphql_init_appsero_telemetry();
