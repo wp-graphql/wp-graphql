@@ -19,7 +19,7 @@ $page_id = $I->havePostInDatabase([
 	'post_author' => $admin_id,
 ]);
 
-$query = '{ posts { nodes { title } } }';
+$query = 'query GetPosts { posts { nodes { title } } }';
 
 $I->sendGet( 'http://localhost/graphql?query=' . $query );
 
@@ -29,6 +29,9 @@ $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
 $x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
+
+$I->assertContains( 'operation:GetPosts', explode( ' ', $x_graphql_keys ) );
+
 $I->assertNotEmpty( $x_graphql_url );
 $post_cache_key = base64_encode( 'post:' . $post_id );
 $I->assertContains( $post_cache_key, explode( ' ', $x_graphql_keys ) );
