@@ -6,7 +6,8 @@
 
 - ([#2593](https://github.com/wp-graphql/wp-graphql/pull/2593)): feat: use sha256 instead of md5 for hashing queryId
 - ([#2581](https://github.com/wp-graphql/wp-graphql/pull/2581)): feat: support deprecation reason when using `register_graphql_connection`.
-- 
+- ([#2603](https://github.com/wp-graphql/wp-graphql/pull/2603)): feat: add GraphQL operation name to x-graphql-keys headers.
+
 ### Chores / Bugfixes
 
 - ([#2472](https://github.com/wp-graphql/wp-graphql/pull/2472)): fix: Return CommentAuthor avatar urls in public requests. Thanks @justlevine!
