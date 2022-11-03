@@ -70,7 +70,7 @@ This could now be queried like so:
 }
 ```
 
-> **NOTE: **If a setting is registered without a group defined it will appear under `generalSettings`.
+> \*\*NOTE: \*\*If a setting is registered without a group defined it will appear under `generalSettings`.
 
 ## Querying Settings
 
@@ -180,18 +180,18 @@ mutation {
 }
 ```
 
-**Unsuccessful Mutation**
+### Unsuccessful Mutation
 
 If the user executing the Mutation is not authenticated or does not have the capability to edit the setting, the setting will not be updated and an error will be returned:
 
-![Screenshot of an unsuccessful Mutation to update the Site's title](./settings-mutation-not-authorized.png)
+![Screenshot of an unsuccessful Mutation to update the Site's title](./images/settings-mutation-not-authorized.png)
 
-**Successful Mutation**
+### Successful Mutation
 
 If the user executing the Mutation is authenticated and has proper capabilities to update the setting, the setting will be updated in WordPress and the specified fields will be returned.
 
-![Screenshot of a GraphQL Mutation to update the site's title](./settings-mutation-authorized.png)
+![Screenshot of a GraphQL Mutation to update the site's title](./images/settings-mutation-authorized.png)
 
 After the mutation succeeds, we can confirm the change on the WordPress General Settings page:
 
-![Screenshot of the Site Title on the General Settings Page](./settings-wordpress-general-page-title.png)
+![Screenshot of the Site Title on the General Settings Page](./images/settings-wordpress-general-page-title.png)

@@ -317,6 +317,26 @@ class QueryAnalyzer {
 				// @todo: this might still be too fragile. We might need to adjust for cases where we can have list_of( nonNull( type ) ), etc
 				$is_list_type = $named_type && ( Type::listOf( $named_type )->name === $type->name );
 
+				// If the $named_type is an object type,
+				// Let's get the node type
+				if ( $named_type instanceof ObjectType ) {
+
+					// if the type is a list and the named type doesn't start
+					// with a double __, then it should be tracked
+					if ( $is_list_type && 0 !== strpos( $named_type, '__' ) ) {
+
+						// if the Type is not a Node, and has a "node" field,
+						// lets get the named type of the node, not the edge
+						if ( in_array( 'node', $named_type->getFieldNames(), true ) && ! in_array( 'Node', array_keys( $named_type->getInterfaces() ), true ) ) {
+							$named_type = $named_type->getField( 'node' )->getType();
+						}
+
+						$type_map[] = 'list:' . strtolower( $named_type );
+					}
+				}
+
+				// If the named type is an interfaceType, we need to get the
+				// possible types
 				if ( $named_type instanceof InterfaceType ) {
 					$possible_types = $schema->getPossibleTypes( $named_type );
 					foreach ( $possible_types as $possible_type ) {
@@ -324,11 +344,6 @@ class QueryAnalyzer {
 						if ( $is_list_type && 0 !== strpos( $possible_type, '__' ) ) {
 							$type_map[] = 'list:' . strtolower( $possible_type );
 						}
-					}
-				} elseif ( $named_type instanceof ObjectType ) {
-					// if the type is a list, store it
-					if ( $is_list_type && 0 !== strpos( $named_type, '__' ) ) {
-						$type_map[] = 'list:' . strtolower( $named_type );
 					}
 				}
 			},

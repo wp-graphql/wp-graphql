@@ -3,7 +3,7 @@ uri: "/docs/widgets/"
 title: "Widgets"
 ---
 
-WPGraphQL currently does not support queries or mutations for widgets. 
+WPGraphQL currently does not support queries or mutations for widgets.
 
 Widgets don't have a proper server registry so it's difficult to provide formal WPGraphQL support for querying and/or mutating Widgets.
 
