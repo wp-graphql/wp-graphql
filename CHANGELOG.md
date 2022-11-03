@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.1
+
+### New Features
+
+### Chores / Bugfixes
+
 ## 1.12.0
 
 ### Upgrading
