@@ -42,7 +42,7 @@ In one terminal window, start the WordPress app:
 composer run-app
 ```
 
-In your web browser, open the site, <http://localhost:8091>.  And the WP admin at <http://localhost:8091/wp-admin>. Username is 'admin'. Password is 'password'.
+In your web browser, open the site, [http://localhost:8091]().  And the WP admin at [http://localhost:8091/wp-admin](). Username is `admin`. Password is `password`.
 
 ### Using XDebug
 
@@ -59,7 +59,7 @@ You should see output in the terminal like the following examples that indicate 
 
 ```shell
 app_1      | Enabling XDebug 3
-app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9003 (through xdebug.client_host/xdebug.client_port) :-(
+app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9003 (through   xdebug.client_host/xdebug.client_port) :-(
 ```
 
 Start your IDE, like VSCode. Enable xdebug and set breakpoints. Load pages in your browsers and you should experience the IDE pausing the page load and showing the breakpoint.
@@ -79,7 +79,7 @@ Use the environment variable SUITES to specify individual test files for quicker
 
 #### Configure VSCode IDE Launch File
 
-Create or add the following configuration to your .vscode/launch.json in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
+Create or add the following configuration to your `.vscode/launch.json` in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
 If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
 
