@@ -267,6 +267,11 @@ class QueryAnalyzer {
 
 		if ( empty( $operation_name ) ) {
 
+			// If the query is not set on the params, return null
+			if ( ! isset( $this->request->params->query ) ) {
+				return null;
+			}
+
 			try {
 				$ast            = Parser::parse( $this->request->params->query );
 				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
