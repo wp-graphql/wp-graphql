@@ -263,12 +263,12 @@ class QueryAnalyzer {
 	 */
 	public function get_operation_name(): ?string {
 
-		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation: null;
+		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation : null;
 
 		if ( empty( $operation_name ) ) {
 
 			try {
-				$ast = Parser::parse( $this->request->params->query );
+				$ast            = Parser::parse( $this->request->params->query );
 				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
 			} catch ( SyntaxError $error ) {
 				return null;
