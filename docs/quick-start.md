@@ -15,13 +15,13 @@ There are a few methods to install plugins to WordPress.
 
 ### Install from your WordPress Dashboard
 
-1. Log in to your WordPress install
-1. From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the [Plugin](http://codex.wordpress.org/Administration_Panels#Plugins) Menu
-1. Under Plugins, click the “Add New” sub menu
-1. Search for “WPGraphQL”
-1. Click the “Install Now” button on the WPGraphQL plugin (should be the first one)
-1. After installation, you will find a new menu item “GraphQL” and in the top Admin Bar will be a "GraphiQL IDE" menu item.
-1. Choose your WordPress Permalink Setting. Under Settings, click Permalinks. WordPress defaults to Plain permalink structure which exposes GraphQL at /index.php?graphql. Select one of the other settings to expose GraphQL at the /graphql endpoint.
+- Log in to your WordPress install
+- From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the [Plugin](http://codex.wordpress.org/Administration_Panels#Plugins) Menu
+- Under Plugins, click the “Add New” sub menu
+- Search for “WPGraphQL”
+- Click the “Install Now” button on the WPGraphQL plugin (should be the first one)
+- After installation, you will find a new menu item “GraphQL” and in the top Admin Bar will be a "GraphiQL IDE" menu item.
+- Choose your WordPress Permalink Setting. Under Settings, click Permalinks. WordPress defaults to Plain permalink structure which exposes GraphQL at /index.php?graphql. Select one of the other settings to expose GraphQL at the /graphql endpoint.
 
 ### Other Install Methods
 
@@ -31,7 +31,7 @@ If you prefer not to install WPGraphQL from the WordPress.org repository, you ca
 
 Installing plugins with [Composer](https://getcomposer.org/), a PHP dependency manager, allows you to avoid committing plugin code into your project's version control.
 
-WPGraphQL is available for installing with Composer from [packagist.org](https://packagist.org/packages/wp-graphql/wp-graphql) and [wpackagist.org](https://wpackagist.org/search?q=wp-graphql&amp;type=any&amp;search=).
+WPGraphQL is available for installing with Composer from [packagist.org](https://packagist.org/packages/wp-graphql/wp-graphql) and [wpackagist.org](https://wpackagist.org/search?q=wp-graphql\&type=any\&search=).
 
 The most straight forward way to install WPGraphQL with composer would be to run the following command:
 
@@ -58,9 +58,9 @@ This install method is recommended for contributors that would like to submit pu
 1. In your command line, navigate to your WordPress plugin directory (`wp-content/plugins`)
 1. Run the following command `git clone git@github.com:wp-graphql/wp-graphql.git`
 1. This will install WPGraphQL to your plugins directory under `/wp-content/plugins/wp-graphql`
-1. Run the following command to install vendor dependencies: `composer install`. (You can also run `composer install --no-dev` to not install the dev dependencies needed for testing and linting).
-1. From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the [Plugin](http://codex.wordpress.org/Administration_Panels#Plugins) Menu
-1. WPGraphQL should now show up as a plugin. 
+1. Run the following command to install vendor dependencies: `composer install`. (You can also run `composer install --no-dev` to not 1 stall the dev dependencies needed for testing and linting).
+1. From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the \[Plugin]\(http://codex.wordpress.org administration\_Panels#Plugins) Menu
+1. WPGraphQL should now show up as a plugin.
 1. Click "Activate"
 
 ## Use GraphiQL and Write your first GraphQL Query
@@ -73,11 +73,11 @@ WPGraphQL includes a helpful tool called Graph*i*QL [IDE](https://www.redhat.com
 
 Open the Graph*i*QL IDE by clicking the "GraphiQL IDE" button in your WordPress Admin Bar.
 
-![Screenshot of the GraphiQL IDE button in the WordPress Admin Bar](./quick-graphiql-ide.png)
+![Screenshot of the GraphiQL IDE button in the WordPress Admin Bar](./images/quick-graphiql-ide.png)
 
 This will take you to the GraphiQL IDE page.
 
-![Screenshot of GraphiQL IDE in the WordPress Dashboard](./quick-graphiql-ide-wordpress.png)
+![Screenshot of GraphiQL IDE in the WordPress Dashboard](./images/quick-graphiql-ide-wordpress.png)
 
 ### Search the Schema
 
@@ -89,7 +89,7 @@ Let's search the Schema for something WordPress is known for: "Posts"
 
 In the "Search Schema" field, enter the word "posts". You should see results similar to the below screen recording.
 
-![Screen recording showing a search for "posts" in GraphiQL Docs Explorer](./quick-graphiql-search-posts.gif)
+![Screen recording showing a search for "posts" in GraphiQL Docs Explorer](./images/quick-graphiql-search-posts.gif)
 
 ### Write Your First WPGraphQL Query
 
@@ -112,7 +112,7 @@ Then click the "Play" button to execute the query.
 
 Your Query will be sent to your site's WPGraphQL API endpoint and will return results that match the data that you asked for.
 
-![Screen Recording of GraphiQL IDE executing a GraphQL Query for a list of posts](./quick-wp-graphql-first-query.gif)
+![Screen Recording of GraphiQL IDE executing a GraphQL Query for a list of posts](./images/quick-wp-graphql-first-query.gif)
 
 ## Next Steps
 

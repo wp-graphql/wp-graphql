@@ -257,6 +257,33 @@ class QueryAnalyzer {
 	}
 
 	/**
+	 * Returns the operation name of the query, if there is one
+	 *
+	 * @return string|null
+	 */
+	public function get_operation_name(): ?string {
+
+		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation : null;
+
+		if ( empty( $operation_name ) ) {
+
+			// If the query is not set on the params, return null
+			if ( ! isset( $this->request->params->query ) ) {
+				return null;
+			}
+
+			try {
+				$ast            = Parser::parse( $this->request->params->query );
+				$operation_name = ! empty( $ast->definitions[0]->name->value ) ? $ast->definitions[0]->name->value : null;
+			} catch ( SyntaxError $error ) {
+				return null;
+			}
+		}
+
+		return ! empty( $operation_name ) ? 'operation:' . $operation_name : null;
+	}
+
+	/**
 	 * @return string|null
 	 */
 	public function get_query_id(): ?string {
@@ -317,6 +344,26 @@ class QueryAnalyzer {
 				// @todo: this might still be too fragile. We might need to adjust for cases where we can have list_of( nonNull( type ) ), etc
 				$is_list_type = $named_type && ( Type::listOf( $named_type )->name === $type->name );
 
+				// If the $named_type is an object type,
+				// Let's get the node type
+				if ( $named_type instanceof ObjectType ) {
+
+					// if the type is a list and the named type doesn't start
+					// with a double __, then it should be tracked
+					if ( $is_list_type && 0 !== strpos( $named_type, '__' ) ) {
+
+						// if the Type is not a Node, and has a "node" field,
+						// lets get the named type of the node, not the edge
+						if ( in_array( 'node', $named_type->getFieldNames(), true ) && ! in_array( 'Node', array_keys( $named_type->getInterfaces() ), true ) ) {
+							$named_type = $named_type->getField( 'node' )->getType();
+						}
+
+						$type_map[] = 'list:' . strtolower( $named_type );
+					}
+				}
+
+				// If the named type is an interfaceType, we need to get the
+				// possible types
 				if ( $named_type instanceof InterfaceType ) {
 					$possible_types = $schema->getPossibleTypes( $named_type );
 					foreach ( $possible_types as $possible_type ) {
@@ -324,11 +371,6 @@ class QueryAnalyzer {
 						if ( $is_list_type && 0 !== strpos( $possible_type, '__' ) ) {
 							$type_map[] = 'list:' . strtolower( $possible_type );
 						}
-					}
-				} elseif ( $named_type instanceof ObjectType ) {
-					// if the type is a list, store it
-					if ( $is_list_type && 0 !== strpos( $named_type, '__' ) ) {
-						$type_map[] = 'list:' . strtolower( $named_type );
 					}
 				}
 			},
@@ -549,6 +591,10 @@ class QueryAnalyzer {
 
 		if ( ! empty( $this->get_root_operation() ) ) {
 			$keys[] = 'graphql:' . $this->get_root_operation();
+		}
+
+		if ( ! empty( $this->get_operation_name() ) ) {
+			$keys[] = $this->get_operation_name();
 		}
 
 		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {

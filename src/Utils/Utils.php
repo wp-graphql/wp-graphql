@@ -16,10 +16,17 @@ class Utils {
 	 */
 	public static function get_query_id( string $query ) {
 
+		/**
+		 * Filter the hash algorithm to allow different algorithms.
+		 *
+		 * @string $algorithm Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php
+		 */
+		$hash_algorithm = apply_filters( 'graphql_query_id_hash_algorithm', 'sha256' );
+
 		try {
 			$query_ast = \GraphQL\Language\Parser::parse( $query );
 			$query     = \GraphQL\Language\Printer::doPrint( $query_ast );
-			return md5( $query );
+			return hash( $hash_algorithm, $query );
 		} catch ( \Exception $exception ) {
 			return null;
 		}

@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.12.1
+
+### New Features
+
+- ([#2593](https://github.com/wp-graphql/wp-graphql/pull/2593)): feat: use sha256 instead of md5 for hashing queryId
+- ([#2581](https://github.com/wp-graphql/wp-graphql/pull/2581)): feat: support deprecation reason when using `register_graphql_connection`.
+- ([#2603](https://github.com/wp-graphql/wp-graphql/pull/2603)): feat: add GraphQL operation name to x-graphql-keys headers.
+
+### Chores / Bugfixes
+
+- ([#2472](https://github.com/wp-graphql/wp-graphql/pull/2472)): fix: Return CommentAuthor avatar urls in public requests. Thanks @justlevine!
+- ([#2549](https://github.com/wp-graphql/wp-graphql/pull/2549)): chore: fix bug_report.yml description input. Thanks @justlevine!
+- ([#2582](https://github.com/wp-graphql/wp-graphql/pull/2582)): fix(noderesolver): adding extra_query_vars in graphql_pre_resolve_uri. Thanks @yanmorinokamca!
+- ([#2583](https://github.com/wp-graphql/wp-graphql/pull/2583)): chore: prepare docs for new website. Thanks @moonmeister!
+- ([#2590](https://github.com/wp-graphql/wp-graphql/pull/2590)): fix: Add list of node types as X-GraphQL-Keys instead of list of edge types
+- ([#2599](https://github.com/wp-graphql/wp-graphql/pull/2599)): fix: only use Appsero `add_plugin_data` if the method exists in the version of the Appsero client that's loaded.
+- ([#2600](https://github.com/wp-graphql/wp-graphql/pull/2600)): docs: fix contributing doc render errors. Thanks @moonmeister!
+
+
 ## 1.12.0
 
 ### Upgrading

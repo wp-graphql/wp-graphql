@@ -85,8 +85,9 @@ class NodeResolver {
 		 * @param string $uri The uri being searched.
 		 * @param AppContext $content The app context.
 		 * @param WP $wp WP object.
+		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider.
 		 */
-		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp );
+		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
 
 		if ( ! empty( $node ) ) {
 			return $node;
