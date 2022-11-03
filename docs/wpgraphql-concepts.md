@@ -13,7 +13,7 @@ While GraphQL itself prescribes almost nothing in terms of how a GraphQL Schema 
 
 The Relay Specification came about as Facebook engineers used GraphQL in production. The specification provides guidance for concepts such as Object Identification and Global ID, Connections and Mutations.
 
-### Node &amp; Global ID
+### Node & Global ID
 
 Every object in WordPress is treated as an individual "[node](https://relay.dev/docs/guides/graphql-server-specification/#object-identification)" in GraphQL. Posts are nodes. Pages are nodes. Categories, tags, users, comments, menu items, etc are all considered "nodes".
 
@@ -116,7 +116,7 @@ Let's take the following request, for example:
 }
 ```
 
-The WPGraphQL User Model will determine whether each user that was returned from the underlying WP_User_Query is allowed to be viewed by the user making the request. If the request is public, all users that are not published authors would be removed from the results, while published authors would still be included.
+The WPGraphQL User Model will determine whether each user that was returned from the underlying WP\_User\_Query is allowed to be viewed by the user making the request. If the request is public, all users that are not published authors would be removed from the results, while published authors would still be included.
 
 Then, the `email` field would return a null, even for the published authors, because that field is limited to logged in users.
 

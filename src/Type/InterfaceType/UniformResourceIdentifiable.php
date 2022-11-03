@@ -22,6 +22,7 @@ class UniformResourceIdentifiable {
 		register_graphql_interface_type(
 			'UniformResourceIdentifiable',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
 				'fields'      => [
 					'uri'           => [

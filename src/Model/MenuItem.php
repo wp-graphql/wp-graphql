@@ -158,6 +158,7 @@ class MenuItem extends Model {
 					$url = $this->url;
 
 					if ( ! empty( $url ) ) {
+						/** @var array $parsed */
 						$parsed = wp_parse_url( $url );
 						if ( isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
 							return $parsed['path'];
