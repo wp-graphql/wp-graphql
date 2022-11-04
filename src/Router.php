@@ -227,6 +227,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
+		_deprecated_function( __METHOD__, '0.4.1', __CLASS__ . 'is_graphql_http_request()' );
 		return self::is_graphql_http_request();
 	}
 

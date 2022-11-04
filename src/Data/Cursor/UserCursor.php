@@ -77,7 +77,7 @@ class UserCursor extends AbstractCursor {
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_user() {
-		_deprecated_function( __FUNCTION__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		return $this->cursor_node;
 	}

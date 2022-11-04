@@ -203,6 +203,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated in favor of clear_all
 	 */
 	public function clearAll() {
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::clear_all()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $this->clear_all();
 	}
 
@@ -232,6 +233,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated Use load_many instead
 	 */
 	public function loadMany( array $keys, $asArray = false ) {
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::load_many()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $this->load_many( $keys, $asArray );
 	}
 
@@ -360,6 +362,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated Use key_to_scalar instead
 	 */
 	protected function keyToScalar( $key ) {
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::key_to_scalar()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return $this->key_to_scalar( $key );
 	}
 
