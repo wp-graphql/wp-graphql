@@ -16,7 +16,7 @@ jobs:
     name: PHPCS
     strategy:
       matrix:
-        php: [ 8.0 ]
+        php: [ 8.1 ]
 
     steps:
       - name: Cancel previous runs of this workflow (pull requests only)
