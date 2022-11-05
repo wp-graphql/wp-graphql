@@ -904,12 +904,13 @@ class TypeRegistry {
 		}
 
 		/**
-		 * If the field has arguments, they need to be prepared as well.
+		 * If the field has arguments, each one must be prepared.
 		 */
-		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
+		if ( isset( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
 				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name );
-				// Bail if the field prepared field is invalid.
+
+				// Remove the arg if the field could not be prepared.
 				if ( empty( $arg ) ) {
 					unset( $field_config['args'][ $arg_name ] );
 					continue;
@@ -917,17 +918,16 @@ class TypeRegistry {
 
 				$field_config['args'][ $arg_name ] = $arg;
 			}
+		}
 
-			// Ensure the array still isn't empty.
-			if ( empty( $field_config['args'] ) ) {
-				unset( $field_config['args'] );
-			}
-		} else {
+		/**
+		 * If the field has no (remaining) valid arguments, unset the key.
+		 */
+		if ( empty( $field_config['args'] ) ) {
 			unset( $field_config['args'] );
 		}
 
 		return $field_config;
-
 	}
 
 	/**
