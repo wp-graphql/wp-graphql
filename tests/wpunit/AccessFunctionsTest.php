@@ -878,7 +878,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testDeregisterEnumType() {
 		// Test case-sensitivity.
-		deregister_graphql_type( 'Contentypeenum' );
+		deregister_graphql_type( 'ContentTypeenum' );
 
 		// Ensure the schema is still queryable.
 		$query = '
@@ -891,7 +891,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql( compact( 'query') );
+		$actual = $this->graphql( compact( 'query') );
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
