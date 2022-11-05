@@ -604,7 +604,6 @@ class TypeRegistry {
 		if ( in_array( strtolower( $type_name ), $this->get_excluded_types(), true ) ) {
 			return;
 		}
-		
 		/**
 		 * If the Type Name starts with a number, skip it.
 		 */
