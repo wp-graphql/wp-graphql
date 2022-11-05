@@ -1199,6 +1199,8 @@ class TypeRegistry {
 	/**
 	 * Get the list of GraphQL type names to exclude from the schema.
 	 *
+	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
+	 *
 	 * @since @todo
 	 */
 	public function get_excluded_types() : array {
@@ -1214,7 +1216,7 @@ class TypeRegistry {
 		 */
 		$excluded_types = apply_filters( 'graphql_excluded_types', [] );
 
-		// Normalize the types to be lowercase, to avoid case-sensitive when comparing.
+		// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
 		return ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
 	}
 
