@@ -83,7 +83,7 @@ class Users {
 			'oneToOne'           => true,
 			'resolve'            => function ( Post $source, $args, $context, $info ) {
 
-				if ( empty( $post->editLastId ) ) {
+				if ( empty( $source->editLastId ) ) {
 					return null;
 				}
 
