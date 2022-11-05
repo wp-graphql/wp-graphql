@@ -362,7 +362,7 @@ class WPConnectionType {
 	protected function register_connection_type() {
 
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
-		$interfaces[] = [ 'Connection' ];
+		$interfaces[] = 'Connection';
 
 		$this->type_registry->register_object_type(
 			$this->connection_name,
