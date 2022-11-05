@@ -143,7 +143,7 @@ class WPConnectionType {
 		 * Bail if one of the connection types has been excluded from the schema.
 		 */
 		$excluded_types = $type_registry->get_excluded_types();
-		if ( in_array( ucfirst( $config['fromType'] ), $excluded_types, true ) || in_array( ucfirst( $config['toType'] ), $excluded_types, true ) ) {
+		if ( in_array( strtolower( $config['fromType'] ), $excluded_types, true ) || in_array( strtolower( $config['toType'] ), $excluded_types, true ) ) {
 			return;
 		}
 

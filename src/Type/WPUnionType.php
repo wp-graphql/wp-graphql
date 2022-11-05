@@ -47,7 +47,7 @@ class WPUnionType extends UnionType {
 					/**
 					 * Skip if the type is excluded from the schema.
 					 */
-					if ( in_array( ucfirst( $type_name ), $this->type_registry->get_excluded_types(), true ) ) {
+					if ( in_array( strtolower( $type_name ), $this->type_registry->get_excluded_types(), true ) ) {
 						continue;
 					}
 

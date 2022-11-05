@@ -413,8 +413,8 @@ function deregister_graphql_type( string $type_name ) : void {
 	add_filter(
 		'graphql_excluded_types',
 		function ( $excluded_types ) use ( $type_name ) : array {
-			// Transform the type name, just in case a user provided graphql_single_name instead.
-			$type_name = ucfirst( $type_name );
+			// Normalize the types to prevent case sensitivity issues.
+			$type_name = strtolower( $type_name );
 			// If the type isn't already excluded, add it to the array.
 			if ( ! in_array( $type_name, $excluded_types, true ) ) {
 				$excluded_types[] = $type_name;
@@ -429,7 +429,13 @@ function deregister_graphql_type( string $type_name ) : void {
 	add_filter(
 		'graphql_type_interfaces',
 		function ( $interfaces ) use ( $type_name ) : array {
-			$key = array_search( $type_name, $interfaces, true );
+			// Normalize the needle and haystack to prevent case sensitivity issues.
+			$key = array_search(
+				strtolower( $type_name ),
+				array_map( 'strtolower', $interfaces ),
+				true
+			);
+			// If the type is found, unset it.
 			if ( false !== $key ) {
 				unset( $interfaces[ $key ] );
 			}

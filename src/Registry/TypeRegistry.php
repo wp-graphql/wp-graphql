@@ -599,9 +599,9 @@ class TypeRegistry {
 	 */
 	public function register_type( string $type_name, $config ) {
 		/**
-		 * If the type should be excpluded from the schema, skip it.
+		 * If the type should be excluded from the schema, skip it.
 		 */
-		if ( in_array( ucfirst( $type_name ), $this->get_excluded_types(), true ) ) {
+		if ( in_array( strtolower( $type_name ), $this->get_excluded_types(), true ) ) {
 			return;
 		}
 		
@@ -877,7 +877,7 @@ class TypeRegistry {
 		 */
 		if ( is_string( $field_config['type'] ) ) {
 			// Bail if the type is excluded from the Schema.
-			if ( in_array( ucfirst( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
+			if ( in_array( strtolower( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
 				return null;
 			}
 
@@ -894,7 +894,7 @@ class TypeRegistry {
 			// Bail if the type is excluded from the Schema.
 			$unmodified_type_name = $this->get_unmodified_type_name( $field_config['type'] );
 
-			if ( empty( $unmodified_type_name ) || in_array( ucfirst( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
+			if ( empty( $unmodified_type_name ) || in_array( strtolower( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
 				return null;
 			}
 
@@ -917,6 +917,7 @@ class TypeRegistry {
 
 				$field_config['args'][ $arg_name ] = $arg;
 			}
+
 			// Ensure the array still isn't empty.
 			if ( empty( $field_config['args'] ) ) {
 				unset( $field_config['args'] );
@@ -1208,11 +1209,14 @@ class TypeRegistry {
 		 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
 		 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
 		 *
-		 * @param array $excluded_types The names of the GraphQL Types to exclude.
+		 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
 		 *
 		 * @since @todo
 		 */
-		return apply_filters( 'graphql_excluded_types', [] );
+		$excluded_types = apply_filters( 'graphql_excluded_types', [] );
+
+		// Normalize the types to be lowercase, to avoid case-sensitive when comparing.
+		return ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
 	}
 
 	/**
