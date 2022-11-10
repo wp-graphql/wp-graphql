@@ -4,7 +4,7 @@ services:
   app:
     depends_on:
       - app_db
-    image: wp-graphql:latest-wp${WP_VERSION-5.9}-php${PHP_VERSION-8.0}
+    image: wp-graphql:latest-wp${WP_VERSION-6.1}-php${PHP_VERSION-8.1}
     volumes:
       - '.:/var/www/html/wp-content/plugins/wp-graphql'
       - './.log/app:/var/log/apache2'
@@ -34,7 +34,7 @@ services:
   testing:
     depends_on:
       - app_db
-    image: wp-graphql-testing:latest-wp${WP_VERSION-5.9}-php${PHP_VERSION-8.0}
+    image: wp-graphql-testing:latest-wp${WP_VERSION-6.1}-php${PHP_VERSION-8.1}
     volumes:
       - '.:/var/www/html/wp-content/plugins/wp-graphql'
       - './.log/testing:/var/log/apache2'

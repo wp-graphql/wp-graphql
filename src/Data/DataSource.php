@@ -67,6 +67,8 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_comment( $id, $context ) {
+		_deprecated_function( __METHOD__, '0.8.4', 'Use $context->get_loader( \'comment\' )->load_deferred( $id ) instead.' );
+
 		return $context->get_loader( 'comment' )->load_deferred( $id );
 	}
 
@@ -135,6 +137,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_post_object( int $id, AppContext $context ) {
+		_deprecated_function( __METHOD__, '0.8.4', 'Use $context->get_loader( \'post\' )->load_deferred( $id ) instead.' );
 		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
@@ -148,6 +151,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_menu_item( int $id, AppContext $context ) {
+		_deprecated_function( __METHOD__, '0.8.4', 'Use $context->get_loader( \'post\' )->load_deferred( $id ) instead.' );
 		return $context->get_loader( 'post' )->load_deferred( $id );
 	}
 
@@ -215,6 +219,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_term_object( $id, AppContext $context ) {
+		_deprecated_function( __METHOD__, '0.8.4', 'Use $context->get_loader( \'term\' )->load_deferred( $id ) instead.' );
 		return $context->get_loader( 'term' )->load_deferred( $id );
 	}
 
@@ -286,6 +291,7 @@ class DataSource {
 	 * @deprecated Use the Loader passed in $context instead
 	 */
 	public static function resolve_user( $id, AppContext $context ) {
+		_deprecated_function( __METHOD__, '0.8.4', 'Use $context->get_loader( \'user\' )->load_deferred( $id ) instead.' );
 		return $context->get_loader( 'user' )->load_deferred( $id );
 	}
 
