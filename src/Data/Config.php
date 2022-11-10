@@ -204,13 +204,13 @@ class Config {
 
 		// apply the after cursor to the query
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-			$after_cursor = new PostObjectCursor( $query, 'after' );
+			$after_cursor = new PostObjectCursor( $query->query_vars, 'after' );
 			$where       .= $after_cursor->get_where();
 		}
 
 		// apply the before cursor to the query
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-			$before_cursor = new PostObjectCursor( $query, 'before' );
+			$before_cursor = new PostObjectCursor( $query->query_vars, 'before' );
 			$where        .= $before_cursor->get_where();
 		}
 
@@ -256,13 +256,13 @@ class Config {
 
 		// apply the after cursor to the query
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
-			$after_cursor = new UserCursor( $query, 'after' );
+			$after_cursor = new UserCursor( $query->query_vars, 'after' );
 			$where        = $where . $after_cursor->get_where();
 		}
 
 		// apply the before cursor to the query
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
-			$before_cursor = new UserCursor( $query, 'before' );
+			$before_cursor = new UserCursor( $query->query_vars, 'before' );
 			$where         = $where . $before_cursor->get_where();
 		}
 

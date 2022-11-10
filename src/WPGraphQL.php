@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.12.1' );
+			define( 'WPGRAPHQL_VERSION', '1.12.2' );
 		}
 
 		// Plugin Folder Path.
@@ -403,7 +403,7 @@ final class WPGraphQL {
 				 * @param array                              $config     The config for the Object Type
 				 * @param mixed|WPInterfaceType|WPObjectType $type       The Type instance
 				 */
-				return apply_filters( 'graphql_object_type_interfaces', $interfaces, $config, $type );
+				return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 			}
 
 			return $interfaces;
@@ -596,8 +596,7 @@ final class WPGraphQL {
 	public static function get_allowed_post_types( $output = 'names', $args = [] ) {
 		// Support deprecated param order.
 		if ( is_array( $output ) ) {
-			// @todo enable once core usage has been refactored.
-			// _doing_it_wrong( __FUNCTION__, '$args should be passed as the second parameter.', '@todo' );
+			_deprecated_argument( __METHOD__, '1.8.1', '$args should be passed as the second parameter.' );
 			$args   = $output;
 			$output = 'names';
 		}

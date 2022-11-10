@@ -63,11 +63,11 @@ class Users {
 			'resolve'            => function ( Post $source, $args, $context, $info ) {
 
 				if ( ! isset( $source->editLock[1] ) || ! absint( $source->editLock[1] ) ) {
-					return $source->editLock;
+					return null;
 				}
 
 				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
-				$resolver->one_to_one()->set_query_arg( 'include', [ $source->editLock[1] ] );
+				$resolver->one_to_one()->set_query_arg( 'include', [ absint( $source->editLock[1] ) ] );
 
 				return $resolver->get_connection();
 
@@ -83,8 +83,12 @@ class Users {
 			'oneToOne'           => true,
 			'resolve'            => function ( Post $source, $args, $context, $info ) {
 
+				if ( empty( $source->editLastId ) ) {
+					return null;
+				}
+
 				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
-				$resolver->set_query_arg( 'include', [ $source->editLastId ] );
+				$resolver->set_query_arg( 'include', [ absint( $source->editLastId ) ] );
 				return $resolver->one_to_one()->get_connection();
 
 			},
@@ -97,8 +101,12 @@ class Users {
 			'oneToOne'      => true,
 			'resolve'       => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
+				if ( empty( $post->authorDatabaseId ) ) {
+					return null;
+				}
+
 				$resolver = new UserConnectionResolver( $post, $args, $context, $info );
-				$resolver->set_query_arg( 'include', [ $post->authorDatabaseId ] );
+				$resolver->set_query_arg( 'include', [ absint( $post->authorDatabaseId ) ] );
 				return $resolver->one_to_one()->get_connection();
 			},
 		] );
