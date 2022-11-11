@@ -26,7 +26,7 @@ class User {
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
 				'model'       => UserModel::class,
-				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
+				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier', 'CommentWriter' ],
 				'connections' => [
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
