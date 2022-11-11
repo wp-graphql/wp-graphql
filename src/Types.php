@@ -23,6 +23,7 @@ class Types {
 	 * @return array
 	 */
 	public static function map_input( $args, $map ) {
+		_deprecated_function( __METHOD__, '0.6.0', 'WPGraphQL\Utils\Utils::map_input()' );
 		return Utils::map_input( $args, $map );
 	}
 
@@ -33,6 +34,7 @@ class Types {
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 */
 	public static function prepare_date_response( $date_gmt, $date = null ) {
+		_deprecated_function( __METHOD__, '0.6.0', 'WPGraphQL\Utils\Utils::prepare_date_response()' );
 		return Utils::prepare_date_response( $date_gmt, $date );
 	}
 

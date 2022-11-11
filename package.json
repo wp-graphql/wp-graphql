@@ -1,6 +1,6 @@
 {
   "name": "wp-graphql",
-  "version": "1.8.6",
+  "version": "1.12.0",
   "description": "GraphQL API for WordPress",
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "author": "WPGraphQL <info@wpgraphql.com> (https://www.wpgraphql.com)",
@@ -14,6 +14,7 @@
   "scripts": {
     "build": "wp-scripts build",
     "pretty": "prettier --write ./packages",
+    "format:docs": "remark docs/ --quiet --output",
     "start": "wp-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
@@ -53,7 +54,7 @@
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.2.3",
     "@wordpress/e2e-test-utils": "7.9.0",
-    "@wordpress/env": "4.9.0",
+    "@wordpress/env": "5.4.0",
     "@wordpress/jest-console": "5.4.0",
     "@wordpress/jest-puppeteer-axe": "4.0.2",
     "@wordpress/scripts": "23.5.0",
@@ -72,7 +73,12 @@
     "jsdom": "20.0.0",
     "lint-staged": "13.0.3",
     "postcss-loader": "7.0.1",
-    "puppeteer-testing-library": "0.6.0"
+    "puppeteer-testing-library": "0.6.0",
+    "remark-cli": "^11.0.0",
+    "remark-frontmatter": "^4.0.1",
+    "remark-preset-lint-consistent": "^5.1.1",
+    "remark-preset-lint-markdown-style-guide": "^5.1.2",
+    "remark-preset-lint-recommended": "^6.1.2"
   },
   "lint-staged": {
     "*.php": "composer run check-cs"

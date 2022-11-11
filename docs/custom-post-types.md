@@ -7,13 +7,26 @@ title: "Custom Post Types"
 
 In order to use Custom Post Types with WPGraphQL, you must configure the Post Type to `show_in_graphql` using the following fields:
 
-- **show_in_graphql** (boolean): true or false
-- **graphql_single_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the plural name.
-- **graphql_plural_name** (string): camel case string with no punctuation or spaces. Needs to start with a letter (not a number). Important to be different than the single name.
+- **show\_in\_graphql** | *boolean* | (required): true or false. If true, show the post type in the GraphQL Schema.
+- **graphql\_single\_name** | *string* | (required): camel case string with no punctuation or spaces. Needs to start with a letter (not a number).
+- **graphql\_plural\_name** | *string* | (optional): camel case string with no punctuation or spaces. Needs to start with a letter (not a number).
+- **graphql\_kind** | *string* | (optional): Allows the type representing the post type to be added to the graph as an object type, interface type or union type. Possible values are 'object', 'interface' or 'union'. Default is 'object'.
+- **graphql\_resolve\_type** | *callable* | (optional): The callback used to resolve the type. Only used if "graphql\_kind" is set to "union" or "interface".
+- **graphql\_interfaces** | *array\<string\>* | (optional): List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node".
+- **graphql\_exclude\_interfaces** | *array\<string\>* | (optional): List of Interface names the type *should not* implement. This is applied after default and custom interfaces are added, so this can remove default interfaces. Note: Interfaces applied by other interfaces will not be excluded unless that interface is also excluded. For example a post type that supports "thumbnail" will have NodeWithFeaturedImage interface applied, which also applies the Node interface. Excluding "Node" interface will not work unless "NodeWithFeaturedImage" was also excluded.
+- **graphql\_exclude\_mutations** | *array\<string\>* | (optional): Array of mutations to prevent from being registered. Possible values are "create", "update", "delete".
+- **graphql\_fields** | *array\<$config\>* | (optional): Array of fields to add to the Type. Applied if "graphql\_kind" is "interface" or "object".
+- **graphql\_exclude\_fields** | *array\<string\>* | (optional): Array of fields names to exclude from the type. Applies if "graphql\_kind" is "interface" or "object". Note: any fields added by an interface will not be excluded with this option.
+- **graphql\_connections** | *array\<$config\>* | (optional): Array of connection configs to register to the type. Only applies if the "graphql\_kind" is "object" or "interface".
+- **graphql\_exclude\_connections** | *array\<string\>* | (optional): Array of connection names to exclude from the type. Only connections defined on the type will be excluded. Connections inherited from interfaces implemented on this type will remain even if "excluded" in this list.
+- **graphql\_union\_types** | *array\<string\>* | (optional): Array of possible types the union can resolve to. Only used if "graphql\_kind" is set to "union".
+- **graphql\_register\_root\_field** | *boolean* | (optional): Whether to register a field to the RootQuery to query a single node of this type. Default true.
+- **graphql\_register\_root\_connection** | *boolean* | (optional): Whether to register a connection to the RootQuery to query multiple nodes of this type. Default true.
+- **graphql\_exclude\_mutations** | *array\<string\>* | (optional): Array of mutations to prevent from being registered. Possible values are "create", "update", "delete".
 
 ## Registering a new Custom Post Type
 
-This is an example of registering a new "docs" post_type and enabling GraphQL Support.
+This is an example of registering a new "docs" post\_type and enabling GraphQL Support.
 
 ```php
 add_action( 'init', function() {
@@ -26,7 +39,7 @@ add_action( 'init', function() {
       'hierarchical' => true, # set to false if you don't want parent/child relationships for the entries
       'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
       'graphql_single_name' => 'document', 
-      'graphql_plural_name' => 'documents', # If not set, will default to `all${graphql_single_name}`, i.e. `allDocument`.
+      'graphql_plural_name' => 'documents', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
       'public' => true, # set to false if entries of the post_type should not have public URIs per entry
       'publicly_queryable' => true, # Set to false if entries should only be queryable in WPGraphQL by authenticated requests
    ] );
@@ -35,7 +48,8 @@ add_action( 'init', function() {
 
 ## Filtering an Existing Post Type
 
-If you want to expose a Post Type that you don’t control the registration for, such as a post type registered in a third-party plugin, you can filter the Post Type registration like so:
+If you want to expose a Post Type that you don’t control the registration for, such as a post type registered in a third-party plugin, you can filter the Post Type registration like so, applying any of the arguments
+listed above:
 
 ```php
 add_filter( 'register_post_type_args', function( $args, $post_type ) {
@@ -92,7 +106,7 @@ And if your `graphql_single_name` were `Doc`, you would be able to query a singl
 
 All post types have the `ContentNode` Interface applied to their GraphQL Type.
 
-WPGraphQL exposes fields that a post type has registered support for using the [post_type_supports](https://developer.wordpress.org/reference/functions/post_type_supports/), and leaves out fields that a post type does not support.
+WPGraphQL exposes fields that a post type has registered support for using the [post\_type\_supports](https://developer.wordpress.org/reference/functions/post_type_supports/), and leaves out fields that a post type does not support.
 
 Supported fields are applied to the GraphQL Type using [Interfaces](/docs/interfaces/).
 

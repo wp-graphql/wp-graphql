@@ -13,7 +13,7 @@ GraphiQL is a React component that acts as an IDE for interacting with GraphQL A
 
 WPGraphQL ships with GraphiQL allowing you to search your GraphQL Schema and test GraphQL Queries and Mutations from your WordPress Admin.
 
-![Screenshot of GraphiQL in the WordPress Admin](./interacting-wordpress-admin-graphiql.png)
+![Screenshot of GraphiQL in the WordPress Admin](./images/interacting-wordpress-admin-graphiql.png)
 
 **Below is a non-comprehensive list of helpful tools to interact with your WPGraphQL API:**
 
@@ -32,16 +32,18 @@ Feel free to use any of the tools mentioned, explore and discover others that ar
 
 WPGraphQL adds an endpoint to your WordPress site which can be queried by sending an HTTP Post request specifying at minimum a `query` as part of the request. The endpoint is either `/graphql` or `/index.php?graphql` depending on your [WordPress permalink settings](/docs/quick-start/#install).
 
-**Components of a Request**
+### Components of a Request
 
 When making an HTTP request to a WPGraphQL server, a few things need to be included in the request:
 
-- **Content-Type header:** The Content-Type should be set to `application/json` in the Headers of the request.
-- **Method:** The method of the request should be set to `POST`
-- **Body:** The body of the request should contain the following:
-  - **query (required):** The string for the query (or mutation) to execute
-  - **variables (optional):** JSON object of variables for use in the query
-  - **operationName (optional):** The name of the operation to use for the response if multiple operations were sent in the query string
+-   **Content-Type header:** The Content-Type should be set to `application/json` in the Headers of the request.
+
+-   **Method:** The method of the request should be set to `POST`
+
+-   **Body:** The body of the request should contain the following:
+    - **query (required):** The string for the query (or mutation) to execute
+    - **variables (optional):** JSON object of variables for use in the query
+    - **operationName (optional):** The name of the operation to use for the response if multiple operations were sent in the query string
 
 ### Fetch
 
@@ -69,15 +71,15 @@ fetch('https://content.wpgraphql.com/graphql', {
   .then(res => console.log(res.data))
 ```
 
-![Screenshot showing the request being made](./interacting-fetch-graphql-from-browser-console-1024x619.gif)
+![Screenshot showing the request being made](./images/interacting-fetch-graphql-from-browser-console-1024x619.gif)
 
 #### Fetch with .htaccess Auth
 
-Many WordPress hosts allow users to password protect their WordPress install using a username and password that covers the entire site, and in order to access the site, including the GraphQL endpoint, the application needs to send the username and password. 
+Many WordPress hosts allow users to password protect their WordPress install using a username and password that covers the entire site, and in order to access the site, including the GraphQL endpoint, the application needs to send the username and password.
 
-We can use the same code as in the above `fetch` example, but add an `Authorization` header with a base64 encoded username/password. 
+We can use the same code as in the above `fetch` example, but add an `Authorization` header with a base64 encoded username/password.
 
-```
+```js
 fetch('https://content.wpgraphql.com/graphql', {
   method: 'POST',
   headers: {

@@ -41,7 +41,7 @@ Below is an example query for a list of Menus and the Menu Items associated with
 }
 ```
 
-![Screenshot of a query for Menus and their Menu Items](./menus-query-items.png)
+![Screenshot of a query for Menus and their Menu Items](./images/menus-query-items.png)
 
 ### Menu by ID
 
@@ -73,7 +73,7 @@ query {
 }
 ```
 
-![Screenshot of a GraphQL Query for a Menu by Global ID](./menus-query-by-global-id.png)
+![Screenshot of a GraphQL Query for a Menu by Global ID](./images/menus-query-by-global-id.png)
 
 ### Menu by Name
 
@@ -105,7 +105,7 @@ query GET_MENU_BY_NAME {
 }
 ```
 
-![Screenshot of a GraphQL Query for a Menu identified by its Name](./menus-query-by-name.png)
+![Screenshot of a GraphQL Query for a Menu identified by its Name](./images/menus-query-by-name.png)
 
 ### List of Menu Items
 
@@ -126,7 +126,7 @@ query MENU_ITEMS {
 }
 ```
 
-![Screenshot of a GraphQL Query for Menu Items, filtered by Menu Location](./menus-query-filter-location.png)
+![Screenshot of a GraphQL Query for Menu Items, filtered by Menu Location](./images/menus-query-filter-location.png)
 
 ### Hierarchical Data
 

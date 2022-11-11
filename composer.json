@@ -25,11 +25,11 @@
 		"php": "^7.1 || ^8.0",
 		"webonyx/graphql-php": "14.9.0",
 		"ivome/graphql-relay-php": "0.6.0",
-		"appsero/client": "^1.2"
+		"appsero/client": "1.2.1"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^2.2",
-		"lucatume/wp-browser": "3.1.0",
+		"lucatume/wp-browser": "^3.1.6",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-phpbrowser": "^1.0",
 		"codeception/module-webdriver": "^1.0",

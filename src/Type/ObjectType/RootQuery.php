@@ -649,7 +649,7 @@ class RootQuery {
 	 */
 	public static function register_post_object_fields() {
 		/** @var \WP_Post_Type[] */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_register_root_field' => true ] );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
 			register_graphql_field(
@@ -854,7 +854,7 @@ class RootQuery {
 	 */
 	public static function register_term_object_fields() {
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects', [ 'graphql_register_root_field' => true ] );
 
 		foreach ( $allowed_taxonomies as $tax_object ) {
 

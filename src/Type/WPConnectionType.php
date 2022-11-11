@@ -285,8 +285,9 @@ class WPConnectionType {
 				'fields'      => array_merge(
 					[
 						'node' => [
-							'type'        => $this->to_type,
-							'description' => __( 'The node of the connection, without the edges', 'wp-graphql' ),
+							'type'              => $this->to_type,
+							'description'       => __( 'The node of the connection, without the edges', 'wp-graphql' ),
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 					],
 					$this->edge_fields
@@ -315,13 +316,15 @@ class WPConnectionType {
 				'fields'      => array_merge(
 					[
 						'cursor' => [
-							'type'        => 'String',
-							'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
-							'resolve'     => $this->resolve_cursor,
+							'type'              => 'String',
+							'description'       => __( 'A cursor for use in pagination', 'wp-graphql' ),
+							'resolve'           => $this->resolve_cursor,
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 						'node'   => [
-							'type'        => $this->to_type,
-							'description' => __( 'The item at the end of the edge', 'wp-graphql' ),
+							'type'              => $this->to_type,
+							'description'       => __( 'The item at the end of the edge', 'wp-graphql' ),
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 					],
 					$this->edge_fields
@@ -433,11 +436,12 @@ class WPConnectionType {
 			$this->from_type,
 			$this->from_field_name,
 			[
-				'type'        => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
-				'args'        => array_merge( $this->get_pagination_args(), $this->where_args ),
-				'auth'        => $this->auth,
-				'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
-				'resolve'     => function ( $root, $args, $context, $info ) {
+				'type'              => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
+				'args'              => array_merge( $this->get_pagination_args(), $this->where_args ),
+				'auth'              => $this->auth,
+				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
+				'description'       => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'resolve'           => function ( $root, $args, $context, $info ) {
 					$context->connection_query_class = $this->query_class;
 					$resolve_connection              = $this->resolve_connection;
 
