@@ -16,6 +16,7 @@ class NodeWithPageAttributes {
 		register_graphql_interface_type(
 			'NodeWithPageAttributes',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have page attributes', 'wp-graphql' ),
 				'fields'      => [
 					'menuOrder' => [

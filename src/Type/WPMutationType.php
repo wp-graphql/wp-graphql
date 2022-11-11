@@ -88,11 +88,13 @@ class WPMutationType {
 		 */
 		$config = apply_filters( 'graphql_wp_mutation_type_config', $config, $this );
 
-		$this->validate_config( $config );
+		if ( ! $this->is_config_valid( $config ) ) {
+			return;
+		}
 
 		$this->config           = $config;
 		$this->type_registry    = $type_registry;
-		$this->mutation_name    = $config['name'];
+		$this->mutation_name    = $config['name'] ?? null;
 		$this->auth             = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
 		$this->is_private       = array_key_exists( 'isPrivate', $config ) ? $config['isPrivate'] : false;
 		$this->input_fields     = $this->get_input_fields();
@@ -117,17 +119,27 @@ class WPMutationType {
 	 *
 	 * @param array $config
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	protected function validate_config( array $config ) {
+	protected function is_config_valid( array $config ): bool {
+
+		$is_valid = true;
 
 		if ( ! array_key_exists( 'name', $config ) || ! is_string( $config['name'] ) ) {
-			throw new InvalidArgument( __( 'Mutation config needs to have a valid name.', 'wp-graphql' ) );
+			graphql_debug( __( 'Mutation config needs to have a valid name.', 'wp-graphql' ), [
+				'config' => $config
+			] );
+			$is_valid = false;
 		}
 
 		if ( ! array_key_exists( 'mutateAndGetPayload', $config ) || ! is_callable( $config['mutateAndGetPayload'] ) ) {
-			throw new InvalidArgument( __( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ) );
+			graphql_debug( __( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ), [
+				'config' => $config,
+			] );
+			$is_valid = false;
 		}
+
+		return (bool) $is_valid;
 
 	}
 
@@ -170,6 +182,8 @@ class WPMutationType {
 	protected function get_resolver() : callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
 
+			$unfiltered_input = $args['input'];
+
 			/**
 			 * Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 			 *
@@ -201,7 +215,7 @@ class WPMutationType {
 
 				/**
 				 * Filters the payload returned from the default mutateAndGetPayload callback.
-				 * 
+				 *
 				 * @param array $payload The payload returned from the callback.
 				 * @param string $mutation_name The name of the mutation field.
 				 * @param array $input The mutation input args.
@@ -216,11 +230,12 @@ class WPMutationType {
 			 *
 			 * @param array $payload The Payload returned from the mutation.
 			 * @param array $input The mutation input args, after being filtered by 'graphql_mutation_input'.
+			 * @param array $unfiltered_input The unfiltered input args of the mutation
 			 * @param AppContext $context The AppContext object.
 			 * @param ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
-			do_action( 'graphql_mutation_response', $payload, $input, $context, $info, $this->mutation_name );
+			do_action( 'graphql_mutation_response', $payload, $input, $unfiltered_input, $context, $info, $this->mutation_name );
 
 			// Add the client mutation ID to the payload
 			if ( ! empty( $input['clientMutationId'] ) ) {
@@ -246,6 +261,7 @@ class WPMutationType {
 			[
 				'description' => sprintf( __( 'Input for the %1$s mutation.', 'wp-graphql' ), $this->mutation_name ),
 				'fields'      => $this->input_fields,
+				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 			]
 		);
 	}
@@ -262,6 +278,7 @@ class WPMutationType {
 			[
 				'description' => sprintf( __( 'The payload for the %s mutation.', 'wp-graphql' ), $this->mutation_name ),
 				'fields'      => $this->output_fields,
+				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 			]
 		);
 	}
@@ -279,6 +296,7 @@ class WPMutationType {
 						'input' => [
 							'type'        => [ 'non_null' => $this->mutation_name . 'Input' ],
 							'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $this->mutation_name ),
+							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 					],
 					'auth'        => $this->auth,

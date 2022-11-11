@@ -51,17 +51,7 @@ class Router {
 	 */
 	public function init() {
 
-		/**
-		 * Pass the route through a filter in case the endpoint /graphql should need to be changed
-		 *
-		 * @return string
-		 * @since 0.0.1
-		 */
-		$filtered_endpoint = apply_filters( 'graphql_endpoint', null );
-		$endpoint          = $filtered_endpoint ? $filtered_endpoint : get_graphql_setting( 'graphql_endpoint', 'graphql' );
-		self::$route       = $endpoint;
-
-
+		self::$route = graphql_get_endpoint();
 
 		/**
 		 * Create the rewrite rule for the route
@@ -237,6 +227,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
+		_deprecated_function( __METHOD__, '0.4.1', __CLASS__ . 'is_graphql_http_request()' );
 		return self::is_graphql_http_request();
 	}
 
@@ -343,6 +334,7 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
+			'X-GraphQL-URL'                => graphql_get_endpoint_url(),
 		];
 
 

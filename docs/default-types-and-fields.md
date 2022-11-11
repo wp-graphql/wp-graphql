@@ -51,31 +51,54 @@ Next, WPGraphQL registers Interfaces. Interfaces are special Types that declare 
 
 Next, Object Types are registered to represent common Types of data managed in WordPress.
 
-- **RootQuery**
-- **PostObjects**: the GraphQL Type for each post type set to "show_in_graphql"
-- **TermObjects**: the GraphQL Type for each Taxonomy set to "show_in_graphql"
-- **RootMutation**
-- **Avatar**
-- **Comment**
-- **CommentAuthor**
-- **EnqueuedStylesheet**
-- **EnqueuedScript**
-- **MediaDetails**
-- **MediaItemMeta**
-- **MediaSize**
-- **Menu**
-- **MenuItem**
-- **PageInfo**
-- **Plugin**
-- **ContentType**
-- **PostTypeLabelDetails**
-- **Settings**
-- **Taxonomy**
-- **Theme**
-- **User**
-- **UserRole**
-- **Templates:**
-  - An Object Type is registered for each Page Template based on it's Template Name.
+-   **RootQuery**
+
+-   **PostObjects**: the GraphQL Type for each post type set to "show\_in\_graphql"
+
+-   **TermObjects**: the GraphQL Type for each Taxonomy set to "show\_in\_graphql"
+
+-   **RootMutation**
+
+-   **Avatar**
+
+-   **Comment**
+
+-   **CommentAuthor**
+
+-   **EnqueuedStylesheet**
+
+-   **EnqueuedScript**
+
+-   **MediaDetails**
+
+-   **MediaItemMeta**
+
+-   **MediaSize**
+
+-   **Menu**
+
+-   **MenuItem**
+
+-   **PageInfo**
+
+-   **Plugin**
+
+-   **ContentType**
+
+-   **PostTypeLabelDetails**
+
+-   **Settings**
+
+-   **Taxonomy**
+
+-   **Theme**
+
+-   **User**
+
+-   **UserRole**
+
+-   **Templates:**
+    - An Object Type is registered for each Page Template based on it's Template Name.
 
 ## Enums
 
@@ -150,11 +173,16 @@ For example, Connections are registered from the RootQuery to Comments, from Use
 
 WPGraphQL generates the following Mutations:
 
-- **Comments**: `createComment`, `updateComment`, `deleteComment`, `restoreComment`
-- **MediaItem**: `createMediaItem`, `updateMediaItem`, `deleteMediaItem`
-- **User**: `createUser`, `deleteUser`, `updateUser`, `registerUser`, `resetUserPassword`, `sendPasswordResetEmail`
-- **Settings:**`updateSettings`
-- **Post Types:**
-  - create, update and delete mutations are registered for each post type that's set to show in GraphQL.
-- **Taxonomies:**
-  - create, update and delete mutations are registered for each post type that's set to show in GraphQL
+-   **Comments**: `createComment`, `updateComment`, `deleteComment`, `restoreComment`
+
+-   **MediaItem**: `createMediaItem`, `updateMediaItem`, `deleteMediaItem`
+
+-   **User**: `createUser`, `deleteUser`, `updateUser`, `registerUser`, `resetUserPassword`, `sendPasswordResetEmail`
+
+-   **Settings:**`updateSettings`
+
+-   **Post Types:**
+    - create, update and delete mutations are registered for each post type that's set to show in GraphQL.
+
+-   **Taxonomies:**
+    - create, update and delete mutations are registered for each post type that's set to show in GraphQL

@@ -308,7 +308,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
 			$query_args['orderby'] = [];
+
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				if ( empty( $orderby_input['field'] ) ) {
+					continue;
+				}
+
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
@@ -322,20 +327,22 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					true
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} elseif ( ! empty( $orderby_input['field'] ) ) {
 
-					$order = $orderby_input['order'];
-
-					if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
-						if ( 'ASC' === $order ) {
-							$order = 'DESC';
-						} else {
-							$order = 'ASC';
-						}
-					}
-
-					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
+					// If we're ordering explicitly, there's no reason to check other orderby inputs.
+					break;
 				}
+
+				$order = $orderby_input['order'];
+
+				if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
+					if ( 'ASC' === $order ) {
+						$order = 'DESC';
+					} else {
+						$order = 'ASC';
+					}
+				}
+
+				$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
 			}
 		}
 

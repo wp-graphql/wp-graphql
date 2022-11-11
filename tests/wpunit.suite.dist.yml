@@ -4,6 +4,7 @@
 actor: WpunitTester
 modules:
   enabled:
+    - Asserts
     - WPLoader
   disabled:
     - WPDb

@@ -19,4 +19,4 @@ WPGraphQL treats WordPress data like an application data graph. What that means,
 
 Each Node can have properties. For example, a Post can have a Title, such as "Hello World"
 
-![WordPress as an Application Data Graph](./application-data-graph.png)
+![WordPress as an Application Data Graph](./images/application-data-graph.png)

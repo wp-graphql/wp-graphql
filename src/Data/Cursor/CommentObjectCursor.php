@@ -27,7 +27,7 @@ class CommentObjectCursor extends AbstractCursor {
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
 		if ( $query_vars instanceof \WP_Comment_Query ) {
-			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Comment_Query object', '1.9.0' );
+			_doing_it_wrong( __METHOD__, 'The first argument should be an array of $query_vars, not the WP_Comment_Query object', '1.9.0' );
 			$query_vars = $query_vars->query_vars;
 		}
 
