@@ -162,6 +162,15 @@ class TypeRegistry {
 	protected $eager_type_map;
 
 	/**
+	 * Stores a list of Types that should be excluded from the schema.
+	 *
+	 * Type names are filtered by `graphql_excluded_types` and normalized using strtolower(), to avoid case sensitivity issues.
+	 *
+	 * @var array
+	 */
+	protected $excluded_types;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -1204,20 +1213,24 @@ class TypeRegistry {
 	 * @since @todo
 	 */
 	public function get_excluded_types() : array {
-		/**
-		 * Filter the list of GraphQL types to exclude from the schema.
-		 * 
-		 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
-		 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
-		 *
-		 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
-		 *
-		 * @since @todo
-		 */
-		$excluded_types = apply_filters( 'graphql_excluded_types', [] );
+		if ( ! isset( $this->excluded_types ) ) {
+			/**
+			 * Filter the list of GraphQL types to exclude from the schema.
+			 * 
+			 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
+			 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
+			 *
+			 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
+			 *
+			 * @since @todo
+			 */
+			$excluded_types = apply_filters( 'graphql_excluded_types', [] );
 
-		// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
-		return ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
+			// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
+			$this->excluded_types = ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
+		}
+
+		return $this->excluded_types;
 	}
 
 	/**
