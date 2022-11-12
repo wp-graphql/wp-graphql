@@ -169,8 +169,8 @@ class WPMutationType {
 
 	protected function get_resolver() : callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
+			$unfiltered_input = $args['input'];
 
-$unfiltered_input = $args['input'];
 			/**
 			 * Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 			 *
