@@ -170,6 +170,7 @@ class WPMutationType {
 	protected function get_resolver() : callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
 
+$unfiltered_input = $args['input'];
 			/**
 			 * Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 			 *
@@ -178,7 +179,7 @@ class WPMutationType {
 			 * @param ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
-			$input = apply_filters( 'graphql_mutation_input', $args['input'], $context, $info, $this->mutation_name );
+			$input = apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
 
 			/**
 			 * Filter to short circuit the mutateAndGetPayload callback.
@@ -216,11 +217,12 @@ class WPMutationType {
 			 *
 			 * @param array $payload The Payload returned from the mutation.
 			 * @param array $input The mutation input args, after being filtered by 'graphql_mutation_input'.
+			 * @param array $unfiltered_input The unfiltered input args of the mutation
 			 * @param AppContext $context The AppContext object.
 			 * @param ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
-			do_action( 'graphql_mutation_response', $payload, $input, $context, $info, $this->mutation_name );
+			do_action( 'graphql_mutation_response', $payload, $input, $unfiltered_input, $context, $info, $this->mutation_name );
 
 			// Add the client mutation ID to the payload
 			if ( ! empty( $input['clientMutationId'] ) ) {
