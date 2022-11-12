@@ -514,7 +514,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'public'              => true,
 		] );
 
-		register_graphql_connection_input(
+		register_graphql_connection_where_arg(
 			'RootQuery',
 			'ConnectionInputCpt',
 			'testInputField', 
@@ -572,7 +572,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'public'              => true,
 		] );
 
-		register_graphql_connection_inputs(
+		register_graphql_connection_where_args(
 			'RootQuery',
 			'ConnectionInputsCpt',
 			[

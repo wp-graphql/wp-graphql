@@ -361,7 +361,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  *
  * @since @todo
  */
-function register_graphql_connection_input( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -382,7 +382,7 @@ function register_graphql_connection_input( string $from_type, string $to_type, 
  *
  * @since @todo
  */
-function register_graphql_connection_inputs( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
