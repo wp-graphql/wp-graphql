@@ -168,7 +168,7 @@ class TypeRegistry {
 	 *
 	 * @var array
 	 */
-	protected $excluded_types;
+	protected $excluded_types = null;
 
 	/**
 	 * TypeRegistry constructor.
@@ -1213,7 +1213,7 @@ class TypeRegistry {
 	 * @since @todo
 	 */
 	public function get_excluded_types() : array {
-		if ( ! isset( $this->excluded_types ) ) {
+		if ( null === $this->excluded_types ) {
 			/**
 			 * Filter the list of GraphQL types to exclude from the schema.
 			 * 
