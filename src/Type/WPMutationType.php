@@ -181,6 +181,7 @@ class WPMutationType {
 
 	protected function get_resolver() : callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
+			$unfiltered_input = $args['input'];
 
 			$unfiltered_input = $args['input'];
 
@@ -192,7 +193,7 @@ class WPMutationType {
 			 * @param ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
-			$input = apply_filters( 'graphql_mutation_input', $args['input'], $context, $info, $this->mutation_name );
+			$input = apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
 
 			/**
 			 * Filter to short circuit the mutateAndGetPayload callback.
