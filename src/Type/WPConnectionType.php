@@ -4,7 +4,6 @@ namespace WPGraphQL\Type;
 use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
-use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -140,6 +139,14 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
+		/**
+		 * Bail if one of the connection types has been excluded from the schema.
+		 */
+		$excluded_types = $type_registry->get_excluded_types();
+		if ( in_array( strtolower( $config['fromType'] ), $excluded_types, true ) || in_array( strtolower( $config['toType'] ), $excluded_types, true ) ) {
+			return;
+		}
+
 		$this->config                = $config;
 		$this->type_registry         = $type_registry;
 		$this->from_type             = $config['fromType'];
@@ -159,6 +166,17 @@ class WPConnectionType {
 		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
 		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
+		/**
+		 * Run an action when the WPConnectionType is instantiating.
+		 *
+		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 *
+		 * @since @todo
+		 */
+		do_action( 'graphql_wp_connection_type', $config, $this );
+
+		$this->register_connection();
 	}
 
 	/**
@@ -344,7 +362,7 @@ class WPConnectionType {
 	protected function register_connection_type() {
 
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
-		$interfaces[] = [ 'Connection' ];
+		$interfaces[] = 'Connection';
 
 		$this->type_registry->register_object_type(
 			$this->connection_name,
@@ -456,7 +474,9 @@ class WPConnectionType {
 	}
 
 	/**
-	 * Registers the connection Types and field to the Schema
+	 * Registers the connection Types and field to the Schema.
+	 *
+	 * @todo change to 'Protected'. This is public for now to allow for backwards compatibility.
 	 *
 	 * @return void
 	 *

@@ -162,6 +162,15 @@ class TypeRegistry {
 	protected $eager_type_map;
 
 	/**
+	 * Stores a list of Types that should be excluded from the schema.
+	 *
+	 * Type names are filtered by `graphql_excluded_types` and normalized using strtolower(), to avoid case sensitivity issues.
+	 *
+	 * @var array
+	 */
+	protected $excluded_types = null;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -598,14 +607,14 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
-
-		if ( is_array( $config ) && isset( $config['connections'] ) ) {
-			$config['name'] = ucfirst( $type_name );
-			$this->register_connections_from_config( $config );
-		}
-
 		/**
-		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
+		 * If the type should be excluded from the schema, skip it.
+		 */
+		if ( in_array( strtolower( $type_name ), $this->get_excluded_types(), true ) ) {
+			return;
+		}
+		/**
+		 * If the Type Name starts with a number, skip it.
 		 */
 		if ( ! is_valid_graphql_name( $type_name ) ) {
 			graphql_debug(
@@ -618,6 +627,9 @@ class TypeRegistry {
 			return;
 		}
 
+		/**
+		 * If the Type Name is already registered, skip it.
+		 */
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) || isset( $this->type_loaders[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
 				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
@@ -627,6 +639,14 @@ class TypeRegistry {
 				]
 			);
 			return;
+		}
+
+		/**
+		 * Register any connections that were passed through the Type config
+		 */
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
 		}
 
 		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
@@ -864,6 +884,11 @@ class TypeRegistry {
 		 * is called since it passes `is_callable`.
 		 */
 		if ( is_string( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			if ( in_array( strtolower( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->get_type( $field_config['type'] );
 			};
@@ -874,21 +899,43 @@ class TypeRegistry {
 		 * Create a callable wrapper to preserve lazy-loading.
 		 */
 		if ( is_array( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			$unmodified_type_name = $this->get_unmodified_type_name( $field_config['type'] );
+
+			if ( empty( $unmodified_type_name ) || in_array( strtolower( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->setup_type_modifiers( $field_config['type'] );
 			};
 		}
 
-		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
+		/**
+		 * If the field has arguments, each one must be prepared.
+		 */
+		if ( isset( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$field_config['args'][ $arg_name ] = $this->prepare_field( $arg_name, $arg_config, $type_name );
+				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name );
+
+				// Remove the arg if the field could not be prepared.
+				if ( empty( $arg ) ) {
+					unset( $field_config['args'][ $arg_name ] );
+					continue;
+				}
+
+				$field_config['args'][ $arg_name ] = $arg;
 			}
-		} else {
+		}
+
+		/**
+		 * If the field has no (remaining) valid arguments, unset the key.
+		 */
+		if ( empty( $field_config['args'] ) ) {
 			unset( $field_config['args'] );
 		}
 
 		return $field_config;
-
 	}
 
 	/**
@@ -947,7 +994,6 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ) {
-
 		add_filter(
 			'graphql_' . $type_name . '_fields',
 			function ( $fields ) use ( $type_name, $field_name, $config ) {
@@ -1031,10 +1077,7 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_connection( array $config ) {
-
-		$connection = new WPConnectionType( $config, $this );
-		$connection->register_connection();
-
+		new WPConnectionType( $config, $this );
 	}
 
 	/**
@@ -1047,7 +1090,6 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
-
 		$output_fields = [
 			'clientMutationId' => [
 				'type'        => 'String',
@@ -1161,6 +1203,51 @@ class TypeRegistry {
 		}
 
 		return Type::listOf( $type );
+	}
+
+	/**
+	 * Get the list of GraphQL type names to exclude from the schema.
+	 *
+	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
+	 *
+	 * @since @todo
+	 */
+	public function get_excluded_types() : array {
+		if ( null === $this->excluded_types ) {
+			/**
+			 * Filter the list of GraphQL types to exclude from the schema.
+			 * 
+			 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
+			 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
+			 *
+			 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
+			 *
+			 * @since @todo
+			 */
+			$excluded_types = apply_filters( 'graphql_excluded_types', [] );
+
+			// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
+			$this->excluded_types = ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
+		}
+
+		return $this->excluded_types;
+	}
+
+	/**
+	 * Gets the actual type name, stripped of possible NonNull and ListOf wrappers.
+	 *
+	 * Returns an empty string if the type modifiers are malformed.
+	 *
+	 * @param string|array $type The (possibly-wrapped) type name.
+	 */
+	protected function get_unmodified_type_name( $type ) : string {
+		if ( ! is_array( $type ) ) {
+			return $type;
+		}
+
+		$type = array_values( $type )[0] ?? '';
+
+		return $this->get_unmodified_type_name( $type );
 	}
 
 }

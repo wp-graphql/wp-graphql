@@ -496,6 +496,51 @@ function register_graphql_scalar( string $type_name, array $config ) {
 }
 
 /**
+ * Given a Type Name, this removes the type from the entire schema
+ *
+ * @param string $type_name The name of the Type to remove.
+ *
+ * @since @todo
+ */
+function deregister_graphql_type( string $type_name ) : void {
+	// Prevent the type from being registered to the scheme directly.
+	add_filter(
+		'graphql_excluded_types',
+		function ( $excluded_types ) use ( $type_name ) : array {
+			// Normalize the types to prevent case sensitivity issues.
+			$type_name = strtolower( $type_name );
+			// If the type isn't already excluded, add it to the array.
+			if ( ! in_array( $type_name, $excluded_types, true ) ) {
+				$excluded_types[] = $type_name;
+			}
+
+			return $excluded_types;
+		},
+		10
+	);
+
+	// Prevent the type from being inherited as an interface.
+	add_filter(
+		'graphql_type_interfaces',
+		function ( $interfaces ) use ( $type_name ) : array {
+			// Normalize the needle and haystack to prevent case sensitivity issues.
+			$key = array_search(
+				strtolower( $type_name ),
+				array_map( 'strtolower', $interfaces ),
+				true
+			);
+			// If the type is found, unset it.
+			if ( false !== $key ) {
+				unset( $interfaces[ $key ] );
+			}
+
+			return $interfaces;
+		},
+		10
+	);
+}
+
+/**
  * Given a Type Name and Field Name, this removes the field from the TypeRegistry
  *
  * @param string $type_name  The name of the Type to remove the field from

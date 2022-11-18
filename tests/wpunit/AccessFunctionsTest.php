@@ -1068,4 +1068,381 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertSame( site_url( $expected ), $actual );
 	}
+
+	public function testDeregisterObjectType() {
+		deregister_graphql_type( 'Post' );
+
+		// Ensure the schema is still queryable.
+
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Ensure Post-related types have been removed.
+		$types = array_column( $actual['data']['__schema']['types'], 'name' );
+
+		$removed_types = [
+			'UserToPostConnectionWhereArgs',
+			'UserToPostConnection',
+			'UserToPostConnectionEdge',
+			'Post',
+			'NodeWithExcerpt',
+			'NodeWithTrackbacks',
+			'PostToCategoryConnectionWhereArgs',
+			'PostToCategoryConnection',
+			'PostToCategoryConnectionEdge',
+			'PostToCommentConnectionWhereArgs',
+			'PostToCommentConnection',
+			'PostToCommentConnectionEdge',
+			'PostToPostFormatConnectionWhereArgs',
+			'PostToPostFormatConnection',
+			'PostToPostFormatConnectionEdge',
+			'PostFormatToPostConnectionWhereArgs',
+			'PostFormatToPostConnection',
+			'PostFormatToPostConnectionEdge',
+			'PostToPreviewConnectionEdge',
+			'PostToRevisionConnectionWhereArgs',
+			'PostToRevisionConnection',
+			'PostToRevisionConnectionEdge',
+			'PostToTagConnectionWhereArgs',
+			'PostToTagConnection',
+			'PostToTagConnectionEdge',
+			'TagToPostConnectionWhereArgs',
+			'TagToPostConnection',
+			'TagToPostConnectionEdge',
+			'PostToTermNodeConnectionWhereArgs',
+			'PostToTermNodeConnection',
+			'PostToTermNodeConnectionEdge',
+			'CategoryToPostConnectionWhereArgs',
+			'CategoryToPostConnection',
+			'CategoryToPostConnectionEdge',
+			'PostIdType',
+			'RootQueryToPostConnectionWhereArgs',
+			'RootQueryToPostConnection',
+			'RootQueryToPostConnectionEdge',
+		];
+
+		$this->assertEmpty( array_intersect( $types, $removed_types ) );
+
+		// Ensure connection is removed.
+		$query = '
+			{
+				categories {
+					nodes {
+						posts {
+							nodes {
+								__typename
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+		
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Ensure Post is removed from interfaces.
+		$query = '
+		{
+			__type(name: "ContentNode") {
+				possibleTypes {
+					name
+				}
+			}
+		}
+		';
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
+
+		// Ensure Post is removed from unions.
+		$query = '
+		{
+			__type(name: "MenuItemObjectUnion") {
+				possibleTypes {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
+
+		/**
+		 * Since only the Post Type is removed, but the connection is still registered, we should expect the resolvers to still return an unresolved type.
+		 */
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			contentNodes {
+				nodes {
+					id
+				}
+			}
+			contentTypes {
+				nodes {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
+		$this->assertNull( $actual['data']['contentNodes']['nodes'][0] );
+		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
+	}
+
+	public function testDeregisterEnumType() {
+		// Test case-sensitivity.
+		deregister_graphql_type( 'ContentTypeenum' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'ContentTypeEnum', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the enum is removed from the schema.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Ensure the enum is removed from input arguments.
+		$query = '
+		{
+			__type(name: "RootQueryToContentNodeConnectionWhereArgs") {
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'contentType', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister enum type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			contentNodes {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['contentNodes']['nodes'] );
+	}
+
+	public function testDeregisterInputType() {
+		deregister_graphql_type( 'DateQueryInput' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'DateQueryInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the input is removed from the schema.
+		$query = '
+		{
+			__type(name: "RootQueryToPostConnectionWhereArgs") {
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'dateQuery', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister input type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
+	}
+
+	public function testDeregisterInterfaceType() {
+		deregister_graphql_type( 'NodeWithTitle' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the interface is removed from the schema.
+		$query = '
+		{
+			__type(name: "Post") {
+				interfaces {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__type']['interfaces'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister interface type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
+	}
+
+	public function testDeregisterUnionType() {
+		deregister_graphql_type( 'MenuItemObjectUnion' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'MenuItemObjectUnion', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the union is removed from the schema.
+		$query = '
+		{
+			__type(name: "MenuItem") {
+				fields( includeDeprecated: true ) {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
+	}
+
 }
