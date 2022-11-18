@@ -928,7 +928,7 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_fields( string $type_name, array $fields = [] ) {
-		if ( is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
+		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
 				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
 					$this->register_field( $type_name, $field_name, $config );
