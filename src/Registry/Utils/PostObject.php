@@ -7,13 +7,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WPGraphQL;
 use WPGraphQL\AppContext;
-use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Type\Connection\Comments;
+use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Type\Connection\TermObjects;
 
 /**
  * Class PostObject
