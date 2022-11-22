@@ -113,9 +113,10 @@ class PostObject {
 		// Comments.
 		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 			$connections['comments'] = [
-				'toType'         => 'Comment',
-				'connectionArgs' => Comments::get_connection_args(),
-				'resolve'        => function ( Post $post, $args, $context, $info ) {
+				'toType'               => 'Comment',
+				'connectionInterfaces' => [ 'CommentConnection' ],
+				'connectionArgs'       => Comments::get_connection_args(),
+				'resolve'              => function ( Post $post, $args, $context, $info ) {
 
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;

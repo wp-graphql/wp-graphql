@@ -69,6 +69,7 @@ use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
+use WPGraphQL\Type\InterfaceType\CommentConnection;
 use WPGraphQL\Type\InterfaceType\Commenter;
 use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
@@ -266,6 +267,7 @@ class TypeRegistry {
 		// Register Interfaces.
 		Node::register_type();
 		Commenter::register_type( $type_registry );
+		CommentConnection::register_type( $type_registry );
 		Connection::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentNodeConnection::register_type( $type_registry );
