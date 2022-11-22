@@ -186,7 +186,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 */
-	protected function validate_config( array $config ) {
+	protected function validate_config( array $config ): void {
 
 		if ( ! array_key_exists( 'fromType', $config ) ) {
 			throw new InvalidArgument( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
@@ -209,10 +209,10 @@ class WPConnectionType {
 	 *
 	 * @return array
 	 */
-	protected function get_edge_interfaces( array $interfaces ) {
+	protected function get_edge_interfaces( array $interfaces = [] ): array {
 		if ( ! empty( $this->connection_interfaces ) ) {
 			foreach ( $this->connection_interfaces as $connection_interface ) {
-				$interfaces[] = $connection_interface . 'Edge';
+				$interfaces[] =  str_ends_with( $connection_interface, 'Edge' ) ? $connection_interface : $connection_interface . 'Edge';
 			}
 		}
 		return $interfaces;

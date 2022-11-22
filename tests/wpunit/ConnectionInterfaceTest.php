@@ -60,7 +60,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testSingularCommenterConnectionImplementsConnection() {
 
-		$results = $this->interfaceQuery( 'SingularCommenterConnection' );
+		$results = $this->interfaceQuery( 'SingularCommenterConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [

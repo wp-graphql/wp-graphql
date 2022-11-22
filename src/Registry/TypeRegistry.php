@@ -75,6 +75,7 @@ use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentNodeConnection;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\ContentTypeConnection;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\Edge;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
@@ -95,8 +96,9 @@ use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
 use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
-use WPGraphQL\Type\InterfaceType\SingularCommenterConnection;
+use WPGraphQL\Type\InterfaceType\SingularCommenterConnectionEdge;
 use WPGraphQL\Type\InterfaceType\SingularConnection;
+use WPGraphQL\Type\InterfaceType\SingularContentTypeConnectionEdge;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\Avatar;
@@ -275,6 +277,7 @@ class TypeRegistry {
 		Connection::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentNodeConnection::register_type( $type_registry );
+		ContentTypeConnection::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();
 		Edge::register_type( $type_registry );
@@ -295,8 +298,9 @@ class TypeRegistry {
 		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
-		SingularCommenterConnection::register_type( $type_registry );
+		SingularCommenterConnectionEdge::register_type( $type_registry );
 		SingularConnection::register_type( $type_registry );
+		SingularContentTypeConnectionEdge::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 

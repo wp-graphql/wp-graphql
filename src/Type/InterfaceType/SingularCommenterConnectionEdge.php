@@ -5,10 +5,10 @@ namespace WPGraphQL\Type\InterfaceType;
 use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
-class SingularCommenterConnection {
+class SingularCommenterConnectionEdge {
 
 	/**
-	 * Register the CommenterConnection Interface
+	 * Register the SingularCommenterConnection Interface
 	 *
 	 * @param TypeRegistry $type_registry
 	 *
@@ -17,7 +17,7 @@ class SingularCommenterConnection {
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
 
-		register_graphql_interface_type( 'SingularCommenterConnection', [
+		register_graphql_interface_type( 'SingularCommenterConnectionEdge', [
 			'interfaces'  => [ 'SingularConnection', 'Edge' ],
 			'description' => __( 'Connection to Commenter Nodes', 'wp-graphql' ),
 			'fields'      => [
