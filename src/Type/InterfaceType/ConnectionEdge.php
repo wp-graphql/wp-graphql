@@ -18,13 +18,13 @@ class ConnectionEdge {
 
 		register_graphql_interface_type( 'ConnectionEdge', [
 			'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
-			'interfaces' => [ 'Edge' ],
+			'interfaces'  => [ 'Edge' ],
 			'fields'      => [
 				'cursor' => [
-					'type'              => 'String',
-					'description'       => __( 'A cursor for use in pagination', 'wp-graphql' ),
+					'type'        => 'String',
+					'description' => __( 'A cursor for use in pagination', 'wp-graphql' ),
 				],
-				'node' => [
+				'node'   => [
 					'type'        => [ 'non_null' => 'Node' ],
 					'description' => __( 'The connected node', 'wp-graphql' ),
 				],

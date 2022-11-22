@@ -367,7 +367,7 @@ class WPConnectionType {
 	 */
 	protected function register_connection_type() {
 
-		if (  $this->type_registry->has_type( $this->connection_name ) ) {
+		if ( $this->type_registry->has_type( $this->connection_name ) ) {
 			return;
 		}
 

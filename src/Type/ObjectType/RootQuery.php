@@ -129,11 +129,11 @@ class RootQuery {
 						},
 					],
 					'revisions'             => [
-						'toType'         => 'ContentNode',
+						'toType'               => 'ContentNode',
 						'connectionInterfaces' => [ 'ContentNodeConnection' ],
-						'queryClass'     => 'WP_Query',
-						'connectionArgs' => PostObjects::get_connection_args(),
-						'resolve'        => function ( $root, $args, $context, $info ) {
+						'queryClass'           => 'WP_Query',
+						'connectionArgs'       => PostObjects::get_connection_args(),
+						'resolve'              => function ( $root, $args, $context, $info ) {
 							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();
