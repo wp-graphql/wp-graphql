@@ -291,7 +291,7 @@ class WPConnectionType {
 	 */
 	protected function register_one_to_one_connection_edge_type() {
 
-		$interfaces = [ 'SingleNodeConnectionEdge', 'Edge' ];
+		$interfaces = [ 'SingularConnection', 'Edge' ];
 		$interfaces = $this->get_edge_interfaces( $interfaces );
 
 		$this->type_registry->register_object_type(
@@ -303,7 +303,7 @@ class WPConnectionType {
 				'fields'      => array_merge(
 					[
 						'node' => [
-							'type'              => $this->to_type,
+							'type'              => [ 'non_null' => $this->to_type ],
 							'description'       => __( 'The node of the connection, without the edges', 'wp-graphql' ),
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
@@ -340,7 +340,7 @@ class WPConnectionType {
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 						'node'   => [
-							'type'              => $this->to_type,
+							'type'              => [ 'non_null' => $this->to_type ],
 							'description'       => __( 'The item at the end of the edge', 'wp-graphql' ),
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
@@ -392,12 +392,12 @@ class WPConnectionType {
 					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				],
 				'edges'    => [
-					'type'        => [ 'list_of' => $this->connection_name . 'Edge' ],
+					'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->connection_name . 'Edge' ] ] ],
 					// Translators: Placeholder is the name of the connection
 					'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $this->connection_name ),
 				],
 				'nodes'    => [
-					'type'        => [ 'list_of' => $this->to_type ],
+					'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
 					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 				],
 			],

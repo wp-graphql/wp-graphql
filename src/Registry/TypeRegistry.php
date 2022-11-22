@@ -33,7 +33,6 @@ use WPGraphQL\Registry\Utils\TermObject;
 use WPGraphQL\Type\Connection\Comments;
 use WPGraphQL\Type\Connection\MenuItems;
 use WPGraphQL\Type\Connection\PostObjects;
-use WPGraphQL\Type\Connection\Revisions;
 use WPGraphQL\Type\Connection\Taxonomies;
 use WPGraphQL\Type\Connection\TermObjects;
 use WPGraphQL\Type\Connection\Users;
@@ -71,6 +70,7 @@ use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
 use WPGraphQL\Type\InterfaceType\CommenterInterface;
+use WPGraphQL\Type\InterfaceType\ConnectionInterface;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
@@ -113,7 +113,6 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
-use WPGraphQL\Type\Union\ContentRevisionUnion;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -264,6 +263,7 @@ class TypeRegistry {
 		// Register Interfaces.
 		Node::register_type();
 		CommenterInterface::register_type( $type_registry );
+		ConnectionInterface::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();
@@ -345,7 +345,6 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		ContentRevisionUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
@@ -356,7 +355,6 @@ class TypeRegistry {
 		Comments::register_connections();
 		MenuItems::register_connections();
 		PostObjects::register_connections();
-		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
 		Users::register_connections();

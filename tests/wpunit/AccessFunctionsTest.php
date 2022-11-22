@@ -517,7 +517,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_connection_where_arg(
 			'RootQuery',
 			'ConnectionInputCpt',
-			'testInputField', 
+			'testInputField',
 			[
 				'type'        => 'String',
 				'description' => 'just testing here',
@@ -1070,6 +1070,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testDeregisterObjectType() {
+
 		deregister_graphql_type( 'Post' );
 
 		// Ensure the schema is still queryable.
@@ -1151,7 +1152,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( compact( 'query') );
-		
+
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 
@@ -1218,7 +1219,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
-		$this->assertNull( $actual['data']['contentNodes']['nodes'][0] );
+		$this->assertNull( $actual['data']['contentNodes'] );
 		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
 	}
 
