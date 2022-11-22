@@ -64,6 +64,7 @@ class MenuItem {
 					],
 					'menu'          => [
 						'toType'      => 'Menu',
+						'connectionInterfaces' => [ 'MenuConnection' ],
 						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
 						'oneToOne'    => true,
 						'resolve'     => function ( MenuItemModel $menu_item, $args, $context, $info ) {
