@@ -49,6 +49,7 @@ class User {
 					'revisions'           => [
 						'toType'               => 'ContentNode',
 						'connectionInterfaces' => [ 'ContentNodeConnection' ],
+						'connectionTypeName'   => 'UserToRevisionsConnection',
 						'queryClass'           => 'WP_Query',
 						'description'          => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
 						'connectionArgs'       => PostObjects::get_connection_args(),

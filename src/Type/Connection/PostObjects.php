@@ -35,6 +35,7 @@ class PostObjects {
 		register_graphql_connection( [
 			'fromType'       => 'ContentType',
 			'toType'         => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'fromFieldName'  => 'contentNodes',
 			'connectionArgs' => self::get_connection_args(),
 			'queryClass'     => 'WP_Query',
@@ -51,6 +52,7 @@ class PostObjects {
 		register_graphql_connection( [
 			'fromType'      => 'Comment',
 			'toType'        => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'queryClass'    => 'WP_Query',
 			'oneToOne'      => true,
 			'fromFieldName' => 'commentedOn',
@@ -68,6 +70,7 @@ class PostObjects {
 		register_graphql_connection( [
 			'fromType'      => 'NodeWithRevisions',
 			'toType'        => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'fromFieldName' => 'revisionOf',
 			'description'   => __( 'If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node.', 'wp-graphql' ),
 			'oneToOne'      => true,
@@ -89,6 +92,7 @@ class PostObjects {
 			[
 				'fromType'       => 'RootQuery',
 				'toType'         => 'ContentNode',
+				'connectionInterfaces' => [ 'ContentNodeConnection' ],
 				'queryClass'     => 'WP_Query',
 				'fromFieldName'  => 'contentNodes',
 				'connectionArgs' => self::get_connection_args(),
@@ -103,6 +107,7 @@ class PostObjects {
 		register_graphql_connection( [
 			'fromType'           => 'HierarchicalContentNode',
 			'toType'             => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'fromFieldName'      => 'parent',
 			'connectionTypeName' => 'HierarchicalContentNodeToParentContentNodeConnection',
 			'description'        => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
@@ -125,6 +130,7 @@ class PostObjects {
 			'fromType'           => 'HierarchicalContentNode',
 			'fromFieldName'      => 'children',
 			'toType'             => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeChildrenConnection',
 			'connectionArgs'     => self::get_connection_args(),
 			'queryClass'         => 'WP_Query',
@@ -147,6 +153,7 @@ class PostObjects {
 		register_graphql_connection( [
 			'fromType'           => 'HierarchicalContentNode',
 			'toType'             => 'ContentNode',
+			'connectionInterfaces' => [ 'ContentNodeConnection' ],
 			'fromFieldName'      => 'ancestors',
 			'connectionArgs'     => self::get_connection_args(),
 			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeAncestorsConnection',

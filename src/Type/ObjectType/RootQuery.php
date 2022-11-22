@@ -130,6 +130,7 @@ class RootQuery {
 					],
 					'revisions'             => [
 						'toType'         => 'ContentNode',
+						'connectionInterfaces' => [ 'ContentNodeConnection' ],
 						'queryClass'     => 'WP_Query',
 						'connectionArgs' => PostObjects::get_connection_args(),
 						'resolve'        => function ( $root, $args, $context, $info ) {

@@ -5,7 +5,7 @@ namespace WPGraphQL\Type\InterfaceType;
 use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
-class ConnectionInterface {
+class Connection {
 	/**
 	 * Register the Connection Interface
 	 *
@@ -15,16 +15,6 @@ class ConnectionInterface {
 	 * @throws Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
-		register_graphql_interface_type( 'Edge', [
-			'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
-			'fields'      => [
-				'node' => [
-					'type'        => [ 'non_null' => 'Node' ],
-					'description' => __( 'The connected node', 'wp-graphql' ),
-				],
-			],
-		] );
 
 		register_graphql_interface_type(
 			'Connection',
@@ -42,17 +32,6 @@ class ConnectionInterface {
 				],
 			]
 		);
-
-		register_graphql_interface_type( 'SingularConnection', [
-			'interfaces'  => [ 'Edge' ],
-			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
-			'fields'      => [
-				'node' => [
-					'type'        => [ 'non_null' => 'Node' ],
-					'description' => __( 'The connected node', 'wp-graphql' ),
-				],
-			],
-		] );
 
 	}
 }

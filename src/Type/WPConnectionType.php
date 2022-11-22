@@ -289,10 +289,13 @@ class WPConnectionType {
 	 *
 	 * @throws Exception
 	 */
-	protected function register_one_to_one_connection_edge_type() {
+	protected function register_one_to_one_connection_edge_type(): void {
 
-		$interfaces = [ 'SingularConnection', 'Edge' ];
-		$interfaces = $this->get_edge_interfaces( $interfaces );
+		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
+			return;
+		}
+
+		$interfaces = $this->get_edge_interfaces( [ 'SingularConnectionEdge', 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -323,8 +326,11 @@ class WPConnectionType {
 	 */
 	protected function register_connection_edge_type() {
 
-		$interfaces = [ 'Edge' ];
-		$this->get_edge_interfaces( $interfaces );
+		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
+			return;
+		}
+
+		$interfaces = $this->get_edge_interfaces( [ 'ConnectionEdge', 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -360,6 +366,10 @@ class WPConnectionType {
 	 * @throws Exception
 	 */
 	protected function register_connection_type() {
+
+		if (  $this->type_registry->has_type( $this->connection_name ) ) {
+			return;
+		}
 
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
 		$interfaces[] = 'Connection';

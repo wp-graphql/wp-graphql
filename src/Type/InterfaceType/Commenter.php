@@ -10,7 +10,7 @@ use WPGraphQL\Registry\TypeRegistry;
  *
  * @package WPGraphQL\Type\InterfaceType
  */
-class CommenterInterface {
+class Commenter {
 
 	/**
 	 * Register the Commenter Interface

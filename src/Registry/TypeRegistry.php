@@ -69,11 +69,13 @@ use WPGraphQL\Type\Input\DateInput;
 use WPGraphQL\Type\Input\DateQueryInput;
 use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
-use WPGraphQL\Type\InterfaceType\CommenterInterface;
-use WPGraphQL\Type\InterfaceType\ConnectionInterface;
+use WPGraphQL\Type\InterfaceType\Commenter;
+use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
+use WPGraphQL\Type\InterfaceType\ContentNodeConnection;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
+use WPGraphQL\Type\InterfaceType\Edge;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
@@ -89,6 +91,7 @@ use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
 use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
+use WPGraphQL\Type\InterfaceType\SingularConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\Avatar;
@@ -262,11 +265,13 @@ class TypeRegistry {
 
 		// Register Interfaces.
 		Node::register_type();
-		CommenterInterface::register_type( $type_registry );
-		ConnectionInterface::register_type( $type_registry );
+		Commenter::register_type( $type_registry );
+		Connection::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
+		ContentNodeConnection::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();
+		Edge::register_type( $type_registry );
 		EnqueuedAsset::register_type( $type_registry );
 		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
@@ -281,6 +286,7 @@ class TypeRegistry {
 		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
+		SingularConnection::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
