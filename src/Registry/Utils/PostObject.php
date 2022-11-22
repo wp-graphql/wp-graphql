@@ -260,6 +260,7 @@ class PostObject {
 
 		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
+			$interfaces[] = 'Previewable';
 		}
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {

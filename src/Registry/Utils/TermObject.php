@@ -107,6 +107,7 @@ class TermObject {
 		// @todo connection move to TermNode (breaking).
 		$connections['taxonomy'] = [
 			'toType'   => 'Taxonomy',
+			'connectionInterfaces' => [ 'TaxonomyConnection' ],
 			'oneToOne' => true,
 			'resolve'  => function ( Term $source, $args, $context, $info ) {
 				if ( empty( $source->taxonomyName ) ) {

@@ -97,9 +97,11 @@ use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
 use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
+use WPGraphQL\Type\InterfaceType\Previewable;
 use WPGraphQL\Type\InterfaceType\SingularCommenterConnectionEdge;
 use WPGraphQL\Type\InterfaceType\SingularConnection;
 use WPGraphQL\Type\InterfaceType\SingularContentTypeConnectionEdge;
+use WPGraphQL\Type\InterfaceType\TaxonomyConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\Avatar;
@@ -300,9 +302,11 @@ class TypeRegistry {
 		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
+		Previewable::register_type( $type_registry );
 		SingularCommenterConnectionEdge::register_type( $type_registry );
 		SingularConnection::register_type( $type_registry );
 		SingularContentTypeConnectionEdge::register_type( $type_registry );
+		TaxonomyConnection::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
