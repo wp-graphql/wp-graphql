@@ -517,7 +517,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_connection_where_arg(
 			'RootQuery',
 			'ConnectionInputCpt',
-			'testInputField', 
+			'testInputField',
 			[
 				'type'        => 'String',
 				'description' => 'just testing here',
@@ -637,6 +637,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRenameGraphQLType() {
+
+		register_graphql_union_type( 'PostObjectUnion', [
+			'typeNames'   => [ 'Post', 'Page' ],
+			'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
+		]);
 
 		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
@@ -1070,6 +1075,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testDeregisterObjectType() {
+
 		deregister_graphql_type( 'Post' );
 
 		// Ensure the schema is still queryable.
@@ -1151,7 +1157,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( compact( 'query') );
-		
+
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 
@@ -1218,7 +1224,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
-		$this->assertNull( $actual['data']['contentNodes']['nodes'][0] );
+		$this->assertNull( $actual['data']['contentNodes'] );
 		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
 	}
 
@@ -1443,6 +1449,60 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
+	}
+
+	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'FakeType',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testRegisterConnectionFromNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'FakeType',
+			'toType' => 'Post',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
 	}
 
 }

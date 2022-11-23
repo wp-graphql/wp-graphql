@@ -1,34 +1,34 @@
 <?php
+
 namespace WPGraphQL\Type\InterfaceType;
 
 use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
- * Class HierarchicalContentNode
+ * Class HierarchicalNode
  *
  * @package WPGraphQL\Type\InterfaceType
  */
-class HierarchicalContentNode {
+class HierarchicalNode {
 
 	/**
-	 * Register the HierarchicalContentNode Interface Type
+	 * Register the HierarchicalNode Interface Type
 	 *
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ): void {
+	public static function register_type( TypeRegistry $type_registry ):void {
+
 		register_graphql_interface_type(
-			'HierarchicalContentNode',
+			'HierarchicalNode',
 			[
-				'description' => __( 'Content node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+				'description' => __( 'Node with hierarchical (parent/child) relationships', 'wp-graphql' ),
 				'interfaces'  => [
 					'Node',
-					'ContentNode',
 					'DatabaseIdentifier',
-					'HierarchicalNode',
 				],
 				'fields'      => [
 					'parentId'         => [
@@ -42,5 +42,7 @@ class HierarchicalContentNode {
 				],
 			]
 		);
+
 	}
+
 }

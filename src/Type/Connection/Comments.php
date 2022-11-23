@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Connection;
+namespace WPGraphQL\Type\Connection;
 
 use Exception;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
@@ -13,7 +13,7 @@ use WPGraphQL\Model\User;
  *
  * This class organizes the registration of connections to Comments
  *
- * @package WPGraphQL\Connection
+ * @package WPGraphQL\Type\Connection
  */
 class Comments {
 
@@ -86,11 +86,12 @@ class Comments {
 	 */
 	public static function get_connection_config( $args = [] ) {
 		$defaults = [
-			'fromType'       => 'RootQuery',
-			'toType'         => 'Comment',
-			'fromFieldName'  => 'comments',
-			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function ( $root, $args, $context, $info ) {
+			'fromType'             => 'RootQuery',
+			'toType'               => 'Comment',
+			'connectionInterfaces' => [ 'CommentConnection' ],
+			'fromFieldName'        => 'comments',
+			'connectionArgs'       => self::get_connection_args(),
+			'resolve'              => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];

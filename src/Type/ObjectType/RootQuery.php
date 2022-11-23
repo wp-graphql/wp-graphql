@@ -10,10 +10,12 @@ use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\Connection\MenuConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\ThemeConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Type\Connection\PostObjects;
 
 /**
  * Class RootQuery
@@ -122,6 +124,17 @@ class RootQuery {
 						'toType'  => 'Theme',
 						'resolve' => function ( $root, $args, $context, $info ) {
 							$resolver = new ThemeConnectionResolver( $root, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'revisions'             => [
+						'toType'               => 'ContentNode',
+						'connectionInterfaces' => [ 'ContentNodeConnection' ],
+						'queryClass'           => 'WP_Query',
+						'connectionArgs'       => PostObjects::get_connection_args(),
+						'resolve'              => function ( $root, $args, $context, $info ) {
+							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();
 						},

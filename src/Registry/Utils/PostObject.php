@@ -7,13 +7,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WPGraphQL;
 use WPGraphQL\AppContext;
-use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Post;
+use WPGraphQL\Type\Connection\Comments;
+use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Type\Connection\TermObjects;
 
 /**
  * Class PostObject
@@ -113,9 +113,10 @@ class PostObject {
 		// Comments.
 		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 			$connections['comments'] = [
-				'toType'         => 'Comment',
-				'connectionArgs' => Comments::get_connection_args(),
-				'resolve'        => function ( Post $post, $args, $context, $info ) {
+				'toType'               => 'Comment',
+				'connectionInterfaces' => [ 'CommentConnection' ],
+				'connectionArgs'       => Comments::get_connection_args(),
+				'resolve'              => function ( Post $post, $args, $context, $info ) {
 
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
@@ -182,9 +183,10 @@ class PostObject {
 			// TermNode.
 			if ( ! $already_registered ) {
 				$connections['terms'] = [
-					'toType'         => 'TermNode',
-					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => TermObjects::get_connection_args(
+					'toType'               => 'TermNode',
+					'connectionInterfaces' => [ 'TermNodeConnection' ],
+					'queryClass'           => 'WP_Term_Query',
+					'connectionArgs'       => TermObjects::get_connection_args(
 						[
 							'taxonomies' => [
 								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
@@ -192,7 +194,7 @@ class PostObject {
 							],
 						]
 					),
-					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'              => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 
@@ -259,6 +261,7 @@ class PostObject {
 
 		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
+			$interfaces[] = 'Previewable';
 		}
 
 		if ( post_type_supports( $post_type_object->name, 'title' ) ) {
