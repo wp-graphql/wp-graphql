@@ -105,6 +105,7 @@ use WPGraphQL\Type\InterfaceType\TaxonomyConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\TermNodeConnection;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
+use WPGraphQL\Type\InterfaceType\UserConnection;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
 use WPGraphQL\Type\ObjectType\CommentAuthor;
@@ -311,6 +312,7 @@ class TypeRegistry {
 		TermNode::register_type( $type_registry );
 		TermNodeConnection::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
+		UserConnection::register_type( $type_registry );
 
 		// register types
 		RootQuery::register_type();
