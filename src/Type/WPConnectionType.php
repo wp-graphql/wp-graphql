@@ -212,7 +212,7 @@ class WPConnectionType {
 	protected function get_edge_interfaces( array $interfaces = [] ): array {
 		if ( ! empty( $this->connection_interfaces ) ) {
 			foreach ( $this->connection_interfaces as $connection_interface ) {
-				$interfaces[] =  str_ends_with( $connection_interface, 'Edge' ) ? $connection_interface : $connection_interface . 'Edge';
+				$interfaces[] = str_ends_with( $connection_interface, 'Edge' ) ? $connection_interface : $connection_interface . 'Edge';
 			}
 		}
 		return $interfaces;
@@ -228,7 +228,7 @@ class WPConnectionType {
 	 *
 	 * @return string
 	 */
-	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ) {
+	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ): string {
 
 		// Create connection name using $from_type + To + $to_type + Connection.
 		$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
@@ -330,7 +330,7 @@ class WPConnectionType {
 			return;
 		}
 
-		$interfaces = $this->get_edge_interfaces( [ 'ConnectionEdge', 'Edge' ] );
+		$interfaces = $this->get_edge_interfaces( [ 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',

@@ -16,11 +16,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'RootQuery',
-				'toType'        => 'Taxonomy',
+				'fromType'             => 'RootQuery',
+				'toType'               => 'Taxonomy',
 				'connectionInterfaces' => [ 'TaxonomyConnection' ],
-				'fromFieldName' => 'taxonomies',
-				'resolve'       => function ( $source, $args, $context, $info ) {
+				'fromFieldName'        => 'taxonomies',
+				'resolve'              => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -29,11 +29,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'ContentType',
-				'toType'        => 'Taxonomy',
+				'fromType'             => 'ContentType',
+				'toType'               => 'Taxonomy',
 				'connectionInterfaces' => [ 'TaxonomyConnection' ],
-				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function ( PostType $source, $args, $context, $info ) {
+				'fromFieldName'        => 'connectedTaxonomies',
+				'resolve'              => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}

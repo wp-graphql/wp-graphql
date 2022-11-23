@@ -42,7 +42,7 @@ class PostObject {
 			'fields'      => static::get_fields( $post_type_object ),
 			'model'       => Post::class,
 		];
-
+		
 		// Register as GraphQL objects.
 		if ( 'object' === $post_type_object->graphql_kind ) {
 			register_graphql_object_type( $single_name, $config );
@@ -183,10 +183,10 @@ class PostObject {
 			// TermNode.
 			if ( ! $already_registered ) {
 				$connections['terms'] = [
-					'toType'         => 'TermNode',
+					'toType'               => 'TermNode',
 					'connectionInterfaces' => [ 'TermNodeConnection' ],
-					'queryClass'     => 'WP_Term_Query',
-					'connectionArgs' => TermObjects::get_connection_args(
+					'queryClass'           => 'WP_Term_Query',
+					'connectionArgs'       => TermObjects::get_connection_args(
 						[
 							'taxonomies' => [
 								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
@@ -194,7 +194,7 @@ class PostObject {
 							],
 						]
 					),
-					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'              => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 

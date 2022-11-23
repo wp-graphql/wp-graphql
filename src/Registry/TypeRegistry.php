@@ -305,9 +305,7 @@ class TypeRegistry {
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
 		Previewable::register_type( $type_registry );
-		SingularCommenterConnectionEdge::register_type( $type_registry );
 		SingularConnection::register_type( $type_registry );
-		SingularContentTypeConnectionEdge::register_type( $type_registry );
 		TaxonomyConnection::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		TermNodeConnection::register_type( $type_registry );

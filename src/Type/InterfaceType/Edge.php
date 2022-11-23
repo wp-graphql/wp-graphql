@@ -19,7 +19,11 @@ class Edge {
 		register_graphql_interface_type( 'Edge', [
 			'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
 			'fields'      => [
-				'node' => [
+				'cursor' => [
+					'type'        => 'String',
+					'description' => __( 'Opaque reference to the nodes position in the connection. Value can be used with pagination args.', 'wp-graphql' ),
+				],
+				'node'   => [
 					'type'        => [ 'non_null' => 'Node' ],
 					'description' => __( 'The connected node', 'wp-graphql' ),
 				],

@@ -63,11 +63,11 @@ class MenuItem {
 						},
 					],
 					'menu'          => [
-						'toType'      => 'Menu',
+						'toType'               => 'Menu',
 						'connectionInterfaces' => [ 'MenuConnection' ],
-						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
-						'oneToOne'    => true,
-						'resolve'     => function ( MenuItemModel $menu_item, $args, $context, $info ) {
+						'description'          => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
+						'oneToOne'             => true,
+						'resolve'              => function ( MenuItemModel $menu_item, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
 							$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
 
