@@ -137,6 +137,7 @@ class PostObject {
 				'toType'             => $post_type_object->graphql_single_name,
 				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
 				'oneToOne'           => true,
+				'deprecationReason'   => ! $post_type_object->publicly_queryable ? sprintf( __( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) ) : null,
 				'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
 						return null;
@@ -263,7 +264,7 @@ class PostObject {
 			$interfaces[] = 'UniformResourceIdentifiable';
 		}
 
-		// Only post types that are publicly queryable are previewable
+		// Only post types that are publicly_queryable are previewable
 		if ( true === $post_type_object->publicly_queryable ) {
 			$interfaces[] = 'Previewable';
 		}
