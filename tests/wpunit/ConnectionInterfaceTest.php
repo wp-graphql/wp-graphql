@@ -65,7 +65,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				'name' => 'SingularConnection'
+				'name' => 'OneToOneConnection'
 			] ),
 		] );
 

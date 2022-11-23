@@ -5,7 +5,7 @@ namespace WPGraphQL\Type\InterfaceType;
 use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
-class SingularConnection {
+class OneToOneConnection {
 	/**
 	 * Register the Connection Interface
 	 *
@@ -16,7 +16,7 @@ class SingularConnection {
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
 
-		register_graphql_interface_type( 'SingularConnection', [
+		register_graphql_interface_type( 'OneToOneConnection', [
 			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
 			'interfaces'  => [ 'Edge' ],
 			'fields'      => [],

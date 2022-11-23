@@ -42,7 +42,7 @@ class PostObject {
 			'fields'      => static::get_fields( $post_type_object ),
 			'model'       => Post::class,
 		];
-		
+
 		// Register as GraphQL objects.
 		if ( 'object' === $post_type_object->graphql_kind ) {
 			register_graphql_object_type( $single_name, $config );

@@ -295,7 +295,7 @@ class WPConnectionType {
 			return;
 		}
 
-		$interfaces = $this->get_edge_interfaces( [ 'SingularConnection', 'Edge' ] );
+		$interfaces = $this->get_edge_interfaces( [ 'OneToOneConnection', 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
