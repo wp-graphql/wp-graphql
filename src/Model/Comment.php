@@ -176,7 +176,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
 				},
 				'approved'           => function () {
-					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '@todo' );
+					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '1.13.0' );
 					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
 				},
 				'status'             => function () {

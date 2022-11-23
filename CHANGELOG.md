@@ -2,9 +2,124 @@
 
 # 1.13.0
 
-## New Features:
+## Possible Breaking Change for some users
+
+The work to introduce the `Connection` and `Edge` (and other) Interfaces required the `User.revisions` and `RootQuery.revisions` connection to 
+change from resolving to the `ContentRevisionUnion` type and instead resolve to the `ContentNode` type. 
+
+We believe that it's highly likely that most users will not be impacted by this change.
+
+Any queries that directly reference the following types:
+
+- `...on UserToContentRevisionUnionConnection`
+- `...on RootQueryToContentRevisionUnionConnection` 
+
+Would need to be updated to reference these types instead: 
+
+- `...on UserToRevisionsConnection`
+- `...on RootQueryToRevisionsConnection`
+
+For example:
+
+### BEFORE
+
+```graphql
+{
+  viewer {
+    revisions {
+      ... on UserToContentRevisionUnionConnection {
+        nodes {
+          __typename
+          ... on Post {
+            id
+            uri
+            isRevision
+          }
+          ... on Page {
+            id
+            uri
+            isRevision
+          }
+        }
+      }
+    }
+  }
+  revisions {
+    ... on RootQueryToContentRevisionUnionConnection {
+      nodes {
+        __typename
+        ... on Post {
+          id
+          uri
+          isRevision
+        }
+        ... on Page {
+          id
+          uri
+          isRevision
+        }
+      }
+    }
+  }
+}
+```
+
+### AFTER
+
+```graphql
+{
+  viewer {
+    revisions {
+      ... on UserToRevisionsConnection {
+        nodes {
+          __typename
+          ... on Post {
+            id
+            uri
+            isRevision
+          }
+          ... on Page {
+            id
+            uri
+            isRevision
+          }
+        }
+      }
+    }
+  }
+  revisions {
+    ... on RootQueryToRevisionsConnection {
+      nodes {
+        __typename
+        ... on Post {
+          id
+          uri
+          isRevision
+        }
+        ... on Page {
+          id
+          uri
+          isRevision
+        }
+      }
+    }
+  }
+}
+```
+
+## New Features
+
+- ([#2617](https://github.com/wp-graphql/wp-graphql/pull/2617): feat: Introduce Connection, Edge and other common Interfaces. 
+- ([#2563](https://github.com/wp-graphql/wp-graphql/pull/2563): feat: refactor mutation registration to use new `WPMutationType`. Thanks @justlevine!
+- ([#2557](https://github.com/wp-graphql/wp-graphql/pull/2557): feat: add `deregister_graphql_type()` access function and corresponding `graphql_excluded_types` filter. Thanks @justlevine!
+- ([#2546](https://github.com/wp-graphql/wp-graphql/pull/2546): feat: Add new `register_graphql_edge_fields()` and `register_graphql_connection_where_args()` access functions. Thanks @justlevine!
 
 ## Chores / Bugfixes
+
+- ([#2622](https://github.com/wp-graphql/wp-graphql/pull/2622): fix: deprecate the `previews` field for non-publicly queryable post types, and limit the `Previewable` Interface to publicly queryable post types.
+- ([#2614](https://github.com/wp-graphql/wp-graphql/pull/2614): chore(deps): bump loader-utils from 2.0.3 to 2.0.4.
+- ([#2540](https://github.com/wp-graphql/wp-graphql/pull/2540): fix: deprecate `Comment.approved` field in favor of `Comment.status: CommentStatusEnum`. Thanks @justlevine!
+- ([#2542](https://github.com/wp-graphql/wp-graphql/pull/2542): Move parse_request logic in `NodeResolver::resolve_uri()` to its own method. Thanks @justlevine!
 
 ## 1.12.2
 

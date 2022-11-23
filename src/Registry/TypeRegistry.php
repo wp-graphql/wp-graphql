@@ -1161,7 +1161,7 @@ class TypeRegistry {
 	 *
 	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
 	 *
-	 * @since @todo
+	 * @since 1.13.0
 	 */
 	public function get_excluded_types() : array {
 		if ( null === $this->excluded_types ) {
@@ -1173,7 +1173,7 @@ class TypeRegistry {
 			 *
 			 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
 			 *
-			 * @since @todo
+			 * @since 1.13.0
 			 */
 			$excluded_types = apply_filters( 'graphql_excluded_types', [] );
 

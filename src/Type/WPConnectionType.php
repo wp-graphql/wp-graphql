@@ -172,7 +172,7 @@ class WPConnectionType {
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 *
-		 * @since @todo
+		 * @since 1.13.0
 		 */
 		do_action( 'graphql_wp_connection_type', $config, $this );
 
@@ -492,7 +492,7 @@ class WPConnectionType {
 	 *
 	 * @throws Exception
 	 */
-	public function register_connection() {
+	public function register_connection(): void {
 
 		$this->register_connection_input();
 

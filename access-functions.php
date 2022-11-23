@@ -316,7 +316,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
  * @param string $field_name The name of the field to add to the connection edge.
  * @param array $config      The field config.
  *
- * @since @todo
+ * @since 1.13.0
  */
 function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
@@ -337,7 +337,7 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
  * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param array  $fields    An array of field configs.
  *
- * @since @todo
+ * @since 1.13.0
  */
 function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
@@ -359,7 +359,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  * @param string $field_name The name of the field to add to the connection edge.
  * @param array $config      The field config.
  *
- * @since @todo
+ * @since 1.13.0
  */
 function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
@@ -380,7 +380,7 @@ function register_graphql_connection_where_arg( string $from_type, string $to_ty
  * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param array  $fields    An array of field configs.
  *
- * @since @todo
+ * @since 1.13.0
  */
 function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ) : void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
@@ -500,7 +500,7 @@ function register_graphql_scalar( string $type_name, array $config ) {
  *
  * @param string $type_name The name of the Type to remove.
  *
- * @since @todo
+ * @since 1.13.0
  */
 function deregister_graphql_type( string $type_name ) : void {
 	// Prevent the type from being registered to the scheme directly.

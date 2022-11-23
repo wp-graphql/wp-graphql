@@ -73,8 +73,10 @@ class WPMutationType {
 	/**
 	 * WPMutationType constructor.
 	 *
-	 * @param array        $config The config array for the mutation
+	 * @param array        $config        The config array for the mutation
 	 * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 *
+	 * @throws Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -84,7 +86,7 @@ class WPMutationType {
 		 * @param array        $config         Array of configuration options passed to the WPMutationType when instantiating a new type
 		 * @param WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
-		 * @since @todo
+		 * @since 1.13.0
 		 */
 		$config = apply_filters( 'graphql_wp_mutation_type_config', $config, $this );
 
@@ -107,7 +109,7 @@ class WPMutationType {
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
-		 * @since @todo
+		 * @since 1.13.0
 		 */
 		do_action( 'graphql_wp_mutation_type', $config, $this );
 
