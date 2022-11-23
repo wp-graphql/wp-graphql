@@ -103,6 +103,7 @@ use WPGraphQL\Type\InterfaceType\SingularConnection;
 use WPGraphQL\Type\InterfaceType\SingularContentTypeConnectionEdge;
 use WPGraphQL\Type\InterfaceType\TaxonomyConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
+use WPGraphQL\Type\InterfaceType\TermNodeConnection;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
@@ -308,6 +309,7 @@ class TypeRegistry {
 		SingularContentTypeConnectionEdge::register_type( $type_registry );
 		TaxonomyConnection::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
+		TermNodeConnection::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
 		// register types

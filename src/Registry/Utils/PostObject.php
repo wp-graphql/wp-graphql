@@ -184,6 +184,7 @@ class PostObject {
 			if ( ! $already_registered ) {
 				$connections['terms'] = [
 					'toType'         => 'TermNode',
+					'connectionInterfaces' => [ 'TermNodeConnection' ],
 					'queryClass'     => 'WP_Term_Query',
 					'connectionArgs' => TermObjects::get_connection_args(
 						[
