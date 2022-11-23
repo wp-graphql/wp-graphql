@@ -261,6 +261,10 @@ class PostObject {
 
 		if ( true === $post_type_object->public ) {
 			$interfaces[] = 'UniformResourceIdentifiable';
+		}
+
+		// Only post types that are publicly queryable are previewable
+		if ( true === $post_type_object->publicly_queryable ) {
 			$interfaces[] = 'Previewable';
 		}
 
