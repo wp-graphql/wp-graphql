@@ -1,8 +1,15 @@
 <?php
 namespace WPGraphQL\Type\Union;
 
+use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class TermObjectUnion
+ *
+ * @package WPGraphQL\Type\Union
+ * @deprecated use TermNode interface instead
+ */
 class TermObjectUnion {
 
 	/**
@@ -11,8 +18,9 @@ class TermObjectUnion {
 	 * @param TypeRegistry $type_registry
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ) {
+	public static function register_type( TypeRegistry $type_registry ): void {
 		register_graphql_union_type(
 			'TermObjectUnion',
 			[

@@ -23,7 +23,7 @@ class TermObjectUpdate {
 	 * @return void
 	 */
 	public static function register_mutation( WP_Taxonomy $taxonomy ) {
-		$mutation_name = 'Update' . ucwords( $taxonomy->graphql_single_name );
+		$mutation_name = 'update' . ucwords( $taxonomy->graphql_single_name );
 		register_graphql_mutation(
 			$mutation_name,
 			[

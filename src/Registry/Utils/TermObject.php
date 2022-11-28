@@ -7,12 +7,12 @@ use GraphQL\Type\Definition\ResolveInfo;
 use WP_Taxonomy;
 use WPGraphQL;
 use WPGraphQL\AppContext;
-use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\TermObjects;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Term;
+use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Type\Connection\TermObjects;
 
 /**
  * Class TermObjectType
@@ -106,9 +106,10 @@ class TermObject {
 		// Taxonomy.
 		// @todo connection move to TermNode (breaking).
 		$connections['taxonomy'] = [
-			'toType'   => 'Taxonomy',
-			'oneToOne' => true,
-			'resolve'  => function ( Term $source, $args, $context, $info ) {
+			'toType'               => 'Taxonomy',
+			'connectionInterfaces' => [ 'TaxonomyConnection' ],
+			'oneToOne'             => true,
+			'resolve'              => function ( Term $source, $args, $context, $info ) {
 				if ( empty( $source->taxonomyName ) ) {
 					return null;
 				}

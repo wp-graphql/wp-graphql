@@ -4,7 +4,6 @@ namespace WPGraphQL\Type;
 use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
-use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -140,6 +139,14 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
+		/**
+		 * Bail if one of the connection types has been excluded from the schema.
+		 */
+		$excluded_types = $type_registry->get_excluded_types();
+		if ( in_array( strtolower( $config['fromType'] ), $excluded_types, true ) || in_array( strtolower( $config['toType'] ), $excluded_types, true ) ) {
+			return;
+		}
+
 		$this->config                = $config;
 		$this->type_registry         = $type_registry;
 		$this->from_type             = $config['fromType'];
@@ -159,6 +166,17 @@ class WPConnectionType {
 		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
 		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
+		/**
+		 * Run an action when the WPConnectionType is instantiating.
+		 *
+		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 *
+		 * @since 1.13.0
+		 */
+		do_action( 'graphql_wp_connection_type', $config, $this );
+
+		$this->register_connection();
 	}
 
 	/**
@@ -168,7 +186,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 */
-	protected function validate_config( array $config ) {
+	protected function validate_config( array $config ): void {
 
 		if ( ! array_key_exists( 'fromType', $config ) ) {
 			throw new InvalidArgument( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
@@ -191,10 +209,10 @@ class WPConnectionType {
 	 *
 	 * @return array
 	 */
-	protected function get_edge_interfaces( array $interfaces ) {
+	protected function get_edge_interfaces( array $interfaces = [] ): array {
 		if ( ! empty( $this->connection_interfaces ) ) {
 			foreach ( $this->connection_interfaces as $connection_interface ) {
-				$interfaces[] = $connection_interface . 'Edge';
+				$interfaces[] = str_ends_with( $connection_interface, 'Edge' ) ? $connection_interface : $connection_interface . 'Edge';
 			}
 		}
 		return $interfaces;
@@ -210,7 +228,7 @@ class WPConnectionType {
 	 *
 	 * @return string
 	 */
-	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ) {
+	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ): string {
 
 		// Create connection name using $from_type + To + $to_type + Connection.
 		$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'Connection';
@@ -271,10 +289,13 @@ class WPConnectionType {
 	 *
 	 * @throws Exception
 	 */
-	protected function register_one_to_one_connection_edge_type() {
+	protected function register_one_to_one_connection_edge_type(): void {
 
-		$interfaces = [ 'SingleNodeConnectionEdge', 'Edge' ];
-		$interfaces = $this->get_edge_interfaces( $interfaces );
+		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
+			return;
+		}
+
+		$interfaces = $this->get_edge_interfaces( [ 'OneToOneConnection', 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -285,7 +306,7 @@ class WPConnectionType {
 				'fields'      => array_merge(
 					[
 						'node' => [
-							'type'              => $this->to_type,
+							'type'              => [ 'non_null' => $this->to_type ],
 							'description'       => __( 'The node of the connection, without the edges', 'wp-graphql' ),
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
@@ -305,8 +326,11 @@ class WPConnectionType {
 	 */
 	protected function register_connection_edge_type() {
 
-		$interfaces = [ 'Edge' ];
-		$this->get_edge_interfaces( $interfaces );
+		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
+			return;
+		}
+
+		$interfaces = $this->get_edge_interfaces( [ 'Edge' ] );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -322,7 +346,7 @@ class WPConnectionType {
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
 						'node'   => [
-							'type'              => $this->to_type,
+							'type'              => [ 'non_null' => $this->to_type ],
 							'description'       => __( 'The item at the end of the edge', 'wp-graphql' ),
 							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 						],
@@ -343,8 +367,12 @@ class WPConnectionType {
 	 */
 	protected function register_connection_type() {
 
+		if ( $this->type_registry->has_type( $this->connection_name ) ) {
+			return;
+		}
+
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
-		$interfaces[] = [ 'Connection' ];
+		$interfaces[] = 'Connection';
 
 		$this->type_registry->register_object_type(
 			$this->connection_name,
@@ -374,12 +402,12 @@ class WPConnectionType {
 					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				],
 				'edges'    => [
-					'type'        => [ 'list_of' => $this->connection_name . 'Edge' ],
+					'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->connection_name . 'Edge' ] ] ],
 					// Translators: Placeholder is the name of the connection
 					'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $this->connection_name ),
 				],
 				'nodes'    => [
-					'type'        => [ 'list_of' => $this->to_type ],
+					'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
 					'description' => __( 'The nodes of the connection, without the edges', 'wp-graphql' ),
 				],
 			],
@@ -456,13 +484,15 @@ class WPConnectionType {
 	}
 
 	/**
-	 * Registers the connection Types and field to the Schema
+	 * Registers the connection Types and field to the Schema.
+	 *
+	 * @todo change to 'Protected'. This is public for now to allow for backwards compatibility.
 	 *
 	 * @return void
 	 *
 	 * @throws Exception
 	 */
-	public function register_connection() {
+	public function register_connection(): void {
 
 		$this->register_connection_input();
 

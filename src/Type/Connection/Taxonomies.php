@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Connection;
+namespace WPGraphQL\Type\Connection;
 
 use WPGraphQL\Data\Connection\TaxonomyConnectionResolver;
 use WPGraphQL\Model\PostType;
@@ -16,10 +16,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'RootQuery',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'taxonomies',
-				'resolve'       => function ( $source, $args, $context, $info ) {
+				'fromType'             => 'RootQuery',
+				'toType'               => 'Taxonomy',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
+				'fromFieldName'        => 'taxonomies',
+				'resolve'              => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -28,10 +29,11 @@ class Taxonomies {
 
 		register_graphql_connection(
 			[
-				'fromType'      => 'ContentType',
-				'toType'        => 'Taxonomy',
-				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function ( PostType $source, $args, $context, $info ) {
+				'fromType'             => 'ContentType',
+				'toType'               => 'Taxonomy',
+				'connectionInterfaces' => [ 'TaxonomyConnection' ],
+				'fromFieldName'        => 'connectedTaxonomies',
+				'resolve'              => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}

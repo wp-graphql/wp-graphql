@@ -28,7 +28,7 @@ class Comment {
 				'connections' => [
 					'author' => [
 						'toType'               => 'Commenter',
-						'connectionInterfaces' => [ 'CommenterConnection' ],
+						'connectionInterfaces' => [ 'CommenterConnectionEdge' ],
 						'description'          => __( 'The author of the comment', 'wp-graphql' ),
 						'oneToOne'             => true,
 						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
@@ -55,25 +55,26 @@ class Comment {
 					],
 				],
 				'fields'      => [
-					'id'               => [
-						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
+					'agent'            => [
+						'type'        => 'String',
+						'description' => __( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the "comment_agent" column in SQL.', 'wp-graphql' ),
 					],
-					'commentId'        => [
-						'type'              => 'Int',
-						'description'       => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
-						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
+					'approved'         => [
+						'type'              => 'Boolean',
+						'description'       => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of the `status` field', 'wp-graphql' ),
+						'resolve'           => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {
+							return 'approve' === $comment->status;
+						},
 					],
 					'authorIp'         => [
 						'type'        => 'String',
 						'description' => __( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' ),
 					],
-					'date'             => [
-						'type'        => 'String',
-						'description' => __( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the "date" column in SQL.', 'wp-graphql' ),
-					],
-					'dateGmt'          => [
-						'type'        => 'String',
-						'description' => __( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the "date_gmt" column in SQL.', 'wp-graphql' ),
+					'commentId'        => [
+						'type'              => 'Int',
+						'description'       => __( 'ID for the comment, unique among comments.', 'wp-graphql' ),
+						'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 					],
 					'content'          => [
 						'type'        => 'String',
@@ -92,25 +93,24 @@ class Comment {
 							}
 						},
 					],
-					'karma'            => [
-						'type'        => 'Int',
-						'description' => __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the "comment_karma" column in SQL.', 'wp-graphql' ),
-					],
-					'approved'         => [
-						'type'        => 'Boolean',
-						'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
-					],
-					'agent'            => [
+					'date'             => [
 						'type'        => 'String',
-						'description' => __( 'User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the "comment_agent" column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the "date" column in SQL.', 'wp-graphql' ),
 					],
-					'type'             => [
+					'dateGmt'          => [
 						'type'        => 'String',
-						'description' => __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the "comment_type" column in SQL.', 'wp-graphql' ),
+						'description' => __( 'Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the "date_gmt" column in SQL.', 'wp-graphql' ),
+					],
+					'id'               => [
+						'description' => __( 'The globally unique identifier for the comment object', 'wp-graphql' ),
 					],
 					'isRestricted'     => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+					],
+					'karma'            => [
+						'type'        => 'Int',
+						'description' => __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the "comment_karma" column in SQL.', 'wp-graphql' ),
 					],
 					'parentId'         => [
 						'type'        => 'ID',
@@ -119,6 +119,14 @@ class Comment {
 					'parentDatabaseId' => [
 						'type'        => 'Int',
 						'description' => __( 'The database id of the parent comment node or null if it is the root comment', 'wp-graphql' ),
+					],
+					'status'           => [
+						'type'        => 'CommentStatusEnum',
+						'description' => __( 'The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the "comment_approved" column in SQL.', 'wp-graphql' ),
+					],
+					'type'             => [
+						'type'        => 'String',
+						'description' => __( 'Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the "comment_type" column in SQL.', 'wp-graphql' ),
 					],
 				],
 			]

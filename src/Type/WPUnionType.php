@@ -44,6 +44,13 @@ class WPUnionType extends UnionType {
 			if ( ! empty( $config['typeNames'] ) && is_array( $config['typeNames'] ) ) {
 				$prepared_types = [];
 				foreach ( $config['typeNames'] as $type_name ) {
+					/**
+					 * Skip if the type is excluded from the schema.
+					 */
+					if ( in_array( strtolower( $type_name ), $this->type_registry->get_excluded_types(), true ) ) {
+						continue;
+					}
+
 					$prepared_types[] = $this->type_registry->get_type( $type_name );
 				}
 			}
