@@ -293,7 +293,7 @@ class WPMutationType {
 	protected function register_mutation_field() : void {
 		$this->type_registry->register_field(
 			'rootMutation',
-			Utils::format_field_name( $this->mutation_name ),
+			$this->mutation_name,
 			array_merge( $this->config,
 				[
 					'args'        => [
@@ -308,7 +308,6 @@ class WPMutationType {
 					'isPrivate'   => $this->is_private,
 					'type'        => $this->mutation_name . 'Payload',
 					'resolve'     => $this->resolve_mutation,
-					'name'        => Utils::format_field_name( $this->mutation_name ),
 				]
 			)
 		);

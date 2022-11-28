@@ -1540,4 +1540,62 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterFieldWithUppercaseNameIsAddedToSchemaWithLcFirst() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'UppercaseField', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  uppercaseField
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['uppercaseField'] );
+
+	}
+
+	public function testRegisterFieldWithUnderscoreIsAddedAsFormattedField() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'field_with_underscore', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  fieldWithUnderscore
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['fieldWithUnderscore'] );
+
+	}
+
 }
