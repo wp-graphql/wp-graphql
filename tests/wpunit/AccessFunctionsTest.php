@@ -1505,4 +1505,39 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterMutationWithUppercaseFirstAddsToSchemaWithLcFirst() {
+
+		register_graphql_mutation( 'CreateSomething', [
+			'inputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'outputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'mutateAndGetPayload' => function( $input ) {
+				return [ 'test' => $input['test'] ];
+			}
+		] );
+
+		$query = '
+		mutation CreateSomething($test: String) {
+			createSomething(input:{ test: $test }) {
+				test
+			}
+		}
+		';
+
+		$test_input = uniqid( 'wpgraphql', true );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'test' => $test_input
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( $test_input, $actual['data']['createSomething']['test'] );
+
+	}
+
 }
