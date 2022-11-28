@@ -232,6 +232,13 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 1.13.1 =
+
+**Chores / Bugfixes**
+
+- ([#2625](https://github.com/wp-graphql/wp-graphql/pull/2625)): fix: Fixes a regression to v1.13.0 where mutations registered with an uppercase first letter weren't properly being transformed to a lowercase first letter when the field is added to the Schema.
+
+
 = 1.13.0 =
 
 **Possible Breaking Change for some users**
