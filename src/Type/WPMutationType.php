@@ -7,6 +7,7 @@ use GraphQL\Exception\InvalidArgument;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class WPMutationType
@@ -292,7 +293,7 @@ class WPMutationType {
 	protected function register_mutation_field() : void {
 		$this->type_registry->register_field(
 			'rootMutation',
-			lcfirst( $this->mutation_name ),
+			$this->mutation_name,
 			array_merge( $this->config,
 				[
 					'args'        => [
