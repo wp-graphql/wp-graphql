@@ -1,8 +1,14 @@
 # Changelog
 
-# 1.13.0
+## 1.13.1
 
-## Possible Breaking Change for some users
+### Chores / Bugfixes
+
+- ([#2625](https://github.com/wp-graphql/wp-graphql/pull/2625)): fix: Fixes a regression to v1.13.0 where mutations registered with an uppercase first letter weren't properly being transformed to a lowercase first letter when the field is added to the Schema.
+
+## 1.13.0
+
+### Possible Breaking Change for some users
 
 The work to introduce the `Connection` and `Edge` (and other) Interfaces required the `User.revisions` and `RootQuery.revisions` connection to 
 change from resolving to the `ContentRevisionUnion` type and instead resolve to the `ContentNode` type. 
@@ -21,7 +27,7 @@ Would need to be updated to reference these types instead:
 
 For example:
 
-### BEFORE
+#### BEFORE
 
 ```graphql
 {
@@ -64,7 +70,7 @@ For example:
 }
 ```
 
-### AFTER
+#### AFTER
 
 ```graphql
 {
@@ -107,14 +113,14 @@ For example:
 }
 ```
 
-## New Features
+### New Features
 
 - ([#2617](https://github.com/wp-graphql/wp-graphql/pull/2617): feat: Introduce Connection, Edge and other common Interfaces. 
 - ([#2563](https://github.com/wp-graphql/wp-graphql/pull/2563): feat: refactor mutation registration to use new `WPMutationType`. Thanks @justlevine!
 - ([#2557](https://github.com/wp-graphql/wp-graphql/pull/2557): feat: add `deregister_graphql_type()` access function and corresponding `graphql_excluded_types` filter. Thanks @justlevine!
 - ([#2546](https://github.com/wp-graphql/wp-graphql/pull/2546): feat: Add new `register_graphql_edge_fields()` and `register_graphql_connection_where_args()` access functions. Thanks @justlevine!
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2622](https://github.com/wp-graphql/wp-graphql/pull/2622): fix: deprecate the `previews` field for non-publicly queryable post types, and limit the `Previewable` Interface to publicly queryable post types.
 - ([#2614](https://github.com/wp-graphql/wp-graphql/pull/2614): chore(deps): bump loader-utils from 2.0.3 to 2.0.4.
