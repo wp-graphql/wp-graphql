@@ -1505,4 +1505,97 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterMutationWithUppercaseFirstAddsToSchemaWithLcFirst() {
+
+		register_graphql_mutation( 'CreateSomething', [
+			'inputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'outputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'mutateAndGetPayload' => function( $input ) {
+				return [ 'test' => $input['test'] ];
+			}
+		] );
+
+		$query = '
+		mutation CreateSomething($test: String) {
+			createSomething(input:{ test: $test }) {
+				test
+			}
+		}
+		';
+
+		$test_input = uniqid( 'wpgraphql', true );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'test' => $test_input
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( $test_input, $actual['data']['createSomething']['test'] );
+
+	}
+
+	public function testRegisterFieldWithUppercaseNameIsAddedToSchemaWithLcFirst() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'UppercaseField', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  uppercaseField
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['uppercaseField'] );
+
+	}
+
+	public function testRegisterFieldWithUnderscoreIsAddedAsFormattedField() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'field_with_underscore', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  fieldWithUnderscore
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['fieldWithUnderscore'] );
+
+	}
+
 }
