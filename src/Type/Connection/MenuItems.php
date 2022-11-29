@@ -99,7 +99,6 @@ class MenuItems {
 				'fromType'             => 'RootQuery',
 				'fromFieldName'        => 'menuItems',
 				'toType'               => 'MenuItem',
-				'connectionInterfaces' => [ 'MenuItemConnection' ],
 				'connectionArgs'       => [
 					'id'               => [
 						'type'        => 'Int',

@@ -25,7 +25,6 @@ class Taxonomy {
 				'connections' => [
 					'connectedContentTypes' => [
 						'toType'               => 'ContentType',
-						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'description'          => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
 						'resolve'              => function ( TaxonomyModel $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 

@@ -26,7 +26,6 @@ class TermObjects {
 			[
 				'fromType'             => 'RootQuery',
 				'toType'               => 'TermNode',
-				'connectionInterfaces' => [ 'TermNodeConnection' ],
 				'queryClass'           => 'WP_Term_Query',
 				'fromFieldName'        => 'terms',
 				'connectionArgs'       => self::get_connection_args(

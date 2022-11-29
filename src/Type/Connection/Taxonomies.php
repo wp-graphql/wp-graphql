@@ -18,7 +18,6 @@ class Taxonomies {
 			[
 				'fromType'             => 'RootQuery',
 				'toType'               => 'Taxonomy',
-				'connectionInterfaces' => [ 'TaxonomyConnection' ],
 				'fromFieldName'        => 'taxonomies',
 				'resolve'              => function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
@@ -31,7 +30,6 @@ class Taxonomies {
 			[
 				'fromType'             => 'ContentType',
 				'toType'               => 'Taxonomy',
-				'connectionInterfaces' => [ 'TaxonomyConnection' ],
 				'fromFieldName'        => 'connectedTaxonomies',
 				'resolve'              => function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {

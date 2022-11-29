@@ -31,7 +31,6 @@ class Users {
 			[
 				'fromType'             => 'RootQuery',
 				'toType'               => 'User',
-				'connectionInterfaces' => [ 'UserConnection' ],
 				'fromFieldName'        => 'users',
 				'resolve'              => function ( $source, $args, $context, $info ) {
 					return DataSource::resolve_users_connection( $source, $args, $context, $info );
@@ -43,7 +42,6 @@ class Users {
 		register_graphql_connection([
 			'fromType'             => 'ContentNode',
 			'toType'               => 'User',
-			'connectionInterfaces' => [ 'UserConnection' ],
 			'connectionTypeName'   => 'ContentNodeToEditLockConnection',
 			'edgeFields'           => [
 				'lockTimestamp' => [
@@ -79,7 +77,6 @@ class Users {
 		register_graphql_connection([
 			'fromType'             => 'ContentNode',
 			'toType'               => 'User',
-			'connectionInterfaces' => [ 'UserConnection' ],
 			'fromFieldName'        => 'lastEditedBy',
 			'connectionTypeName'   => 'ContentNodeToEditLastConnection',
 			'description'          => __( 'The user that most recently edited the node', 'wp-graphql' ),
@@ -100,7 +97,6 @@ class Users {
 		register_graphql_connection( [
 			'fromType'             => 'NodeWithAuthor',
 			'toType'               => 'User',
-			'connectionInterfaces' => [ 'UserConnection' ],
 			'fromFieldName'        => 'author',
 			'oneToOne'             => true,
 			'resolve'              => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {

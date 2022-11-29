@@ -37,7 +37,6 @@ class RootQuery {
 				'connections' => [
 					'contentTypes'          => [
 						'toType'               => 'ContentType',
-						'connectionInterfaces' => [ 'ContentTypeConnection' ],
 						'resolve'              => function ( $source, $args, $context, $info ) {
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 
@@ -46,7 +45,6 @@ class RootQuery {
 					],
 					'menus'                 => [
 						'toType'               => 'Menu',
-						'connectionInterfaces' => [ 'MenuConnection' ],
 						'connectionArgs'       => [
 							'id'       => [
 								'type'        => 'Int',
@@ -130,7 +128,6 @@ class RootQuery {
 					],
 					'revisions'             => [
 						'toType'               => 'ContentNode',
-						'connectionInterfaces' => [ 'ContentNodeConnection' ],
 						'queryClass'           => 'WP_Query',
 						'connectionArgs'       => PostObjects::get_connection_args(),
 						'resolve'              => function ( $root, $args, $context, $info ) {

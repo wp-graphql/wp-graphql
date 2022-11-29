@@ -28,7 +28,6 @@ class Comment {
 				'connections' => [
 					'author' => [
 						'toType'               => 'Commenter',
-						'connectionInterfaces' => [ 'CommenterConnectionEdge' ],
 						'description'          => __( 'The author of the comment', 'wp-graphql' ),
 						'oneToOne'             => true,
 						'resolve'              => function ( $comment, $args, AppContext $context, ResolveInfo $info ) {

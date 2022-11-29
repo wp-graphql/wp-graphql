@@ -88,7 +88,6 @@ class Comments {
 		$defaults = [
 			'fromType'             => 'RootQuery',
 			'toType'               => 'Comment',
-			'connectionInterfaces' => [ 'CommentConnection' ],
 			'fromFieldName'        => 'comments',
 			'connectionArgs'       => self::get_connection_args(),
 			'resolve'              => function ( $root, $args, $context, $info ) {

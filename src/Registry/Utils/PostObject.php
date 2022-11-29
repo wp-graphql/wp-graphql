@@ -114,7 +114,6 @@ class PostObject {
 		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 			$connections['comments'] = [
 				'toType'               => 'Comment',
-				'connectionInterfaces' => [ 'CommentConnection' ],
 				'connectionArgs'       => Comments::get_connection_args(),
 				'resolve'              => function ( Post $post, $args, $context, $info ) {
 
@@ -185,7 +184,6 @@ class PostObject {
 			if ( ! $already_registered ) {
 				$connections['terms'] = [
 					'toType'               => 'TermNode',
-					'connectionInterfaces' => [ 'TermNodeConnection' ],
 					'queryClass'           => 'WP_Term_Query',
 					'connectionArgs'       => TermObjects::get_connection_args(
 						[

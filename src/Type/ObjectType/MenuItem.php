@@ -26,7 +26,6 @@ class MenuItem {
 				'connections' => [
 					'connectedNode' => [
 						'toType'               => 'MenuItemLinkable',
-						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
 						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
 						'oneToOne'             => true,
 						'resolve'              => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
@@ -64,7 +63,6 @@ class MenuItem {
 					],
 					'menu'          => [
 						'toType'               => 'Menu',
-						'connectionInterfaces' => [ 'MenuConnection' ],
 						'description'          => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
 						'oneToOne'             => true,
 						'resolve'              => function ( MenuItemModel $menu_item, $args, $context, $info ) {
