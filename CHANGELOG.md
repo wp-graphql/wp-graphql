@@ -1,6 +1,12 @@
 # Changelog
 
-= 1.13.3 =
+## 1.13.4
+
+### Chores / Bugfixes
+
+- ([#2631](https://github.com/wp-graphql/wp-graphql/pull/2631)): simplify (DRY up) connection interface registration. 
+
+## 1.13.3
 
 - fix: update versions for WordPress.org deploys
 
