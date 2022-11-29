@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.13.2
+
+### Chores / Bugfixes
+
+- ([#2627](https://github.com/wp-graphql/wp-graphql/pull/2627)): fix: Fixes regression where Connection classes were moved to another namespace. This adds deprecated classes back to the old namespace to extend the new classes. Thanks @justlevine!
+
+
 ## 1.13.1
 
 ### Chores / Bugfixes
