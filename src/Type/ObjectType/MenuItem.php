@@ -25,11 +25,10 @@ class MenuItem {
 				'model'       => MenuItemModel::class,
 				'connections' => [
 					'connectedNode' => [
-						'toType'               => 'MenuItemLinkable',
-						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
-						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
-						'oneToOne'             => true,
-						'resolve'              => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'      => 'MenuItemLinkable',
+						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'oneToOne'    => true,
+						'resolve'     => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 
 							if ( ! isset( $menu_item->databaseId ) ) {
 								return null;
@@ -63,11 +62,10 @@ class MenuItem {
 						},
 					],
 					'menu'          => [
-						'toType'               => 'Menu',
-						'connectionInterfaces' => [ 'MenuConnection' ],
-						'description'          => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
-						'oneToOne'             => true,
-						'resolve'              => function ( MenuItemModel $menu_item, $args, $context, $info ) {
+						'toType'      => 'Menu',
+						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
+						'oneToOne'    => true,
+						'resolve'     => function ( MenuItemModel $menu_item, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
 							$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
 
