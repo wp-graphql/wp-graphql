@@ -128,9 +128,7 @@ class NodeResolver {
 		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
 
 			// Target post types with a public URI.
-			$allowed_post_types = get_post_types( [
-				'show_in_graphql' => true,
-			], 'names' );
+			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 			$post_type = 'post';
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
@@ -157,9 +155,7 @@ class NodeResolver {
 
 			unset( $this->wp->query_vars['uri'] );
 
-			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : get_post_types( [
-				'show_in_graphql' => true,
-			], 'names' );
+			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : \WPGraphQL::get_allowed_post_types();
 
 			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
 
