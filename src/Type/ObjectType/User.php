@@ -47,13 +47,12 @@ class User {
 						},
 					],
 					'revisions'           => [
-						'toType'               => 'ContentNode',
-						'connectionInterfaces' => [ 'ContentNodeConnection' ],
-						'connectionTypeName'   => 'UserToRevisionsConnection',
-						'queryClass'           => 'WP_Query',
-						'description'          => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
-						'connectionArgs'       => PostObjects::get_connection_args(),
-						'resolve'              => function ( $root, $args, $context, $info ) {
+						'toType'             => 'ContentNode',
+						'connectionTypeName' => 'UserToRevisionsConnection',
+						'queryClass'         => 'WP_Query',
+						'description'        => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
+						'connectionArgs'     => PostObjects::get_connection_args(),
+						'resolve'            => function ( $root, $args, $context, $info ) {
 							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();

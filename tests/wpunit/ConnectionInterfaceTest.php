@@ -175,14 +175,14 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
-	public function testMenuItemLinkableConnectionImplementsConnection() {
+	public function testMenuItemLinkableConnectionEdgeImplementsEdge() {
 
-		$results = $this->interfaceQuery( 'MenuItemLinkableConnection' );
+		$results = $this->interfaceQuery( 'MenuItemLinkableConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 		$this->assertQuerySuccessful( $results, [
 			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
+				'name' => 'Edge'
 			] ),
 		] );
 

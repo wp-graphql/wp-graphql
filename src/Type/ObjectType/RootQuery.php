@@ -36,18 +36,16 @@ class RootQuery {
 				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
 				'connections' => [
 					'contentTypes'          => [
-						'toType'               => 'ContentType',
-						'connectionInterfaces' => [ 'ContentTypeConnection' ],
-						'resolve'              => function ( $source, $args, $context, $info ) {
+						'toType'  => 'ContentType',
+						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
 						},
 					],
 					'menus'                 => [
-						'toType'               => 'Menu',
-						'connectionInterfaces' => [ 'MenuConnection' ],
-						'connectionArgs'       => [
+						'toType'         => 'Menu',
+						'connectionArgs' => [
 							'id'       => [
 								'type'        => 'Int',
 								'description' => __( 'The database ID of the object', 'wp-graphql' ),
@@ -61,7 +59,7 @@ class RootQuery {
 								'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
 							],
 						],
-						'resolve'              => function ( $source, $args, $context, $info ) {
+						'resolve'        => function ( $source, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $source, $args, $context, $info, 'nav_menu' );
 
 							return $resolver->get_connection();
@@ -129,11 +127,10 @@ class RootQuery {
 						},
 					],
 					'revisions'             => [
-						'toType'               => 'ContentNode',
-						'connectionInterfaces' => [ 'ContentNodeConnection' ],
-						'queryClass'           => 'WP_Query',
-						'connectionArgs'       => PostObjects::get_connection_args(),
-						'resolve'              => function ( $root, $args, $context, $info ) {
+						'toType'         => 'ContentNode',
+						'queryClass'     => 'WP_Query',
+						'connectionArgs' => PostObjects::get_connection_args(),
+						'resolve'        => function ( $root, $args, $context, $info ) {
 							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();

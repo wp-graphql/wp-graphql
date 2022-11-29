@@ -113,10 +113,9 @@ class PostObject {
 		// Comments.
 		if ( post_type_supports( $post_type_object->name, 'comments' ) ) {
 			$connections['comments'] = [
-				'toType'               => 'Comment',
-				'connectionInterfaces' => [ 'CommentConnection' ],
-				'connectionArgs'       => Comments::get_connection_args(),
-				'resolve'              => function ( Post $post, $args, $context, $info ) {
+				'toType'         => 'Comment',
+				'connectionArgs' => Comments::get_connection_args(),
+				'resolve'        => function ( Post $post, $args, $context, $info ) {
 
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
@@ -184,10 +183,9 @@ class PostObject {
 			// TermNode.
 			if ( ! $already_registered ) {
 				$connections['terms'] = [
-					'toType'               => 'TermNode',
-					'connectionInterfaces' => [ 'TermNodeConnection' ],
-					'queryClass'           => 'WP_Term_Query',
-					'connectionArgs'       => TermObjects::get_connection_args(
+					'toType'         => 'TermNode',
+					'queryClass'     => 'WP_Term_Query',
+					'connectionArgs' => TermObjects::get_connection_args(
 						[
 							'taxonomies' => [
 								'type'        => [ 'list_of' => 'TaxonomyEnum' ],
@@ -195,7 +193,7 @@ class PostObject {
 							],
 						]
 					),
-					'resolve'              => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 
