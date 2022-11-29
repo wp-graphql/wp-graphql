@@ -130,7 +130,7 @@ class WPConnectionType {
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
-		$this->type_registry         = $type_registry;
+		$this->type_registry = $type_registry;
 
 		/**
 		 * Filter the config of WPConnectionType
@@ -499,7 +499,7 @@ class WPConnectionType {
 
 			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionEdge', [
 				'interfaces'  => [ 'Edge' ],
-				'description' => sprintf(  __( 'Edge between a Node and a connected Comment', 'wp-graphql' ), $this->to_type ),
+				'description' => sprintf( __( 'Edge between a Node and a connected Comment', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
 					'type'        => [ 'non_null' => $this->to_type ],
 					'description' => sprintf( __( 'The connected %s Node', 'wp-graphql' ), $this->to_type ),
@@ -521,7 +521,7 @@ class WPConnectionType {
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
 						'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 					],
-				]
+				],
 			] );
 		}
 

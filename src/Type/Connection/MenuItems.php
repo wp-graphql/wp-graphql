@@ -96,10 +96,10 @@ class MenuItems {
 	public static function get_connection_config( $args = [] ) {
 		return array_merge(
 			[
-				'fromType'             => 'RootQuery',
-				'fromFieldName'        => 'menuItems',
-				'toType'               => 'MenuItem',
-				'connectionArgs'       => [
+				'fromType'       => 'RootQuery',
+				'fromFieldName'  => 'menuItems',
+				'toType'         => 'MenuItem',
+				'connectionArgs' => [
 					'id'               => [
 						'type'        => 'Int',
 						'description' => __( 'The database ID of the object', 'wp-graphql' ),
@@ -117,7 +117,7 @@ class MenuItems {
 						'description' => __( 'The database ID of the parent menu object', 'wp-graphql' ),
 					],
 				],
-				'resolve'              => function ( $source, $args, $context, $info ) {
+				'resolve'        => function ( $source, $args, $context, $info ) {
 					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
 					$connection = $resolver->get_connection();
 

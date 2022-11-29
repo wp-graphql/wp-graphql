@@ -86,11 +86,11 @@ class Comments {
 	 */
 	public static function get_connection_config( $args = [] ) {
 		$defaults = [
-			'fromType'             => 'RootQuery',
-			'toType'               => 'Comment',
-			'fromFieldName'        => 'comments',
-			'connectionArgs'       => self::get_connection_args(),
-			'resolve'              => function ( $root, $args, $context, $info ) {
+			'fromType'       => 'RootQuery',
+			'toType'         => 'Comment',
+			'fromFieldName'  => 'comments',
+			'connectionArgs' => self::get_connection_args(),
+			'resolve'        => function ( $root, $args, $context, $info ) {
 				return DataSource::resolve_comments_connection( $root, $args, $context, $info );
 			},
 		];
