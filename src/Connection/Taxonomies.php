@@ -9,10 +9,10 @@ class Taxonomies extends \WPGraphQL\Type\Connection\Taxonomies {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @deprecated @todo
+	 * @deprecated 1.13.0
 	 */
 	public static function register_connections() {
-		_deprecated_function( __METHOD__, '@todo', '\WPGraphQL\Type\Connection\Taxonomies::register_connections' );
+		_deprecated_function( __METHOD__, '1.13.0', '\WPGraphQL\Type\Connection\Taxonomies::register_connections' );
 		parent::register_connections();
 	}
 }
