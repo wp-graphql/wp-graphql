@@ -722,4 +722,63 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testQueryProductPost() {
+
+		// Mock filter from WooGraphQL:
+		// https://github.com/wp-graphql/wp-graphql-woocommerce/blob/0c918bb802b70008d08b28f26710b57a230ea5b2/includes/class-core-schema-filters.php#L26
+		// https://github.com/wp-graphql/wp-graphql-woocommerce/blob/0c918bb802b70008d08b28f26710b57a230ea5b2/includes/class-core-schema-filters.php#L179
+		add_filter( 'graphql_post_entities_allowed_post_types', function( $post_types ) {
+			return array_diff(
+				$post_types,
+				get_post_types(
+					[
+						'show_in_graphql'            => true,
+						'skip_graphql_type_registry' => true,
+					]
+				)
+			);
+		});
+
+		register_graphql_object_type( 'Product', [
+			'interfaces' => [ 'Node', 'UniformResourceIdentifiable' ],
+			'fields' => [ 'test' => [ 'price' => 'String' ] ]
+		]);
+
+		register_post_type( 'product', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'Product',
+			'graphql_plural_name' => 'Products',
+			'skip_graphql_type_registry' => true,
+		]);
+
+		flush_rewrite_rules( true );
+
+		$product_id = $this->factory()->post->create( [
+			'post_type'   => 'product',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Product for NodeByUriTest',
+			'post_author' => $this->user,
+		] );
+
+		$uri = get_permalink( $product_id );
+
+		wp_set_current_user( $this->user );
+
+		$actual = graphql([
+			'query' => 'query ($uri:String!) { nodeByUri(uri:$uri) { __typename, uri, id }}',
+			'variables' => [ 'uri' => $uri ]
+		]);
+
+		codecept_debug( [
+			'uri' => $uri,
+			'id' => $product_id,
+			'actual' => $actual,
+		]);
+
+		$this->assertSame( 'Product', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( \GraphQLRelay\Relay::toGlobalId( 'post', $product_id ), $actual['data']['nodeByUri']['id'] );
+
+	}
+
 }
