@@ -373,8 +373,8 @@ class Post extends Model {
 		 * If the post_type isn't (not registered) or is not allowed in WPGraphQL,
 		 * mark the post as private
 		 */
-
-		if ( empty( $post_type_object->name ) || ! in_array( $post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
+		$post_types = get_post_types( [ 'show_in_graphql' => true ], 'names' );
+		if ( empty( $post_type_object->name ) || ! in_array( $post_type_object->name, $post_types, true ) ) {
 			return true;
 		}
 

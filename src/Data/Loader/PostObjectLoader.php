@@ -87,7 +87,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * to the count of the keys provided. The query must also return results
 		 * in the same order the keys were provided in.
 		 */
-		$post_types = \WPGraphQL::get_allowed_post_types();
+		$post_types = get_post_types( [ 'show_in_graphql' => true ] );
 		$post_types = array_merge( $post_types, [ 'revision', 'nav_menu_item' ] );
 		$args       = [
 			'post_type'           => $post_types,

@@ -50,9 +50,10 @@ class UserLoader extends AbstractDataLoader {
 		// Get public post types that are set to show in GraphQL
 		// as public users are determined by whether they've published
 		// content in one of these post types
-		$post_types = \WPGraphQL::get_allowed_post_types( 'names', [
+		$post_types = get_post_types( [
+			'show_in_graphql' => true,
 			'public' => true,
-		] );
+		], 'names' );
 
 		/**
 		 * Exclude revisions and attachments, since neither ever receive the
