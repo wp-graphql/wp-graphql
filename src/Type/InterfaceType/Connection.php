@@ -21,11 +21,6 @@ class Connection {
 			[
 				'description' => __( 'A plural connection from one Node Type in the Graph to another Node Type, with support for relational data via "edges".', 'wp-graphql' ),
 				'fields'      => [
-					'pageInfo' => [
-						// @todo: change to PageInfo when/if the Relay lib is deprecated
-						'type'        => 'WPPageInfo',
-						'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-					],
 					'edges' => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => 'Edge' ] ] ],
 						'description' => __( 'A list of edges (relational context) between connected nodes', 'wp-graphql' ),
