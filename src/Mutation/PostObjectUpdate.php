@@ -134,16 +134,12 @@ class PostObjectUpdate {
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
 
-			require_once ABSPATH . 'wp-admin/includes/post.php';
-
-			if ( function_exists( 'wp_check_post_lock' ) ) {
-				$user_id = wp_check_post_lock( $post_id );
-				// If post is locked and the override is not specified, do not allow the edit
-				if ( $user_id && true !== $input['ignoreEditLock'] ) {
-					$user = get_userdata( $user_id );
-					/* translators: %s: User's display name. */
-					throw new UserError( sprintf( __( '%s is currently editing this post.', 'wp-graphql' ), esc_html( $user->display_name ) ) );
-				}
+			// If post is locked and the override is not specified, do not allow the edit
+			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id );
+			if ( false !== $locked_user_id && true !== @$input['ignoreEditLock'] ) {
+				$user = get_userdata( $locked_user_id );
+				/* translators: %s: User's display name. */
+				throw new UserError( sprintf( __( 'You cannot update this item. %s is currently editing.', 'wp-graphql' ), esc_html( $user->display_name ) ) );
 			}
 
 			/**

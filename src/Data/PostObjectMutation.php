@@ -484,4 +484,22 @@ class PostObjectMutation {
 
 	}
 
+	/**
+	 * Check the edit lock for a post
+	 *
+	 * @param int $post_id ID of the post to delete the lock for
+	 *
+	 * @return false|user_id Return false if no lock or the user_id of the owner of the lock
+	 */
+	public static function check_edit_lock( int $post_id ) {
+
+		require_once ABSPATH . 'wp-admin/includes/post.php';
+
+		if ( function_exists( 'wp_check_post_lock' ) ) {
+			return wp_check_post_lock( $post_id );
+		}
+
+		return false;
+	}
+
 }
