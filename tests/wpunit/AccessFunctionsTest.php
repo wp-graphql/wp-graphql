@@ -1598,4 +1598,48 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterObjectTypeWithFieldWithUnderscoreIsAddedAsFormattedField() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_object_type( 'TestType', [
+			'fields' => [
+				'field_with_underscore' => [
+					'type' => 'String',
+					'resolve' => function() use ( $expected ) {
+						return $expected;
+					}
+				]
+			]
+		]);
+
+		register_graphql_field( 'RootQuery', 'testField', [
+			'type' => 'TestType',
+			'resolve' => function() {
+				return true;
+			}
+		]);
+
+
+
+		$query = '
+		query {
+		  testField {
+		    field_with_underscore
+		  }
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['testField']['field_with_underscore'] );
+
+	}
+
 }
