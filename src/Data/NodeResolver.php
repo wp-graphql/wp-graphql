@@ -134,6 +134,10 @@ class NodeResolver {
 			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
 				$post_type = $this->wp->query_vars['post_type'];
 			}
+			
+			if ( is_array( $this->wp->query_vars['name'] ) ) {
+				$this->wp->query_vars['name'] = implode( $this->wp->query_vars['name'] );
+			}
 
 			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
 
