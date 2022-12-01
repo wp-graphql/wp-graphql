@@ -54,8 +54,8 @@ class PostObjectDelete {
 				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 			],
 			'ignoreEditLock' => [
-				'type'        => 'Boolean',
-				'description' => __( 'Override the edit lock when another user is editting the post', 'wp-graphq' ),
+				'type' => 'Boolean',
+				'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 			],
 		];
 	}

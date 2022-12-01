@@ -51,8 +51,8 @@ class PostObjectUpdate {
 					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				],
 				'ignoreEditLock' => [
-					'type'        => 'Boolean',
-					'description' => __( 'Override the edit lock when another user is editting the post', 'wp-graphq' ),
+					'type' => 'Boolean',
+					'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 				],
 				]
 		);
