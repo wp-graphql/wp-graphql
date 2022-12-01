@@ -492,7 +492,7 @@ class PostObjectMutation {
 	 *
 	 * @return false|int Return false if no lock or the user_id of the owner of the lock
 	 */
-	public static function check_edit_lock( int $post_id, array $input ) {
+	public static function check_edit_lock( $post_id, array $input ) {
 		if ( false === $post_id ) {
 			return false;
 		}
