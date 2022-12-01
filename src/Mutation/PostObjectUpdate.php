@@ -135,14 +135,12 @@ class PostObjectUpdate {
 			}
 
 			// If post is locked and the override is not specified, do not allow the edit
-			if ( false !== $post_id ) {
-				$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
-				if ( false !== $locked_user_id ) {
-					$user = get_userdata( (int) $locked_user_id );
-					$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
-					/* translators: %s: User's display name. */
-					throw new UserError( sprintf( __( 'You cannot update this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
-				}
+			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
+			if ( false !== $locked_user_id ) {
+				$user = get_userdata( (int) $locked_user_id );
+				$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
+				/* translators: %s: User's display name. */
+				throw new UserError( sprintf( __( 'You cannot update this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
 			}
 
 			/**
