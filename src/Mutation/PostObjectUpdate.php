@@ -50,7 +50,11 @@ class PostObjectUpdate {
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 				],
-			]
+				'ignoreEditLock' => [
+					'type' => 'Boolean',
+					'description' => __( 'Override the edit lock when another user is editting the post', 'wp-graphq' ),
+				],
+				]
 		);
 	}
 
@@ -128,6 +132,18 @@ class PostObjectUpdate {
 			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+			}
+
+			require_once ABSPATH . 'wp-admin/includes/post.php';
+
+			if ( function_exists( 'wp_check_post_lock' ) ) {
+				$user_id = wp_check_post_lock( $post_id );
+				// If post is locked and the override is not specified, do not allow the edit
+				if ( $user_id && true !== $input['ignoreEditLock'] ) {
+					$user = get_userdata( $user_id );
+					/* translators: %s: User's display name. */
+					throw new UserError( sprintf( __( '%s is currently editing this post.', 'wp-graphql' ), esc_html( $user->display_name ) ) );
+				}
 			}
 
 			/**

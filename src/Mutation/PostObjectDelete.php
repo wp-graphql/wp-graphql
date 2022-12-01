@@ -51,6 +51,10 @@ class PostObjectDelete {
 				'type'        => 'Boolean',
 				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 			],
+			'ignoreEditLock' => [
+				'type' => 'Boolean',
+				'description' => __( 'Override the edit lock when another user is editting the post', 'wp-graphq' ),
+			],
 		];
 	}
 
@@ -130,6 +134,18 @@ class PostObjectDelete {
 			if ( 'trash' === $post_before_delete->post_status && true !== $force_delete ) {
 				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
 				throw new UserError( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_id ) );
+			}
+
+			require_once ABSPATH . 'wp-admin/includes/post.php';
+
+			if ( function_exists( 'wp_check_post_lock' ) ) {
+				$user_id = wp_check_post_lock( $post_id );
+				// If post is locked and the override is not specified, do not allow the edit
+				if ( $user_id && true !== $input['ignoreEditLock'] ) {
+					$user = get_userdata( $user_id );
+					/* translators: %s: User's display name. */
+					throw new UserError( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), esc_html( $user->display_name ) ) );
+				}
 			}
 
 			/**
