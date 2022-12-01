@@ -490,7 +490,7 @@ class PostObjectMutation {
 	 * @param int     $post_id ID of the post to delete the lock for
 	 * @param array   $input             The input for the mutation
 	 *
-	 * @return false|user_id Return false if no lock or the user_id of the owner of the lock
+	 * @return false|int Return false if no lock or the user_id of the owner of the lock
 	 */
 	public static function check_edit_lock( int $post_id, array $input ) {
 		// If override the edit lock is set, return early

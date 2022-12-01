@@ -54,7 +54,7 @@ class PostObjectDelete {
 				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
 			],
 			'ignoreEditLock' => [
-				'type' => 'Boolean',
+				'type'        => 'Boolean',
 				'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 			],
 		];
@@ -139,11 +139,14 @@ class PostObjectDelete {
 			}
 
 			// If post is locked and the override is not specified, do not allow the edit
-			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
-			if ( false !== $locked_user_id ) {
-				$user = get_userdata( $locked_user_id );
-				/* translators: %s: User's display name. */
-				throw new UserError( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), esc_html( $user->display_name ) ) );
+			if ( false !== $post_id ) {
+				$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
+				if ( false !== $locked_user_id ) {
+					$user = get_userdata( (int) $locked_user_id );
+					$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
+					/* translators: %s: User's display name. */
+					throw new UserError( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
+				}
 			}
 
 			/**
