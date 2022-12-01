@@ -55,7 +55,7 @@ class PostObjectDelete {
 			],
 			'ignoreEditLock' => [
 				'type' => 'Boolean',
-				'description' => __( 'Override the edit lock when another user is editting the post', 'wp-graphq' ),
+				'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 			],
 		];
 	}
