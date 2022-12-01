@@ -487,11 +487,16 @@ class PostObjectMutation {
 	/**
 	 * Check the edit lock for a post
 	 *
-	 * @param int $post_id ID of the post to delete the lock for
+	 * @param int     $post_id ID of the post to delete the lock for
+	 * @param array   $input             The input for the mutation
 	 *
 	 * @return false|user_id Return false if no lock or the user_id of the owner of the lock
 	 */
-	public static function check_edit_lock( int $post_id ) {
+	public static function check_edit_lock( int $post_id, array $input ) {
+		// If override the edit lock is set, return early
+		if ( isset( $input['ignoreEditLock'] ) && true === $input['ignoreEditLock'] ) {
+			return false;
+		}
 
 		require_once ABSPATH . 'wp-admin/includes/post.php';
 
