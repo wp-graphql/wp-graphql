@@ -323,13 +323,55 @@ class WPConnectionType {
 	}
 
 	/**
+	 * Registers the PageInfo type for the connection
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	public function register_connection_page_info_type(): void {
+
+		if ( $this->type_registry->has_type( $this->connection_name . 'PageInfo' ) ) {
+			return;
+		}
+
+		$this->type_registry->register_object_type( $this->connection_name . 'PageInfo', [
+			'interfaces'  => [ $this->to_type . 'ConnectionPageInfo' ],
+			'description' => sprintf( __( 'Page Info on the "%s"', 'wp-graphql' ), $this->connection_name ),
+			'fields'      => [
+				'hasNextPage'     => [
+					'type'        => [
+						'non_null' => 'Boolean',
+					],
+					'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
+				],
+				'hasPreviousPage' => [
+					'type'        => [
+						'non_null' => 'Boolean',
+					],
+					'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
+				],
+				'startCursor'     => [
+					'type'        => 'String',
+					'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
+				],
+				'endCursor'       => [
+					'type'        => 'String',
+					'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
+				],
+			],
+		] );
+
+	}
+
+	/**
 	 * Registers the Connection Edge type to the Schema
 	 *
 	 * @return void
 	 *
 	 * @throws Exception
 	 */
-	protected function register_connection_edge_type() {
+	protected function register_connection_edge_type(): void {
 
 		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
 			return;
@@ -370,7 +412,7 @@ class WPConnectionType {
 	 *
 	 * @throws Exception
 	 */
-	protected function register_connection_type() {
+	protected function register_connection_type(): void {
 
 		if ( $this->type_registry->has_type( $this->connection_name ) ) {
 			return;
@@ -398,13 +440,12 @@ class WPConnectionType {
 	 *
 	 * @return array
 	 */
-	protected function get_connection_fields() {
+	protected function get_connection_fields(): array {
 
 		return array_merge(
 			[
 				'pageInfo' => [
-					// @todo: change to PageInfo when/if the Relay lib is deprecated
-					'type'        => 'WPPageInfo',
+					'type'        => $this->connection_name . 'PageInfo',
 					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				],
 				'edges'    => [
@@ -427,7 +468,7 @@ class WPConnectionType {
 	 *
 	 * @return array|array[]
 	 */
-	protected function get_pagination_args() {
+	protected function get_pagination_args(): array {
 
 		if ( true === $this->one_to_one ) {
 
@@ -464,7 +505,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 */
-	public function register_connection_field() {
+	public function register_connection_field(): void {
 
 		$this->type_registry->register_field(
 			$this->from_type,
@@ -495,6 +536,35 @@ class WPConnectionType {
 	 */
 	public function register_connection_interfaces(): void {
 
+		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionPageInfo' ) ) {
+			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionPageInfo', [
+				'interfaces'  => [ 'WPPageInfo' ],
+				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $this->to_type . 'ConnectionEdge' ),
+				'fields'      => [
+					'hasNextPage'     => [
+						'type'        => [
+							'non_null' => 'Boolean',
+						],
+						'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
+					],
+					'hasPreviousPage' => [
+						'type'        => [
+							'non_null' => 'Boolean',
+						],
+						'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
+					],
+					'startCursor'     => [
+						'type'        => 'String',
+						'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
+					],
+					'endCursor'       => [
+						'type'        => 'String',
+						'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
+					],
+				],
+			] );
+		}
+
 		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionEdge' ) ) {
 
 			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionEdge', [
@@ -515,11 +585,14 @@ class WPConnectionType {
 				'interfaces'  => [ 'Connection' ],
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
-					'edges' => [
+					'pageInfo' => [
+						'type' => $this->to_type . 'ConnectionPageInfo',
+					],
+					'edges'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type . 'ConnectionEdge' ] ] ],
 						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
 					],
-					'nodes' => [
+					'nodes'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
 						'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 					],
@@ -546,6 +619,7 @@ class WPConnectionType {
 		if ( true === $this->one_to_one ) {
 			$this->register_one_to_one_connection_edge_type();
 		} else {
+			$this->register_connection_page_info_type();
 			$this->register_connection_edge_type();
 			$this->register_connection_type();
 		}
