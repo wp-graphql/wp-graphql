@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.13.5
+
+### Chores / Bugfixes
+
+- ([#2647](https://github.com/wp-graphql/wp-graphql/pull/2647)): fix: properly register the node field on ConnectionEdge interfaces
+- ([#2645](https://github.com/wp-graphql/wp-graphql/pull/2645)): fix: regression where fields of an object type were forced to be camelCase. This allows snake_case fields again.
+
 ## 1.13.4
 
 ### Chores / Bugfixes
