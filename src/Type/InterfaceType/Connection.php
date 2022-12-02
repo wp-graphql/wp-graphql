@@ -22,7 +22,7 @@ class Connection {
 				'description' => __( 'A plural connection from one Node Type in the Graph to another Node Type, with support for relational data via "edges".', 'wp-graphql' ),
 				'fields'      => [
 					'pageInfo' => [
-						'type'        => 'PageInfo',
+						'type'        => [ 'non_null' => 'PageInfo' ],
 						'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 					],
 					'edges'    => [

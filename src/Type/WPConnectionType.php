@@ -5,6 +5,7 @@ use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\InterfaceType\PageInfo;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -338,28 +339,7 @@ class WPConnectionType {
 		$this->type_registry->register_object_type( $this->connection_name . 'PageInfo', [
 			'interfaces'  => [ $this->to_type . 'ConnectionPageInfo' ],
 			'description' => sprintf( __( 'Page Info on the "%s"', 'wp-graphql' ), $this->connection_name ),
-			'fields'      => [
-				'hasNextPage'     => [
-					'type'        => [
-						'non_null' => 'Boolean',
-					],
-					'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
-				],
-				'hasPreviousPage' => [
-					'type'        => [
-						'non_null' => 'Boolean',
-					],
-					'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
-				],
-				'startCursor'     => [
-					'type'        => 'String',
-					'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
-				],
-				'endCursor'       => [
-					'type'        => 'String',
-					'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
-				],
-			],
+			'fields'      => PageInfo::get_fields(),
 		] );
 
 	}
@@ -445,7 +425,7 @@ class WPConnectionType {
 		return array_merge(
 			[
 				'pageInfo' => [
-					'type'        => $this->connection_name . 'PageInfo',
+					'type'        => [ 'non_null' => $this->connection_name . 'PageInfo' ],
 					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				],
 				'edges'    => [
@@ -540,28 +520,7 @@ class WPConnectionType {
 			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionPageInfo', [
 				'interfaces'  => [ 'WPPageInfo' ],
 				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $this->to_type . 'ConnectionEdge' ),
-				'fields'      => [
-					'hasNextPage'     => [
-						'type'        => [
-							'non_null' => 'Boolean',
-						],
-						'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
-					],
-					'hasPreviousPage' => [
-						'type'        => [
-							'non_null' => 'Boolean',
-						],
-						'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
-					],
-					'startCursor'     => [
-						'type'        => 'String',
-						'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
-					],
-					'endCursor'       => [
-						'type'        => 'String',
-						'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
-					],
-				],
+				'fields'      => PageInfo::get_fields(),
 			] );
 		}
 
@@ -586,7 +545,7 @@ class WPConnectionType {
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
 					'pageInfo' => [
-						'type' => $this->to_type . 'ConnectionPageInfo',
+						'type' => [ 'non_null' => $this->to_type . 'ConnectionPageInfo' ],
 					],
 					'edges'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type . 'ConnectionEdge' ] ] ],
