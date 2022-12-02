@@ -1,0 +1,76 @@
+name: Bug report
+description: Report a bug in WPGraphQL
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Thank you for taking the time to report a possible bug!
+
+        Please remember, a bug report is not the place to ask questions. You can
+        use [Slack](https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA) for that, or start a topic in [GitHub
+        Discussions](https://github.com/wp-graphql/wp-graphql/discussions).
+  - type: textarea
+    attributes:
+      label: Description
+      description: >-
+        Please write a brief description of the bug, including what you expected and what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        Please list the all the steps needed to reproduce the bug in an *isolated* way (e.g. a clonable GitHub repository, or a WPGraphQL snippet that works on a clean environment ).
+      placeholder: >-
+        1. Go to "..."
+        2. Query:
+        ```graphql
+        query {
+
+        }
+        3. Result show X but should be Y
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >-
+        Add any other context about the problem here, such as screenshots, error logs, etc.
+  - type: input
+    attributes:
+      label: WPGraphQL Version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: WordPress Version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: PHP Version
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional enviornment details
+      description: Frontend framework, additional WGraphQL extensions (and their versions), etc.
+  - type: checkboxes
+    attributes:
+      label: Please confirm that you have searched existing issues in the repo.
+      description: >-
+        You can do this by searching https://github.com/wp-graphql/wp-graphql/issues.
+      options:
+        - label: 'Yes'
+          required: true
+  - type: checkboxes
+    attributes:
+      label: >-
+        Please confirm that you have disabled ALL plugins except for WPGraphQL.
+      description: >-
+        Ideally, bugs should be reproduced in isolation, and all other plugins should be disabled. However, if your bug involves compatibility issues with other plugins, please share them (along with their version info) in `Additional environment details` above.
+      options:
+        - label: 'Yes'
+          required: false
+        - label: My issue is with compatibility with a specific WordPress plugin, and I have listed all my installed plugins (and version info) above.
+          required: false

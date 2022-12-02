@@ -31,6 +31,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		] );
 
 		WPGraphQL::clear_schema();
+
 	}
 
 
@@ -46,7 +47,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$post_args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Post Title',
+			'post_title'   => 'Post for CommentMutationsTest',
 			'post_content' => 'Post Content',
 		];
 
@@ -83,7 +84,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -96,7 +97,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '
@@ -123,6 +124,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 							}
 						}
 					}
+					status
 				}
 			}
 		}
@@ -145,6 +147,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 		$this->assertEquals( $expected_content, $actual['data']['createComment']['comment']['content'] );
+		$this->assertEquals( 'APPROVE', $actual['data']['createComment']['comment']['status'] );
 
 		$count = wp_count_comments( $post_id );
 		$this->assertEquals( '1', $count->total_comments );
@@ -156,6 +159,8 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( 'HOLD', $actual['data']['createComment']['comment']['status'] );
+
 
 		// Test logged in user different than author.
 		wp_set_current_user( $this->admin );
@@ -182,6 +187,60 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 	}
 
+
+	public function testCreateChildComment() {
+		// Create parent comment.
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$query = '
+			mutation createChildCommentTest( $commentOn: Int!, $parent: ID, $content: String!){
+				createComment(
+					input: {
+						commentOn: $commentOn,
+						content: $content,
+						parent: $parent,
+					}
+				){
+					success
+					comment {
+						databaseId
+						parent {
+							node {
+								databaseId
+							}
+						}
+					}
+				}
+			}
+		';
+
+		wp_set_current_user( $this->admin );
+
+		// Test with database Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'parent'    => $comment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
+
+		// Test with global Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => 'Testing with global Id',
+			'parent'    => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
+	}
+
 	public function testUpdateCommentWithAuthorConnection() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 
@@ -189,7 +248,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -200,7 +259,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$content = 'Updated Content';
 
-		$query     = '
+		$query = '
 		mutation updateCommentTest( $id: ID!, $content: String! ) {
 			updateComment( 
 				input: {
@@ -211,33 +270,104 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			{
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
-		$variables = [
-			'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-			'content' => $content,
-		];
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'updateComment' => [
 				'comment' => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		// Test with database ID.
+		$variables = [
+			'id'      => $comment_id,
+			'content' => $content,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test with global ID
+		$content   = 'Updated via Global ID';
+		$variables = [
+			'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'content' => $content,
+		];
+		$expected['updateComment']['comment']['content'] = apply_filters( 'comment_text', $content );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
+	}
+
+	public function testUpdateCommentWithStatus() {
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$comment = get_comment( $comment_id );
+
+		$query = '
+		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
+			updateComment( 
+				input: {
+					id: $id
+					status: $status
+				}
+			)
+			{
+				comment {
+					databaseId
+					status
+				}
+			}
+		}
+		';
+
+		// Test HOLD status.
+		$variables = [
+			'id'     => $comment_id,
+			'status' => 'HOLD',
+		];
+
+		// Test without permissions.
+		wp_set_current_user( 0 );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions.
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'HOLD', $actual['data']['updateComment']['comment']['status'] );
+		
+		// Test with SPAM status.
+		$variables['status'] = 'SPAM';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'SPAM', $actual['data']['updateComment']['comment']['status'] );
+
+		// Test with TRASH status.
+		$variables['status'] = 'TRASH';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'TRASH', $actual['data']['updateComment']['comment']['status'] );
 	}
 
 	public function testDeleteCommentWithPostConnection() {
@@ -246,7 +376,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -266,15 +396,16 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				deletedId
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
 
+		// Test with database ID.
 		$variables = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'id' => $comment_id,
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -283,16 +414,31 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'deleteComment' => [
 				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 				'comment'   => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		$this->assertEquals( $expected, $actual['data'] );
+		// Test with global Id
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$expected = [
+			'deleteComment' => [
+				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'   => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		codecept_debug( $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
@@ -302,7 +448,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -324,36 +470,54 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				restoredId
 				comment {
 					id
-					commentId
+					databaseId
 					content
 				}
 			}
 		}
 		';
 
+		// Test database ID
 		$variables = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'id' => $comment_id,
 		];
-
-		wp_set_current_user( $this->admin );
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'restoreComment' => [
 				'restoredId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
 				'comment'    => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		// Test without permissions
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test global Id
+		$this->trashComment( $comment_id );
+
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test bad ID
+		$variables['id'] = '3ab21';
+		$actual          = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
@@ -365,7 +529,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -383,7 +547,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '
@@ -427,7 +591,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -445,7 +609,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
 		$query = '

@@ -110,10 +110,6 @@ class WPObjectType extends ObjectType {
 					}
 
 					foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
-						if ( ! isset( $interface_field->config ) ) {
-							continue;
-						}
-
 						$interface_fields[ $interface_field_name ] = $interface_field->config;
 					}
 				}

@@ -17,7 +17,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->delete_users();
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		// Set admin as current user to authorize 'users' queries
@@ -96,7 +96,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				[
 					'user_login' => $alphabet[ $i ],
 					'user_email' => 'test_user_' . $i . '@test.com',
-					'role'       => 'administrator'
+					'role'       => 'administrator',
 				]
 			);
 		}
@@ -113,7 +113,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-				array( 1 )
+				[ 1 ]
 			)
 		);
 		$this->created_user_ids = [ 1 ];
@@ -131,7 +131,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$user_query = new WP_User_Query([
 			'search' => '*' . $search_string . '*',
 			'fields' => 'ids',
-			'number' => -1
+			'number' => -1,
 		]);
 
 		$expected_user_ids = $user_query->get_results();
@@ -186,9 +186,9 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( (bool) $hasNextPage, $actual['data']['users']['pageInfo']['hasNextPage'] );
 
 		// Page 2 of forward pagination should be the 4th, 5th, and 6th (-1 for 0 indexing) users in the response
-		$this->assertEquals( $expected_user_ids[3], $actual['data']['users']['nodes'][ 0 ]['userId'] );
-		$this->assertEquals( $expected_user_ids[4], $actual['data']['users']['nodes'][ 1 ]['userId'] );
-		$this->assertEquals( $expected_user_ids[5], $actual['data']['users']['nodes'][ 2 ]['userId'] );
+		$this->assertEquals( $expected_user_ids[3], $actual['data']['users']['nodes'][0]['userId'] );
+		$this->assertEquals( $expected_user_ids[4], $actual['data']['users']['nodes'][1]['userId'] );
+		$this->assertEquals( $expected_user_ids[5], $actual['data']['users']['nodes'][2]['userId'] );
 	}
 
 	/**
@@ -205,7 +205,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$user_query = new WP_User_Query([
 			'search' => '*' . $search_string . '*',
 			'fields' => 'ids',
-			'number' => -1
+			'number' => -1,
 		]);
 
 		codecept_debug( $user_query );
@@ -268,15 +268,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	private function deleteByMetaKey( $key, $value ) {
-		$args = array(
-			'meta_query' => array(
-				array(
+		$args = [
+			'meta_query' => [
+				[
 					'key'     => $key,
 					'value'   => $value,
 					'compare' => '=',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		 $query = new WP_User_Query( $args );
 
@@ -290,16 +290,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function assertQueryInCursor( $graphql_args = [], $wp_user_query_args, $order_by_meta_field = false ) {
+	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
 		$graphql_args = ! empty( $graphql_args ) ? $graphql_args : [];
-
 
 		// Meta field orderby is not supported in schema and needs to be passed in through hook
 		if ( $order_by_meta_field ) {
 			add_filter(
 				'graphql_map_input_fields_to_wp_user_query',
-				function( $query_args ) use ( $wp_user_query_args ) {
+				function ( $query_args ) use ( $wp_user_query_args ) {
 					return array_merge( $query_args, $wp_user_query_args );
 				},
 				10,
@@ -310,7 +309,6 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$users_per_page = ceil( $this->count / 2 );
 
 		codecept_debug( $graphql_args );
-
 
 		$query = '
 		query getUsers($cursor: String $first: Int $where:RootQueryToUserConnectionWhereArgs) {
@@ -331,8 +329,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $query );
 
 		$first = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first' => $users_per_page,
-			'cursor' => null
+			'first'  => $users_per_page,
+			'cursor' => null,
 		]) );
 
 		codecept_debug( $first );
@@ -340,7 +338,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map(
-			function( $edge ) {
+			function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$first['data']['users']['edges']
@@ -348,8 +346,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$cursor = $first['data']['users']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first' => $users_per_page,
-			'cursor' => $cursor
+			'first'  => $users_per_page,
+			'cursor' => $cursor,
 		]) );
 
 		codecept_debug( $second );
@@ -357,7 +355,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map(
-			function( $edge ) {
+			function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$second['data']['users']['edges']
@@ -392,7 +390,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Test default order
 	 */
 	public function testDefaultUserOrdering() {
-		$this->assertQueryInCursor( null, [] );
+		$this->assertQueryInCursor( [], [] );
 	}
 
 	/**

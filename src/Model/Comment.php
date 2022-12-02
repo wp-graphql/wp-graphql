@@ -4,29 +4,30 @@ namespace WPGraphQL\Model;
 
 use Exception;
 use GraphQLRelay\Relay;
+use WP_Comment;
 
 /**
  * Class Comment - Models data for Comments
  *
- * @property string $id
- * @property int    $commentId
- * @property string $commentAuthorEmail
- * @property string $comment_author
- * @property string $comment_author_url
  * @property int    $comment_ID
  * @property int    $comment_parent_id
- * @property string $parentId
+ * @property int    $commentId
  * @property int    $parentDatabaseId
+ * @property int    $userId
+ * @property string $agent
  * @property string $authorIp
- * @property string $date
- * @property string $dateGmt
+ * @property string $comment_author
+ * @property string $comment_author_url
+ * @property string $commentAuthorEmail
  * @property string $contentRaw
  * @property string $contentRendered
+ * @property string $date
+ * @property string $dateGmt
+ * @property string $id
  * @property string $karma
- * @property int    $approved
- * @property string $agent
+ * @property string $parentId
+ * @property string $status
  * @property string $type
- * @property int    $userId
  *
  * @package WPGraphQL\Model
  */
@@ -35,18 +36,18 @@ class Comment extends Model {
 	/**
 	 * Stores the incoming WP_Comment object to be modeled
 	 *
-	 * @var \WP_Comment $data
+	 * @var WP_Comment $data
 	 */
 	protected $data;
 
 	/**
 	 * Comment constructor.
 	 *
-	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
+	 * @param WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
 	 * @throws Exception
 	 */
-	public function __construct( \WP_Comment $comment ) {
+	public function __construct( WP_Comment $comment ) {
 
 		$allowed_restricted_fields = [
 			'id',
@@ -61,6 +62,7 @@ class Comment extends Model {
 			'commentedOnId',
 			'comment_post_ID',
 			'approved',
+			'status',
 			'comment_parent_id',
 			'parentId',
 			'parentDatabaseId',
@@ -93,18 +95,16 @@ class Comment extends Model {
 
 		$commented_on = get_post( (int) $this->data->comment_post_ID );
 
-		if ( empty( $commented_on ) ) {
+		if ( ! $commented_on instanceof \WP_Post ) {
 			return true;
 		}
 
 		// A comment is considered private if it is attached to a private post.
-		if ( empty( $commented_on ) || true === ( new Post( $commented_on ) )->is_private() ) {
+		if ( true === ( new Post( $commented_on ) )->is_private() ) {
 			return true;
 		}
 
-		// NOTE: Do a non-strict check here, as the return is a `1` or `0`.
-		// phpcs:disable WordPress.PHP.StrictComparisons.LooseComparison
-		if ( true != $this->data->comment_approved && ! current_user_can( 'moderate_comments' ) ) {
+		if ( 0 === absint( $this->data->comment_approved ) && ! current_user_can( 'moderate_comments' ) ) {
 			return true;
 		}
 
@@ -176,7 +176,15 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
 				},
 				'approved'           => function () {
-					return ! empty( $this->data->comment_approved ) ? $this->data->comment_approved : null;
+					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '1.13.0' );
+					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
+				},
+				'status'             => function () {
+					if ( ! is_numeric( $this->data->comment_approved ) ) {
+						return $this->data->comment_approved;
+					}
+
+					return '1' === $this->data->comment_approved ? 'approve' : 'hold';
 				},
 				'agent'              => function () {
 					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
@@ -185,7 +193,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;
 				},
 				'userId'             => function () {
-					return isset( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
+					return ! empty( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
 				},
 			];
 

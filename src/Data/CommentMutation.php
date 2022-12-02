@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentMutation
@@ -85,14 +86,19 @@ class CommentMutation {
 		}
 
 		if ( ! empty( $input['parent'] ) ) {
-			$output_args['comment_parent'] = $input['parent'];
+			$output_args['comment_parent'] = Utils::get_database_id_from_id( $input['parent'] );
 		}
 
 		if ( ! empty( $input['type'] ) ) {
 			$output_args['comment_type'] = $input['type'];
 		}
 
-		if ( ! empty( $input['approved'] ) ) {
+		if ( ! empty( $input['status'] ) ) {
+			$output_args['comment_approved'] = $input['status'];
+		}
+
+		// Fallback to deprecated `approved` input.
+		if ( empty( $output_args['comment_approved'] ) && isset( $input['approved'] ) ) {
 			$output_args['comment_approved'] = $input['approved'];
 		}
 

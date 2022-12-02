@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Comment;
+use WPGraphQL\Utils\Utils;
 
 class CommentDelete {
 	/**
@@ -80,16 +81,11 @@ class CommentDelete {
 	 */
 	public static function mutate_and_get_payload() {
 		return function ( $input ) {
-			/**
-			 * Get the ID from the global ID
-			 */
-			$id_parts = Relay::fromGlobalId( $input['id'] );
+			// Get the database ID for the comment.
+			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 
-			/**
-			 * Get the post object before deleting it
-			 */
-			$comment_id            = absint( $id_parts['id'] );
-			$comment_before_delete = get_comment( $comment_id );
+			// Get the post object before deleting it.
+			$comment_before_delete = ! empty( $comment_id ) ? get_comment( $comment_id ) : false;
 
 			if ( empty( $comment_before_delete ) ) {
 				throw new UserError( __( 'The Comment could not be deleted', 'wp-graphql' ) );
@@ -133,7 +129,7 @@ class CommentDelete {
 			/**
 			 * Delete the comment
 			 */
-			wp_delete_comment( $id_parts['id'], $force_delete );
+			wp_delete_comment( (int) $comment_id, $force_delete );
 
 			return [
 				'commentObject' => $comment_before_delete,

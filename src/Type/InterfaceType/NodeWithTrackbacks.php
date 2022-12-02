@@ -16,6 +16,7 @@ class NodeWithTrackbacks {
 		register_graphql_interface_type(
 			'NodeWithTrackbacks',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have trackbacks and pingbacks', 'wp-graphql' ),
 				'fields'      => [
 					'toPing'     => [

@@ -4,9 +4,9 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	public function setUp(): void {
 		// before
-		$this->clearSchema();
 		parent::setUp();
 		// your set up methods here
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
@@ -19,45 +19,45 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function testRegisteringConnectionsFromTypeRegistrationAddsConnectionsToSchema() {
 
 		register_graphql_object_type( 'TestTypeWithOneToOneConnection', [
-			'fields' => [
+			'fields'      => [
 				'id' => [
-					'type' => 'ID'
+					'type' => 'ID',
 				],
 			],
 			'connections' => [
 				'connectedPosts' => [
 					'toType' => 'Post',
 				],
-				'connectedPost' => [
-					'toType' => 'Post',
+				'connectedPost'  => [
+					'toType'   => 'Post',
 					'oneToOne' => true,
-				]
-			]
+				],
+			],
 		]);
 
 		register_graphql_connection( [
-			'fromType' => 'RootQuery',
-			'toType' => 'TestTypeWithOneToOneConnection',
+			'fromType'      => 'RootQuery',
+			'toType'        => 'TestTypeWithOneToOneConnection',
 			'fromFieldName' => 'testTypeConnection',
 		]);
 
 		$query = '
 		{
-		  testTypeConnection {
-		    nodes {
-		      id
-		      connectedPosts {
-		        nodes {
-		          id
-		        }
-		      }
-		      connectedPost {
-		        node {
-		          id
-		        }
-		      }
-		    }
-		  }
+			testTypeConnection {
+				nodes {
+					id
+					connectedPosts {
+						nodes {
+							id
+						}
+					}
+					connectedPost {
+						node {
+							id
+						}
+					}
+				}
+			}
 		}
 		';
 
@@ -67,7 +67,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// But since there's no data for the connection, we can safely assert the response
 		// should be null, but with no errors
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testTypeConnection', self::IS_NULL )
+			$this->expectedField( 'testTypeConnection', self::IS_NULL ),
 		] );
 
 	}
@@ -78,17 +78,17 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function testRegisteringConnectionWithArgsAllowsArgsToBeUsedInQuery() {
 
 		register_graphql_object_type( 'Test', [
-			'fields' => [
+			'fields'      => [
 				'test' => [
-					'type' => 'String'
-				]
+					'type' => 'String',
+				],
 			],
 			'connections' => [
 				'testPostConnection' => [
-					'toType' => 'Post',
+					'toType'         => 'Post',
 					'connectionArgs' => [
 						'testInput' => [
-							'type' => 'String'
+							'type' => 'String',
 						],
 					],
 				],
@@ -101,29 +101,27 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$query = '
 		query Test($where: TestToPostConnectionWhereArgs) {
-		  test {
-		    testPostConnection(where: $where) {
-		      nodes {
-		        id
-		      }
-		    }
-		  }
+			test {
+				testPostConnection(where: $where) {
+					nodes {
+						id
+					}
+				}
+			}
 		}
 		';
 
 		$variables = [
-			'testInput' => 'test'
+			'testInput' => 'test',
 		];
 
-		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => $variables,
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'test', self::IS_NULL )
+			$this->expectedField( 'test', self::IS_NULL ),
 		]);
 
 	}

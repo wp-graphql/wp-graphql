@@ -1,10 +1,9 @@
 <?php
 
-class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
+class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $first_name;
 	public $last_name;
-	public $client_mutation_id;
 
 	public $author;
 	public $admin;
@@ -22,9 +21,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		remove_all_filters( 'enable_edit_any_user_configuration' );
 		add_filter( 'enable_edit_any_user_configuration', '__return_true' );
 
-		$this->client_mutation_id = 'someUniqueId';
-		$this->first_name         = 'Test';
-		$this->last_name          = 'User';
+		$this->first_name = 'Test';
+		$this->last_name  = 'User';
 
 		$this->author = $this->factory->user->create( [
 			'role' => 'author',
@@ -46,6 +44,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		// your tear down methods here
+		reset_phpmailer_instance();
+
 		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
@@ -66,7 +66,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		foreach ( $caps as $key => $capability ) {
 
-			if ( $capability != 'do_not_allow' ) {
+			if ( 'do_not_allow' !== $capability ) {
 				continue;
 			}
 
@@ -90,41 +90,36 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function createUserMutation( $args ) {
 
-		$mutation = '
+		$query = '
 		mutation createUser($input:CreateUserInput!) {
-		  createUser(input:$input){
-			clientMutationId
-			user{
-			  firstName
-			  lastName
-			  roles {
-			    nodes {
-			      name
-			    }
-			  }
-			  email
-			  username
+			createUser(input:$input){
+				user{
+					firstName
+					lastName
+					roles {
+						nodes {
+							name
+						}
+					}
+					email
+					username
+				}
 			}
-		  }
 		}';
 
 		$variables = [
 			'input' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'username'         => $args['username'],
-				'email'            => $args['email'],
-				'firstName'        => $this->first_name,
-				'lastName'         => $this->last_name,
-				'roles'            => [
+				'username'  => $args['username'],
+				'email'     => $args['email'],
+				'firstName' => $this->first_name,
+				'lastName'  => $this->last_name,
+				'roles'     => [
 					'administrator',
-				]
-			]
+				],
+			],
 		];
 
-		$actual = do_graphql_request( $mutation, 'createUser', $variables );
-
-		return $actual;
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function testCreateUserObjectWithoutProperCapabilities() {
@@ -149,7 +144,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * because this user doesn't have permissions to create a user as a
 		 * subscriber
 		 */
-		$this->assertNotEmpty( $actual['errors'] );
+		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
 
@@ -165,23 +160,24 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'email'    => $email,
 		] );
 
+		codecept_debug( $actual );
+
 		$expected = [
 			'createUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
+				'user' => [
 					'firstName' => $this->first_name,
 					'lastName'  => $this->last_name,
 					'roles'     => [
 						'nodes' => [
 							[
 								'name' => 'administrator',
-							]
+							],
 						],
 					],
 					'email'     => $email,
 					'username'  => $username,
-				]
-			]
+				],
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -195,7 +191,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$username = 'duplicateUsername';
 
 		$this->factory->user->create( [
-			'user_login' => $username
+			'user_login' => $username,
 		] );
 
 		$second_user = $this->createUserMutation( [
@@ -269,24 +265,23 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $user_object->first_name, $first_name );
 		$this->assertEquals( $user_object->last_name, $last_name );
 
-		$mutation = '
+		$query = '
 		mutation updateUser($input:UpdateUserInput!) {
-		  updateUser(input:$input){
-			clientMutationId
-			user{
-			  firstName
-			  lastName
-			  roles {
-			    nodes {
-			      name
-			    }
-			  }
-			  username
-			  email
-			  databaseId
-			  id
+			updateUser(input:$input){
+				user{
+					firstName
+					lastName
+					roles {
+						nodes {
+							name
+						}
+					}
+					username
+					email
+					databaseId
+					id
+				}
 			}
-		  }
 		}
 		';
 
@@ -294,101 +289,67 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$updated_firstname = 'Testupdate';
 		$updated_lastname  = 'Updatetest';
 
+		// Test with no id
 		$variables = [
 			'input' => [
-				'id'               => $guid,
-				'clientMutationId' => $this->client_mutation_id,
-				'email'            => $updated_email,
-				'firstName'        => $updated_firstname,
-				'lastName'         => $updated_lastname,
-				'roles'            => [
+				'id'        => '',
+				'email'     => $updated_email,
+				'firstName' => $updated_firstname,
+				'lastName'  => $updated_lastname,
+				'roles'     => [
 					'administrator',
-				]
-			]
+				],
+			],
 		];
 
-		$actual = do_graphql_request( $mutation, 'updateUser', $variables );
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad id
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with database ID.
+		$variables['input']['id'] = $user_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'updateUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
-					'firstName' => $updated_firstname,
-					'lastName'  => $updated_lastname,
-					'roles'     => [
+				'user' => [
+					'firstName'  => $updated_firstname,
+					'lastName'   => $updated_lastname,
+					'roles'      => [
 						'nodes' => [
 							[
 								'name' => 'administrator',
-							]
+							],
 						],
 					],
-					'username'  => $user_login,
-					'email'     => $updated_email,
-					'databaseId'    => $user_id,
-					'id'        => $guid,
-				]
-			]
+					'username'   => $user_login,
+					'email'      => $updated_email,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
 
-	}
+		// Test with global ID.
+		$updated_email = 'testUserUpdated2@test.com';
 
-	public function testDeleteUserWithCapability() {
-
-		wp_set_current_user( $this->admin );
-
-		$username = 'user_to_delete_with_capability';
-
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
-
-		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-
-		$mutation = '
-		mutation deleteUser($input:DeleteUserInput!) {
-		  deleteUser(input:$input){
-			clientMutationId
-			user {
-			  username
-			  databaseId
-			  id
-			}
-		  }
-		}
-		';
-
-		$variables = [
-			'input' => [
-				'id'               => $guid,
-				'clientMutationId' => $this->client_mutation_id,
-			]
+		$variables['input'] = [
+			'id'    => $guid,
+			'email' => $updated_email,
 		];
 
-		$actual = do_graphql_request( $mutation, 'deleteUser', $variables );
-
-		$expected = [
-			'deleteUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
-					'username' => $username,
-					'databaseId'   => $user_id,
-					'id'       => $guid,
-				]
-			]
-		];
-
-		$this->assertEquals( $expected, $actual['data'] );
-
-		$user_obj_after_delete = get_user_by( 'id', $user_id );
-
-		/**
-		 * Make sure the user actually got deleted.
-		 */
-		$this->assertEquals( false, $user_obj_after_delete );
-
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( $guid, $actual['data']['updateUser']['user']['id'] );
+		$this->assertEquals( $user_id, $actual['data']['updateUser']['user']['databaseId'] );
+		$this->assertEquals( $updated_email, $actual['data']['updateUser']['user']['email'] );
 	}
 
 	public function testDeleteUserWithoutCapability() {
@@ -402,27 +363,25 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
-		$mutation = '
+		$query = '
 		mutation deleteUser($input:DeleteUserInput!) {
-		  deleteUser(input:$input){
-			clientMutationId
-			user{
-			  username
-			  databaseId
-			  id
+			deleteUser(input:$input){
+				user{
+					username
+					databaseId
+					id
+				}
 			}
-		  }
 		}
 		';
 
 		$variables = [
 			'input' => [
-				'id'               => $guid,
-				'clientMutationId' => $this->client_mutation_id,
-			]
+				'id' => $guid,
+			],
 		];
 
-		$actual = do_graphql_request( $mutation, 'deleteUser', $variables );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEquals( 'Sorry, you are not allowed to delete users.', $actual['errors'][0]['message'] );
 
@@ -435,13 +394,192 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
+	public function testDeleteUserWithCapability() {
+
+		wp_set_current_user( $this->admin );
+
+		$username = 'user_to_delete_with_capability';
+
+		$query = '
+		mutation deleteUser($input:DeleteUserInput!) {
+			deleteUser(input:$input){
+				deletedId
+				user {
+					username
+					databaseId
+					id
+				}
+			}
+		}
+		';
+
+		// Test with no Id
+		$variables = [
+			'input' => [
+				'id' => '',
+			],
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with bad Id
+		$variables['input']['id'] = 999999;
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $user_id;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$expected = [
+			'deleteUser' => [
+				'deletedId' => $guid,
+				'user'      => [
+					'username'   => $username,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		$user_obj_after_delete = get_user_by( 'id', $user_id );
+
+		/**
+		 * Make sure the user actually got deleted.
+		 */
+		$this->assertEquals( false, $user_obj_after_delete );
+
+		// Test with global Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
+
+		$variables['input']['id'] = $guid;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$expected = [
+			'deleteUser' => [
+				'deletedId' => $guid,
+				'user'      => [
+					'username'   => $username,
+					'databaseId' => $user_id,
+					'id'         => $guid,
+				],
+			],
+		];
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		$user_obj_after_delete = get_user_by( 'id', $user_id );
+
+		/**
+		 * Make sure the user actually got deleted.
+		 */
+		$this->assertEquals( false, $user_obj_after_delete );
+	}
+
+	public function testDeleteUserWithReassign() {
+
+		wp_set_current_user( $this->admin );
+
+		$username = 'user_to_delete_with_reassign';
+
+		$query = '
+		mutation deleteUser($input:DeleteUserInput!) {
+			deleteUser(input:$input){
+				user {
+					databaseId
+				}
+			}
+		}
+		';
+
+		// Test with no Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+
+		$post = $this->factory()->post->create( [
+			'post_author' => $user_id,
+		]);
+
+		// Test with bad id.
+		$variables = [
+			'input' => [
+				'reassignId' => 999999,
+				'id'         => $user_id,
+			],
+		];
+
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with databaseId
+		$variables['input']['reassignId'] = $this->admin;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $user_id, $actual['data']['deleteUser']['user']['databaseId'] );
+
+		$post_obj_after_delete = get_post( $post );
+
+		// Make sure the user actually got reassigned.
+		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
+
+		// Test with global Id
+		$user_id = $this->factory->user->create( [
+			'role'       => 'subscriber',
+			'user_login' => $username,
+		] );
+		wp_update_post( [
+			'ID'          => $post,
+			'post_author' => $user_id,
+		] );
+
+		$this->assertEquals( $user_id, get_post( $post )->post_author );
+
+		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $this->admin );
+
+		$variables['input']['id']         = $user_id;
+		$variables['input']['reassignId'] = $guid;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $user_id, $actual['data']['deleteUser']['user']['databaseId'] );
+
+		$post_obj_after_delete = get_post( $post );
+
+		// Make sure the user actually got reassigned.
+		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
+	}
+
 	public function testCreateUserWithExtraFields() {
 
 		$username    = 'userwithextrafields';
 		$email       = 'userWithExtraFields@test.com';
 		$nicename    = 'user NiceName';
 		$url         = 'http://wpgraphql.com';
-		$date        = date( "Y-m-d H:i:s" );
+		$date        = date( 'Y-m-d H:i:s' );
 		$displayName = 'User Display Name';
 		$nickname    = 'User Nickname';
 		$description = 'User Description';
@@ -451,29 +589,27 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$variables = [
 			'input' => [
-				'firstName'        => $this->first_name,
-				'lastName'         => $this->last_name,
-				'clientMutationId' => $this->client_mutation_id,
-				'username'         => $username,
-				'email'            => $email,
-				'password'         => 'somePassword',
-				'websiteUrl'       => $url,
-				'nicename'         => $nicename,
-				'displayName'      => $displayName,
-				'nickname'         => $nickname,
-				'description'      => $description,
-				'registered'       => $date,
-				'locale'           => $locale,
-				'roles'            => [
+				'firstName'   => $this->first_name,
+				'lastName'    => $this->last_name,
+				'username'    => $username,
+				'email'       => $email,
+				'password'    => 'somePassword',
+				'websiteUrl'  => $url,
+				'nicename'    => $nicename,
+				'displayName' => $displayName,
+				'nickname'    => $nickname,
+				'description' => $description,
+				'registered'  => $date,
+				'locale'      => $locale,
+				'roles'       => [
 					'administrator',
 				],
 			],
 		];
 
-		$mutation = '
+		$query = '
 		mutation createAndGetUser( $input:CreateUserInput! ) {
 			createUser( input: $input ) {
-				clientMutationId
 				user {
 					firstName
 					lastName
@@ -489,12 +625,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		}
 		';
 
-		$actual = do_graphql_request( $mutation, 'createAndGetUser', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'createUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
+				'user' => [
 					'firstName'   => $this->first_name,
 					'lastName'    => $this->last_name,
 					'email'       => $email,
@@ -503,9 +638,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 					'name'        => $displayName,
 					'nickname'    => $nickname,
 					'description' => $description,
-					'locale'      => $locale
-				]
-			]
+					'locale'      => $locale,
+				],
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -514,10 +649,9 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testCreateUserWithoutRoles() {
 
-		$mutation = '
+		$query = '
 		mutation createUserWithoutRoles( $input:CreateUserInput! ) {
 			createUser( input: $input ) {
-				clientMutationId
 				user {
 					firstName
 					lastName
@@ -529,21 +663,19 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$variables = [
 			'input' => [
-				'firstName'        => $this->first_name,
-				'lastName'         => $this->last_name,
-				'username'         => 'createuserwithoutroles',
-				'clientMutationId' => $this->client_mutation_id,
+				'firstName' => $this->first_name,
+				'lastName'  => $this->last_name,
+				'username'  => 'createuserwithoutroles',
 			],
 		];
 
 		wp_set_current_user( $this->admin );
 
-		$actual = do_graphql_request( $mutation, 'createUserWithoutRoles', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'createUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
+				'user' => [
 					'firstName' => $this->first_name,
 					'lastName'  => $this->last_name,
 					'username'  => 'createuserwithoutroles',
@@ -551,18 +683,15 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 
-		codecept_debug( $actual );
-
 		$this->assertEquals( $expected, $actual['data'] );
 
 	}
 
 	public function testUpdateUserWithInvalidRole() {
 
-		$mutation = '
+		$query = '
 		mutation updateUserWithInvalidRole( $input:UpdateUserInput! ) {
 			updateUser( input: $input )	{
-				clientMutationId
 				user {
 					id
 					name
@@ -573,17 +702,16 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$variables = [
 			'input' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'id'               => \GraphQLRelay\Relay::toGlobalId( 'user', $this->author ),
-				'roles'            => [
-					'invalidRole'
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'user', $this->author ),
+				'roles' => [
+					'invalidRole',
 				],
 			],
 		];
 
 		wp_set_current_user( $this->admin );
 
-		$actual = do_graphql_request( $mutation, 'updateUserWithInvalidRole', $variables );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
 
@@ -591,33 +719,28 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function registerUserMutation( $args ) {
 
-		$mutation = '
+		$query = '
 		mutation registerUser($input:RegisterUserInput!) {
-		  registerUser(input:$input) {
-		    clientMutationId
-			user {
-			  name
-			  slug
+			registerUser(input:$input) {
+				user {
+					name
+					slug
+				}
 			}
-		  }
 		}';
 
 		$variables = [
 			'input' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'username'         => $args['username'],
-				'email'            => $args['email'],
-			]
+				'username' => $args['username'],
+				'email'    => $args['email'],
+			],
 		];
 
 		if ( ! empty( $args['password'] ) ) {
 			$variables['input']['password'] = $args['password'];
 		}
 
-		$actual = do_graphql_request( $mutation, 'registerUser', $variables );
-
-		return $actual;
-
+		return graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function testRegisterUserWithRegistrationDisabled() {
@@ -635,7 +758,6 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'email'    => 'emailDoesNotExist@test.com',
 		] );
 
-
 		/**
 		 * We're asserting that this will properly return an error
 		 * because registration is disabled.
@@ -646,13 +768,19 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testRegisterUserWithRegistrationEnabled() {
 
-		$username     = 'userDoesNotExist';
-		$email        = 'emailDoesNotExist@test.com';
+		$username = 'userDoesNotExist';
+		$email    = 'emailDoesNotExist@test.com';
 
 		/**
 		 * Enable new user registration.
 		 */
-		update_option( 'users_can_register', 1 );
+		if ( is_multisite() ) {
+			// multisite doesn't like uppercase letters in usernames 🤷‍️
+			$username = strtolower( $username );
+			update_site_option( 'registration', 'user' );
+		} else {
+			update_option( 'users_can_register', 1 );
+		}
 
 		/**
 		 * Run the mutation.
@@ -664,12 +792,11 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'registerUser' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
+				'user' => [
 					'name' => $username,
 					'slug' => strtolower( $username ),
-				]
-			]
+				],
+			],
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
@@ -678,17 +805,16 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function resetUserPasswordMutation( $args ) {
 
-		$mutation = '
+		$query = '
 		mutation resetUserPassword($input:ResetUserPasswordInput!) {
 			resetUserPassword(input:$input){
-				clientMutationId
 				user {
 					username
 					email
 					roles {
-					  nodes {
-					    name
-					  }
+						nodes {
+							name
+						}
 					}
 				}
 			}
@@ -696,14 +822,13 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$variables = [
 			'input' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'key'              => $args['key'],
-				'login'            => $args['login'],
-				'password'         => $args['password'],
-			]
+				'key'      => $args['key'],
+				'login'    => $args['login'],
+				'password' => $args['password'],
+			],
 		];
 
-		return do_graphql_request( $mutation, 'resetUserPassword', $variables );
+		return $this->graphql( compact( 'query', 'variables' ) );
 
 	}
 
@@ -761,21 +886,21 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'password' => $new_password,
 		];
 
-		wp_set_current_user( $this->admin );
+		// Ensure user is logged out
+		wp_set_current_user( 0 );
 
 		$actual = $this->resetUserPasswordMutation( $args );
 
 		$role_nodes = [];
-		foreach( $roles as $role ) {
+		foreach ( $roles as $role ) {
 			$role_nodes[] = [
-				'name' => $role
+				'name' => $role,
 			];
 		}
 
 		$expected = [
 			'resetUserPassword' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
+				'user' => [
 					'username' => $login,
 					'email'    => $email,
 					'roles'    => [
@@ -811,6 +936,8 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->resetUserPasswordMutation( $args );
 
 		// Try to authenticate user using new password.
+		wp_set_current_user( 0 );
+
 		$authenticated_user   = wp_authenticate( $login, $new_password );
 		$was_reset_successful = ! is_wp_error( $authenticated_user );
 
@@ -822,24 +949,24 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function sendPasswordResetEmailMutation( $username ) {
-		$mutation  = '
+		$query = '
 		mutation sendPasswordResetEmail( $input:SendPasswordResetEmailInput! ) {
 			sendPasswordResetEmail( input: $input ) {
-				clientMutationId
 				user {
 					databaseId
-				} 
+				}
+				success
 			}
 		}
 		';
+
 		$variables = [
 			'input' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'username'         => $username,
+				'username' => $username,
 			],
 		];
 
-		return do_graphql_request( $mutation, 'sendPasswordResetEmail', $variables );
+		return $this->graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function testSendPasswordResetEmailWithInvalidUsername() {
@@ -847,56 +974,59 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		// Run the mutation, passing in an invalid username.
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		codecept_debug( $actual );
-
-		/**
-		 * We're asserting that this will properly return an error
-		 * because this user does not exist.
-		 */
-		$this->assertNotEmpty( $actual['errors'] );
+		// This should return succesful with a notice in the log.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEquals( "Invalid username.", $actual['extensions']['debug'][0]['message'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 	}
 
-	public function testSendPasswordResetEmailResponseWithUsername() {
-		$user     = get_userdata( $this->author );
+	public function testSendPasswordResetEmailWithUsername() {
+		$user     = get_userdata( $this->subscriber );
 		$username = $user->user_login;
-		// Run the mutation, passing in a valid username.
-		$actual   = $this->sendPasswordResetEmailMutation( $username );
 
-		codecept_debug( $actual );
+		// Test when user is logged out.
+		wp_set_current_user( 0 );
+		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		$expected = $this->getSendPasswordResetEmailExpected();
-		/**
-		 * Assert that the expected user data was returned.
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
+		// No debug message means this was a real success.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEmpty( $actual['extensions']['debug'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
+
+		// Test when user has permissions
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->sendPasswordResetEmailMutation( $username );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		// @todo deprecate.
+		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
-	public function testSendPasswordResetEmailResponseWithEmail() {
-		$user  = get_userdata( $this->author );
+	public function testSendPasswordResetEmailWithEmail() {
+		$user  = get_userdata( $this->subscriber );
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
-		$actual   = $this->sendPasswordResetEmailMutation( $email );
+		// Test when user is logged out.
+		wp_set_current_user( 0 );
+		$actual = $this->sendPasswordResetEmailMutation( $email );
 
-		codecept_debug( $actual );
+		// No debug message means this was a real success.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEmpty( $actual['extensions']['debug'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
-		$expected = $this->getSendPasswordResetEmailExpected();
-		/**
-		 * Assert that the expected user data was returned.
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
-	}
+		// Test when user has permissions
+		wp_set_current_user( $this->admin );
 
-	public function getSendPasswordResetEmailExpected() {
-		$user     = get_userdata( $this->author );
-
-		return [
-			'sendPasswordResetEmail' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'user'             => [
-					'databaseId' => $user->ID,
-				]
-			]
-		];
+		$actual = $this->sendPasswordResetEmailMutation( $email );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		// @todo deprecate.
+		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
 	public function testSendPasswordResetEmailActivationKeyWithUsername() {
@@ -960,12 +1090,22 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	public function runSendPasswordResetEmailSentTest( $mutation_arg ) {
 		$email_sent        = true;
-		$update_email_sent = function () use ( &$email_sent ) {
+
+		$update_email_sent = function ( $error ) use ( &$email_sent ) {
+			codecept_debug( $error );
 			$email_sent = false;
 		};
+		$update_email_from = function() {
+			return 'valid-email@site.test';
+		};
+
 		add_action( 'wp_mail_failed', $update_email_sent );
+		add_action( 'wp_mail_from', $update_email_from );
+
 		$this->sendPasswordResetEmailMutation( $mutation_arg );
+
 		remove_action( 'wp_mail_failed', $update_email_sent );
+		remove_action( 'wp_mail_from', $update_email_from );
 
 		return $email_sent;
 	}
@@ -974,7 +1114,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$was_password_change_email_sent = false;
 
 		// If this filter is run, we know the "Password Changed" email is being sent.
-		add_filter( 'password_change_email', function( $pass_change_email ) use ( &$was_password_change_email_sent ) {
+		add_filter( 'password_change_email', function ( $pass_change_email ) use ( &$was_password_change_email_sent ) {
 			$was_password_change_email_sent = true;
 			return $pass_change_email;
 		} );
@@ -982,7 +1122,7 @@ class UserObjectMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->registerUserMutation( [
 			'username' => 'password-changed-email-test-user',
 			'email'    => 'password-changed-email-test-user@example.com',
-			'password' => 'password-changed-email-test-user-password'
+			'password' => 'password-changed-email-test-user-password',
 		] );
 
 		/**

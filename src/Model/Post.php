@@ -119,7 +119,7 @@ class Post extends Model {
 		 * Set the data as the Post object
 		 */
 		$this->data             = $post;
-		$this->post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;
+		$this->post_type_object = get_post_type_object( $post->post_type );
 
 		/**
 		 * If the post type is 'revision', we need to get the post_type_object
@@ -187,7 +187,7 @@ class Post extends Model {
 		 * might be applied when resolving fields can rely on global post and
 		 * post data being set up.
 		 */
-		if ( ! empty( $this->data ) ) {
+		if ( $this->data instanceof WP_Post ) {
 
 			$id        = $this->data->ID;
 			$post_type = $this->data->post_type;
@@ -246,7 +246,7 @@ class Post extends Model {
 			}
 
 			$wp_query->setup_postdata( $data );
-			$GLOBALS['post']             = $data;
+			$GLOBALS['post']             = $data; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			$wp_query->queried_object    = get_post( $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 
@@ -293,7 +293,7 @@ class Post extends Model {
 		 * so that we can check access rights of the parent post. Revision access is inherit
 		 * to the Parent it is a revision of.
 		 */
-		if ( isset( $this->data->post_type ) && 'revision' === $this->data->post_type ) {
+		if ( 'revision' === $this->data->post_type ) {
 
 			// Get the post
 			$parent_post = get_post( $this->data->post_parent );
@@ -346,12 +346,12 @@ class Post extends Model {
 
 		$post_type_object = $this->post_type_object;
 
-		if ( empty( $post_object ) ) {
-			$post_object = $this->data;
+		if ( ! $post_type_object ) {
+			return true;
 		}
 
-		if ( empty( $post_object ) ) {
-			return true;
+		if ( ! $post_object ) {
+			$post_object = $this->data;
 		}
 
 		/**
@@ -374,7 +374,7 @@ class Post extends Model {
 		 * mark the post as private
 		 */
 
-		if ( empty( $post_type_object ) || empty( $post_type_object->name ) || ! in_array( $post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
+		if ( empty( $post_type_object->name ) || ! in_array( $post_type_object->name, \WPGraphQL::get_allowed_post_types(), true ) ) {
 			return true;
 		}
 
@@ -390,10 +390,6 @@ class Post extends Model {
 			}
 
 			$parent_post_type_obj = $post_type_object;
-
-			if ( empty( $parent_post_type_obj ) ) {
-				return true;
-			}
 
 			if ( 'private' === $parent->post_status ) {
 				$cap = isset( $parent_post_type_obj->cap->read_private_posts ) ? $parent_post_type_obj->cap->read_private_posts : 'read_private_posts';
@@ -439,10 +435,10 @@ class Post extends Model {
 					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
 				},
 				'databaseId'                => function () {
-					return isset( $this->data->ID ) ? absint( $this->data->ID ) : null;
+					return ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null;
 				},
 				'post_type'                 => function () {
-					return isset( $this->data->post_type ) ? $this->data->post_type : null;
+					return ! empty( $this->data->post_type ) ? $this->data->post_type : null;
 				},
 				'authorId'                  => function () {
 
@@ -454,7 +450,7 @@ class Post extends Model {
 						$id = (int) $parent_post->post_author;
 
 					} else {
-						$id = isset( $this->data->post_author ) ? (int) $this->data->post_author : null;
+						$id = ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
 					}
 
 					return Relay::toGlobalId( 'user', (string) $id );
@@ -469,7 +465,7 @@ class Post extends Model {
 						return $parent_post->post_author;
 					}
 
-					return isset( $this->data->post_author ) ? $this->data->post_author : null;
+					return ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
 
 				},
 				'date'                      => function () {
@@ -579,7 +575,7 @@ class Post extends Model {
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
 					}
 
-					if ( ! empty( $template_name ) && ! empty( $registered_templates[ $set_template ] ) ) {
+					if ( ! empty( $registered_templates[ $set_template ] ) ) {
 						$name          = ucwords( $registered_templates[ $set_template ] );
 						$replaced_name = preg_replace( '/[^\w]/', '', $name );
 
@@ -663,7 +659,7 @@ class Post extends Model {
 					}
 
 					$edit_lock       = get_post_meta( $this->data->ID, '_edit_lock', true );
-					$edit_lock_parts = explode( ':', $edit_lock );
+					$edit_lock_parts = ! empty( $edit_lock ) ? explode( ':', $edit_lock ) : null;
 
 					return ! empty( $edit_lock_parts ) ? $edit_lock_parts : null;
 				},
@@ -694,6 +690,15 @@ class Post extends Model {
 
 					if ( true === $this->isFrontPage ) {
 						return '/';
+					}
+
+					// if the page is set as the posts page
+					// the page node itself is not identifiable
+					// by URI. Instead, the uri would return the
+					// Post content type as that uri
+					// represents the blog archive instead of a page
+					if ( true === $this->isPostsPage ) {
+						return null;
 					}
 
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
@@ -822,15 +827,18 @@ class Post extends Model {
 					'sourceUrl'           => function () {
 						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
 
-						return ! empty( $source_url ) && isset( $source_url[0] ) ? $source_url[0] : null;
+						return ! empty( $source_url ) ? $source_url[0] : null;
 					},
 					'sourceUrlsBySize'    => function () {
-						$sizes = get_intermediate_image_sizes();
+						/**
+						 * This returns an empty array on the VIP Go platform.
+						 */
+						$sizes = get_intermediate_image_sizes(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_intermediate_image_sizes_get_intermediate_image_sizes
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
 							foreach ( $sizes as $size ) {
 								$img_src       = wp_get_attachment_image_src( $this->data->ID, $size );
-								$urls[ $size ] = ! empty( $img_src ) && isset( $img_src[0] ) ? $img_src[0] : null;
+								$urls[ $size ] = ! empty( $img_src ) ? $img_src[0] : null;
 							}
 						}
 

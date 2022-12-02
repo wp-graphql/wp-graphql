@@ -100,7 +100,7 @@ class Tracing {
 		add_filter( 'graphql_request_results', [
 			$this,
 			'add_tracing_to_response_extensions',
-		], 10, 4 );
+		], 10, 1 );
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
 	}
@@ -263,13 +263,10 @@ class Tracing {
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
 	 * @param mixed|array|object $response       The response of the GraphQL Request
-	 * @param mixed              $schema         The WPGraphQL Schema
-	 * @param string             $operation_name The operation name being executed
-	 * @param string             $request        The GraphQL Request being made
 	 *
 	 * @return mixed $response
 	 */
-	public function add_tracing_to_response_extensions( $response, $schema, string $operation_name, string $request ) {
+	public function add_tracing_to_response_extensions( $response ) {
 
 		// Get the trace
 		$trace = $this->get_trace();
@@ -321,7 +318,7 @@ class Tracing {
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( isset( $user->roles ) && in_array( $this->tracing_user_role, (array) $user->roles, true ) ) {
+				if ( in_array( $this->tracing_user_role, $user->roles, true ) ) {
 					$can_see = true;
 				}
 			}
@@ -357,8 +354,8 @@ class Tracing {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array   $trace The trace to return
-		 * @param Tracing $this  The Tracing class instance
+		 * @param array   $trace     The trace to return
+		 * @param Tracing $instance  The Tracing class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
 	}

@@ -1,4 +1,7 @@
-# WPGraphiQL
+---
+uri: "/docs/wp-graphiql/"
+title: "WPGraphiQL"
+---
 
 In this document, you will find information about developer APIs available to extend and customize
 WPGraphiQL.
@@ -6,7 +9,7 @@ WPGraphiQL.
 When the word "WPGraphiQL" is referenced, it is referring to the tooling provided by WPGraphQL in
 the WordPress dashboard for interacting with the WPGraphQL Schema.
 
-![Screenshot of the GraphiQL IDE in the WordPress dashboard](./graphiql-ide-screenshot.png)
+![Screenshot of the GraphiQL IDE in the WordPress dashboard](./images/graphiql-ide-screenshot.png)
 
 Central to this tooling, is the [GraphiQL IDE](https://github.com/graphql/graphiql) (pronounced
 Graphical).
@@ -27,7 +30,7 @@ Below are some of the enhancements to the GraphiQL IDE that are provided by WPGr
 When using WPGraphiQL, you can toggle between executing the request as the authenticated user in the
 WordPress dashboard, or as a public, non-authenticated user.
 
-Not all data that _can_ be queried will be returned. Data such as draft posts, previews, etc are often
+Not all data that *can* be queried will be returned. Data such as draft posts, previews, etc are often
 restricted to users that are authenticated (logged in) and have authorization (proper capabilities) to
 have the data returned to them.
 
@@ -37,14 +40,13 @@ but other users might not).
 
 Below is a GIF screen recording showing this feature in action.
 
-![Screenshot of the GraphiQL IDE "Auth Switch" feature](./graphiql-auth-switch.gif)
+![Screenshot of the GraphiQL IDE "Auth Switch" feature](./images/graphiql-auth-switch.gif)
 
 In the screen recording we see a GraphQL query for the root "viewer" field being made and a `null` value is
 returned. A public user will get a `null` response for data they cannot access.
 
 Then, the button to "switch to executing as an authenticated user" is clicked, and the query is
 executed again, showing the viewer data being returned instead of a `null` response.
-
 
 ### Full Screen Mode
 
@@ -54,17 +56,16 @@ full browser window.
 This arguably should be called "full-browser-window" than "full-screen" mode. Please forgive us.
 Naming is hard.
 
-_**NOTE:** This feature was built using the extension APIs outlined below!_
+> **NOTE:** This feature was built using the extension APIs outlined below!\*
 
 Below is a GIF showing this feature in action.
 
-![Screenshot of the GraphiQL IDE "Full Window" feature](./graphiql-full-window-mode.gif)
+![Screenshot of the GraphiQL IDE "Full Window" feature](./images/graphiql-full-window-mode.gif)
 
 When the GraphiQL IDE is loaded, we see the WordPress admin bar, the WordPress dashboard menu, etc.
 
 Clicking the "Fullscreen Toggle" button in the GraphiQL IDE Toolbar changes the IDE to cover the full
 browser window. Clicking the button toggles the IDE back to it's nested position within the app.
-
 
 ### Query Composer
 
@@ -79,7 +80,7 @@ provide extension APIs for 3rd party plugin developers to hook into and modify t
 
 Below is a GIF showing this feature in action:
 
-![Screenshot of the GraphiQL IDE "Query Composer" feature](./graphiql-query-composer.gif)
+![Screenshot of the GraphiQL IDE "Query Composer" feature](./images/graphiql-query-composer.gif)
 
 In the screenshot, we see the button labeled "Query Composer" being clicked. When the button is
 clicked, a panel opens on the left with a list of fields. When the fields are clicked, they are added

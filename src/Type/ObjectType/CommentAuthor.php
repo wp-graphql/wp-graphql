@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use WPGraphQL\Data\DataSource;
+use \WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
 
 class CommentAuthor {
 
@@ -17,6 +17,7 @@ class CommentAuthor {
 			[
 				'description'     => __( 'A Comment Author object', 'wp-graphql' ),
 				'interfaces'      => [ 'Node', 'Commenter' ],
+				'model'           => CommentAuthorModel::class,
 				'eagerlyLoadType' => true,
 				'fields'          => [
 					'id'           => [
@@ -47,7 +48,7 @@ class CommentAuthor {
 							],
 							'forceDefault' => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false' ),
+								'description' => __( 'Whether to always show the default image, never the Gravatar. Default false', 'wp-graphql' ),
 							],
 							'rating'       => [
 								'type'        => 'AvatarRatingEnum',
@@ -56,8 +57,17 @@ class CommentAuthor {
 
 						],
 						'resolve' => function ( $comment_author, $args, $context, $info ) {
+							/**
+							 * If the $comment_author is a user, the User model only returns the email address if the requesting user is authenticated.
+							 * But, to resolve the Avatar we need a valid email, even for unauthenticated requests.
+							 *
+							 * If the email isn't visible, we use the comment ID to retrieve it, then use it to resolve the avatar.
+							 *
+							 * The email address is not publicly exposed, adhering to the rules of the User model.
+							 */
+							$comment_author_email = ! empty( $comment_author->email ) ? $comment_author->email : get_comment_author_email( $comment_author->databaseId );
 
-							if ( ! isset( $comment_author->email ) ) {
+							if ( empty( $comment_author_email ) ) {
 								return null;
 							}
 
@@ -77,8 +87,14 @@ class CommentAuthor {
 								$avatar_args['rating'] = esc_sql( $args['rating'] );
 							}
 
-							$avatar = get_avatar_data( $comment_author->email, $avatar_args );
-							return ! empty( $avatar ) ? new \WPGraphQL\Model\Avatar( $avatar ) : null;
+							$avatar = get_avatar_data( $comment_author_email, $avatar_args );
+
+							// if there's no url returned, return null
+							if ( empty( $avatar['url'] ) ) {
+								return null;
+							}
+
+							return new \WPGraphQL\Model\Avatar( $avatar );
 						},
 					],
 				],

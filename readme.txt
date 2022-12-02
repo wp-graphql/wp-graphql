@@ -2,9 +2,9 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, REST, JSON,  HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 5.9.1
+Tested up to: 6.1
 Requires PHP: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.13.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -87,6 +87,107 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 1.13.0 =
+
+The `ContentRevisionUnion` Union has been removed, and the `RootQuery.revisions` and `User.revisions` connections that used to resolve to this Type now resolve to the `ContentNode` Interface type.
+
+This is _techically_ a Schema Breaking change, however the behavior for most users querying these fields should remain the same.
+
+For example, this query worked before, and still works now:
+
+```graphql
+{
+  viewer {
+    revisions {
+      nodes {
+        __typename
+        ... on Post {
+          id
+          uri
+          isRevision
+        }
+        ... on Page {
+          id
+          uri
+          isRevision
+        }
+      }
+    }
+  }
+  revisions {
+    nodes {
+      __typename
+      ... on Post {
+        id
+        uri
+        isRevision
+      }
+      ... on Page {
+        id
+        uri
+        isRevision
+      }
+    }
+  }
+}
+```
+
+If you were using a fragment to reference: `...on UserToContentRevisionUnionConnection` or `...on RootQueryToContentRevisionUnionConnection` you would need to update those references to `...on UserToRevisionsConnection` and `...on RootQueryToRevisionsConnection` respectively.
+
+= 1.12.0 =
+
+This release removes the `ContentNode` and `DatabaseIdentifier` interfaces from the `NodeWithFeaturedImage` Interface.
+
+This is considered a breaking change for client applications using a `...on NodeWithFeaturedImage` fragment that reference fields applied by those interfaces. If you have client applications doing this (or are unsure if you do) you can use the following filter to bring back the previous behavior:
+
+```php
+add_filter( 'graphql_wp_interface_type_config', function( $config ) {
+	if ( $config['name'] === 'NodeWithFeaturedImage' ) {
+		$config['interfaces'][] = 'ContentNode';
+		$config['interfaces'][] = 'DatabaseIdentifier';
+	}
+	return $config;
+}, 10, 1 );
+```
+
+= 1.10.0 =
+
+PR ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)) fixes a bug that some users were
+using as a feature.
+
+When a page is marked as the "Posts Page" WordPress does not resolve that page by URI, and this
+bugfix no longer will resolve that page by URI.
+
+You can [read more](https://github.com/wp-graphql/wp-graphql/issues/2486#issuecomment-1232169375)
+about why this change was made and find a snippet of code that will bring the old functionality back
+if you've built features around it.
+
+
+= 1.9.0 =
+
+There are 2 changes that **might** require action when updating to 1.9.0.
+
+
+1. ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464))
+
+When querying for a `nodeByUri`, if your site has the "page_for_posts" setting configured, the behavior of the `nodeByUri` query for that uri might be different for you.
+
+Previously a bug caused this query to return a "Page" type, when it should have returned a "ContentType" Type.
+
+The bug fix might change your application if you were using the bug as a feature.
+
+
+
+2. ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457))
+
+There were a lot of bug fixes related to connections to ensure they behave as intended. If you were querying lists of data, in some cases the data might be returned in a different order than it was before.
+
+For example, using the "last" input on a Comment or User query should still return the same nodes, but in a different order than before.
+
+This might cause behavior you don't want in your application because you had coded around the bug. This change was needed to support proper backward pagination.
+
+
+
 = 1.6.7 =
 
 There's been a bugfix in the Post Model layer which _might_ break existing behaviors.
@@ -130,6 +231,413 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.13.4 =
+
+**Chores / Bugfixes**
+
+- ([#2631](https://github.com/wp-graphql/wp-graphql/pull/2631)): simplify (DRY up) connection interface registration.
+
+= 1.13.3 =
+
+- fix: update versions for WordPress.org deploys
+
+= 1.13.2 =
+
+**Chores / Bugfixes**
+
+- ([#2627](https://github.com/wp-graphql/wp-graphql/pull/2627)): fix: Fixes regression where Connection classes were moved to another namespace. This adds deprecated classes back to the old namespace to extend the new classes. Thanks @justlevine!
+
+= 1.13.1 =
+
+**Chores / Bugfixes**
+
+- ([#2625](https://github.com/wp-graphql/wp-graphql/pull/2625)): fix: Fixes a regression to v1.13.0 where mutations registered with an uppercase first letter weren't properly being transformed to a lowercase first letter when the field is added to the Schema.
+
+
+= 1.13.0 =
+
+**Possible Breaking Change for some users**
+
+The work to introduce the `Connection` and `Edge` (and other) Interfaces required the `User.revisions` and `RootQuery.revisions` connection to
+change from resolving to the `ContentRevisionUnion` type and instead resolve to the `ContentNode` type.
+
+We believe that it's highly likely that most users will not be impacted by this change.
+
+Any queries that directly reference the following types:
+
+- `...on UserToContentRevisionUnionConnection`
+- `...on RootQueryToContentRevisionUnionConnection`
+
+Would need to be updated to reference these types instead:
+
+- `...on UserToRevisionsConnection`
+- `...on RootQueryToRevisionsConnection`
+
+For example:
+
+**BEFORE**
+
+```graphql
+{
+  viewer {
+    revisions {
+      ... on UserToContentRevisionUnionConnection {
+        nodes {
+          __typename
+          ... on Post {
+            id
+            uri
+            isRevision
+          }
+          ... on Page {
+            id
+            uri
+            isRevision
+          }
+        }
+      }
+    }
+  }
+  revisions {
+    ... on RootQueryToContentRevisionUnionConnection {
+      nodes {
+        __typename
+        ... on Post {
+          id
+          uri
+          isRevision
+        }
+        ... on Page {
+          id
+          uri
+          isRevision
+        }
+      }
+    }
+  }
+}
+```
+
+**AFTER**
+
+```graphql
+{
+  viewer {
+    revisions {
+      ... on UserToRevisionsConnection {
+        nodes {
+          __typename
+          ... on Post {
+            id
+            uri
+            isRevision
+          }
+          ... on Page {
+            id
+            uri
+            isRevision
+          }
+        }
+      }
+    }
+  }
+  revisions {
+    ... on RootQueryToRevisionsConnection {
+      nodes {
+        __typename
+        ... on Post {
+          id
+          uri
+          isRevision
+        }
+        ... on Page {
+          id
+          uri
+          isRevision
+        }
+      }
+    }
+  }
+}
+```
+
+**New Features**
+
+- ([#2617](https://github.com/wp-graphql/wp-graphql/pull/2617): feat: Introduce Connection, Edge and other common Interfaces.
+- ([#2563](https://github.com/wp-graphql/wp-graphql/pull/2563): feat: refactor mutation registration to use new `WPMutationType`. Thanks @justlevine!
+- ([#2557](https://github.com/wp-graphql/wp-graphql/pull/2557): feat: add `deregister_graphql_type()` access function and corresponding `graphql_excluded_types` filter. Thanks @justlevine!
+- ([#2546](https://github.com/wp-graphql/wp-graphql/pull/2546): feat: Add new `register_graphql_edge_fields()` and `register_graphql_connection_where_args()` access functions. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2622](https://github.com/wp-graphql/wp-graphql/pull/2622): fix: deprecate the `previews` field for non-publicly queryable post types, and limit the `Previewable` Interface to publicly queryable post types.
+- ([#2614](https://github.com/wp-graphql/wp-graphql/pull/2614): chore(deps): bump loader-utils from 2.0.3 to 2.0.4.
+- ([#2540](https://github.com/wp-graphql/wp-graphql/pull/2540): fix: deprecate `Comment.approved` field in favor of `Comment.status: CommentStatusEnum`. Thanks @justlevine!
+- ([#2542](https://github.com/wp-graphql/wp-graphql/pull/2542): Move parse_request logic in `NodeResolver::resolve_uri()` to its own method. Thanks @justlevine!
+
+
+= 1.12.2 =
+
+**New Features**
+
+- ([#2541](https://github.com/wp-graphql/wp-graphql/pull/2541)): feat: Obfuscate SendPasswordResetEmail response. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2544](https://github.com/wp-graphql/wp-graphql/pull/2544)): chore: log and cleanup deprecations. Thanks @justlevine!
+- ([#2605](https://github.com/wp-graphql/wp-graphql/pull/2605)): chore: bump tested version of WordPress to 6.1. Thanks @justlevine!
+- ([#2606](https://github.com/wp-graphql/wp-graphql/pull/2606)): fix: update resolver in post->author connection to be more strict about the value of the author ID
+- ([#2609](https://github.com/wp-graphql/wp-graphql/pull/2609)): chore(deps): bump loader-utils from 2.0.2 to 2.0.3
+
+
+= 1.12.1 =
+
+**New Features**
+
+- ([#2593](https://github.com/wp-graphql/wp-graphql/pull/2593)): feat: use sha256 instead of md5 for hashing queryId
+- ([#2581](https://github.com/wp-graphql/wp-graphql/pull/2581)): feat: support deprecation reason when using `register_graphql_connection`.
+- ([#2603](https://github.com/wp-graphql/wp-graphql/pull/2603)): feat: add GraphQL operation name to x-graphql-keys headers.
+
+**Chores / Bugfixes**
+
+- ([#2472](https://github.com/wp-graphql/wp-graphql/pull/2472)): fix: Return CommentAuthor avatar urls in public requests. Thanks @justlevine!
+- ([#2549](https://github.com/wp-graphql/wp-graphql/pull/2549)): chore: fix bug_report.yml description input. Thanks @justlevine!
+- ([#2582](https://github.com/wp-graphql/wp-graphql/pull/2582)): fix(noderesolver): adding extra_query_vars in graphql_pre_resolve_uri. Thanks @yanmorinokamca!
+- ([#2583](https://github.com/wp-graphql/wp-graphql/pull/2583)): chore: prepare docs for new website. Thanks @moonmeister!
+- ([#2590](https://github.com/wp-graphql/wp-graphql/pull/2590)): fix: Add list of node types as X-GraphQL-Keys instead of list of edge types
+- ([#2599](https://github.com/wp-graphql/wp-graphql/pull/2599)): fix: only use Appsero `add_plugin_data` if the method exists in the version of the Appsero client that's loaded.
+- ([#2600](https://github.com/wp-graphql/wp-graphql/pull/2600)): docs: fix contributing doc render errors. Thanks @moonmeister!
+
+
+= 1.12.0 =
+
+**Upgrading**
+
+This release removes the `ContentNode` and `DatabaseIdentifier` interfaces from the `NodeWithFeaturedImage` Interface.
+
+This is considered a breaking change for client applications using a `...on NodeWithFeaturedImage` fragment that reference fields applied by those interfaces. If you have client applications doing this (or are unsure if you do) you can use the following filter to bring back the previous behavior:
+
+```php
+add_filter( 'graphql_wp_interface_type_config', function( $config ) {
+	if ( $config['name'] === 'NodeWithFeaturedImage' ) {
+		$config['interfaces'][] = 'ContentNode';
+		$config['interfaces'][] = 'DatabaseIdentifier';
+	}
+	return $config;
+}, 10, 1 );
+```
+
+**New Features**
+
+- ([#2399](https://github.com/wp-graphql/wp-graphql/pull/2399)): New Schema Customization options for register_post_type and register_taxonomy. Thanks @justlevine!
+- ([#2565](https://github.com/wp-graphql/wp-graphql/pull/2565)): Expose X-GraphQL-URL header.
+
+**Chores / Bugfixes**
+
+- ([#2568](https://github.com/wp-graphql/wp-graphql/pull/2568)): Fix typo in docs. Thanks @altearius!
+- ([#2569](https://github.com/wp-graphql/wp-graphql/pull/2569)): Update Appsero Client SDK.
+- ([#2571](https://github.com/wp-graphql/wp-graphql/pull/2571)): Dependabot bumps.
+- ([#2572](https://github.com/wp-graphql/wp-graphql/pull/2572)): Fixes a bug in the GraphiQL Query Composer when working with fields that return Unions. Thanks @chrisherold!
+- ([#2556](https://github.com/wp-graphql/wp-graphql/pull/2556)): Updates script that installs test environment to use env vars. Makes spinning up environments more convenient for contributors. Thanks @justlevine!
+- ([#2538](https://github.com/wp-graphql/wp-graphql/pull/2538)): Updates phpstan and fixes surfaced issues. Thanks @justlevine!
+- ([#2545](https://github.com/wp-graphql/wp-graphql/pull/2545)): Update WPBrowser to v3.1.6 and update test for SendPasswordResetEmail. Thanks @justlevine!
+
+= 1.11.3 =
+
+**Chores / Bugfixes**
+
+- ([#2555](https://github.com/wp-graphql/wp-graphql/pull/2555)): Further changes to `X-GraphQL-Keys` header output. Truncate keys based on a filterable max length. Output the skipped keys in extensions payload for debugging, and add `skipped:$type` keys to the X-GraphQL-Keys header for nodes that are skipped.
+
+
+= 1.11.2 =
+
+**Chores / Bugfixes**
+
+- ([#2551](https://github.com/wp-graphql/wp-graphql/pull/2551)): Chunks X-GraphQL-Keys header into multiple headers under a set max header limit length.
+- ([#2539](https://github.com/wp-graphql/wp-graphql/pull/2539)): Set IDE direction to prevent breaks in RTL mode. Thanks @justlevine!
+- ([#2549](https://github.com/wp-graphql/wp-graphql/pull/2549)): Fix bug_report.yml field to be textarea instead of input. Thanks @justlevine!
+
+= 1.11.1 =
+
+**Chores / Bugfixes**
+
+- ([#2530](https://github.com/wp-graphql/wp-graphql/pull/2530)): Fixes a regression introduced in v1.11.0 where querying menuItems with parentId where arg set to 0 was returning all menuItems instead of just top level items.
+
+
+= 1.11.0 =
+
+**New Features**
+
+- ([#2519](https://github.com/wp-graphql/wp-graphql/pull/2519)): Add new "QueryAnalyzer" class which tracks Types, Models and Nodes asked for and returned in a request and adds them to the response headers.
+- ([#2519](https://github.com/wp-graphql/wp-graphql/pull/2519)): Add 2nd argument to `graphql()` function that will return the `Request` object instead executing and returning the response.
+- ([#2522](https://github.com/wp-graphql/wp-graphql/pull/2522)): Allow global/database IDs in Comment connection where args. Thanks @justlevine!
+- ([#2523](https://github.com/wp-graphql/wp-graphql/pull/2523)): Allow global/database IDs in MenuItem connection where args ID Inputs. Thanks @justlevine!
+- ([#2524](https://github.com/wp-graphql/wp-graphql/pull/2524)): Allow global/database IDs in Term connection where args ID Inputs. Thanks @justlevine!
+- ([#2525](https://github.com/wp-graphql/wp-graphql/pull/2525)): Allow global/database IDs in Post connection where args ID Inputs. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2521](https://github.com/wp-graphql/wp-graphql/pull/2521)): Refactor `$args` in AbstractConnectionResolver. Thanks @justlevine!
+- ([#2526](https://github.com/wp-graphql/wp-graphql/pull/2526)): Ensure tracked data in QueryAnalyzer is unique.
+
+
+= 1.10.0 =
+
+**New Features**
+
+- ([#2503](https://github.com/wp-graphql/wp-graphql/pull/2503)): Enable codeception debugging via Github Actions. Thanks @justlevine!
+- ([#2502](https://github.com/wp-graphql/wp-graphql/pull/2502)): Add `idType` arg to `RootQuery.comment`. Thanks @justlevine!
+- ([#2505](https://github.com/wp-graphql/wp-graphql/pull/2505)): Return user after `resetUserPassword` mutation. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2482](https://github.com/wp-graphql/wp-graphql/pull/2482)): Add PHP Code Sniffer support for the WordPress.com VIP GO standard. Thanks @renatonascalves!
+- ([#2490](https://github.com/wp-graphql/wp-graphql/pull/2490)): Fix bug related to querying the page set as "Posts Page"
+- ([#2497](https://github.com/wp-graphql/wp-graphql/pull/2497)): Only enqueue admin scripts on the settings page. Thanks @justlevine!
+- ([#2498](https://github.com/wp-graphql/wp-graphql/pull/2498)): Add `include` and `exclude` args to `MediaDetails.sizes`. Thanks @justlevine!
+- ([#2499](https://github.com/wp-graphql/wp-graphql/pull/2499)): Check for multiple theme capabilities in the Theme Model. Thanks @justlevine!
+- ([#2504](https://github.com/wp-graphql/wp-graphql/pull/2504)): Filter `mediaItems` query by `mimeType`. Thanks @justlevine!
+- ([#2506](https://github.com/wp-graphql/wp-graphql/pull/2506)): Update descriptions for input fields that accept a `databaseId`. Thanks @justlevine!
+- ([#2511](https://github.com/wp-graphql/wp-graphql/pull/2511)): Update link in docs to point to correct "nonce" example. Thanks @NielsdeBlaauw!
+
+
+= 1.9.1 =
+
+**Chores / Bugfixes**
+
+- ([#2471](https://github.com/wp-graphql/wp-graphql/pull/2471)): feat: PHPCS: enhancements to the Coding Standards Setup. Thanks @renatonascalves!
+- ([#2472](https://github.com/wp-graphql/wp-graphql/pull/2472)): fix: return CommentAuthor avatar urls to public users. Thanks @justlevine!
+- ([#2473](https://github.com/wp-graphql/wp-graphql/pull/2473)): fix: Update GraphiQL "user switch" to be accessible. Thanks @nickcernis!
+- ([#2477](https://github.com/wp-graphql/wp-graphql/pull/2477)): fix(graphiql): graphiql fails if variables are invalid json
+
+
+= 1.9.0 =
+
+**Upgrading**
+
+There are 2 changes that **might** require action when updating to 1.9.0.
+
+
+1. ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464))
+
+When querying for a `nodeByUri`, if your site has the "page_for_posts" setting configured, the behavior of the `nodeByUri` query for that uri might be different for you.
+
+Previously a bug caused this query to return a "Page" type, when it should have returned a "ContentType" Type.
+
+The bug fix might change your application if you were using the bug as a feature.
+
+
+
+2. ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457))
+
+There were a lot of bug fixes related to connections to ensure they behave as intended. If you were querying lists of data, in some cases the data might be returned in a different order than it was before.
+
+For example, using the "last" input on a Comment or User query should still return the same nodes, but in a different order than before.
+
+This might cause behavior you don't want in your application because you had coded around the bug. This change was needed to support proper backward pagination.
+
+** Chores / Bugfixes**
+
+- ([#2450](https://github.com/wp-graphql/wp-graphql/pull/2450)): Fix PHPCompatibility lint config. Thanks @justlevine!
+- ([#2452](https://github.com/wp-graphql/wp-graphql/pull/2452)): Fixes a bug with `Comment.author` connections not properly resolving for public (non-authenticated) requests.
+- ([#2453](https://github.com/wp-graphql/wp-graphql/pull/2453)): Update Github Workflows to use PHP 7.3. Thanks @justlevine!
+- ([#2454](https://github.com/wp-graphql/wp-graphql/pull/2454)): Add linter to ensure Pull Requests use "Conventional Commit" standards.
+- ([#2455](https://github.com/wp-graphql/wp-graphql/pull/2455)): Refactors and Lints the WPUnit tests. Cleans up some "leaky" data in test suites. Thanks @justlevine!
+- ([#2457](https://github.com/wp-graphql/wp-graphql/pull/2457)): Refactor Connection Resolvers to better adhere to Relay Connection spec. This fixes several bugs related to pagination across connections, specifically User and Comment connections which didn't properly support backward pagination at all. Thanks @justlevine!
+- ([#2460](https://github.com/wp-graphql/wp-graphql/pull/2460)): Update documentation for running tests with Docker. Thanks @markkelnar!
+- ([#2463](https://github.com/wp-graphql/wp-graphql/pull/2463)): Add Issue templates to the repo. Thanks @justlevine!
+- ([#2464](https://github.com/wp-graphql/wp-graphql/pull/2464)): Fixes node resolver when "page_for_posts" setting is set to a page.
+
+
+= 1.8.7 =
+
+**Chores / Bugfixes**
+
+- ([#2441](https://github.com/wp-graphql/wp-graphql/pull/2441)): Fix `contentNodes` field not showing if a taxonomy is registered without connected post types. Thanks @saimonh3!
+- ([#2446](https://github.com/wp-graphql/wp-graphql/pull/2446)): Update "terser" from 5.11.0 to 5.14.2 (GraphiQL Dependency)
+- ([#2440](https://github.com/wp-graphql/wp-graphql/pull/2440)): Update JS dependencies for GraphiQL
+
+**New Features**
+
+- ([#2435](https://github.com/wp-graphql/wp-graphql/pull/2435)): Add filter in execute for query string. Thanks @markkelnar!
+- ([#2432](https://github.com/wp-graphql/wp-graphql/pull/2432)): Add `query_id` to `after_execute_actions` for batch requests. Thanks @markkelnar!
+
+
+= 1.8.6 =
+
+**Chores / Bugfixes**
+
+- ([#2427](https://github.com/wp-graphql/wp-graphql/pull/2427)): Fixes a regression of the 1.8.3 release where there could be fatal errors when GraphQL Tracing is enabled and a queryId is used as a query param.
+
+
+= 1.8.5 =
+
+**Chores / Bugfixes**
+
+- ([#2422](https://github.com/wp-graphql/wp-graphql/pull/2422)): Fixes a regression of the 1.8.3 release where there could be fatal errors when GraphQL Tracing is enabled.
+
+
+= 1.8.4 =
+
+**Chores / Bugfixes**
+
+- ([#2416](https://github.com/wp-graphql/wp-graphql/pull/2416)): Fixes schema artifact workflow in Github.
+
+= 1.8.3 =
+
+**New Features**
+
+- ([#2388](https://github.com/wp-graphql/wp-graphql/pull/2388)): Adds ability to query menus by SLUG and LOCATION. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2412](https://github.com/wp-graphql/wp-graphql/pull/2412)): Update tests to run in PHP 8, 8.1 and with WordPress 6.0. Updates Docker Deploy workflow as well.
+- ([#2411](https://github.com/wp-graphql/wp-graphql/pull/2411)): Fixes bug where menuItems "location" arg was conflicting if a taxonomy is also registered with "location" as its name.
+- ([#2410](https://github.com/wp-graphql/wp-graphql/pull/2410)): Fixes a regression with Taxonomy Connection pagination.
+- ([#2406](https://github.com/wp-graphql/wp-graphql/pull/2406)): Updates PHPUnit, WPBrowser and WPGraphQL Test Case for use in workflows. Thanks @justlevine!
+- ([#2387](https://github.com/wp-graphql/wp-graphql/pull/2387)): Fixes a bug with asset versions when querying for Enqueued Scripts and Styles. Thanks @justlevine!
+
+
+
+= 1.8.2 =
+
+**New Features**
+
+- ([#2363](https://github.com/wp-graphql/wp-graphql/pull/2363)): Adds "uri" field to MenuItem type which resolves the path of the node which can then be used in a `nodeByUri` query to get the linked node. The path is relative and does not contain subdirectory path in a subdirectory multisite. the `path` field does include the multisite subdirectory path, still. Thanks @josephfusco and @justlevine!
+- ([#2337](https://github.com/wp-graphql/wp-graphql/pull/2337)): Allows for either global ID or databaseId to be supplied in the ID field for user mutations. Thanks @justlevine!
+- ([#2338](https://github.com/wp-graphql/wp-graphql/pull/2338)): Allows either global "relay" ID or databaseId for post object mutations. Thanks @justlevine!
+- ([#2336](https://github.com/wp-graphql/wp-graphql/pull/2336)): Allows either global "relay" ID or databaseId for term object mutations. Thanks @justlevine!
+- ([#2331](https://github.com/wp-graphql/wp-graphql/pull/2331)): Allows either global "relay" ID or databaseId for MediaItem object mutations. Thanks @justlevine!
+- ([#2328](https://github.com/wp-graphql/wp-graphql/pull/2328)): Allows either global "relay" ID or databaseId for Comment object mutations. Thanks @justlevine!
+
+
+**Chores/Bugfixes**
+
+- ([#2368](https://github.com/wp-graphql/wp-graphql/pull/2368)): Updates dependencies for Schema Linter workflow.
+- ([#2369](https://github.com/wp-graphql/wp-graphql/pull/2369)): Replaces the Codecov badge in the README with Coveralls badge. Thanks @justlevine!
+- ([#2374](https://github.com/wp-graphql/wp-graphql/pull/2374)): Updates descriptions for PostObjectFieldFormatEnum. Thanks @justlevine!
+- ([#2375](https://github.com/wp-graphql/wp-graphql/pull/2375)): Sets up the testing integration workflow to be able to run in multisite. Adds one workflow that runs in multisite. Fixes tests related to multisite.
+- ([#2376](https://github.com/wp-graphql/wp-graphql/pull/2276)): Adds support for `['auth']['callback']` and `isPrivate` for the `register_graphql_mutation()` API.
+- ([#2379](https://github.com/wp-graphql/wp-graphql/pull/2379)): Fixes a bug where term mutations were adding slashes when being stored in the database.
+- ([#2380](https://github.com/wp-graphql/wp-graphql/pull/2380)): Fixes a bug where WPGraphQL wasn't sending the Wp class to the `parse_request` filter as a reference.
+- ([#2382](https://github.com/wp-graphql/wp-graphql/pull/2382)): Fixes a bug where `register_graphql_field()` was not being respected by GraphQL Types added to the schema to represent Setting Groups of the core WordPress `register_setting()` API.
+
+
+= 1.8.1 =
+
+**New Features**
+
+- ([#2349](https://github.com/wp-graphql/wp-graphql/pull/2349)): Adds tags to wpkses_post for WPGraphQL settings pages to be extended further. Thanks @eavonius!
+
+**Chores/Bugfixes**
+
+- ([#2358](https://github.com/wp-graphql/wp-graphql/pull/2358)): Updates NPM dependencies. Thanks @dependabot!
+- ([#2357](https://github.com/wp-graphql/wp-graphql/pull/2357)): Updates NPM dependencies. Thanks @dependabot!
+- ([#2356](https://github.com/wp-graphql/wp-graphql/pull/2356)): Refactors codebase to take advantage of the work done in #2353. Thanks @justlevine!
+- ([#2354](https://github.com/wp-graphql/wp-graphql/pull/2354)): Fixes console warnings in GraphiQL related to missing React keys.
+- ([#2353](https://github.com/wp-graphql/wp-graphql/pull/2353)): Refactors the WPGraphQL::get_allowed_post_types() and WPGraphQL::get_allowed_taxonomies() functions. Thanks @justlevine!
+- ([#2350](https://github.com/wp-graphql/wp-graphql/pull/2350)): Fixes bug where Comment Authors were not always properly returning
 
 = 1.8.0 =
 

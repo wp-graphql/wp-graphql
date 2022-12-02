@@ -22,24 +22,20 @@ class TermNodeIdTypeEnum {
 		/**
 		 * Register a unique Enum per Taxonomy. This allows for granular control
 		 * over filtering and customizing the values available per Taxonomy.
+		 *
+		 * @var \WP_Taxonomy[] $allowed_taxonomies
 		 */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $taxonomy ) {
-				/** @var \WP_Taxonomy $taxonomy_object */
-				$taxonomy_object = get_taxonomy( $taxonomy );
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
-				register_graphql_enum_type(
-					$taxonomy_object->graphql_single_name . 'IdType',
-					[
-						'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
-						'values'      => self::get_values(),
-					]
-				);
-
-			}
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			register_graphql_enum_type(
+				$tax_object->graphql_single_name . 'IdType',
+				[
+					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+					'values'      => self::get_values(),
+				]
+			);
 		}
-
 	}
 
 	/**

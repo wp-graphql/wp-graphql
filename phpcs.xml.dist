@@ -1,16 +1,31 @@
 <?xml version="1.0"?>
-<ruleset name="WP">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-	<config name="ignore_errors_on_exit" value="0"/>
-	<config name="ignore_warnings_on_exit" value="0"/>
-	<arg name="colors"/>
-	<arg value="sp"/>
-	<arg name="basepath" value="."/>
-	<arg name="extensions" value="php"/>
+	<!-- Configure the PHP version -->
+	<config name="testVersion" value="7.1-" />
 
-	<!-- Run the lints in parallel so they run faster. This will separate the files into 20 chunks to be linted -->
-	<arg name="parallel" value="20"/>
+	<!-- Check against minimum WP version. -->
+	<config name="minimum_supported_wp_version" value="5.0" />
+
+	<!--
+	Pass some flags to PHPCS:
+	p flag: Show progress of the run.
+	s flag: Show sniff codes in all reports.
+	-->
+	<arg value="ps" />
+
+	<!-- Enable colors in report -->
+	<arg name="colors" />
+
+	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
+	<arg name="cache" value="tests/_output/cache.json" />
+
+	<!-- Check 20 files in parallel. -->
+	<arg name="parallel" value="20" />
+
+	<!-- Set severity to 1 to see everything that isn't effectively turned off. -->
+	<arg name="severity" value="1" />
 
 	<!-- Includes -->
 	<file>./access-functions.php</file>
@@ -19,47 +34,69 @@
 	<file>./wp-graphql.php</file>
 	<file>./src</file>
 
+	<!-- Only lint php files by default -->
+	<arg name="extensions" value="php" />
+
+	<exclude-pattern>*/**/tests/</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-graphql" />
+			</property>
+		</properties>
+	</rule>
 
 	<!-- Rules -->
+
+	<!-- Load PHPCompatibilityWP standards -->
+	<rule ref="PHPCompatibilityWP" />
+
+	<!-- Load WordPress VIP Go standards - for use with projects on the (newer) VIP Go platform. -->
+	<rule ref="WordPress-VIP-Go" />
+
 	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 
 	<rule ref="WordPress-Core">
-		<!-- Definitely should not be added back -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
-		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
-		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
 
 		<!-- Should probably not be added back -->
 		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
-		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
-		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
 
 		<!-- Should maybe Add Back Later -->
-		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
+	</rule>
+
+	<!-- Load WordPress Coding standards -->
+	<rule ref="WordPress">
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.Files.FileName"/>
+
+		<!-- Definitely should not be added back -->
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
+
+		<!-- Should maybe Add Back Later -->
+		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		
+		<!-- Should probably not be added back -->
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
-		<exclude name="WordPress.Files.FileName"/>
 
 		<!-- Should be re-enabled -->
 		<exclude name="Squiz.Commenting"/>
 	</rule>
 
-	<!-- Tests for PHP version compatibility -->
-	<rule ref="PHPCompatibilityWP">
-		<config name="testVersion" value="7.1-"/>
-	</rule>
-
 	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
-
-	<!-- <rule ref="WordPress-VIP-Go"/> -->
 </ruleset>

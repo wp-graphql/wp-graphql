@@ -5,7 +5,8 @@ Thanks for sending a pull request! Please make sure you click the link above to 
 
 🚨 Please review the [guidelines for contributing](/.github/CONTRIBUTING.md) to this repository.
 
-- [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our develop*.
+- [ ] Make sure your PR title follows Conventional Commit standards. See: [https://www.conventionalcommits.org/en/v1.0.0/#specification](https://www.conventionalcommits.org/en/v1.0.0/#specification)
+- [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our master*.
 - [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
 
 -->

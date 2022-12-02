@@ -61,7 +61,7 @@ class TermObjectCreate {
 			],
 			'slug'        => [
 				'type'        => 'String',
-				'description' => __( 'If this argument exists then the slug will be checked to see if it is not an existing valid term. If that check succeeds (it is not a valid term), then it is added and the term id is given. If it fails, then a check is made to whether the taxonomy is hierarchical and the parent argument is not empty. If the second check succeeds, the term will be inserted and the term id will be given. If the slug argument is empty, then it will be calculated from the term name.' ),
+				'description' => __( 'If this argument exists then the slug will be checked to see if it is not an existing valid term. If that check succeeds (it is not a valid term), then it is added and the term id is given. If it fails, then a check is made to whether the taxonomy is hierarchical and the parent argument is not empty. If the second check succeeds, the term will be inserted and the term id will be given. If the slug argument is empty, then it will be calculated from the term name.', 'wp-graphql' ),
 			],
 		];
 
@@ -70,7 +70,7 @@ class TermObjectCreate {
 		 */
 		if ( true === $taxonomy->hierarchical ) {
 			$fields['parentId'] = [
-				'type'        => 'Id',
+				'type'        => 'ID',
 				// Translators: The placeholder is the name of the taxonomy for the object being mutated
 				'description' => sprintf( __( 'The ID of the %1$s that should be set as the parent', 'wp-graphql' ), $taxonomy->name ),
 			];
@@ -131,13 +131,13 @@ class TermObjectCreate {
 			 */
 			if ( empty( $args['name'] ) ) {
 				// Translators: The placeholder is the name of the taxonomy of the term being mutated
-				throw new UserError( sprintf( __( 'A name is required to create a %1$s' ), $taxonomy->name ) );
+				throw new UserError( sprintf( __( 'A name is required to create a %1$s', 'wp-graphql' ), $taxonomy->name ) );
 			}
 
 			$term_name = wp_slash( $args['name'] );
 
 			if ( ! is_string( $term_name ) ) {
-				throw new UserError( sprintf( __( 'A valid name is required to create a %1$s' ), $taxonomy->name ) );
+				throw new UserError( sprintf( __( 'A valid name is required to create a %1$s', 'wp-graphql' ), $taxonomy->name ) );
 			}
 
 			/**

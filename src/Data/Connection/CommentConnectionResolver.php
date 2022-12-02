@@ -5,8 +5,9 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
+use WP_Comment_Query;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentConnectionResolver
@@ -16,8 +17,14 @@ use WPGraphQL\Types;
 class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
+	 *
+	 * @var WP_Comment_Query
+	 */
+	protected $query;
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 
@@ -26,6 +33,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+
+		$query_args = [];
 
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
@@ -96,15 +105,26 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Set the graphql_cursor_offset
+		 * Set the graphql_cursor_compare to determine
+		 * whether the data is being paginated forward (>) or backward (<)
+		 * default to forward
 		 */
-		$query_args['graphql_cursor_offset']  = $this->get_offset();
-		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+		$query_args['graphql_cursor_compare'] = ( isset( $last ) ) ? '>' : '<';
+
+		// these args are used by the cursor builder to generate the proper SQL needed to respect the cursors
+		$query_args['graphql_after_cursor']  = $this->get_after_offset();
+		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
 		 * Pass the graphql $this->args to the WP_Query
 		 */
 		$query_args['graphql_args'] = $this->args;
+
+		// encode the graphql args as a cache domain to ensure the
+		// graphql_args are used to identify different queries.
+		// see: https://core.trac.wordpress.org/ticket/35075
+		$encoded_args               = wp_json_encode( $this->args );
+		$query_args['cache_domain'] = ! empty( $encoded_args ) ? 'graphql:' . md5( $encoded_args ) : 'graphql';
 
 		/**
 		 * We only want to query IDs because deferred resolution will resolve the full
@@ -124,9 +144,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$query_args = apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
-
-		return $query_args;
+		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 	}
 
 	/**
@@ -134,11 +152,11 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
-	 * @return mixed|\WP_Comment_Query
+	 * @return WP_Comment_Query
 	 * @throws Exception
 	 */
 	public function get_query() {
-		return new \WP_Comment_Query( $this->query_args );
+		return new WP_Comment_Query( $this->query_args );
 	}
 
 	/**
@@ -151,11 +169,18 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+	public function get_ids_from_query() {
+		/** @var array $ids */
+		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**
@@ -170,6 +195,72 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function should_execute() {
 		return true;
+	}
+
+
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'authorIn':
+					case 'authorNotIn':
+					case 'commentIn':
+					case 'commentNotIn':
+					case 'parentIn':
+					case 'parentNotIn':
+					case 'contentAuthorIn':
+					case 'contentAuthorNotIn':
+					case 'contentId':
+					case 'contentIdIn':
+					case 'contentIdNotIn':
+					case 'contentAuthor':
+					case 'userId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+					case 'includeUnapproved':
+						if ( is_string( $input_value ) ) {
+							$input_value = [ $input_value ];
+						}
+						$args['where'][ $input_key ] = array_map( function ( $id ) {
+							if ( is_email( $id ) ) {
+								return $id;
+							}
+
+							return Utils::get_database_id_from_id( $id );
+						}, $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                     $args                The GraphQL args passed to the resolver.
+		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 *
+		 * @since 1.11.0
+		 */
+		return apply_filters( 'graphql_comment_connection_args', $args, $this );
 	}
 
 	/**
@@ -201,7 +292,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'contentAuthorNotIn' => 'post_author__not_in',
 			'contentId'          => 'post_id',
 			'contentIdIn'        => 'post__in',
-			'contentIdNotIn'     => 'post__not_in',
+			'contentIdNotIn'     => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 			'contentName'        => 'post_name',
 			'contentParent'      => 'post_parent',
 			'contentStatus'      => 'post_status',
@@ -215,7 +306,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_Comment_Query compatible args
 		 */
-		$query_args = Types::map_input( $args, $arg_mapping );
+		$query_args = Utils::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

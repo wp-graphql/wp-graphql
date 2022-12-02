@@ -16,44 +16,46 @@ on:
 
 jobs:
   continuous_integration:
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        php: [ '7.4', '7.3' ]
-        wordpress: [ '5.9', '5.8', '5.7.2', '5.6.2' ]
-        include:
-          - php: '8.0'
-            wordpress: '5.9'
-          - php: '8.0'
-            wordpress: '5.8'
-          - php: '7.4'
-            wordpress: '5.8'
-            coverage: 1
       fail-fast: false
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+      matrix:
+        php: [ '8.0', '7.4', ]
+        wordpress: [ '6.1', '6.0', '5.9', '5.8', '5.7', '5.6' ]
+        include:
+          - php: '8.1'
+            wordpress: '6.1'
+            multisite: true
+          - php: '8.1'
+            wordpress: '6.0'
+            coverage: 1
+          - php: '8.1'
+            wordpress: '5.9'
+          - php: '7.3'
+            wordpress: '5.9'
+          - php: '7.3'
+            wordpress: '5.8'
+          - php: '7.3'
+            wordpress: '5.7'
+          - php: '7.3'
+            wordpress: '5.6'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          tools: composer:v2
           extensions: json, mbstring
-
-      - name: Get Composer Cache Directory
-        id: composercache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composercache.outputs.dir }}
-          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: php-${{ matrix.php }}-${{ runner.os }}-composer-
-
+      
       - name: Install dependencies
-        run: composer install --no-dev
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-dev"
 
       - name: Build "testing" Docker Image
         env:
@@ -65,7 +67,7 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
           USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           SUITES: functional
           PHP_VERSION: ${{ matrix.php }}
@@ -76,10 +78,11 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
           USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ matrix.debug }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
           SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
+          MULTISITE: ${{ matrix.multisite }}
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io

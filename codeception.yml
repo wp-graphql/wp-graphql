@@ -63,6 +63,7 @@ modules:
             themes: '/wp-content/themes'
             uploads: '/wp-content/uploads'
         WPLoader:
+            multisite: '%MULTISITE%'
             wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
             dbName: '%TEST_DB_NAME%'
             dbHost: '%TEST_DB_HOST%'

@@ -12,10 +12,12 @@ class MediaItemSizeEnum {
 	 * @return void
 	 */
 	public static function register_type() {
-		$values = [];
+		/**
+		 * This returns an empty array on the VIP Go platform.
+		 */
+		$sizes = get_intermediate_image_sizes(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_intermediate_image_sizes_get_intermediate_image_sizes
 
-		$sizes = get_intermediate_image_sizes();
-
+		$values      = [];
 		$image_sizes = ! empty( $sizes ) && is_array( $sizes ) ? $sizes : [
 			'thumbnail',
 			'medium',
@@ -24,21 +26,14 @@ class MediaItemSizeEnum {
 			'full',
 		];
 
-		if ( ! empty( $image_sizes ) && is_array( $image_sizes ) ) {
-			/**
-			 * Reset the array
-			 */
-			$values = [];
-			/**
-			 * Loop through the image_sizes
-			 */
-			foreach ( $image_sizes as $image_size ) {
-
-				$values[ WPEnumType::get_safe_name( $image_size ) ] = [
-					'description' => sprintf( __( 'MediaItem with the %1$s size', 'wp-graphql' ), $image_size ),
-					'value'       => $image_size,
-				];
-			}
+		/**
+		 * Loop through the image_sizes
+		 */
+		foreach ( $image_sizes as $image_size ) {
+			$values[ WPEnumType::get_safe_name( $image_size ) ] = [
+				'description' => sprintf( __( 'MediaItem with the %1$s size', 'wp-graphql' ), $image_size ),
+				'value'       => $image_size,
+			];
 		}
 
 		register_graphql_enum_type(
@@ -48,6 +43,5 @@ class MediaItemSizeEnum {
 				'values'      => $values,
 			]
 		);
-
 	}
 }

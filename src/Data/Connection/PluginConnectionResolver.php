@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
@@ -12,38 +8,17 @@ use WPGraphQL\AppContext;
  * @since 0.0.5
  */
 class PluginConnectionResolver extends AbstractConnectionResolver {
-
 	/**
-	 * PluginConnectionResolver constructor.
+	 * {@inheritDoc}
 	 *
-	 * @param mixed       $source     source passed down from the resolve tree
-	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
-	 *
-	 * @throws Exception
+	 * @var array
 	 */
-	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-		parent::__construct( $source, $args, $context, $info );
-	}
+	protected $query;
 
 	/**
-	 * @return bool|int|mixed|null|string
+	 * {@inheritDoc}
 	 */
-	public function get_offset() {
-		$offset = null;
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = substr( base64_decode( $this->args['after'] ), strlen( 'arrayconnection:' ) );
-		} elseif ( ! empty( $this->args['before'] ) ) {
-			$offset = substr( base64_decode( $this->args['before'] ), strlen( 'arrayconnection:' ) );
-		}
-		return $offset;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_ids() {
+	public function get_ids_from_query() {
 		$ids     = [];
 		$queried = ! empty( $this->query ) ? $this->query : [];
 
@@ -59,7 +34,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|void
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 		if ( ! empty( $this->args['where']['status'] ) ) {
@@ -72,7 +47,9 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array|mixed
+	 * {@inheritDoc}
+	 *
+	 * @return array
 	 */
 	public function get_query() {
 		// File has not loaded.
@@ -109,10 +86,20 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 
 		// Loop through the plugins, add additional data, and store them in $plugins_by_status.
 		foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
+
+			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
+				unset( $all_plugins[ $plugin_file ] );
+				continue;
+			}
+
 			// Handle multisite plugins.
 			if ( is_multisite() && is_network_only_plugin( $plugin_file ) && ! is_plugin_active( $plugin_file ) ) {
+
 				// Check for inactive network plugins.
 				if ( $show_network_plugins ) {
+
+					// add the plugin to the network_inactive and network_inactive list since "network_inactive" are considered inactive
+					$plugins_by_status['inactive'][ $plugin_file ]         = $plugin_file;
 					$plugins_by_status['network_inactive'][ $plugin_file ] = $plugin_file;
 				} else {
 					// Unset and skip to next plugin.
@@ -122,6 +109,8 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			} elseif ( is_plugin_active_for_network( $plugin_file ) ) {
 				// Check for active network plugins.
 				if ( $show_network_plugins ) {
+					// add the plugin to the network_activated and active list, since "network_activated" are active
+					$plugins_by_status['active'][ $plugin_file ]            = $plugin_file;
 					$plugins_by_status['network_activated'][ $plugin_file ] = $plugin_file;
 				} else {
 					// Unset and skip to next plugin.
@@ -198,8 +187,12 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 
 		$plugins_by_status['all'] = array_flip( array_keys( $all_plugins ) );
 
-		// Filter the plugins by stati.
-		$filtered_plugins = ! empty( $active_stati ) ? array_merge( ... array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) ) : $plugins_by_status['all'];
+		/**
+		 * Filters the plugins by status.
+		 * */
+		$filtered_plugins = ! empty( $active_stati ) ? array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) : [];
+		// If plugins exist for the filter, flatten and return them. Otherwise, return the full list.
+		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( ...$filtered_plugins ) : $plugins_by_status['all'];
 
 		if ( ! empty( $this->args['where']['search'] ) ) {
 			// Filter by search args.
@@ -209,13 +202,13 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 					$all_plugins,
 					function ( $plugin ) use ( $s ) {
 						foreach ( $plugin as $value ) {
-							if ( is_string( $value ) && false !== stripos( strip_tags( $value ), $s ) ) {
+							if ( is_string( $value ) && false !== stripos( wp_strip_all_tags( $value ), $s ) ) {
 								return true;
 							}
 						}
 
 						return false;
-					},
+					}
 				)
 			);
 			if ( ! empty( $matches ) ) {
@@ -230,57 +223,40 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
-			return [];
-		}
-
-		$ids = $this->ids;
-
-		// If pagination is going backwards, revers the array of IDs
-		$ids = ! empty( $this->args['last'] ) ? array_reverse( $ids ) : $ids;
-
-		if ( ! empty( $this->get_offset() ) ) {
-			// Determine if the offset is in the array
-			$key = array_search( $this->get_offset(), $ids, true );
-			if ( false !== $key ) {
-				$key = absint( $key );
-				if ( ! empty( $this->args['before'] ) ) {
-					// Slice the array from the back.
-					$ids = array_slice( $ids, 0, $key, true );
-				} else {
-					// Slice the array from the front.
-					$key ++;
-					$ids = array_slice( $ids, $key, null, true );
-				}
-			}
-		}
-
-		$ids = array_slice( $ids, 0, $this->query_amount, true );
-
-		return $ids;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function get_loader_name() {
 		return 'plugin';
 	}
 
 	/**
-	 * @param mixed $offset
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function is_valid_offset( $offset ) {
-		return true;
+		// File has not loaded.
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// This is missing must use and drop in plugins, so we need to fetch and merge them separately.
+		$site_plugins   = apply_filters( 'all_plugins', get_plugins() );
+		$mu_plugins     = apply_filters( 'show_advanced_plugins', true, 'mustuse' ) ? get_mu_plugins() : [];
+		$dropin_plugins = apply_filters( 'show_advanced_plugins', true, 'dropins' ) ? get_dropins() : [];
+
+		$all_plugins = array_merge( $site_plugins, $mu_plugins, $dropin_plugins );
+
+		return array_key_exists( $offset, $all_plugins );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function should_execute() {
-		return current_user_can( 'activate_plugins' );
+		if ( is_multisite() ) {
+			// update_, install_, and delete_ are handled above with is_super_admin().
+			$menu_perms = get_site_option( 'menu_items', [] );
+			if ( empty( $menu_perms['plugins'] ) && ! current_user_can( 'manage_network_plugins' ) ) {
+				return false;
+			}
+		} elseif ( ! current_user_can( 'activate_plugins' ) ) {
+			return false;
+		}
+
+		return true;
 	}
 }

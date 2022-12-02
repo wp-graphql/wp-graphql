@@ -27,7 +27,7 @@ For remote HTTP requests to the `/graphql` endpoint, existing authentication plu
 - https://github.com/WP-API/OAuth1 (labeled for use with the WP REST API, but works well with WPGraphQL)
 - https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/ (For WordPress 5.6 and above)
 
-If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/master/packages/graphiql-auth-switch).
+If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/82518eafa5f383c5929111431e4a641caace3b57/assets/app/src/App.js#L58-L75).
 
 For non-remote requests (PHP function calls), if the context of the request is already authenticated, such as an Admin page in the WordPress dashboard, existing WordPress authentication can be used, taking advantage of the existing session. For example, if you wanted to use a GraphQL query to populate a dashboard page, you could send your query to the `do_graphql_request( $query )` function, and since the request is already authenticated, GraphQL will execute with the current user set, and will resolve fields that the users has permission to resolve.
 
@@ -41,7 +41,7 @@ For example, any mutation that would create a `post` will first check to make su
 
 Mutations are not alone when it comes to checking capabilities. Some queries expose potentially sensitive data, such as the email address field in `generalSettings`. By default, this field will only resolve if the request is authenticated, meaning that the value of the email address is only exposed to logged in users.
 
-A public, non-authenticated request would return a null value for the field and would return an error message in the GraphQL response. However, it wouldn’t block the execution of the entire GraphQL request, just that field. So, if the request had a mix of publicly allowed fields and private fields, GraphQL would still execute the public data. 
+A public, non-authenticated request would return a null value for the field and would return an error message in the GraphQL response. However, it wouldn’t block the execution of the entire GraphQL request, just that field. So, if the request had a mix of publicly allowed fields and private fields, GraphQL would still execute the public data.
 
 For example, trying a query like:
 

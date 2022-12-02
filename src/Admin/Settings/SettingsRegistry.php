@@ -32,15 +32,6 @@ class SettingsRegistry {
 	protected $settings_fields = [];
 
 	/**
-	 * SettingsRegistry constructor.
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function get_settings_sections() {
@@ -57,14 +48,22 @@ class SettingsRegistry {
 	/**
 	 * Enqueue scripts and styles
 	 *
+	 * @param string $hook_suffix The current admin page.
+	 *
 	 * @return void
 	 */
-	function admin_enqueue_scripts() {
-		wp_enqueue_style( 'wp-color-picker' );
+	public function admin_enqueue_scripts( string $hook_suffix ) {
+		if ( 'graphql_page_graphql-settings' !== $hook_suffix ) {
+			return;
+		}
 
+		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'wp-color-picker' );
 		wp_enqueue_script( 'jquery' );
+
+		// Action to enqueue scripts on the WPGraphQL Settings page.
+		do_action( 'graphql_settings_enqueue_scripts' );
 	}
 
 	/**
@@ -75,7 +74,7 @@ class SettingsRegistry {
 	 *
 	 * @return SettingsRegistry
 	 */
-	function register_section( string $slug, array $section ) {
+	public function register_section( string $slug, array $section ) {
 		$section['id']                    = $slug;
 		$this->settings_sections[ $slug ] = $section;
 
@@ -90,7 +89,7 @@ class SettingsRegistry {
 	 *
 	 * @return SettingsRegistry
 	 */
-	function register_fields( string $section, array $fields ) {
+	public function register_fields( string $section, array $fields ) {
 		foreach ( $fields as $field ) {
 			$this->register_field( $section, $field );
 		}
@@ -106,7 +105,7 @@ class SettingsRegistry {
 	 *
 	 * @return SettingsRegistry
 	 */
-	function register_field( string $section, array $field ) {
+	public function register_field( string $section, array $field ) {
 		$defaults = [
 			'name'  => '',
 			'label' => '',
@@ -150,8 +149,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function admin_init() {
-
+	public function admin_init() {
 		// Action that fires when settings are being initialized
 		do_action( 'graphql_init_settings', $this );
 
@@ -247,7 +245,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_text( array $args ) {
+	public function callback_text( array $args ) {
 		$value       = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$type        = isset( $args['type'] ) ? $args['type'] : 'text';
@@ -266,7 +264,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_url( array $args ) {
+	public function callback_url( array $args ) {
 		$this->callback_text( $args );
 	}
 
@@ -277,7 +275,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_number( array $args ) {
+	public function callback_number( array $args ) {
 		$value       = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$type        = isset( $args['type'] ) ? $args['type'] : 'number';
@@ -299,7 +297,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_checkbox( array $args ) {
+	public function callback_checkbox( array $args ) {
 
 		$value    = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$disabled = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
@@ -321,7 +319,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_multicheck( array $args ) {
+	public function callback_multicheck( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
@@ -346,7 +344,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_radio( array $args ) {
+	public function callback_radio( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
@@ -370,7 +368,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_select( array $args ) {
+	public function callback_select( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -393,7 +391,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_textarea( array $args ) {
+	public function callback_textarea( array $args ) {
 
 		$value       = esc_textarea( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -412,7 +410,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_html( array $args ) {
+	public function callback_html( array $args ) {
 		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
@@ -423,7 +421,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_wysiwyg( array $args ) {
+	public function callback_wysiwyg( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : '500px';
@@ -454,12 +452,12 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_file( array $args ) {
+	public function callback_file( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$id    = $args['section'] . '[' . $args['id'] . ']';
-		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File' );
+		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File', 'wp-graphql' );
 
 		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
 		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '">';
@@ -475,7 +473,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_password( array $args ) {
+	public function callback_password( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -493,7 +491,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_color( $args ) {
+	public function callback_color( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -512,7 +510,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_pages( array $args ) {
+	public function callback_pages( array $args ) {
 
 		$dropdown_args = array_merge( [
 			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
@@ -528,7 +526,7 @@ class SettingsRegistry {
 
 		// Ignore phpstan as this is providing an array as expected
 		// @phpstan-ignore-next-line
-		echo wp_dropdown_pages( $clean_args );
+		echo wp_dropdown_pages( $clean_args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -538,7 +536,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function callback_user_role_select( array $args ) {
+	public function callback_user_role_select( array $args ) {
 		$selected = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
 		if ( empty( $selected ) ) {
@@ -562,7 +560,7 @@ class SettingsRegistry {
 	 *
 	 * @return mixed
 	 */
-	function sanitize_options( array $options ) {
+	public function sanitize_options( array $options ) {
 
 		if ( ! $options ) {
 			return $options;
@@ -588,7 +586,7 @@ class SettingsRegistry {
 	 *
 	 * @return mixed string or bool false
 	 */
-	function get_sanitize_callback( $slug = '' ) {
+	public function get_sanitize_callback( $slug = '' ) {
 		if ( empty( $slug ) ) {
 			return false;
 		}
@@ -617,7 +615,7 @@ class SettingsRegistry {
 	 *
 	 * @return string
 	 */
-	function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $default = '' ) {
 
 		$options = get_option( $section );
 
@@ -635,7 +633,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function show_navigation() {
+	public function show_navigation() {
 		$html = '<h2 class="nav-tab-wrapper">';
 
 		$count = count( $this->settings_sections );
@@ -661,7 +659,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function show_forms() {
+	public function show_forms() {
 		?>
 		<div class="metabox-holder">
 			<?php foreach ( $this->settings_sections as $id => $form ) { ?>
@@ -693,7 +691,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function script() {
+	public function script() {
 		?>
 		<script>
 			jQuery(document).ready(function ($) {
@@ -781,7 +779,7 @@ class SettingsRegistry {
 	 *
 	 * @return void
 	 */
-	function _style_fix() {
+	public function _style_fix() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		global $wp_version;
 
 		if ( version_compare( $wp_version, '3.8', '<=' ) ) :
@@ -799,5 +797,4 @@ class SettingsRegistry {
 			<?php
 		endif;
 	}
-
 }

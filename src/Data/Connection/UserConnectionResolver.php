@@ -5,7 +5,6 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\User;
 use WPGraphQL\Types;
 
 /**
@@ -14,6 +13,14 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Connection
  */
 class UserConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * A custom class is assumed to have the same core functions as WP_User_Query.
+	 *
+	 * @var \WP_User_Query|object
+	 */
+	protected $query;
 
 	/**
 	 * Determines whether the query should execute at all. It's possible that in some
@@ -57,15 +64,13 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_args'] = $this->args;
 
 		/**
-		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
-		 * to filter the WP_User_Query to support cursor pagination
+		 * Set the graphql_cursor_compare to determine what direction the
+		 * query should be paginated
 		 */
-		$cursor_offset                        = $this->get_offset();
-		$query_args['graphql_cursor_offset']  = $cursor_offset;
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
 
-		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
-		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+		$query_args['graphql_after_cursor']  = $this->get_after_offset();
+		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
@@ -153,7 +158,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
@@ -172,7 +177,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Return an instance of the WP_User_Query with the args for the connection being executed
 	 *
-	 * @return mixed|\WP_User_Query
+	 * @return object|\WP_User_Query
 	 * @throws \Exception
 	 */
 	public function get_query() {
@@ -188,12 +193,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
-	public function get_ids() {
-		$results = $this->query->get_results();
+	public function get_ids_from_query() {
+		$ids = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : [];
 
-		return ! empty( $results ) ? $results : [];
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**
@@ -272,6 +281,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_user_by( 'ID', absint( $offset ) ) );
+		return (bool) get_user_by( 'ID', absint( $offset ) );
 	}
 }

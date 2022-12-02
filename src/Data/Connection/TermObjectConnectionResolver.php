@@ -5,9 +5,8 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Post;
-use WPGraphQL\Model\Term;
 use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TermObjectConnectionResolver
@@ -15,6 +14,13 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Connection
  */
 class TermObjectConnectionResolver extends AbstractConnectionResolver {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var \WP_Term_Query
+	 */
+	protected $query;
 
 	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
@@ -40,15 +46,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return array
-	 * @throws Exception
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 
 		/**
 		 * Set the taxonomy for the $args
 		 */
-		$all_taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
+		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		$query_args     = [
 			'taxonomy' => ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies,
 		];
@@ -101,14 +106,9 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args = array_merge( $query_args, $input_fields );
 		}
 
-		/**
-		 * Set the graphql_cursor_offset
-		 */
-		$query_args['graphql_cursor_offset']  = $this->get_offset();
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
-
-		$query_args['graphql_after_cursor']  = ! empty( $this->get_after_offset() ) ? $this->get_after_offset() : null;
-		$query_args['graphql_before_cursor'] = ! empty( $this->get_before_offset() ) ? $this->get_before_offset() : null;
+		$query_args['graphql_after_cursor']   = $this->get_after_offset();
+		$query_args['graphql_before_cursor']  = $this->get_before_offset();
 
 		/**
 		 * Pass the graphql $args to the WP_Query
@@ -155,27 +155,30 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Return an instance of WP_Term_Query with the args mapped to the query
 	 *
-	 * @return mixed|\WP_Term_Query
+	 * @return \WP_Term_Query
 	 * @throws Exception
 	 */
 	public function get_query() {
-		$query = new \WP_Term_Query( $this->query_args );
-
-		return $query;
+		return new \WP_Term_Query( $this->query_args );
 	}
 
 	/**
-	 * This gets the items from the query. Different queries return items in different ways, so this
-	 * helps normalize the items into an array for use by the get_nodes() function.
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
-	public function get_ids() {
-		return ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+	public function get_ids_from_query() {
+		/** @var string[] $ids **/
+		$ids = ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'term';
@@ -207,6 +210,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			'hideEmpty'           => 'hide_empty',
 			'excludeTree'         => 'exclude_tree',
 			'termTaxonomId'       => 'term_taxonomy_id',
+			'termTaxonomyId'      => 'term_taxonomy_id',
 			'nameLike'            => 'name__like',
 			'descriptionLike'     => 'description__like',
 			'padCounts'           => 'pad_counts',
@@ -217,6 +221,16 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		];
 
 		$where_args = ! empty( $this->args['where'] ) ? $this->args['where'] : null;
+
+		// Deprecate usage of 'termTaxonomId'.
+		if ( ! empty( $where_args['termTaxonomId'] ) ) {
+			_deprecated_argument( 'where.termTaxonomId', '1.11.0', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
+
+			// Only convert value if 'termTaxonomyId' isnt already set.
+			if ( empty( $where_args['termTaxonomyId'] ) ) {
+				$where_args['termTaxonomyId'] = $where_args['termTaxonomId'];
+			}
+		}
 
 		/**
 		 * Map and sanitize the input args to the WP_Term_Query compatible args
@@ -242,7 +256,53 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
+	}
 
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'exclude':
+					case 'excludeTree':
+					case 'include':
+					case 'objectIds':
+					case 'termTaxonomId':
+					case 'termTaxonomyId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                     $args                The GraphQL args passed to the resolver.
+		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 *
+		 * @since 1.11.0
+		 */
+		return apply_filters( 'graphql_term_object_connection_args', $args, $this );
 	}
 
 	/**
@@ -255,7 +315,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_term( absint( $offset ) ) );
+		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
-
 }

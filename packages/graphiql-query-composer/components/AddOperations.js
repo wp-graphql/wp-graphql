@@ -33,6 +33,7 @@ const AddOperations = (props) => {
 
             return (
               <Button
+                key={i}
                 style={{ marginBottom: `5px`, textTransform: `capitalize` }}
                 block
                 type="primary"

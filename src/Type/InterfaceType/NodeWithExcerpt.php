@@ -16,6 +16,7 @@ class NodeWithExcerpt {
 		register_graphql_interface_type(
 			'NodeWithExcerpt',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have an excerpt', 'wp-graphql' ),
 				'fields'      => [
 					'excerpt' => [

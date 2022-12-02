@@ -22,13 +22,13 @@ class MenuItem {
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'model'       => MenuItemModel::class,
 				'connections' => [
 					'connectedNode' => [
-						'toType'               => 'MenuItemLinkable',
-						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
-						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
-						'oneToOne'             => true,
-						'resolve'              => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'      => 'MenuItemLinkable',
+						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'oneToOne'    => true,
+						'resolve'     => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 
 							if ( ! isset( $menu_item->databaseId ) ) {
 								return null;
@@ -41,8 +41,11 @@ class MenuItem {
 							switch ( $object_type ) {
 								// Post object
 								case 'post_type':
-									$resolver = new PostObjectConnectionResolver( $menu_item, $args, $context, $info );
+									$resolver = new PostObjectConnectionResolver( $menu_item, $args, $context, $info, 'any' );
 									$resolver->set_query_arg( 'p', $object_id );
+
+									// connected objects to menu items can be any post status
+									$resolver->set_query_arg( 'post_status', 'any' );
 									break;
 
 								// Taxonomy term
@@ -51,7 +54,6 @@ class MenuItem {
 									$resolver->set_query_arg( 'include', $object_id );
 									break;
 								default:
-									$resolved_object = null;
 									break;
 							}
 
@@ -117,6 +119,12 @@ class MenuItem {
 					'url'              => [
 						'type'        => 'String',
 						'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
+					],
+					// Note: this field is added to the MenuItem type instead of applied by the "UniformResourceIdentifiable" interface
+					// because a MenuItem is not identifiable by a uri, the connected resource is identifiable by the uri.
+					'uri'              => [
+						'type'        => 'String',
+						'description' => __( 'The uri of the resource the menu item links to', 'wp-graphql' ),
 					],
 					'path'             => [
 						'type'        => 'String',
