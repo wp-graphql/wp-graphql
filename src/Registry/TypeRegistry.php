@@ -875,7 +875,7 @@ class TypeRegistry {
 			$field_config['name'] = $field_name;
 		}
 
-		$field_config['name'] = Utils::format_field_name( $field_config['name'] );
+		$field_config['name'] = lcfirst( $field_config['name'] );
 
 		if ( ! isset( $field_config['type'] ) ) {
 			graphql_debug( sprintf( __( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ), $field_name ), [
