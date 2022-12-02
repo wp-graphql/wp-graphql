@@ -304,20 +304,6 @@ class TermObject {
 					return absint( $term->term_id );
 				},
 			],
-			'uri'               => [
-				'resolve' => function ( $term, $args, $context, $info ) {
-					$url = $term->link;
-					if ( ! empty( $url ) ) {
-						$parsed = wp_parse_url( $url );
-						if ( is_array( $parsed ) ) {
-							$path  = isset( $parsed['path'] ) ? $parsed['path'] : '';
-							$query = isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
-							return trim( $path . $query );
-						}
-					}
-					return '';
-				},
-			],
 		];
 
 		// Merge with fields set in register_taxonomy.
