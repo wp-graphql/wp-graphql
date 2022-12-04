@@ -1125,7 +1125,7 @@ class TypeRegistry {
 	 *
 	 * @uses 'graphql_excluded_mutations' filter.
 	 *
-	 * @param string $type_name Name of the type to remove from the schema.
+	 * @param string $mutation_name Name of the mutation to remove from the schema.
 	 * 
 	 * @since @todo
 	 */
