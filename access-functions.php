@@ -475,6 +475,27 @@ function register_graphql_connection( array $config ) {
 }
 
 /**
+ * Given a Mutation Name and Config array, this adds a Mutation to the Schema
+ *
+ * @param string $mutation_name The name of the Mutation to register
+ * @param array  $config        The config for the mutation
+ *
+ * @throws Exception
+ *
+ * @return void
+ * @since 0.1.0
+ */
+function register_graphql_mutation( string $mutation_name, array $config ) {
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $mutation_name, $config ) {
+			$type_registry->register_mutation( $mutation_name, $config );
+		},
+		10
+	);
+}
+
+/**
  * Given a config array for a custom Scalar, this registers a Scalar for use in the Schema
  *
  * @param string $type_name The name of the Type to register
@@ -561,21 +582,24 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
 }
 
 /**
- * Given a Mutation Name and Config array, this adds a Mutation to the Schema
+ * Given a Mutation Name, this removes the mutation from the Schema
  *
- * @param string $mutation_name The name of the Mutation to register
- * @param array  $config        The config for the mutation
- *
- * @throws Exception
- *
- * @return void
- * @since 0.1.0
+ * @param string $mutation_name The name of the Mutation to remove
+ * 
+ * @since @todo
  */
-function register_graphql_mutation( string $mutation_name, array $config ) {
-	add_action(
-		get_graphql_register_action(),
-		function ( TypeRegistry $type_registry ) use ( $mutation_name, $config ) {
-			$type_registry->register_mutation( $mutation_name, $config );
+function deregister_graphql_mutation( string $mutation_name ) : void {
+	add_filter(
+		'graphql_excluded_mutations',
+		function ( $excluded_mutations ) use ( $mutation_name ) : array {
+			// Normalize the types to prevent case sensitivity issues.
+			$mutation_name = strtolower( $mutation_name );
+			// If the type isn't already excluded, add it to the array.
+			if ( ! in_array( $mutation_name, $excluded_mutations, true ) ) {
+				$excluded_mutations[] = $mutation_name;
+			}
+
+			return $excluded_mutations;
 		},
 		10
 	);

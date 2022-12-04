@@ -1451,6 +1451,68 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
 	}
 
+	public function testDeregisterMutation() {
+		deregister_graphql_mutation( 'createPost' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				mutationType {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'createPost', array_column( $actual['data']['__schema']['mutationType'], 'name' ) );
+
+		// Ensure the mutation is removed from the schema.
+		$query = '
+		{
+			__type(name: "RootMutation") {
+				fields {
+					name
+				}
+			}
+			__schema{
+				types{
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'createPost', array_column( $actual['data']['__type']['fields'], 'name' ) );
+		$this->assertNotContains( 'CreatePostInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
+		$this->assertNotContains( 'CreatePostPayload', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+
+		// Ensure mutation throws an error.
+		$query = '
+		mutation CreatePost {
+			createPost(input: {clientMutationId: "test", title: "Test deregister mutation"}) {
+				clientMutationId
+				post {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Cannot query field "createPost" on type "RootMutation".', $actual['errors'][0]['message'] );
+	}
+
 	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
 
 		register_graphql_connection([
