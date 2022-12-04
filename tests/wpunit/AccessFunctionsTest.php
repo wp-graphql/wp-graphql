@@ -1451,6 +1451,45 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
 	}
 
+	
+	public function testDeregisterConnection() {
+		deregister_graphql_connection( 'RootQueryToPostConnection' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'RootQueryToPostConnection', array_column( $actual['data']['__schema']['types'], 'name' ) );
+		$this->assertNotContains( 'RootQueryToPostConnectionWhereArgs', array_column( $actual['data']['__schema']['types'], 'name' ) );
+		$this->assertNotContains( 'RootQueryToPostConnectionEdge', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the connection is no longer a field on RootQuery.
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Cannot query field "posts" on type "RootQuery".', $actual['errors'][0]['message'] );
+	}
+
 	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
 
 		register_graphql_connection([

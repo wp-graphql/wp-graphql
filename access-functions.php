@@ -560,6 +560,24 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
 	);
 }
 
+
+/**
+ * Given a Connection Name, this removes the connection from the Schema
+ *
+ * @param string $connection_name The name of the Connection to remove
+ * 
+ * @since @todo
+ */
+function deregister_graphql_connection( string $connection_name ) : void {
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $connection_name ) {
+			$type_registry->deregister_connection( $connection_name );
+		},
+		10
+	);
+}
+
 /**
  * Given a Mutation Name and Config array, this adds a Mutation to the Schema
  *
