@@ -589,17 +589,10 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  * @since @todo
  */
 function deregister_graphql_mutation( string $mutation_name ) : void {
-	add_filter(
-		'graphql_excluded_mutations',
-		function ( $excluded_mutations ) use ( $mutation_name ) : array {
-			// Normalize the types to prevent case sensitivity issues.
-			$mutation_name = strtolower( $mutation_name );
-			// If the type isn't already excluded, add it to the array.
-			if ( ! in_array( $mutation_name, $excluded_mutations, true ) ) {
-				$excluded_mutations[] = $mutation_name;
-			}
-
-			return $excluded_mutations;
+	add_action(
+		get_graphql_register_action(),
+		function ( TypeRegistry $type_registry ) use ( $mutation_name ) {
+			$type_registry->deregister_mutation( $mutation_name );
 		},
 		10
 	);

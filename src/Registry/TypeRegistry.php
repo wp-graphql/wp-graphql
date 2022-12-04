@@ -1119,6 +1119,35 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Removes a GraphQL mutation from the schema.
+	 *
+	 * This works by preventing the mutation from being registered in the first place.
+	 *
+	 * @uses 'graphql_excluded_mutations' filter.
+	 *
+	 * @param string $type_name Name of the type to remove from the schema.
+	 * 
+	 * @since @todo
+	 */
+	public function deregister_mutation( string $mutation_name ) : void {
+		// Prevent the mutation from being registered to the scheme directly.
+		add_filter(
+			'graphql_excluded_mutations',
+			function ( $excluded_mutations ) use ( $mutation_name ) : array {
+				// Normalize the types to prevent case sensitivity issues.
+				$mutation_name = strtolower( $mutation_name );
+				// If the type isn't already excluded, add it to the array.
+				if ( ! in_array( $mutation_name, $excluded_mutations, true ) ) {
+					$excluded_mutations[] = $mutation_name;
+				}
+
+				return $excluded_mutations;
+			},
+			10
+		);
+	}
+
+	/**
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
 	 * @param mixed $type The Type being wrapped
