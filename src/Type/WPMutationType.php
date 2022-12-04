@@ -3,11 +3,9 @@ namespace WPGraphQL\Type;
 
 use Closure;
 use Exception;
-use GraphQL\Exception\InvalidArgument;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class WPMutationType
@@ -95,9 +93,15 @@ class WPMutationType {
 			return;
 		}
 
-		$this->config           = $config;
-		$this->type_registry    = $type_registry;
-		$this->mutation_name    = $config['name'] ?? null;
+		$this->config        = $config;
+		$this->type_registry = $type_registry;
+		$this->mutation_name = $config['name'];
+
+		// Bail if the mutation should be excluded from the schema.
+		if ( ! $this->should_register() ) {
+			return;
+		}
+
 		$this->auth             = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
 		$this->is_private       = array_key_exists( 'isPrivate', $config ) ? $config['isPrivate'] : false;
 		$this->input_fields     = $this->get_input_fields();
@@ -324,4 +328,16 @@ class WPMutationType {
 		$this->register_mutation_field();
 	}
 
+	/**
+	 * Checks whether the mutation should be registered to the schema.
+	 */
+	protected function should_register() : bool {
+		// Dont register mutations if they have been excluded from the schema.
+		$excluded_mutations = $this->type_registry->get_excluded_mutations();
+		if ( in_array( strtolower( $this->mutation_name ), $excluded_mutations, true ) ) {
+			return false;
+		}
+
+		return true;
+	}
 }
