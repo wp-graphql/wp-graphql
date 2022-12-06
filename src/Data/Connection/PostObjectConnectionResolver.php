@@ -602,14 +602,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @param array                        $args                The GraphQL args passed to the resolver.
 		 * @param PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
-		 * @param mixed                        $source              Source passed down from the resolve tree.
-		 * @param array                        $all_args            Array of arguments input in the field as part of the GraphQL query.
-		 * @param AppContext                   $context             Object containing app context that gets passed down the resolve tree.
-		 * @param ResolveInfo                  $info                Info about fields passed down the resolve tree.
+		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->source, $this->args, $this->context, $this->info );
+		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->args );
 	}
 
 	/**
