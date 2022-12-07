@@ -493,9 +493,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( `postFormat`, $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $term->term_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
-
-
-
 	}
 
 	/**
@@ -709,6 +706,192 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'User', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $this->user, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+	}
+
+	public function testDateYearArchiveByUri() {
+		$query = '
+			query GET_NODE_BY_URI( $uri: String! ) {
+				nodeByUri( uri: $uri ) {
+					__typename
+					...on ContentType {
+						name
+					}
+					uri
+				}
+			}
+		';
+
+		// Test year archive
+		$uri = wp_make_link_relative( get_year_link( gmdate( 'Y' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /{year}/
+		 * year => {year}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `date archives`. See https://github.com/wp-graphql/wp-graphql/issues/2191' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
+		// Test with pretty permalinks disabled
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_year_link( gmdate( 'Y' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => m={year}
+		 * m => {year}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
+	}
+
+	public function testDateMonthArchiveByUri() {
+		$query = '
+			query GET_NODE_BY_URI( $uri: String! ) {
+				nodeByUri( uri: $uri ) {
+					__typename
+					...on ContentType {
+						name
+					}
+					uri
+				}
+			}
+		';
+
+		// Test month archive
+		$uri = wp_make_link_relative( get_month_link( gmdate( 'Y' ), gmdate( 'm' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /{year}/{month}/
+		 * year => {year}
+		 * monthnum => {month}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `date archives`. See https://github.com/wp-graphql/wp-graphql/issues/2191' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
+		// Test with pretty permalinks disabled
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_month_link( gmdate( 'Y' ), gmdate( 'm' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => m={year}{month}
+		 * m => {year}{month}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
+	}
+
+	public function testDateDayArchiveByUri() {
+		$query = '
+			query GET_NODE_BY_URI( $uri: String! ) {
+				nodeByUri( uri: $uri ) {
+					__typename
+					...on ContentType {
+						name
+					}
+					uri
+				}
+			}
+		';
+
+		// Test day archive
+		$uri = wp_make_link_relative( get_day_link( gmdate( 'Y' ), gmdate( 'm' ), gmdate( 'd' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /{year}/{month}/{day}/
+		 * year => {year}
+		 * monthnum => {month}
+		 * day => {day}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `date archives`. See https://github.com/wp-graphql/wp-graphql/issues/2191' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
+		// Test with pretty permalinks disabled
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_day_link( gmdate( 'Y' ), gmdate( 'm' ), gmdate( 'd' ) ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => m={year}{month}{day}
+		 * m => {year}{month}{day}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+
 	}
 
 	public function testPageQueryWhenPageIsSetToHomePage() {
