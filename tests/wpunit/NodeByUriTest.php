@@ -420,6 +420,84 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 	}
 
+	public function testPostFormatByUri() {
+		$post_id = $this->factory()->post->create( [
+			'post_title' => 'Test postFormatByUri',
+			'post_type'  => 'post',
+			'post_status' => 'publish',
+		] );
+
+		set_post_format( $post_id, 'aside' );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on PostFormat {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		$uri = wp_make_link_relative( get_post_format_link( 'aside' ));
+
+		codecept_debug( $uri );
+
+		$term = get_term_by('slug', 'post-format-aside', 'post_format');
+		
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /type/aside/
+		 * post_format => post-format-aside
+		 * post_type => [ post ]
+		 * 
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->markTestIncomplete( 'PostFormat archives not implemented. See: https://github.com/wp-graphql/wp-graphql/issues/2190' );
+		$this->assertSame( `postFormat`, $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $term->term_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+		create_initial_taxonomies();
+
+		$uri = wp_make_link_relative( get_post_format_link( 'aside' ));
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => post_format={aside}
+		 * post_format => post-format-aside
+		 * post_type => [ post ]
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( `postFormat`, $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $term->term_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+
+
+	}
+
 	/**
 	 * @throws Exception
 	 */
