@@ -204,8 +204,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
-
-		// Test with anchor.
+		// Test with /#anchor.
 		$uri .= '#test-anchor';
 
 		codecept_debug( $uri );
@@ -222,6 +221,62 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $uri );
 
+		// Test with #anchor
+		$uri = str_replace( '/#', '#', $uri );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( rtrim( $actual['data']['nodeByUri']['uri'], '/' ), $uri );
+
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+		
+		// test with /#anchor
+		$uri .= '/#test-anchor';
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $uri );
+
+		// Test with #anchor
+
+		$uri = str_replace( '/#', '#', $uri );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( rtrim( $actual['data']['nodeByUri']['uri'], '/' ), $uri );
 	}
 
 	/**
