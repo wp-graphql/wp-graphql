@@ -5,14 +5,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $post;
 	public $page;
 	public $user;
-	public $tag;
-	public $category;
-	public $custom_type;
-	public $custom_taxonomy;
 
 	public function setUp(): void {
 		parent::setUp();
+		// Set category base to empty string to avoid issues with the test
+
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_taxonomies();
 
 		register_post_type('by_uri_cpt', [
 			'show_in_graphql'     => true,
@@ -25,55 +24,19 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
+
 		]);
+
+		flush_rewrite_rules( true );
 
 		$this->clearSchema();
 
 		$this->user = $this->factory()->user->create([
 			'role' => 'administrator',
 		]);
-
-		$this->tag = $this->factory()->term->create([
-			'taxonomy' => 'post_tag',
-		]);
-
-		$this->category = $this->factory()->term->create([
-			'taxonomy' => 'category',
-		]);
-
-		$this->custom_taxonomy = $this->factory()->term->create([
-			'taxonomy' => 'by_uri_tax',
-		]);
-
-		$this->post = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for NodeByUriTest',
-			'post_author' => $this->user,
-		] );
-
-		$this->page = $this->factory()->post->create( [
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test Page for NodeByUriTest',
-			'post_author' => $this->user,
-		] );
-
-		$this->custom_type = $this->factory()->post->create( [
-			'post_type'   => 'by_uri_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test CPT for NodeByUriTest',
-			'post_author' => $this->user,
-		] );
 	}
 
 	public function tearDown(): void {
-		wp_delete_post( $this->post, true );
-		wp_delete_post( $this->page, true );
-		wp_delete_post( $this->custom_type, true );
-		wp_delete_term( $this->tag, 'post_tag' );
-		wp_delete_term( $this->category, 'category' );
-		wp_delete_term( $this->custom_taxonomy, 'by_uri_tax' );
 		wp_delete_user( $this->user );
 		unregister_post_type( 'by_uri_cpt' );
 		unregister_taxonomy( 'by_uri_tax' );
@@ -81,31 +44,49 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
+
 		parent::tearDown();
 	}
 
 	/**
-	 * Get a Post by it's permalink
+	 * Get a Post by it's permalink.
 	 *
 	 * @throws Exception
 	 */
 	public function testPostByUri() {
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Test postByUri',
+			'post_author' => $this->user,
+		] );
+
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Post {
-					postId
+					databaseId
 				}
 				isContentNode
 				isTermNode
+				uri
 			}
 		}
 		';
 
-		$uri = wp_make_link_relative( get_permalink( $this->post ) );
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 		codecept_debug( $uri );
 
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 *  uri => /{year}/{month}/{day}/test-postbyuri/
+		 * 'page' => '',
+		 * 'year => {year},
+		 * 'monthnum' => {month},
+		 * 'day' => {day},
+		 * 'name' => 'test-postbyuri',
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -115,16 +96,23 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->post, $actual['data']['nodeByUri']['postId'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		// Test without pretty permalinks.
 		$this->set_permalink_structure( '' );
 
-		$uri = wp_make_link_relative( get_permalink( $this->post ) );
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
 		codecept_debug( $uri );
 
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => p={post_id}
+		 * p => {post_id}
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -134,30 +122,46 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->post, $actual['data']['nodeByUri']['postId'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	function testPageByUri() {
+	public function testPageByUri() {
+		$page_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test pageByUri',
+			'post_author' => $this->user,
+		] );
+
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Page {
-					pageId
+					databaseId
 				}
 				isTermNode
 				isContentNode
+				uri
 			}
 		}
 		';
 
-		$uri = wp_make_link_relative( get_permalink( $this->page ) );
+		$uri = wp_make_link_relative( get_permalink( $page_id ) );
 
 		codecept_debug( $uri );
 
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /test-pagebyuri/
+		 * page => '',
+		 * pagename => 'test-pagebyuri',
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -167,15 +171,22 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		// Test without pretty permalinks.
 		$this->set_permalink_structure( '' );
-		$uri = wp_make_link_relative( get_permalink( $this->page ) );
+		$uri = wp_make_link_relative( get_permalink( $page_id ) );
 
 		codecept_debug( $uri );
-
+		
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => page_id={page_id}
+		 * page_id => {page_id}
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -185,34 +196,46 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->page, $actual['data']['nodeByUri']['pageId'] );
-
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	function testCustomPostTypeByUri() {
-
-		codecept_debug( get_post( $this->custom_type ) );
+	public function testCustomPostTypeByUri() {
+		$cpt_id = $this->factory()->post->create( [
+			'post_type'   => 'by_uri_cpt',
+			'post_status' => 'publish',
+			'post_title'  => 'Test customPostTypeByUri',
+			'post_author' => $this->user,
+		] );
+		codecept_debug( get_post( $cpt_id ) );
 
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomType {
-					customTypeId
+					databaseId
 				}
+				uri
 			}
 		}
 		';
 
-		flush_rewrite_rules( true );
-
-		$uri = wp_make_link_relative( get_permalink( $this->custom_type ) );
+		$uri = wp_make_link_relative( get_permalink( $cpt_id ) );
 
 		codecept_debug( $uri );
 
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /by_uri_cpt/test-customposttypebyuri/
+		 * page => '',
+		 * by_uri_cpt => test-customposttypebyuri,
+		 * post_type => by_uri_cpt,
+		 * name => test-customposttypebyuri,
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -222,14 +245,23 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
+		$this->assertSame( $cpt_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		// Test without pretty permalinks.
 		$this->set_permalink_structure( '' );
 
-		$uri = wp_make_link_relative( get_permalink( $this->custom_type ) );
+		$uri = wp_make_link_relative( get_permalink( $cpt_id ) );
 
 		codecept_debug( $uri );
-
+		
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => by_uri_cpt=test-customposttypebyuri
+		 * by_uri_cpt => test-customposttypebyuri
+		 * post_type => by_uri_cpt
+		 * name => test-customposttypebyuri
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -239,105 +271,222 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->custom_type, $actual['data']['nodeByUri']['customTypeId'] );
-
+		$this->assertSame( $cpt_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	function testCategoryByUri() {
+	public function testCategoryByUri() {
+		$category_id = $this->factory()->term->create( [
+			'taxonomy' => 'category',
+			'name'     => 'Test categoryByUri',
+		] );
+
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Category {
-					categoryId
+					databaseId
 				}
 				isTermNode
 				isContentNode
+				uri
 			}
 		}
 		';
 
-		codecept_debug( get_term_link( $this->category ) );
+		$uri = wp_make_link_relative( get_category_link( $category_id ));
 
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /category/test-categorybyuri/
+		 * category_name => test-categorybyuri,
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
-				'uri' => get_term_link( $this->category ),
+				'uri' => $uri
 			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'category' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->category, $actual['data']['nodeByUri']['categoryId'] );
+		$this->assertSame( $category_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_category_link( $category_id ));
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => cat={category_id}
+		 * cat => {category_id}
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_taxonomy( 'category' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $category_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	function testTagByUri() {
+	public function testTagByUri() {
+		$tag_id = $this->factory()->term->create( [
+			'taxonomy' => 'post_tag',
+			'name'     => 'Test tagByUri',
+		] );
 
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on Tag {
-					tagId
+					databaseId
 				}
 				isTermNode
 				isContentNode
+				uri
 			}
 		}
 		';
 
+		$uri = wp_make_link_relative( get_term_link( $tag_id ));
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /tag/test-tagbyuri/
+		 * tag => test-tagbyuri,
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
-				'uri' => get_term_link( $this->tag ),
+				'uri' => $uri
 			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_taxonomy( 'post_tag' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->tag, $actual['data']['nodeByUri']['tagId'] );
+		$this->assertSame( $tag_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_term_link( $tag_id ));
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => tag={tag_id}
+		 * tag => test-tagbyuri
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertSame( ucfirst( get_taxonomy( 'post_tag' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $tag_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	function testCustomTaxTermByUri() {
+	public function testCustomTaxTermByUri() {
+		$term_id = $this->factory()->term->create( [
+			'taxonomy' => 'by_uri_tax',
+			'name'     => 'Test customTaxTermByUri',
+		] );
 
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
 			nodeByUri( uri: $uri ) {
 				__typename
 				...on CustomTax {
-					customTaxId
+					databaseId
 				}
+				uri
 			}
 		}
 		';
 
+		$uri = wp_make_link_relative( get_term_link( $term_id ));
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /by_uri_tax/test-customtaxtermbyuri/
+		 * by_uri_tax => test-customtaxtermbyuri
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
-				'uri' => get_term_link( $this->custom_taxonomy ),
+				'uri' => $uri
 			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['nodeByUri'] );
 		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
-		$this->assertSame( $this->custom_taxonomy, $actual['data']['nodeByUri']['customTaxId'] );
+		$this->assertSame( $term_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ));
+
+		codecept_debug ( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => by_uri_tax={term_id}
+		 * by_uri_tax => test-customtaxtermbyuri
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['nodeByUri'] );
+		$this->assertSame( ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $term_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
 	/**
@@ -375,6 +524,10 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		update_option( 'page_for_posts', 0 );
 		update_option( 'show_on_front', 'posts' );
 
+		/**
+		 * For _all_ homepage queries, NodeResolver::parse_request() only generates the following query var:
+		 * uri => /
+		 */
 		$actual = $this->graphql( [ 'query' => $query ] );
 
 		// When the page_on_front, page_for_posts and show_on_front are all not set, the `/` uri should return
@@ -433,7 +586,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * post_type => page
+		 * archive => ''
+		 * nodeType => ContentNode
+		 * uri = /
+		 */
+		$actual = $this->graphql([
 			'query' => $query,
 		]);
 
@@ -451,7 +611,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( null, $actual['data']['page'] );
-
 	}
 
 	/**
@@ -498,6 +657,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_status'  => 'publish',
 		]);
 
+		// Test all nodes return
 		$query = '
 		{
 			testHierarchicals {
@@ -512,11 +672,11 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-		codecept_debug( parse_url( get_permalink( $child ), PHP_URL_PATH ) );
+		codecept_debug( wp_make_link_relative( get_permalink( $child ) ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$database_ids = wp_list_pluck( $actual['data']['testHierarchicals']['nodes'], 'databaseId' );
-		codecept_debug( $database_ids );
+
 		$this->assertTrue( in_array( $child, $database_ids, true ) );
 		$this->assertTrue( in_array( $parent, $database_ids, true ) );
 
@@ -536,6 +696,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $child_uri );
 
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /test_hierarchical/test-for-hierarchicalcptnodesbyuri/test-child-for-hierarchicalcptnodesbyuri/
+		 * page => ''
+		 * test_hierarchical => test-for-hierarchicalcptnodesbyuri/test-child-for-hierarchicalcptnodesbyuri/
+		 * 'post_type' => 'test_hierarchical'
+		 * 'name' => 'test-for-hierarchicalcptnodesbyuri/test-child-for-hierarchicalcptnodesbyuri'
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -550,6 +718,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$parent_uri = wp_make_link_relative( get_permalink( $parent ) );
 
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /test_hierarchical/test-for-hierarchicalcptnodesbyuri/
+		 * page => ''
+		 * test_hierarchical => test-for-hierarchicalcptnodesbyuri
+		 * 'post_type' => 'test_hierarchical'
+		 * 'name' => 'test-for-hierarchicalcptnodesbyuri'
+		 */
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -563,7 +739,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
 
 		unregister_post_type( 'test_hierarchical' );
-
 	}
 
 	public function testExternalUriReturnsNull() {
@@ -677,7 +852,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
-	public function testNodeByUriReturnsContentTypeWhenPageIsSetToPageForPosts() {
+	public function testPageForPostsByUri() {
 
 		$page_id = self::factory()->post->create([
 			'post_type' => 'page',
@@ -689,13 +864,19 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		query NodeByUri($uri:String!) {
-		  nodeByUri( uri: $uri ) {
-		    __typename
-		    uri
-		  }
+			nodeByUri( uri: $uri ) {
+				__typename
+				uri
+			}
 		}
 		';
 
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri: /blog
+		 * page => ''
+		 * pagename => 'blog'
+		 */
 		$actual = graphql([
 			'query' => $query,
 			'variables' => [
