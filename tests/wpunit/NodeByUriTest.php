@@ -179,7 +179,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
 		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
-
 	}
 
 	public function testPostWithAnchorByUri() {
@@ -277,6 +276,118 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertStringStartsWith( rtrim( $actual['data']['nodeByUri']['uri'], '/' ), $uri );
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testPostWithSubpagesByUri() : void {
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Test postWithSubpagesByUri',
+			'post_author' => $this->user,
+			'post_content' => '<!-- wp:paragraph -->
+				<p>Page one</p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:nextpage -->
+				<!--nextpage-->
+				<!-- /wp:nextpage -->
+
+				<!-- wp:paragraph -->
+				<p>Page 2</p>
+				<!-- /wp:paragraph -->',
+		] );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on Post {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		// Query for first page.
+		$url = wp_make_link_relative( get_permalink( $post_id ) ) . user_trailingslashit( 1, 'single_paged' );
+
+		codecept_debug( $url);
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $url );
+
+
+		// Test for second page
+		$url = wp_make_link_relative( get_permalink( $post_id ) ) . user_trailingslashit( 2, 'single_paged' );
+
+		codecept_debug( $url);
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $url );
+
+		// Test without pretty permalinks
+		$this->set_permalink_structure( '' );
+
+		// Query for first page.
+		$url = wp_make_link_relative( add_query_arg('page', 1, get_permalink( $post_id ) ) );
+
+		codecept_debug( $url);
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $url );
+
+		// Query for second page.
+		$url = wp_make_link_relative( add_query_arg('page', 2, get_permalink( $post_id ) ) );
+
+		codecept_debug( $url);
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertStringStartsWith( $actual['data']['nodeByUri']['uri'], $url );
+
 	}
 
 	/**
