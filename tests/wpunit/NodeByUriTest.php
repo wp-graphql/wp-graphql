@@ -563,6 +563,76 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testAuthorByUri() {
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->user,
+		]);
+
+		$uri = wp_make_link_relative( get_author_posts_url( $this->user ) );
+
+		codecept_debug( $uri );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on User {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /author/{user_name}/
+		 * author_name => {user_name}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'User', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $this->user, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test with pretty permalinks disabled
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_author_posts_url( $this->user ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /?author={user_id}
+		 * author => {user_id}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `author`' );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'User', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $this->user, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+	}
+
 	public function testPageQueryWhenPageIsSetToHomePage() {
 
 		$page_id = $this->factory()->post->create([
