@@ -24,7 +24,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
-
 		]);
 
 		flush_rewrite_rules( true );
@@ -1341,12 +1340,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
+		unregister_taxonomy( 'identical_slugs_tax' );
 		$this->markTestIncomplete( 'NodeResolver::resolver_uri cannot handle taxonomies with hierarchical permalinks' );
 
 		$this->assertSame( 'IdenticalSlugType', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $identical_slugs_term_2_child_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		unregister_taxonomy( 'identical_slugs_tax' );
 	}
 
 	/**
@@ -2102,6 +2103,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
+		unregister_taxonomy( 'test_hierarchical' );
 		$this->markTestIncomplete( 'NodeResolver::resolver_uri cannot handle taxonomies with hierarchical permalinks' );
 
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
