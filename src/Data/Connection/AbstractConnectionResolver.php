@@ -197,7 +197,7 @@ abstract class AbstractConnectionResolver {
 		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 * @param array                      $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->source, $this->args, $this->context, $this->info );
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 
 	}
 
