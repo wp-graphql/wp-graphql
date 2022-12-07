@@ -891,7 +891,155 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( 'post', $actual['data']['nodeByUri']['name'] );
+	}
 
+	public function testMediaItemByUri() {
+		$attachment_id = $this->factory()->attachment->create_object( [
+			'file'           => 'example.jpg',
+			'post_title'     => 'Example Image',
+			'post_mime_type' => 'image/jpeg',
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'post_parent'    => 0,
+		] );
+
+		$query = '
+			query GET_NODE_BY_URI( $uri: String! ) {
+				nodeByUri( uri: $uri ) {
+					__typename
+					...on MediaItem {
+						databaseId
+					}
+					uri
+				}
+			}'
+		;
+
+		$uri = wp_make_link_relative( get_permalink( $attachment_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /{slug}/
+		 * page => ''
+		 * pagename => {slug}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'MediaItem', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $attachment_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test with pretty permalinks disabled
+
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_permalink( $attachment_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => attachment_id={attachment_id}
+		 * attachment_id => {attachment_id}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `attachment_id`.');
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'MediaItem', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $attachment_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+	}
+
+	public function testMediaItemWithParentByUri() {
+		$post_id = $this->factory()->post->create( [
+			'post_title' => 'Example Post',
+			'post_type'  => 'post',
+			'post_status' => 'publish',
+		] );
+		$attachment_id = $this->factory()->attachment->create_object( [
+			'file'           => 'example.jpg',
+			'post_title'     => 'Example Image',
+			'post_mime_type' => 'image/jpeg',
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'post_parent'    => $post_id
+		] );
+
+		$query = '
+			query GET_NODE_BY_URI( $uri: String! ) {
+				nodeByUri( uri: $uri ) {
+					__typename
+					...on MediaItem {
+						databaseId
+					}
+					uri
+				}
+			}'
+		;
+
+		$uri = wp_make_link_relative( get_permalink( $attachment_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /{year}{monthnum}{day}/{postslug}/{slug}
+		 * attachment => {slug}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->markTestIncomplete( 'resolve_uri() doesnt check for `attachment`. See https://github.com/wp-graphql/wp-graphql/issues/2178');
+
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'MediaItem', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $attachment_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test with pretty permalinks disabled
+
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_permalink( $attachment_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => attachment_id={attachment_id}
+		 * attachment_id => {attachment_id}
+		 */
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'MediaItem', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $attachment_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
 	public function testPageQueryWhenPageIsSetToHomePage() {
