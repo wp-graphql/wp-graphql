@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 6.1
 Requires PHP: 7.1
-Stable tag: 1.13.5
+Stable tag: 1.13.6
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -231,6 +231,17 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.13.6 =
+
+**New Feature**
+
+- ([#2657](https://github.com/wp-graphql/wp-graphql/pull/2657)): feat: pass unfiltered args through to filters in the ConnectionResolver classes. Thanks @kidunot89!
+- ([#2655](https://github.com/wp-graphql/wp-graphql/pull/2655)): feat: add `includeDefaultInterfaces` to connection config, allowing connections to be registered without the default `Connection` and `Edge` interfaces applied.. Thanks @justlevine!
+
+**Chores / Bugfixes**
+
+- ([#2656](https://github.com/wp-graphql/wp-graphql/pull/2656)): chore: clean up NodeResolver::resolve_uri() logic. Thanks @justlevine!
 
 = 1.13.5 =
 

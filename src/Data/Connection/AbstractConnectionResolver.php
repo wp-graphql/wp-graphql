@@ -167,11 +167,12 @@ abstract class AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                      $args                The GraphQL args passed to the resolver.
-		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
+		 * @param array                      $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this );
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
 
 		/**
 		 * Determine the query amount for the resolver.
@@ -191,11 +192,12 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * Filters the args
 		 *
-		 * @param array                      $query_args                   The query args to be used with the executable query to get data.
-		 *                                                                 This should take in the GraphQL args and return args for use in fetching the data.
-		 * @param AbstractConnectionResolver $connection_resolver          Instance of the ConnectionResolver
+		 * @param array                      $query_args          The query args to be used with the executable query to get data.
+		 *                                                        This should take in the GraphQL args and return args for use in fetching the data.
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array                      $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this );
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 
 	}
 
