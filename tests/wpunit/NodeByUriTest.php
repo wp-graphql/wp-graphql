@@ -657,6 +657,107 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
+	public function testPageWithUpdatedUri() {
+		$page_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Page With Updated Uri',
+			'post_author' => $this->user,
+		] );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on Page {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		$original_url = wp_make_link_relative( get_permalink( $page_id ) );
+
+		// Update page slug
+		$updated_slug = 'new-url';
+		wp_update_post( [
+			'ID'        => $page_id,
+			'post_name' => $updated_slug,
+		] );
+
+		$url = wp_make_link_relative( get_permalink( $page_id ) );
+
+		codecept_debug( $url );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $url, $actual['data']['nodeByUri']['uri'] );
+
+		// Test original URL
+		codecept_debug( $original_url );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $original_url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		// Test page moved to child.
+		$parent_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Parent Page',
+			'post_author' => $this->user,
+		] );
+		wp_update_post( [
+			'ID'          => $page_id,
+			'post_parent' => $parent_id,
+		] );
+
+		// Check old url doesnt work
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		// Check new url.
+		$url = wp_make_link_relative( get_permalink( $page_id ) );
+
+		codecept_debug( $url );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $url,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $url, $actual['data']['nodeByUri']['uri'] );
+
+	}
+
 	/**
 	 * @throws Exception
 	 */
