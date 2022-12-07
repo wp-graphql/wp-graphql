@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.6
+
+- ([#2657](https://github.com/wp-graphql/wp-graphql/pull/2657)): feat: pass unfiltered args through to filters in the ConnectionResolver classes. Thanks @kidunot89!
+
 ## 1.13.5
 
 ### Chores / Bugfixes
