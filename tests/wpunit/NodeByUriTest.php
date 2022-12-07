@@ -1873,6 +1873,102 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_post_type( 'test_hierarchical' );
 	}
 
+	public function testHierarchicalTermNodesByUri() {
+		register_taxonomy( 'test_hierarchical', 'by_uri_cpt', [
+			'hierarchical' => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'testHierarchicalType',
+			'graphql_plural_name' => 'testHierarchicalTypes',
+			'public'              => true,
+		]);
+
+		flush_rewrite_rules( true );
+
+		$parent_id = $this->factory()->term->create( [
+			'taxonomy' => 'test_hierarchical',
+			'name'     => 'Test hierirchical parent',
+		]);
+		$child_id = $this->factory()->term->create( [
+			'taxonomy' => 'test_hierarchical',
+			'name'     => 'Test hierirchical child',
+			'parent'   => $parent_id,
+		]);
+
+		// Test all nodes return
+		$query = '
+		{
+			testHierarchicalTypes {
+				nodes {
+					uri
+					__typename
+					...on TermNode {
+						databaseId
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$database_ids = wp_list_pluck( $actual['data']['testHierarchicalTypes']['nodes'], 'databaseId' );
+
+		$this->assertContains( $parent_id, $database_ids );
+		$this->assertContains( $child_id, $database_ids );
+
+		// Test parent node returns
+		$query = '
+		query NodeByUri( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				uri
+				__typename
+				...on TermNode {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$uri = wp_make_link_relative( get_term_link( $parent_id, 'test_hierarchical' ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertSame( 'TestHierarchicalType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $parent_id, $actual['data']['nodeByUri']['databaseId'] );
+
+		// Test child node returns
+		$uri = wp_make_link_relative( get_term_link( $child_id, 'test_hierarchical' ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertSame( 'TestHierarchicalType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $child_id, $actual['data']['nodeByUri']['databaseId'] );
+
+	}
+
 	public function testExternalUriReturnsNull() {
 
 		$query = '
