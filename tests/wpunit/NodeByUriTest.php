@@ -390,6 +390,67 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testPostWithSlugConflictsByUri() : void {
+		$post_args = [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Test postWithSlugConflictsByUri',
+			'post_author' => $this->user,
+		];
+
+		$post_1_id = $this->factory()->post->create( $post_args );
+		$post_2_id = $this->factory()->post->create( $post_args );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on Post {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		// Test first post resolution
+		$uri = wp_make_link_relative( get_permalink( $post_1_id ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_1_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test second post resolution
+		$uri = wp_make_link_relative( get_permalink( $post_2_id ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_2_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+	}
+
 	/**
 	 * @throws Exception
 	 */
@@ -520,6 +581,82 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
+	public function testPageWithIdenticalSlugsByUri() {
+		$parent_1_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Parent 1 Page',
+			'post_author' => $this->user,
+		] );
+		$parent_2_id = $this->factory()->post->create( [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Parent 2 Page',
+			'post_author' => $this->user,
+		] );
+
+		$child_page_args = [
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'Test Child Page With Identical Slugs',
+			'post_author' => $this->user,
+		];
+
+		$child_1_id = $this->factory()->post->create( $child_page_args + [ 'post_parent' => $parent_1_id ] );
+		$child_2_id = $this->factory()->post->create( $child_page_args + [ 'post_parent' => $parent_2_id ] );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on Page {
+					databaseId
+					uri
+					parentDatabaseId
+				}
+			}
+		}
+		';
+
+		// Test first child
+		$uri = wp_make_link_relative( get_permalink( $child_1_id ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $child_1_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $parent_1_id, $actual['data']['nodeByUri']['parentDatabaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test second child
+		$uri = wp_make_link_relative( get_permalink( $child_2_id ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $child_2_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $parent_2_id, $actual['data']['nodeByUri']['parentDatabaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+	}
+
 	/**
 	 * @throws Exception
 	 */
@@ -592,6 +729,101 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $cpt_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+	}
+
+	public function testCustomPostTypeWithIdenticalSlugs() : void {
+		$post_args = [
+			'post_status' => 'publish',
+			'post_title'  => 'Test slug conflict',
+			'post_author' => $this->user,
+		];
+
+		$post_id = $this->factory()->post->create( $post_args + [ 'post_type' => 'post'] );
+		$page_id = $this->factory()->post->create( $post_args + [ 'post_type' => 'page'] );
+		$cpt_id  = $this->factory()->post->create( $post_args + [ 'post_type' => 'by_uri_cpt'] );
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on DatabaseIdentifier {
+					databaseId
+				}
+				uri
+			}
+		}
+		';
+
+		// Test post
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( 'Post', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		
+		// Test cpt
+		$uri = wp_make_link_relative( get_permalink( $cpt_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri        => /by_uri_cpt/test-slug-conflict/
+		 * page       => ''
+		 * by_uri_cpt => test-slug-conflict
+		 * post_type  => by_uri_cpt
+		 * name       => test-slug-conflict
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( ucfirst( get_post_type_object( 'by_uri_cpt' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $cpt_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test page
+		$uri = wp_make_link_relative( get_permalink( $page_id ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() sets the following query vars:
+		 * uri => test-slug-conflict
+		 * page => ''
+		 * pagename => 'test-slug-conflict'
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->markTestIncomplete( 'NodeResolver::parse_request() doesnt handle conflicts between CPT/Page slugs' );
+
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 	}
 
