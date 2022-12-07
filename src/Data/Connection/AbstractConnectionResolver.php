@@ -195,10 +195,7 @@ abstract class AbstractConnectionResolver {
 		 * @param array                      $query_args          The query args to be used with the executable query to get data.
 		 *                                                        This should take in the GraphQL args and return args for use in fetching the data.
 		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param mixed                      $source              Source passed down from the resolve tree.
-		 * @param array                      $all_args            Array of arguments input in the field as part of the GraphQL query.
-		 * @param AppContext                 $context             Object containing app context that gets passed down the resolve tree.
-		 * @param ResolveInfo                $info                Info about fields passed down the resolve tree.
+		 * @param array                      $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 */
 		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->source, $this->args, $this->context, $this->info );
 
