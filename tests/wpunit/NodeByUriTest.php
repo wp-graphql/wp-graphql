@@ -75,6 +75,19 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
+		// Test with bad URI
+		$uri = '/2022/12/31/bad-uri/';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 		codecept_debug( $uri );
 
@@ -125,6 +138,48 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 
+		// Test with fixed base.
+		$this->set_permalink_structure( '/blog/%year%/%monthnum%/%day%/%postname%/' );
+
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		codecept_debug( $uri );
+
+		// Test without base.
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => str_replace( '/blog', '', $uri )
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /blog/{year}/{month}/{day}/test-postbyuri/
+		 * 'page' => '',
+		 * 'year => {year},
+		 * 'monthnum' => {month},
+		 * 'day' => {day},
+		 * 'name' => 'test-postbyuri',
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'post' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertFalse( $actual['data']['nodeByUri']['isTermNode'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
 	}
 
 	/**
@@ -151,6 +206,21 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}
 		';
+
+		// Test with a bad URI.
+		$uri = '/bad-uri/';
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		// Test with valid uri.
 
 		$uri = wp_make_link_relative( get_permalink( $page_id ) );
 
@@ -187,6 +257,48 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * uri => page_id={page_id}
 		 * page_id => {page_id}
 		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test with fixed base.
+		$this->set_permalink_structure( '/blog/%year%/%monthnum%/%day%/%postname%/' );
+
+		$uri = wp_make_link_relative( get_permalink( $page_id ) );
+
+		codecept_debug( $uri );
+
+		// Test without base.
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => '/not-real'
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		//Test with unwanted base.
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => '/blog' . $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'] );
+
+		// Test with actual uri
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
