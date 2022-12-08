@@ -95,12 +95,13 @@ class NodeResolver {
 
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
-		// If the request is for the homepage, determine
+		// Resolve the homepage.
 		if ( '/' === $uri ) {
 
 			$page_id       = get_option( 'page_on_front', 0 );
 			$show_on_front = get_option( 'show_on_front', 'posts' );
 
+			// If the homepage is a static page, return the page.
 			if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
 
 				$page = get_post( $page_id );
@@ -110,22 +111,29 @@ class NodeResolver {
 				}
 
 				return new Post( $page );
-
-			} else {
-
-				if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) {
-					return null;
-				}
-
-				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 			}
+
+			// If the homepage is set to latest posts, we need to make sure not to resolve it when when querying for `ContentNode`s.
+			if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) {
+				return null;
+			}
+
+			// We dont have an 'Archive' type, so we resolve to the ContentType.
+			return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 		}
 
+		// Resolve a page by ID.
 		if ( isset( $this->wp->query_vars['page_id'] ) ) {
 			return absint( $this->wp->query_vars['page_id'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['page_id'] ) ) : null;
-		} elseif ( isset( $this->wp->query_vars['p'] ) ) {
+		}
+
+		// Resolve a post by ID.
+		if ( isset( $this->wp->query_vars['p'] ) ) {
 			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['p'] ) ) : null;
-		} elseif ( isset( $this->wp->query_vars['name'] ) ) {
+		}
+
+		// Resolve a post by its slug.
+		if ( isset( $this->wp->query_vars['name'] ) ) {
 
 			// Target post types with a public URI.
 			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
@@ -141,17 +149,24 @@ class NodeResolver {
 			$post = $post instanceof WP_Post ? $this->validate_post( $post ) : null;
 
 			return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+		}
 
-		} elseif ( isset( $this->wp->query_vars['cat'] ) ) {
+		// Resolve a category term by its ID.
+		if ( isset( $this->wp->query_vars['cat'] ) ) {
 			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
 
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
+		}
 
-		} elseif ( isset( $this->wp->query_vars['tag'] ) ) {
+		// Resolve a tag term by its slug.
+		if ( isset( $this->wp->query_vars['tag'] ) ) {
 			$node = get_term_by( 'slug', $this->wp->query_vars['tag'], 'post_tag' );
 
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
-		} elseif ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
+		}
+
+		// Resolve a post by its URI.
+		if ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
 
 			unset( $this->wp->query_vars['uri'] );
 
@@ -179,19 +194,31 @@ class NodeResolver {
 			}
 
 			return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
-		} elseif ( isset( $this->wp->query_vars['author_name'] ) ) {
+		}
+
+		// Resolve a user by its author name.
+		if ( isset( $this->wp->query_vars['author_name'] ) ) {
 			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
 
 			return isset( $user->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $user->ID ) : null;
-		} elseif ( isset( $this->wp->query_vars['category_name'] ) ) {
+		}
+
+		// Resolve a category term by its name.
+		if ( isset( $this->wp->query_vars['category_name'] ) ) {
 			$term = get_category_by_path( $this->wp->query_vars['category_name'] );
 			if ( ! $term instanceof \WP_Term ) {
 				return null;
 			}
 			$node = get_term_by( 'id', $term->term_id, 'category' );
 			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
+		}
 
-		} elseif ( isset( $this->wp->query_vars['post_type'] ) ) {
+		/**
+		 * If we know the post_type, we can try again to resolve the ContentNode.
+		 *
+		 * Failing that we just resolve to the post type.
+		 */
+		if ( isset( $this->wp->query_vars['post_type'] ) ) {
 
 			// If the query is asking for a Page nodeType with the home uri, try and resolve it.
 			if ( '/' === $this->wp->query_vars['uri'] && ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) ) {
@@ -219,14 +246,18 @@ class NodeResolver {
 			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
 
 			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
-		} else {
-			$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
-			foreach ( $taxonomies as $tax_object ) {
-				if ( isset( $this->wp->query_vars[ $tax_object->query_var ] ) ) {
-					$node = get_term_by( 'slug', $this->wp->query_vars[ $tax_object->query_var ], $tax_object->name );
+		}
+		
+		/**
+		 * If we're still here, check if we're trying to query a taxonomy term.
+		 */
+		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+		foreach ( $taxonomies as $tax_object ) {
+			// Resolve a taxonomy term by its slug.
+			if ( isset( $this->wp->query_vars[ $tax_object->query_var ] ) ) {
+				$node = get_term_by( 'slug', $this->wp->query_vars[ $tax_object->query_var ], $tax_object->name );
 
-					return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
-				}
+				return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
 			}
 		}
 

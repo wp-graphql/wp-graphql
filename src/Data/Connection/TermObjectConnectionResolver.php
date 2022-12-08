@@ -297,12 +297,13 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array                     $args                The GraphQL args passed to the resolver.
+		 * @param array                        $args                The GraphQL args passed to the resolver.
 		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_term_object_connection_args', $args, $this );
+		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->args );
 	}
 
 	/**
