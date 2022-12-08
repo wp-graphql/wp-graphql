@@ -18,6 +18,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_single_name' => 'CustomType',
 			'graphql_plural_name' => 'CustomTypes',
 			'public'              => true,
+			'has_archive'         => true,
 		]);
 
 		register_taxonomy( 'by_uri_tax', 'by_uri_cpt', [
@@ -660,7 +661,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Test CPT Uris
 	 */
-	public function testCptTypeByUri() : void {
+	public function testCptByUri() : void {
 		$cpt_id = $this->factory()->post->create( [
 			'post_type'   => 'by_uri_cpt',
 			'post_status' => 'publish',
@@ -899,6 +900,41 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
 
 		unregister_post_type( 'test_hierarchical' );
+	}
+
+	public function testCptArchiveUri() : void {
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on ContentType {
+					name
+				}
+				uri
+			}
+		}
+		';
+
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'by_uri_cpt' ) );
+
+		codecept_debug( $uri );
+
+		/**
+		 * NodeResolver::parse_request() generates the following query vars:
+		 * uri => /by_uri_cpt/
+		 * post_type => by_uri_cpt
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'by_uri_cpt', $actual['data']['nodeByUri']['name'] );
 	}
 
 	/**
