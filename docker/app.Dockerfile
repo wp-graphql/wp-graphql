@@ -53,7 +53,7 @@ ENV DATA_DUMP_DIR="${PROJECT_DIR}/tests/_data"
 # Remove exec statement from base entrypoint script.
 RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
 
-# Set up Apache
+# Set up Apache catch all name
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 # Custom PHP settings
