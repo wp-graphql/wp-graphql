@@ -6,6 +6,8 @@ on:
       - opened
       - edited
       - synchronize
+  pull_request:
+    types: edited
 
 jobs:
   main:
