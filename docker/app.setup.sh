@@ -40,6 +40,10 @@ if ! $( wp core is-installed --allow-root ); then
 		--admin_password="${ADMIN_PASSWORD}" \
 		--admin_email="${ADMIN_EMAIL}" \
 		--allow-root
+else
+    # Set the WP url accordingly. If running the app vs running tests. Tests failing locally if already had app running, vice/versa.
+    wp --allow-root option set SITEURL "${WP_URL}"
+    wp --allow-root option set HOME "${WP_URL}"
 fi
 
 echo "Running WordPress version: $(wp core version --allow-root) at $(wp option get home --allow-root)"

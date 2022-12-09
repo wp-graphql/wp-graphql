@@ -102,6 +102,13 @@ class WPConnectionType {
 	protected $resolve_cursor;
 
 	/**
+	 * Whether to  include and generate the default GraphQL interfaces on the connection Object types.
+	 *
+	 * @var bool
+	 */
+	protected $include_default_interfaces;
+
+	/**
 	 * The name of the GraphQL Type the connection connects to
 	 *
 	 * @var string
@@ -213,7 +220,10 @@ class WPConnectionType {
 	 */
 	protected function get_edge_interfaces( array $interfaces = [] ): array {
 
-		$interfaces[] = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
+		// Only include the default interfaces if the user hasnt explicitly opted out.
+		if ( false !== $this->include_default_interfaces ) {
+			$interfaces[] = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
+		}
 
 		if ( ! empty( $this->connection_interfaces ) ) {
 			foreach ( $this->connection_interfaces as $connection_interface ) {
@@ -300,7 +310,12 @@ class WPConnectionType {
 			return;
 		}
 
-		$interfaces = $this->get_edge_interfaces( [ 'OneToOneConnection', 'Edge' ] );
+		// Only include the default interfaces if the user hasnt explicitly opted out.
+		$default_interfaces = false !== $this->include_default_interfaces ? [
+			'OneToOneConnection',
+			'Edge',
+		] : [];
+		$interfaces         = $this->get_edge_interfaces( $default_interfaces );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -334,8 +349,11 @@ class WPConnectionType {
 		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
 			return;
 		}
-
-		$interfaces = $this->get_edge_interfaces( [ 'Edge' ] );
+		// Only include the default interfaces if the user hasnt explicitly opted out.
+		$default_interfaces = false === $this->include_default_interfaces ? [
+			'Edge',
+		] : [];
+		$interfaces         = $this->get_edge_interfaces( $default_interfaces );
 
 		$this->type_registry->register_object_type(
 			$this->connection_name . 'Edge',
@@ -378,7 +396,11 @@ class WPConnectionType {
 
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
 		$interfaces[] = Utils::format_type_name( $this->to_type . 'Connection' );
-		$interfaces[] = 'Connection';
+
+		// Only include the default interfaces if the user hasnt explicitly opted out.
+		if ( false !== $this->include_default_interfaces ) {
+			$interfaces[] = 'Connection';
+		}
 
 		$this->type_registry->register_object_type(
 			$this->connection_name,
@@ -541,7 +563,10 @@ class WPConnectionType {
 	public function register_connection(): void {
 
 		$this->register_connection_input();
-		$this->register_connection_interfaces();
+
+		if ( false !== $this->include_default_interfaces ) {
+			$this->register_connection_interfaces();
+		}
 
 		if ( true === $this->one_to_one ) {
 			$this->register_one_to_one_connection_edge_type();

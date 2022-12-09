@@ -1681,4 +1681,56 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterTypeWithFieldStartingWithUppercaseLetterIsAllowed() {
+
+		register_graphql_object_type( 'TypeWithUcFirstField', [
+			'fields' => [
+				'UC_First' => [
+					'type' => 'String',
+				],
+			],
+		] );
+
+		add_filter( 'graphql_TypeWithUcFirstField_fields', function( $fields ) {
+
+			$fields[] = [
+				'name' => 'UC_Field_2',
+				'type' => 'String'
+			];
+
+			return $fields;
+
+		});
+
+		$query = '
+		query GetType( $name: String! ){
+		  __type(name:$name) {
+		    fields(includeDeprecated:true) { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TypeWithUcFirstField'
+			]
+		]);
+
+		$this->assertNotContains( 'errors', $actual );
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $field_names );
+
+		$this->assertContains(  'UC_Field_2', $field_names );
+		$this->assertContains(  'uC_First', $field_names );
+		$this->assertNotContains(  'UC_First', $field_names );
+
+	}
+
 }
