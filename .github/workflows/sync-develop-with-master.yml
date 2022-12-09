@@ -13,6 +13,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.SYNC_TOKEN }}
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
       - name: Merge master back to develop
         run: |
           git fetch --unshallow
