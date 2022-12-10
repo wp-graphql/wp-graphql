@@ -156,24 +156,25 @@ class WPConnectionType {
 		$this->connection_name = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $this->from_type, $this->to_type, $this->from_field_name );
 
 		/**
-		 * Bail if the connection has been deregistered or excluded.
+		 * Bail if the connection has been de-registered or excluded.
 		 */
 		if ( ! $this->should_register() ) {
 			return;
 		}
 
-		$this->auth                  = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
-		$this->connection_fields     = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
-		$this->connection_args       = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
-		$this->edge_fields           = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
-		$this->resolve_cursor        = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$this->resolve_connection    = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
+		$this->auth                       = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
+		$this->connection_fields          = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
+		$this->connection_args            = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
+		$this->edge_fields                = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
+		$this->resolve_cursor             = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
+		$this->resolve_connection         = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
 		};
-		$this->where_args            = [];
-		$this->one_to_one            = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
-		$this->connection_interfaces = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
-		$this->query_class           = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
+		$this->where_args                 = [];
+		$this->one_to_one                 = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
+		$this->connection_interfaces      = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
+		$this->include_default_interfaces = isset( $config['includeDefaultInterfaces'] ) ? (bool) $config['includeDefaultInterfaces'] : true;
+		$this->query_class                = array_key_exists( 'queryClass', $config ) && ! empty( $config['queryClass'] ) ? $config['queryClass'] : null;
 
 		/**
 		 * Run an action when the WPConnectionType is instantiating.
