@@ -111,4 +111,27 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+		public function testQueryPageForPostsByUriNameWithArrayReturnsNull() {
+
+		$query = '
+		query GetPageByUri($id:ID!) {
+			page(id: $id, idType: URI) {
+				__typename
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => '/non-existent-page?name[]=example',
+			]
+		]);
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'page', self::IS_NULL ),
+		]);
+
+	}
+
 }
