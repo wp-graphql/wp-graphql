@@ -1004,6 +1004,64 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertValidURIResolution( $uri, $expected_graphql_type, $category_id, $actual );
 	}
 
+	public function testUncategorizedCategoryByUri() {
+		$category = get_term_by( 'slug', 'uncategorized', 'category' );
+		$category_id = $category->term_id;
+
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on Category {
+					databaseId
+				}
+				isTermNode
+				isContentNode
+				uri
+			}
+		}
+		';
+
+		$expected_graphql_type = ucfirst( get_taxonomy( 'category' )->graphql_single_name );
+
+		$uri = wp_make_link_relative( get_category_link( $category_id ));
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /category/uncategorized/
+		 * category_name => uncategorized
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, $expected_graphql_type, $category_id, $actual );
+		$this->assertFalse( $actual['data']['nodeByUri']['isContentNode'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isTermNode'] );
+
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_category_link( $category_id ));
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => cat={category_id}
+		 * cat => {category_id}
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, $expected_graphql_type, $category_id, $actual );
+	}
+
 	/**
 	 * Test Tag URIs
 	 */
