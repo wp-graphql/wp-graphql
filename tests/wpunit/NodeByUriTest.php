@@ -25,6 +25,10 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'show_in_graphql'     => true,
 			'graphql_single_name' => 'CustomTax',
 			'graphql_plural_name' => 'CustomTaxes',
+			'default_term'        => [
+				'name' => 'Default Term',
+				'slug' => 'default-term',
+			],
 		]);
 
 		flush_rewrite_rules( true );
@@ -1127,6 +1131,50 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Test Custom Tax term URIs
 	 */
+	public function testDefaultTaxTermByUri() {
+		$term = get_term_by( 'slug', 'default-term', 'by_uri_tax' );
+		$term_id = $term->term_id;
+
+		$query = $this->getQuery();
+
+		$expected_graphql_type = ucfirst( get_taxonomy( 'by_uri_tax' )->graphql_single_name );
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ));
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /by_uri_tax/default-term/
+		 * by_uri_tax => default-term
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, $expected_graphql_type, $term_id, $actual );
+
+		// Test without pretty permalinks.
+		$this->set_permalink_structure( '' );
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ));
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => by_uri_tax=default-term
+		 * by_uri_tax => default-term
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, $expected_graphql_type, $term_id, $actual );
+	}
+
 	public function testCustomTaxTermByUri() {
 		$term_id = $this->factory()->term->create( [
 			'taxonomy' => 'by_uri_tax',
