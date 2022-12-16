@@ -941,6 +941,81 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'by_uri_cpt', $actual['data']['nodeByUri']['name'] );
 	}
 
+	public function testCptWithFront() : void {
+		// Set the permalink structure to include a base
+		$this->set_permalink_structure( '/blog/%year%/%monthnum%/%day%/%postname%/' );
+
+		register_post_type( 'test_with_front', [
+			'public'              => true,
+			'publicly_queryable'  => true,
+			'show_ui'             => true,
+			'show_in_menu'        => true,
+			'query_var'           => true,
+			'rewrite'             => [
+				'slug'       => 'my-custom-slug',
+				'with_front' => true,
+			],
+			'capability_type'     => 'page',
+			'has_archive'         => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'testWithFront',
+			'graphql_plural_name' => 'testWithFronts',
+		]);
+		flush_rewrite_rules( true );
+
+		$query = $this->getQuery();
+
+		$post_id = $this->factory()->post->create( [
+			'post_type' => 'test_with_front',
+			'post_title' => 'Test for testCptWithNoFront',
+			'post_content' => 'test',
+			'post_status' => 'publish',
+		] );
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		// Test the post.
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, 'TestWithFront', $post_id, $actual );
+
+		// Test the archive
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				...on ContentType {
+					name
+				}
+				uri
+			}
+		}
+		';
+
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'test_with_front' ) );
+		codecept_debug( $uri );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( 'test_with_front', $actual['data']['nodeByUri']['name'] );
+
+		// cleanup
+		unregister_post_type( 'test_with_front' );
+	}
+
 	/**
 	 * Test Category URIs
 	 */
