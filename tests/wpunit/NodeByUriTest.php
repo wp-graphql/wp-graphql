@@ -2141,6 +2141,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( 'Validating URI: ' . $uri );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['nodeByUri'], 'The nodeByUri data should not be empty' );
 		$this->assertSame( $expected_graphql_type, $actual['data']['nodeByUri']['__typename'], 'The __typename should match the expected type' );
 		$this->assertSame( $expected_database_id, $actual['data']['nodeByUri']['databaseId'], 'The databaseId should match the expected ID' );
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'], 'The uri should match the expected URI' );
