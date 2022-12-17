@@ -50,6 +50,10 @@ class NodeResolver {
 			return $post;
 		}
 
+		/**
+		 * Disabling the following code for now, since add_rewrite_uri() would cause a request to direct to a different valid permalink.
+		 */
+		/* phpcs:disable
 		$permalink    = get_permalink( $post );
 		$parsed_path  = $permalink ? wp_parse_url( $permalink, PHP_URL_PATH ) : null;
 		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
@@ -57,6 +61,7 @@ class NodeResolver {
 		if ( $trimmed_path !== $uri_path ) {
 			return null;
 		}
+		phpcs:enable */
 
 		return $post;
 	}
@@ -151,6 +156,11 @@ class NodeResolver {
 				}
 
 				return ! empty( $post_type_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
+			}
+
+			// Validate the post before returning it.
+			if ( ! $this->validate_post( $queried_object ) ) {
+				return null;
 			}
 
 			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $queried_object->ID ) : null;
