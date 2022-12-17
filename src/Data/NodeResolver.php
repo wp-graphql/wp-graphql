@@ -93,11 +93,23 @@ class NodeResolver {
 			return $node;
 		}
 
+		/**
+		 * Try to resolve the URI with WP_Query.
+		 * 
+		 * This is the way WordPress native permalinks are resolved.
+		 *
+		 * @see \WP::main()
+		 */
+
+		// Parse the URI and sets the $wp->query_vars property.
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
-		// Resolve the homepage.
-		if ( '/' === $uri ) {
+		$query = new \WP_Query( $this->wp->query_vars );
 
+		$queried_object = $query->get_queried_object();
+
+		// Resolve the home page.
+		if ( $query->is_home() ) {
 			$page_id       = get_option( 'page_on_front', 0 );
 			$show_on_front = get_option( 'show_on_front', 'posts' );
 
@@ -110,7 +122,7 @@ class NodeResolver {
 					return null;
 				}
 
-				return new Post( $page );
+				return $this->context->get_loader( 'post' )->load_deferred( $page->ID );
 			}
 
 			// If the homepage is set to latest posts, we need to make sure not to resolve it when when querying for `ContentNode`s.
@@ -122,143 +134,41 @@ class NodeResolver {
 			return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 		}
 
-		// Resolve a page by ID.
-		if ( isset( $this->wp->query_vars['page_id'] ) ) {
-			return absint( $this->wp->query_vars['page_id'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['page_id'] ) ) : null;
-		}
-
-		// Resolve a post by ID.
-		if ( isset( $this->wp->query_vars['p'] ) ) {
-			return absint( $this->wp->query_vars['p'] ) ? $this->context->get_loader( 'post' )->load_deferred( absint( $this->wp->query_vars['p'] ) ) : null;
-		}
-
-		// Resolve a post by its slug.
-		if ( isset( $this->wp->query_vars['name'] ) ) {
-
-			// Target post types with a public URI.
-			$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
-			$post_type = 'post';
-			if ( isset( $this->wp->query_vars['post_type'] ) && in_array( $this->wp->query_vars['post_type'], $allowed_post_types, true ) ) {
-				$post_type = $this->wp->query_vars['post_type'];
-			}
-
-			$post = get_page_by_path( $this->wp->query_vars['name'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
-
-			unset( $this->wp->query_vars['uri'] );
-			$post = $post instanceof WP_Post ? $this->validate_post( $post ) : null;
-
-			return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
-		}
-
-		// Resolve a category term by its ID.
-		if ( isset( $this->wp->query_vars['cat'] ) ) {
-			$node = get_term( absint( $this->wp->query_vars['cat'] ), 'category' );
-
-			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
-		}
-
-		// Resolve a tag term by its slug.
-		if ( isset( $this->wp->query_vars['tag'] ) ) {
-			$node = get_term_by( 'slug', $this->wp->query_vars['tag'], 'post_tag' );
-
-			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( (int) $node->term_id ) : null;
-		}
-
-		// Resolve a post by its URI.
-		if ( isset( $this->wp->query_vars['pagename'] ) && ! empty( $this->wp->query_vars['pagename'] ) ) {
-
-			unset( $this->wp->query_vars['uri'] );
-
-			$post_type = isset( $this->wp->query_vars['post_type'] ) ? $this->wp->query_vars['post_type'] : \WPGraphQL::get_allowed_post_types();
-
-			$post = get_page_by_path( $this->wp->query_vars['pagename'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
-
-			if ( ! $post instanceof WP_Post ) {
-				return null;
-			}
-
-			$post = $this->validate_post( $post );
-
-			if ( ! $post ) {
-				return null;
-			}
-
-			if ( (int) get_option( 'page_for_posts', 0 ) === $post->ID ) {
-
-				if ( isset( $extra_query_vars['nodeType'] ) && 'ContentNode' === $extra_query_vars['nodeType'] ) {
+		// Resolve Post Objects.
+		if ( $queried_object instanceof WP_Post ) {
+			// If Page for Posts is set, we need to return the Page archive, not the page.
+			if ( $query->is_posts_page ) {
+				// If were intentionally querying for a ContentNode, we need to return null instead of the archive.
+				if ( isset( $query->query_vars['nodeType'] ) && 'ContentNode' === $query->query_vars['nodeType'] ) {
 					return null;
 				}
 
-				return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
-			}
+				/** @todo resolve to an Archive Type. */
+				$post_type_object = get_post_type_object( $queried_object->post_type );
 
-			return $this->context->get_loader( 'post' )->load_deferred( $post->ID );
-		}
-
-		// Resolve a user by its author name.
-		if ( isset( $this->wp->query_vars['author_name'] ) ) {
-			$user = get_user_by( 'slug', $this->wp->query_vars['author_name'] );
-
-			return isset( $user->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $user->ID ) : null;
-		}
-
-		// Resolve a category term by its name.
-		if ( isset( $this->wp->query_vars['category_name'] ) ) {
-			$term = get_category_by_path( $this->wp->query_vars['category_name'] );
-			if ( ! $term instanceof \WP_Term ) {
-				return null;
-			}
-			$node = get_term_by( 'id', $term->term_id, 'category' );
-			return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
-		}
-
-		/**
-		 * If we know the post_type, we can try again to resolve the ContentNode.
-		 *
-		 * Failing that we just resolve to the post type.
-		 */
-		if ( isset( $this->wp->query_vars['post_type'] ) ) {
-
-			// If the query is asking for a Page nodeType with the home uri, try and resolve it.
-			if ( '/' === $this->wp->query_vars['uri'] && ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) ) {
-
-				// If the post type is not a page, but the uri is for the home page, we can return null now
-				if ( 'page' !== $this->wp->query_vars['post_type'] ) {
+				if ( ! $post_type_object ) {
 					return null;
 				}
 
-				$page_on_front = get_option( 'page_on_front', 0 );
-				$post          = get_post( absint( $page_on_front ) );
-				return ! empty( $post ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
+				return ! empty( $post_type_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
 			}
 
-			// If the query is asking for a Page nodeType with the uri, try and resolve it.
-			if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] && isset( $this->wp->query_vars['uri'] ) ) {
-				$post_type = $this->wp->query_vars['post_type'];
-
-				$post = get_page_by_path( $this->wp->query_vars['uri'], 'OBJECT', $post_type ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
-
-				$post = isset( $post->ID ) ? $this->validate_post( $post ) : null;
-				return isset( $post->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $post->ID ) : null;
-			}
-
-			$post_type_object = get_post_type_object( $this->wp->query_vars['post_type'] );
-
-			return ! empty( $post_type_object ) ? $this->context->get_loader( 'post_type' )->load_deferred( $post_type_object->name ) : null;
+			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $queried_object->ID ) : null;
 		}
-		
-		/**
-		 * If we're still here, check if we're trying to query a taxonomy term.
-		 */
-		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
-		foreach ( $taxonomies as $tax_object ) {
-			// Resolve a taxonomy term by its slug.
-			if ( isset( $this->wp->query_vars[ $tax_object->query_var ] ) ) {
-				$node = get_term_by( 'slug', $this->wp->query_vars[ $tax_object->query_var ], $tax_object->name );
 
-				return isset( $node->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $node->term_id ) : null;
-			}
+		// Resolve Terms.
+		if ( $queried_object instanceof \WP_Term ) {
+			return ! empty( $queried_object->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $queried_object->term_id ) : null;
+		}
+
+		// Resolve Post Types.
+		if ( $queried_object instanceof \WP_Post_Type ) {
+			return ! empty( $queried_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $queried_object->name ) : null;
+		}
+
+		// Resolve Users
+		if ( $queried_object instanceof \WP_User ) {
+			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $queried_object->ID ) : null;
 		}
 
 		return $node;
