@@ -12,8 +12,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// before
 		parent::setUp();
 
-		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_post_types();
+		$this->clearSchema();
+
+
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -1827,11 +1830,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'post_title'  => 'Test for QueryPostUsingIDType',
 		]);
 
+		$post = get_post( $post_id );
+
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
-		$slug      = get_post( $post_id )->post_name;
-		$uri       = get_page_uri( $post_id );
+		$slug      = $post->post_name;
+		$uri       = wp_make_link_relative( get_permalink( $post_id ) );
 		$title     = get_post( $post_id )->post_title;
-		$permalink = get_permalink( $post_id );
 
 		codecept_debug( $uri );
 
@@ -1839,7 +1843,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'id'     => $global_id,
 			'postId' => $post_id,
 			'title'  => $title,
-			'uri'    => str_ireplace( home_url(), '', $permalink ),
+			'uri'    => $uri,
 			'slug'   => $slug,
 		];
 

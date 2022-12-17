@@ -934,6 +934,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['nodeByUri'] );
 		$this->assertSame( 'CustomType', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
 
