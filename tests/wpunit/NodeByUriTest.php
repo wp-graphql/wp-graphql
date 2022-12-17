@@ -1016,6 +1016,42 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_post_type( 'test_with_front' );
 	}
 
+	public function testCptWithCustomRewriteRule() : void {
+		add_rewrite_rule( 'custom_rewrite_rule/([^/]+)/?$', 'index.php?post_type=by_uri_cpt&p=$matches[1]', 'top' );
+		flush_rewrite_rules( true );
+
+		$post_id = $this->factory()->post->create( [
+			'post_type' => 'by_uri_cpt',
+			'post_title' => 'Test for testCptWithCustomRewriteRule',
+			'post_content' => 'test',
+			'post_status' => 'publish',
+		] );
+
+
+
+		$query = $this->getQuery();
+
+		/**
+		 * NodeResolver::parse_request() will generate the following query vars:
+		 * uri => /custom_rewrite_rule/{post_id}
+		 * p   => {post_id}
+		 * post_type => by_uri_cpt
+		 */
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => '/custom_rewrite_rule/' . $post_id,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'CustomType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
+
+		// The custom rule doesnt override the actual cpt permalink.
+		$this->assertSame( wp_make_link_relative( get_permalink( $post_id ) ), $actual['data']['nodeByUri']['uri'] );
+	}
+
 	/**
 	 * Test Category URIs
 	 */
