@@ -201,9 +201,6 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * @throws Exception
 	 */
 	public function testContentNodeFieldByUri() {
-
-		$this->set_permalink_structure( '' );
-
 		$page_id = $this->factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
@@ -217,28 +214,6 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			'post_title'  => 'Test Post for ContentNodeFieldByUri',
 			'post_author' => $this->admin,
 		] );
-
-		$variables = [
-			'postIdType' => 'URI',
-			'postId'     => '/?' . parse_url( get_permalink( $post_id ) )['query'],
-			'pageIdType' => 'URI',
-			'pageId'     => '/?' . parse_url( get_permalink( $page_id ) )['query'],
-		];
-
-		codecept_debug( $variables );
-
-		$actual = $this->graphql( [
-			'query'     => $this->contentNodeQuery(),
-			'variables' => $variables,
-		] );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( 'Post', $actual['data']['post']['__typename'] );
-		$this->assertEquals( 'Page', $actual['data']['page']['__typename'] );
-		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
-		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
-
-		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		$variables = [
 			'postIdType' => 'URI',
@@ -259,6 +234,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertEquals( 'Page', $actual['data']['page']['__typename'] );
 		$this->assertEquals( $post_id, $actual['data']['post']['postId'] );
 		$this->assertEquals( $page_id, $actual['data']['page']['pageId'] );
+
 	}
 
 	/**
