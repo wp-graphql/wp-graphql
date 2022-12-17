@@ -923,6 +923,7 @@ class RootQuery {
 									$args['id'],
 									[
 										'nodeType' => 'TermNode',
+										'taxonomy' => $tax_object->name,
 									]
 								);
 							case 'global_id':

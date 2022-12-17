@@ -81,29 +81,9 @@ class NodeResolver {
 			return null;
 		}
 
-		// Check if an array has a key that starts with a string.
-		$is_same_term = false;
-
-		$taxonomy = $term->taxonomy;
-
-		// Categories and Tags can use a shorthand in the query vars.
-		if ( 'category' === $taxonomy ) {
-			$taxonomy = 'cat';
-		} elseif ( 'post_tag' === $taxonomy ) {
-			$taxonomy = 'tag';
-		}
-
-		foreach ( array_keys( $this->wp->query_vars ) as $key ) {
-			if ( strpos( $key, $taxonomy ) === 0 ) {
-				$is_same_term = true;
-				break;
-			}
-		}
-
-		if ( ! $is_same_term ) {
+		if ( isset( $this->wp->query_vars['taxonomy'] ) && $term->taxonomy !== $this->wp->query_vars['taxonomy'] ) {
 			return null;
 		}
-
 
 		return $term;
 	}
@@ -359,10 +339,8 @@ class NodeResolver {
 		 */
 		global $wp_rewrite;
 
-
 		$this->wp->query_vars = [];
 		$post_type_query_vars = [];
-
 
 		if ( is_array( $extra_query_vars ) ) {
 			$this->wp->query_vars = &$extra_query_vars;
@@ -500,7 +478,6 @@ class NodeResolver {
 		 * @param string[] $public_query_vars The array of allowed query variable names.
 		 */
 		$this->wp->public_query_vars = apply_filters( 'query_vars', $this->wp->public_query_vars );
-
 
 		foreach ( get_post_types( [ 'show_in_graphql' => true ], 'objects' )  as $post_type => $t ) {
 			/** @var \WP_Post_Type $t */
