@@ -6,7 +6,6 @@ use Exception;
 use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\Post;
 use GraphQL\Error\UserError;
 
 class NodeResolver {
@@ -47,14 +46,17 @@ class NodeResolver {
 			return null;
 		}
 
-		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
-			return $post;
+		if ( ! $this->is_valid_node_type( 'ContentNode' ) ) {
+			return null;
 		}
 
 		/**
 		 * Disabling the following code for now, since add_rewrite_uri() would cause a request to direct to a different valid permalink.
 		 */
 		/* phpcs:disable
+		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
+			return $post;
+		}
 		$permalink    = get_permalink( $post );
 		$parsed_path  = $permalink ? wp_parse_url( $permalink, PHP_URL_PATH ) : null;
 		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
@@ -65,6 +67,25 @@ class NodeResolver {
 		phpcs:enable */
 
 		return $post;
+	}
+
+	/**
+	 * Given a Term object, validates it before returning it.
+	 *
+	 * @param \WP_Term $term
+	 *
+	 * @return \WP_Term|null
+	 */
+	public function validate_term( \WP_Term $term ) {
+		if ( ! isset( $this->wp->query_vars[ $term->taxonomy ] ) ) {
+			return null;
+		}
+		
+		if ( ! $this->is_valid_node_type( 'TermNode' ) ) {
+			return null;
+		}
+
+		return $term;
 	}
 
 	/**
@@ -178,8 +199,8 @@ class NodeResolver {
 				return $this->context->get_loader( 'post' )->load_deferred( $page->ID );
 			}
 
-			// If the homepage is set to latest posts, we need to make sure not to resolve it when when querying for `ContentNode`s.
-			if ( isset( $this->wp->query_vars['nodeType'] ) && 'ContentNode' === $this->wp->query_vars['nodeType'] ) {
+			// If the homepage is set to latest posts, we need to make sure not to resolve it when when for other types.
+			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
 				return null;
 			}
 
@@ -191,8 +212,8 @@ class NodeResolver {
 		if ( $queried_object instanceof WP_Post ) {
 			// If Page for Posts is set, we need to return the Page archive, not the page.
 			if ( $query->is_posts_page ) {
-				// If were intentionally querying for a ContentNode, we need to return null instead of the archive.
-				if ( isset( $query->query_vars['nodeType'] ) && 'ContentNode' === $query->query_vars['nodeType'] ) {
+				// If were intentionally querying for a something other than a ContentType, we need to return null instead of the archive.
+				if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
 					return null;
 				}
 
@@ -216,16 +237,36 @@ class NodeResolver {
 
 		// Resolve Terms.
 		if ( $queried_object instanceof \WP_Term ) {
+			// Bail if we're explictly requesting a different GraphQL type.
+			if ( ! $this->is_valid_node_type( 'TermNode' ) ) {
+				return null;
+			}
+
+			// Validate the term before returning it.
+			if ( ! $this->validate_term( $queried_object ) ) {
+				return null;
+			}
+
 			return ! empty( $queried_object->term_id ) ? $this->context->get_loader( 'term' )->load_deferred( $queried_object->term_id ) : null;
 		}
 
 		// Resolve Post Types.
 		if ( $queried_object instanceof \WP_Post_Type ) {
+			// Bail if we're explictly requesting a different GraphQL type.
+			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
+				return null;
+			}
+
 			return ! empty( $queried_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $queried_object->name ) : null;
 		}
 
 		// Resolve Users
 		if ( $queried_object instanceof \WP_User ) {
+			// Bail if we're explictly requesting a different GraphQL type.
+			if ( ! $this->is_valid_node_type( 'User' ) ) {
+				return null;
+			}
+
 			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $queried_object->ID ) : null;
 		}
 
@@ -535,5 +576,12 @@ class NodeResolver {
 		do_action_ref_array( 'parse_request', [ &$this->wp ] );
 
 		return $uri;
+	}
+
+	/**
+	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
+	 */
+	protected function is_valid_node_type( string $node_type ) : bool {
+		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
 	}
 }
