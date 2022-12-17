@@ -2006,6 +2006,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		update_option( 'page_for_posts', $page_id );
+		update_option( 'show_on_front', 'page' );
 
 		$query = $this->getQuery();
 
