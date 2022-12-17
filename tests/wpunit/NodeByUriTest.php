@@ -963,14 +963,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 		flush_rewrite_rules( true );
 
-		$query = $this->getQuery();
-
 		$post_id = $this->factory()->post->create( [
 			'post_type' => 'test_with_front',
 			'post_title' => 'Test for testCptWithNoFront',
 			'post_content' => 'test',
 			'post_status' => 'publish',
 		] );
+
+		$query = $this->getQuery();
 
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
@@ -1550,6 +1550,48 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $child_id, $actual['data']['nodeByUri']['databaseId'] );
 
 		unregister_taxonomy( 'test_hierarchical' );
+	}
+
+	public function testCustomTaxTermWithFront() {
+		// Set the permalink structure to include a base
+		$this->set_permalink_structure( '/blog/%year%/%monthnum%/%day%/%postname%/' );
+
+		register_taxonomy( 'test_tax_with_front', 'by_uri_cpt', [
+			'hierarchical' => false,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'testTaxWithFrontType',
+			'graphql_plural_name' => 'testTaxWithFrontTypes',
+			'public'              => true,
+			'rewrite' => [
+				'slug'       => 'my-custom-term-slug',
+				'with_front' => true,
+			],
+		]);
+		flush_rewrite_rules();
+
+		$term_id = $this->factory()->term->create( [
+			'taxonomy' => 'test_tax_with_front',
+			'name'     => 'Test Tax With Front',
+		]);
+
+		$query = $this->getQuery();
+
+		$expected_graphql_type = ucfirst( get_taxonomy( 'test_tax_with_front' )->graphql_single_name );
+
+		$uri = wp_make_link_relative( get_term_link( $term_id, 'test_tax_with_front' ) );
+
+		// Test the term.
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertValidURIResolution( $uri, $expected_graphql_type, $term_id, $actual );
+
+		// Cleanup.
+		unregister_taxonomy( 'test_tax_with_front' );
 	}
 
 	/**
