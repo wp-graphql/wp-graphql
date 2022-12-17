@@ -77,13 +77,33 @@ class NodeResolver {
 	 * @return \WP_Term|null
 	 */
 	public function validate_term( \WP_Term $term ) {
-		if ( ! isset( $this->wp->query_vars[ $term->taxonomy ] ) ) {
-			return null;
-		}
-		
 		if ( ! $this->is_valid_node_type( 'TermNode' ) ) {
 			return null;
 		}
+
+		// Check if an array has a key that starts with a string.
+		$is_same_term = false;
+
+		$taxonomy = $term->taxonomy;
+
+		// Categories and Tags can use a shorthand in the query vars.
+		if ( 'category' === $taxonomy ) {
+			$taxonomy = 'cat';
+		} elseif ( 'post_tag' === $taxonomy ) {
+			$taxonomy = 'tag';
+		}
+
+		foreach ( array_keys( $this->wp->query_vars ) as $key ) {
+			if ( strpos( $key, $taxonomy ) === 0 ) {
+				$is_same_term = true;
+				break;
+			}
+		}
+
+		if ( ! $is_same_term ) {
+			return null;
+		}
+
 
 		return $term;
 	}
@@ -237,11 +257,6 @@ class NodeResolver {
 
 		// Resolve Terms.
 		if ( $queried_object instanceof \WP_Term ) {
-			// Bail if we're explictly requesting a different GraphQL type.
-			if ( ! $this->is_valid_node_type( 'TermNode' ) ) {
-				return null;
-			}
-
 			// Validate the term before returning it.
 			if ( ! $this->validate_term( $queried_object ) ) {
 				return null;
