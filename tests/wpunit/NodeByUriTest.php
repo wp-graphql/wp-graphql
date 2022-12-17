@@ -787,6 +787,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( 'TestHierarchical', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $parent, $actual['data']['nodeByUri']['databaseId'] );
 
+		// cleanup.
 		unregister_post_type( 'test_hierarchical' );
 	}
 
@@ -1251,10 +1252,9 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		unregister_taxonomy( 'identical_slugs_tax' );
-
 		$this->assertValidURIResolution( $uri, 'IdenticalSlugType', $identical_slugs_term_2_child_id, $actual );
 
+		// cleanup
 		unregister_taxonomy( 'identical_slugs_tax' );
 	}
 
@@ -1345,12 +1345,11 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		unregister_taxonomy( 'test_hierarchical' );
-
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 		$this->assertSame( 'TestHierarchicalType', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $child_id, $actual['data']['nodeByUri']['databaseId'] );
 
+		// cleanup
 		unregister_taxonomy( 'test_hierarchical' );
 	}
 
