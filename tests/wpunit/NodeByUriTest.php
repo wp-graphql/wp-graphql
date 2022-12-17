@@ -563,9 +563,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		] );
 
-		$this->markTestIncomplete( 'resolve_uri() doesnt check for `attachment`. See https://github.com/wp-graphql/wp-graphql/issues/2178');
-
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'MediaItem', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertSame( $attachment_id, $actual['data']['nodeByUri']['databaseId'] );
@@ -674,8 +671,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'uri' => $uri,
 			],
 		]);
-
-		$this->markTestIncomplete( 'NodeResolver::parse_request() doesnt handle conflicts between CPT/Page slugs' );
 
 		$this->assertValidURIResolution( $uri, 'Page', $page_id, $actual );
 	}
@@ -1105,9 +1100,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->markTestIncomplete( 'PostFormat archives not implemented. See: https://github.com/wp-graphql/wp-graphql/issues/2190' );
 		$this->assertValidURIResolution( $uri, 'PostFormat', $term->term_id, $actual );
-
 	}
 
 	/**
@@ -1259,7 +1252,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		unregister_taxonomy( 'identical_slugs_tax' );
-		$this->markTestIncomplete( 'NodeResolver::resolver_uri cannot handle taxonomies with hierarchical permalinks' );
 
 		$this->assertValidURIResolution( $uri, 'IdenticalSlugType', $identical_slugs_term_2_child_id, $actual );
 
@@ -1354,7 +1346,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		unregister_taxonomy( 'test_hierarchical' );
-		$this->markTestIncomplete( 'NodeResolver::resolver_uri cannot handle taxonomies with hierarchical permalinks' );
 
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 		$this->assertSame( 'TestHierarchicalType', $actual['data']['nodeByUri']['__typename'] );
