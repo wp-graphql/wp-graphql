@@ -7,6 +7,7 @@ use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Post;
+use GraphQL\Error\UserError;
 
 class NodeResolver {
 
@@ -109,9 +110,56 @@ class NodeResolver {
 		// Parse the URI and sets the $wp->query_vars property.
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
-		$query = new \WP_Query( $this->wp->query_vars );
+		/**
+		 * Filter the query class used to resolve the URI. By default this is WP_Query.
+		 *
+		 * This can be used by Extensions which use a different query class to resolve data.
+		 *
+		 * @param class-string       $query_class The query class used to resolve the URI. Defaults to WP_Query.
+		 * @param ?string            $uri The uri being searched.
+		 * @param AppContext         $content The app context.
+		 * @param WP                 $wp WP object.
+		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider.
+		 */
+		$query_class = apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
+
+		if ( ! class_exists( $query_class ) ) {
+			throw new UserError(
+				sprintf(
+					/* translators: %s: The query class used to resolve the URI */
+					__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
+					$query_class
+				)
+			);
+		}
+
+		/** @var \WP_Query $query */
+		$query = new $query_class( $this->wp->query_vars );
 
 		$queried_object = $query->get_queried_object();
+
+		/**
+		 * When this filter return anything other than null, it will be used as a resolved node
+		 * and the execution will be skipped.
+		 *
+		 * This is to be used in extensions to resolve their own nodes which might not use
+		 * WordPress permalink structure.
+		 * 
+		 * It differs from 'graphql_pre_resolve_uri' in that it has been called after the query has been run using the query vars.
+		 *
+		 * @param mixed|null                                    $node             The node, defaults to nothing.
+		 * @param ?string                                       $uri              The uri being searched.
+		 * @param \WP_Term|\WP_Post_Type|\WP_Post|\WP_User|null $queried_object   The queried object, if WP_Query returns one.
+		 * @param \WP_Query                                     $query            The query object.
+		 * @param AppContext                                    $content          The app context.
+		 * @param WP                                            $wp               WP object.
+		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
+		 */
+		$node = apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
+
+		if ( ! empty( $node ) ) {
+			return $node;
+		}
 
 		// Resolve the home page.
 		if ( $query->is_home() ) {
@@ -181,7 +229,20 @@ class NodeResolver {
 			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'user' )->load_deferred( $queried_object->ID ) : null;
 		}
 
-		return $node;
+		/**
+		 * This filter provides a fallback for resolving nodes that were unable to be resolved by NodeResolver::resolve_uri.
+		 *
+		 * This can be used by Extensions to resolve edge cases that are not handled by the core NodeResolver.
+		 *
+		 * @param mixed|null                                    $node             The node, defaults to nothing.
+		 * @param ?string                                       $uri              The uri being searched.
+		 * @param \WP_Term|\WP_Post_Type|\WP_Post|\WP_User|null $queried_object   The queried object, if WP_Query returns one.
+		 * @param \WP_Query                                     $query            The query object.
+		 * @param AppContext                                    $content          The app context.
+		 * @param WP                                            $wp               WP object.
+		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
+		 */
+		return apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 	}
 
 	/**
