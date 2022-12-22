@@ -31,6 +31,7 @@ class MenuItemObjectUnion {
 				'typeNames'   => self::get_possible_types(),
 				'description' => __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ),
 				'resolveType' => function ( $object ) use ( $type_registry ) {
+					_doing_it_wrong( 'MenuItemObjectUnion', esc_attr__( 'The MenuItemObjectUnion GraphQL type is deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ), '0.10.3' );
 					// Post object
 					if ( $object instanceof Post && isset( $object->post_type ) && ! empty( $object->post_type ) ) {
 						/** @var \WP_Post_Type $post_type_object */
@@ -66,6 +67,7 @@ class MenuItemObjectUnion {
 		 */
 		$args = [
 			'show_in_nav_menus' => true,
+			'graphql_kind'      => 'object',
 		];
 
 		$possible_types = [];

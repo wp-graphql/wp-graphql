@@ -44,7 +44,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			'comment_author'       => get_user_by( 'id', $this->admin )->user_email,
 			'comment_author_email' => get_user_by( 'id', $this->admin )->user_email,
 			'comment_content'      => 'Test comment content',
-			'comment_approved'     => 1,
+			'comment_approved'     => '1',
 			'comment_date'         => $this->current_date,
 			'comment_date_gmt'     => $this->current_date_gmt,
 			'user_id'              => $this->admin,
@@ -95,10 +95,9 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		 * Create the query string to pass to the $query
 		 */
 		$query = '
-		query testCommentQuery( $id: ID! ) {
-			comment(id: $id ) {
+		query testCommentQuery( $id: ID!, $idType: CommentNodeIdTypeEnum ) {
+			comment(id: $id, idType: $idType ) {
 				agent
-				approved
 				author{
 					node {
 						__typename
@@ -108,15 +107,15 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 					}
 				}
 				authorIp
-				commentId
+				databaseId
 				replies {
 					edges {
 						node {
 							id
-							commentId
+							databaseId
 							parent {
 								node {
-									commentId
+									databaseId
 								}
 							}
 						}
@@ -137,11 +136,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						id
 					}
 				}
+				status
 			}
 		}';
 
+		// Test with database_id.
 		$variables = [
-			'id' => $global_id,
+			'id'     => $comment_id,
+			'idType' => 'DATABASE_ID',
 		];
 
 		/**
@@ -155,7 +157,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$expected = [
 			'comment' => [
 				'agent'       => null,
-				'approved'    => true,
 				'author'      => [
 					'node' => [
 						'__typename' => 'User',
@@ -166,7 +167,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'replies'     => [
 					'edges' => [],
 				],
-				'commentId'   => $comment_id,
+				'databaseId'  => $comment_id,
 				'commentedOn' => [
 					'node' => [
 						'__typename' => 'Post',
@@ -178,8 +179,19 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'id'          => $global_id,
 				'karma'       => null,
 				'parent'      => null,
+				'status' => 'APPROVE',
 			],
 		];
+
+		$this->assertEqualSets( $expected, $actual['data'] );
+
+		// Test with global_id.
+		$variables = [
+			'id'     => $global_id,
+			'idType' => 'ID',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertEqualSets( $expected, $actual['data'] );
 	}
@@ -218,7 +230,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		query testCommentWithCommentAuthor ( $id: ID! ) {
 			comment(id: $id ) {
 				agent
-				approved
 				author {
 					node {
 						...on CommentAuthor {
@@ -230,6 +241,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						}
 					}
 				}
+				status
 			}
 		}';
 
@@ -248,7 +260,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$expected = [
 			'comment' => [
 				'agent'    => null,
-				'approved' => true,
 				'author'   => [
 					'node' => [
 						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
@@ -258,6 +269,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
+				'status' => 'APPROVE'
 			],
 		];
 
@@ -276,7 +288,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$expected = [
 			'comment' => [
 				'agent'    => null,
-				'approved' => true,
 				'author'   => [
 					'node' => [
 						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
@@ -286,6 +297,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
+				'status' => 'APPROVE'
 			],
 		];
 
@@ -456,13 +468,13 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$query = '
 		query commentQuery( $id:ID! ) {
 			comment(id: $id) {
-			commentId
+				commentId
 				id
 				authorIp
 				agent
-				approved
 				karma
 				content
+				status
 				commentedOn{
 					node {
 						... on Post{
@@ -543,7 +555,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				id
 				authorIp
 				agent
-				approved
+				status
 				karma
 				content
 				commentedOn{
@@ -578,6 +590,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			$this->assertEquals( $subscriber_comment, $subscriber_actual['data']['comment']['commentId'] );
 			$this->assertEquals( apply_filters( 'comment_text', $subscriber_args['comment_content'] ), $subscriber_actual['data']['comment']['content'] );
 			$this->assertEquals( apply_filters( 'comment_text', $admin_args['comment_content'] ), $admin_actual['data']['comment']['content'] );
+			$this->assertEquals( 'HOLD', $admin_actual['data']['comment']['status'] );
 		} else {
 			$this->assertEmpty( $admin_actual['data']['comment'] );
 		}
@@ -600,7 +613,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$comment_args = [
 			'comment_post_ID'      => $post_id,
 			'comment_content'      => 'Private Post Comment',
-			'comment_approved'     => 1,
+			'comment_approved'     => '1',
 			'comment_author_email' => 'admin@test.com',
 			'comment_author_IP'    => '127.0.0.1',
 			'comment_agent'        => 'Admin Agent',
@@ -614,7 +627,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				id
 				authorIp
 				agent
-				approved
+				status
 				karma
 				content
 				commentedOn{

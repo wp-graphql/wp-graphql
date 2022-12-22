@@ -100,7 +100,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	// tests
-	public function testMe() {
+	public function testFormatFieldName() {
 		$actual   = graphql_format_field_name( 'This is some field name' );
 		$expected = 'thisIsSomeFieldName';
 		self::assertEquals( $expected, $actual );
@@ -120,9 +120,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 		$response = $this->graphql( compact( 'query' ) );
 
+		codecept_debug( $response );
+
 		$this->assertArrayHasKey( 'debug', $response['extensions'] );
 
-		$has_debug_message = null;
+		$has_debug_message = false;
 
 		foreach ( $response['extensions']['debug'] as $debug_message ) {
 			if (
@@ -131,6 +133,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'INVALID_FIELD_NAME' === $debug_message['type']
 			) {
 				$has_debug_message = true;
+				break;
 			}
 		}
 
@@ -141,7 +144,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRegisterInputField() {
 
 		/**
-		 * Register Register Input Field CPT
+		 * Register Input Field CPT
 		 */
 		register_post_type( 'access_functions_cpt', [
 			'label'               => __( 'Register Input Field CPT', 'wp-graphql' ),
@@ -291,6 +294,332 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterFields() {
+		/**
+		 * Register Input Field CPT
+		 */
+		register_post_type( 'register_fields_cpt', [
+			'label'               => __( 'Register Fields CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Fields CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Fields CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'RegisterFieldsCpt',
+			'graphql_plural_name' => 'RegisterFieldsCpts',
+		] );
+
+		/**
+		 * Register a GraphQL Input Field to the connection where args
+		 */
+		register_graphql_fields(
+			'RootQueryToRegisterFieldsCptConnectionWhereArgs',
+			[
+				'firstTestField'  => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+				'secondTestField' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+			]
+		);
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			__type( name: "RootQueryToRegisterFieldsCptConnectionWhereArgs" ) { 
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$response = $this->graphql( compact( 'query' ) );
+
+		/**
+		 * Get an array of names from the inputFields
+		 */
+		$names = array_column( $response['data']['__type']['inputFields'], 'name' );
+
+		/**
+		 * Assert that `testTest` exists in the $names (the field was properly registered)
+		 */
+		$this->assertTrue( in_array( 'firstTestField', $names, true ) );
+		$this->assertTrue( in_array( 'secondTestField', $names, true ) );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToRegisterFieldsCptConnectionWhereArgs', 'firstTestField' );
+		deregister_graphql_field( 'RootQueryToRegisterFieldsCptConnectionWhereArgs', 'secondTestField' );
+		unregister_post_type( 'register_fields_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterEdgeField() {
+		// Register cpt for connection.
+		register_post_type( 'register_edge_cpt', [
+			'label'               => __( 'Register Edge Field CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Edge Field CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Edge Field CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'EdgeFieldCpt',
+			'graphql_plural_name' => 'EdgeFieldCpts',
+			'public'              => true,
+		] );
+
+		// Register the edge field
+		register_graphql_edge_field(
+			'RootQuery',
+			'EdgeFieldCpt',
+			'testEdgeField',
+			[
+				'type'        => 'String',
+				'description' => 'just testing here',
+				'resolve'     => function () {
+					return 'test';
+				},
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'register_edge_cpt',
+			'post_title'  => 'Test Register Edge CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			edgeFieldCpts {
+				edges {
+					testEdgeField
+					node {
+						id
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'test', $actual['data']['edgeFieldCpts']['edges'][0]['testEdgeField'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToEdgeFieldCptConnectionEdge', 'testEdgeField' );
+		unregister_post_type( 'register_edge_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterEdgeFields() {
+		// Register cpt for connection.
+		register_post_type( 'edge_fields_cpt', [
+			'label'               => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Edge Fields CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'EdgeFieldsCpt',
+			'graphql_plural_name' => 'EdgeFieldsCpts',
+			'public'              => true,
+		] );
+
+		// Register the edge field
+		register_graphql_edge_fields(
+			'RootQuery',
+			'EdgeFieldsCpt',
+			[
+				'testEdgeField1' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+					'resolve'     => function () {
+						return 'test';
+					},
+				],
+				'testEdgeField2' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+					'resolve'     => function () {
+						return 'test2';
+					},
+				],
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'edge_fields_cpt',
+			'post_title'  => 'Test Register Edge CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			edgeFieldsCpts {
+				edges {
+					testEdgeField1
+					testEdgeField2
+					node {
+						id
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'test', $actual['data']['edgeFieldsCpts']['edges'][0]['testEdgeField1'] );
+		$this->assertEquals( 'test2', $actual['data']['edgeFieldsCpts']['edges'][0]['testEdgeField2'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToEdgeFieldsCptConnectionEdge', 'testEdgeField1' );
+		deregister_graphql_field( 'RootQueryToEdgeFieldsCptConnectionEdge', 'testEdgeField2' );
+		unregister_post_type( 'edge_fields_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterConnectionInput() {
+		// Register cpt for connection.
+		register_post_type( 'connect_input_cpt', [
+			'label'               => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ConnectionInputCpt',
+			'graphql_plural_name' => 'ConnectionInputCpts',
+			'public'              => true,
+		] );
+
+		register_graphql_connection_where_arg(
+			'RootQuery',
+			'ConnectionInputCpt',
+			'testInputField',
+			[
+				'type'        => 'String',
+				'description' => 'just testing here',
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'connect_input_cpt',
+			'post_title'  => 'Test Register Connection Inputs CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			connectionInputCpts( where: { testInputField: "test" } ) {
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['connectionInputCpts']['edges'][0]['node']['databaseId'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToConnectionInputCptConnectionWhereArgs', 'testInputField' );
+		unregister_post_type( 'connect_input_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
+	public function testRegisterConnectionInputs() {
+		// Register cpt for connection.
+		register_post_type( 'connect_inputs_cpt', [
+			'label'               => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			'labels'              => [
+				'name'          => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+				'singular_name' => __( 'Register Connection Inputs CPT', 'wp-graphql' ),
+			],
+			'description'         => __( 'test-post-type', 'wp-graphql' ),
+			'supports'            => [ 'title' ],
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'ConnectionInputsCpt',
+			'graphql_plural_name' => 'ConnectionInputsCpts',
+			'public'              => true,
+		] );
+
+		register_graphql_connection_where_args(
+			'RootQuery',
+			'ConnectionInputsCpt',
+			[
+				'testInputField1' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+				'testInputField2' => [
+					'type'        => 'String',
+					'description' => 'just testing here',
+				],
+			]
+		);
+
+		$post_id = $this->factory()->post->create( [
+			'post_type'   => 'connect_inputs_cpt',
+			'post_title'  => 'Test Register Connection Inputs CPT',
+			'post_status' => 'publish',
+		] );
+
+		/**
+		 * Introspection query to query the names of fields on the Type
+		 */
+		$query = '{
+			connectionInputsCpts( where: { testInputField1: "test", testInputField2: "test2" } ) {
+				edges {
+					node {
+						databaseId
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post_id, $actual['data']['connectionInputsCpts']['edges'][0]['node']['databaseId'] );
+
+		/**
+		 * Cleanup
+		 */
+		deregister_graphql_field( 'RootQueryToConnectionInputsCpt', 'testInputField1' );
+		deregister_graphql_field( 'RootQueryToConnectionInputsCpt', 'testInputField2' );
+		unregister_post_type( 'connect_inputs_cpt' );
+		WPGraphQL::clear_schema();
+	}
+
 	public function testRenameGraphQLFieldName() {
 
 		rename_graphql_field( 'RootQuery', 'user', 'wpUser' );
@@ -308,6 +637,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRenameGraphQLType() {
+
+		register_graphql_union_type( 'PostObjectUnion', [
+			'typeNames'   => [ 'Post', 'Page' ],
+			'description' => __( 'Union between the post, page and media item types', 'wp-graphql' ),
+		]);
 
 		rename_graphql_type( 'User', 'WPUser' );
 		rename_graphql_type( 'AvatarRatingEnum', 'ImageRatingEnum' );
@@ -394,11 +728,21 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphqlInResolver',
 			[
 				'type'        => 'String',
-				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-graphql' ),
 				'resolve'     => function () {
+					$query = '
+						{
+							posts {
+								nodes {
+									id
+								}
+							}
+						}
+					';
+
 					$graphql = \graphql(
 						[
-							'query' => '{posts{nodes{id}}}',
+							'query' => $query,
 						]
 					);
 
@@ -411,9 +755,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$query = '
-		{
-			graphqlInResolver
-		}
+			{
+				graphqlInResolver
+			}
 		';
 
 		$actual = $this->graphql([
@@ -433,11 +777,21 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphqlInResolver',
 			[
 				'type'        => 'String',
-				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-gatsby' ),
+				'description' => __( 'Returns an MD5 hash of the schema, useful in determining if the schema has changed.', 'wp-graphql' ),
 				'resolve'     => function () {
+					$query = '
+						{
+							posts {
+								nodes {
+									id
+								}
+							}
+						}
+					';
+
 					$graphql = \graphql(
 						[
-							'query' => '{posts{nodes{id}}}',
+							'query' => $query,
 						]
 					);
 
@@ -698,4 +1052,646 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $expected, $actual['data']['isPrivateMutation']['test'] );
 
 	}
+
+	public function testGraphqlGetEndpointUrl() {
+		$actual = graphql_get_endpoint_url();
+		$this->assertNotEmpty( $actual );
+		$expected = site_url( graphql_get_endpoint() );
+		$this->assertSame( $expected, $actual );
+	}
+
+	public function testFilterGraphqlGetEndpointUrl() {
+
+		$expected = 'potatoes';
+
+		add_filter( 'graphql_endpoint', function() use ( $expected ) {
+			return $expected;
+		});
+
+		$actual = graphql_get_endpoint_url();
+		$this->assertNotEmpty( $actual );
+
+		$this->assertSame( site_url( $expected ), $actual );
+	}
+
+	public function testDeregisterObjectType() {
+
+		deregister_graphql_type( 'Post' );
+
+		// Ensure the schema is still queryable.
+
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Ensure Post-related types have been removed.
+		$types = array_column( $actual['data']['__schema']['types'], 'name' );
+
+		$removed_types = [
+			'UserToPostConnectionWhereArgs',
+			'UserToPostConnection',
+			'UserToPostConnectionEdge',
+			'Post',
+			'NodeWithExcerpt',
+			'NodeWithTrackbacks',
+			'PostToCategoryConnectionWhereArgs',
+			'PostToCategoryConnection',
+			'PostToCategoryConnectionEdge',
+			'PostToCommentConnectionWhereArgs',
+			'PostToCommentConnection',
+			'PostToCommentConnectionEdge',
+			'PostToPostFormatConnectionWhereArgs',
+			'PostToPostFormatConnection',
+			'PostToPostFormatConnectionEdge',
+			'PostFormatToPostConnectionWhereArgs',
+			'PostFormatToPostConnection',
+			'PostFormatToPostConnectionEdge',
+			'PostToPreviewConnectionEdge',
+			'PostToRevisionConnectionWhereArgs',
+			'PostToRevisionConnection',
+			'PostToRevisionConnectionEdge',
+			'PostToTagConnectionWhereArgs',
+			'PostToTagConnection',
+			'PostToTagConnectionEdge',
+			'TagToPostConnectionWhereArgs',
+			'TagToPostConnection',
+			'TagToPostConnectionEdge',
+			'PostToTermNodeConnectionWhereArgs',
+			'PostToTermNodeConnection',
+			'PostToTermNodeConnectionEdge',
+			'CategoryToPostConnectionWhereArgs',
+			'CategoryToPostConnection',
+			'CategoryToPostConnectionEdge',
+			'PostIdType',
+			'RootQueryToPostConnectionWhereArgs',
+			'RootQueryToPostConnection',
+			'RootQueryToPostConnectionEdge',
+		];
+
+		$this->assertEmpty( array_intersect( $types, $removed_types ) );
+
+		// Ensure connection is removed.
+		$query = '
+			{
+				categories {
+					nodes {
+						posts {
+							nodes {
+								__typename
+							}
+						}
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Ensure Post is removed from interfaces.
+		$query = '
+		{
+			__type(name: "ContentNode") {
+				possibleTypes {
+					name
+				}
+			}
+		}
+		';
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
+
+		// Ensure Post is removed from unions.
+		$query = '
+		{
+			__type(name: "MenuItemObjectUnion") {
+				possibleTypes {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
+
+		/**
+		 * Since only the Post Type is removed, but the connection is still registered, we should expect the resolvers to still return an unresolved type.
+		 */
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			contentNodes {
+				nodes {
+					id
+				}
+			}
+			contentTypes {
+				nodes {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
+		$this->assertNull( $actual['data']['contentNodes'] );
+		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
+	}
+
+	public function testDeregisterEnumType() {
+		// Test case-sensitivity.
+		deregister_graphql_type( 'ContentTypeenum' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query') );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'ContentTypeEnum', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the enum is removed from the schema.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Ensure the enum is removed from input arguments.
+		$query = '
+		{
+			__type(name: "RootQueryToContentNodeConnectionWhereArgs") {
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'contentType', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister enum type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			contentNodes {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['contentNodes']['nodes'] );
+	}
+
+	public function testDeregisterInputType() {
+		deregister_graphql_type( 'DateQueryInput' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'DateQueryInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the input is removed from the schema.
+		$query = '
+		{
+			__type(name: "RootQueryToPostConnectionWhereArgs") {
+				inputFields {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'dateQuery', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister input type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
+	}
+
+	public function testDeregisterInterfaceType() {
+		deregister_graphql_type( 'NodeWithTitle' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the interface is removed from the schema.
+		$query = '
+		{
+			__type(name: "Post") {
+				interfaces {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__type']['interfaces'], 'name' ) );
+
+		// Ensure query still works
+		$post_id = $this->factory()->post->create(
+			[
+				'post_title' => 'Test deregister interface type',
+				'post_status' => 'publish',
+			]
+		);
+
+		$query = '
+		{
+			posts {
+				nodes {
+					id
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
+	}
+
+	public function testDeregisterUnionType() {
+		deregister_graphql_type( 'MenuItemObjectUnion' );
+
+		// Ensure the schema is still queryable.
+		$query = '
+		{
+			__schema {
+				types {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'MenuItemObjectUnion', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+		// Ensure the union is removed from the schema.
+		$query = '
+		{
+			__type(name: "MenuItem") {
+				fields( includeDeprecated: true ) {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
+	}
+
+	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'FakeType',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testRegisterConnectionFromNonExistentTypeReturnsDebugMessage() {
+
+		register_graphql_connection([
+			'fromType' => 'FakeType',
+			'toType' => 'Post',
+			'fromFieldName' => 'fakeTypeConnection',
+		]);
+
+		$actual = graphql([
+			'query' => '
+			{
+			  posts(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+
+	}
+
+	public function testRegisterMutationWithUppercaseFirstAddsToSchemaWithLcFirst() {
+
+		register_graphql_mutation( 'CreateSomething', [
+			'inputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'outputFields' => [ 'test' => [ 'type' => 'String' ] ],
+			'mutateAndGetPayload' => function( $input ) {
+				return [ 'test' => $input['test'] ];
+			}
+		] );
+
+		$query = '
+		mutation CreateSomething($test: String) {
+			createSomething(input:{ test: $test }) {
+				test
+			}
+		}
+		';
+
+		$test_input = uniqid( 'wpgraphql', true );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'test' => $test_input
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( $test_input, $actual['data']['createSomething']['test'] );
+
+	}
+
+	public function testRegisterFieldWithUppercaseNameIsAddedToSchemaWithLcFirst() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'UppercaseField', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  uppercaseField
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['uppercaseField'] );
+
+	}
+
+	public function testRegisterFieldWithUnderscoreIsAddedAsFormattedField() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_field( 'RootQuery', 'field_with_underscore', [
+			'type' => 'String',
+			'resolve' => function() use ( $expected ) {
+				return $expected;
+			}
+		]);
+
+		$query = '
+		query {
+		  fieldWithUnderscore
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['fieldWithUnderscore'] );
+
+	}
+
+	public function testRegisterObjectTypeWithFieldWithUnderscoreIsAddedAsFormattedField() {
+
+		$expected = uniqid( 'gql', true );
+
+		register_graphql_object_type( 'TestType', [
+			'fields' => [
+				'field_with_underscore' => [
+					'type' => 'String',
+					'resolve' => function() use ( $expected ) {
+						return $expected;
+					}
+				]
+			]
+		]);
+
+		register_graphql_field( 'RootQuery', 'testField', [
+			'type' => 'TestType',
+			'resolve' => function() {
+				return true;
+			}
+		]);
+
+
+
+		$query = '
+		query {
+		  testField {
+		    field_with_underscore
+		  }
+		}
+		';
+
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['testField']['field_with_underscore'] );
+
+	}
+
+	public function testRegisterTypeWithFieldStartingWithUppercaseLetterIsAllowed() {
+
+		register_graphql_object_type( 'TypeWithUcFirstField', [
+			'fields' => [
+				'UC_First' => [
+					'type' => 'String',
+				],
+			],
+		] );
+
+		add_filter( 'graphql_TypeWithUcFirstField_fields', function( $fields ) {
+
+			$fields[] = [
+				'name' => 'UC_Field_2',
+				'type' => 'String'
+			];
+
+			return $fields;
+
+		});
+
+		$query = '
+		query GetType( $name: String! ){
+		  __type(name:$name) {
+		    fields(includeDeprecated:true) { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'TypeWithUcFirstField'
+			]
+		]);
+
+		$this->assertNotContains( 'errors', $actual );
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $field_names );
+
+		$this->assertContains(  'UC_Field_2', $field_names );
+		$this->assertContains(  'uC_First', $field_names );
+		$this->assertNotContains(  'UC_First', $field_names );
+
+	}
+
 }

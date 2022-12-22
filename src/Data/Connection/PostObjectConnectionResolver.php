@@ -308,7 +308,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
 			$query_args['orderby'] = [];
+
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				if ( empty( $orderby_input['field'] ) ) {
+					continue;
+				}
+
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
@@ -322,20 +327,22 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					true
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
-				} elseif ( ! empty( $orderby_input['field'] ) ) {
 
-					$order = $orderby_input['order'];
-
-					if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
-						if ( 'ASC' === $order ) {
-							$order = 'DESC';
-						} else {
-							$order = 'ASC';
-						}
-					}
-
-					$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
+					// If we're ordering explicitly, there's no reason to check other orderby inputs.
+					break;
 				}
+
+				$order = $orderby_input['order'];
+
+				if ( isset( $query_args['graphql_args']['last'] ) && ! empty( $query_args['graphql_args']['last'] ) ) {
+					if ( 'ASC' === $order ) {
+						$order = 'DESC';
+					} else {
+						$order = 'ASC';
+					}
+				}
+
+				$query_args['orderby'][ esc_sql( $orderby_input['field'] ) ] = esc_sql( $order );
 			}
 		}
 
@@ -391,33 +398,34 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	public function sanitize_input_fields( array $where_args ) {
 
 		$arg_mapping = [
-			'authorName'    => 'author_name',
 			'authorIn'      => 'author__in',
+			'authorName'    => 'author_name',
 			'authorNotIn'   => 'author__not_in',
 			'categoryId'    => 'cat',
-			'categoryName'  => 'category_name',
 			'categoryIn'    => 'category__in',
+			'categoryName'  => 'category_name',
 			'categoryNotIn' => 'category__not_in',
+			'contentTypes'  => 'post_type',
+			'dateQuery'     => 'date_query',
+			'hasPassword'   => 'has_password',
+			'id'            => 'p',
+			'in'            => 'post__in',
+			'mimeType'      => 'post_mime_type',
+			'nameIn'        => 'post_name__in',
+			'notIn'         => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+			'parent'        => 'post_parent',
+			'parentIn'      => 'post_parent__in',
+			'parentNotIn'   => 'post_parent__not_in',
+			'password'      => 'post_password',
+			'search'        => 's',
+			'stati'         => 'post_status',
+			'status'        => 'post_status',
 			'tagId'         => 'tag_id',
 			'tagIds'        => 'tag__and',
 			'tagIn'         => 'tag__in',
 			'tagNotIn'      => 'tag__not_in',
 			'tagSlugAnd'    => 'tag_slug__and',
 			'tagSlugIn'     => 'tag_slug__in',
-			'search'        => 's',
-			'id'            => 'p',
-			'parent'        => 'post_parent',
-			'parentIn'      => 'post_parent__in',
-			'parentNotIn'   => 'post_parent__not_in',
-			'in'            => 'post__in',
-			'notIn'         => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
-			'nameIn'        => 'post_name__in',
-			'hasPassword'   => 'has_password',
-			'password'      => 'post_password',
-			'status'        => 'post_status',
-			'stati'         => 'post_status',
-			'dateQuery'     => 'date_query',
-			'contentTypes'  => 'post_type',
 		];
 
 		/**
@@ -545,6 +553,60 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Return the $allowed_statuses to the query args
 		 */
 		return $allowed_statuses;
+	}
+
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'in':
+					case 'notIn':
+					case 'parent':
+					case 'parentIn':
+					case 'parentNotIn':
+					case 'authorIn':
+					case 'authorNotIn':
+					case 'categoryIn':
+					case 'categoryNotIn':
+					case 'tagId':
+					case 'tagIn':
+					case 'tagNotIn':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                        $args                The GraphQL args passed to the resolver.
+		 * @param PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
+		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 *
+		 * @since 1.11.0
+		 */
+		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->args );
 	}
 
 	/**

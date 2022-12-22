@@ -8,7 +8,33 @@ use WPGraphQL\Model\Model;
 class Utils {
 
 	/**
-	 * Maps new input query args and sanitizes the input
+	 * Given a GraphQL Query string, return a hash
+	 *
+	 * @param string $query The Query String to hash
+	 *
+	 * @return string|null
+	 */
+	public static function get_query_id( string $query ) {
+
+		/**
+		 * Filter the hash algorithm to allow different algorithms.
+		 *
+		 * @string $algorithm Default is sha256. Possible values are those that work with the PHP hash() function. See: https://www.php.net/manual/en/function.hash-algos.php
+		 */
+		$hash_algorithm = apply_filters( 'graphql_query_id_hash_algorithm', 'sha256' );
+
+		try {
+			$query_ast = \GraphQL\Language\Parser::parse( $query );
+			$query     = \GraphQL\Language\Printer::doPrint( $query_ast );
+			return hash( $hash_algorithm, $query );
+		} catch ( \Exception $exception ) {
+			return null;
+		}
+
+	}
+
+	/**
+	 * Maps new input query args and sa nitizes the input
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
@@ -206,5 +232,21 @@ class Utils {
 		$id_parts = Relay::fromGlobalId( $id );
 
 		return ! empty( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
+	}
+
+	/**
+	 * Get the node type from the ID
+	 *
+	 * @param int|string $id The encoded Node ID.
+	 *
+	 * @return bool|null
+	 */
+	public static function get_node_type_from_id( $id ) {
+		if ( is_numeric( $id ) ) {
+			return null;
+		}
+
+		$id_parts = Relay::fromGlobalId( $id );
+		return $id_parts['type'] ?: null;
 	}
 }

@@ -5,13 +5,11 @@ title: "Media"
 
 WPGraphQL provides support for querying Media Items, what WordPress calls "attachments".
 
-
 This page will be most useful for users what are familiar with [GraphQL Concepts](/docs/intro-to-graphql/) and understand the basics of [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
 
 ## Querying Media Items
 
 WPGraphQL supports querying Media Items in various ways.
-
 
 Below are some common examples of querying Media Items with WPGraphQL.
 
@@ -35,7 +33,7 @@ Below is an example of querying a list of media items.
 }
 ```
 
-![Screenshot of a query for a list of Media Items](./media-query-items.png)
+![Screenshot of a query for a list of Media Items](./images/media-query-items.png)
 
 ### Single Media Item by Global ID
 
@@ -51,7 +49,7 @@ Below is an example of querying a Media Item using its Global ID.
 }
 ```
 
-![Screenshot of a query for a Media Item using the global ID](./media-query-by-global-id.png)
+![Screenshot of a query for a Media Item using the global ID](./images/media-query-by-global-id.png)
 
 ### Single Media Item by Source Url
 
@@ -70,7 +68,7 @@ If you have the source url for an image in the media library, you can use that a
 }
 ```
 
-![Screenshot of a Query for a Media Item using the sourceUrl as the ID](./media-query-by-source-url.png)
+![Screenshot of a Query for a Media Item using the sourceUrl as the ID](./images/media-query-by-source-url.png)
 
 ### Query a post with it's featured image
 
@@ -93,7 +91,7 @@ The connection between the Post and Featured image is a good example of a [one-t
 }
 ```
 
-![Screenshot of a GraphQL Query for a post and its connected featured image](./media-query-post-featured-image.png)
+![Screenshot of a GraphQL Query for a post and its connected featured image](./images/media-query-post-featured-image.png)
 
 ## Mutating Media Items
 

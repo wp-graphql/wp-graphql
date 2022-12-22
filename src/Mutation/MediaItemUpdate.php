@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
+use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\MediaItemMutation;
 use WPGraphQL\Utils\Utils;
@@ -34,7 +35,7 @@ class MediaItemUpdate {
 	 * @return array
 	 */
 	public static function get_input_fields() {
-		/** @var \WP_Post_Type $post_type_object */
+		/** @var WP_Post_Type $post_type_object */
 		$post_type_object = get_post_type_object( 'attachment' );
 		return array_merge(
 			MediaItemCreate::get_input_fields(),

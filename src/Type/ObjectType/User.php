@@ -4,9 +4,11 @@ namespace WPGraphQL\Type\ObjectType;
 
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use \WPGraphQL\Model\User as UserModel;
+use WPGraphQL\Type\Connection\PostObjects;
 
 /**
  * Class User
@@ -25,6 +27,7 @@ class User {
 			'User',
 			[
 				'description' => __( 'A User object', 'wp-graphql' ),
+				'model'       => UserModel::class,
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
 				'connections' => [
 					'enqueuedScripts'     => [
@@ -39,6 +42,18 @@ class User {
 						'toType'  => 'EnqueuedStylesheet',
 						'resolve' => function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
+
+							return $resolver->get_connection();
+						},
+					],
+					'revisions'           => [
+						'toType'             => 'ContentNode',
+						'connectionTypeName' => 'UserToRevisionsConnection',
+						'queryClass'         => 'WP_Query',
+						'description'        => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
+						'connectionArgs'     => PostObjects::get_connection_args(),
+						'resolve'            => function ( $root, $args, $context, $info ) {
+							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();
 						},

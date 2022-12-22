@@ -19,9 +19,9 @@ A benefit of the GraphQL specification is that you can use tools such as [Graphi
 
 To get an idea of how helpful this is, below is a screenshot of using GraphiQL to query the Github GraphQL API for Repositories and using the same tool in the WordPress admin for querying Posts from a WPGraphQL API.
 
-![GraphQL query to the Github GraphQL API](./wpgraphql-query-github.png)
+![GraphQL query to the Github GraphQL API](./images/wpgraphql-query-github.png)
 
-![GraphQL query using GraphiQL in the WordPress Dashboard](./wpgraphql-wordpress-dashboard.png)
+![GraphQL query using GraphiQL in the WordPress Dashboard](./images/wpgraphql-wordpress-dashboard.png)
 
 ### Strongly Typed Schema & Introspection
 
@@ -33,7 +33,7 @@ Take for example using Advanced Custom Fields and the Advanced Custom Fields to 
 
 The plugin registers an "acf" field to the WP REST API Posts endpoint and declares it as an "object" Type.
 
-![Screenshot of the WP REST API schema showing the acf field](./wpgraphql-wordpress-rest-api-acf.png)
+![Screenshot of the WP REST API schema showing the acf field](./images/wpgraphql-wordpress-rest-api-acf.png)
 
 This tells consumers that the "acf" field can return an object of any shape, but there's no further reference in the WP REST API schema hinting at what fields will be returned or what types of data they will return. Without knowing what can or will be returned, it's difficult to build applications with the data.
 
@@ -154,7 +154,7 @@ With GraphQL, Types and Fields are exposed to a schema which allows developers a
 
 This is enabled because GraphQL schemas themselves can be queried too!
 
-![Screenshot showing a GraphQL Schema query asking for Types and Fields](./wpgraphql-query-types-fields.png)
+![Screenshot showing a GraphQL Schema query asking for Types and Fields](./images/wpgraphql-query-types-fields.png)
 
 Tooling such as GraphiQL uses introspection queries to get information about the GraphQL schema to build user interfaces that allow users to search the schema and compose queries & mutations against the schema. Tooling like this is a big win for developer productivity and confidence.
 
@@ -162,7 +162,7 @@ Let's take a look at the benefits of GraphiQL in action.
 
 Using the same Advanced Custom Fields field group as we did for the REST API example above, we can use GraphiQL to search the schema and see what Types and Fields are possible to ask for from the WPGraphQL API.
 
-![GIF Screen recording showing a search for "ACF" in GraphiQL](./wpgraphql-acf-search-schema.png)
+![GIF Screen recording showing a search for "ACF" in GraphiQL](./images/wpgraphql-acf-search-schema.png)
 
 Then, still using GraphiQL, we can compose queries to ask for exactly what fields are needed, even in the case of ACF Flex Fields where it feels like the data should be unpredictable.
 
@@ -170,7 +170,7 @@ In this case, we specify that we want the "flexField" field within the "acfPostF
 
 And in response, we get exactly the fields we asked for.
 
-![GIF Screen recording showing a GraphQL query being composed to include ACF Flex Field data](./wpgraphql-query-acf-flex.png)
+![GIF Screen recording showing a GraphQL query being composed to include ACF Flex Field data](./images/wpgraphql-query-acf-flex.png)
 
 Because of GraphQL's enforcement of a schema and the introspection capabilities, developers using WPGraphQL can build applications faster, with more confidence, and with less bugs than when using the WP REST API.
 
@@ -192,9 +192,9 @@ Below are screenshots of the same WordPress site asking for 100 posts from the W
 - Download size: 6.4 kb
 - Time: 67 ms
 
-![Screenshot showing 100 posts being requested with the WP REST API](./wpgraphql-query-100-posts-rest.png)
+![Screenshot showing 100 posts being requested with the WP REST API](./images/wpgraphql-query-100-posts-rest.png)
 
-![Screenshot showing 100 posts being queried with WPGraphQL](./wpgraphql-query-100-posts-graphql.png)
+![Screenshot showing 100 posts being queried with WPGraphQL](./images/wpgraphql-query-100-posts-graphql.png)
 
 ### Breaking down the differences
 
@@ -237,14 +237,14 @@ With GraphQL, on the other hand, you specify exactly what data you need, and get
 
 Below is a GraphQL query getting exactly what we need in 1 request. Nothing more, nothing less.
 
-![GIF Screenshot showing a nested query for Posts and Authors](./wpgraphql-nested-query.png)
+![GIF Screenshot showing a nested query for Posts and Authors](./images/wpgraphql-nested-query.png)
 
 #### Fewer Functions Executing
 
 > The fastest code is the code that never runs.
->   -- [Robert Galanakis](https://news.ycombinator.com/item?id=10979240#:~:text=Robert%20Galanakis%3A%20%E2%80%9CThe%20fastest%20code,code%20that%20was%20never%20written.%E2%80%9D)
+> \-- [Robert Galanakis](https://news.ycombinator.com/item?id=10979240#:~:text=Robert%20Galanakis%3A%20%E2%80%9CThe%20fastest%20code,code%20that%20was%20never%20written.%E2%80%9D)
 
-With GraphQL, since you ask for the exact fields you need, this means that behind the scenes fewer functions are executing to get the data. For example, if you don't ask for the post's content, filters such as 'the_content' (which can be expensive for some sites) don't execute and this has real impact on processing time.
+With GraphQL, since you ask for the exact fields you need, this means that behind the scenes fewer functions are executing to get the data. For example, if you don't ask for the post's content, filters such as 'the\_content' (which can be expensive for some sites) don't execute and this has real impact on processing time.
 
 #### Less Data to Download
 
@@ -284,9 +284,9 @@ query {
 }
 ```
 
-This query will end up executing a WP_Query to get 5 posts. Then it will loop through the 5 posts and instead of getting the Author object immediately, it places the Author ID from the Post in a temporary buffer.
+This query will end up executing a WP\_Query to get 5 posts. Then it will loop through the 5 posts and instead of getting the Author object immediately, it places the Author ID from the Post in a temporary buffer.
 
-Then, one WP_User_Query is made to get all 5 Authors of the 5 posts.
+Then, one WP\_User\_Query is made to get all 5 Authors of the 5 posts.
 
 So, instead of:
 
@@ -331,7 +331,7 @@ query GET_POSTS_AND_CATEGORIES {
 }
 ```
 
-![Screenshot showing a GraphQL query for both Posts and Categories](./wpgraphql-query-multiple-resources.png)
+![Screenshot showing a GraphQL query for both Posts and Categories](./images/wpgraphql-query-multiple-resources.png)
 
 ### Batch Queries
 
@@ -343,4 +343,4 @@ When an array of GraphQL Queries is sent to WPGraphQL, they are processed and re
 
 This allows for components in applications to declare their data needs with a GraphQL Query, without sacrificing server processing efficiency.
 
-![Screenshot of Postman showing an array of GraphQL queries and the response](./wpgraphql-query-batch-postman.png)
+![Screenshot of Postman showing an array of GraphQL queries and the response](./images/wpgraphql-query-batch-postman.png)

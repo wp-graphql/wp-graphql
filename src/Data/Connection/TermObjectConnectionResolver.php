@@ -6,6 +6,7 @@ use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class TermObjectConnectionResolver
@@ -209,6 +210,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			'hideEmpty'           => 'hide_empty',
 			'excludeTree'         => 'exclude_tree',
 			'termTaxonomId'       => 'term_taxonomy_id',
+			'termTaxonomyId'      => 'term_taxonomy_id',
 			'nameLike'            => 'name__like',
 			'descriptionLike'     => 'description__like',
 			'padCounts'           => 'pad_counts',
@@ -219,6 +221,16 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		];
 
 		$where_args = ! empty( $this->args['where'] ) ? $this->args['where'] : null;
+
+		// Deprecate usage of 'termTaxonomId'.
+		if ( ! empty( $where_args['termTaxonomId'] ) ) {
+			_deprecated_argument( 'where.termTaxonomId', '1.11.0', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
+
+			// Only convert value if 'termTaxonomyId' isnt already set.
+			if ( empty( $where_args['termTaxonomyId'] ) ) {
+				$where_args['termTaxonomyId'] = $where_args['termTaxonomId'];
+			}
+		}
 
 		/**
 		 * Map and sanitize the input args to the WP_Term_Query compatible args
@@ -244,7 +256,54 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
+	}
 
+	/**
+	 * Filters the GraphQL args before they are used in get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
+		$args = $this->args;
+
+		if ( ! empty( $args['where'] ) ) {
+			// Ensure all IDs are converted to database IDs.
+			foreach ( $args['where'] as $input_key => $input_value ) {
+				if ( empty( $input_value ) ) {
+					continue;
+				}
+
+				switch ( $input_key ) {
+					case 'exclude':
+					case 'excludeTree':
+					case 'include':
+					case 'objectIds':
+					case 'termTaxonomId':
+					case 'termTaxonomyId':
+						if ( is_array( $input_value ) ) {
+							$args['where'][ $input_key ] = array_map( function ( $id ) {
+								return Utils::get_database_id_from_id( $id );
+							}, $input_value );
+							break;
+						}
+
+						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
+						break;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                        $args                The GraphQL args passed to the resolver.
+		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 *
+		 * @since 1.11.0
+		 */
+		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->args );
 	}
 
 	/**
@@ -259,5 +318,4 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
-
 }

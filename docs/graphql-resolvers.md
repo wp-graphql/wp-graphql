@@ -11,7 +11,7 @@ A GraphQL Schema consists of Types and Fields, which declares what is possible t
 
 When registering a field to the WPGraphQL Schema defining a resolver is optional.
 
-**Registering a field *without* a resolver:**
+## \*Registering a field *without* a resolver
 
 Below is an example of registering a field to the Schema *without* a resolve function defined.
 
@@ -43,7 +43,7 @@ However, if we were to execute this, the results would be a `null` value for the
 
 This is because we registered the field to the Schema, but *did not* define a resolver.
 
-**Registering a field *with* a resolver:**
+## Registering a field *with* a resolver
 
 Below is the same example as above, but with a resolve function included.
 
@@ -127,20 +127,20 @@ And we would get the following result:
 
 You may find yourself in a situation where you need to override an existing resolver. There are many ways to accomplish this. Let's look at some examples:
 
-### graphql_pre_resolve_field filter
+### graphql\_pre\_resolve\_field filter
 
 During GraphQL execution, the `graphql_pre_resolve_field` filter executes prior to the default field resolution. If this filter returns a value, it will return the value and skip executing the default resolver.
 
 This can be used like so:
 
- ```php
+```php
 add_filter( 'graphql_pre_resolve_field', function( $default, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
 
-  if ( 'rootquery' === strtolower( $type_name ) && 'hello' === $field_key ) {
-    return 'custom value';
-  }
+ if ( 'rootquery' === strtolower( $type_name ) && 'hello' === $field_key ) {
+   return 'custom value';
+ }
 
-  return $default;
+ return $default;
 
 }, 10, 9 );
 ```
@@ -161,7 +161,7 @@ The same query for the `hello` field would now return the following:
 
 [Learn more about the graphql\_pre\_resolve\_field filter](/filters/graphql_pre_resolve_field/).
 
-### graphql_resolve_field filter
+### graphql\_resolve\_field filter
 
 This filter is similar to above, but the difference is that this filter runs *after* default execution of the resolve field has already run.
 

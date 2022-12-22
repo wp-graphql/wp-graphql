@@ -1,4 +1,4 @@
-# Connection
+# Connections
 
 This directory stores registrations of connections for the Schema. 
 

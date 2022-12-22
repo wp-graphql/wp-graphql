@@ -3,11 +3,11 @@ uri: "/docs/debugging/"
 title: "Debugging"
 ---
 
-This guide is intended to help developers working with WPGraphQL debug when things don’t seem to be working as expected. This guide will be most useful for developers with experience working with PHP and WordPress. 
+This guide is intended to help developers working with WPGraphQL debug when things don’t seem to be working as expected. This guide will be most useful for developers with experience working with PHP and WordPress.
 
 ## WPGraphQL Debug Mode
 
-WPGraphQL can be run in "Debug" mode, which can provide added information to requests to help debug. 
+WPGraphQL can be run in "Debug" mode, which can provide added information to requests to help debug.
 
 When WPGraphQL is in Debug Mode it will show debug logs (if there are any), and will show more descriptive errors than "Internal Server Error".
 
@@ -15,26 +15,26 @@ When WPGraphQL is in Debug Mode it will show debug logs (if there are any), and 
 
 There are two ways to enable GraphQL Debug Mode:
 
-**Enable GraphQL Debug Mode from the settings page:**
+### Enable GraphQL Debug Mode from the settings page
 
 - Visit the GraphQL Settings page from the WordPress Admin Menu.
 - Check the box labeled "Enable Debug Mode" and save the settings.
 
-![Screenshot of the setting to enable GraphiQL IDE](./debugging-setting-enable-graphql.png)
+![Screenshot of the setting to enable GraphiQL IDE](./images/debugging-setting-enable-graphql.png)
 
-GraphQL requests will now execute in Debug Mode. 
+GraphQL requests will now execute in Debug Mode.
 
-**Enable GraphQL Debug Mode with Code:**
+### Enable GraphQL Debug Mode with Code
 
-If you want to force-enable GraphQL Debug Mode, so that users cannot uncheck the setting from the Settings page, you can do so with code. 
+If you want to force-enable GraphQL Debug Mode, so that users cannot uncheck the setting from the Settings page, you can do so with code.
 
-Add the following line to your WordPress install's wp-config.php file: 
+Add the following line to your WordPress install's wp-config.php file:
 
 ```php
 define( 'GRAPHQL_DEBUG', true );
 ```
 
-It should be added to the wp-config.php file, above the line that says: 
+It should be added to the wp-config.php file, above the line that says:
 
 ```php
 /* That's all, stop editing! Happy blogging. */
@@ -42,9 +42,9 @@ It should be added to the wp-config.php file, above the line that says:
 
 This force-enables debug mode, and the setting on the settings page will now be disabled and show that it's been enabled with code.
 
-![Screenshot of the WPGraphQL Setting to "Enable GraphQL Debug Mode"](./debugging-output-graphql-debug.png)
+![Screenshot of the WPGraphQL Setting to "Enable GraphQL Debug Mode"](./images/debugging-output-graphql-debug.png)
 
-## graphql_debug()
+## graphql\_debug()
 
 If you've already [enabled debug mode](#enabling-debug-mode), the function `graphql_debug()` can be used to output debug info to the WPGraphQL debug log.
 
@@ -71,7 +71,7 @@ This adds a `myTestField` root query field with a String input argument named `t
 
 The function `graphql_debug( $args, [ 'type' => 'ARGS_BREAKPOINT' ] );` was added to the resolver, and in the debug log we can see the value of the arguments in the log.
 
-![Screenshot showing the output of graphql_debug()](./debugging-output-graphql-debug.png)
+![Screenshot showing the output of graphql\_debug()](./images/debugging-output-graphql-debug.png)
 
 Various breakpoints can be added throughout resolution and tagged with a Type or other meta to help filter the logs and identify how things are resolving.
 
@@ -79,15 +79,15 @@ This can add a lot of value to developer workflows.
 
 ## Internal Server Error
 
-If you see the error "Internal Server Error" this means there was an error that *might* not be safe to show details of to public users. It might expose some implementation details, and so it is masked as "Internal Server Error". You can [enable debug mode](#enabling-debug-mode) to show more detailed errors. 
+If you see the error "Internal Server Error" this means there was an error that *might* not be safe to show details of to public users. It might expose some implementation details, and so it is masked as "Internal Server Error". You can [enable debug mode](#enabling-debug-mode) to show more detailed errors.
 
-One common reason for seeing this error is when a field or Type is registered with missing information. 
+One common reason for seeing this error is when a field or Type is registered with missing information.
 
 Take the following example:
 
-**Invalid Field (missing **type**)**
+### Invalid Field (missing **type**)
 
-Registering a field without a type would throw an `Internal Server Error` 
+Registering a field without a type would throw an `Internal Server Error`
 
 ```php
 add_action( 'graphql_register_types', function() {
@@ -118,13 +118,13 @@ WPGraphQL allows you to enable GraphQL Tracing. Tracing tracks how long each res
 
 From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Tracing".
 
-![Screenshot of the WPGraphQL Setting to Enable GraphQL Tracing](./debugging-setting-graphql-enable-tracing.png)
+![Screenshot of the WPGraphQL Setting to Enable GraphQL Tracing](./images/debugging-setting-graphql-enable-tracing.png)
 
 ### Trace Data
 
-Next time you execute a request, you will see Trace data in the response, like so: 
+Next time you execute a request, you will see Trace data in the response, like so:
 
-![Screenshot showing GraphQL Trace log](./debugging-graphql-trace-log.png)
+![Screenshot showing GraphQL Trace log](./images/debugging-graphql-trace-log.png)
 
 The Trace logs include data for the entire request:
 
@@ -258,7 +258,7 @@ Query Logs are a super helpful debugging tool. A lot of things happen under the 
 
 Enabling Query Logs can give insight into what SQL Queries are being executed, how long they're taking, the raw SQL that is executed and the stacktrace to where in the codebase the query is being executed from.
 
-This can be super helpful when things don't seem to be behaving as you'd expect. Sometimes you get results that you don't expect, and analyzing the raw SQL queries can help identify *why* things are misbehaving. Sometimes it's a rogue plugin that's filtering WP_Query args too aggressively, or perhaps a GraphQL input argument isn't properly mapping to WP_Query.
+This can be super helpful when things don't seem to be behaving as you'd expect. Sometimes you get results that you don't expect, and analyzing the raw SQL queries can help identify *why* things are misbehaving. Sometimes it's a rogue plugin that's filtering WP\_Query args too aggressively, or perhaps a GraphQL input argument isn't properly mapping to WP\_Query.
 
 In any case, seeing the raw SQL queries and the path to the code that called it can be a huge time saver when debugging.
 
@@ -266,33 +266,33 @@ In any case, seeing the raw SQL queries and the path to the code that called it 
 
 From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Query Logs".
 
-![Screenshot of the setting to enable GraphQL Query Logs](./debugging-setting-enable-graphql-query-logs.png)
+![Screenshot of the setting to enable GraphQL Query Logs](./images/debugging-setting-enable-graphql-query-logs.png)
 
 ### Query Log Data
 
-The Query logs will be output in the "extensions" portion of the GraphQL results under the "queries" key. 
+The Query logs will be output in the "extensions" portion of the GraphQL results under the "queries" key.
 
-Each SQL Query that is executed for the request, including Queries used to bootstrap WordPress before GraphQL execution begins, is logged and output with the following information: 
+Each SQL Query that is executed for the request, including Queries used to bootstrap WordPress before GraphQL execution begins, is logged and output with the following information:
 
 - **sql**: The raw SQL query that was executed against the database
 - **time**: The time the query took to complete
 - **stack**: The callstack leading up to the query
 
-![Screenshot of the GraphQL Query Logs](./debugging-graphql-query-logs.png)
+![Screenshot of the GraphQL Query Logs](./images/debugging-graphql-query-logs.png)
 
 ## Unexpected token < in JSON at position 0
 
-If you execute a Query in GraphiQL and get the following response: 
+If you execute a Query in GraphiQL and get the following response:
 
-```
+```text
 SyntaxError: Unexpected token < in JSON at position 0
 ```
 
-![Screenshot of a query in GraphiQL IDE returning a SyntaxError](./debugging-graphql-unexpected-token.png)
+![Screenshot of a query in GraphiQL IDE returning a SyntaxError](./images/debugging-graphql-unexpected-token.png)
 
-This means that WPGraphQL was unable to return JSON for the query and therefore GraphiQL is unable to present the JSON in the JSON viewer of GraphiQL. 
+This means that WPGraphQL was unable to return JSON for the query and therefore GraphiQL is unable to present the JSON in the JSON viewer of GraphiQL.
 
-Typically this means that there's either a server error or some leftover debug code in a plugin that is killing the request before it completes. 
+Typically this means that there's either a server error or some leftover debug code in a plugin that is killing the request before it completes.
 
 ### Replicating the issue
 
@@ -310,16 +310,16 @@ add_action( 'graphql_resolve_field', function() {
 
 ### Checking the Response
 
-One way to check what the response is, is to use Google Chrome Developer Tools. 
+One way to check what the response is, is to use Google Chrome Developer Tools.
 
-- With the GraphiQL IDE open, open Chrome Dev Tools (`command + option + i` on Mac). 
+- With the GraphiQL IDE open, open Chrome Dev Tools (`command + option + i` on Mac).
 - Select the "Network" Tab
 - Execute a GraphQL Query clicking the "Play" button in GraphiQL
 - Select the GraphQL Request in the Network tab of Dev Tools
-- Select the "Response" tab of the selected GraphQL Request. At this point you should be able to see the response from the server and it should help you identify the issue. 
+- Select the "Response" tab of the selected GraphQL Request. At this point you should be able to see the response from the server and it should help you identify the issue.
 
-![Screenshot of debugging a GraphiQL request using Chrome Dev Tools](./debugging-graphql-response.png)
+![Screenshot of debugging a GraphiQL request using Chrome Dev Tools](./images/debugging-graphql-response.png)
 
-Below is a Gif showing the above steps in action. 
+Below is a Gif showing the above steps in action.
 
-![Screen recording showing the steps to inspect the response of a GraphQL request in Chrome Dev Tools](./debugging-unexpected-token.gif)
+![Screen recording showing the steps to inspect the response of a GraphQL request in Chrome Dev Tools](./images/debugging-unexpected-token.gif)

@@ -1,0 +1,26 @@
+name: Keep develop in sync with master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  merge-master-back-to-develop:
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+      - name: Merge master back to develop
+        run: |
+          git fetch --unshallow
+          git checkout develop
+          git pull
+          git merge --no-ff origin/master -m "Auto-merge master back to develop"
+          git push

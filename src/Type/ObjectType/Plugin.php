@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use \WPGraphQL\Model\Plugin as PluginModel;
+
 /**
  * Class Plugin
  *
@@ -19,6 +21,7 @@ class Plugin {
 			'Plugin',
 			[
 				'interfaces'  => [ 'Node' ],
+				'model'       => PluginModel::class,
 				'description' => __( 'An plugin object', 'wp-graphql' ),
 				'fields'      => [
 					'id'           => [
