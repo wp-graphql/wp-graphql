@@ -373,13 +373,13 @@ class QueryAnalyzer {
 						// if the type is a list, store it
 						if ( $is_list_type && 0 !== strpos( $possible_type, '__' ) ) {
 							// if the type doesn't apply the node interface
-							if ( array_key_exists( 'Node', $named_type->getInterfaces() ) ) {
+							if ( array_key_exists( 'Node', $possible_type->getInterfaces() ) ) {
 								// if the Type is not a Node, and has a "node" field,
 								// lets get the named type of the node, not the edge
-								$type_map[] = 'list:' . strtolower( $named_type );
-							} else if ( in_array( 'node', $named_type->getFieldNames(), true ) ) {
+								$type_map[] = 'list:' . strtolower( $possible_type );
+							} else if ( in_array( 'node', $possible_type->getFieldNames(), true ) ) {
 								$named_type = $named_type->getField( 'node' )->getType();
-								$type_map[] = 'list:' . strtolower( $named_type );
+								$type_map[] = 'list:' . strtolower( $possible_type );
 							}
 						}
 					}
