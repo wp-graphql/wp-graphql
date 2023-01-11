@@ -371,7 +371,7 @@ class QueryAnalyzer {
 						// if the type is a list, store it
 						if ( $is_list_type && 0 !== strpos( $possible_type, '__' ) ) {
 							// if the type doesn't apply the node interface
-							if ( ! empty( $possible_type->getInterfaces() ) &&  array_key_exists( 'Node', $possible_type->getInterfaces() ) ) {
+							if ( ! empty( $possible_type->getInterfaces() ) && array_key_exists( 'Node', $possible_type->getInterfaces() ) ) {
 								// if the Type is not a Node, and has a "node" field,
 								// lets get the named type of the node, not the edge
 								$type_map[] = 'list:' . strtolower( $possible_type );
