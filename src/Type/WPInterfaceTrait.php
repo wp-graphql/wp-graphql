@@ -1,9 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
-use Exception;
 use GraphQL\Type\Definition\InterfaceType;
-use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Trait WPInterfaceTrait
@@ -21,9 +19,7 @@ trait WPInterfaceTrait {
 	 *
 	 * @return array
 	 */
-	protected function get_implemented_interfaces() {
-
-		$new_interfaces = [];
+	protected function get_implemented_interfaces(): array {
 
 		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
 			$interfaces = parent::getInterfaces();
@@ -40,6 +36,19 @@ trait WPInterfaceTrait {
 		 */
 		$interfaces = apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );
 
+		if ( empty( $interfaces ) || ! is_array( $interfaces ) ) {
+			return $interfaces;
+		}
+
+		// check if an interface is attempting to implement itself, and if so unset it
+		$key = array_search( strtolower( $this->config['name'] ), array_map( 'strtolower', $interfaces ), true );
+		if ( false !== $key ) {
+			graphql_debug( sprintf( __( 'The "%1$s" Interface attempted to implement the "%2$s" Interface, which is not allowed', 'wp-graphql' ), $interfaces[ $key ], $interfaces[ $key ] ) );
+			unset( $interfaces[ $key ] );
+		}
+
+		$new_interfaces = [];
+
 		foreach ( $interfaces as $interface ) {
 			if ( ! is_string( $interface ) ) {
 				continue;
@@ -53,7 +62,7 @@ trait WPInterfaceTrait {
 			$new_interfaces[ $interface ] = $interface_type;
 			$interface_interfaces         = $interface_type->getInterfaces();
 
-			if ( ! is_array( $interface_interfaces ) || empty( $interface_interfaces ) ) {
+			if ( empty( $interface_interfaces ) ) {
 				continue;
 			}
 
