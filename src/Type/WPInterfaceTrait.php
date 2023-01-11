@@ -43,7 +43,7 @@ trait WPInterfaceTrait {
 		// check if an interface is attempting to implement itself, and if so unset it
 		$key = array_search( strtolower( $this->config['name'] ), array_map( 'strtolower', $interfaces ), true );
 		if ( false !== $key ) {
-			graphql_debug( sprintf( __( 'The "%1$s" Interface attempted to implement the "%2$s" Interface, which is not allowed', 'wp-graphql' ), $interfaces[ $key ], $interfaces[ $key ] ) );
+			graphql_debug( sprintf( __( 'The "%s" Interface attempted to implement itself, which is not allowed', 'wp-graphql' ), $interfaces[ $key ] ) );
 			unset( $interfaces[ $key ] );
 		}
 
