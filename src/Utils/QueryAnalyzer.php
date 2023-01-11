@@ -351,16 +351,15 @@ class QueryAnalyzer {
 					// if the type is a list and the named type doesn't start
 					// with a double __, then it should be tracked
 					if ( $is_list_type && 0 !== strpos( $named_type, '__' ) ) {
-
 						// if the type doesn't apply the node interface
-						if ( array_key_exists( 'Node', $named_type->getInterfaces() ) ) {
+						if ( ! empty( $named_type->getInterfaces() ) && array_key_exists( 'Node', $named_type->getInterfaces() ) ) {
 							// if the Type is not a Node, and has a "node" field,
 							// lets get the named type of the node, not the edge
 							$type_map[] = 'list:' . strtolower( $named_type );
 						} elseif ( in_array( 'node', $named_type->getFieldNames(), true ) ) {
 							$named_type = $named_type->getField( 'node' )->getType();
 							$type_map[] = 'list:' . strtolower( $named_type );
-						}                   
+						}
 					}
 				}
 
@@ -372,7 +371,7 @@ class QueryAnalyzer {
 						// if the type is a list, store it
 						if ( $is_list_type && 0 !== strpos( $possible_type, '__' ) ) {
 							// if the type doesn't apply the node interface
-							if ( array_key_exists( 'Node', $possible_type->getInterfaces() ) ) {
+							if ( ! empty( $possible_type->getInterfaces() ) &&  array_key_exists( 'Node', $possible_type->getInterfaces() ) ) {
 								// if the Type is not a Node, and has a "node" field,
 								// lets get the named type of the node, not the edge
 								$type_map[] = 'list:' . strtolower( $possible_type );
