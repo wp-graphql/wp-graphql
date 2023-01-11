@@ -357,11 +357,10 @@ class QueryAnalyzer {
 							// if the Type is not a Node, and has a "node" field,
 							// lets get the named type of the node, not the edge
 							$type_map[] = 'list:' . strtolower( $named_type );
-						} else if ( in_array( 'node', $named_type->getFieldNames(), true ) ) {
+						} elseif ( in_array( 'node', $named_type->getFieldNames(), true ) ) {
 							$named_type = $named_type->getField( 'node' )->getType();
 							$type_map[] = 'list:' . strtolower( $named_type );
-						}
-
+						}                   
 					}
 				}
 
@@ -377,7 +376,7 @@ class QueryAnalyzer {
 								// if the Type is not a Node, and has a "node" field,
 								// lets get the named type of the node, not the edge
 								$type_map[] = 'list:' . strtolower( $possible_type );
-							} else if ( in_array( 'node', $possible_type->getFieldNames(), true ) ) {
+							} elseif ( in_array( 'node', $possible_type->getFieldNames(), true ) ) {
 								$named_type = $named_type->getField( 'node' )->getType();
 								$type_map[] = 'list:' . strtolower( $possible_type );
 							}
