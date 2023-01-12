@@ -40,22 +40,25 @@ trait WPInterfaceTrait {
 			return $interfaces;
 		}
 
-		// check if an interface is attempting to implement itself, and if so unset it
-		$key = array_search( strtolower( $this->config['name'] ), array_map( 'strtolower', $interfaces ), true );
-		if ( false !== $key ) {
-			graphql_debug( sprintf( __( 'The "%s" Interface attempted to implement itself, which is not allowed', 'wp-graphql' ), $interfaces[ $key ] ) );
-			unset( $interfaces[ $key ] );
-		}
-
 		$new_interfaces = [];
 
 		foreach ( $interfaces as $interface ) {
-			if ( ! is_string( $interface ) ) {
+
+			// surface when interfaces are trying to be registered with invalid configuration
+			if ( ! is_string( $interface ) && ! $interface instanceof InterfaceType ) {
+				graphql_debug( sprintf( __( 'Invalid Interface registered to the "%s" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType', 'wp-graphql' ), $this->name ), [ 'invalid_interface' => $interface ] );
+				continue;
+			}
+
+			// Prevent an interface from implementing itself
+			if ( strtolower( $this->config['name'] ) === strtolower( $interface ) ) {
+				graphql_debug( sprintf( __( 'The "%s" Interface attempted to implement itself, which is not allowed', 'wp-graphql' ), $interface ) );
 				continue;
 			}
 
 			$interface_type = $this->type_registry->get_type( $interface );
 			if ( ! $interface_type instanceof InterfaceType ) {
+				graphql_debug( sprintf( __( '"%1$s" is not a valid Interface Type and cannot be implemented as an Interface on the "%2$s" Type', 'wp-graphql' ), $interface, $this->name ) );
 				continue;
 			}
 
