@@ -411,12 +411,12 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testInterfaceImplementingItselfDoesNotCauseInfiniteRecursion() {
 
-		// here we implement the interface on the interface itself.
+		// here we implement the interface on the interface itself (multiple times with different cases).
 		// this will cause infinite recursion and a failed test.
 		// the fix should prevent the interface from being implemented on itself,
 		// even if the code attempts to do it.
 		register_graphql_interface_type( 'InterfaceA', [
-			'interfaces' => [ 'Node', 'InterfaceA' ],
+			'interfaces' => [ 'Node', 'InterfaceA', 'interfaceA', 'interfacea' ],
 			'fields' => [ 'fieldA' => [ 'type' => 'String' ] ],
 			'resolveType' => function() {
 				return 'Post';

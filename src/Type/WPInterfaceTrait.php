@@ -44,8 +44,13 @@ trait WPInterfaceTrait {
 
 		foreach ( $interfaces as $interface ) {
 
+			if ( $interface instanceof InterfaceType && $interface->name !== $this->name ) {
+				$new_interfaces[ $interface->name ] = $interface;
+				continue;
+			}
+
 			// surface when interfaces are trying to be registered with invalid configuration
-			if ( ! is_string( $interface ) && ! $interface instanceof InterfaceType ) {
+			if ( ! is_string( $interface ) ) {
 				graphql_debug( sprintf( __( 'Invalid Interface registered to the "%s" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType', 'wp-graphql' ), $this->name ), [ 'invalid_interface' => $interface ] );
 				continue;
 			}
