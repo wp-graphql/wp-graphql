@@ -143,11 +143,6 @@ abstract class AbstractConnectionResolver {
 		$this->source = $source;
 
 		/**
-		 * Set the args for the resolver
-		 */
-		$this->args = $args;
-
-		/**
 		 * Set the context of the resolver
 		 */
 		$this->context = $context;
@@ -161,6 +156,23 @@ abstract class AbstractConnectionResolver {
 		 * Get the loader for the Connection
 		 */
 		$this->loader = $this->getLoader();
+
+		/**
+		 * Set the args for the resolver
+		 */
+		$this->args = $args;
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array                      $args                The GraphQL args passed to the resolver.
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
+		 * @param array                      $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 *
+		 * @since 1.11.0
+		 */
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
 
 		/**
 		 * Determine the query amount for the resolver.
@@ -180,11 +192,12 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * Filters the args
 		 *
-		 * @param array                      $query_args                   The query args to be used with the executable query to get data.
-		 *                                                                 This should take in the GraphQL args and return args for use in fetching the data.
-		 * @param AbstractConnectionResolver $connection_resolver          Instance of the ConnectionResolver
+		 * @param array                      $query_args          The query args to be used with the executable query to get data.
+		 *                                                        This should take in the GraphQL args and return args for use in fetching the data.
+		 * @param AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array                      $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this );
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 
 	}
 
@@ -215,9 +228,23 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the $args passed to the connection
 	 *
-	 * @return array
+	 * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
+		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $this->get_args();
+	}
+
+	/**
+	 * Returns the $args passed to the connection.
+	 *
+	 * Useful for modifying the $args before they are passed to $this->get_query_args().
+	 *
+	 * @return array
+	 */
+	public function get_args(): array {
 		return $this->args;
 	}
 
@@ -254,9 +281,13 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return AbstractConnectionResolver
 	 *
-	 * @deprecated in favor of set_query_arg
+	 * @deprecated 0.3.0
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
+		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		return $this->set_query_arg( $key, $value );
 	}
 
@@ -585,10 +616,12 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @deprecated 1.9.0
 	 *
+	 * @codeCoverageIgnore
+	 *
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-		_deprecated_function( __FUNCTION__, '1.9.0', get_class( $this ) . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;

@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use \WPGraphQL\Model\Menu as MenuModel;
+
 class Menu {
 
 	/**
@@ -15,6 +17,7 @@ class Menu {
 			[
 				'description' => __( 'Menus are the containers for navigation items. Menus can be assigned to menu locations, which are typically registered by the active theme.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'model'       => MenuModel::class,
 				'fields'      => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier of the nav menu object.', 'wp-graphql' ),

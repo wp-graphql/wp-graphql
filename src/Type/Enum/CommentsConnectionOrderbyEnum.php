@@ -19,7 +19,7 @@ class CommentsConnectionOrderbyEnum {
 						'value'       => 'comment_agent',
 					],
 					'COMMENT_APPROVED'     => [
-						'description' => __( 'Order by true/false approval of the comment.', 'wp-graphql' ),
+						'description' => __( 'Order by approval status of the comment.', 'wp-graphql' ),
 						'value'       => 'comment_approved',
 					],
 					'COMMENT_AUTHOR'       => [

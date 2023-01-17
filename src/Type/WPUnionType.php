@@ -44,6 +44,13 @@ class WPUnionType extends UnionType {
 			if ( ! empty( $config['typeNames'] ) && is_array( $config['typeNames'] ) ) {
 				$prepared_types = [];
 				foreach ( $config['typeNames'] as $type_name ) {
+					/**
+					 * Skip if the type is excluded from the schema.
+					 */
+					if ( in_array( strtolower( $type_name ), $this->type_registry->get_excluded_types(), true ) ) {
+						continue;
+					}
+
 					$prepared_types[] = $this->type_registry->get_type( $type_name );
 				}
 			}
@@ -70,11 +77,11 @@ class WPUnionType extends UnionType {
 		/**
 		 * Filter the possible_types to allow systems to add to the possible resolveTypes.
 		 *
-		 * @param array       $types         The possible types for the Union
+		 * @param mixed       $types         The possible types for the Union
 		 * @param array       $config        The config for the Union Type
 		 * @param WPUnionType $wp_union_type The WPUnionType instance
 		 *
-		 * @return array
+		 * @return mixed|array
 		 */
 		$config['types'] = apply_filters( 'graphql_union_possible_types', $config['types'], $config, $this );
 

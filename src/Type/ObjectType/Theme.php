@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Model\Theme as ThemeModel;
+
 /**
  * Class Theme
  *
@@ -20,6 +22,7 @@ class Theme {
 			[
 				'description' => __( 'A theme object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],
+				'model'       => ThemeModel::class,
 				'fields'      => [
 					'id'           => [
 						'description' => __( 'The globally unique identifier of the theme object.', 'wp-graphql' ),

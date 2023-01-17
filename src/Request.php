@@ -16,6 +16,7 @@ use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
+use WPGraphQL\Utils\QueryAnalyzer;
 
 /**
  * Class Request
@@ -106,6 +107,11 @@ class Request {
 	protected $root_value;
 
 	/**
+	 * @var QueryAnalyzer
+	 */
+	protected $query_analyzer;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array $data The request data (for non-HTTP requests).
@@ -168,13 +174,28 @@ class Request {
 		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
+
+		$this->query_analyzer = new QueryAnalyzer( $this );
+
+		// The query analyzer tracks nodes, models, list types and more
+		// to return in headers and debug messages to help developers understand
+		// what was resolved, how to cache it, etc.
+		$this->query_analyzer->init();
+
 	}
 
 	/**
-	 * @return null
+	 * @return QueryAnalyzer
+	 */
+	public function get_query_analyzer(): QueryAnalyzer {
+		return $this->query_analyzer;
+	}
+
+	/**
+	 * @return mixed
 	 */
 	protected function get_field_resolver() {
-		return null;
+		return $this->field_resolver;
 	}
 
 	/**
@@ -182,7 +203,7 @@ class Request {
 	 *
 	 * @return array
 	 */
-	protected function get_validation_rules() {
+	protected function get_validation_rules(): array {
 
 		$validation_rules = GraphQL::getStandardValidationRules();
 
@@ -227,10 +248,10 @@ class Request {
 	 * @return void
 	 * @throws Error
 	 */
-	private function before_execute() {
+	private function before_execute(): void {
 
 		/**
-		 * Store the global post so it can be reset after GraphQL execution
+		 * Store the global post so that it can be reset after GraphQL execution
 		 *
 		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
 		 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
@@ -576,8 +597,8 @@ class Request {
 		/**
 		 * Run an action for each request.
 		 *
-		 * @param string          $query     The GraphQL query
-		 * @param string          $operation The name of the operation
+		 * @param ?string          $query     The GraphQL query
+		 * @param ?string          $operation The name of the operation
 		 * @param ?array          $variables Variables to be passed to your GraphQL request
 		 * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
 		 */
@@ -611,7 +632,6 @@ class Request {
 			 * Initialize the GraphQL Request
 			 */
 			$this->before_execute();
-
 			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
 
 			if ( null === $response ) {

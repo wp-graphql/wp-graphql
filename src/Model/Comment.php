@@ -9,25 +9,25 @@ use WP_Comment;
 /**
  * Class Comment - Models data for Comments
  *
- * @property string $id
- * @property int    $commentId
- * @property string $commentAuthorEmail
- * @property string $comment_author
- * @property string $comment_author_url
  * @property int    $comment_ID
  * @property int    $comment_parent_id
- * @property string $parentId
+ * @property int    $commentId
  * @property int    $parentDatabaseId
+ * @property int    $userId
+ * @property string $agent
  * @property string $authorIp
- * @property string $date
- * @property string $dateGmt
+ * @property string $comment_author
+ * @property string $comment_author_url
+ * @property string $commentAuthorEmail
  * @property string $contentRaw
  * @property string $contentRendered
+ * @property string $date
+ * @property string $dateGmt
+ * @property string $id
  * @property string $karma
- * @property int    $approved
- * @property string $agent
+ * @property string $parentId
+ * @property string $status
  * @property string $type
- * @property int    $userId
  *
  * @package WPGraphQL\Model
  */
@@ -62,6 +62,7 @@ class Comment extends Model {
 			'commentedOnId',
 			'comment_post_ID',
 			'approved',
+			'status',
 			'comment_parent_id',
 			'parentId',
 			'parentDatabaseId',
@@ -175,7 +176,15 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
 				},
 				'approved'           => function () {
-					return ! empty( $this->data->comment_approved ) ? $this->data->comment_approved : null;
+					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '1.13.0' );
+					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
+				},
+				'status'             => function () {
+					if ( ! is_numeric( $this->data->comment_approved ) ) {
+						return $this->data->comment_approved;
+					}
+
+					return '1' === $this->data->comment_approved ? 'approve' : 'hold';
 				},
 				'agent'              => function () {
 					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;

@@ -22,13 +22,13 @@ class MenuItem {
 			[
 				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'model'       => MenuItemModel::class,
 				'connections' => [
 					'connectedNode' => [
-						'toType'               => 'MenuItemLinkable',
-						'connectionInterfaces' => [ 'MenuItemLinkableConnection' ],
-						'description'          => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
-						'oneToOne'             => true,
-						'resolve'              => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+						'toType'      => 'MenuItemLinkable',
+						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'oneToOne'    => true,
+						'resolve'     => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 
 							if ( ! isset( $menu_item->databaseId ) ) {
 								return null;

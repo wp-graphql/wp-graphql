@@ -104,6 +104,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 							name
 							description
 							slug
+							parentDatabaseId
 						}
 					}
 					nodes {
@@ -349,7 +350,255 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	}
 
-	public function testQueryTermsWithOrderbyAndOrder() {
+	public function testWhereArgs() {
+		$query = $this->getQuery();
+
+		$parent_id = $this->factory->term->create( [
+			'taxonomy' => 'category',
+			'name'     => 'Parent Category',
+			'description' => 'parent category term_description'
+		] );
+
+		$child_id = $this->factory->term->create( [
+			'taxonomy' => 'category',
+			'name'     => 'Child Category',
+			'parent'   => $parent_id,
+		] );
+
+		$post_id = $this->factory->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+		] );
+
+		wp_set_object_terms( $post_id, [ $child_id ], 'category' );
+
+		// test without childless
+
+		$variables = [
+			'where' => [
+				'childless' => false,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 8, $actual['data']['categories']['nodes'] );
+
+		// test with childless
+		$variables['where']['childless'] = true;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 7, $actual['data']['categories']['nodes'] );
+
+		// test childOf
+		$variables = [
+			'where' => [
+				'childOf' => $parent_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $child_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test descriptionLike
+		$variables = [
+			'where' => [
+				'descriptionLike' => 'term_description',
+			],
+		];
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $parent_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test exclude with global + db id
+		$parent_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
+
+		$variables = [
+			'where' => [
+				'exclude' => [ $this->created_term_ids[1], $parent_global_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 6, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $child_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test excludeTree wth global + db id
+		$variables = [
+			'where' => [
+				'excludeTree' => [ $this->created_term_ids[1], $parent_global_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 5, $actual['data']['categories']['nodes'] );
+
+		// test hideEmpty
+		$variables = [
+			'where' => [
+				'hideEmpty' => true,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['categories']['nodes'] );
+
+		// test hideEmpty without hierarchical
+		$variables['where']['hierarchical'] = false;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+
+		// test include with global + db id
+		$variables = [
+			'where' => [
+				'include' => [ $this->created_term_ids[1], $parent_global_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['categories']['nodes'] );
+
+		// test name
+		$variables = [
+			'where' => [
+				'name' => 'Parent Category',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $parent_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test nameLike
+		$variables = [
+			'where' => [
+				'nameLike' => 'Parent',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $parent_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test parent
+		$variables = [
+			'where' => [
+				'parent' => $parent_id,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $child_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test search
+		$variables = [
+			'where' => [
+				'search' => 'child',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $child_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test slug
+		$variables = [
+			'where' => [
+				'slug' => 'parent-category',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
+		$this->assertEquals( $parent_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
+
+		// test termTaxonomyId with global + db id.
+		$term_taxonomy_one_id = get_term_by( 'id', $parent_id, 'category' )->term_taxonomy_id;
+		$term_taxonomy_two_id = get_term_by( 'id', $child_id, 'category' )->term_taxonomy_id;
+
+		$term_taxonomy_one_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $term_taxonomy_one_id );
+
+		$variables = [
+			'where' => [
+				'termTaxonomyId' => [ $term_taxonomy_two_id, $term_taxonomy_one_global_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['categories']['nodes'] );
+	}
+
+	public function testObjectIdsWhereArgs() {
+		$query = $this->getQuery();
+
+		$term_one_id = $this->factory->term->create( [
+			'taxonomy' => 'category',
+			'name'     => 'ObjectIdOne Category',
+		] );
+		$term_two_id = $this->factory->term->create( [
+			'taxonomy' => 'category',
+			'name'     => 'ObjectIdTwo Category',
+		] );
+
+		$post_one_id = $this->factory->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+		] );
+		$post_two_id = $this->factory->post->create( [
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+		] );
+
+		wp_set_object_terms( $post_one_id, [ $term_one_id ], 'category' );
+		wp_set_object_terms( $post_two_id, [ $term_two_id ], 'category' );
+
+		// test objectIds with global + db id
+		$post_one_global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_one_id );
+
+		$variables = [
+			'where' => [
+				'objectIds' => [ $post_one_global_id, $post_two_id ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['categories']['nodes'] );
+	}
+
+	public function testOrderWhereArgs() {
 
 		$category_id = $this->factory()->term->create([
 			'taxonomy' => 'category',
@@ -399,6 +648,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertTrue( $category_id !== $actual['data']['categories']['nodes'][0]['databaseId'] );
 
 	}
+
 
 	/**
 	 * Common asserts for testing pagination.

@@ -9,7 +9,7 @@ body:
         Please remember, a bug report is not the place to ask questions. You can
         use [Slack](https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA) for that, or start a topic in [GitHub
         Discussions](https://github.com/wp-graphql/wp-graphql/discussions).
-  - type: input
+  - type: textarea
     attributes:
       label: Description
       description: >-

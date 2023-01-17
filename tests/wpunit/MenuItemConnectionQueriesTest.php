@@ -389,7 +389,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 	}
 
-	public function testMenuItemsQueryById() {
+	public function testIdWhereArgs() {
 		$menu_item_id = intval( $this->created_menu_items['menu_item_ids'][2] );
 		$post_id      = intval( $this->created_menu_items['post_ids'][2] );
 
@@ -409,7 +409,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
 	}
 
-	public function testMenuItemsQueryByLocation() {
+	public function testLocationWhereArgs() {
 		$menu_item_id = intval( $this->created_menu_items['menu_item_ids'][2] );
 		$post_id      = intval( $this->created_menu_items['post_ids'][2] );
 
@@ -436,7 +436,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
 	}
 
-	public function testMenuItemsQueryWithChildItemsAsFlat() {
+	public function testLocationWhereArgsWithChildItemsFlat() {
 		$menu_location = 'my-menu-items-location';
 		register_nav_menu( $menu_location, 'My MenuItems' );
 		WPGraphQL::clear_schema();
@@ -489,7 +489,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 	}
 
-	public function testMenuItemsQueryWithChildItemsUsingRelayParentId() {
+	public function testParentIdWhereArgsNonExplicit() {
 		$menu_location = 'my-menu-items-location';
 		register_nav_menu( $menu_location, 'My MenuItems' );
 		WPGraphQL::clear_schema();
@@ -498,6 +498,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$query = $this->getQuery();
 
+		// Test non with global id
 		$variables = [
 			'where' => [
 				'parentId' => '0',
@@ -512,25 +513,9 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// The fourth menu item has the expected number of child items.
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
-	}
 
-	public function testMenuItemsQueryWithChildItemsUsingDatabaseParentId() {
-		$menu_location = 'my-menu-items-location';
-		register_nav_menu( $menu_location, 'My MenuItems' );
-		WPGraphQL::clear_schema();
-
-		$created = $this->create_nested_menu( 3, $menu_location );
-
-		$query = $this->getQuery();
-
-		$variables = [
-			'where' => [
-				'parentDatabaseId' => 0,
-				'location'         => WPEnumType::get_safe_name( $menu_location ),
-			],
-		];
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		// Test with database id
+		$variables['where']['parentId'] = 0;
 
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
@@ -539,7 +524,8 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'][3]['node']['childItems']['edges'] ) );
 	}
 
-	public function testMenuItemsQueryWithExplicitParentDatabaseId() {
+
+	public function testParentIdWhereArgsExplicit() {
 		$menu_location = 'my-menu-items-location';
 		register_nav_menu( $menu_location, 'My MenuItems' );
 		WPGraphQL::clear_schema();
@@ -549,11 +535,12 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$query = $this->getQuery();
 
 		// The nesting is added to the fourth item
-		$parent_database_id = $created['menu_item_ids'][3];
+		$parent_id = $created['menu_item_ids'][3];
 
+		// Test with database Id.
 		$variables = [
 			'where' => [
-				'parentDatabaseId' => $parent_database_id,
+				'parentId' => $parent_id,
 				'location'         => WPEnumType::get_safe_name( $menu_location ),
 			],
 		];
@@ -563,8 +550,17 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
 
 		// The parentDatabaseId matches with the requested parent database id
-		$this->assertEquals( $parent_database_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
+		$this->assertEquals( $parent_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
 
+		// Test with global ID
+		$variables['where']['parentId'] =  Relay::toGlobalId( 'post', $parent_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( 3, count( $actual['data']['menuItems']['edges'] ) );
+
+		// The parentDatabaseId matches with the requested parent database id
+		$this->assertEquals( $parent_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
 	}
 
 	public function testMenuItemsQueryWithExplicitParentId() {
@@ -735,6 +731,67 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEquals( $end_cursor, $actual['data']['menuItems']['edges'][1]['cursor'] );
 		$this->assertEquals( $start_cursor, $actual['data']['menuItems']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['menuItems']['pageInfo']['endCursor'] );
+	}
+
+	public function testQueryMenuItemsWithParentIdSetToZero() {
+
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_nested_menu( 3, $menu_location );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'first' => 100,
+				'after' => null,
+				'where' => [
+					'parentId' => 0
+				],
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		codecept_debug( $actual );
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			$node = $edge['node'];
+			$this->assertSame( 0, $node['parentDatabaseId'] );
+			$this->assertNull( $node['parentId'] );
+		}
+
+	}
+
+	public function testQueryMenuItemsWithParentDatabaseIdSetToZero() {
+
+		$menu_location = 'my-menu-items-location';
+		register_nav_menu( $menu_location, 'My MenuItems' );
+		WPGraphQL::clear_schema();
+
+		$created = $this->create_nested_menu( 3, $menu_location );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'first' => 100,
+				'where' => [
+					'parentDatabaseId' => 0
+				]
+			]
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		codecept_debug( $actual );
+
+		foreach ( $actual['data']['menuItems']['edges'] as $edge ) {
+			$node = $edge['node'];
+			$this->assertSame( 0, $node['parentDatabaseId'] );
+			$this->assertNull( $node['parentId'] );
+		}
+
 	}
 
 }

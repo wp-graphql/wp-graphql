@@ -44,6 +44,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function tearDown(): void {
 		// your tear down methods here
+		reset_phpmailer_instance();
+
 		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
@@ -826,7 +828,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			],
 		];
 
-		return graphql( compact( 'query', 'variables' ) );
+		return $this->graphql( compact( 'query', 'variables' ) );
 
 	}
 
@@ -884,10 +886,10 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'password' => $new_password,
 		];
 
-		wp_set_current_user( $this->admin );
+		// Ensure user is logged out
+		wp_set_current_user( 0 );
 
 		$actual = $this->resetUserPasswordMutation( $args );
-		codecept_debug( $actual );
 
 		$role_nodes = [];
 		foreach ( $roles as $role ) {
@@ -934,6 +936,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->resetUserPasswordMutation( $args );
 
 		// Try to authenticate user using new password.
+		wp_set_current_user( 0 );
+
 		$authenticated_user   = wp_authenticate( $login, $new_password );
 		$was_reset_successful = ! is_wp_error( $authenticated_user );
 
@@ -950,7 +954,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			sendPasswordResetEmail( input: $input ) {
 				user {
 					databaseId
-				} 
+				}
+				success
 			}
 		}
 		';
@@ -969,53 +974,59 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// Run the mutation, passing in an invalid username.
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		/**
-		 * We're asserting that this will properly return an error
-		 * because this user does not exist.
-		 */
-		$this->assertNotEmpty( $actual['errors'] );
+		// This should return succesful with a notice in the log.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEquals( "Invalid username.", $actual['extensions']['debug'][0]['message'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 	}
 
-	public function testSendPasswordResetEmailResponseWithUsername() {
-		$user     = get_userdata( $this->author );
+	public function testSendPasswordResetEmailWithUsername() {
+		$user     = get_userdata( $this->subscriber );
 		$username = $user->user_login;
-		// Run the mutation, passing in a valid username.
+
+		// Test when user is logged out.
+		wp_set_current_user( 0 );
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		codecept_debug( $actual );
+		// No debug message means this was a real success.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEmpty( $actual['extensions']['debug'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
-		$expected = $this->getSendPasswordResetEmailExpected();
-		/**
-		 * Assert that the expected user data was returned.
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
+		// Test when user has permissions
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->sendPasswordResetEmailMutation( $username );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		// @todo deprecate.
+		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
-	public function testSendPasswordResetEmailResponseWithEmail() {
-		$user  = get_userdata( $this->author );
+	public function testSendPasswordResetEmailWithEmail() {
+		$user  = get_userdata( $this->subscriber );
 		$email = $user->user_email;
 		// Run the mutation, passing in a valid email address.
+		// Test when user is logged out.
+		wp_set_current_user( 0 );
 		$actual = $this->sendPasswordResetEmailMutation( $email );
 
-		codecept_debug( $actual );
+		// No debug message means this was a real success.
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		$this->assertEmpty( $actual['extensions']['debug'] );
+		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 
-		$expected = $this->getSendPasswordResetEmailExpected();
-		/**
-		 * Assert that the expected user data was returned.
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
-	}
+		// Test when user has permissions
+		wp_set_current_user( $this->admin );
 
-	public function getSendPasswordResetEmailExpected() {
-		$user = get_userdata( $this->author );
-
-		return [
-			'sendPasswordResetEmail' => [
-				'user' => [
-					'databaseId' => $user->ID,
-				],
-			],
-		];
+		$actual = $this->sendPasswordResetEmailMutation( $email );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
+		// @todo deprecate.
+		$this->assertEquals( $this->subscriber, $actual['data']['sendPasswordResetEmail']['user']['databaseId'] );
 	}
 
 	public function testSendPasswordResetEmailActivationKeyWithUsername() {
@@ -1079,12 +1090,22 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function runSendPasswordResetEmailSentTest( $mutation_arg ) {
 		$email_sent        = true;
-		$update_email_sent = function () use ( &$email_sent ) {
+
+		$update_email_sent = function ( $error ) use ( &$email_sent ) {
+			codecept_debug( $error );
 			$email_sent = false;
 		};
+		$update_email_from = function() {
+			return 'valid-email@site.test';
+		};
+
 		add_action( 'wp_mail_failed', $update_email_sent );
+		add_action( 'wp_mail_from', $update_email_from );
+
 		$this->sendPasswordResetEmailMutation( $mutation_arg );
+
 		remove_action( 'wp_mail_failed', $update_email_sent );
+		remove_action( 'wp_mail_from', $update_email_from );
 
 		return $email_sent;
 	}

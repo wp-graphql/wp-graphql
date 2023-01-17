@@ -21,7 +21,8 @@ class TimezoneEnum {
 
 		$locale           = get_locale();
 		static $mo_loaded = false, $locale_loaded = null;
-		$continents       = [
+
+		$continents = [
 			'Africa',
 			'America',
 			'Antarctica',
@@ -33,6 +34,7 @@ class TimezoneEnum {
 			'Indian',
 			'Pacific',
 		];
+
 		// Load translations for continents and cities.
 		if ( ! $mo_loaded || $locale !== $locale_loaded ) {
 			$locale_loaded = $locale ? $locale : get_locale();
@@ -41,30 +43,30 @@ class TimezoneEnum {
 			load_textdomain( 'continents-cities', $mofile );
 			$mo_loaded = true;
 		}
+	
 		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );
+
 			if ( ! in_array( $zone[0], $continents, true ) ) {
 				continue;
 			}
+
 			// This determines what gets set and translated - we don't translate Etc/* strings here, they are done later
 			$exists = [
-				0 => ! empty( $zone[0] ) ? $zone[0] : null,
-				1 => ! empty( $zone[1] ) ? $zone[1] : null,
-				2 => ! empty( $zone[2] ) ? $zone[2] : null,
+				$zone[0],
+				! empty( $zone[1] ) ? $zone[1] : null,
+				! empty( $zone[2] ) ? $zone[2] : null,
 			];
 
-			$exists[3] = ( $exists[0] && 'Etc' !== $zone[0] );
-			$exists[4] = ( $exists[1] && $exists[3] );
-			$exists[5] = ( $exists[2] && $exists[3] );
 			// phpcs:disable WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText
 			$zonen[] = [
-				'continent'   => ( $exists[0] ? $zone[0] : '' ),
-				'city'        => ( $exists[1] ? $zone[1] : '' ),
-				'subcity'     => ( $exists[2] ? $zone[2] : '' ),
-				't_continent' => ( $exists[3] ? translate( str_replace( '_', ' ', $zone[0] ), 'wp-graphql' ) : '' ),
-				't_city'      => ( $exists[4] ? translate( str_replace( '_', ' ', $zone[1] ), 'wp-graphql' ) : '' ),
-				't_subcity'   => ( $exists[5] ? translate( str_replace( '_', ' ', $zone[2] ), 'wp-graphql' ) : '' ),
+				'continent'   => $zone[0],
+				'city'        => $exists[1] ? $zone[1] : '',
+				'subcity'     => $exists[2] ? $zone[2] : '',
+				't_continent' => translate( str_replace( '_', ' ', $zone[0] ), 'wp-graphql' ),
+				't_city'      => $exists[1] ? translate( str_replace( '_', ' ', $zone[1] ), 'wp-graphql' ) : '',
+				't_subcity'   => $exists[2] ? translate( str_replace( '_', ' ', $zone[2] ), 'wp-graphql' ) : '',
 			];
 			// phpcs:enable
 		}

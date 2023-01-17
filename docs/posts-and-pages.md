@@ -31,7 +31,7 @@ query GetPostsEdges {
 }
 ```
 
-![Screenshot of a Query for Posts, Edges and node](./posts-query-edges-node.png)
+![Screenshot of a Query for Posts, Edges and node](./images/posts-query-edges-node.png)
 
 Below is the same query, but asking for the nodes directly, skipping the `edges` field.
 
@@ -47,7 +47,7 @@ query GetPosts {
 }
 ```
 
-![Screenshot of a Query for Posts, Edges and node](./posts-query-nodes.png)
+![Screenshot of a Query for Posts, Edges and node](./images/posts-query-nodes.png)
 
 > **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
 
@@ -55,7 +55,7 @@ query GetPosts {
 
 Queries for [Connections](/docs/connections/) can be filtered. Below are some examples of filtering using the `where` argument. There are many options available to filter posts, so it's recommended to use a tool such as GraphiQL to get familiar with the options available to filter.
 
-**Query posts written by a specific author**
+#### Query posts written by a specific author
 
 This example shows querying posts written by a specific author (using the author's DatabaseId)
 
@@ -75,19 +75,19 @@ This example shows querying posts written by a specific author (using the author
 }
 ```
 
-![Screenshot of a GraphQL Query for posts written by a specific author](./posts-query-filter-by-author.png)
+![Screenshot of a GraphQL Query for posts written by a specific author](./images/posts-query-filter-by-author.png)
 
-**Query posts by specific title**
+#### Query posts by specific title
 
 This example shows querying posts with a specific title.
 
-![Screenshot of a GraphQL Query for posts for a specific title](./posts-query-filter-by-title.png)
+![Screenshot of a GraphQL Query for posts for a specific title](./images/posts-query-filter-by-title.png)
 
-**Query posts by specific search keyword**
+#### Query posts by specific search keyword
 
 This example shows querying posts using a search keyword.
 
-![Screenshot of a GraphQL Query for posts using a search keyword](./posts-query-filter-by-keyword.png)
+![Screenshot of a GraphQL Query for posts using a search keyword](./images/posts-query-filter-by-keyword.png)
 
 ### Single Post by Global ID
 
@@ -103,7 +103,7 @@ Below is an example of querying a single post using the [GraphQL Global ID](/doc
 }
 ```
 
-![Screenshot of a GraphQL query for a single post using the Global ID](./posts-query-by-global-id.png)
+![Screenshot of a GraphQL query for a single post using the Global ID](./images/posts-query-by-global-id.png)
 
 ### Single Post by Database ID
 
@@ -119,13 +119,13 @@ Below is an example of querying a single post using the Database ID as an identi
 }
 ```
 
-![Screenshot of a query for a post by Database ID](./posts-query-by-database-id.png)
+![Screenshot of a query for a post by Database ID](./images/posts-query-by-database-id.png)
 
 ### Single Post by URI
 
 Below is an example of querying a single post using the URI (the path to the post) as an identifier.
 
-![Screenshot of a GraphQL query for a single post using the URI](./posts-query-by-uri.png)
+![Screenshot of a GraphQL query for a single post using the URI](./images/posts-query-by-uri.png)
 
 ### Single Post by Slug
 
@@ -145,7 +145,7 @@ Below is an example of querying a single post using the `slug` as the ID.
 
 ```
 
-![Screenshot of a GraphQL query for a single post using the SLUG](./posts-query-by-slug.png)
+![Screenshot of a GraphQL query for a single post using the SLUG](./images/posts-query-by-slug.png)
 
 ## Mutations
 
@@ -177,17 +177,17 @@ mutation CREATE_POST {
 
 This Mutation will only succeed for users with proper capabilities to create posts (of the post type being created).
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user executing the mutation is authenticated and has proper capabilities to create a post, the post will be created and the fields asked for in response will be returned.
 
-![Screenshot showing a successful mutation to create a post](./posts-mutation-create-success.png)
+![Screenshot showing a successful mutation to create a post](./images/posts-mutation-create-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a post, the post will not be created and an error will be returned.
 
-![Screenshot showing a failed mutation to create a post](./posts-mutation-create-not-allowed.png)
+![Screenshot showing a failed mutation to create a post](./images/posts-mutation-create-not-allowed.png)
 
 ### Update Post
 
@@ -210,17 +210,17 @@ mutation UPDATE_POST {
 }
 ```
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user making the request is authenticated and has proper capabilities to update the post, the post will be updated and the specified fields of the post being updated will be returned in the response.
 
-![Screenshot of a successful Mutation to update a post](./posts-mutation-update-success.png)
+![Screenshot of a successful Mutation to update a post](./images/posts-mutation-update-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a post, the post will not be created and an error will be returned.
 
-![Screenshot showing a failed mutation to update a post](./posts-mutation-update-not-allowed.png)
+![Screenshot showing a failed mutation to update a post](./images/posts-mutation-update-not-allowed.png)
 
 ### Delete Post
 
@@ -240,14 +240,14 @@ mutation DELETE_POST {
 }
 ```
 
-**Successful Mutation**
+#### Successful Mutation
 
 If the user executing the mutation to delete a post is authenticated and has proper capabilities to delete the post of the provided ID, the post will be deleted from WordPress and the fields asked for will be returned.
 
-![Screenshot of a successful Mutation to delete a post](./posts-mutation-delete-success.png)
+![Screenshot of a successful Mutation to delete a post](./images/posts-mutation-delete-success.png)
 
-**Unsuccessful Mutation**
+#### Unuccessful Mutation
 
 If the user executing the mutation to delete a post is not authenticated or does not have proper capabilities to delete a post, the post will not be deleted from WordPress and an error will be returned.
 
-![Screenshot of an unsuccessful Mutation to delete a post](./posts-mutation-delete-not-allowed.png)
+![Screenshot of an unsuccessful Mutation to delete a post](./images/posts-mutation-delete-not-allowed.png)

@@ -5,16 +5,8 @@ namespace WPGraphQL\Registry;
 use Exception;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
-use WPGraphQL\Connection\Comments;
-use WPGraphQL\Connection\MenuItems;
-use WPGraphQL\Connection\PostObjects;
-use WPGraphQL\Connection\Revisions;
-use WPGraphQL\Connection\Taxonomies;
-use WPGraphQL\Connection\TermObjects;
-use WPGraphQL\Connection\Users;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
@@ -36,23 +28,60 @@ use WPGraphQL\Mutation\UserCreate;
 use WPGraphQL\Mutation\UserDelete;
 use WPGraphQL\Mutation\UserRegister;
 use WPGraphQL\Mutation\UserUpdate;
+use WPGraphQL\Registry\Utils\PostObject;
+use WPGraphQL\Registry\Utils\TermObject;
+use WPGraphQL\Type\Connection\Comments;
+use WPGraphQL\Type\Connection\MenuItems;
+use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Type\Connection\Taxonomies;
+use WPGraphQL\Type\Connection\TermObjects;
+use WPGraphQL\Type\Connection\Users;
+use WPGraphQL\Type\Enum\AvatarRatingEnum;
+use WPGraphQL\Type\Enum\CommentNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
+use WPGraphQL\Type\Enum\CommentStatusEnum;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\ContentTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
+use WPGraphQL\Type\Enum\MediaItemSizeEnum;
+use WPGraphQL\Type\Enum\MediaItemStatusEnum;
 use WPGraphQL\Type\Enum\MenuItemNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\MenuLocationEnum;
 use WPGraphQL\Type\Enum\MenuNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\MimeTypeEnum;
+use WPGraphQL\Type\Enum\OrderEnum;
+use WPGraphQL\Type\Enum\PluginStatusEnum;
+use WPGraphQL\Type\Enum\PostObjectFieldFormatEnum;
+use WPGraphQL\Type\Enum\PostObjectsConnectionDateColumnEnum;
+use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
+use WPGraphQL\Type\Enum\PostStatusEnum;
+use WPGraphQL\Type\Enum\RelationEnum;
+use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\TermObjectsConnectionOrderbyEnum;
+use WPGraphQL\Type\Enum\TimezoneEnum;
 use WPGraphQL\Type\Enum\UserNodeIdTypeEnum;
+use WPGraphQL\Type\Enum\UserRoleEnum;
 use WPGraphQL\Type\Enum\UsersConnectionOrderbyEnum;
+use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
+use WPGraphQL\Type\Input\DateInput;
+use WPGraphQL\Type\Input\DateQueryInput;
+use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\Input\UsersConnectionOrderbyInput;
-use WPGraphQL\Type\InterfaceType\CommenterInterface;
+use WPGraphQL\Type\InterfaceType\Commenter;
+use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
+use WPGraphQL\Type\InterfaceType\ContentTypeConnection;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
+use WPGraphQL\Type\InterfaceType\Edge;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
 use WPGraphQL\Type\InterfaceType\HierarchicalContentNode;
+use WPGraphQL\Type\InterfaceType\HierarchicalNode;
 use WPGraphQL\Type\InterfaceType\HierarchicalTermNode;
 use WPGraphQL\Type\InterfaceType\MenuItemLinkable;
+use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithAuthor;
 use WPGraphQL\Type\InterfaceType\NodeWithComments;
 use WPGraphQL\Type\InterfaceType\NodeWithContentEditor;
@@ -62,65 +91,43 @@ use WPGraphQL\Type\InterfaceType\NodeWithPageAttributes;
 use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
 use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
-use WPGraphQL\Type\InterfaceType\Node;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
+use WPGraphQL\Type\InterfaceType\PageInfo;
+use WPGraphQL\Type\InterfaceType\Previewable;
+use WPGraphQL\Type\InterfaceType\OneToOneConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
-use WPGraphQL\Type\ObjectType\EnqueuedScript;
-use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
-use WPGraphQL\Type\Union\ContentRevisionUnion;
-use WPGraphQL\Type\Union\PostObjectUnion;
-use WPGraphQL\Type\Union\MenuItemObjectUnion;
-use WPGraphQL\Type\Enum\AvatarRatingEnum;
-use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
-use WPGraphQL\Type\Enum\MediaItemSizeEnum;
-use WPGraphQL\Type\Enum\MediaItemStatusEnum;
-use WPGraphQL\Type\Enum\MenuLocationEnum;
-use WPGraphQL\Type\Enum\MimeTypeEnum;
-use WPGraphQL\Type\Enum\OrderEnum;
-use WPGraphQL\Type\Enum\PostObjectFieldFormatEnum;
-use WPGraphQL\Type\Enum\PostObjectsConnectionDateColumnEnum;
-use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
-use WPGraphQL\Type\Enum\PostStatusEnum;
-use WPGraphQL\Type\Enum\ContentTypeEnum;
-use WPGraphQL\Type\Enum\PluginStatusEnum;
-use WPGraphQL\Type\Enum\RelationEnum;
-use WPGraphQL\Type\Enum\TaxonomyEnum;
-use WPGraphQL\Type\Enum\TermObjectsConnectionOrderbyEnum;
-use WPGraphQL\Type\Enum\TimezoneEnum;
-use WPGraphQL\Type\Enum\UserRoleEnum;
-use WPGraphQL\Type\Enum\UsersConnectionSearchColumnEnum;
-use WPGraphQL\Type\Input\DateInput;
-use WPGraphQL\Type\Input\DateQueryInput;
-use WPGraphQL\Type\Input\PostObjectsConnectionOrderbyInput;
 use WPGraphQL\Type\ObjectType\Avatar;
 use WPGraphQL\Type\ObjectType\Comment;
 use WPGraphQL\Type\ObjectType\CommentAuthor;
+use WPGraphQL\Type\ObjectType\ContentType;
+use WPGraphQL\Type\ObjectType\EnqueuedScript;
+use WPGraphQL\Type\ObjectType\EnqueuedStylesheet;
 use WPGraphQL\Type\ObjectType\MediaDetails;
 use WPGraphQL\Type\ObjectType\MediaItemMeta;
 use WPGraphQL\Type\ObjectType\MediaSize;
 use WPGraphQL\Type\ObjectType\Menu;
 use WPGraphQL\Type\ObjectType\MenuItem;
-use WPGraphQL\Type\ObjectType\PageInfo;
 use WPGraphQL\Type\ObjectType\Plugin;
-use WPGraphQL\Type\ObjectType\PostObject;
-use WPGraphQL\Type\ObjectType\ContentType;
 use WPGraphQL\Type\ObjectType\PostTypeLabelDetails;
 use WPGraphQL\Type\ObjectType\RootMutation;
 use WPGraphQL\Type\ObjectType\RootQuery;
 use WPGraphQL\Type\ObjectType\SettingGroup;
+use WPGraphQL\Type\ObjectType\Settings;
 use WPGraphQL\Type\ObjectType\Taxonomy;
-use WPGraphQL\Type\ObjectType\TermObject;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
 use WPGraphQL\Type\ObjectType\Settings;
 use WPGraphQL\Type\Scalar\Upload;
+use WPGraphQL\Type\Union\MenuItemObjectUnion;
+use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
 use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
 use WPGraphQL\Type\WPInterfaceType;
+use WPGraphQL\Type\WPMutationType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
@@ -159,6 +166,15 @@ class TypeRegistry {
 	 * @var array
 	 */
 	protected $eager_type_map;
+
+	/**
+	 * Stores a list of Types that should be excluded from the schema.
+	 *
+	 * Type names are filtered by `graphql_excluded_types` and normalized using strtolower(), to avoid case sensitivity issues.
+	 *
+	 * @var array
+	 */
+	protected $excluded_types = null;
 
 	/**
 	 * TypeRegistry constructor.
@@ -253,13 +269,16 @@ class TypeRegistry {
 
 		// Register Interfaces.
 		Node::register_type();
-		CommenterInterface::register_type( $type_registry );
+		Commenter::register_type( $type_registry );
+		Connection::register_type( $type_registry );
 		ContentNode::register_type( $type_registry );
 		ContentTemplate::register_type();
 		DatabaseIdentifier::register_type();
+		Edge::register_type( $type_registry );
 		EnqueuedAsset::register_type( $type_registry );
-		HierarchicalTermNode::register_type( $type_registry );
 		HierarchicalContentNode::register_type( $type_registry );
+		HierarchicalNode::register_type( $type_registry );
+		HierarchicalTermNode::register_type( $type_registry );
 		MenuItemLinkable::register_type( $type_registry );
 		NodeWithAuthor::register_type( $type_registry );
 		NodeWithComments::register_type( $type_registry );
@@ -271,6 +290,9 @@ class TypeRegistry {
 		NodeWithTemplate::register_type( $type_registry );
 		NodeWithTrackbacks::register_type( $type_registry );
 		NodeWithPageAttributes::register_type( $type_registry );
+		PageInfo::register_type( $type_registry );
+		Previewable::register_type( $type_registry );
+		OneToOneConnection::register_type( $type_registry );
 		TermNode::register_type( $type_registry );
 		UniformResourceIdentifiable::register_type( $type_registry );
 
@@ -290,7 +312,6 @@ class TypeRegistry {
 		MediaSize::register_type();
 		Menu::register_type();
 		MenuItem::register_type();
-		PageInfo::register_type();
 		Plugin::register_type();
 		ContentType::register_type();
 		PostTypeLabelDetails::register_type();
@@ -301,7 +322,9 @@ class TypeRegistry {
 		UserRole::register_type();
 
 		AvatarRatingEnum::register_type();
+		CommentNodeIdTypeEnum::register_type();
 		CommentsConnectionOrderbyEnum::register_type();
+		CommentStatusEnum::register_type();
 		ContentNodeIdTypeEnum::register_type();
 		ContentTypeEnum::register_type();
 		ContentTypeIdTypeEnum::register_type();
@@ -333,7 +356,6 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		ContentRevisionUnion::register_type( $this );
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
@@ -349,7 +371,6 @@ class TypeRegistry {
 		Comments::register_connections();
 		MenuItems::register_connections();
 		PostObjects::register_connections();
-		Revisions::register_connections( $this );
 		Taxonomies::register_connections();
 		TermObjects::register_connections();
 		Users::register_connections();
@@ -383,7 +404,7 @@ class TypeRegistry {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
-			PostObject::register_post_object_types( $post_type_object, $type_registry );
+			PostObject::register_types( $post_type_object );
 
 			/**
 			 * Mutations for attachments are handled differently
@@ -396,12 +417,19 @@ class TypeRegistry {
 				 * they aren't created manually.
 				 */
 				if ( 'revision' !== $post_type_object->name ) {
-					PostObjectCreate::register_mutation( $post_type_object );
-					PostObjectUpdate::register_mutation( $post_type_object );
+
+					if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'create', $post_type_object->graphql_exclude_mutations, true ) ) {
+						PostObjectCreate::register_mutation( $post_type_object );
+					}
+
+					if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'update', $post_type_object->graphql_exclude_mutations, true ) ) {
+						PostObjectUpdate::register_mutation( $post_type_object );
+					}
 				}
 
-				PostObjectDelete::register_mutation( $post_type_object );
-
+				if ( empty( $post_type_object->graphql_exclude_mutations ) || ! in_array( 'delete', $post_type_object->graphql_exclude_mutations, true ) ) {
+					PostObjectDelete::register_mutation( $post_type_object );
+				}
 			}
 
 			foreach ( $allowed_taxonomies as $tax_object ) {
@@ -458,10 +486,19 @@ class TypeRegistry {
 		 * Register TermObject types based on taxonomies configured to show_in_graphql
 		 */
 		foreach ( $allowed_taxonomies as $tax_object ) {
-			TermObject::register_taxonomy_object_type( $tax_object );
-			TermObjectCreate::register_mutation( $tax_object );
-			TermObjectUpdate::register_mutation( $tax_object );
-			TermObjectDelete::register_mutation( $tax_object );
+			TermObject::register_types( $tax_object );
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'create', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectCreate::register_mutation( $tax_object );
+			}
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'update', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectUpdate::register_mutation( $tax_object );
+			}
+
+			if ( empty( $tax_object->graphql_exclude_mutations ) || ! in_array( 'delete', $tax_object->graphql_exclude_mutations, true ) ) {
+				TermObjectDelete::register_mutation( $tax_object );
+			}
 		}
 
 		/**
@@ -584,14 +621,14 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ) {
-
-		if ( is_array( $config ) && isset( $config['connections'] ) ) {
-			$config['name'] = ucfirst( $type_name );
-			$this->register_connections_from_config( $config );
-		}
-
 		/**
-		 * If the Type Name starts with a number, prefix it with an underscore to make it valid
+		 * If the type should be excluded from the schema, skip it.
+		 */
+		if ( in_array( strtolower( $type_name ), $this->get_excluded_types(), true ) ) {
+			return;
+		}
+		/**
+		 * If the Type Name starts with a number, skip it.
 		 */
 		if ( ! is_valid_graphql_name( $type_name ) ) {
 			graphql_debug(
@@ -604,6 +641,9 @@ class TypeRegistry {
 			return;
 		}
 
+		/**
+		 * If the Type Name is already registered, skip it.
+		 */
 		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) || isset( $this->type_loaders[ $this->format_key( $type_name ) ] ) ) {
 			graphql_debug(
 				sprintf( __( 'You cannot register duplicate Types to the Schema. The Type \'%1$s\' already exists in the Schema. Make sure to give new Types a unique name.', 'wp-graphql' ), $type_name ),
@@ -613,6 +653,14 @@ class TypeRegistry {
 				]
 			);
 			return;
+		}
+
+		/**
+		 * Register any connections that were passed through the Type config
+		 */
+		if ( is_array( $config ) && isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name );
+			$this->register_connections_from_config( $config );
 		}
 
 		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
@@ -850,6 +898,11 @@ class TypeRegistry {
 		 * is called since it passes `is_callable`.
 		 */
 		if ( is_string( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			if ( in_array( strtolower( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->get_type( $field_config['type'] );
 			};
@@ -860,21 +913,43 @@ class TypeRegistry {
 		 * Create a callable wrapper to preserve lazy-loading.
 		 */
 		if ( is_array( $field_config['type'] ) ) {
+			// Bail if the type is excluded from the Schema.
+			$unmodified_type_name = $this->get_unmodified_type_name( $field_config['type'] );
+
+			if ( empty( $unmodified_type_name ) || in_array( strtolower( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
+				return null;
+			}
+
 			$field_config['type'] = function () use ( $field_config ) {
 				return $this->setup_type_modifiers( $field_config['type'] );
 			};
 		}
 
-		if ( ! empty( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
+		/**
+		 * If the field has arguments, each one must be prepared.
+		 */
+		if ( isset( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
 			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$field_config['args'][ $arg_name ] = $this->prepare_field( $arg_name, $arg_config, $type_name );
+				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name );
+
+				// Remove the arg if the field could not be prepared.
+				if ( empty( $arg ) ) {
+					unset( $field_config['args'][ $arg_name ] );
+					continue;
+				}
+
+				$field_config['args'][ $arg_name ] = $arg;
 			}
-		} else {
+		}
+
+		/**
+		 * If the field has no (remaining) valid arguments, unset the key.
+		 */
+		if ( empty( $field_config['args'] ) ) {
 			unset( $field_config['args'] );
 		}
 
 		return $field_config;
-
 	}
 
 	/**
@@ -914,7 +989,7 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_fields( string $type_name, array $fields = [] ) {
-		if ( is_string( $type_name ) && ! empty( $fields ) && is_array( $fields ) ) {
+		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
 				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
 					$this->register_field( $type_name, $field_name, $config );
@@ -933,7 +1008,6 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ) {
-
 		add_filter(
 			'graphql_' . $type_name . '_fields',
 			function ( $fields ) use ( $type_name, $field_name, $config ) {
@@ -1017,10 +1091,7 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_connection( array $config ) {
-
-		$connection = new WPConnectionType( $config, $this );
-		$connection->register_connection();
-
+		new WPConnectionType( $config, $this );
 	}
 
 	/**
@@ -1033,82 +1104,8 @@ class TypeRegistry {
 	 * @throws Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
-
-		$output_fields = [
-			'clientMutationId' => [
-				'type'        => 'String',
-				'description' => __( 'If a \'clientMutationId\' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
-			],
-		];
-
-		if ( ! empty( $config['outputFields'] ) && is_array( $config['outputFields'] ) ) {
-			$output_fields = array_merge( $config['outputFields'], $output_fields );
-		}
-
-		$this->register_object_type(
-			$mutation_name . 'Payload',
-			[
-				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'fields'      => $output_fields,
-			]
-		);
-
-		$input_fields = [
-			'clientMutationId' => [
-				'type'        => 'String',
-				'description' => __( 'This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions.', 'wp-graphql' ),
-			],
-		];
-
-		if ( ! empty( $config['inputFields'] ) && is_array( $config['inputFields'] ) ) {
-			$input_fields = array_merge( $config['inputFields'], $input_fields );
-		}
-
-		$this->register_input_type(
-			$mutation_name . 'Input',
-			[
-				'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'fields'      => $input_fields,
-			]
-		);
-
-		$mutateAndGetPayload = ! empty( $config['mutateAndGetPayload'] ) ? $config['mutateAndGetPayload'] : null;
-
-		$this->register_field(
-			'rootMutation',
-			$mutation_name,
-			array_merge( $config, [
-				'description' => sprintf( __( 'The payload for the %s mutation', 'wp-graphql' ), $mutation_name ),
-				'args'        => [
-					'input' => [
-						'type'        => [
-							'non_null' => $mutation_name . 'Input',
-						],
-						'description' => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $mutation_name ),
-					],
-				],
-				'type'        => $mutation_name . 'Payload',
-				'resolve'     => function ( $root, $args, $context, ResolveInfo $info ) use ( $mutateAndGetPayload, $mutation_name ) {
-					if ( ! is_callable( $mutateAndGetPayload ) ) {
-						// Translators: The placeholder is the name of the mutation
-						throw new Exception( sprintf( __( 'The resolver for the mutation %s is not callable', 'wp-graphql' ), $mutation_name ) );
-					}
-
-					$filtered_input = apply_filters( 'graphql_mutation_input', $args['input'], $context, $info, $mutation_name );
-
-					$payload = $mutateAndGetPayload( $filtered_input, $context, $info );
-
-					do_action( 'graphql_mutation_response', $payload, $filtered_input, $args['input'], $context, $info, $mutation_name );
-
-					if ( isset( $args['input']['clientMutationId'] ) && ! empty( $args['input']['clientMutationId'] ) ) {
-						$payload['clientMutationId'] = $args['input']['clientMutationId'];
-					}
-
-					return $payload;
-				},
-			])
-		);
-
+		$config['name'] = $mutation_name;
+		new WPMutationType( $config, $this );
 	}
 
 	/**
@@ -1147,6 +1144,51 @@ class TypeRegistry {
 		}
 
 		return Type::listOf( $type );
+	}
+
+	/**
+	 * Get the list of GraphQL type names to exclude from the schema.
+	 *
+	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
+	 *
+	 * @since 1.13.0
+	 */
+	public function get_excluded_types() : array {
+		if ( null === $this->excluded_types ) {
+			/**
+			 * Filter the list of GraphQL types to exclude from the schema.
+			 *
+			 * Note: using this filter directly will NOT remove the type from being referenced as a possible interface or a union type.
+			 * To remove a GraphQL from the schema **entirely**, please use deregister_graphql_type();
+			 *
+			 * @param string[] $excluded_types The names of the GraphQL Types to exclude.
+			 *
+			 * @since 1.13.0
+			 */
+			$excluded_types = apply_filters( 'graphql_excluded_types', [] );
+
+			// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
+			$this->excluded_types = ! empty( $excluded_types ) ? array_map( 'strtolower', $excluded_types ) : [];
+		}
+
+		return $this->excluded_types;
+	}
+
+	/**
+	 * Gets the actual type name, stripped of possible NonNull and ListOf wrappers.
+	 *
+	 * Returns an empty string if the type modifiers are malformed.
+	 *
+	 * @param string|array $type The (possibly-wrapped) type name.
+	 */
+	protected function get_unmodified_type_name( $type ) : string {
+		if ( ! is_array( $type ) ) {
+			return $type;
+		}
+
+		$type = array_values( $type )[0] ?? '';
+
+		return $this->get_unmodified_type_name( $type );
 	}
 
 }
