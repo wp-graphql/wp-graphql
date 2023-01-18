@@ -17,8 +17,6 @@ class WPHelper extends Helper {
 	 * Parses normalized request params and returns instance of OperationParams
 	 * or array of OperationParams in case of batch operation.
 	 *
-	 * @throws RequestError Throws RequestError.
-	 *
 	 * @param string $method The method of the request (GET, POST, etc).
 	 * @param array  $bodyParams The params passed to the body of the request.
 	 * @param array  $queryParams The query params passed to the request.
@@ -28,18 +26,13 @@ class WPHelper extends Helper {
 		// Apply wp_unslash to query (GET) variables to undo wp_magic_quotes. We
 		// don't need to do this for POST variables because graphql-php reads the
 		// HTTP body directly.
-		$parsed_body_params = $this->parse_params( $bodyParams );
-
+		$parsed_body_params  = $this->parse_params( $bodyParams );
 		$parsed_query_params = $this->parse_extensions( wp_unslash( $queryParams ) );
-
-		$request_context = [
+		$request_context     = [
 			'method'       => $method,
 			'query_params' => ! empty( $parsed_query_params ) ? $parsed_query_params : null,
 			'body_params'  => ! empty( $parsed_body_params ) ? $parsed_body_params : null,
 		];
-
-		// Process multi-part requests.
-		$parsed_body_params = $this->process_multi_part_requests( $method, $parsed_body_params );
 
 		/**
 		 * Allow the request data to be filtered. Previously this filter was only
@@ -54,9 +47,16 @@ class WPHelper extends Helper {
 		 * @param array  $request_context    An array containing the both body and query params.
 		 * @param string $method             The method of the request (GET, POST, etc).
 		 */
-		$parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context, $method );
+		$filtered_parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context, $method );
 
-		// In GET requests there cannot be any body params so it's empty.
+		/**
+		 * Process multi-part requests.
+		 * 
+		 * This is only run if custom Upload types from plugins are not registered.
+		 */
+		$parsed_body_params = $this->process_multi_part_requests( $method, $filtered_parsed_body_params, $parsed_body_params );
+
+		// In GET requests there cannot be any body params to be parsed, so it's empty.
 		if ( 'GET' === $method ) {
 			return parent::parseRequestParams( $method, [], $parsed_query_params );
 		}
@@ -70,16 +70,19 @@ class WPHelper extends Helper {
 	/**
 	 * Process multi part requests.
 	 *
-	 * @param string $method             The method of the request (GET, POST, etc).
-	 * @param array  $parsed_body_params An array containing the pieces of the data of the GraphQL request
+	 * @throws RequestError Throws RequestError.
+	 *
+	 * @param string $method                      The method of the request (GET, POST, etc).
+	 * @param array  $filtered_parsed_body_params An array containing the pieces of the data of the GraphQL request
+	 * @param array  $parsed_body_params          An array containing the pieces of the data of the GraphQL request
 	 * @return mixed
 	 */
-	private function process_multi_part_requests( $method, array $parsed_body_params ) {
+	private function process_multi_part_requests( string $method, array $filtered_parsed_body_params, $parsed_body_params ) {
 		$contentType = wp_unslash( $_SERVER['CONTENT_TYPE'] ?? null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		// Bail early.
-		if ( 'POST' !== $method || stripos( $contentType, 'multipart/form-data' ) === false ) {
-			return $parsed_body_params;
+		if ( empty( $filtered_parsed_body_params ) || 'POST' !== $method || stripos( $contentType, 'multipart/form-data' ) === false ) {
+			return $filtered_parsed_body_params;
 		}
 
 		if ( empty( $parsed_body_params['map'] ) ) {
@@ -110,8 +113,10 @@ class WPHelper extends Helper {
 
 	/**
 	 * Decode json.
+	 * 
+	 * @throws RequestError Throws RequestError.
 	 *
-	 * @param mixed $json Json.
+	 * @param mixed $json Json to be decoded.
 	 * @return mixed
 	 */
 	private function decode_json( $json ) {
@@ -120,13 +125,34 @@ class WPHelper extends Helper {
 			return $json;
 		}
 
-		return json_decode( stripslashes( $json ), true );
+		$result = json_decode( stripslashes( $json ), true );
+
+		switch ( json_last_error() ) {
+			case JSON_ERROR_DEPTH:
+				throw new RequestError( __( 'Maximum stack depth exceeded.', 'wp-graphql' ) );
+
+			case JSON_ERROR_STATE_MISMATCH:
+				throw new RequestError( __( 'Underflow or the modes mismatch.', 'wp-graphql' ) );
+
+			case JSON_ERROR_CTRL_CHAR:
+				throw new RequestError( __( 'Unexpected control character found.', 'wp-graphql' ) );
+
+			case JSON_ERROR_SYNTAX:
+				throw new RequestError( __( 'Syntax error, malformed JSON.', 'wp-graphql' ) );
+
+			case JSON_ERROR_UTF8:
+				throw new RequestError( __( 'Malformed UTF-8 characters, possibly incorrectly encoded.', 'wp-graphql' ) );
+
+			case JSON_ERROR_NONE:
+			default:
+				return $result;
+		}
 	}
 
 	/**
 	 * Parse parameters and proxy to parse_extensions.
 	 *
-	 * @param  array $params Request parameters.
+	 * @param array $params Request parameters.
 	 * @return array
 	 */
 	private function parse_params( $params ) {

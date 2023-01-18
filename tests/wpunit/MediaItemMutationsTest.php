@@ -775,6 +775,8 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 */
 		$actual = $this->createMediaItemMutation();
 
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
 		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
 		$attachment_url     = wp_get_attachment_url( $attachment_id );

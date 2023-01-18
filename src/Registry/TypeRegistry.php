@@ -73,7 +73,6 @@ use WPGraphQL\Type\InterfaceType\Commenter;
 use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
-use WPGraphQL\Type\InterfaceType\ContentTypeConnection;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\Edge;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;
@@ -118,7 +117,6 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
-use WPGraphQL\Type\Scalar\Upload;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -130,6 +128,7 @@ use WPGraphQL\Type\WPMutationType;
 use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
+use WPGraphQL\Type\Scalar\Upload;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -147,7 +146,6 @@ class TypeRegistry {
 	 * @var array
 	 */
 	protected $types;
-
 
 	/**
 	 * The loaders needed to register types
@@ -217,9 +215,7 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Initialize the TypeRegistry
-	 *
-	 * @throws Exception
+	 * Initialize the TypeRegistry.
 	 *
 	 * @return void
 	 */
@@ -235,12 +231,12 @@ class TypeRegistry {
 		$this->register_type( 'String', Type::string() );
 
 		/**
-		 * When the Type Registry is initialized execute these files
+		 * When the Type Registry is initialized execute these files.
 		 */
 		add_action( 'init_graphql_type_registry', [ $this, 'init_type_registry' ], 5, 1 );
 
 		/**
-		 * Fire an action as the Type registry is being initiated
+		 * Fire an action as the Type registry is being initiated.
 		 *
 		 * @param TypeRegistry $registry Instance of the TypeRegistry
 		 */
@@ -358,11 +354,6 @@ class TypeRegistry {
 		MenuItemObjectUnion::register_type( $this );
 		PostObjectUnion::register_type( $this );
 		TermObjectUnion::register_type( $this );
-
-		/**
-		 * Register scalar.
-		 */
-		Upload::register_type();
 
 		/**
 		 * Register core connections
@@ -561,6 +552,15 @@ class TypeRegistry {
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 
+		/**
+		 * Register Upload scalar type.
+		 * 
+		 * Account for plugins using their custom `Upload` scalar/type.
+		 */
+		$upload_type = $type_registry->get_type( 'Upload' );
+		if ( empty( $upload_type ) ) {
+			Upload::register_type( $type_registry );
+		}
 	}
 
 	/**
@@ -604,9 +604,7 @@ class TypeRegistry {
 			$connection_config['fromType']      = $config['name'];
 			$connection_config['fromFieldName'] = $field_name;
 			register_graphql_connection( $connection_config );
-
 		}
-
 	}
 
 	/**
@@ -790,7 +788,6 @@ class TypeRegistry {
 		}
 
 		return $prepared_type;
-
 	}
 
 	/**
@@ -798,8 +795,7 @@ class TypeRegistry {
 	 *
 	 * @param string $type_name The name of the Type to get from the registry
 	 *
-	 * @return mixed
-	 * |null
+	 * @return mixed|null
 	 */
 	public function get_type( string $type_name ) {
 
@@ -976,7 +972,6 @@ class TypeRegistry {
 		}
 
 		return $type;
-
 	}
 
 	/**
@@ -1052,7 +1047,6 @@ class TypeRegistry {
 			10,
 			1
 		);
-
 	}
 
 	/**
@@ -1077,7 +1071,6 @@ class TypeRegistry {
 
 			}
 		);
-
 	}
 
 	/**

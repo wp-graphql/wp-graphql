@@ -6,6 +6,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 use UnexpectedValueException;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class Upload
@@ -19,21 +20,33 @@ class Upload {
 	 *
 	 * @var string[]
 	 */
-	public static $validationFileKeys = [ 'name', 'type', 'size' ];
+	public static $validationFileKeys = [
+		'name',
+		'size',
+		'type',
+	];
 
 	/**
 	 * Register the scalar Upload type.
 	 *
+	 * @param TypeRegistry $type_registry Instance of the TypeRegistry.
+	 *
 	 * @return void
 	 */
-	public static function register_type() {
-		register_graphql_scalar(
+	public static function register_type( TypeRegistry $type_registry ) {
+		$type_registry->register_scalar(
 			'Upload',
 			[
 				'description'  => __( 'The `Upload` special type represents a file to be uploaded in the same HTTP request as specified by [graphql-multipart-request-spec](https: //github.com/jaydenseric/graphql-multipart-request-spec).', 'wp-graphql' ),
-				'serialize'    => fn() => static::serialize(),
-				'parseValue'   => fn( $value ) => static::parseValue( $value ),
-				'parseLiteral' => fn( $value ) => static::parseLiteral( $value ),
+				'serialize'    => function ( $value ) {
+					return static::serialize( $value );
+				},
+				'parseValue'   => function ( $value ) {
+					return static::parseValue( $value );
+				},
+				'parseLiteral' => function ( $value ) {
+					return static::parseLiteral( $value );
+				},
 			]
 		);
 	}
@@ -46,7 +59,7 @@ class Upload {
 	 * @return void
 	 */
 	public static function serialize() {
-		throw new InvariantViolation( '`Upload` cannot be serialized' );
+		throw new InvariantViolation( __( '`Upload` cannot be serialized', 'wp-graphql' ) );
 	}
 
 	/**
