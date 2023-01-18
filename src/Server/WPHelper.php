@@ -78,9 +78,9 @@ class WPHelper extends Helper {
 	 *
 	 * @throws RequestError Throws RequestError.
 	 *
-	 * @param string     $method                      The method of the request (GET, POST, etc).
-	 * @param array|null $filtered_parsed_body_params An array containing the pieces of the data of the GraphQL request
-	 * @param array      $parsed_body_params          An array containing the pieces of the data of the GraphQL request
+	 * @param string $method                      The method of the request (GET, POST, etc).
+	 * @param array  $filtered_parsed_body_params An array containing the pieces of the data of the GraphQL request
+	 * @param array  $parsed_body_params          An array containing the pieces of the data of the GraphQL request
 	 * @return mixed
 	 */
 	private function process_multi_part_requests( string $method, array $filtered_parsed_body_params, $parsed_body_params ) {
