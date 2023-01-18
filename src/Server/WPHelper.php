@@ -35,6 +35,12 @@ class WPHelper extends Helper {
 		];
 
 		/**
+		 * Keep the old behavior where the same hook was used for
+		 * the GET and POST requests, but with different data.
+		 */
+		$request_data = 'GET' === $method ? $parsed_query_params : $parsed_body_params;
+
+		/**
 		 * Allow the request data to be filtered. Previously this filter was only
 		 * applied to non-HTTP requests. Since 0.2.0, we will apply it to all
 		 * requests.
@@ -43,23 +49,23 @@ class WPHelper extends Helper {
 		 * persisted queries (and ends up being a bit more flexible than
 		 * graphql-php's built-in persistentQueryLoader).
 		 *
-		 * @param array  $parsed_body_params An array containing the pieces of the data of the GraphQL request.
-		 * @param array  $request_context    An array containing the both body and query params.
-		 * @param string $method             The method of the request (GET, POST, etc).
+		 * @param array  $request_data    An array containing the pieces of the data of the GraphQL request.
+		 * @param array  $request_context An array containing the both body and query params.
+		 * @param string $method          The method of the request (GET, POST, etc).
 		 */
-		$filtered_parsed_body_params = apply_filters( 'graphql_request_data', $parsed_body_params, $request_context, $method );
+		$filtered_resquest_data = apply_filters( 'graphql_request_data', $request_data, $request_context, $method );
+
+		// In GET requests there cannot be any body params to be parsed, so it's empty.
+		if ( 'GET' === $method ) {
+			return parent::parseRequestParams( $method, [], $filtered_resquest_data );
+		}
 
 		/**
 		 * Process multi-part requests.
 		 * 
 		 * This is only run if custom Upload types from plugins are not registered.
 		 */
-		$parsed_body_params = $this->process_multi_part_requests( $method, $filtered_parsed_body_params, $parsed_body_params );
-
-		// In GET requests there cannot be any body params to be parsed, so it's empty.
-		if ( 'GET' === $method ) {
-			return parent::parseRequestParams( $method, [], $parsed_query_params );
-		}
+		$parsed_body_params = $this->process_multi_part_requests( $method, $filtered_resquest_data, $parsed_body_params );
 
 		// In POST requests the query params are ignored by default but users can
 		// merge them into the body params manually using the $request_context if
@@ -72,19 +78,25 @@ class WPHelper extends Helper {
 	 *
 	 * @throws RequestError Throws RequestError.
 	 *
-	 * @param string $method                      The method of the request (GET, POST, etc).
-	 * @param array  $filtered_parsed_body_params An array containing the pieces of the data of the GraphQL request
-	 * @param array  $parsed_body_params          An array containing the pieces of the data of the GraphQL request
+	 * @param string     $method                      The method of the request (GET, POST, etc).
+	 * @param array|null $filtered_parsed_body_params An array containing the pieces of the data of the GraphQL request
+	 * @param array      $parsed_body_params          An array containing the pieces of the data of the GraphQL request
 	 * @return mixed
 	 */
 	private function process_multi_part_requests( string $method, array $filtered_parsed_body_params, $parsed_body_params ) {
 		$contentType = wp_unslash( $_SERVER['CONTENT_TYPE'] ?? null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		// Bail early.
-		if ( empty( $filtered_parsed_body_params ) || 'POST' !== $method || stripos( $contentType, 'multipart/form-data' ) === false ) {
+		if ( 'POST' !== $method || stripos( $contentType, 'multipart/form-data' ) === false ) {
 			return $filtered_parsed_body_params;
 		}
 
+		// Bail if empty.
+		if ( empty( $filtered_parsed_body_params ) ) {
+			return $filtered_parsed_body_params;
+		}
+
+		// This is different from the one above.
 		if ( empty( $parsed_body_params['map'] ) ) {
 			throw new RequestError( __( 'The request must define a `map`', 'wp-graphql' ) );
 		}

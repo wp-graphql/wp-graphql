@@ -77,12 +77,13 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->dateGmt       = '2017-08-01T21:00:00';
 		$this->description   = 'This is a magic description.';
 		$this->filePath      = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
-		$test_image          = WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png';
+		$test_image          = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
 		$this->file          = [
-			'name'  => $test_image,
-			'error' => 0,
-			'type'  => 'image/png',
-			'size'  => filesize( $test_image ),
+			'name'     => basename( $test_image ),
+			'error'    => 0,
+			'type'     => 'image/png',
+			'size'     => filesize( $test_image ),
+			'tmp_name' => $test_image,
 		];
 		$this->fileType      = 'IMAGE_GIF';
 		$this->slug          = 'magic-shia';
@@ -162,6 +163,13 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 				'forceDelete' => true,
 			],
 		];
+	}
+
+	/**
+	 * Copy file.
+	 */
+	public function copy_file( $return, $file, $new_file ) {
+		return @copy( $file['tmp_name'], $new_file );
 	}
 
 	/**
@@ -771,14 +779,17 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		wp_set_current_user( $this->admin );
 
 		// Set our local file.
-		$this->create_variables['input']['file']     = $this->file;
-		$this->create_variables['input']['slug']     = 'test-medium';
-		$this->create_variables['input']['filePath'] = null;
+		$this->create_variables['input']['file'] = $this->file;
+		$this->create_variables['input']['slug'] = 'test';
+
+		add_filter( 'pre_move_uploaded_file', [ $this, 'copy_file' ], 10, 3 );
 
 		/**
 		 * Create the createMediaItem
 		 */
 		$actual = $this->createMediaItemMutation();
+
+		remove_filter( 'pre_move_uploaded_file', [ $this, 'copy_file' ], 10, 3 );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -799,7 +810,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'commentStatus' => $this->commentStatus,
 					'date'          => $this->date,
 					'dateGmt'       => $this->dateGmt,
-					'slug'          => 'test-medium',
+					'slug'          => 'test',
 					'status'        => strtolower( $this->status ),
 					'mimeType'      => 'image/png',
 					'parent'        => null,
@@ -824,12 +835,36 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 						'width'  => $attachment_details['width'],
 						'sizes'  => [
 							0 => [
+								'name'      => 'medium',
+								'file'      => $attachment_details['sizes']['medium']['file'],
+								'width'     => (int) $attachment_details['sizes']['medium']['width'],
+								'height'    => (int) $attachment_details['sizes']['medium']['height'],
+								'mimeType'  => $attachment_details['sizes']['medium']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
+							],
+							1 => [
+								'name'      => 'large',
+								'file'      => $attachment_details['sizes']['large']['file'],
+								'width'     => (int) $attachment_details['sizes']['large']['width'],
+								'height'    => (int) $attachment_details['sizes']['large']['height'],
+								'mimeType'  => $attachment_details['sizes']['large']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'large' )[0],
+							],
+							2 => [
 								'name'      => 'thumbnail',
 								'file'      => $attachment_details['sizes']['thumbnail']['file'],
 								'width'     => (int) $attachment_details['sizes']['thumbnail']['width'],
 								'height'    => (int) $attachment_details['sizes']['thumbnail']['height'],
 								'mimeType'  => $attachment_details['sizes']['thumbnail']['mime-type'],
 								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
+							],
+							3 => [
+								'name'      => 'medium_large',
+								'file'      => $attachment_details['sizes']['medium_large']['file'],
+								'width'     => (int) $attachment_details['sizes']['medium_large']['width'],
+								'height'    => (int) $attachment_details['sizes']['medium_large']['height'],
+								'mimeType'  => $attachment_details['sizes']['medium_large']['mime-type'],
+								'sourceUrl' => wp_get_attachment_image_src( $attachment_id, 'medium_large' )[0],
 							],
 						],
 					],
@@ -1289,6 +1324,5 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->updateMediaItemMutation();
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
 	}
 }

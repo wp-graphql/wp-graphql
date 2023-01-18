@@ -203,11 +203,6 @@ class MediaItemCreate {
 					'size'     => filesize( $temp_file ),
 				];
 			} else {
-				
-				if ( empty( $input['file'] ) ) {
-					throw new UserError( __( 'Sorry, the local file is invalid, make sure the file exists.', 'wp-graphql' ) );
-				}
-
 				$file_data = $input['file'];
 			}
 
