@@ -763,6 +763,11 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testCreateMediaItemWithFileMutation() {
+
+		/**
+		 * Set the current user as the admin role so we
+		 * can properly test the mutation
+		 */
 		wp_set_current_user( $this->admin );
 
 		// Set our local file.

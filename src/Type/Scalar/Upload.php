@@ -13,7 +13,7 @@ use WPGraphQL\Registry\TypeRegistry;
  *
  * Registers Upload scalar type to WPGraphQL schema.
  */
-class Upload {
+final class Upload {
 
 	/**
 	 * Keys found for a file in the $_FILES array to validate against.
@@ -38,14 +38,14 @@ class Upload {
 			'Upload',
 			[
 				'description'  => __( 'The `Upload` special type represents a file to be uploaded in the same HTTP request as specified by [graphql-multipart-request-spec](https: //github.com/jaydenseric/graphql-multipart-request-spec).', 'wp-graphql' ),
-				'serialize'    => function ( $value ) {
-					return static::serialize( $value );
+				'serialize'    => function () {
+					static::serialize();
 				},
 				'parseValue'   => function ( $value ) {
 					return static::parseValue( $value );
 				},
 				'parseLiteral' => function ( $value ) {
-					return static::parseLiteral( $value );
+					static::parseLiteral( $value );
 				},
 			]
 		);
@@ -71,7 +71,7 @@ class Upload {
 	 * @return mixed
 	 */
 	public static function parseValue( $value ) {
-		if ( false === static::arrayKeysExist( (array) $value ) ) {
+		if ( false === static::arrayKeysExist( $value ) ) {
 			throw new UnexpectedValueException(
 				sprintf(
 					__( 'Could not get uploaded file, be sure to conform to GraphQL multipart request specification. Instead got: %s', 'wp-graphql' ),
@@ -99,15 +99,16 @@ class Upload {
 	 * 
 	 * @throws UserError
 	 *
-	 * @param GraphQLLanguageASTNode $valueNode
+	 * @param mixed $value Node.
+	 *
+	 * @return void
 	 */
 	public static function parseLiteral( $value ) {
 		throw new UserError(
 			sprintf(
 				__( '`Upload` cannot be hardcoded in query, be sure to conform to GraphQL multipart request specification. Instead got:  %s', 'wp-graphql' ),
 				$value->kind
-			),
-			$value
+			)
 		);
 	}
 
