@@ -18,6 +18,10 @@ class TermObjectsConnectionOrderbyEnum {
 						'value'       => 'name',
 						'description' => __( 'Order the connection by name.', 'wp-graphql' ),
 					],
+					'NAME_NUM'        => [
+						'value'       => 'name_num',
+						'description' => __( 'Order the connection by name (numeric).', 'wp-graphql' ),
+					],
 					'SLUG'        => [
 						'value'       => 'slug',
 						'description' => __( 'Order the connection by slug.', 'wp-graphql' ),
