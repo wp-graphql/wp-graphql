@@ -147,7 +147,7 @@ class Config {
 				'graphql_wp_user_query_cursor_pagination_stability',
 			],
 			10,
-			2
+			1
 		);
 
 	}
