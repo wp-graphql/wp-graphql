@@ -688,7 +688,7 @@ function graphql_debug( $message, $config = [] ) {
 	add_action(
 		'graphql_get_debug_log',
 		function ( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
-			return $debug_log->add_log_entry( $message, $config );
+			$debug_log->add_log_entry( $message, $config );
 		}
 	);
 }
