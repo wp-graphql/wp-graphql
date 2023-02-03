@@ -25,10 +25,10 @@ class TermObject {
 	/**
 	 * Registers a taxonomy type to the schema as either a GraphQL object, interface, or union.
 	 *
-	 * @param WP_Taxonomy $tax_object Taxonomy.
+	 * @param \WP_Taxonomy $tax_object Taxonomy.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_types( WP_Taxonomy $tax_object ) {
 		$single_name = $tax_object->graphql_single_name;
@@ -96,7 +96,7 @@ class TermObject {
 	/**
 	 * Gets all the connections for the given post type.
 	 *
-	 * @param WP_Taxonomy $tax_object
+	 * @param \WP_Taxonomy $tax_object
 	 *
 	 * @return array
 	 */
@@ -254,7 +254,7 @@ class TermObject {
 	/**
 	 * Gets all the interfaces for the given Taxonomy.
 	 *
-	 * @param WP_Taxonomy $tax_object Taxonomy.
+	 * @param \WP_Taxonomy $tax_object Taxonomy.
 	 *
 	 * @return array
 	 */
@@ -289,7 +289,7 @@ class TermObject {
 	/**
 	 * Registers common Taxonomy fields on schema type corresponding to provided Taxonomy object.
 	 *
-	 * @param WP_Taxonomy $tax_object Taxonomy.
+	 * @param \WP_Taxonomy $tax_object Taxonomy.
 	 *
 	 * @return array
 	 */

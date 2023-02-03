@@ -15,7 +15,7 @@ class Commenter {
 	/**
 	 * Register the Commenter Interface
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 */

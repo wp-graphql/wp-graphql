@@ -93,7 +93,7 @@ class WPConnectionType {
 	/**
 	 * The resolver function to resolve the connection
 	 *
-	 * @var callable|Closure
+	 * @var callable|\Closure
 	 */
 	protected $resolve_connection;
 
@@ -119,7 +119,7 @@ class WPConnectionType {
 	/**
 	 * The WPGraphQL TypeRegistry
 	 *
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	protected $type_registry;
 
@@ -134,7 +134,7 @@ class WPConnectionType {
 	 * WPConnectionType constructor.
 	 *
 	 * @param array        $config The config array for the connection
-	 * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -144,7 +144,7 @@ class WPConnectionType {
 		 * Filter the config of WPConnectionType
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPConnectionType when instantiating a new type
-		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 */
 		$config = apply_filters( 'graphql_wp_connection_type_config', $config, $this );
 
@@ -181,7 +181,7 @@ class WPConnectionType {
 		 * Run an action when the WPConnectionType is instantiating.
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 *
 		 * @since 1.13.0
 		 */
@@ -266,7 +266,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_connection_input() {
 
@@ -304,7 +304,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_one_to_one_connection_edge_type(): void {
 
@@ -344,7 +344,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection_page_info_type(): void {
 
@@ -365,7 +365,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_connection_edge_type(): void {
 
@@ -409,7 +409,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_connection_type(): void {
 
@@ -535,7 +535,7 @@ class WPConnectionType {
 
 	/**
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection_interfaces(): void {
 
@@ -591,7 +591,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection(): void {
 

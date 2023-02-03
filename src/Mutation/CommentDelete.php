@@ -15,7 +15,7 @@ class CommentDelete {
 	 * Registers the CommentDelete mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

@@ -15,7 +15,7 @@ use WP_User_Query;
 class UserCursor extends AbstractCursor {
 
 	/**
-	 * @var ?WP_User
+	 * @var ?\WP_User
 	 */
 	public $cursor_node;
 
@@ -29,7 +29,7 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * UserCursor constructor.
 	 *
-	 * @param array|WP_User_Query $query_vars The query vars to use when building the SQL statement.
+	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
 	 * @param string|null         $cursor     Whether to generate the before or after cursor
 	 *
 	 * @return void
@@ -60,7 +60,7 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ?WP_User
+	 * @return ?\WP_User
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
@@ -73,7 +73,7 @@ class UserCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @return ?WP_User
+	 * @return ?\WP_User
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_user() {

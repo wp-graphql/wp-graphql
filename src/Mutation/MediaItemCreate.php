@@ -15,7 +15,7 @@ class MediaItemCreate {
 	 * Registers the MediaItemCreate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

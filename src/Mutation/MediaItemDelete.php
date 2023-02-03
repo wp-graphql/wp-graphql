@@ -12,7 +12,7 @@ class MediaItemDelete {
 	 * Registers the MediaItemDelete mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -65,7 +65,7 @@ class MediaItemDelete {
 				'type'        => 'MediaItem',
 				'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					/** @var Post $deleted */
+					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['mediaItemObject'];
 
 					return ! empty( $deleted->ID ) ? $deleted : null;

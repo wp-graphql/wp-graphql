@@ -42,12 +42,12 @@ class AppContext {
 	/**
 	 * Stores the WP_User object of the current user
 	 *
-	 * @var WP_User $viewer
+	 * @var \WP_User $viewer
 	 */
 	public $viewer;
 
 	/**
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	public $type_registry;
 
@@ -89,7 +89,7 @@ class AppContext {
 	/**
 	 * Instance of the NodeResolver class to resolve nodes by URI
 	 *
-	 * @var NodeResolver
+	 * @var \WPGraphQL\Data\NodeResolver
 	 */
 	public $node_resolver;
 
@@ -130,7 +130,7 @@ class AppContext {
 		/**
 		 * This sets up the NodeResolver to allow nodes to be resolved by URI
 		 *
-		 * @param AppContext $app_context The AppContext instance
+		 * @param \WPGraphQL\AppContext $app_context The AppContext instance
 		 */
 		$this->node_resolver = new NodeResolver( $this );
 

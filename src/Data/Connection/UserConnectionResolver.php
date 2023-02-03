@@ -259,8 +259,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $args       The query "where" args
 		 * @param mixed       $source     The query results of the query calling this relation
 		 * @param array       $all_args   Array of all the query args (not just the "where" args)
-		 * @param AppContext  $context    The AppContext object
-		 * @param ResolveInfo $info       The ResolveInfo object
+		 * @param \WPGraphQL\AppContext $context The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 *
 		 * @return array
 		 * @since 0.0.5

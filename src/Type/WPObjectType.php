@@ -26,7 +26,7 @@ class WPObjectType extends ObjectType {
 	 * to easily define themselves as a node type by implementing
 	 * self::$node_interface
 	 *
-	 * @var array|Node $node_interface
+	 * @var array|\WPGraphQL\Type\InterfaceType\Node $node_interface
 	 * @since 0.0.5
 	 */
 	private static $node_interface;
@@ -34,7 +34,7 @@ class WPObjectType extends ObjectType {
 	/**
 	 * Instance of the Type Registry
 	 *
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	public $type_registry;
 
@@ -47,7 +47,7 @@ class WPObjectType extends ObjectType {
 	 * WPObjectType constructor.
 	 *
 	 * @param array        $config
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @throws \Exception
 	 * @since 0.0.5
@@ -63,7 +63,7 @@ class WPObjectType extends ObjectType {
 		 * Filter the config of WPObjectType
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPObjectType $wp_object_type The instance of the WPObjectType class
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
@@ -129,7 +129,7 @@ class WPObjectType extends ObjectType {
 		 * Run an action when the WPObjectType is instantiating
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPObjectType $wp_object_type The instance of the WPObjectType class
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
 
@@ -151,7 +151,7 @@ class WPObjectType extends ObjectType {
 	 * This returns the node_interface definition allowing
 	 * WPObjectTypes to easily implement the node_interface
 	 *
-	 * @return array|Node
+	 * @return array|\WPGraphQL\Type\InterfaceType\Node
 	 * @since 0.0.5
 	 */
 	public static function node_interface() {
@@ -186,8 +186,8 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @param array        $fields         The array of fields for the object config
 		 * @param string       $type_name      The name of the object type
-		 * @param WPObjectType $wp_object_type The WPObjectType Class
-		 * @param TypeRegistry $type_registry  The Type Registry
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
 
@@ -204,8 +204,8 @@ class WPObjectType extends ObjectType {
 		 * more specific overrides
 		 *
 		 * @param array        $fields         The array of fields for the object config
-		 * @param WPObjectType $wp_object_type The WPObjectType Class
-		 * @param TypeRegistry $type_registry  The Type Registry
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
 
@@ -216,8 +216,8 @@ class WPObjectType extends ObjectType {
 		 * more specific overrides
 		 *
 		 * @param array        $fields         The array of fields for the object config
-		 * @param WPObjectType $wp_object_type The WPObjectType Class
-		 * @param TypeRegistry $type_registry  The Type Registry
+		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );
 

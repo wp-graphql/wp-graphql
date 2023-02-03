@@ -218,7 +218,7 @@ class TypeRegistry {
 	/**
 	 * Initialize the TypeRegistry
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return void
 	 */
@@ -241,7 +241,7 @@ class TypeRegistry {
 		/**
 		 * Fire an action as the Type registry is being initiated
 		 *
-		 * @param TypeRegistry $registry Instance of the TypeRegistry
+		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'init_graphql_type_registry', $this );
 
@@ -250,10 +250,10 @@ class TypeRegistry {
 	/**
 	 * Initialize the Type Registry
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function init_type_registry( TypeRegistry $type_registry ) {
 
@@ -261,7 +261,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $registry Instance of the TypeRegistry
+		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
 
@@ -543,7 +543,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * before the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $registry Instance of the TypeRegistry
+		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types', $type_registry );
 
@@ -551,7 +551,7 @@ class TypeRegistry {
 		 * Fire an action as the type registry is initialized. This executes
 		 * during the `graphql_register_types` action to allow for earlier hooking
 		 *
-		 * @param TypeRegistry $registry Instance of the TypeRegistry
+		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_types_late', $type_registry );
 
@@ -563,7 +563,7 @@ class TypeRegistry {
 	 * @param string $type_name The name of the Type to register
 	 * @param array  $config    The config for the scalar type to register
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return void
 	 */
@@ -579,7 +579,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_connections_from_config( array $config ) {
 
@@ -607,9 +607,9 @@ class TypeRegistry {
 	 * Add a Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param mixed|array|Type $config The config for the type
+	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The config for the type
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return void
 	 */
@@ -671,7 +671,7 @@ class TypeRegistry {
 	 * @param string $type_name The name of the type to register
 	 * @param array $config The configuration of the type
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 * @return void
 	 */
 	public function register_object_type( string $type_name, array $config ) {
@@ -685,7 +685,7 @@ class TypeRegistry {
 	 * @param string $type_name The name of the type to register
 	 * @param array $config he configuration of the type
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 * @return void
 	 */
 	public function register_interface_type( string $type_name, array $config ) {
@@ -700,7 +700,7 @@ class TypeRegistry {
 	 * @param array $config he configuration of the type
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_enum_type( string $type_name, array $config ) {
 		$config['kind'] = 'enum';
@@ -714,7 +714,7 @@ class TypeRegistry {
 	 * @param array $config he configuration of the type
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_input_type( string $type_name, array $config ) {
 		$config['kind'] = 'input';
@@ -729,7 +729,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_union_type( string $type_name, array $config ) {
 		$config['kind'] = 'union';
@@ -738,10 +738,10 @@ class TypeRegistry {
 
 	/**
 	 * @param string $type_name The name of the type to register
-	 * @param mixed|array|Type $config he configuration of the type
+	 * @param mixed|array|\GraphQL\Type\Definition\Type $config he configuration of the type
 	 *
-	 * @return mixed|array|Type|null
-	 * @throws Exception
+	 * @return mixed|array|\GraphQL\Type\Definition\Type|null
+	 * @throws \Exception
 	 */
 	public function prepare_type( string $type_name, $config ) {
 		/**
@@ -841,7 +841,7 @@ class TypeRegistry {
 	 * @param string $type_name Name of the Type to register the fields to
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function prepare_fields( array $fields, string $type_name ) {
 		$prepared_fields = [];
@@ -867,7 +867,7 @@ class TypeRegistry {
 	 * @param string $type_name    Name of the type to prepare the field for
 	 *
 	 * @return array|null
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function prepare_field( $field_name, $field_config, $type_name ) {
 
@@ -952,7 +952,7 @@ class TypeRegistry {
 	 * @param mixed|string|array $type The type definition
 	 *
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function setup_type_modifiers( $type ) {
 		if ( ! is_array( $type ) ) {
@@ -1080,8 +1080,8 @@ class TypeRegistry {
 	 * @param array $config The info about the connection being registered
 	 *
 	 * @return void
-	 * @throws InvalidArgumentException
-	 * @throws Exception
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function register_connection( array $config ) {
 		new WPConnectionType( $config, $this );
@@ -1094,7 +1094,7 @@ class TypeRegistry {
 	 * @param array  $config        Info about the mutation being registered
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ) {
 		$config['name'] = $mutation_name;
@@ -1106,7 +1106,7 @@ class TypeRegistry {
 	 *
 	 * @param mixed $type The Type being wrapped
 	 *
-	 * @return NonNull
+	 * @return \GraphQL\Type\Definition\NonNull
 	 */
 	public function non_null( $type ) {
 		if ( is_string( $type ) ) {
@@ -1123,7 +1123,7 @@ class TypeRegistry {
 	 *
 	 * @param mixed $type The Type being wrapped
 	 *
-	 * @return ListOfType
+	 * @return \GraphQL\Type\Definition\ListOfType
 	 */
 	public function list_of( $type ) {
 		if ( is_string( $type ) ) {

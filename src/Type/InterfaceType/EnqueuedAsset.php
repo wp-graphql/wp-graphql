@@ -13,7 +13,7 @@ class EnqueuedAsset {
 	/**
 	 * Register the Enqueued Script Type
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL Type Registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL Type Registry
 	 *
 	 * @return void
 	 */

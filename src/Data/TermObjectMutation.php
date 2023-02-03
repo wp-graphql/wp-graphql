@@ -12,10 +12,10 @@ class TermObjectMutation {
 	 * This prepares the object to be mutated - ensures data is safe to be saved,
 	 * and mapped from input args to WordPress $args
 	 *
-	 * @throws UserError User error for invalid term.
+	 * @throws \GraphQL\Error\UserError User error for invalid term.
 	 * 
 	 * @param array        $input         The input from the GraphQL Request
-	 * @param WP_Taxonomy  $taxonomy      The Taxonomy object for the type of term being mutated
+	 * @param \WP_Taxonomy $taxonomy The Taxonomy object for the type of term being mutated
 	 * @param string       $mutation_name The name of the mutation (create, update, etc)
 	 *
 	 * @return mixed
@@ -80,7 +80,7 @@ class TermObjectMutation {
 		 *
 		 * @param array $insert_args The array of input args that will be passed to the functions that insert terms
 		 * @param array $input The data that was entered as input for the mutation
-		 * @param WP_Taxonomy $taxonomy The taxonomy object of the term being mutated
+		 * @param \WP_Taxonomy $taxonomy The taxonomy object of the term being mutated
 		 * @param string $mutation_name The name of the mutation being performed (create, edit, etc)
 		 */
 		return apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );

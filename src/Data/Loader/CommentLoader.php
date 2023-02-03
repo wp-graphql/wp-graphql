@@ -16,8 +16,8 @@ class CommentLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Comment|null
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Comment|null
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
 
@@ -46,7 +46,7 @@ class CommentLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys = [] ) {
 
