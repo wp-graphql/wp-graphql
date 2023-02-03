@@ -443,7 +443,7 @@ class NodeResolver {
 				$query = preg_replace( '!^.+\?!', '', $query );
 
 				// Substitute the substring matches into the query.
-				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) );
+				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) ); // @phpstan-ignore-line
 
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
