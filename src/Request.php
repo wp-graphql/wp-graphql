@@ -678,7 +678,7 @@ class Request {
 
 		}
 
-		return [];
+		return []; // @phpstan-ignore-line
 	}
 
 	/**
