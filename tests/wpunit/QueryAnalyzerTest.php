@@ -36,6 +36,8 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// get the list types that were generated during execution
 		$list_types = $request->get_query_analyzer()->get_list_types();
 
+		codecept_debug( $list_types );
+
 		// Assert the expected list types are returned
 		$this->assertEqualSets( [ 'list:post' ], $list_types );
 	}
@@ -77,6 +79,63 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$types = $request->get_query_analyzer()->get_query_types();
 		$this->assertEqualSets( [ 'rootquery', 'rootquerytopostconnection', 'post' ], $types );
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2711
+	 * @return void
+	 */
+	public function testQueryOneToOneConnectionNodesNotShownInListTypes() {
+
+		$query = '
+		{
+		  tags {
+		    edges {
+		      node {
+		        id
+		      }
+		    }
+		  }
+		  posts {
+		    nodes {
+		      id
+		      title
+		      author {
+		        node {
+		          name
+		        }
+		      }
+		      featuredImage {
+		        node {
+		          sourceUrl
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true);
+
+
+		// before execution, this should be null
+		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
+
+		// Execute the request
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+		codecept_debug( $types );
+		$this->assertContains( 'list:post', $types );
+		$this->assertContains( 'list:tag', $types );
+
+		// the author and media item were queried as part of one-to-one
+		// connections and should not be output as lists
+		$this->assertNotContains( 'list:mediaitem', $types );
+		$this->assertNotContains( 'list:user', $types );
+
 	}
 
 }
