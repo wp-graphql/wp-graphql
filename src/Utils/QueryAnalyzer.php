@@ -333,7 +333,7 @@ class QueryAnalyzer {
 		$type_info = new TypeInfo( $schema );
 
 		$visitor = [
-			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map ) {
+			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 
 				$type_info->enter( $node );
 				$type = $type_info->getType();
@@ -353,38 +353,47 @@ class QueryAnalyzer {
 
 				$named_type = Type::getNamedType( $type );
 
-				if ( $named_type instanceof ObjectType || $named_type instanceof InterfaceType ) {
+				if ( ! $named_type instanceof ObjectType && ! $named_type instanceof InterfaceType ) {
+					return;
+				}
 
-					$interfaces = $named_type->getInterfaces();
+				$interfaces = $named_type->getInterfaces();
 
-					if ( empty( $interfaces ) ) {
-						return;
+				if ( empty( $interfaces ) ) {
+					return;
+				}
+
+				// Get the interface names
+				$interface_names = array_keys( $interfaces );
+
+				// If the Node interface isn't applied, it's not a node type
+				if ( ! in_array( 'Node', $interface_names, true ) ) {
+					return;
+				}
+
+				// Get the parent type info
+				$parent_type       = $type_info->getParentType();
+				$parent_named_type = null;
+
+				if ( $parent_type !== null ) {
+					$parent_named_type = Type::getNamedType( $parent_type );
+				}
+
+				// If the node type hasn't been queried directly as a list or as a nested field
+				// of a list, we can consider it not queried as a list
+				if ( ! in_array( $parent_named_type, $this->queried_list_types, true ) && ! in_array( $named_type, $this->queried_list_types, true ) ) {
+					return;
+				}
+
+				if ( $named_type instanceof InterfaceType ) {
+					$possible_types = $schema->getPossibleTypes( $named_type );
+					if ( ! empty( $possible_types ) ) {
+						foreach ( $possible_types as $possible_type ) {
+							$type_map[] = 'list:' . strtolower( $possible_type );
+						}
 					}
-
-					// Get the interface names
-					$interface_names = array_keys( $interfaces );
-
-					// If the Node interface isn't applied, it's not a node type
-					if ( ! in_array( 'Node', $interface_names, true ) ) {
-						return;
-					}
-
-					// Get the parent type info
-					$parent_type       = $type_info->getParentType();
-					$parent_named_type = null;
-
-					if ( $parent_type !== null ) {
-						$parent_named_type = Type::getNamedType( $parent_type );
-					}
-
-					// If the node type hasn't been queried directly as a list or as a nested field
-					// of a list, we can consider it not queried as a list
-					if ( ! in_array( $parent_named_type, $this->queried_list_types, true ) && ! in_array( $named_type, $this->queried_list_types, true ) ) {
-						return;
-					}
-
+				} else {
 					$type_map[] = 'list:' . strtolower( $named_type );
-
 				}
 			},
 			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
