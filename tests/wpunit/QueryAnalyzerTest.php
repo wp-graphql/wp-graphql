@@ -11,6 +11,8 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_title' => 'test post'
 		]);
 
+		WPGraphQL::clear_schema();
+
 	}
 
 	public function _tearDown():void {
