@@ -375,6 +375,7 @@ class QueryAnalyzer {
 				$parent_type       = $type_info->getParentType();
 				$parent_named_type = null;
 
+				// If the type has a parent, get the "named type" of the parent type (i.e. instead of [Post!]!, get Post)
 				if ( null !== $parent_type ) {
 					$parent_named_type = Type::getNamedType( $parent_type );
 				}
@@ -385,6 +386,9 @@ class QueryAnalyzer {
 					return;
 				}
 
+				// If the type being queried is an interface (i.e. ContentNode) the publishing a new
+				// item of any of the possible types (post, page, etc) should invalidate
+				// this query, so we need to tag this query with `list:$possible_type` for each possible type
 				if ( $named_type instanceof InterfaceType ) {
 					$possible_types = $schema->getPossibleTypes( $named_type );
 					if ( ! empty( $possible_types ) ) {
