@@ -342,7 +342,7 @@ class QueryAnalyzer {
 					return;
 				}
 
-				if ( ! isset( $node->kind ) || $node->kind !== 'Field' ) {
+				if ( ! isset( $node->kind ) || 'Field' !== $node->kind ) {
 					return;
 				}
 
@@ -375,7 +375,7 @@ class QueryAnalyzer {
 				$parent_type       = $type_info->getParentType();
 				$parent_named_type = null;
 
-				if ( $parent_type !== null ) {
+				if ( null !== $parent_type ) {
 					$parent_named_type = Type::getNamedType( $parent_type );
 				}
 
