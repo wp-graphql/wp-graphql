@@ -677,8 +677,6 @@ class Request {
 			return $this->after_execute( $response );
 
 		}
-
-		return []; // @phpstan-ignore-line
 	}
 
 	/**
