@@ -79,4 +79,111 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEqualSets( [ 'rootquery', 'rootquerytopostconnection', 'post' ], $types );
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2711
+	 * @return void
+	 */
+	public function testQueryOneToOneConnectionNodesNotShownInListTypes() {
+
+		$query = '
+		{
+		  tags {
+		    edges {
+		      node {
+		        id
+		      }
+		    }
+		  }
+		  posts {
+		    nodes {
+		      id
+		      title
+		      author {
+		        node {
+		          name
+		        }
+		      }
+		      featuredImage {
+		        node {
+		          sourceUrl
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true);
+
+
+		// before execution, this should be null
+		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
+
+		// Execute the request
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+		codecept_debug( $types );
+		$this->assertContains( 'list:post', $types );
+		$this->assertContains( 'list:tag', $types );
+
+		// the author and media item were queried as part of one-to-one
+		// connections and should not be output as lists
+		$this->assertNotContains( 'list:mediaitem', $types );
+		$this->assertNotContains( 'list:user', $types );
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2711
+	 * @return void
+	 */
+	public function testQueryContentNodesReturnsListOfDifferentTypes() {
+
+		$query = '
+		{
+		  contentNodes {
+		    nodes {
+		      id
+		      title
+		      author {
+		        node {
+		          name
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true);
+
+
+		// before execution, this should be null
+		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
+
+		// Execute the request
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+		codecept_debug( $types );
+
+		// querying for a list of content nodes means that
+		// any Type that can be a content node needs to be tagged
+		// as it could impact the cache invalidation if a new type
+		// of any of the possible types is published
+		$this->assertContains( 'list:post', $types );
+		$this->assertContains( 'list:page', $types );
+		$this->assertContains( 'list:mediaitem', $types );
+
+		// the author was queried as part of one-to-one
+		// connection and should not be output as list:user
+		$this->assertNotContains( 'list:user', $types );
+
+	}
+	
 }
