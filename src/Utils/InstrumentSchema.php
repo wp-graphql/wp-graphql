@@ -210,13 +210,10 @@ class InstrumentSchema {
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
 	 *
 	 * @return void
-	 * @throws UserError
+	 *             
+	 * @throws \GraphQL\Error\UserError
 	 */
 	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
-
-		if ( ! $field instanceof FieldDefinition ) {
-			return;
-		}
 
 		if ( ( ! isset( $field->config['auth'] ) || ! is_array( $field->config['auth'] ) ) && ! isset( $field->config['isPrivate'] ) ) {
 			return;

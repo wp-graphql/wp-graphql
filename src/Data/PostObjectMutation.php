@@ -484,4 +484,31 @@ class PostObjectMutation {
 
 	}
 
+	/**
+	 * Check the edit lock for a post
+	 *
+	 * @param false|int     $post_id ID of the post to delete the lock for
+	 * @param array      $input             The input for the mutation
+	 *
+	 * @return false|int Return false if no lock or the user_id of the owner of the lock
+	 */
+	public static function check_edit_lock( $post_id, array $input ) {
+		if ( false === $post_id ) {
+			return false;
+		}
+
+		// If override the edit lock is set, return early
+		if ( isset( $input['ignoreEditLock'] ) && true === $input['ignoreEditLock'] ) {
+			return false;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/post.php';
+
+		if ( function_exists( 'wp_check_post_lock' ) ) {
+			return wp_check_post_lock( $post_id );
+		}
+
+		return false;
+	}
+
 }

@@ -43,12 +43,16 @@ class PostObjectUpdate {
 		return array_merge(
 			PostObjectCreate::get_input_fields( $post_type_object ),
 			[
-				'id' => [
+				'id'             => [
 					'type'        => [
 						'non_null' => 'ID',
 					],
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				],
+				'ignoreEditLock' => [
+					'type'        => 'Boolean',
+					'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 				],
 			]
 		);
@@ -128,6 +132,15 @@ class PostObjectUpdate {
 			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 				// translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+			}
+
+			// If post is locked and the override is not specified, do not allow the edit
+			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
+			if ( false !== $locked_user_id ) {
+				$user         = get_userdata( (int) $locked_user_id );
+				$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
+				/* translators: %s: User's display name. */
+				throw new UserError( sprintf( __( 'You cannot update this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
 			}
 
 			/**
