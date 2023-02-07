@@ -196,7 +196,7 @@ class InstrumentSchema {
 	}
 
 	/**
-	 * Check field permissions when resolving.
+	 * Check field permissions when resolving. If the check fails, an error will be thrown.
 	 *
 	 * This takes into account auth params defined in the Schema
 	 *
@@ -209,16 +209,17 @@ class InstrumentSchema {
 	 * @param string                $field_key      The name of the field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
 	 *
-	 * @return bool|mixed
+	 * @return void
+	 * @throws UserError
 	 */
 	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
 
 		if ( ! $field instanceof FieldDefinition ) {
-			return true;
+			return;
 		}
 
 		if ( ( ! isset( $field->config['auth'] ) || ! is_array( $field->config['auth'] ) ) && ! isset( $field->config['isPrivate'] ) ) {
-			return true;
+			return;
 		}
 
 		/**
@@ -247,7 +248,7 @@ class InstrumentSchema {
 				throw new UserError( $auth_error );
 			}
 
-			return $authorized;
+			return;
 		}
 
 		/**

@@ -95,7 +95,7 @@ class Tracing {
 		}
 
 		add_filter( 'do_graphql_request', [ $this, 'init_trace' ] );
-		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 5 );
+		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter( 'graphql_request_results', [
 			$this,
@@ -120,13 +120,11 @@ class Tracing {
 	/**
 	 * Sets the timestamp and microtime for the end of the request
 	 *
-	 * @return float
+	 * @return void
 	 */
 	public function end_trace() {
 		$this->request_end_microtime = microtime( true );
 		$this->request_end_timestamp = $this->format_timestamp( $this->request_end_microtime );
-
-		return $this->request_end_timestamp;
 	}
 
 	/**
