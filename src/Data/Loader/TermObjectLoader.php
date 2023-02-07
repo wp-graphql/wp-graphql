@@ -18,8 +18,8 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Term
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Term
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
 
@@ -62,7 +62,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @param int[] $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
 

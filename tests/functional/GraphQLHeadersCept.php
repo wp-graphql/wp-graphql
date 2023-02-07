@@ -46,6 +46,8 @@ $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
 $x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
+codecept_debug( $x_graphql_keys );
+
 $I->assertNotEmpty( $x_graphql_keys );
 $I->assertNotEmpty( $x_graphql_url );
 $post_cache_key = base64_encode( 'post:' . $post_id );

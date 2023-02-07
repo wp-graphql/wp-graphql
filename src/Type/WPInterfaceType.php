@@ -13,7 +13,7 @@ class WPInterfaceType extends InterfaceType {
 	/**
 	 * Instance of the TypeRegistry as an Interface needs knowledge of available Types
 	 *
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	public $type_registry;
 
@@ -26,9 +26,9 @@ class WPInterfaceType extends InterfaceType {
 	 * WPInterfaceType constructor.
 	 *
 	 * @param array        $config
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -94,7 +94,7 @@ class WPInterfaceType extends InterfaceType {
 			 *
 			 * @param mixed           $type   The Type to resolve to, based on the object being resolved.
 			 * @param mixed           $object The Object being resolved.
-			 * @param WPInterfaceType $wp_interface_type   The WPInterfaceType instance.
+			 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The WPInterfaceType instance.
 			 */
 			return apply_filters( 'graphql_interface_resolve_type', $type, $object, $this );
 		};
@@ -103,7 +103,7 @@ class WPInterfaceType extends InterfaceType {
 		 * Filter the config of WPInterfaceType
 		 *
 		 * @param array           $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
-		 * @param WPInterfaceType $wp_interface_type   The instance of the WPInterfaceType class
+		 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The instance of the WPInterfaceType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
 

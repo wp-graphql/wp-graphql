@@ -15,10 +15,10 @@ class PostObjectDelete {
 	/**
 	 * Registers the PostObjectDelete mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -36,7 +36,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -63,7 +63,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -73,7 +73,7 @@ class PostObjectDelete {
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					/** @var Post $deleted */
+					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
 					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', (string) $deleted->ID ) : null;
@@ -83,7 +83,7 @@ class PostObjectDelete {
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					/** @var Post $deleted */
+					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
 					return ! empty( $deleted->ID ) ? $deleted : null;
@@ -95,7 +95,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string       $mutation_name    The mutation name.
 	 *
 	 * @return callable

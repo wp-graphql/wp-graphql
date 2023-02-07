@@ -18,7 +18,7 @@ class PostObjectCreate {
 	/**
 	 * Registers the PostObjectCreate mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
 	 */
@@ -38,7 +38,7 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -159,7 +159,7 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -183,7 +183,7 @@ class PostObjectCreate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string       $mutation_name    The mutation name.
 	 *
 	 * @return callable
@@ -243,7 +243,7 @@ class PostObjectCreate {
 			 * customizing stati or various E-commerce plugins that make heavy use of custom stati)
 			 *
 			 * @param string       $default_status   The default status to be used when the post is initially inserted
-			 * @param WP_Post_Type $post_type_object The Post Type that is being inserted
+			 * @param \WP_Post_Type $post_type_object The Post Type that is being inserted
 			 * @param string       $mutation_name    The name of the mutation currently in progress
 			 */
 			$default_post_status = apply_filters( 'graphql_post_object_create_default_post_status', 'draft', $post_type_object, $mutation_name );
@@ -316,10 +316,10 @@ class PostObjectCreate {
 			 * the $intended_status.
 			 *
 			 * @param boolean      $should_set_intended_status Whether to set the intended post_status or not. Default true.
-			 * @param WP_Post_Type $post_type_object           The Post Type Object for the post being mutated
+			 * @param \WP_Post_Type $post_type_object The Post Type Object for the post being mutated
 			 * @param string       $mutation_name              The name of the mutation currently in progress
-			 * @param AppContext   $context                    The AppContext passed down to all resolvers
-			 * @param ResolveInfo  $info                       The ResolveInfo passed down to all resolvers
+			 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 			 * @param string       $intended_post_status       The intended post_status the post should have according to the mutation input
 			 * @param string       $default_post_status        The default status posts should use if an intended status wasn't set
 			 */

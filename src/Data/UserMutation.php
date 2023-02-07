@@ -214,11 +214,11 @@ class UserMutation {
 	 * @param int         $user_id       The ID of the user being mutated
 	 * @param array       $input         The input data from the GraphQL query
 	 * @param string      $mutation_name Name of the mutation currently being run
-	 * @param AppContext  $context       The AppContext passed down the resolve tree
-	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
 
@@ -233,8 +233,8 @@ class UserMutation {
 		 * @param int         $user_id       The ID of the user being mutated
 		 * @param array       $input         The input for the mutation
 		 * @param string      $mutation_name The name of the mutation (ex: create, update, delete)
-		 * @param AppContext  $context       The AppContext passed down the resolve tree
-		 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+		 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 		 */
 		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
 
@@ -247,7 +247,7 @@ class UserMutation {
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
 

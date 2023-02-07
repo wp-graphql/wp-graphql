@@ -55,7 +55,7 @@ class GraphiQL {
 	/**
 	 * Registers admin bar menu
 	 *
-	 * @param WP_Admin_Bar $admin_bar The Admin Bar Instance
+	 * @param \WP_Admin_Bar $admin_bar The Admin Bar Instance
 	 *
 	 * @return void
 	 */

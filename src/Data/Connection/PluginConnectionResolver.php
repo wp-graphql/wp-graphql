@@ -192,7 +192,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		 * */
 		$filtered_plugins = ! empty( $active_stati ) ? array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) : [];
 		// If plugins exist for the filter, flatten and return them. Otherwise, return the full list.
-		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( ...$filtered_plugins ) : $plugins_by_status['all'];
+		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( [], ...$filtered_plugins ) : $plugins_by_status['all'];
 
 		if ( ! empty( $this->args['where']['search'] ) ) {
 			// Filter by search args.

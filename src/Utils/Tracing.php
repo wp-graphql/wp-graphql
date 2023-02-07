@@ -95,7 +95,7 @@ class Tracing {
 		}
 
 		add_filter( 'do_graphql_request', [ $this, 'init_trace' ] );
-		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 5 );
+		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter( 'graphql_request_results', [
 			$this,
@@ -120,13 +120,11 @@ class Tracing {
 	/**
 	 * Sets the timestamp and microtime for the end of the request
 	 *
-	 * @return float
+	 * @return void
 	 */
 	public function end_trace() {
 		$this->request_end_microtime = microtime( true );
 		$this->request_end_timestamp = $this->format_timestamp( $this->request_end_microtime );
-
-		return $this->request_end_timestamp;
 	}
 
 	/**
@@ -134,8 +132,8 @@ class Tracing {
 	 *
 	 * @param mixed               $source         The source passed down the Resolve Tree
 	 * @param array               $args           The args for the field
-	 * @param AppContext          $context        The AppContext passed down the ResolveTree
-	 * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
 	 *
 	 * @return void
 	 */
@@ -355,7 +353,7 @@ class Tracing {
 		 * Filter the trace
 		 *
 		 * @param array   $trace     The trace to return
-		 * @param Tracing $instance  The Tracing class instance
+		 * @param \WPGraphQL\Utils\Tracing $instance The Tracing class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
 	}

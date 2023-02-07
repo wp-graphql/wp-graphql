@@ -618,7 +618,7 @@ class RootQuery {
 									break;
 							}
 
-							return ! empty( $id ) ? DataSource::resolve_user( $id, $context ) : null;
+							return ! empty( $id ) ? $context->get_loader( 'user' )->load_deferred( $id ) : null;
 						},
 					],
 					'userRole'    => [
