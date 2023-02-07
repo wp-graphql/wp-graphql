@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.8
+
+- [#2712](https://github.com/wp-graphql/wp-graphql/pull/2712): fix: query analyzer outputting unexpected list types
+
 ## 1.13.7
 
 ## Chores / Bugfixes
