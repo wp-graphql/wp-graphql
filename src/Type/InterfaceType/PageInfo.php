@@ -17,13 +17,13 @@ class PageInfo {
 	public static function register_type( TypeRegistry $type_registry ): void {
 
 		register_graphql_interface_type( 'WPPageInfo', [
-			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
+			'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 			'interfaces'  => [ 'PageInfo' ],
 			'fields'      => self::get_fields(),
 		] );
 
 		register_graphql_interface_type( 'PageInfo', [
-			'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
+			'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 			'fields'      => self::get_fields(),
 		] );
 
