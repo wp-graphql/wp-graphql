@@ -14,10 +14,10 @@ class SettingGroup {
 	 *
 	 * @param string       $group_name    The name of the setting group
 	 * @param string       $group         The settings group config
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return string|null
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_settings_group( string $group_name, string $group, TypeRegistry $type_registry ) {
 
@@ -47,7 +47,7 @@ class SettingGroup {
 	 *
 	 * @param string $group_name Name of the settings group to retrieve fields for
 	 * @param string $group      The settings group config
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 */

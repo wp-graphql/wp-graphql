@@ -26,10 +26,10 @@ class PostObject {
 	/**
 	 * Registers a post_type type to the schema as either a GraphQL object, interface, or union.
 	 *
-	 * @param WP_Post_Type $post_type_object Post type.
+	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_types( WP_Post_Type $post_type_object ) {
 		$single_name = $post_type_object->graphql_single_name;
@@ -103,7 +103,7 @@ class PostObject {
 	/**
 	 * Gets all the connections for the given post type.
 	 *
-	 * @param WP_Post_Type $post_type_object
+	 * @param \WP_Post_Type $post_type_object
 	 *
 	 * @return array
 	 */
@@ -251,7 +251,7 @@ class PostObject {
 	/**
 	 * Gets all the interfaces for the given post type.
 	 *
-	 * @param WP_Post_Type $post_type_object Post type.
+	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return array
 	 */
@@ -334,7 +334,7 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @param WP_Post_Type $post_type_object Post type.
+	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return array
 	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.

@@ -27,7 +27,7 @@ class Admin {
 	protected $graphiql_enabled;
 
 	/**
-	 * @var Settings
+	 * @var \WPGraphQL\Admin\Settings\Settings
 	 */
 	protected $settings;
 

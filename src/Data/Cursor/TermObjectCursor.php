@@ -6,7 +6,7 @@ use WP_Term;
 class TermObjectCursor extends AbstractCursor {
 
 	/**
-	 * @var ?WP_Term;
+	 * @var ?\WP_Term ;
 	 */
 	public $cursor_node;
 
@@ -33,7 +33,7 @@ class TermObjectCursor extends AbstractCursor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ?WP_Term;
+	 * @return ?\WP_Term ;
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
@@ -46,7 +46,7 @@ class TermObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @return ?WP_Term;
+	 * @return ?\WP_Term ;
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_term() {

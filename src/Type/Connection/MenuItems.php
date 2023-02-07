@@ -22,7 +22,7 @@ class MenuItems {
 	 * Register connections to MenuItems
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_connections() {
 

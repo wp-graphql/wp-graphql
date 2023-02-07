@@ -14,10 +14,10 @@ class PostObjectUpdate {
 	/**
 	 * Registers the PostObjectUpdate mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
@@ -35,7 +35,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -57,7 +57,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -68,7 +68,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string        $mutation_name      The mutation name.
 	 *
 	 * @return callable
@@ -175,7 +175,7 @@ class PostObjectUpdate {
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
 			 * @param int    $post_id       Inserted post ID
-			 * @param WP_Post_Type $post_type_object The Post Type object for the post being mutated
+			 * @param \WP_Post_Type $post_type_object The Post Type object for the post being mutated
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */

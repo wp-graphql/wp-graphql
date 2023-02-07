@@ -132,8 +132,8 @@ class Tracing {
 	 *
 	 * @param mixed               $source         The source passed down the Resolve Tree
 	 * @param array               $args           The args for the field
-	 * @param AppContext          $context        The AppContext passed down the ResolveTree
-	 * @param ResolveInfo         $info           The ResolveInfo passed down the ResolveTree
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
 	 *
 	 * @return void
 	 */
@@ -353,7 +353,7 @@ class Tracing {
 		 * Filter the trace
 		 *
 		 * @param array   $trace     The trace to return
-		 * @param Tracing $instance  The Tracing class instance
+		 * @param \WPGraphQL\Utils\Tracing $instance The Tracing class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
 	}

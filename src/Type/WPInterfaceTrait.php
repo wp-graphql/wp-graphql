@@ -32,7 +32,7 @@ trait WPInterfaceTrait {
 		 *
 		 * @param array        $interfaces     List of interfaces applied to the Object Type
 		 * @param array        $config         The config for the Object Type
-		 * @param mixed|WPInterfaceType|WPObjectType $type The Type instance
+		 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
 		 */
 		$interfaces = apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );
 

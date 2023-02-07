@@ -35,12 +35,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @param mixed              $source    source passed down from the resolve tree
 	 * @param array              $args      array of arguments input in the field as part of the
 	 *                                      GraphQL query
-	 * @param AppContext         $context   Object containing app context that gets passed down the
-	 *                                      resolve tree
-	 * @param ResolveInfo        $info      Info about fields passed down the resolve tree
+	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the
+ * resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 * @param mixed|string|array $post_type The post type to resolve for
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $post_type = 'any' ) {
 
@@ -89,7 +89,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return \WP_Query|object
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_query() {
 		// Get query class.
@@ -377,8 +377,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $query_args The args that will be passed to the WP_Query
 		 * @param mixed       $source     The source that's passed down the GraphQL queries
 		 * @param array       $args       The inputArgs on the field
-		 * @param AppContext  $context    The AppContext passed down the GraphQL tree
-		 * @param ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 * @param \WPGraphQL\AppContext $context The AppContext passed down the GraphQL tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the GraphQL tree
 		 */
 		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 
@@ -447,8 +447,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array              $args       Query "where" args
 		 * @param mixed              $source     The query results for a query calling this
 		 * @param array              $all_args   All of the arguments for the query (not just the "where" args)
-		 * @param AppContext         $context    The AppContext object
-		 * @param ResolveInfo        $info       The ResolveInfo object
+		 * @param \WPGraphQL\AppContext $context The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 * @param mixed|string|array $post_type  The post type for the query
 		 *
 		 * @return array
@@ -601,7 +601,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                        $args                The GraphQL args passed to the resolver.
-		 * @param PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
+		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
 		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0

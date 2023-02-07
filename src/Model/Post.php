@@ -80,38 +80,38 @@ class Post extends Model {
 	/**
 	 * Stores the incoming post data
 	 *
-	 * @var WP_Post $data
+	 * @var \WP_Post $data
 	 */
 	protected $data;
 
 	/**
 	 * Store the global post to reset during model tear down
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * Stores the incoming post type object for the post being modeled
 	 *
-	 * @var null|WP_Post_Type $post_type_object
+	 * @var null|\WP_Post_Type $post_type_object
 	 */
 	protected $post_type_object;
 
 	/**
 	 * Store the instance of the WP_Query
 	 *
-	 * @var WP_Query
+	 * @var \WP_Query
 	 */
 	protected $wp_query;
 
 	/**
 	 * Post constructor.
 	 *
-	 * @param WP_Post $post The incoming WP_Post object that needs modeling.
+	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_Post $post ) {
 
@@ -338,7 +338,7 @@ class Post extends Model {
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
-	 * @param WP_Post $post_object The object of the post we need to verify permissions for
+	 * @param \WP_Post $post_object The object of the post we need to verify permissions for
 	 *
 	 * @return bool
 	 */
