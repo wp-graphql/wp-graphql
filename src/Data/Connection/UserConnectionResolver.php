@@ -5,7 +5,7 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class UserConnectionResolver
@@ -247,7 +247,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_User_Query compatible args
 		 */
-		$query_args = Types::map_input( $args, $arg_mapping );
+		$query_args = Utils::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields
