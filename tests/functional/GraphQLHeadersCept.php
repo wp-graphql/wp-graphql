@@ -30,6 +30,7 @@ $x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
 
+$I->assertContains( 'graphql:Query', explode( ' ', $x_graphql_keys ) );
 $I->assertContains( 'operation:GetPosts', explode( ' ', $x_graphql_keys ) );
 
 $I->assertNotEmpty( $x_graphql_url );
