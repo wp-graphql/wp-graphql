@@ -1,12 +1,23 @@
 # Changelog
 
+## 1.14.0
+
+## New Features
+
+
+
+## Chores / Bugfixes
+
+
 ## 1.13.8
+
+### Chores / Bugfixes
 
 - [#2712](https://github.com/wp-graphql/wp-graphql/pull/2712): fix: query analyzer outputting unexpected list types
 
 ## 1.13.7
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2661](https://github.com/wp-graphql/wp-graphql/pull/2661)): chore(deps): bump simple-git from 3.10.0 to 3.15.1
 - ([#2665](https://github.com/wp-graphql/wp-graphql/pull/2665)): chore(deps): bump decode-uri-component from 0.2.0 to 0.2.2
