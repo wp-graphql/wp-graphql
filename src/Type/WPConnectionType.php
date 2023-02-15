@@ -223,7 +223,7 @@ class WPConnectionType {
 
 		// Only include the default interfaces if the user hasnt explicitly opted out.
 		if ( false !== $this->include_default_interfaces ) {
-			$interfaces[] = ucfirst( $this->to_type ) . 'ConnectionEdge';
+			$interfaces[] = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
 		}
 
 		if ( ! empty( $this->connection_interfaces ) ) {
@@ -518,9 +518,11 @@ class WPConnectionType {
 	 */
 	public function register_connection_interfaces(): void {
 
-		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionEdge' ) ) {
+		$connection_edge_type = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
 
-			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionEdge', [
+		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
+
+			$this->type_registry->register_interface_type( $connection_edge_type, [
 				'interfaces'  => [ 'Edge' ],
 				'description' => sprintf( __( 'Edge between a Node and a connected %s', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
@@ -539,7 +541,7 @@ class WPConnectionType {
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
 					'edges' => [
-						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type . 'ConnectionEdge' ] ] ],
+						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
 						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
 					],
 					'nodes' => [
