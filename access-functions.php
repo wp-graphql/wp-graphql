@@ -59,8 +59,8 @@ function graphql_format_type_name( $type_name ) {
  * @param array $request_data   The GraphQL request data (query, variables, operation_name).
  * @param bool  $return_request If true, return the Request object, else return the results of the request execution
  *
- * @return array | Request
- * @throws Exception
+ * @return array|\WPGraphQL\Request
+ * @throws \Exception
  * @since  0.2.0
  */
 function graphql( array $request_data = [], bool $return_request = false ) {
@@ -85,8 +85,8 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  * @param array  $variables      Variables to be passed to your GraphQL request
  * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
  *
- * @return array | Request
- * @throws Exception
+ * @return array|\WPGraphQL\Request
+ * @throws \Exception
  * @since  0.0.2
  */
 function do_graphql_request( $query, $operation_name = '', $variables = [], $return_requst = false ) {
@@ -174,7 +174,7 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
  *
- * @throws Exception
+ * @throws \Exception
  * @return void
  */
 function register_graphql_type( string $type_name, array $config ) {
@@ -193,7 +193,7 @@ function register_graphql_type( string $type_name, array $config ) {
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
  *
- * @throws Exception
+ * @throws \Exception
  * @return void
  */
 function register_graphql_interface_type( string $type_name, array $config ) {
@@ -238,7 +238,7 @@ function register_graphql_input_type( string $type_name, array $config ) {
  * @param string $type_name The name of the Type to register
  * @param array  $config    The Type config
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @return void
  */
@@ -423,7 +423,7 @@ function rename_graphql_field( string $type_name, string $field_name, string $ne
  * @param string $new_type_name  The new name to give the Type.
  *
  * @return void
- * @throws Exception
+ * @throws \Exception
  *
  * @since 1.3.4
  */
@@ -459,7 +459,7 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
  *
  * @param array $config Array to configure the connection
  *
- * @throws Exception
+ * @throws \Exception
  * @return void
  *
  * @since 0.1.0
@@ -501,7 +501,7 @@ function register_graphql_mutation( string $mutation_name, array $config ) {
  * @param string $type_name The name of the Type to register
  * @param array  $config    The config for the scalar type to register
  *
- * @throws Exception
+ * @throws \Exception
  * @return void
  *
  * @since 0.8.4
@@ -705,7 +705,7 @@ function graphql_debug( $message, $config = [] ) {
 	add_action(
 		'graphql_get_debug_log',
 		function ( \WPGraphQL\Utils\DebugLog $debug_log ) use ( $message, $config ) {
-			return $debug_log->add_log_entry( $message, $config );
+			$debug_log->add_log_entry( $message, $config );
 		}
 	);
 }

@@ -217,7 +217,12 @@ class RootQuery {
 							$idType = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'nodeType' => 'ContentNode',
+										]
+									);
 								case 'database_id':
 									$post_id = absint( $args['id'] );
 									break;
@@ -527,7 +532,12 @@ class RootQuery {
 
 									break;
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'nodeType' => 'TermNode',
+										]
+									);
 								case 'global_id':
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
@@ -584,7 +594,12 @@ class RootQuery {
 									$id = absint( $args['id'] );
 									break;
 								case 'uri':
-									return $context->node_resolver->resolve_uri( $args['id'] );
+									return $context->node_resolver->resolve_uri(
+										$args['id'],
+										[
+											'nodeType' => 'User',
+										]
+									);
 								case 'login':
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_login !== $args['id'] ) {
@@ -618,7 +633,7 @@ class RootQuery {
 									break;
 							}
 
-							return ! empty( $id ) ? DataSource::resolve_user( $id, $context ) : null;
+							return ! empty( $id ) ? $context->get_loader( 'user' )->load_deferred( $id ) : null;
 						},
 					],
 					'userRole'    => [
@@ -695,6 +710,7 @@ class RootQuery {
 									[
 										'name'      => $args['id'],
 										'post_type' => $post_type_object->name,
+										'nodeType'  => 'ContentNode',
 									]
 								);
 							case 'uri':
@@ -822,6 +838,7 @@ class RootQuery {
 								[
 									'name'      => $slug,
 									'post_type' => $post_type_object->name,
+									'nodeType'  => 'ContentNode',
 								]
 							);
 
@@ -902,7 +919,13 @@ class RootQuery {
 								$term_id = isset( $term->term_id ) ? absint( $term->term_id ) : null;
 								break;
 							case 'uri':
-								return $context->node_resolver->resolve_uri( $args['id'] );
+								return $context->node_resolver->resolve_uri(
+									$args['id'],
+									[
+										'nodeType' => 'TermNode',
+										'taxonomy' => $tax_object->name,
+									]
+								);
 							case 'global_id':
 							default:
 								$id_components = Relay::fromGlobalId( $args['id'] );

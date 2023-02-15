@@ -96,7 +96,7 @@
     },
     {
       "title": "WPGraphQL Request Lifecycle",
-      "href": "/docs/request-lifecycle"
+      "href": "/docs/wpgraphql-request-lifecycle"
     },
     {
       "title": "Default Types and Fields",
@@ -112,7 +112,7 @@
     },
     {
       "title": "Mutations",
-      "href": "/docs/mutations"
+      "href": "/docs/wpgraphql-mutations"
     },
     {
       "title": "Performance",

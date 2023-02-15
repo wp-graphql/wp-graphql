@@ -59,7 +59,7 @@ class RequireAuthentication extends QuerySecurityRule {
 	}
 
 	/**
-	 * @param ValidationContext $context
+	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
 	 * @return callable[]|mixed[]
 	 */
@@ -71,7 +71,7 @@ class RequireAuthentication extends QuerySecurityRule {
 		 * Filters the allowed
 		 *
 		 * @param array             $allowed_root_fields The Root fields allowed to be requested without authentication
-		 * @param ValidationContext $context             The Validation context of the field being executed.
+		 * @param \GraphQL\Validator\ValidationContext $context The Validation context of the field being executed.
 		 */
 		$allowed_root_fields = apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fields, $context );
 

@@ -34,7 +34,7 @@ class Avatar extends Model {
 	 *
 	 * @param array $avatar The incoming avatar to be modeled
 	 *
-	 * @throws Exception Throws Exception.
+	 * @throws \Exception Throws Exception.
 	 */
 	public function __construct( array $avatar ) {
 		$this->data = $avatar;

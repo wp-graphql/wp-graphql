@@ -17,7 +17,7 @@ class Settings {
 	 * Registers a Settings Type with fields for all settings based on settings
 	 * registered using the core register_setting API
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return void
 	 */
@@ -42,7 +42,7 @@ class Settings {
 	/**
 	 * Returns an array of fields for all settings based on the `register_setting` WordPress API
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 */

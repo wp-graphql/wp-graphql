@@ -30,6 +30,7 @@ $x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
 
+$I->assertContains( 'graphql:Query', explode( ' ', $x_graphql_keys ) );
 $I->assertContains( 'operation:GetPosts', explode( ' ', $x_graphql_keys ) );
 
 $I->assertNotEmpty( $x_graphql_url );
@@ -45,6 +46,8 @@ $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
 $x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
+
+codecept_debug( $x_graphql_keys );
 
 $I->assertNotEmpty( $x_graphql_keys );
 $I->assertNotEmpty( $x_graphql_url );

@@ -18,7 +18,7 @@ class UpdateSettings {
 	/**
 	 * Registers the CommentCreate mutation.
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return void
 	 */
@@ -45,7 +45,7 @@ class UpdateSettings {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 */
@@ -105,7 +105,7 @@ class UpdateSettings {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 */
@@ -152,11 +152,11 @@ class UpdateSettings {
 	 * Defines the mutation data modification closure.
 	 *
 	 * @param array $input The mutation input
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 *
-	 * @throws UserError
+	 * @throws \GraphQL\Error\UserError
 	 */
 	public static function mutate_and_get_payload( array $input, TypeRegistry $type_registry ): array {
 		/**

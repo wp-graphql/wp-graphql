@@ -20,7 +20,7 @@ class CommentUpdate {
 	 * Registers the CommentUpdate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

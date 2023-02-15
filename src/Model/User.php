@@ -40,31 +40,31 @@ class User extends Model {
 	/**
 	 * Stores the WP_User object for the incoming data
 	 *
-	 * @var WP_User $data
+	 * @var \WP_User $data
 	 */
 	protected $data;
 
 	/**
 	 * The Global Post at time of Model generation
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * The global authordata at time of Model generation
 	 *
-	 * @var WP_User
+	 * @var \WP_User
 	 */
 	protected $global_authordata;
 
 	/**
 	 * User constructor.
 	 *
-	 * @param WP_User $user The incoming WP_User object that needs modeling
+	 * @param \WP_User $user The incoming WP_User object that needs modeling
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_User $user ) {
 

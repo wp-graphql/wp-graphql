@@ -26,7 +26,7 @@ final class WPGraphQL {
 	/**
 	 * Stores the instance of the WPGraphQL class
 	 *
-	 * @var ?WPGraphQL The one true WPGraphQL
+	 * @var ?\WPGraphQL The one true WPGraphQL
 	 * @since  0.0.1
 	 */
 	private static $instance;
@@ -34,21 +34,21 @@ final class WPGraphQL {
 	/**
 	 * Holds the Schema def
 	 *
-	 * @var mixed|null|WPSchema $schema The Schema used for the GraphQL API
+	 * @var mixed|null|\WPGraphQL\WPSchema $schema The Schema used for the GraphQL API
 	 */
 	protected static $schema;
 
 	/**
 	 * Holds the TypeRegistry instance
 	 *
-	 * @var mixed|null|TypeRegistry $type_registry The registry that holds all GraphQL Types
+	 * @var mixed|null|\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
 
 	/**
 	 * Stores an array of allowed post types
 	 *
-	 * @var ?WP_Post_Type[] allowed_post_types
+	 * @var ?\WP_Post_Type[] allowed_post_types
 	 * @since  0.0.5
 	 */
 	protected static $allowed_post_types;
@@ -56,7 +56,7 @@ final class WPGraphQL {
 	/**
 	 * Stores an array of allowed taxonomies
 	 *
-	 * @var ?WP_Taxonomy[] allowed_taxonomies
+	 * @var ?\WP_Taxonomy[] allowed_taxonomies
 	 * @since  0.0.5
 	 */
 	protected static $allowed_taxonomies;
@@ -69,7 +69,7 @@ final class WPGraphQL {
 	/**
 	 * The instance of the WPGraphQL object
 	 *
-	 * @return WPGraphQL - The one true WPGraphQL
+	 * @return \WPGraphQL - The one true WPGraphQL
 	 * @since  0.0.1
 	 */
 	public static function instance() {
@@ -130,7 +130,7 @@ final class WPGraphQL {
 
 		// Plugin version.
 		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.13.4' );
+			define( 'WPGRAPHQL_VERSION', '1.13.9' );
 		}
 
 		// Plugin Folder Path.
@@ -253,7 +253,7 @@ final class WPGraphQL {
 				/**
 				 * Fire off init action
 				 *
-				 * @param WPGraphQL $instance The instance of the WPGraphQL class
+				 * @param \WPGraphQL $instance The instance of the WPGraphQL class
 				 */
 				do_action( 'graphql_init', $instance );
 			}
@@ -310,7 +310,7 @@ final class WPGraphQL {
 	 * further execution.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function min_php_version_check() {
 
@@ -401,7 +401,7 @@ final class WPGraphQL {
 				 *
 				 * @param array                              $interfaces List of interfaces applied to the Object Type
 				 * @param array                              $config     The config for the Object Type
-				 * @param mixed|WPInterfaceType|WPObjectType $type       The Type instance
+				 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
 				 */
 				return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 			}
@@ -499,7 +499,7 @@ final class WPGraphQL {
 	 * @param string $post_type_name The name of the post type being registered
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 * @since 1.12.0
 	 */
 	public static function register_graphql_post_type_args( array $args, string $post_type_name ) {
@@ -529,7 +529,7 @@ final class WPGraphQL {
 	 * @param string $taxonomy_name The name of the taxonomy being registered
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 * @since 1.12.0
 	 */
 	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ) {
@@ -696,7 +696,7 @@ final class WPGraphQL {
 			/**
 			 * Get all post types objects.
 			 *
-			 * @var WP_Taxonomy[] $tax_objects
+			 * @var \WP_Taxonomy[] $tax_objects
 			 */
 			$tax_objects = get_taxonomies(
 				[ 'show_in_graphql' => true ],
@@ -782,9 +782,9 @@ final class WPGraphQL {
 	 * Returns the Schema as defined by static registrations throughout
 	 * the WP Load.
 	 *
-	 * @return WPSchema
+	 * @return \WPGraphQL\WPSchema
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function get_schema() {
 
@@ -796,9 +796,9 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @param WPSchema   $schema                 The executable Schema that GraphQL executes against
-			 * @param AppContext $app_context            Object The AppContext object containing all of the
-			 *                                           information about the context we know at this point
+			 * @param \WPGraphQL\WPSchema $schema The executable Schema that GraphQL executes against
+			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+ * information about the context we know at this point
 			 *
 			 * @since 0.0.5
 			 */
@@ -839,9 +839,9 @@ final class WPGraphQL {
 	 * Returns the Schema as defined by static registrations throughout
 	 * the WP Load.
 	 *
-	 * @return TypeRegistry
+	 * @return \WPGraphQL\Registry\TypeRegistry
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function get_type_registry() {
 
@@ -852,9 +852,9 @@ final class WPGraphQL {
 			/**
 			 * Generate & Filter the schema.
 			 *
-			 * @param TypeRegistry $type_registry          The TypeRegistry for the API
-			 * @param AppContext   $app_context            Object The AppContext object containing all of the
-			 *                                             information about the context we know at this point
+			 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry for the API
+			 * @param \WPGraphQL\AppContext $app_context Object The AppContext object containing all of the
+ * information about the context we know at this point
 			 *
 			 * @since 0.0.5
 			 */
@@ -890,7 +890,7 @@ final class WPGraphQL {
 	/**
 	 * Get the AppContext for use in passing down the Resolve Tree
 	 *
-	 * @return AppContext
+	 * @return \WPGraphQL\AppContext
 	 */
 	public static function get_app_context() {
 

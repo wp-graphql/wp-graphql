@@ -19,7 +19,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var WP_Comment_Query
+	 * @var \WP_Comment_Query
 	 */
 	protected $query;
 
@@ -139,8 +139,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $query_args array of query_args being passed to the
 		 * @param mixed       $source     source passed down from the resolve tree
 		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param AppContext  $context    object passed down the resolve tree
-		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 * @param \WPGraphQL\AppContext $context object passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
 		 *
 		 * @since 0.0.6
 		 */
@@ -152,8 +152,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
-	 * @return WP_Comment_Query
-	 * @throws Exception
+	 * @return \WP_Comment_Query
+	 * @throws \Exception
 	 */
 	public function get_query() {
 		return new WP_Comment_Query( $this->query_args );
@@ -256,7 +256,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                     $args                The GraphQL args passed to the resolver.
-		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param \WPGraphQL\Data\Connection\CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
 		 * @since 1.11.0
 		 */
