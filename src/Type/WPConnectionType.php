@@ -223,7 +223,7 @@ class WPConnectionType {
 
 		// Only include the default interfaces if the user hasnt explicitly opted out.
 		if ( false !== $this->include_default_interfaces ) {
-			$interfaces[] = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
+			$interfaces[] = ucfirst( $this->to_type ) . 'ConnectionEdge';
 		}
 
 		if ( ! empty( $this->connection_interfaces ) ) {
