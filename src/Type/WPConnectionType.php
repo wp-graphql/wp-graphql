@@ -570,8 +570,8 @@ class WPConnectionType {
 				'interfaces'  => [ 'Connection' ],
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
-					'edges' => [
-						'type' => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
+					'edges'    => [
+						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
 						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
 					],
 					'pageInfo' => [
