@@ -14,10 +14,10 @@ class PostObjectUpdate {
 	/**
 	 * Registers the PostObjectUpdate mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'update' . ucwords( $post_type_object->graphql_single_name );
@@ -35,7 +35,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -43,12 +43,16 @@ class PostObjectUpdate {
 		return array_merge(
 			PostObjectCreate::get_input_fields( $post_type_object ),
 			[
-				'id' => [
+				'id'             => [
 					'type'        => [
 						'non_null' => 'ID',
 					],
 					// translators: the placeholder is the name of the type of post object being updated
 					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				],
+				'ignoreEditLock' => [
+					'type'        => 'Boolean',
+					'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 				],
 			]
 		);
@@ -57,7 +61,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -68,7 +72,7 @@ class PostObjectUpdate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Post_Type $post_type_object   The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string        $mutation_name      The mutation name.
 	 *
 	 * @return callable
@@ -130,6 +134,15 @@ class PostObjectUpdate {
 				throw new UserError( sprintf( __( 'Sorry, you are not allowed to update %1$s as this user.', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
 			}
 
+			// If post is locked and the override is not specified, do not allow the edit
+			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
+			if ( false !== $locked_user_id ) {
+				$user         = get_userdata( (int) $locked_user_id );
+				$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
+				/* translators: %s: User's display name. */
+				throw new UserError( sprintf( __( 'You cannot update this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
+			}
+
 			/**
 			 * @todo: when we add support for making posts sticky, we should check permissions to make sure users can make posts sticky
 			 * @see : https://github.com/WordPress/WordPress/blob/e357195ce303017d517aff944644a7a1232926f7/wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php#L640-L642
@@ -175,7 +188,7 @@ class PostObjectUpdate {
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
 			 * @param int    $post_id       Inserted post ID
-			 * @param WP_Post_Type $post_type_object The Post Type object for the post being mutated
+			 * @param \WP_Post_Type $post_type_object The Post Type object for the post being mutated
 			 * @param array  $args          The args used to insert the term
 			 * @param string $mutation_name The name of the mutation being performed
 			 */

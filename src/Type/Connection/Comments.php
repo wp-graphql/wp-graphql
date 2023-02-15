@@ -23,7 +23,7 @@ class Comments {
 	 * Connections from Post Objects to Comments are handled in \Registry\Utils\PostObject.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_connections() {
 

@@ -33,7 +33,7 @@ class UsersConnectionSearchColumnEnum {
 					],
 					'URL'      => [
 						'value'       => 'url',
-						'description' => __( 'The URL of the user\s website.', 'wp-graphql' ),
+						'description' => __( 'The URL of the user\'s website.', 'wp-graphql' ),
 					],
 				],
 			]

@@ -43,14 +43,14 @@ abstract class AbstractDataLoader {
 	/**
 	 * This stores a reference to the AppContext for the loader to make use of
 	 *
-	 * @var AppContext
+	 * @var \WPGraphQL\AppContext
 	 */
 	protected $context;
 
 	/**
 	 * AbstractDataLoader constructor.
 	 *
-	 * @param AppContext $context
+	 * @param \WPGraphQL\AppContext $context
 	 */
 	public function __construct( AppContext $context ) {
 		$this->context = $context;
@@ -62,8 +62,8 @@ abstract class AbstractDataLoader {
 	 * @param mixed|int|string $database_id The database ID for a particular loader to load an
 	 *                                      object
 	 *
-	 * @return Deferred|null
-	 * @throws Exception
+	 * @return \GraphQL\Deferred|null
+	 * @throws \Exception
 	 */
 	public function load_deferred( $database_id ) {
 
@@ -89,7 +89,7 @@ abstract class AbstractDataLoader {
 	 * @param array $keys The keys of the objects to buffer
 	 *
 	 * @return $this
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function buffer( array $keys ) {
 		foreach ( $keys as $index => $key ) {
@@ -114,7 +114,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $key
 	 *
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function load( $key ) {
 
@@ -143,7 +143,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $value
 	 *
 	 * @return $this
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function prime( $key, $value ) {
 		$key = $this->key_to_scalar( $key );
@@ -199,7 +199,7 @@ abstract class AbstractDataLoader {
 	 * invalidations across this particular `DataLoader`. Returns itself for
 	 * method chaining.
 	 *
-	 * @return AbstractDataLoader
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 * @deprecated in favor of clear_all
 	 */
 	public function clearAll() {
@@ -212,7 +212,7 @@ abstract class AbstractDataLoader {
 	 * invalidations across this particular `DataLoader`. Returns itself for
 	 * method chaining.
 	 *
-	 * @return AbstractDataLoader
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 */
 	public function clear_all() {
 		$this->cached = [];
@@ -227,8 +227,8 @@ abstract class AbstractDataLoader {
 	 * @param array $keys
 	 * @param bool  $asArray
 	 *
-	 * @return array|Generator
-	 * @throws Exception
+	 * @return array|\Generator
+	 * @throws \Exception
 	 *
 	 * @deprecated Use load_many instead
 	 */
@@ -244,8 +244,8 @@ abstract class AbstractDataLoader {
 	 * @param array $keys
 	 * @param bool  $asArray
 	 *
-	 * @return array|Generator
-	 * @throws Exception
+	 * @return array|\Generator
+	 * @throws \Exception
 	 */
 	public function load_many( array $keys, $asArray = false ) {
 		if ( empty( $keys ) ) {
@@ -266,7 +266,7 @@ abstract class AbstractDataLoader {
 	 * @param array $keys   The keys to generate results for
 	 * @param array $result The results for all keys
 	 *
-	 * @return Generator
+	 * @return \Generator
 	 */
 	private function generate_many( array $keys, array $result ) {
 		foreach ( $keys as $key ) {
@@ -281,7 +281,7 @@ abstract class AbstractDataLoader {
 	 * to the cache if necessary
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private function load_buffered() {
 		// Do not load previously-cached entries:
@@ -370,7 +370,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The entry loaded from the dataloader to be used to generate a Model
 	 * @param mixed $key   The Key used to identify the loaded entry
 	 *
-	 * @return null|Model
+	 * @return null|\WPGraphQL\Model\Model
 	 */
 	protected function normalize_entry( $entry, $key ) {
 
@@ -385,7 +385,7 @@ abstract class AbstractDataLoader {
 		 * @param null               $model                The filtered model to return. Default null
 		 * @param mixed              $entry                The entry loaded from the dataloader to be used to generate a Model
 		 * @param mixed              $key                  The Key used to identify the loaded entry
-		 * @param AbstractDataLoader $abstract_data_loader The AbstractDataLoader instance
+		 * @param \WPGraphQL\Data\Loader\AbstractDataLoader $abstract_data_loader The AbstractDataLoader instance
 		 */
 		$model         = null;
 		$pre_get_model = apply_filters( 'graphql_dataloader_pre_get_model', $model, $entry, $key, $this );
@@ -409,7 +409,7 @@ abstract class AbstractDataLoader {
 		 * @param mixed              $model  The Model to be returned by the loader
 		 * @param mixed              $entry  The entry loaded by dataloader that was used to create the Model
 		 * @param mixed              $key    The Key that was used to load the entry
-		 * @param AbstractDataLoader $loader The AbstractDataLoader Instance
+		 * @param \WPGraphQL\Data\Loader\AbstractDataLoader $loader The AbstractDataLoader Instance
 		 */
 		return apply_filters( 'graphql_dataloader_get_model', $model, $entry, $key, $this );
 	}
@@ -483,7 +483,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key   The Key to identify the user role by
 	 *
-	 * @return Model
+	 * @return \WPGraphQL\Model\Model
 	 */
 	protected function get_model( $entry, $key ) {
 		return $entry;

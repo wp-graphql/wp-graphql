@@ -11,19 +11,19 @@ use WPGraphQL\Model\Post;
 class NodeResolver {
 
 	/**
-	 * @var WP
+	 * @var \WP
 	 */
 	protected $wp;
 
 	/**
-	 * @var AppContext
+	 * @var \WPGraphQL\AppContext
 	 */
 	protected $context;
 
 	/**
 	 * NodeResolver constructor.
 	 *
-	 * @param AppContext $context
+	 * @param \WPGraphQL\AppContext $context
 	 *
 	 * @return void
 	 */
@@ -36,9 +36,9 @@ class NodeResolver {
 	/**
 	 * Given a Post object, validates it before returning it.
 	 *
-	 * @param WP_Post $post
+	 * @param \WP_Post $post
 	 *
-	 * @return WP_Post|null
+	 * @return \WP_Post|null
 	 */
 	public function validate_post( WP_Post $post ) {
 
@@ -70,7 +70,7 @@ class NodeResolver {
 	 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function resolve_uri( string $uri, $extra_query_vars = '' ) {
 
@@ -83,8 +83,8 @@ class NodeResolver {
 		 *
 		 * @param mixed|null $node The node, defaults to nothing.
 		 * @param string $uri The uri being searched.
-		 * @param AppContext $content The app context.
-		 * @param WP $wp WP object.
+		 * @param \WPGraphQL\AppContext $content The app context.
+		 * @param \WP $wp WP object.
 		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider.
 		 */
 		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
@@ -443,7 +443,7 @@ class NodeResolver {
 				$query = preg_replace( '!^.+\?!', '', $query );
 
 				// Substitute the substring matches into the query.
-				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) );
+				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) ); // @phpstan-ignore-line
 
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );

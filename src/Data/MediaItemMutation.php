@@ -19,7 +19,7 @@ class MediaItemMutation {
 	 * This prepares the media item for insertion
 	 *
 	 * @param array        $input            The input for the mutation from the GraphQL request
-	 * @param WP_Post_Type $post_type_object The post_type_object for the mediaItem (attachment)
+	 * @param \WP_Post_Type $post_type_object The post_type_object for the mediaItem (attachment)
 	 * @param string       $mutation_name    The name of the mutation being performed (create,
 	 *                                       update, etc.)
 	 * @param mixed        $file             The mediaItem (attachment) file
@@ -100,7 +100,7 @@ class MediaItemMutation {
 		 *
 		 * @param array        $insert_post_args The array of $input_post_args that will be passed to wp_insert_attachment
 		 * @param array        $input            The data that was entered as input for the mutation
-		 * @param WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
+		 * @param \WP_Post_Type $post_type_object The post_type_object that the mutation is affecting
 		 * @param string       $mutation_type    The type of mutation being performed (create, update, delete)
 		 */
 		$insert_post_args = apply_filters( 'graphql_media_item_insert_post_args', $insert_post_args, $input, $post_type_object, $mutation_name );
@@ -113,10 +113,10 @@ class MediaItemMutation {
 	 *
 	 * @param int          $media_item_id    The ID of the media item being mutated
 	 * @param array        $input            The input on the mutation
-	 * @param WP_Post_Type $post_type_object The Post Type Object for the item being mutated
+	 * @param \WP_Post_Type $post_type_object The Post Type Object for the item being mutated
 	 * @param string       $mutation_name    The name of the mutation
-	 * @param AppContext   $context          The AppContext that is passed down the resolve tree
-	 * @param ResolveInfo  $info             The ResolveInfo that is passed down the resolve tree
+	 * @param \WPGraphQL\AppContext $context The AppContext that is passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo that is passed down the resolve tree
 	 *
 	 * @return void
 	 */
@@ -136,10 +136,10 @@ class MediaItemMutation {
 		 *
 		 * @param int          $media_item_id    The ID of the mediaItem being mutated
 		 * @param array        $input            The input for the mutation
-		 * @param WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
+		 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being mutated
 		 * @param string       $mutation_name    The name of the mutation (ex: create, update, delete)
-		 * @param AppContext   $context          The AppContext that is passed down the resolve tree
-		 * @param ResolveInfo  $info             The ResolveInfo that is passed down the resolve tree
+		 * @param \WPGraphQL\AppContext $context The AppContext that is passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo that is passed down the resolve tree
 		 */
 		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
 

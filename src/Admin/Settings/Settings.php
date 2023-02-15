@@ -10,7 +10,7 @@ namespace WPGraphQL\Admin\Settings;
 class Settings {
 
 	/**
-	 * @var SettingsRegistry
+	 * @var \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
 	public $settings_api;
 

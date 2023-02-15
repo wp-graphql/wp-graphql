@@ -5,6 +5,7 @@ use Closure;
 use Exception;
 use GraphQL\Exception\InvalidArgument;
 use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Type\InterfaceType\PageInfo;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -92,7 +93,7 @@ class WPConnectionType {
 	/**
 	 * The resolver function to resolve the connection
 	 *
-	 * @var callable|Closure
+	 * @var callable|\Closure
 	 */
 	protected $resolve_connection;
 
@@ -118,7 +119,7 @@ class WPConnectionType {
 	/**
 	 * The WPGraphQL TypeRegistry
 	 *
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	protected $type_registry;
 
@@ -133,7 +134,7 @@ class WPConnectionType {
 	 * WPConnectionType constructor.
 	 *
 	 * @param array        $config The config array for the connection
-	 * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -143,7 +144,7 @@ class WPConnectionType {
 		 * Filter the config of WPConnectionType
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPConnectionType when instantiating a new type
-		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 */
 		$config = apply_filters( 'graphql_wp_connection_type_config', $config, $this );
 
@@ -180,7 +181,7 @@ class WPConnectionType {
 		 * Run an action when the WPConnectionType is instantiating.
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPConnectionType $wp_connection_type The instance of the WPConnectionType class
+		 * @param \WPGraphQL\Type\WPConnectionType $wp_connection_type The instance of the WPConnectionType class
 		 *
 		 * @since 1.13.0
 		 */
@@ -265,7 +266,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_connection_input() {
 
@@ -303,7 +304,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_one_to_one_connection_edge_type(): void {
 
@@ -339,13 +340,34 @@ class WPConnectionType {
 	}
 
 	/**
+	 * Registers the PageInfo type for the connection
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception
+	 */
+	public function register_connection_page_info_type(): void {
+
+		if ( $this->type_registry->has_type( $this->connection_name . 'PageInfo' ) ) {
+			return;
+		}
+
+		$this->type_registry->register_object_type( $this->connection_name . 'PageInfo', [
+			'interfaces'  => [ $this->to_type . 'ConnectionPageInfo' ],
+			'description' => sprintf( __( 'Page Info on the "%s"', 'wp-graphql' ), $this->connection_name ),
+			'fields'      => PageInfo::get_fields(),
+		] );
+
+	}
+
+	/**
 	 * Registers the Connection Edge type to the Schema
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
-	protected function register_connection_edge_type() {
+	protected function register_connection_edge_type(): void {
 
 		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
 			return;
@@ -387,9 +409,9 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
-	protected function register_connection_type() {
+	protected function register_connection_type(): void {
 
 		if ( $this->type_registry->has_type( $this->connection_name ) ) {
 			return;
@@ -421,13 +443,12 @@ class WPConnectionType {
 	 *
 	 * @return array
 	 */
-	protected function get_connection_fields() {
+	protected function get_connection_fields(): array {
 
 		return array_merge(
 			[
 				'pageInfo' => [
-					// @todo: change to PageInfo when/if the Relay lib is deprecated
-					'type'        => 'WPPageInfo',
+					'type'        => [ 'non_null' => $this->connection_name . 'PageInfo' ],
 					'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				],
 				'edges'    => [
@@ -450,7 +471,7 @@ class WPConnectionType {
 	 *
 	 * @return array|array[]
 	 */
-	protected function get_pagination_args() {
+	protected function get_pagination_args(): array {
 
 		if ( true === $this->one_to_one ) {
 
@@ -487,7 +508,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 */
-	public function register_connection_field() {
+	public function register_connection_field(): void {
 
 		$this->type_registry->register_field(
 			$this->from_type,
@@ -514,11 +535,20 @@ class WPConnectionType {
 
 	/**
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection_interfaces(): void {
 
 		$connection_edge_type = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
+
+		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionPageInfo' ) ) {
+			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionPageInfo', [
+				'interfaces'  => [ 'WPPageInfo' ],
+				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
+				'fields'      => PageInfo::get_fields(),
+			] );
+		}
+
 
 		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
 
@@ -542,9 +572,12 @@ class WPConnectionType {
 				'fields'      => [
 					'edges' => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
-						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
+            'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
+          ],
+					'pageInfo' => [
+						'type' => [ 'non_null' => $this->to_type . 'ConnectionPageInfo' ],
 					],
-					'nodes' => [
+					'nodes'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
 						'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 					],
@@ -561,7 +594,7 @@ class WPConnectionType {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection(): void {
 
@@ -574,6 +607,7 @@ class WPConnectionType {
 		if ( true === $this->one_to_one ) {
 			$this->register_one_to_one_connection_edge_type();
 		} else {
+			$this->register_connection_page_info_type();
 			$this->register_connection_edge_type();
 			$this->register_connection_type();
 		}

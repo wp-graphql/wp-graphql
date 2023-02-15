@@ -14,7 +14,7 @@ class CommentCreate {
 	 * Registers the CommentCreate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(

@@ -14,12 +14,12 @@ abstract class AbstractCursor {
 		/**
 	 * The global WordPress Database instance
 	 *
-	 * @var wpdb $wpdb
+	 * @var \wpdb $wpdb
 	 */
 	public $wpdb;
 
 	/**
-	 * @var CursorBuilder
+	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
 	 */
 	public $builder;
 

@@ -5,7 +5,7 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class UserConnectionResolver
@@ -247,7 +247,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_User_Query compatible args
 		 */
-		$query_args = Types::map_input( $args, $arg_mapping );
+		$query_args = Utils::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields
@@ -259,8 +259,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $args       The query "where" args
 		 * @param mixed       $source     The query results of the query calling this relation
 		 * @param array       $all_args   Array of all the query args (not just the "where" args)
-		 * @param AppContext  $context    The AppContext object
-		 * @param ResolveInfo $info       The ResolveInfo object
+		 * @param \WPGraphQL\AppContext $context The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 *
 		 * @return array
 		 * @since 0.0.5

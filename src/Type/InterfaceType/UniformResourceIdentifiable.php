@@ -15,7 +15,7 @@ class UniformResourceIdentifiable {
 	/**
 	 * Registers the UniformResourceIdentifiable Interface to the Schema.
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
@@ -52,12 +52,12 @@ class UniformResourceIdentifiable {
 
 					switch ( true ) {
 						case $node instanceof Post:
-							/** @var WP_Post_Type $post_type_object */
+							/** @var \WP_Post_Type $post_type_object */
 							$post_type_object = get_post_type_object( $node->post_type );
 							$type             = $type_registry->get_type( $post_type_object->graphql_single_name );
 							break;
 						case $node instanceof Term:
-							/** @var WP_Taxonomy $tax_object */
+							/** @var \WP_Taxonomy $tax_object */
 							$tax_object = get_taxonomy( $node->taxonomyName );
 							$type       = $type_registry->get_type( $tax_object->graphql_single_name );
 							break;

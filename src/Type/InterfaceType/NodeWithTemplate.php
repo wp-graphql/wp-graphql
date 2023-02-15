@@ -8,7 +8,7 @@ class NodeWithTemplate {
 	/**
 	 * Registers the NodeWithTemplate Type to the Schema
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 */

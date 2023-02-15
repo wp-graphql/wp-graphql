@@ -5,7 +5,6 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -34,11 +33,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param mixed       $source     source passed down from the resolve tree
 	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
+	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 * @param mixed|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
 		$this->taxonomy = $taxonomy;
@@ -142,8 +141,8 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $query_args array of query_args being passed to the
 		 * @param mixed       $source     source passed down from the resolve tree
 		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param AppContext  $context    object passed down the resolve tree
-		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 * @param \WPGraphQL\AppContext $context object passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
 		 *
 		 * @since 0.0.6
 		 */
@@ -156,7 +155,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * Return an instance of WP_Term_Query with the args mapped to the query
 	 *
 	 * @return \WP_Term_Query
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_query() {
 		return new \WP_Term_Query( $this->query_args );
@@ -235,7 +234,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_Term_Query compatible args
 		 */
-		$query_args = Types::map_input( $where_args, $arg_mapping );
+		$query_args = Utils::map_input( $where_args, $arg_mapping );
 
 		/**
 		 * Filter the input fields
@@ -247,8 +246,8 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param string      $taxonomy   The name of the taxonomy
 		 * @param mixed       $source     The query results
 		 * @param array       $all_args   All of the query arguments (not just the "where" args)
-		 * @param AppContext  $context    The AppContext object
-		 * @param ResolveInfo $info       The ResolveInfo object
+		 * @param \WPGraphQL\AppContext $context The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 *
 		 * @since 0.0.5
 		 * @return array
@@ -298,7 +297,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                        $args                The GraphQL args passed to the resolver.
-		 * @param TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param \WPGraphQL\Data\Connection\TermObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0

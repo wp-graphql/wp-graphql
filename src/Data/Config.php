@@ -98,7 +98,7 @@ class Config {
 					 **
 					 *
 					 * @param string        $where The WHERE clause of the query.
-					 * @param WP_User_Query $query The WP_User_Query instance (passed by reference).
+					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
 					$query->query_where = apply_filters_ref_array( 'graphql_users_where', [
 						$query->query_where,
@@ -109,7 +109,7 @@ class Config {
 					 * Filters the ORDER BY clause of the query.
 					 *
 					 * @param string        $orderby The ORDER BY clause of the query.
-					 * @param WP_User_Query $query   The WP_User_Query instance (passed by reference).
+					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
 					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', [
 						$query->query_orderby,
@@ -147,7 +147,7 @@ class Config {
 				'graphql_wp_user_query_cursor_pagination_stability',
 			],
 			10,
-			2
+			1
 		);
 
 	}
@@ -160,7 +160,7 @@ class Config {
 	 * and for their cursors to properly go forward/backward to the proper place in the database.
 	 *
 	 * @param string    $orderby  The ORDER BY clause of the query.
-	 * @param WP_Query $wp_query The WP_Query instance executing
+	 * @param \WP_Query $wp_query The WP_Query instance executing
 	 *
 	 * @return string
 	 */
@@ -191,7 +191,7 @@ class Config {
 	 * after the referenced cursor
 	 *
 	 * @param string   $where The WHERE clause of the query.
-	 * @param WP_Query $query The WP_Query instance (passed by reference).
+	 * @param \WP_Query $query The WP_Query instance (passed by reference).
 	 *
 	 * @return string
 	 */
@@ -313,7 +313,7 @@ class Config {
 	 * is a GraphQL Request and before or after cursors are passed to the query
 	 *
 	 * @param array            $pieces A compacted array of comment query clauses.
-	 * @param WP_Comment_Query $query  Current instance of WP_Comment_Query, passed by reference.
+	 * @param \WP_Comment_Query $query Current instance of WP_Comment_Query, passed by reference.
 	 *
 	 * @return array $pieces
 	 */

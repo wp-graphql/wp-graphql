@@ -26,6 +26,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->contributor = $this->factory()->user->create( [
 			'role' => 'contributor',
+			'display_name' => 'contributor'
 		] );
 
 		$this->subscriber = $this->factory()->user->create( [
@@ -1126,6 +1127,146 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $updated_title, $actual['data']['updatePost']['post']['title'] );
 
+	}
+
+	public function testUpdatePostWithLockFails() {
+
+		/**
+		 * Create a post to test against
+		 */
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->contributor,
+		]);
+
+		$editor_id = $this->factory()->user->create( [
+			'role' => 'editor'
+		] );
+
+		/**
+		 *  Set lock and lock user
+		 */
+		$lock = sprintf( '%s:%s', time() - 60,  $this->contributor );
+		update_post_meta( $post_id, '_edit_lock', $lock );
+
+		$query = '
+		mutation updatePostWithLockShouldFail($input: UpdatePostInput!) {
+			updatePost(input: $input) {
+			  post {
+				id
+				title
+				content
+			  }
+			}
+		  }
+		';
+
+		$variables = [
+			'input' => [
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'title' => 'updated title'
+			]
+		];
+
+		/**
+		 * Run the mutation as different user
+		 */
+		wp_set_current_user( $editor_id );
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		/**
+		 * The mutation should fail because the ID is locked
+		 */
+		$this->assertEquals(
+			'You cannot update this item. contributor is currently editing.',
+			$actual['errors'][0]['message']
+		);
+
+		// with override allows edit
+		$variables = [
+			'input' => [
+				'id'             => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'title'          => 'updated title',
+				'ignoreEditLock' => true
+			]
+		];
+
+		/**
+		 * Run the mutation as different user
+		 */
+		wp_set_current_user( $editor_id );
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( 'updated title', $actual['data']['updatePost']['post']['title'] );
+	}
+
+	public function testDeletePostWithLockFails() {
+
+		/**
+		 * Create a post to test against
+		 */
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_author' => $this->contributor,
+		]);
+
+		$editor_id = $this->factory()->user->create( [
+			'role' => 'editor'
+		] );
+
+		/**
+		 *  Set lock and lock user
+		 */
+		$lock = sprintf( '%s:%s', time() - 60,  $this->contributor );
+		update_post_meta( $post_id, '_edit_lock', $lock );
+
+		$query = '
+		mutation deletePostWithLockShouldFail($input: DeletePostInput!) {
+			deletePost(input: $input) {
+			  post {
+				id
+				title
+				content
+			  }
+			}
+		  }
+		';
+
+		$variables = [
+			'input' => [
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id )
+			]
+		];
+
+		/**
+		 * Run the mutation as different user
+		 */
+		wp_set_current_user( $editor_id );
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		/**
+		 * The mutation should fail because the ID is locked
+		 */
+		$this->assertEquals(
+			'You cannot delete this item. contributor is currently editing.',
+			$actual['errors'][0]['message']
+		);
+
+		// with override allows edit
+		$variables = [
+			'input' => [
+				'id'             => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'ignoreEditLock' => true
+			]
+		];
+
+		/**
+		 * Run the mutation as different user
+		 */
+		wp_set_current_user( $editor_id );
+		$actual = graphql( compact( 'query', 'variables' ) );
+		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ), $actual['data']['deletePost']['post']['id'] );
 	}
 
 }
