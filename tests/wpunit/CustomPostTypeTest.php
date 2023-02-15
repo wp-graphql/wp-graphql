@@ -1475,5 +1475,38 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterCustomPostTypeWithUnderscoresInGraphqlNameHasValidSchema() {
+
+			$args = [
+				'public'              => true,
+				'show_in_rest'        => true,
+				'hierarchical'        => true,
+				'show_ui'             => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'with_underscore',
+				'graphql_plural_name' => 'with_underscore',
+				'has_archive'         => true,
+				'query_var'           => true,
+				'rewrite'             => [ 'slug' => 'casinos' ],
+				'supports'            => [ 'editor', 'thumbnail', 'title' ],
+				'label'               => _( 'With Underscores' ),
+				'map_meta_cap'        => true
+			];
+
+			// register the post type with underscore in the graphql_single_name / graphql_plural_name
+			register_post_type( 'with_underscore', $args );
+
+			$request = new \WPGraphQL\Request();
+
+			// clean up
+			unregister_post_type( 'with_underscore' );
+
+			$request->schema->assertValid();
+
+			// Assert true upon success.
+			$this->assertTrue( true );
+
+	}
+
 
 }
