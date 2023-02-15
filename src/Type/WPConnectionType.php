@@ -150,18 +150,19 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
+		$this->config          = $config;
+		$this->from_type       = $config['fromType'];
+		$this->to_type         = $config['toType'];
+		$this->from_field_name = $config['fromFieldName'];
+		$this->connection_name = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $this->from_type, $this->to_type, $this->from_field_name );
+
 		/**
-		 * Bail if one of the connection types has been excluded from the schema.
+		 * Bail if the connection has been de-registered or excluded.
 		 */
-		$excluded_types = $type_registry->get_excluded_types();
-		if ( in_array( strtolower( $config['fromType'] ), $excluded_types, true ) || in_array( strtolower( $config['toType'] ), $excluded_types, true ) ) {
+		if ( ! $this->should_register() ) {
 			return;
 		}
 
-		$this->config                     = $config;
-		$this->from_type                  = $config['fromType'];
-		$this->to_type                    = $config['toType'];
-		$this->from_field_name            = $config['fromFieldName'];
 		$this->auth                       = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
 		$this->connection_fields          = array_key_exists( 'connectionFields', $config ) && is_array( $config['connectionFields'] ) ? $config['connectionFields'] : [];
 		$this->connection_args            = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
@@ -170,7 +171,6 @@ class WPConnectionType {
 		$this->resolve_connection         = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
 			return null;
 		};
-		$this->connection_name            = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $this->from_type, $this->to_type, $this->from_field_name );
 		$this->where_args                 = [];
 		$this->one_to_one                 = isset( $config['oneToOne'] ) && true === $config['oneToOne'];
 		$this->connection_interfaces      = isset( $config['connectionInterfaces'] ) && is_array( $config['connectionInterfaces'] ) ? $config['connectionInterfaces'] : [];
@@ -614,6 +614,26 @@ class WPConnectionType {
 
 		$this->register_connection_field();
 
+	}
+
+	/**
+	 * Checks whether the connection should be registered to the Schema.
+	 */
+	protected function should_register() : bool {
+
+		// Don't register if the connection has been excluded from the schema.
+		$excluded_connections = $this->type_registry->get_excluded_connections();
+		if ( in_array( strtolower( $this->connection_name ), $excluded_connections, true ) ) {
+			return false;
+		}
+
+		// Don't register if one of the connection types has been excluded from the schema.
+		$excluded_types = $this->type_registry->get_excluded_types();
+		if ( ( in_array( strtolower( $this->from_type ), $excluded_types, true ) || in_array( strtolower( $this->to_type ), $excluded_types, true ) ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 }

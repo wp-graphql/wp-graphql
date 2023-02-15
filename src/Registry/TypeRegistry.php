@@ -175,6 +175,17 @@ class TypeRegistry {
 	protected $excluded_types = null;
 
 	/**
+	 * Stores a list of connection Type names that should be excluded from the schema, along with their generated types.
+	 *
+	 * Type names are filtered by `graphql_excluded_connections` and normalized using strtolower(), to avoid case sensitivity issues.
+	 *
+	 * Type name
+	 *
+	 * @var string[]
+	 */
+	protected $excluded_connections = null;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -1102,6 +1113,31 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Removes a GraphQL connection from the schema.
+	 *
+	 * This works by preventing the connection from being registered in the first place.
+	 *
+	 * @uses 'graphql_excluded_connections' filter.
+	 *
+	 * @param string $connection_name The GraphQL connection name.
+	 */
+	public function deregister_connection( string $connection_name ) : void {
+		add_filter(
+			'graphql_excluded_connections',
+			function ( $excluded_connections ) use ( $connection_name ) {
+
+				$connection_name = strtolower( $connection_name );
+
+				if ( ! in_array( $connection_name, $excluded_connections, true ) ) {
+					$excluded_connections[] = $connection_name;
+				}
+
+				return $excluded_connections;
+			}
+		);
+	}
+
+	/**
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
 	 * @param mixed $type The Type being wrapped
@@ -1165,6 +1201,24 @@ class TypeRegistry {
 		}
 
 		return $this->excluded_types;
+	}
+
+	public function get_excluded_connections() : array {
+		if ( null === $this->excluded_connections ) {
+			/**
+			 * Filter the list of GraphQL connections to excluded from the registry.
+			 *
+			 * @param string[] $excluded_connections The names of the GraphQL connections to exclude.
+			 *
+			 * @since @todo
+			 */
+			$excluded_connections = apply_filters( 'graphql_excluded_connections', [] );
+
+			// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
+			$this->excluded_connections = ! empty( $excluded_connections ) ? array_map( 'strtolower', $excluded_connections ) : [];
+		}
+
+		return $this->excluded_connections;
 	}
 
 	/**
