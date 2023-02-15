@@ -539,17 +539,20 @@ class WPConnectionType {
 	 */
 	public function register_connection_interfaces(): void {
 
+		$connection_edge_type = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
+
 		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionPageInfo' ) ) {
 			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionPageInfo', [
 				'interfaces'  => [ 'WPPageInfo' ],
-				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $this->to_type . 'ConnectionEdge' ),
+				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
 				'fields'      => PageInfo::get_fields(),
 			] );
 		}
 
-		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionEdge' ) ) {
 
-			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionEdge', [
+		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
+
+			$this->type_registry->register_interface_type( $connection_edge_type, [
 				'interfaces'  => [ 'Edge' ],
 				'description' => sprintf( __( 'Edge between a Node and a connected %s', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
@@ -567,12 +570,12 @@ class WPConnectionType {
 				'interfaces'  => [ 'Connection' ],
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
+					'edges'    => [
+						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
+						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
+					],
 					'pageInfo' => [
 						'type' => [ 'non_null' => $this->to_type . 'ConnectionPageInfo' ],
-					],
-					'edges'    => [
-						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type . 'ConnectionEdge' ] ] ],
-						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
 					],
 					'nodes'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
