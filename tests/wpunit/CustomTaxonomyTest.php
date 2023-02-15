@@ -1044,4 +1044,30 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterCustomPostTypeWithUnderscoresInGraphqlNameHasValidSchema() {
+
+		$args = [
+			'public'              => true,
+			'hierarchical'        => true,
+			'show_ui'             => true,
+			'graphql_single_name' => 'tax_with_underscore',
+			'graphql_plural_name' => 'tax_with_underscores',
+			'show_in_graphql'     => true,
+			'label'               => 'Taxonomy with Underscores',
+		];
+
+		// register the taxonomy with underscore in the graphql_single_name / graphql_plural_name
+		register_taxonomy( 'with_underscore', [ 'post' ], $args );
+
+		$request = new \WPGraphQL\Request();
+
+		unregister_taxonomy( 'with_underscore' );
+
+		$request->schema->assertValid();
+
+		// Assert true upon success.
+		$this->assertTrue( true );
+
+	}
+
 }
