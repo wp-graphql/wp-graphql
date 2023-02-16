@@ -122,7 +122,7 @@ class NodeResolver {
 
 		/**
 		 * Try to resolve the URI with WP_Query.
-		 * 
+		 *
 		 * This is the way WordPress native permalinks are resolved.
 		 *
 		 * @see \WP::main()
@@ -136,11 +136,11 @@ class NodeResolver {
 		 *
 		 * This can be used by Extensions which use a different query class to resolve data.
 		 *
-		 * @param class-string       $query_class The query class used to resolve the URI. Defaults to WP_Query.
-		 * @param ?string            $uri The uri being searched.
-		 * @param AppContext         $content The app context.
-		 * @param WP                 $wp WP object.
-		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider.
+		 * @param class-string          $query_class The query class used to resolve the URI. Defaults to WP_Query.
+		 * @param ?string               $uri The uri being searched.
+		 * @param \WPGraphQL\AppContext $content The app context.
+		 * @param \WP                   $wp WP object.
+		 * @param mixed|array|string    $extra_query_vars Any extra query vars to consider.
 		 */
 		$query_class = apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -165,15 +165,15 @@ class NodeResolver {
 		 *
 		 * This is to be used in extensions to resolve their own nodes which might not use
 		 * WordPress permalink structure.
-		 * 
+		 *
 		 * It differs from 'graphql_pre_resolve_uri' in that it has been called after the query has been run using the query vars.
 		 *
 		 * @param mixed|null                                    $node             The node, defaults to nothing.
 		 * @param ?string                                       $uri              The uri being searched.
 		 * @param \WP_Term|\WP_Post_Type|\WP_Post|\WP_User|null $queried_object   The queried object, if WP_Query returns one.
 		 * @param \WP_Query                                     $query            The query object.
-		 * @param AppContext                                    $content          The app context.
-		 * @param WP                                            $wp               WP object.
+		 * @param \WPGraphQL\AppContext                         $content          The app context.
+		 * @param \WP                                           $wp               WP object.
 		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
 		 */
 		$node = apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
@@ -274,8 +274,8 @@ class NodeResolver {
 		 * @param ?string                                       $uri              The uri being searched.
 		 * @param \WP_Term|\WP_Post_Type|\WP_Post|\WP_User|null $queried_object   The queried object, if WP_Query returns one.
 		 * @param \WP_Query                                     $query            The query object.
-		 * @param AppContext                                    $content          The app context.
-		 * @param WP                                            $wp               WP object.
+		 * @param \WPGraphQL\AppContext                         $content          The app context.
+		 * @param \WP                                           $wp               WP object.
 		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
 		 */
 		return apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );

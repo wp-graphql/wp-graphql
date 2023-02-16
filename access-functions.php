@@ -480,7 +480,7 @@ function register_graphql_connection( array $config ) {
  * @param string $mutation_name The name of the Mutation to register
  * @param array  $config        The config for the mutation
  *
- * @throws Exception
+ * @throws \Exception
  *
  * @return void
  * @since 0.1.0
@@ -586,7 +586,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  * Given a Connection Name, this removes the connection from the Schema
  *
  * @param string $connection_name The name of the Connection to remove
- * 
+ *
  * @since @todo
  */
 function deregister_graphql_connection( string $connection_name ) : void {
@@ -603,7 +603,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  * Given a Mutation Name, this removes the mutation from the Schema
  *
  * @param string $mutation_name The name of the Mutation to remove
- * 
+ *
  * @since @todo
  */
 function deregister_graphql_mutation( string $mutation_name ) : void {
