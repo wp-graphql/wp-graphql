@@ -1451,15 +1451,14 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
 	}
 
-	
-	public function testDeregisterConnection() {
-		deregister_graphql_connection( 'RootQueryToPostConnection' );
+	public function testDeregisterMutation() {
+		deregister_graphql_mutation( 'createPost' );
 
 		// Ensure the schema is still queryable.
 		$query = '
 		{
 			__schema {
-				types {
+				mutationType {
 					name
 				}
 			}
@@ -1470,24 +1469,48 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotContains( 'RootQueryToPostConnection', array_column( $actual['data']['__schema']['types'], 'name' ) );
-		$this->assertNotContains( 'RootQueryToPostConnectionWhereArgs', array_column( $actual['data']['__schema']['types'], 'name' ) );
-		$this->assertNotContains( 'RootQueryToPostConnectionEdge', array_column( $actual['data']['__schema']['types'], 'name' ) );
+		$this->assertNotContains( 'createPost', array_column( $actual['data']['__schema']['mutationType'], 'name' ) );
 
-		// Ensure the connection is no longer a field on RootQuery.
+		// Ensure the mutation is removed from the schema.
 		$query = '
 		{
-			posts {
-				nodes {
-					id
+			__type(name: "RootMutation") {
+				fields {
+					name
+				}
+			}
+			__schema{
+				types{
+					name
 				}
 			}
 		}';
 
 		$actual = $this->graphql( compact( 'query' ) );
 
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotContains( 'createPost', array_column( $actual['data']['__type']['fields'], 'name' ) );
+		$this->assertNotContains( 'CreatePostInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
+		$this->assertNotContains( 'CreatePostPayload', array_column( $actual['data']['__schema']['types'], 'name' ) );
+
+
+		// Ensure mutation throws an error.
+		$query = '
+		mutation CreatePost {
+			createPost(input: {clientMutationId: "test", title: "Test deregister mutation"}) {
+				clientMutationId
+				post {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertStringContainsString( 'Cannot query field "posts" on type "RootQuery".', $actual['errors'][0]['message'] );
+		$this->assertStringContainsString( 'Cannot query field "createPost" on type "RootMutation".', $actual['errors'][0]['message'] );
 	}
 
 	public function testRegisterConnectionToNonExistentTypeReturnsDebugMessage() {
