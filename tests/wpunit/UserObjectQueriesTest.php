@@ -1664,4 +1664,71 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	}
 
+	
+	public function testQueryNonUserAsUserReturnsNull() {
+		$query = '
+		query userByUri($uri: ID!) {
+			user(id: $uri, idType: URI) {
+				... on User {
+					databaseId
+				}
+			}
+		}
+		';
+
+		wp_set_current_user( $this->admin );
+
+		// Test page.
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+		]);
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Test term.
+		$term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+		]);
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Test User.
+		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
+
+		// Test post type archive
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+	}
+
 }

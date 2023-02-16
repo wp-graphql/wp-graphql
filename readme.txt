@@ -238,6 +238,12 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **Chores / Bugfixes**
 
+= 1.13.9 =
+
+**Chores / Bugfixes**
+
+- [#2726](https://github.com/wp-graphql/wp-graphql/pull/2726): fix: invalid schema when custom post types and custom taxonomies are registered with underscores in the "graphql_single_name" / "graphql_plural_name"
+
 = 1.13.8 =
 
 **Chores / Bugfixes**

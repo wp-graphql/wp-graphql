@@ -611,4 +611,78 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	}
 
+	
+	public function testQueryNonCategoryAsCategoryReturnsNull() {
+		$query = '
+		query CategoryByUri($uri: ID!) {
+			category(id: $uri, idType: URI) {
+				databaseId
+				name
+			}
+		}
+		';
+
+		// Test page.
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+		]);
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['category'] );
+
+		// Test different term.
+		$term_id = $this->factory()->term->create([
+			'taxonomy' => 'post_tag',
+		]);
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['category'] );
+
+		// Test User.
+		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['category'] );
+
+		// Test post type archive
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['category'] );
+	}
+
 }

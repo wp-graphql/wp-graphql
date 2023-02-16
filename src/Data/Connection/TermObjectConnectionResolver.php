@@ -5,7 +5,6 @@ namespace WPGraphQL\Data\Connection;
 use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -235,7 +234,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_Term_Query compatible args
 		 */
-		$query_args = Types::map_input( $where_args, $arg_mapping );
+		$query_args = Utils::map_input( $where_args, $arg_mapping );
 
 		/**
 		 * Filter the input fields

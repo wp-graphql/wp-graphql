@@ -12,8 +12,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// before
 		parent::setUp();
 
-		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		create_initial_post_types();
+		$this->clearSchema();
+
+
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -1827,11 +1830,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'post_title'  => 'Test for QueryPostUsingIDType',
 		]);
 
+		$post = get_post( $post_id );
+
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $post_id ) );
-		$slug      = get_post( $post_id )->post_name;
-		$uri       = get_page_uri( $post_id );
+		$slug      = $post->post_name;
+		$uri       = wp_make_link_relative( get_permalink( $post_id ) );
 		$title     = get_post( $post_id )->post_title;
-		$permalink = get_permalink( $post_id );
 
 		codecept_debug( $uri );
 
@@ -1839,7 +1843,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'id'     => $global_id,
 			'postId' => $post_id,
 			'title'  => $title,
-			'uri'    => str_ireplace( home_url(), '', $permalink ),
+			'uri'    => $uri,
 			'slug'   => $slug,
 		];
 
@@ -2164,6 +2168,79 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['block'] );
 		$this->assertSame( $post_id, $actual['data']['page']['databaseId'] );
 
+	}
+
+	public function testQueryNonPostsAsPostReturnsNull() {
+		$query = '
+		query PostByUri($uri:ID!){
+			post(id:$uri idType:URI) {
+				__typename
+				databaseId
+			}
+		}
+		';
+
+		// Test page.
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+		]);
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'] );
+
+		// Test term.
+		$term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+		]);
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'] );
+
+		// Test User.
+		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'] );
+
+		// Test post type archive
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['post'] );
 	}
 
 }

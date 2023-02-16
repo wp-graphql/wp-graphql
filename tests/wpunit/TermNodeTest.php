@@ -4,6 +4,10 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		$this->set_permalink_structure( '/%postname%/' );
+		create_initial_taxonomies();
+		flush_rewrite_rules( true );
+
 		$this->clearSchema();
 	}
 	public function tearDown(): void {
