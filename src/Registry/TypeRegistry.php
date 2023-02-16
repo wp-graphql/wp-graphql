@@ -185,6 +185,17 @@ class TypeRegistry {
 	protected $excluded_mutations = null;
 
 	/**
+	 * Stores a list of connection Type names that should be excluded from the schema, along with their generated types.
+	 *
+	 * Type names are filtered by `graphql_excluded_connections` and normalized using strtolower(), to avoid case sensitivity issues.
+	 *
+	 * Type name
+	 *
+	 * @var string[]
+	 */
+	protected $excluded_connections = null;
+
+	/**
 	 * TypeRegistry constructor.
 	 */
 	public function __construct() {
@@ -1125,7 +1136,7 @@ class TypeRegistry {
 	 *
 	 * @param string $mutation_name Name of the mutation to remove from the schema.
 	 * 
-	 * @since @todo
+	 * @since 1.14.0
 	 */
 	public function deregister_mutation( string $mutation_name ) : void {
 		// Prevent the mutation from being registered to the scheme directly.
@@ -1142,6 +1153,31 @@ class TypeRegistry {
 				return $excluded_mutations;
 			},
 			10
+		);
+	}
+
+	/**
+	 * Removes a GraphQL connection from the schema.
+	 *
+	 * This works by preventing the connection from being registered in the first place.
+	 *
+	 * @uses 'graphql_excluded_connections' filter.
+	 *
+	 * @param string $connection_name The GraphQL connection name.
+	 */
+	public function deregister_connection( string $connection_name ) : void {
+		add_filter(
+			'graphql_excluded_connections',
+			function ( $excluded_connections ) use ( $connection_name ) {
+
+				$connection_name = strtolower( $connection_name );
+
+				if ( ! in_array( $connection_name, $excluded_connections, true ) ) {
+					$excluded_connections[] = $connection_name;
+				}
+
+				return $excluded_connections;
+			}
 		);
 	}
 
@@ -1212,11 +1248,36 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Get the list of GraphQL connections to exclude from the schema.
+	 *
+	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
+	 *
+	 * @since 1.14.0
+	 */
+	public function get_excluded_connections() : array {
+		if ( null === $this->excluded_connections ) {
+			/**
+			 * Filter the list of GraphQL connections to excluded from the registry.
+			 *
+			 * @param string[] $excluded_connections The names of the GraphQL connections to exclude.
+			 *
+			 * @since 1.14.0
+			 */
+			$excluded_connections = apply_filters( 'graphql_excluded_connections', [] );
+
+			// Normalize the types to be lowercase, to avoid case-sensitivity issue when comparing.
+			$this->excluded_connections = ! empty( $excluded_connections ) ? array_map( 'strtolower', $excluded_connections ) : [];
+		}
+
+		return $this->excluded_connections;
+	}
+
+	/**
 	 * Get the list of GraphQL mutation names to exclude from the schema.
 	 *
 	 * Mutation names are normalized using `strtolower()`, to avoid case sensitivity issues.
 	 *
-	 * @since @todo
+	 * @since 1.14.0
 	 */
 	public function get_excluded_mutations() : array {
 		if ( null === $this->excluded_mutations ) {
@@ -1225,7 +1286,7 @@ class TypeRegistry {
 			 *
 			 * @param string[] $excluded_mutations The names of the GraphQL mutations to exclude.
 			 *
-			 * @since @todo
+			 * @since 1.14.0
 			 */
 			$excluded_mutations = apply_filters( 'graphql_excluded_mutations', [] );
 
