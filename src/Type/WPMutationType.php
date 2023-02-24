@@ -294,29 +294,33 @@ class WPMutationType {
 
 	/**
 	 * Registers the mutation in the Graph.
+	 *
+	 * @throws \Exception
 	 */
 	protected function register_mutation_field() : void {
-		$field_name = Utils::format_field_name( $this->mutation_name );
-		$this->type_registry->register_field(
-			'rootMutation',
-			$field_name,
-			array_merge( $this->config,
-				[
-					'args'        => [
-						'input' => [
-							'type'              => [ 'non_null' => $this->mutation_name . 'Input' ],
-							'description'       => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $this->mutation_name ),
-							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-						],
+
+		$field_config = array_merge( $this->config,
+			[
+				'args'        => [
+					'input' => [
+						'type'              => [ 'non_null' => $this->mutation_name . 'Input' ],
+						'description'       => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $this->mutation_name ),
+						'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 					],
-					'auth'        => $this->auth,
-					'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'The %s mutation', 'wp-graphql' ), $this->mutation_name ),
-					'isPrivate'   => $this->is_private,
-					'type'        => $this->mutation_name . 'Payload',
-					'resolve'     => $this->resolve_mutation,
-					'name'        => $field_name,
-				]
-			)
+				],
+				'auth'        => $this->auth,
+				'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'The %s mutation', 'wp-graphql' ), $this->mutation_name ),
+				'isPrivate'   => $this->is_private,
+				'type'        => $this->mutation_name . 'Payload',
+				'resolve'     => $this->resolve_mutation,
+				'name'        => lcfirst( $this->mutation_name ),
+			]
+		);
+
+		$this->type_registry->register_field(
+			'RootMutation',
+			lcfirst( $this->mutation_name ),
+			$field_config
 		);
 	}
 
