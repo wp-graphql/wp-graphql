@@ -678,7 +678,6 @@ class Request {
 
 		}
 
-		return [];
 	}
 
 	/**
