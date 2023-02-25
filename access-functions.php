@@ -191,12 +191,12 @@ function register_graphql_type( string $type_name, array $config ) {
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
  * @param string $type_name The name of the Type to register
- * @param array|callable  $config    The Type config
+ * @param array  $config    The Type config
  *
  * @throws \Exception
  * @return void
  */
-function register_graphql_interface_type( string $type_name, $config ) {
+function register_graphql_interface_type( string $type_name, array $config ) {
 	add_action(
 		get_graphql_register_action(),
 		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {

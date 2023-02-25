@@ -704,7 +704,7 @@ class TypeRegistry {
 	 * Add an Interface Type to the registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param array $config The configuration of the type
 	 *
 	 * @throws \Exception
 	 * @return void
@@ -1005,7 +1005,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function register_fields( string $type_name, array $fields = [], ?bool $allow_underscores_in_field_names = false ): void {
+	public function register_fields( string $type_name, array $fields = [] ): void {
 		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
 				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
