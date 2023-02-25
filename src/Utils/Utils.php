@@ -106,11 +106,11 @@ class Utils {
 	 * Given a field name, formats it for GraphQL
 	 *
 	 * @param string $field_name         The field name to format
-	 * @param ?bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
+	 * @param bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
 	 *
 	 * @return string
 	 */
-	public static function format_field_name( string $field_name, ?bool $allow_underscores = false ): string {
+	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
 
 		$replaced = preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name );
 
