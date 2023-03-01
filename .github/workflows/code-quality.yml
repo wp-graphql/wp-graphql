@@ -3,10 +3,12 @@ name: Code Quality
 on:
   push:
     branches:
+      - v2.0/develop
       - develop
       - master
   pull_request:
     branches:
+      - v2.0/develop
       - develop
       - master
 

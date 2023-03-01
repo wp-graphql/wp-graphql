@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - develop
+      - 'v2.0/develop'
   pull_request:
     branches:
       - develop
       - master
+      - 'v2.0/develop'
 jobs:
   run:
     runs-on: ubuntu-latest
