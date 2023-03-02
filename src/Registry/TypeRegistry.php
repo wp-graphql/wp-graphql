@@ -1034,7 +1034,7 @@ class TypeRegistry {
 			function ( $fields ) use ( $type_name, $field_name, $config ) {
 
 				// Whether the field should be allowed to have underscores in the field name
-				$allow_field_underscores = isset( $config['allow_field_underscores'] ) && true === $config['allow_field_underscores'];
+				$allow_field_underscores = isset( $config['allowFieldUnderscores'] ) && true === $config['allowFieldUnderscores'];
 
 				$field_name = Utils::format_field_name( $field_name, $allow_field_underscores );
 
