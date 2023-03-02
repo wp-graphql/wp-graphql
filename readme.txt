@@ -261,6 +261,12 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 - [#2684](https://github.com/wp-graphql/wp-graphql/pull/2684): chore: remove deprecated use of WPGraphQL\Data\DataSource::resolve_user(). Thanks @renatoascalves
 - [#2675](https://github.com/wp-graphql/wp-graphql/pull/2675): ci: keep the develop branch in sync with master.
 
+= 1.13.10 =
+
+**Chores / Bugfixes**
+
+- [#2741](https://github.com/wp-graphql/wp-graphql/pull/2741): Change the plugin name from "WP GraphQL" to "WPGraphQL". Thanks @josephfusco!
+- [#2742](https://github.com/wp-graphql/wp-graphql/pull/2742): Update Stalebot rules. Thanks @justlevine!
 
 = 1.13.9 =
 

@@ -29,7 +29,16 @@
 - [#2684](https://github.com/wp-graphql/wp-graphql/pull/2684): chore: remove deprecated use of WPGraphQL\Data\DataSource::resolve_user(). Thanks @renatoascalves
 - [#2675](https://github.com/wp-graphql/wp-graphql/pull/2675): ci: keep the develop branch in sync with master.
 
+## 1.13.10
+
+### Chores / Bugfixes
+
+- [#2741](https://github.com/wp-graphql/wp-graphql/pull/2741): Change the plugin name from "WP GraphQL" to "WPGraphQL". Thanks @josephfusco!
+- [#2742](https://github.com/wp-graphql/wp-graphql/pull/2742): Update Stalebot rules. Thanks @justlevine!
+
 ## 1.13.9
+
+### Chores / Bugfixes
 
 - [#2726](https://github.com/wp-graphql/wp-graphql/pull/2726): fix: invalid schema when custom post types and custom taxonomies are registered with underscores in the "graphql_single_name" / "graphql_plural_name"
 
