@@ -1765,7 +1765,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'resolve' => function() use ( $expected_value ) {
 				return $expected_value;
 			},
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		];
 
 		register_graphql_field( 'RootQuery', 'underscore_test_field', $config, true );
@@ -1795,7 +1795,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'resolve' => function() use ( $expected_value ) {
 				return $expected_value;
 			},
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		];
 
 		deregister_graphql_field( 'RootQuery', 'underscore_test_field' );
@@ -1822,7 +1822,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'fromType' => 'RootQuery',
 			'toType' => 'Post',
 			'fromFieldName' => 'test_field_with_underscores',
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		]);
 
 		$actual = $this->graphql([
@@ -1851,7 +1851,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'fromType' => 'RootQuery',
 			'toType' => 'Post',
 			'fromFieldName' => 'test_field_with_underscores',
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		]);
 
 		$actual = $this->graphql([
@@ -1887,7 +1887,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'test' => $expected,
 				];
 			},
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		]);
 
 		$actual = $this->graphql([
@@ -1918,7 +1918,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				],
 			],
 			'mutateAndGetPayload' => function () {  return null; },
-			'allow_field_underscores' => true,
+			'allowFieldUnderscores' => true,
 		]);
 
 		$actual = $this->graphql([
