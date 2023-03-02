@@ -610,7 +610,7 @@ class Request {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function execute(): array {
+	public function execute() {
 		$helper = new WPHelper();
 
 		if ( ! $this->data instanceof OperationParams ) {
