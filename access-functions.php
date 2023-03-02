@@ -590,7 +590,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  *
  * @param string $connection_name The name of the Connection to remove
  *
- * @since @todo
+ * @since 1.14.0
  */
 function deregister_graphql_connection( string $connection_name ) : void {
 	add_action(
@@ -607,7 +607,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  *
  * @param string $mutation_name The name of the Mutation to remove
  *
- * @since @todo
+ * @since 1.14.0
  */
 function deregister_graphql_mutation( string $mutation_name ) : void {
 	add_action(
