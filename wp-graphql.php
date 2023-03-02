@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: WP GraphQL
+ * Plugin Name: WPGraphQL
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 1.13.9
+ * Version: 1.13.10
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 5.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.13.9
+ * @version  1.13.10
  */
 
 // Exit if accessed directly.
@@ -72,7 +72,7 @@ function graphql_init_appsero_telemetry() {
 		return;
 	}
 
-	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WP GraphQL', __FILE__ );
+	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
 	$insights = $client->insights();
 
 	// If the Appsero client has the add_plugin_data method, use it

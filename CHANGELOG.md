@@ -1,16 +1,27 @@
 # Changelog
 
+## 1.13.10
+
+### Chores / Bugfixes
+
+- [#2741](https://github.com/wp-graphql/wp-graphql/pull/2741): Change the plugin name from "WP GraphQL" to "WPGraphQL". Thanks @josephfusco!
+- [#2742](https://github.com/wp-graphql/wp-graphql/pull/2742): Update Stalebot rules. Thanks @justlevine!
+
 ## 1.13.9
+
+### Chores / Bugfixes
 
 - [#2726](https://github.com/wp-graphql/wp-graphql/pull/2726): fix: invalid schema when custom post types and custom taxonomies are registered with underscores in the "graphql_single_name" / "graphql_plural_name"
 
 ## 1.13.8
 
+### Chores / Bugfixes
+
 - [#2712](https://github.com/wp-graphql/wp-graphql/pull/2712): fix: query analyzer outputting unexpected list types
 
 ## 1.13.7
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - ([#2661](https://github.com/wp-graphql/wp-graphql/pull/2661)): chore(deps): bump simple-git from 3.10.0 to 3.15.1
 - ([#2665](https://github.com/wp-graphql/wp-graphql/pull/2665)): chore(deps): bump decode-uri-component from 0.2.0 to 0.2.2
