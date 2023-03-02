@@ -227,7 +227,7 @@ class Request {
 	 *
 	 * @return mixed|null
 	 */
-	protected function get_root_value() { 
+	protected function get_root_value() {
 		/**
 		 * Set the root value based on what was passed to the request
 		 */
@@ -321,7 +321,7 @@ class Request {
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	protected function has_authentication_errors() { 
+	protected function has_authentication_errors() {
 		/**
 		 * Bail if this is not an HTTP request.
 		 *
@@ -607,10 +607,10 @@ class Request {
 	/**
 	 * Execute an internal request (graphql() function call).
 	 *
-	 * @return array|void
+	 * @return array
 	 * @throws \Exception
 	 */
-	public function execute() { 
+	public function execute(): array {
 		$helper = new WPHelper();
 
 		if ( ! $this->data instanceof OperationParams ) {
@@ -624,7 +624,9 @@ class Request {
 				$this->data = $data;
 				return $this->execute();
 			}, $this->params);
-		} elseif ( $this->params instanceof OperationParams ) {
+		}
+
+		if ( $this->params instanceof OperationParams ) {
 
 			/**
 			 * Initialize the GraphQL Request
@@ -675,6 +677,7 @@ class Request {
 			return $this->after_execute( $response );
 
 		}
+
 	}
 
 	/**
@@ -683,7 +686,7 @@ class Request {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function execute_http() { 
+	public function execute_http() {
 		/**
 		 * Parse HTTP request.
 		 */
@@ -742,7 +745,7 @@ class Request {
 	 *
 	 * @return bool
 	 */
-	private function is_batch_queries_enabled() { 
+	private function is_batch_queries_enabled() {
 		$batch_queries_enabled = true;
 
 		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
@@ -765,7 +768,7 @@ class Request {
 	 *
 	 * @return \GraphQL\Server\StandardServer
 	 */
-	private function get_server() { 
+	private function get_server() {
 		$debug_flag = $this->get_debug_flag();
 
 		$config = new ServerConfig();

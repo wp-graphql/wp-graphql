@@ -531,7 +531,7 @@ class WPConnectionType {
 					 */
 					return $resolve_connection( $root, $args, $context, $info );
 				},
-				'allow_field_underscores' => isset( $this->config['allow_field_underscores'] ) && true === $this->config['allow_field_underscores'],
+				'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
 			]
 		);
 

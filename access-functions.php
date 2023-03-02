@@ -190,7 +190,7 @@ function register_graphql_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
+ * @param string          $type_name The name of the Type to register
  * @param array|callable  $config    The Type config
  *
  * @throws \Exception
