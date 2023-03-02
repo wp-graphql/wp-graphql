@@ -336,7 +336,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 	public function testPluginsQueryWithWhereArgs() {
 		$query = $this->getQuery();
 
-		$active_plugin   = 'WP GraphQL';
+		$active_plugin   = 'WPGraphQL';
 		$inactive_plugin = 'Akismet Anti-Spam';
 
 		wp_set_current_user( $this->admin );
