@@ -703,13 +703,13 @@ class TypeRegistry {
 	/**
 	 * Add an Interface Type to the registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config The configuration of the type
+	 * @param string                                    $type_name The name of the type to register
+	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The configuration of the type
 	 *
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function register_interface_type( string $type_name, array $config ): void {
+	public function register_interface_type( string $type_name, $config ): void {
 		$config['kind'] = 'interface';
 		$this->register_type( $type_name, $config );
 	}
