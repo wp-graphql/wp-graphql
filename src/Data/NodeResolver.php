@@ -135,7 +135,7 @@ class NodeResolver {
 		/**
 		 * If the URI is '/', we can resolve it now.
 		 *
-		 * We don't rely on parse_request(), since the home page doesn't get a rewrite rule.
+		 * We don't rely on $this->parse_request(), since the home page doesn't get a rewrite rule.
 		 */
 		if ( '/' === $uri ) {
 			return $this->resolve_home_page();
@@ -566,6 +566,13 @@ class NodeResolver {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
 	}
 
+	/**
+	 * Resolves the home page.
+	 *
+	 * If the homepage is a static page, return the page, otherwise we return the Posts `ContentType`.
+	 *
+	 * @todo Replace `ContentType` with an `Archive` type.
+	 */
 	protected function resolve_home_page() : ?Deferred {
 		$page_id       = get_option( 'page_on_front', 0 );
 		$show_on_front = get_option( 'show_on_front', 'posts' );
