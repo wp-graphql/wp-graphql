@@ -356,10 +356,9 @@ class NodeResolver {
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
 
-		$error = '404';
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
-			$error                   = null;
+			$error                   = '404';
 			$this->wp->did_permalink = true;
 
 			$pathinfo         = ! empty( $uri ) ? $uri : '';
@@ -460,9 +459,16 @@ class NodeResolver {
 				// Substitute the substring matches into the query.
 				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) ); // @phpstan-ignore-line
 
+				$this->wp->matched_query = $query;
+
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
 
+				// If we're processing a 404 request, clear the error var since we found something.
+				// @phpstan-ignore-next-line
+				if ( '404' == $error ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					unset( $error );
+				}
 			}
 		}
 
