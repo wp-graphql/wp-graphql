@@ -192,11 +192,6 @@ class NodeResolver {
 			return $node;
 		}
 
-		// Resolve the home page.
-		if ( $query->is_home() ) {
-			return $this->resolve_home_page();
-		}
-
 		// Resolve Post Objects.
 		if ( $queried_object instanceof WP_Post ) {
 			// If Page for Posts is set, we need to return the Page archive, not the page.
