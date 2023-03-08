@@ -1555,7 +1555,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$request = new \WPGraphQL\Request();
 		$request->schema->assertValid();
 
-		unregister_taxonomy( 'cpt_no_single_plural' );
+		unregister_post_type( 'cpt_no_single_plural' );
 
 	}
 
