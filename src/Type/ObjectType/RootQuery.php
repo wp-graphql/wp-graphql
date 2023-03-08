@@ -677,6 +677,7 @@ class RootQuery {
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_register_root_field' => true ] );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
+
 			register_graphql_field(
 				'RootQuery',
 				$post_type_object->graphql_single_name,

@@ -605,32 +605,7 @@ final class WPGraphQL {
 				'objects'
 			);
 
-			$post_type_names = [];
-
-			foreach ( $post_type_objects as $post_type_object ) {
-
-				// if the graphql_single_name was provided, but not the plural name
-				// use the single name as the plural name
-				if ( empty( $post_type_object->graphql_plural_name ) && ! empty( $post_type_object->graphql_single_name ) ) {
-					$post_type_object->graphql_plural_name = $post_type_object->graphql_single_name;
-				}
-
-				/**
-				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
-				 */
-				if ( empty( $post_type_object->graphql_single_name ) || empty( $post_type_object->graphql_plural_name ) ) {
-					throw new UserError(
-						sprintf(
-							/* translators: %s will replaced with the registered type */
-							__( 'The %s post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
-							$post_type_object->name
-						)
-					);
-				}
-
-				// Save allowed post type names so they can be filtered by the user.
-				$post_type_names[] = $post_type_object->name;
-			}
+			$post_type_names = wp_list_pluck( $post_type_objects, 'name' );
 
 			/**
 			 * Pass through a filter to allow the post_types to be modified.
@@ -646,23 +621,39 @@ final class WPGraphQL {
 			 */
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
 
-			// Filter the post type objects if the list of allowed types have changed.
-			if ( $post_type_names !== $allowed_post_type_names ) {
-				// Maybe they're just out of order.
-				sort( $post_type_names );
-				sort( $allowed_post_type_names );
+			// Maybe they're just out of order.
+			sort( $post_type_names );
+			sort( $allowed_post_type_names );
 
-				if ( $post_type_names !== $allowed_post_type_names ) {
-					$post_type_objects = array_filter($post_type_objects, function ( $obj ) use ( $allowed_post_type_names ) {
-						return in_array( $obj->name, $allowed_post_type_names, true );
-					});
+			// Filter the post type objects if the list of allowed types have changed.
+			$post_type_objects = array_filter($post_type_objects, static function ( $obj ) use ( $allowed_post_type_names ) {
+
+				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
+					$obj->graphql_plural_name = $obj->graphql_single_name;
 				}
-			}
+
+				/**
+				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
+				 */
+				if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
+					graphql_debug(
+						sprintf(
+						/* translators: %s will replaced with the registered type */
+							__( 'The "%s" post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
+							$obj->name
+						),
+						[
+							'invalid_post_type' => $obj,
+						]
+					);
+					return false;
+				}
+
+				return in_array( $obj->name, $allowed_post_type_names, true );
+			});
 
 			self::$allowed_post_types = $post_type_objects;
 		}
-
-		$post_types = self::$allowed_post_types;
 
 		/**
 		 * Filter the list of allowed post types either by the provided args or to only return an array of names.
@@ -670,10 +661,10 @@ final class WPGraphQL {
 		if ( ! empty( $args ) || 'names' === $output ) {
 			$field = 'names' === $output ? 'name' : false;
 
-			$post_types = wp_filter_object_list( $post_types, $args, 'and', $field );
+			return wp_filter_object_list( self::$allowed_post_types, $args, 'and', $field );
 		}
 
-		return $post_types;
+		return self::$allowed_post_types;
 	}
 
 	/**
@@ -702,32 +693,7 @@ final class WPGraphQL {
 				'objects'
 			);
 
-			$tax_names = [];
-
-			foreach ( $tax_objects as $tax_object ) {
-
-				// if the graphql_single_name was provided, but not the plural name
-				// use the single name as the plural name
-				if ( empty( $tax_object->graphql_plural_name ) && ! empty( $tax_object->graphql_single_name ) ) {
-					$tax_object->graphql_plural_name = $tax_object->graphql_single_name;
-				}
-
-				/**
-				 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
-				 */
-				if ( empty( $tax_object->graphql_single_name ) || empty( $tax_object->graphql_plural_name ) ) {
-					throw new UserError(
-						sprintf(
-							/* translators: %s will replaced with the registered taxonomty */
-							__( 'The %s taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
-							$tax_object->name
-						)
-					);
-				}
-
-				// Save allowed taxonomy names so they can be filtered by the user.
-				$tax_names[] = $tax_object->name;
-			}
+			$tax_names = wp_list_pluck( $tax_objects, 'name' );
 
 			/**
 			 * Pass through a filter to allow the taxonomies to be modified.
@@ -743,18 +709,34 @@ final class WPGraphQL {
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
 
-			// Filter the taxonomy objects if the list of allowed types have changed.
-			if ( $tax_names !== $allowed_tax_names ) {
-				// Maybe they're just out of order.
-				sort( $tax_names );
-				sort( $allowed_tax_names );
+			sort( $tax_names );
+			sort( $allowed_tax_names );
 
-				if ( $tax_names !== $allowed_tax_names ) {
-					$tax_objects = array_filter($tax_objects, function ( $obj ) use ( $allowed_tax_names ) {
-						return in_array( $obj->name, $allowed_tax_names, true );
-					});
+			$tax_objects = array_filter($tax_objects, static function ( $obj ) use ( $allowed_tax_names ) {
+
+				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
+					$obj->graphql_plural_name = $obj->graphql_single_name;
 				}
-			}
+
+				/**
+				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
+				 */
+				if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
+					graphql_debug(
+						sprintf(
+						/* translators: %s will replaced with the registered taxonomty */
+							__( 'The "%s" taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
+							$obj->name
+						),
+						[
+							'invalid_taxonomy' => $obj,
+						]
+					);
+					return false;
+				}
+
+				return in_array( $obj->name, $allowed_tax_names, true );
+			});
 
 			self::$allowed_taxonomies = $tax_objects;
 		}
