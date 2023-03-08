@@ -3,6 +3,7 @@
 namespace WPGraphQL\Data;
 
 use Exception;
+use GraphQL\Deferred;
 use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
@@ -132,6 +133,15 @@ class NodeResolver {
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
 		/**
+		 * If the URI is '/', we can resolve it now.
+		 *
+		 * We don't rely on $this->parse_request(), since the home page doesn't get a rewrite rule.
+		 */
+		if ( '/' === $uri ) {
+			return $this->resolve_home_page();
+		}
+
+		/**
 		 * Filter the query class used to resolve the URI. By default this is WP_Query.
 		 *
 		 * This can be used by Extensions which use a different query class to resolve data.
@@ -180,32 +190,6 @@ class NodeResolver {
 
 		if ( ! empty( $node ) ) {
 			return $node;
-		}
-
-		// Resolve the home page.
-		if ( $query->is_home() ) {
-			$page_id       = get_option( 'page_on_front', 0 );
-			$show_on_front = get_option( 'show_on_front', 'posts' );
-
-			// If the homepage is a static page, return the page.
-			if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
-
-				$page = get_post( $page_id );
-
-				if ( empty( $page ) ) {
-					return null;
-				}
-
-				return $this->context->get_loader( 'post' )->load_deferred( $page->ID );
-			}
-
-			// If the homepage is set to latest posts, we need to make sure not to resolve it when when for other types.
-			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
-				return null;
-			}
-
-			// We dont have an 'Archive' type, so we resolve to the ContentType.
-			return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 		}
 
 		// Resolve Post Objects.
@@ -355,11 +339,9 @@ class NodeResolver {
 
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
-
-		$error = '404';
 		if ( ! empty( $rewrite ) ) {
 			// If we match a rewrite rule, this will be cleared.
-			$error                   = null;
+			$error                   = '404';
 			$this->wp->did_permalink = true;
 
 			$pathinfo         = ! empty( $uri ) ? $uri : '';
@@ -460,9 +442,16 @@ class NodeResolver {
 				// Substitute the substring matches into the query.
 				$query = addslashes( \WP_MatchesMapRegex::apply( $query, $matches ) ); // @phpstan-ignore-line
 
+				$this->wp->matched_query = $query;
+
 				// Parse the query.
 				parse_str( $query, $perma_query_vars );
 
+				// If we're processing a 404 request, clear the error var since we found something.
+				// @phpstan-ignore-next-line
+				if ( '404' == $error ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					unset( $error );
+				}
 			}
 		}
 
@@ -575,5 +564,37 @@ class NodeResolver {
 	 */
 	protected function is_valid_node_type( string $node_type ) : bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
+	}
+
+	/**
+	 * Resolves the home page.
+	 *
+	 * If the homepage is a static page, return the page, otherwise we return the Posts `ContentType`.
+	 *
+	 * @todo Replace `ContentType` with an `Archive` type.
+	 */
+	protected function resolve_home_page() : ?Deferred {
+		$page_id       = get_option( 'page_on_front', 0 );
+		$show_on_front = get_option( 'show_on_front', 'posts' );
+
+		// If the homepage is a static page, return the page.
+		if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
+
+			$page = get_post( $page_id );
+
+			if ( empty( $page ) ) {
+				return null;
+			}
+
+			return $this->context->get_loader( 'post' )->load_deferred( $page->ID );
+		}
+
+		// If the homepage is set to latest posts, we need to make sure not to resolve it when when for other types.
+		if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
+			return null;
+		}
+
+		// We dont have an 'Archive' type, so we resolve to the ContentType.
+		return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
 	}
 }
