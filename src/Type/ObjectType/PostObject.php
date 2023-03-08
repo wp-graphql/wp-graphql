@@ -17,11 +17,11 @@ class PostObject {
 	/**
 	 * Registers a post_type WPObject type to the schema.
 	 *
-	 * @param WP_Post_Type $post_type_object Post type.
-	 * @param TypeRegistry $type_registry    The Type Registry
+	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 * @deprecated 1.12.0
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
@@ -35,8 +35,8 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @param WP_Post_Type $post_type_object Post type.
-	 * @param TypeRegistry $type_registry    The Type Registry
+	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 	 *
 	 * @deprecated 1.12.0
 	 *

@@ -11,6 +11,8 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_title' => 'test post'
 		]);
 
+		WPGraphQL::clear_schema();
+
 	}
 
 	public function _tearDown():void {
@@ -35,6 +37,8 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// get the list types that were generated during execution
 		$list_types = $request->get_query_analyzer()->get_list_types();
+
+		codecept_debug( $list_types );
 
 		// Assert the expected list types are returned
 		$this->assertEqualSets( [ 'list:post' ], $list_types );
@@ -77,6 +81,80 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$types = $request->get_query_analyzer()->get_query_types();
 		$this->assertEqualSets( [ 'rootquery', 'rootquerytopostconnection', 'post' ], $types );
+	}
+
+	public function testQueryForListOfNonNodeInterfaceTypesDoesntAddKeys() {
+
+		// types that do not implement the "Node" interface shouldn't be tracked as keys
+		// in the Query Analyzer
+
+		add_action( 'graphql_register_types', function() {
+			register_graphql_interface_type( 'TestInterface', [
+				'eagerlyLoadType' => true,
+				'fields'      => [
+					'test' => [
+						'type' => 'String',
+					],
+				],
+				'resolveType' => function () {
+					return 'TestType';
+				},
+			] );
+
+			register_graphql_object_type( 'TestType', [
+				'eagerlyLoadType' => true,
+				'interfaces' => [ 'TestInterface' ],
+				'fields'     => [
+					'test' => [
+						'type' => 'String',
+					],
+				],
+			] );
+
+			register_graphql_field( 'Post', 'testField', [
+				'type'    => [ 'list_of' => 'TestInterface' ],
+				'resolve' => function () {
+					return [
+						[
+							'test' => 'value',
+						],
+						[
+							'test' => 'value',
+						],
+					];
+				},
+			] );
+		} );
+
+
+		$query = '
+		{
+		  posts {
+		    nodes {
+		      testField {
+		        test
+		      }
+		    }
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query
+		], true );
+
+		$request->execute();
+
+		$list_types = $request->get_query_analyzer()->get_list_types();
+
+		codecept_debug( $list_types );
+		$keys_array = $list_types;
+		codecept_debug( $list_types );
+
+		$this->assertNotContains( 'list:testinterface', $list_types );
+		$this->assertNotContains( 'list:testtype', $list_types );
+		$this->assertContains( 'list:post', $list_types );
+
 	}
 
 	/**
@@ -185,5 +263,5 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'list:user', $types );
 
 	}
-	
+
 }

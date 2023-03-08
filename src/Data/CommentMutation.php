@@ -24,7 +24,7 @@ class CommentMutation {
 	 * @param bool   $update        Whether it's an update action
 	 *
 	 * @return array $output_args
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function prepare_comment_object( array $input, array &$output_args, string $mutation_name, $update = false ) {
 		/**
@@ -120,8 +120,8 @@ class CommentMutation {
 	 * @param int         $comment_id    The ID of the postObject the comment is connected to
 	 * @param array       $input         The input for the mutation
 	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
-	 * @param AppContext  $context       The AppContext passed down to all resolvers
-	 * @param ResolveInfo $info          The ResolveInfo passed down to all resolvers
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 	 *
 	 * @return void
 	 */

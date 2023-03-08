@@ -279,4 +279,63 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
+	public function testPageInfoFragmentOnConnections() {
+
+		$query = '
+		{
+		  contentNodes {
+		    ...PaginatedConnection
+		  }
+		  terms {
+		    ...PaginatedConnection
+		  }
+		  users {
+		    ...PaginatedConnection
+		  }
+		  mediaItems {
+		    ...PaginatedConnection
+		  }
+		  comments {
+		    ...PaginatedConnection
+		  }
+		  contentTypes {
+		    ...PaginatedConnection
+		  }
+		  plugins {
+		    ...PaginatedConnection
+		  }
+		  themes {
+		    ...PaginatedConnection
+		  }
+		  menus {
+		    ...PaginatedConnection
+		  }
+		  menuItems {
+		    ...PaginatedConnection
+		  }
+		}
+		
+		fragment PaginatedConnection on Connection {
+		  __typename
+		  pageInfo {
+		    startCursor
+		    endCursor
+		    hasNextPage
+		    hasPreviousPage
+		  }
+		  nodes {
+		    __typename
+		    id
+		  }
+		}
+		';
+
+		$results = $this->graphql([
+			'query' => $query
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $results );
+
+	}
+
 }

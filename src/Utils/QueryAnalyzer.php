@@ -32,7 +32,7 @@ use WPGraphQL\WPSchema;
 class QueryAnalyzer {
 
 	/**
-	 * @var Schema
+	 * @var \GraphQL\Type\Schema
 	 */
 	protected $schema;
 
@@ -46,7 +46,7 @@ class QueryAnalyzer {
 	/**
 	 * @var string
 	 */
-	protected $root_operation = 'Query';
+	protected $root_operation = '';
 
 	/**
 	 * Models that are referenced in the query
@@ -78,7 +78,7 @@ class QueryAnalyzer {
 	protected $query_id;
 
 	/**
-	 * @var Request
+	 * @var \WPGraphQL\Request
 	 */
 	protected $request;
 
@@ -103,7 +103,7 @@ class QueryAnalyzer {
 	protected $queried_list_types = [];
 
 	/**
-	 * @param Request $request The GraphQL request being executed
+	 * @param \WPGraphQL\Request $request The GraphQL request being executed
 	 */
 	public function __construct( Request $request ) {
 		$this->request       = $request;
@@ -115,7 +115,7 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * @return Request
+	 * @return \WPGraphQL\Request
 	 */
 	public function get_request(): Request {
 		return $this->request;
@@ -130,7 +130,7 @@ class QueryAnalyzer {
 		 * Filters whether to analyze queries or not
 		 *
 		 * @param bool          $should_analyze_queries Whether to analyze queries or not. Default true
-		 * @param QueryAnalyzer $query_analyzer         The QueryAnalyzer instance
+		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The QueryAnalyzer instance
 		 */
 		$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', true, $this );
 
@@ -183,12 +183,12 @@ class QueryAnalyzer {
 	 * @param ?string         $query     The GraphQL query
 	 * @param ?string         $operation The name of the operation
 	 * @param ?array          $variables Variables to be passed to your GraphQL request
-	 * @param OperationParams $params    The Operation Params. This includes any extra params, such
-	 *                                   as extenions or any other modifications to the request
-	 *                                   body
+	 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params, such
+ * as extenions or any other modifications to the request
+ * body
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function determine_graphql_keys( ?string $query, ?string $operation, ?array $variables, OperationParams $params ): void {
 
@@ -213,7 +213,7 @@ class QueryAnalyzer {
 		$this->models        = $this->set_query_models( $this->schema, $query );
 
 		/**
-		 * @param QueryAnalyzer $query_analyzer The instance of the query analyzer
+		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
 		 * @param string        $query          The query string being executed
 		 */
 		do_action( 'graphql_determine_graphql_keys', $this, $query );
@@ -299,17 +299,17 @@ class QueryAnalyzer {
 	 * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
 	 * by the query.
 	 *
-	 * @param ?Schema $schema The WPGraphQL Schema
+	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
 	 * @param ?string $query  The query string
 	 *
 	 * @return array
-	 * @throws SyntaxError|Exception
+	 * @throws \GraphQL\Error\SyntaxError|\Exception
 	 */
 	public function set_list_types( ?Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter
-		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string    $query  The query string being requested
 		 */
 		$null               = null;
@@ -416,17 +416,17 @@ class QueryAnalyzer {
 	 * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
 	 * by the query.
 	 *
-	 * @param ?Schema $schema The WPGraphQL Schema
+	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
 	 * @param ?string $query  The query string
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function set_query_types( ?Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter
-		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string    $query  The query string being requested
 		 */
 		$null                = null;
@@ -496,17 +496,17 @@ class QueryAnalyzer {
 	 * Given the Schema and a query string, return a list of GraphQL model names that are being
 	 * asked for by the query.
 	 *
-	 * @param ?Schema $schema The WPGraphQL Schema
+	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
 	 * @param ?string $query  The query string
 	 *
 	 * @return array
-	 * @throws SyntaxError|Exception
+	 * @throws \GraphQL\Error\SyntaxError|\Exception
 	 */
 	public function set_query_models( ?Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter
-		 * @param ?Schema    $schema The WPGraphQL Schema for the current request
+		 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema for the current request
 		 * @param ?string    $query  The query string being requested
 		 */
 		$null           = null;
@@ -623,11 +623,11 @@ class QueryAnalyzer {
 			$keys[] = $this->get_operation_name();
 		}
 
-		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
+		if ( ! empty( $this->get_list_types() ) ) {
 			$keys = array_merge( $keys, $this->get_list_types() );
 		}
 
-		if ( ! empty( $this->get_runtime_nodes() ) && is_array( $this->get_runtime_nodes() ) ) {
+		if ( ! empty( $this->get_runtime_nodes() ) ) {
 			$keys = array_merge( $keys, $this->get_runtime_nodes() );
 		}
 
@@ -724,7 +724,7 @@ class QueryAnalyzer {
 	 * Outputs Query Analyzer data in the extensions response
 	 *
 	 * @param mixed       $response
-	 * @param WPSchema    $schema         The WPGraphQL Schema
+	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
 	 * @param string|null $operation_name The operation name being executed
 	 * @param string|null $request        The GraphQL Request being made
 	 * @param array|null  $variables      The variables sent with the request
@@ -738,7 +738,7 @@ class QueryAnalyzer {
 		/**
 		 * @param bool        $should         Whether the query analyzer output should be displayed in the Extensions output. Default to the value of WPGraphQL Debug.
 		 * @param mixed       $response       The response of the WPGraphQL Request being executed
-		 * @param WPSchema    $schema         The WPGraphQL Schema
+		 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
 		 * @param string|null $operation_name The operation name being executed
 		 * @param string|null      $request        The GraphQL Request being made
 		 * @param array|null  $variables      The variables sent with the request

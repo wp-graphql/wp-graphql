@@ -105,11 +105,12 @@ class Utils {
 	/**
 	 * Given a field name, formats it for GraphQL
 	 *
-	 * @param string $field_name The field name to format
+	 * @param string $field_name         The field name to format
+	 * @param bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
 	 *
 	 * @return string
 	 */
-	public static function format_field_name( string $field_name ) {
+	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
 
 		$replaced = preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name );
 
@@ -118,12 +119,24 @@ class Utils {
 			$field_name = $replaced;
 		}
 
-		$field_name = lcfirst( $field_name );
-		$field_name = lcfirst( str_replace( '_', ' ', ucwords( $field_name, '_' ) ) );
-		$field_name = lcfirst( str_replace( '-', ' ', ucwords( $field_name, '_' ) ) );
-		$field_name = lcfirst( str_replace( ' ', '', ucwords( $field_name, ' ' ) ) );
+		$formatted_field_name = lcfirst( $field_name );
 
-		return $field_name;
+
+		// underscores are allowed by GraphQL, but WPGraphQL has historically
+		// stripped them when formatting field names.
+		// The $allow_underscores argument allows functions to opt-in to allowing underscores
+		if ( true !== $allow_underscores ) {
+			// uppercase words separated by an underscore, then replace the underscores with a space
+			$formatted_field_name = lcfirst( str_replace( '_', ' ', ucwords( $formatted_field_name, '_' ) ) );
+		}
+
+		// uppercase words separated by a dash, then replace the dashes with a space
+		$formatted_field_name = lcfirst( str_replace( '-', ' ', ucwords( $formatted_field_name, '-' ) ) );
+
+		// uppercace words separated by a space, and replace spaces with no space
+		$formatted_field_name = lcfirst( str_replace( ' ', '', ucwords( $formatted_field_name, ' ' ) ) );
+
+		return lcfirst( $formatted_field_name );
 	}
 
 	/**

@@ -33,31 +33,31 @@ class Term extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var WP_Term $data
+	 * @var \WP_Term $data
 	 */
 	protected $data;
 
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
-	 * @var null|WP_Taxonomy $taxonomy_object
+	 * @var null|\WP_Taxonomy $taxonomy_object
 	 */
 	protected $taxonomy_object;
 
 	/**
 	 * The global Post instance
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * Term constructor.
 	 *
-	 * @param WP_Term $term The incoming WP_Term object that needs modeling
+	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_Term $term ) {
 		$this->data            = $term;

@@ -39,7 +39,7 @@ class CommentObjectCursor extends AbstractCursor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return ?WP_Comment
+	 * @return ?\WP_Comment
 	 */
 	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {

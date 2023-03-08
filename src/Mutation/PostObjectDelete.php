@@ -8,15 +8,17 @@ use GraphQLRelay\Relay;
 use WP_Post_Type;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
+use WPGraphQL\Data\PostObjectMutation;
+
 
 class PostObjectDelete {
 	/**
 	 * Registers the PostObjectDelete mutation.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation( WP_Post_Type $post_type_object ) {
 		$mutation_name = 'delete' . ucwords( $post_type_object->graphql_single_name );
@@ -34,22 +36,26 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		return [
-			'id'          => [
+			'id'             => [
 				'type'        => [
 					'non_null' => 'ID',
 				],
 				// translators: The placeholder is the name of the post's post_type being deleted
 				'description' => sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $post_type_object->graphql_single_name ),
 			],
-			'forceDelete' => [
+			'forceDelete'    => [
 				'type'        => 'Boolean',
 				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
+			],
+			'ignoreEditLock' => [
+				'type'        => 'Boolean',
+				'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
 			],
 		];
 	}
@@ -57,7 +63,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -67,7 +73,7 @@ class PostObjectDelete {
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					/** @var Post $deleted */
+					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
 					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', (string) $deleted->ID ) : null;
@@ -77,7 +83,7 @@ class PostObjectDelete {
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
 				'resolve'     => function ( $payload ) {
-					/** @var Post $deleted */
+					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
 					return ! empty( $deleted->ID ) ? $deleted : null;
@@ -89,7 +95,7 @@ class PostObjectDelete {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Post_Type $post_type_object The post type of the mutation.
+	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string       $mutation_name    The mutation name.
 	 *
 	 * @return callable
@@ -130,6 +136,15 @@ class PostObjectDelete {
 			if ( 'trash' === $post_before_delete->post_status && true !== $force_delete ) {
 				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
 				throw new UserError( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_id ) );
+			}
+
+			// If post is locked and the override is not specified, do not allow the edit
+			$locked_user_id = PostObjectMutation::check_edit_lock( $post_id, $input );
+			if ( false !== $locked_user_id ) {
+				$user         = get_userdata( (int) $locked_user_id );
+				$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
+				/* translators: %s: User's display name. */
+				throw new UserError( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
 			}
 
 			/**

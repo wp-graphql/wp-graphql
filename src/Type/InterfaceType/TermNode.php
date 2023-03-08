@@ -14,10 +14,10 @@ class TermNode {
 	/**
 	 * Register the TermNode Interface
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 

@@ -72,7 +72,7 @@ class SettingsRegistry {
 	 * @param string $slug    Setting Section Slug
 	 * @param array  $section setting section config
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
 	public function register_section( string $slug, array $section ) {
 		$section['id']                    = $slug;
@@ -87,7 +87,7 @@ class SettingsRegistry {
 	 * @param string $section The slug of the section to register a field to
 	 * @param array  $fields  settings fields array
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
 	public function register_fields( string $section, array $fields ) {
 		foreach ( $fields as $field ) {
@@ -103,7 +103,7 @@ class SettingsRegistry {
 	 * @param string $section The slug of the section to register a field to
 	 * @param array  $field   The config for the field being registered
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
 	public function register_field( string $section, array $field ) {
 		$defaults = [

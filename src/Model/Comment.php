@@ -36,16 +36,16 @@ class Comment extends Model {
 	/**
 	 * Stores the incoming WP_Comment object to be modeled
 	 *
-	 * @var WP_Comment $data
+	 * @var \WP_Comment $data
 	 */
 	protected $data;
 
 	/**
 	 * Comment constructor.
 	 *
-	 * @param WP_Comment $comment The incoming WP_Comment to be modeled
+	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_Comment $comment ) {
 
@@ -80,7 +80,7 @@ class Comment extends Model {
 	 * Method for determining if the data should be considered private or not
 	 *
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function is_private() {
 

@@ -15,7 +15,7 @@ class WPScalar extends CustomScalarType {
 	 * WPScalar constructor.
 	 *
 	 * @param array        $config
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
