@@ -46,7 +46,7 @@ class QueryAnalyzer {
 	/**
 	 * @var string
 	 */
-	protected $root_operation  = '';
+	protected $root_operation = '';
 
 	/**
 	 * Models that are referenced in the query
