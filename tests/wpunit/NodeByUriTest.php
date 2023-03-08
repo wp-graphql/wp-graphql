@@ -1820,4 +1820,80 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'], 'The uri should match the expected URI' );
 	}
 
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2751
+	 */
+	public function testNodeByUriWithCustomPermalinkStructure() {
+
+		$this->set_permalink_structure( '/posts/%postname%/' );
+
+		$query = '
+		query NodeByUri($uri:String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/whatever (something non-existing)'
+			]
+		]);
+
+		// The query should succeed
+		self::assertQuerySuccessful( $actual, [
+			// the query should return a null value as the uri
+			// cannot be found
+			$this->expectedField( 'nodeByUri', self::IS_NULL ),
+		] );
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2751
+	 */
+	public function testNodeByUriWithCustomPermalinkStructureAndFrontPageSet() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+		]);
+
+		update_option( 'page_on_front', $page_id );
+		update_option( 'show_on_front', 'page' );
+
+		$this->set_permalink_structure( '/posts/%postname%/' );
+
+		$query = '
+		query NodeByUri($uri:String!) {
+		  nodeByUri( uri: $uri ) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'uri' => '/whatever (something non-existing)'
+			]
+		]);
+
+		// The query should succeed
+		self::assertQuerySuccessful( $actual, [
+			// the query should return a null value as the uri
+			// cannot be found
+			$this->expectedField( 'nodeByUri', self::IS_NULL ),
+		] );
+
+		// cleanup
+		update_option( 'page_on_front', 0 );
+		update_option( 'show_on_front', 0 );
+
+	}
+
 }
