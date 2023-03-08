@@ -1070,4 +1070,35 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterTaxonomyWithoutGraphqlPluralNameIsValid() {
+
+		register_taxonomy( 'tax_no_plural', 'post',[
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'taxNoPlural'
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+		  allTaxNoPlural {
+		    nodes {
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'allTaxNoPlural.nodes', self::IS_FALSY )
+		]);
+
+		unregister_taxonomy( 'tax_no_plural' );
+
+	}
+
 }

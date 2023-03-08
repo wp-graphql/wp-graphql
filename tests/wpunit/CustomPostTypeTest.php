@@ -1508,5 +1508,36 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterPostTypeWithoutGraphqlPluralNameIsValid() {
+
+		register_post_type( 'cpt_no_plural', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'noPlural'
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+		  allNoPlural {
+		    nodes {
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY )
+		]);
+
+		unregister_post_type( 'cpt_no_plural' );
+
+	}
+
 
 }

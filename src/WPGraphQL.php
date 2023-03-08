@@ -608,6 +608,13 @@ final class WPGraphQL {
 			$post_type_names = [];
 
 			foreach ( $post_type_objects as $post_type_object ) {
+
+				// if the graphql_single_name was provided, but not the plural name
+				// use the single name as the plural name
+				if ( empty( $post_type_object->graphql_plural_name ) && ! empty( $post_type_object->graphql_single_name ) ) {
+					$post_type_object->graphql_plural_name = $post_type_object->graphql_single_name;
+				}
+
 				/**
 				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
 				 */
@@ -698,6 +705,13 @@ final class WPGraphQL {
 			$tax_names = [];
 
 			foreach ( $tax_objects as $tax_object ) {
+
+				// if the graphql_single_name was provided, but not the plural name
+				// use the single name as the plural name
+				if ( empty( $tax_object->graphql_plural_name ) && ! empty( $tax_object->graphql_single_name ) ) {
+					$tax_object->graphql_plural_name = $tax_object->graphql_single_name;
+				}
+
 				/**
 				 * Validate that the taxonomies have a graphql_single_name and graphql_plural_name
 				 */
