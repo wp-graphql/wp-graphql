@@ -28,6 +28,7 @@ use WPGraphQL\Utils\QueryAnalyzer;
  */
 class Request {
 
+
 	/**
 	 * App context for this request.
 	 *
@@ -171,7 +172,7 @@ class Request {
 		$app_context                = new AppContext();
 		$app_context->viewer        = wp_get_current_user();
 		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request = !empty($_REQUEST) ? $_REQUEST : null; // phpcs:ignore
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
 
@@ -227,7 +228,6 @@ class Request {
 	 * @return mixed|null
 	 */
 	protected function get_root_value() {
-
 		/**
 		 * Set the root value based on what was passed to the request
 		 */
@@ -322,7 +322,6 @@ class Request {
 	 * @throws \Exception
 	 */
 	protected function has_authentication_errors() {
-
 		/**
 		 * Bail if this is not an HTTP request.
 		 *
@@ -485,7 +484,7 @@ class Request {
 	 * Apply filters and do actions after GraphQL execution
 	 *
 	 * @param mixed|array|object $response The response for your GraphQL request
-	 * @param mixed|Int|null     $key      The array key of the params for batch requests
+	 * @param mixed|int|null     $key      The array key of the params for batch requests
 	 *
 	 * @return array
 	 */
@@ -612,7 +611,6 @@ class Request {
 	 * @throws \Exception
 	 */
 	public function execute() {
-
 		$helper = new WPHelper();
 
 		if ( ! $this->data instanceof OperationParams ) {
@@ -622,11 +620,13 @@ class Request {
 		}
 
 		if ( is_array( $this->params ) ) {
-			return array_map( function ( $data ) {
+			return array_map(function ( $data ) {
 				$this->data = $data;
 				return $this->execute();
-			}, $this->params );
-		} elseif ( $this->params instanceof OperationParams ) {
+			}, $this->params);
+		}
+
+		if ( $this->params instanceof OperationParams ) {
 
 			/**
 			 * Initialize the GraphQL Request
@@ -645,7 +645,7 @@ class Request {
 					$this->params
 				);
 
-				$result = \GraphQL\GraphQL::executeQuery(
+				$result = GraphQL::executeQuery(
 					$this->schema,
 					$query,
 					$this->root_value,
@@ -677,6 +677,7 @@ class Request {
 			return $this->after_execute( $response );
 
 		}
+
 	}
 
 	/**
@@ -686,7 +687,6 @@ class Request {
 	 * @throws \Exception
 	 */
 	public function execute_http() {
-
 		/**
 		 * Parse HTTP request.
 		 */
@@ -746,7 +746,6 @@ class Request {
 	 * @return bool
 	 */
 	private function is_batch_queries_enabled() {
-
 		$batch_queries_enabled = true;
 
 		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
@@ -770,7 +769,6 @@ class Request {
 	 * @return \GraphQL\Server\StandardServer
 	 */
 	private function get_server() {
-
 		$debug_flag = $this->get_debug_flag();
 
 		$config = new ServerConfig();

@@ -133,8 +133,11 @@ class WPConnectionType {
 	/**
 	 * WPConnectionType constructor.
 	 *
-	 * @param array        $config The config array for the connection
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 * @param array                            $config        The config array for the connection
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type
+	 *                                                        Registry
+	 *
+	 * @throws \Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -514,12 +517,12 @@ class WPConnectionType {
 			$this->from_type,
 			$this->from_field_name,
 			[
-				'type'              => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
-				'args'              => array_merge( $this->get_pagination_args(), $this->where_args ),
-				'auth'              => $this->auth,
-				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-				'description'       => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
-				'resolve'           => function ( $root, $args, $context, $info ) {
+				'type'                  => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
+				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
+				'auth'                  => $this->auth,
+				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
+				'description'           => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'resolve'               => function ( $root, $args, $context, $info ) {
 					$context->connection_query_class = $this->query_class;
 					$resolve_connection              = $this->resolve_connection;
 
@@ -528,6 +531,7 @@ class WPConnectionType {
 					 */
 					return $resolve_connection( $root, $args, $context, $info );
 				},
+				'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
 			]
 		);
 

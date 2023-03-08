@@ -1756,4 +1756,184 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterGraphqlFieldWithAllowedUndercores() {
+
+		$expected_value = uniqid( 'test value: ', true );
+
+		$config = [
+			'type' => 'String',
+			'resolve' => function() use ( $expected_value ) {
+				return $expected_value;
+			},
+			'allowFieldUnderscores' => true,
+		];
+
+		register_graphql_field( 'RootQuery', 'underscore_test_field', $config, true );
+
+		$query = '
+		{
+		  underscore_test_field
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'underscore_test_field', $expected_value )
+		]);
+
+	}
+
+	public function testDeRegisterGraphqlFieldWithAllowedUndercores() {
+
+		$expected_value = uniqid( 'test value: ', true );
+
+		$config = [
+			'type' => 'String',
+			'resolve' => function() use ( $expected_value ) {
+				return $expected_value;
+			},
+			'allowFieldUnderscores' => true,
+		];
+
+		deregister_graphql_field( 'RootQuery', 'underscore_test_field' );
+		register_graphql_field( 'RootQuery', 'underscore_test_field', $config, true );
+
+		$query = '
+		{
+		  underscore_test_field
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		self::assertQueryError( $actual, []);
+
+
+	}
+
+	public function testRegisterConnectionWithUnderscores() {
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'Post',
+			'fromFieldName' => 'test_field_with_underscores',
+			'allowFieldUnderscores' => true,
+		]);
+
+		$actual = $this->graphql([
+			'query' => '
+			{
+			  test_field_with_underscores(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'test_field_with_underscores', self::IS_FALSY )
+		]);
+
+	}
+
+	public function testDeRegisterConnectionWithUnderscores() {
+
+		deregister_graphql_connection( 'test_field_with_underscores' );
+
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'Post',
+			'fromFieldName' => 'test_field_with_underscores',
+			'allowFieldUnderscores' => true,
+		]);
+
+		$actual = $this->graphql([
+			'query' => '
+			{
+			  test_field_with_underscores(first:1) {
+			    nodes {
+			      id
+			    }
+			  }
+			}
+			'
+		]);
+
+		// query should error because the connection was deregistered
+		self::assertQueryError( $actual, []);
+
+	}
+
+	public function testRegisterMutationWithUnderscores() {
+
+		$expected = 'test';
+
+		register_graphql_mutation( 'test_mutation_with_underscores', [
+			'inputFields'         => [],
+			'outputFields'        => [
+				'test' => [
+					'type' => 'String',
+				],
+			],
+			'mutateAndGetPayload' => function () use ( $expected ) {
+				return [
+					'test' => $expected,
+				];
+			},
+			'allowFieldUnderscores' => true,
+		]);
+
+		$actual = $this->graphql([
+			'query' => '
+			mutation WithUnderscores {
+			  test_mutation_with_underscores(input: { clientMutationId: "test" }) {
+			    test
+			  }
+			}
+			'
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'test_mutation_with_underscores.test', $expected )
+		]);
+
+	}
+
+	public function testDeRegisterMutationWithUnderscores() {
+
+		deregister_graphql_mutation( 'test_mutation_with_underscores' );
+
+		register_graphql_mutation( 'test_mutation_with_underscores', [
+			'inputFields'         => [],
+			'outputFields'        => [
+				'test' => [
+					'type' => 'String',
+				],
+			],
+			'mutateAndGetPayload' => function () {  return null; },
+			'allowFieldUnderscores' => true,
+		]);
+
+		$actual = $this->graphql([
+			'query' => '
+			mutation WithUnderscores {
+			  test_mutation_with_underscores(input: { clientMutationId: "test" }) {
+			    test
+			  }
+			}
+			'
+		]);
+
+		// query should error because the mutation was deregistered
+		self::assertQueryError( $actual, []);
+
+	}
+
 }

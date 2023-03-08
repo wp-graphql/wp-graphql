@@ -46,7 +46,7 @@ class QueryAnalyzer {
 	/**
 	 * @var string
 	 */
-	protected $root_operation = 'Query';
+	protected $root_operation = '';
 
 	/**
 	 * Models that are referenced in the query
@@ -623,11 +623,11 @@ class QueryAnalyzer {
 			$keys[] = $this->get_operation_name();
 		}
 
-		if ( ! empty( $this->get_list_types() ) && is_array( $this->get_list_types() ) ) {
+		if ( ! empty( $this->get_list_types() ) ) {
 			$keys = array_merge( $keys, $this->get_list_types() );
 		}
 
-		if ( ! empty( $this->get_runtime_nodes() ) && is_array( $this->get_runtime_nodes() ) ) {
+		if ( ! empty( $this->get_runtime_nodes() ) ) {
 			$keys = array_merge( $keys, $this->get_runtime_nodes() );
 		}
 

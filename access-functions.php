@@ -190,13 +190,13 @@ function register_graphql_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string                                     $type_name The name of the Type to register
+ * @param mixed|array|\GraphQL\Type\Definition\Type  $config    The Type config
  *
  * @throws \Exception
  * @return void
  */
-function register_graphql_interface_type( string $type_name, array $config ) {
+function register_graphql_interface_type( string $type_name, $config ) {
 	add_action(
 		get_graphql_register_action(),
 		function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
@@ -271,14 +271,16 @@ function register_graphql_enum_type( string $type_name, array $config ) {
  * Given a Type Name, Field Name, and a $config array, this adds a Field to a registered Type in
  * the TypeRegistry
  *
- * @param string $type_name  The name of the Type to add the field to
- * @param string $field_name The name of the Field to add to the Type
- * @param array  $config     The Type config
+ * @param string $type_name                       The name of the Type to add the field to
+ * @param string $field_name                      The name of the Field to add to the Type
+ * @param array  $config                          The Type config
  *
  * @return void
+ * @throws \Exception
  * @since 0.1.0
  */
 function register_graphql_field( string $type_name, string $field_name, array $config ) {
+
 	add_action(
 		get_graphql_register_action(),
 		function ( TypeRegistry $type_registry ) use ( $type_name, $field_name, $config ) {
@@ -296,6 +298,7 @@ function register_graphql_field( string $type_name, string $field_name, array $c
  * @param array  $fields    An array of field configs
  *
  * @return void
+ * @throws \Exception
  * @since 0.1.0
  */
 function register_graphql_fields( string $type_name, array $fields ) {
@@ -587,7 +590,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  *
  * @param string $connection_name The name of the Connection to remove
  *
- * @since @todo
+ * @since 1.14.0
  */
 function deregister_graphql_connection( string $connection_name ) : void {
 	add_action(
@@ -604,7 +607,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  *
  * @param string $mutation_name The name of the Mutation to remove
  *
- * @since @todo
+ * @since 1.14.0
  */
 function deregister_graphql_mutation( string $mutation_name ) : void {
 	add_action(

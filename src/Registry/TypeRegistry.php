@@ -634,7 +634,7 @@ class TypeRegistry {
 	 *
 	 * @return void
 	 */
-	public function register_type( string $type_name, $config ) {
+	public function register_type( string $type_name, $config ): void {
 		/**
 		 * If the type should be excluded from the schema, skip it.
 		 */
@@ -695,7 +695,7 @@ class TypeRegistry {
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function register_object_type( string $type_name, array $config ) {
+	public function register_object_type( string $type_name, array $config ): void {
 		$config['kind'] = 'object';
 		$this->register_type( $type_name, $config );
 	}
@@ -703,13 +703,13 @@ class TypeRegistry {
 	/**
 	 * Add an Interface Type to the registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param string                                    $type_name The name of the type to register
+	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The configuration of the type
 	 *
 	 * @throws \Exception
 	 * @return void
 	 */
-	public function register_interface_type( string $type_name, array $config ) {
+	public function register_interface_type( string $type_name, $config ): void {
 		$config['kind'] = 'interface';
 		$this->register_type( $type_name, $config );
 	}
@@ -723,7 +723,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function register_enum_type( string $type_name, array $config ) {
+	public function register_enum_type( string $type_name, array $config ): void {
 		$config['kind'] = 'enum';
 		$this->register_type( $type_name, $config );
 	}
@@ -737,7 +737,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function register_input_type( string $type_name, array $config ) {
+	public function register_input_type( string $type_name, array $config ): void {
 		$config['kind'] = 'input';
 		$this->register_type( $type_name, $config );
 	}
@@ -752,7 +752,7 @@ class TypeRegistry {
 	 *
 	 * @throws \Exception
 	 */
-	public function register_union_type( string $type_name, array $config ) {
+	public function register_union_type( string $type_name, array $config ): void {
 		$config['kind'] = 'union';
 		$this->register_type( $type_name, $config );
 	}
@@ -836,7 +836,7 @@ class TypeRegistry {
 	 *
 	 * @return bool
 	 */
-	public function has_type( string $type_name ) {
+	public function has_type( string $type_name ): bool {
 		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
 	}
 
@@ -845,7 +845,7 @@ class TypeRegistry {
 	 *
 	 * @return array
 	 */
-	public function get_types() {
+	public function get_types(): array {
 
 		// The full map of types is merged with eager types to support the
 		// rename_graphql_type API.
@@ -864,7 +864,7 @@ class TypeRegistry {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function prepare_fields( array $fields, string $type_name ) {
+	public function prepare_fields( array $fields, string $type_name ): array {
 		$prepared_fields = [];
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			foreach ( $fields as $field_name => $field_config ) {
@@ -890,7 +890,7 @@ class TypeRegistry {
 	 * @return array|null
 	 * @throws \Exception
 	 */
-	protected function prepare_field( $field_name, $field_config, $type_name ) {
+	protected function prepare_field( string $field_name, array $field_config, string $type_name ): ?array {
 
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
@@ -984,7 +984,9 @@ class TypeRegistry {
 			return $this->non_null(
 				$this->setup_type_modifiers( $type['non_null'] )
 			);
-		} elseif ( isset( $type['list_of'] ) ) {
+		}
+
+		if ( isset( $type['list_of'] ) ) {
 			return $this->list_of(
 				$this->setup_type_modifiers( $type['list_of'] )
 			);
@@ -1001,8 +1003,9 @@ class TypeRegistry {
 	 * @param array  $fields    Fields to register
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function register_fields( string $type_name, array $fields = [] ) {
+	public function register_fields( string $type_name, array $fields = [] ): void {
 		if ( ! empty( $fields ) ) {
 			foreach ( $fields as $field_name => $config ) {
 				if ( is_string( $field_name ) && ! empty( $config ) && is_array( $config ) ) {
@@ -1015,18 +1018,25 @@ class TypeRegistry {
 	/**
 	 * Add a field to a Type in the Type Registry
 	 *
-	 * @param string $type_name  Name of the type in the Type Registry to add the fields to
-	 * @param string $field_name Name of the field to add to the type
-	 * @param array  $config     Info about the field to register to the type
+	 * @param string $type_name                       Name of the type in the Type Registry to add
+	 *                                                the fields to
+	 * @param string $field_name                      Name of the field to add to the type
+	 * @param array  $config                          Info about the field to register to the type
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function register_field( string $type_name, string $field_name, array $config ) {
+	public function register_field( string $type_name, string $field_name, array $config ): void {
+
+
 		add_filter(
 			'graphql_' . $type_name . '_fields',
 			function ( $fields ) use ( $type_name, $field_name, $config ) {
 
-				$field_name = Utils::format_field_name( $field_name );
+				// Whether the field should be allowed to have underscores in the field name
+				$allow_field_underscores = isset( $config['allowFieldUnderscores'] ) && true === $config['allowFieldUnderscores'];
+
+				$field_name = Utils::format_field_name( $field_name, $allow_field_underscores );
 
 				if ( preg_match( '/^\d/', $field_name ) ) {
 					graphql_debug(
@@ -1104,7 +1114,7 @@ class TypeRegistry {
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
 	 */
-	public function register_connection( array $config ) {
+	public function register_connection( array $config ): void {
 		new WPConnectionType( $config, $this );
 	}
 
@@ -1117,7 +1127,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function register_mutation( string $mutation_name, array $config ) {
+	public function register_mutation( string $mutation_name, array $config ): void {
 		// Bail if the mutation has been excluded from the schema.
 		if ( in_array( strtolower( $mutation_name ), $this->get_excluded_mutations(), true ) ) {
 			return;
@@ -1135,7 +1145,7 @@ class TypeRegistry {
 	 * @uses 'graphql_excluded_mutations' filter.
 	 *
 	 * @param string $mutation_name Name of the mutation to remove from the schema.
-	 * 
+	 *
 	 * @since 1.14.0
 	 */
 	public function deregister_mutation( string $mutation_name ) : void {
