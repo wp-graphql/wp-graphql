@@ -621,12 +621,8 @@ final class WPGraphQL {
 			 */
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
 
-			// Maybe they're just out of order.
-			sort( $post_type_names );
-			sort( $allowed_post_type_names );
-
 			// Filter the post type objects if the list of allowed types have changed.
-			$post_type_objects = array_filter($post_type_objects, static function ( $obj ) use ( $allowed_post_type_names ) {
+			$post_type_objects = array_filter( $post_type_objects, static function ( $obj ) use ( $allowed_post_type_names ) {
 
 				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
 					$obj->graphql_plural_name = $obj->graphql_single_name;
@@ -709,10 +705,7 @@ final class WPGraphQL {
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
 
-			sort( $tax_names );
-			sort( $allowed_tax_names );
-
-			$tax_objects = array_filter($tax_objects, static function ( $obj ) use ( $allowed_tax_names ) {
+			$tax_objects = array_filter( $tax_objects, static function ( $obj ) use ( $allowed_tax_names ) {
 
 				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
 					$obj->graphql_plural_name = $obj->graphql_single_name;
