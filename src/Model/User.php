@@ -245,7 +245,7 @@ class User extends Model {
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
 				'isToolbarVisible'         => function () {
-					$toolbar_preference_meta = get_user_meta($this->data->ID, 'show_admin_bar_front', true);
+					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
 
 					return $toolbar_preference_meta === 'true' ? true : false;
 				},

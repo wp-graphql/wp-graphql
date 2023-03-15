@@ -43,10 +43,10 @@ class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-    $this->assertSame(true, $actual['data']['viewer']['isToolbarVisible']);
+    $this->assertSame( true, $actual['data']['viewer']['isToolbarVisible'] );
 
     // Update the user's preference to not show admin bar.
-    update_user_meta($user_id, 'show_admin_bar_front', "false");
+    update_user_meta( $user_id, 'show_admin_bar_front', "false" );
 
 		$actual = graphql( [ 'query' => $query ] );
 
@@ -54,7 +54,7 @@ class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-    $this->assertSame(false, $actual['data']['viewer']['isToolbarVisible']);
+    $this->assertSame( false, $actual['data']['viewer']['isToolbarVisible'] );
 	}
 
 }

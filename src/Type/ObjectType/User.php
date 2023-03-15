@@ -157,8 +157,8 @@ class User {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
-					'isToolbarVisible' => [
-						'type' => 'Boolean',
+					'isToolbarVisible'  => [
+						'type'        => 'Boolean',
 						'description' => __( 'The user\'s toolbar visibility preference.', 'wp-graphql' ),
 					],
 					'avatar'            => [
