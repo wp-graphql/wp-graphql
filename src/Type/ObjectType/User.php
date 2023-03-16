@@ -159,7 +159,7 @@ class User {
 					],
 					'isToolbarVisible'  => [
 						'type'        => 'Boolean',
-						'description' => __( 'The user\'s toolbar visibility preference.', 'wp-graphql' ),
+						'description' => __( 'Whether the Toolbar should be displayed when the user is viewing the site.', 'wp-graphql' ),
 					],
 					'avatar'            => [
 						'args'    => [
