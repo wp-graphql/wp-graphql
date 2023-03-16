@@ -1,6 +1,6 @@
 <?php
 
-class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
+class shouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
@@ -27,7 +27,7 @@ class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
 		          name
 		        }
 		    }
-        isToolbarVisible
+        shouldShowAdminToolbar
 		  }
 		}
 		';
@@ -43,7 +43,7 @@ class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-		$this->assertSame( true, $actual['data']['viewer']['isToolbarVisible'] );
+		$this->assertSame( true, $actual['data']['viewer']['shouldShowAdminToolbar'] );
 
 		// Update the user's preference to not show admin bar.
 		update_user_meta( $user_id, 'show_admin_bar_front', "false" );
@@ -54,7 +54,7 @@ class IsToolbarVisibleQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
-		$this->assertSame( false, $actual['data']['viewer']['isToolbarVisible'] );
+		$this->assertSame( false, $actual['data']['viewer']['shouldShowAdminToolbar'] );
 	}
 
 }

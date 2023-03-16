@@ -157,7 +157,7 @@ class User {
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
 					],
-					'isToolbarVisible'  => [
+					'shouldShowAdminToolbar'  => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the Toolbar should be displayed when the user is viewing the site.', 'wp-graphql' ),
 					],
