@@ -86,10 +86,10 @@
 			"php ./vendor/bin/phpcs -i"
 		],
 		"check-cs": [
-			"php ./vendor/bin/phpcs -d error_reporting=\"E_ALL&~E_DEPRECATED\""
+			"php ./vendor/bin/phpcs"
 		],
 		"fix-cs": [
-			"php ./vendor/bin/phpcbf -d error_reporting=\"E_ALL&~E_DEPRECATED\""
+			"php ./vendor/bin/phpcbf"
 		],
 		"phpstan": [
 			"phpstan analyze --ansi --memory-limit=1G"
