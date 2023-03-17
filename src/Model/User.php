@@ -247,7 +247,7 @@ class User extends Model {
 				'shouldShowAdminToolbar'   => function () {
 					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
 
-					return $toolbar_preference_meta === 'true' ? true : false;
+					return 'true' === $toolbar_preference_meta ? true : false;
 				},
 				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 				'uri'                      => function () {
