@@ -53,8 +53,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Set the taxonomy for the $args
 		 */
 		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		$query_args     = [
-			'taxonomy' => ! empty( $this->taxonomy ) ? $this->taxonomy : $all_taxonomies,
+		$requested_taxonomies = isset( $this->args['where']['taxonomies'] ) ? $this->args['where']['taxonomies'] : [ $this->taxonomy ];
+		$valid_taxonomies = array_intersect( $all_taxonomies, $requested_taxonomies );
+
+		$query_args = [
+			'taxonomy' => !empty($valid_taxonomies) ? $valid_taxonomies : $all_taxonomies,
 		];
 
 		/**
