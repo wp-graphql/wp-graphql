@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ffad513c19e0d0af2883d3010ab2fe5",
+    "content-hash": "4939bfe12059ea9e0b57825309b30ca7",
     "packages": [
         {
             "name": "appsero/client",
@@ -2937,16 +2937,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.9.18",
+            "version": "1.10.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "f2d5cf71be91172a57c649770b73c20ebcffb0bf"
+                "reference": "8aa62e6ea8b58ffb650e02940e55a788cbc3fe21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f2d5cf71be91172a57c649770b73c20ebcffb0bf",
-                "reference": "f2d5cf71be91172a57c649770b73c20ebcffb0bf",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8aa62e6ea8b58ffb650e02940e55a788cbc3fe21",
+                "reference": "8aa62e6ea8b58ffb650e02940e55a788cbc3fe21",
                 "shasum": ""
             },
             "require": {
@@ -2975,8 +2975,11 @@
                 "static analysis"
             ],
             "support": {
+                "docs": "https://phpstan.org/user-guide/getting-started",
+                "forum": "https://github.com/phpstan/phpstan/discussions",
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.9.18"
+                "security": "https://github.com/phpstan/phpstan/security/policy",
+                "source": "https://github.com/phpstan/phpstan-src"
             },
             "funding": [
                 {
@@ -2992,7 +2995,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-17T15:01:27+00:00"
+            "time": "2023-04-04T19:17:42+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -7099,31 +7102,31 @@
         },
         {
             "name": "szepeviktor/phpstan-wordpress",
-            "version": "v1.1.6",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/szepeviktor/phpstan-wordpress.git",
-                "reference": "27784541f184a1ea3b6656fc8a882bb9adf45fc2"
+                "reference": "534f2666a169ee7389722460178764db976ea1c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/27784541f184a1ea3b6656fc8a882bb9adf45fc2",
-                "reference": "27784541f184a1ea3b6656fc8a882bb9adf45fc2",
+                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/534f2666a169ee7389722460178764db976ea1c3",
+                "reference": "534f2666a169ee7389722460178764db976ea1c3",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2 || ^8.0",
                 "php-stubs/wordpress-stubs": "^4.7 || ^5.0 || ^6.0",
-                "phpstan/phpstan": "^1.8.7",
+                "phpstan/phpstan": "^1.10.0",
                 "symfony/polyfill-php73": "^1.12.0"
             },
             "require-dev": {
                 "composer/composer": "^2.1.14",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "php-parallel-lint/php-parallel-lint": "^1.1",
                 "phpstan/phpstan-strict-rules": "^1.2",
                 "phpunit/phpunit": "^8.0 || ^9.0",
-                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.6.1"
+                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.8"
             },
             "type": "phpstan-extension",
             "extra": {
@@ -7152,7 +7155,7 @@
             ],
             "support": {
                 "issues": "https://github.com/szepeviktor/phpstan-wordpress/issues",
-                "source": "https://github.com/szepeviktor/phpstan-wordpress/tree/v1.1.6"
+                "source": "https://github.com/szepeviktor/phpstan-wordpress/tree/v1.2.0"
             },
             "funding": [
                 {
@@ -7164,7 +7167,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-12-01T14:56:51+00:00"
+            "time": "2023-04-08T07:07:36+00:00"
         },
         {
             "name": "theseer/tokenizer",
