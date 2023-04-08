@@ -191,7 +191,7 @@ PHP_VERSION=7.4 composer build-test
 Build the environment with specific version of WordPress:
 
 ```shell
-WP_VERSION=6.1 composer build-test
+WP_VERSION=6.2 composer build-test
 ```
 
 ```shell
