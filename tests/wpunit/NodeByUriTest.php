@@ -1652,6 +1652,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['page'] );
 		$this->assertSame( $page_id, $actual['data']['page']['databaseId'] );
 		$this->assertTrue( $actual['data']['page']['isFrontPage'] );
 		$this->assertSame( '/', $actual['data']['page']['uri'] );
