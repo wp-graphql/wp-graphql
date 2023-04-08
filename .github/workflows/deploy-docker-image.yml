@@ -37,7 +37,7 @@ jobs:
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Use magic to get the tag number from /ref/heads/v0.1.2 in GITHUB_REF
       - name: Get the version
