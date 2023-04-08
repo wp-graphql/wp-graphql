@@ -44,6 +44,10 @@ jobs:
             wordpress: '5.7'
           - php: '7.3'
             wordpress: '5.6'
+        # This is a temporary exclusion until a php74 image is released. See #2780
+        exclude:
+          - php: '7.4'
+          - wordpress: '6.2'
 
     steps:
       - name: Checkout
