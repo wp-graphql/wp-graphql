@@ -39,7 +39,7 @@ class Router {
 	public static $http_status_code = 200;
 
 	/**
-	 * @var \WPGraphQL\Request
+	 * @var \WPGraphQL\Request | null
 	 */
 	protected static $request;
 
@@ -85,9 +85,9 @@ class Router {
 	/**
 	 * Returns the GraphQL Request being executed
 	 *
-	 * @return \WPGraphQL\Request
+	 * @return \WPGraphQL\Request | null
 	 */
-	public static function get_request() {
+	public static function get_request(): ?Request {
 		return self::$request;
 	}
 
