@@ -3,8 +3,6 @@
 namespace WPGraphQL\Registry;
 
 use Exception;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use InvalidArgumentException;
 use WPGraphQL\Data\DataSource;

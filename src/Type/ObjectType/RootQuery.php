@@ -549,8 +549,7 @@ class RootQuery {
 
 							}
 
-							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
-
+							return ! empty( $term_id ) ? $context->get_loader( 'term' )->load_deferred( $term_id ) : null;
 						},
 					],
 					'theme'       => [

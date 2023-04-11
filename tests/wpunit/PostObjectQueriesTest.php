@@ -259,7 +259,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'toPing'          => null,
 				'pinged'          => null,
 				'modified'        => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
-				'modifiedGmt'     => \WPGraphQL\Types::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
+				'modifiedGmt'     => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 				'title'           => apply_filters( 'the_title', 'Test Title for PostObjectQueriesTest' ),
 				'guid'            => get_post( $post_id )->guid,
 				'featuredImage'   => [
