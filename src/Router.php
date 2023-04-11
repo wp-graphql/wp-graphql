@@ -340,7 +340,7 @@ class Router {
 
 		// If the Query Analyzer was instantiated
 		// Get the headers determined from its Analysis
-		if ( self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
+		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
 			$headers = self::get_request()->get_query_analyzer()->get_headers( $headers );
 		}
 
@@ -459,11 +459,6 @@ class Router {
 		 */
 		do_action( 'graphql_process_http_request' );
 
-		$query          = '';
-		$operation_name = '';
-		$variables      = [];
-		self::$request  = new Request();
-
 		/**
 		 * Respond to pre-flight requests.
 		 *
@@ -475,6 +470,11 @@ class Router {
 			self::set_headers();
 			exit;
 		}
+
+		$query          = '';
+		$operation_name = '';
+		$variables      = [];
+		self::$request  = new Request();
 
 		try {
 
