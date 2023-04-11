@@ -34,7 +34,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_object_terms( $this->post, $this->category, 'category', false );
 
-		$filename             = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename             = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$this->featured_image = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $this->post, '_thumbnail_id', $this->featured_image );
 

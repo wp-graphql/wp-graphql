@@ -160,7 +160,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a featured image and attach it to the post
 		 */
-		$filename          = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename          = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 

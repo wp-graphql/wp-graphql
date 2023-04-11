@@ -1519,11 +1519,11 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  allNoPlural {
-		    nodes {
-		      id
-		    }
-		  }
+			allNoPlural {
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
@@ -1538,8 +1538,9 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY )
 		]);
 
+		// Cleanup.
 		unregister_post_type( 'cpt_no_plural' );
-
+		$this->clearSchema();
 	}
 
 	public function testRegisterPostTypeWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
@@ -1555,9 +1556,9 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$request = new \WPGraphQL\Request();
 		$request->schema->assertValid();
 
+		// Cleanup
 		unregister_post_type( 'cpt_no_single_plural' );
-
+		$this->clearSchema();
 	}
-
 
 }
