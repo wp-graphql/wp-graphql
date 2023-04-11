@@ -462,6 +462,8 @@ class Router {
 		/**
 		 * Respond to pre-flight requests.
 		 *
+		 * Bail before Request() execution begins.
+		 *
 		 * @see: https://apollographql.slack.com/archives/C10HTKHPC/p1507649812000123
 		 * @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
 		 */
