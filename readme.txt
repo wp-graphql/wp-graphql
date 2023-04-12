@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 6.1
 Requires PHP: 7.1
-Stable tag: 1.14.0
+Stable tag: 1.14.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -231,6 +231,26 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.14.1 =
+
+**New Features**
+
+- [#2763](https://github.com/wp-graphql/wp-graphql/pull/2763): feat: add `shouldShowAdminToolbar` field to the User type, resolving from the "show_admin_bar_front" meta value. Thanks @blakewilson!
+
+**Chores / Bugfixes**
+
+- [#2758](https://github.com/wp-graphql/wp-graphql/pull/2758): fix: Allow post types and taxonomies to be registered without "graphql_plural_name".
+- [#2762](https://github.com/wp-graphql/wp-graphql/pull/2762): Bump webpack version.
+- [#2770](https://github.com/wp-graphql/wp-graphql/pull/2770): fix: wrong order in term/post ancestor queries. Thanks @creative-andrew!
+- [#2775](https://github.com/wp-graphql/wp-graphql/pull/2775): fix: properly resolve when querying terms filtered by multiple taxonomies. Thanks @thecodeassassin!
+- [#2776](https://github.com/wp-graphql/wp-graphql/pull/2776): chore: remove internal usage of deprecated functions. Thanks @justlevine!
+- [#2777](https://github.com/wp-graphql/wp-graphql/pull/2777): chore: update composer dev-deps (not PHPStan). Thanks @justlevine!
+- [#2778](https://github.com/wp-graphql/wp-graphql/pull/2778): fix: Update PHPStan and fix smells. Thanks @justlevine!
+- [#2779](https://github.com/wp-graphql/wp-graphql/pull/2779): ci: test against WordPress 6.2. Thanks @justlevine!
+- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostOjectUnion and TermObjectUnion. Thanks @justlevine!
+- [#2782](https://github.com/wp-graphql/wp-graphql/pull/2782): ci: fix deprecation warnings in Github workflows. Thanks @justlevine!
+- [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests.
 
 = 1.14.0 =
 
