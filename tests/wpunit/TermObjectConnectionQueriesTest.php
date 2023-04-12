@@ -748,6 +748,10 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertSame( $actual_ancestor_ids, $expected_ancestor_ids );
 
+		wp_delete_term( $parent );
+		wp_delete_term( $child );
+		wp_delete_term( $grandchild );
+
 	}
 
 }

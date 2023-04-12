@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.14.1
+
+## New Features
+
+- [#2758](https://github.com/wp-graphql/wp-graphql/pull/2758): Allow post types and taxonomies to be registered without "graphql_plural_name".
+
+## Chores / Bugfixes
+
+- [#2762](https://github.com/wp-graphql/wp-graphql/pull/2762): Bump webpack version.
+- [#2770](https://github.com/wp-graphql/wp-graphql/pull/2770): fix: wrong order in term/post ancestor queries. Thanks @creative-andrew!
+- [#2775](https://github.com/wp-graphql/wp-graphql/pull/2775): fix: properly resolve when querying terms filtered by multiple taxonomies. Thanks @thecodeassassin!
+- [#2776](https://github.com/wp-graphql/wp-graphql/pull/2776): chore: remove internal usage of deprecated functions. Thanks @justlevine!
+- [#2777](https://github.com/wp-graphql/wp-graphql/pull/2777): chore: update composer dev-deps (not PHPStan). Thanks @justlevine!
+- [#2778](https://github.com/wp-graphql/wp-graphql/pull/2778): fix: Update PHPStan and fix smells. Thanks @justlevine!
+- [#2779](https://github.com/wp-graphql/wp-graphql/pull/2779): ci: test against WordPress 6.2. Thanks @justlevine!
+- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostOjectUnion and TermObjectUnion. Thanks @justlevine!
+- [#2782](https://github.com/wp-graphql/wp-graphql/pull/2782): ci: fix deprecation warnings in Github workflows. Thanks @justlevine!
+- [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests. 
+
 ## 1.14.0
 
 ## New Features

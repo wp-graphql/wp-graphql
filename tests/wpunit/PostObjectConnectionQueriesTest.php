@@ -1692,6 +1692,10 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertSame( $actual_ancestor_ids, $expected_ancestor_ids );
 
+		wp_delete_post( $parent );
+		wp_delete_post( $child );
+		wp_delete_post( $grandchild );
+
 	}
 
 }
