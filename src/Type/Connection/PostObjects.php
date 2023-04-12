@@ -159,6 +159,7 @@ class PostObjects {
 				}
 				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
 				$resolver->set_query_arg( 'post__in', $ancestors );
+				$resolver->set_query_arg( 'orderby', 'post__in' );
 
 				return $resolver->get_connection();
 			},

@@ -1556,7 +1556,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			],
 		];
 
-		
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -1607,6 +1607,91 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount(2, $actual['data']['posts']['nodes']);
+	}
+
+	public function testQueryForAncestorsIsInCorrectOrder() {
+
+		$grandchild = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_parent' => 0,
+			'post_author' => $this->admin,
+			'post_title' => 'Grandchild'
+		]);
+
+		$parent = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_parent' => 0,
+			'post_author' => $this->admin,
+			'post_title' => 'Parent',
+		]);
+
+		$child = $this->factory()->post->create([
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_parent' => $parent,
+			'post_author' => $this->admin,
+			'post_title' => 'Child',
+			// make sure the child was published in the past
+			'post_date' => date( 'Y-m-d H:i:s', strtotime( "-1 day +10 minutes" ) )
+		]);
+
+		wp_update_post([
+			'ID' => $grandchild,
+			'post_parent' => $child,
+		]);
+
+		codecept_debug( [
+			'parent' => $parent,
+			'child' => $child,
+			'grandchild' => $grandchild,
+		]);
+
+		// update the parent post. the default ordering (by date) might
+
+		$query = '
+		query GetPageAncestors($id:ID!){
+		  page(id:$id idType:DATABASE_ID) {
+		    id
+		    databaseId
+		    ancestors {
+		      nodes {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $grandchild,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedNode( 'page.ancestors.nodes', [
+				'databaseId' => $parent
+			] ),
+			$this->expectedNode( 'page.ancestors.nodes', [
+				'databaseId' => $child
+			] )
+		] );
+
+		$actual_ancestor_ids = [];
+
+		foreach ( $actual['data']['page']['ancestors']['nodes'] as $ancestor ) {
+			$actual_ancestor_ids[] = $ancestor['databaseId'];
+		}
+
+		$expected_ancestor_ids = get_ancestors( $grandchild, '', 'post_type' );
+
+		$this->assertSame( $actual_ancestor_ids, $expected_ancestor_ids );
+
 	}
 
 }

@@ -177,6 +177,7 @@ class TermObject {
 
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
 					$resolver->set_query_arg( 'include', $ancestor_ids );
+					$resolver->set_query_arg( 'orderby', 'include' );
 
 					return $resolver->get_connection();
 				},
