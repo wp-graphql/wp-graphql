@@ -84,7 +84,7 @@ class CommentAuthor {
 							}
 
 							if ( ! empty( $args['rating'] ) ) {
-								$avatar_args['rating'] = esc_sql( $args['rating'] );
+								$avatar_args['rating'] = esc_sql( (string) $args['rating'] );
 							}
 
 							$avatar = get_avatar_data( $comment_author_email, $avatar_args );

@@ -21,15 +21,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '8.0', '7.4', ]
-        wordpress: [ '6.1', '6.0', '5.9', '5.8', '5.7', '5.6' ]
+        php: [ '8.0', '7.4' ]
+        wordpress: [ '6.2', '6.1', '6.0', '5.9', '5.8', '5.7', '5.6' ]
         include:
           - php: '8.1'
-            wordpress: '6.1'
+            wordpress: '6.2'
             multisite: true
           - php: '8.1'
-            wordpress: '6.0'
+            wordpress: '6.2'
             coverage: 1
+          - php: '8.1'
+            wordpress: '6.1'
+          - php: '8.1'
+            wordpress: '6.0'
           - php: '8.1'
             wordpress: '5.9'
           - php: '7.3'
@@ -40,10 +44,20 @@ jobs:
             wordpress: '5.7'
           - php: '7.3'
             wordpress: '5.6'
+        # This is a temporary exclusion until a php74 image is released. See #2780
+        exclude:
+          - php: '7.4'
+          - wordpress: '6.2'
 
     steps:
+      - name: Cancel previous runs of this workflow (pull requests only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

@@ -310,6 +310,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['orderby'] = [];
 
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+				// Create a type hint for orderby_input. This is an array with a field and order key.
+				/** @var array<string, string> $orderby_input */
 				if ( empty( $orderby_input['field'] ) ) {
 					continue;
 				}

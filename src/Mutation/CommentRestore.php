@@ -3,10 +3,8 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -66,11 +64,11 @@ class CommentRestore {
 			'comment'    => [
 				'type'        => 'Comment',
 				'description' => __( 'The restored comment object', 'wp-graphql' ),
-				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => function ( $payload, $args, AppContext $context ) {
 					if ( ! isset( $payload['commentObject']->comment_ID ) || ! absint( $payload['commentObject']->comment_ID ) ) {
 						return null;
 					}
-					return DataSource::resolve_comment( absint( $payload['commentObject']->comment_ID ), $context );
+					return $context->get_loader( 'comment' )->load_deferred( absint( $payload['commentObject']->comment_ID ) );
 				},
 			],
 		];

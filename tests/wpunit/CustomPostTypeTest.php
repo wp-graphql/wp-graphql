@@ -1508,5 +1508,57 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testRegisterPostTypeWithoutGraphqlPluralNameIsValid() {
+
+		register_post_type( 'cpt_no_plural', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'noPlural'
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			allNoPlural {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		$request = new \WPGraphQL\Request();
+		$request->schema->assertValid();
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY )
+		]);
+
+		// Cleanup.
+		unregister_post_type( 'cpt_no_plural' );
+		$this->clearSchema();
+	}
+
+	public function testRegisterPostTypeWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
+
+		register_post_type( 'cpt_no_single_plural', [
+			'show_in_graphql' => true,
+			// no graphql_single_name
+			// no graphql_plural_name
+		]);
+
+		// assert that the schema is still valid, even though the tax
+		// didn't provide the single/plural name (it will be left out of the schema)
+		$request = new \WPGraphQL\Request();
+		$request->schema->assertValid();
+
+		// Cleanup
+		unregister_post_type( 'cpt_no_single_plural' );
+		$this->clearSchema();
+	}
 
 }

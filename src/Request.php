@@ -626,58 +626,58 @@ class Request {
 			}, $this->params);
 		}
 
-		if ( $this->params instanceof OperationParams ) {
-
-			/**
-			 * Initialize the GraphQL Request
-			 */
-			$this->before_execute();
-			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
-
-			if ( null === $response ) {
-
-				/**
-				 * Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
-				 */
-				$query = apply_filters(
-					'graphql_execute_query_params',
-					isset( $this->params->query ) ? $this->params->query : '',
-					$this->params
-				);
-
-				$result = GraphQL::executeQuery(
-					$this->schema,
-					$query,
-					$this->root_value,
-					$this->app_context,
-					isset( $this->params->variables ) ? $this->params->variables : null,
-					isset( $this->params->operation ) ? $this->params->operation : null,
-					$this->field_resolver,
-					$this->validation_rules
-				);
-
-				/**
-				 * Return the result of the request
-				 */
-				$response = $result->toArray( $this->get_debug_flag() );
-			}
-
-			/**
-			 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
-			 */
-			if ( empty( $response ) || ! is_array( $response ) ) {
-				$response = [
-					'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
-				];
-			}
-
-			/**
-			 * If the request is a batch request it will come back as an array
-			 */
-			return $this->after_execute( $response );
-
+		// If $this->params isnt an array or an OperationParams instance, then something probably went wrong.
+		if ( ! $this->params instanceof OperationParams ) {
+			throw new \Exception( 'Invalid request params.' );
 		}
 
+		/**
+		 * Initialize the GraphQL Request
+		 */
+		$this->before_execute();
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+
+		if ( null === $response ) {
+
+			/**
+			 * Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
+			 */
+			$query = apply_filters(
+				'graphql_execute_query_params',
+				isset( $this->params->query ) ? $this->params->query : '',
+				$this->params
+			);
+
+			$result = GraphQL::executeQuery(
+				$this->schema,
+				$query,
+				$this->root_value,
+				$this->app_context,
+				isset( $this->params->variables ) ? $this->params->variables : null,
+				isset( $this->params->operation ) ? $this->params->operation : null,
+				$this->field_resolver,
+				$this->validation_rules
+			);
+
+			/**
+			 * Return the result of the request
+			 */
+			$response = $result->toArray( $this->get_debug_flag() );
+		}
+
+		/**
+		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
+		 */
+		if ( empty( $response ) || ! is_array( $response ) ) {
+			$response = [
+				'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
+			];
+		}
+
+		/**
+		 * If the request is a batch request it will come back as an array
+		 */
+		return $this->after_execute( $response );
 	}
 
 	/**

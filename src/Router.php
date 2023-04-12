@@ -39,7 +39,7 @@ class Router {
 	public static $http_status_code = 200;
 
 	/**
-	 * @var \WPGraphQL\Request
+	 * @var \WPGraphQL\Request | null
 	 */
 	protected static $request;
 
@@ -85,9 +85,9 @@ class Router {
 	/**
 	 * Returns the GraphQL Request being executed
 	 *
-	 * @return \WPGraphQL\Request
+	 * @return \WPGraphQL\Request | null
 	 */
-	public static function get_request() {
+	public static function get_request(): ?Request {
 		return self::$request;
 	}
 
@@ -340,7 +340,7 @@ class Router {
 
 		// If the Query Analyzer was instantiated
 		// Get the headers determined from its Analysis
-		if ( self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
+		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
 			$headers = self::get_request()->get_query_analyzer()->get_headers( $headers );
 		}
 
@@ -459,13 +459,10 @@ class Router {
 		 */
 		do_action( 'graphql_process_http_request' );
 
-		$query          = '';
-		$operation_name = '';
-		$variables      = [];
-		self::$request  = new Request();
-
 		/**
 		 * Respond to pre-flight requests.
+		 *
+		 * Bail before Request() execution begins.
 		 *
 		 * @see: https://apollographql.slack.com/archives/C10HTKHPC/p1507649812000123
 		 * @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
@@ -475,6 +472,11 @@ class Router {
 			self::set_headers();
 			exit;
 		}
+
+		$query          = '';
+		$operation_name = '';
+		$variables      = [];
+		self::$request  = new Request();
 
 		try {
 

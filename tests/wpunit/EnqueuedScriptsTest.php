@@ -81,7 +81,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_excerpt'  => 'Test excerpt',
 		] );
 
-		$filename       = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename       = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
 
 		$this->custom_post_id = $this->factory()->post->create( [

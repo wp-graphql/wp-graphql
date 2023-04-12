@@ -549,8 +549,7 @@ class RootQuery {
 
 							}
 
-							return ! empty( $term_id ) ? DataSource::resolve_term_object( $term_id, $context ) : null;
-
+							return ! empty( $term_id ) ? $context->get_loader( 'term' )->load_deferred( $term_id ) : null;
 						},
 					],
 					'theme'       => [
@@ -677,6 +676,7 @@ class RootQuery {
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_register_root_field' => true ] );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
+
 			register_graphql_field(
 				'RootQuery',
 				$post_type_object->graphql_single_name,
