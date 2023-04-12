@@ -236,10 +236,11 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **New Features**
 
-- [#2758](https://github.com/wp-graphql/wp-graphql/pull/2758): Allow post types and taxonomies to be registered without "graphql_plural_name".
+- [#2763](https://github.com/wp-graphql/wp-graphql/pull/2763): feat: add `shouldShowAdminToolbar` field to the User type, resolving from the "show_admin_bar_front" meta value. Thanks @blakewilson!
 
 **Chores / Bugfixes**
 
+- [#2758](https://github.com/wp-graphql/wp-graphql/pull/2758): fix: Allow post types and taxonomies to be registered without "graphql_plural_name".
 - [#2762](https://github.com/wp-graphql/wp-graphql/pull/2762): Bump webpack version.
 - [#2770](https://github.com/wp-graphql/wp-graphql/pull/2770): fix: wrong order in term/post ancestor queries. Thanks @creative-andrew!
 - [#2775](https://github.com/wp-graphql/wp-graphql/pull/2775): fix: properly resolve when querying terms filtered by multiple taxonomies. Thanks @thecodeassassin!
