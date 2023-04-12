@@ -244,6 +244,11 @@ class User extends Model {
 
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
+				'shouldShowAdminToolbar'   => function () {
+					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
+
+					return 'true' === $toolbar_preference_meta ? true : false;
+				},
 				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 				'uri'                      => function () {
 					$user_profile_url = get_author_posts_url( $this->data->ID );
