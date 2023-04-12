@@ -679,4 +679,75 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertEquals( $end_cursor, $actual['data']['categories']['pageInfo']['endCursor'] );
 	}
 
+	public function testQueryForAncestorsIsInCorrectOrder() {
+
+		$parent = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'A Parent' // name starts with A to trip up default ordering
+		]);
+
+		$child = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Child',
+			'parent' => $parent,
+		]);
+
+		$grandchild = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Grandchild',
+			'parent' => $child,
+		]);
+
+		codecept_debug( [
+			'parent' => $parent,
+			'child' => $child,
+			'grandchild' => $grandchild,
+		]);
+
+		// update the parent post. the default ordering (by date) might
+
+		$query = '
+		query GetCategoryAncestors($id:ID!){
+		  category(id:$id idType:DATABASE_ID) {
+		    databaseId
+		    name
+		    ancestors {
+		      nodes {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $grandchild,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedNode( 'category.ancestors.nodes', [
+				'databaseId' => $parent
+			] ),
+			$this->expectedNode( 'category.ancestors.nodes', [
+				'databaseId' => $child
+			] )
+		] );
+
+		$actual_ancestor_ids = [];
+
+		foreach ( $actual['data']['category']['ancestors']['nodes'] as $ancestor ) {
+			$actual_ancestor_ids[] = $ancestor['databaseId'];
+		}
+
+		$expected_ancestor_ids = get_ancestors( $grandchild, 'category', 'taxonomy' );
+
+		$this->assertSame( $actual_ancestor_ids, $expected_ancestor_ids );
+
+	}
+
 }
