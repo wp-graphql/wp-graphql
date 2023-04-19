@@ -201,8 +201,7 @@ class NodeResolver {
 					return null;
 				}
 
-				/** @todo resolve to an Archive Type. */
-				$post_type_object = get_post_type_object( $queried_object->post_type );
+				$post_type_object = get_post_type_object( 'post' );
 
 				if ( ! $post_type_object ) {
 					return null;

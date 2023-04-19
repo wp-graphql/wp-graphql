@@ -1,12 +1,18 @@
 # Changelog
 
+## 1.14.2
+
+### Chores / Bugfixes
+
+- [#2792](https://github.com/wp-graphql/wp-graphql/pull/2792): fix: uri field is null when querying the page for posts uri
+
 ## 1.14.1
 
-## New Features
+### New Features
 
 - [#2763](https://github.com/wp-graphql/wp-graphql/pull/2763): feat: add `shouldShowAdminToolbar` field to the User type, resolving from the "show_admin_bar_front" meta value. Thanks @blakewilson!
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - [#2758](https://github.com/wp-graphql/wp-graphql/pull/2758): fix: Allow post types and taxonomies to be registered without "graphql_plural_name".
 - [#2762](https://github.com/wp-graphql/wp-graphql/pull/2762): Bump webpack version.
@@ -22,7 +28,7 @@
 
 ## 1.14.0
 
-## New Features
+### New Features
 
 - [#2745](https://github.com/wp-graphql/wp-graphql/pull/2745): feat: Allow fields, connections and mutations to optionally be registered with undersores in the field name.
 - [#2651](https://github.com/wp-graphql/wp-graphql/pull/2651): feat: Add `deregister_graphql_mutation()` and `graphql_excluded_mutations` filter. Thanks @justlevine!
@@ -31,7 +37,7 @@
 - [#2643](https://github.com/wp-graphql/wp-graphql/pull/2643): feat: Add post_lock check on edit/delete mutation. Thanks @markkelnar!
 - [#2649](https://github.com/wp-graphql/wp-graphql/pull/2649): feat: Add `pageInfo` field to the Connection type.
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - [#2752](https://github.com/wp-graphql/wp-graphql/pull/2752): fix: handle 404s in NodeResolver.php. Thanks @justlevine!
 - [#2735](https://github.com/wp-graphql/wp-graphql/pull/2735): fix: Explicitly check for DEBUG enabled value for tests. Thanks @markkelnar!
