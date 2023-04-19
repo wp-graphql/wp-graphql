@@ -1084,13 +1084,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $uri );
 
 		$term = get_term_by('slug', 'post-format-aside', 'post_format');
-		
+
 		/**
 		 * NodeResolver::parse_request() will generate the following query vars:
 		 * uri => /type/aside/
 		 * post_format => post-format-aside
 		 * post_type => [ post ]
-		 * 
+		 *
 		 */
 		$actual = $this->graphql([
 			'query'     => $query,
@@ -1669,7 +1669,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Tests the Posts Archive Page URI 
+	 * Tests the Posts Archive Page URI
 	 */
 	public function testPageForPostsByUri() {
 
@@ -1894,6 +1894,57 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// cleanup
 		update_option( 'page_on_front', 0 );
 		update_option( 'show_on_front', 0 );
+		wp_delete_post( $page_id, true );
+
+	}
+
+	public function testQueryPostsPageByUriReturnsExpectedUriOnNode() {
+
+		$page_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+		]);
+
+		$page_for_posts = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Page for Posts'
+		]);
+
+		update_option( 'page_on_front', $page_id );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_for_posts', $page_for_posts );
+
+		$query = '
+		query GetPostsPage( $uri: String! ) {
+		  nodeByUri(uri: $uri) {
+		    __typename
+		    uri
+		  }
+		}
+		';
+
+		$uri = parse_url( get_permalink( $page_for_posts ), PHP_URL_PATH );
+
+		$variables = [
+			'uri' => $uri
+		];
+
+		codecept_debug( [
+			'variables' => $variables,
+		]);
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => $variables
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			// the query should return a null value as the uri
+			// cannot be found
+			$this->expectedField( 'nodeByUri.__typename', 'ContentType' ),
+			$this->expectedField( 'nodeByUri.uri', $uri ),
+		] );
 
 	}
 
