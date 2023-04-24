@@ -322,10 +322,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['nodeByUri'] );
 
-		codecept_debug( [
-			'invalidBase' => '/blog' . $uri
-		]);
-
 		//Test with unwanted base.
 		$actual = $this->graphql([
 			'query'     => $query,
