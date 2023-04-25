@@ -2,12 +2,11 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Deferred;
-use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
+use WPGraphQL\Router;
 
 class NodeResolver {
 
@@ -30,8 +29,9 @@ class NodeResolver {
 	 */
 	public function __construct( AppContext $context ) {
 		global $wp;
-		$this->wp      = $wp;
-		$this->context = $context;
+		$this->wp               = $wp;
+		$this->wp->matched_rule = Router::$route . '/?$';
+		$this->context          = $context;
 	}
 
 	/**
@@ -435,6 +435,7 @@ class NodeResolver {
 			}
 
 			if ( ! empty( $this->wp->matched_rule ) ) {
+
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );
 

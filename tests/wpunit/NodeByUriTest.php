@@ -1948,4 +1948,45 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testQueryPostBySlugWhenPermalinksAreSetCustom() {
+
+		$this->set_permalink_structure( '/articles/%postname%/' );
+
+		$slug = 'test-slug';
+
+		$postId = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_name' => $slug,
+			'post_title' => 'post-title'
+ 		]);
+		codecept_debug( [
+			'slug' => $slug,
+			'link' => get_permalink( $postId )
+		]);
+
+
+		$query = '
+		query GetPostsBySlug( $id: ID! ) {
+		  post(id: $id, idType: SLUG) {
+		    __typename
+		    slug
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $slug,
+			]
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'post.__typename', 'Post' ),
+			$this->expectedField( 'post.slug', $slug ),
+		]);
+
+	}
+
 }
