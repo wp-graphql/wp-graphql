@@ -52,7 +52,6 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		flush_rewrite_rules( true );
-		wp_reset_postdata();
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [

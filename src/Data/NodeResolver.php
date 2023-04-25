@@ -76,7 +76,7 @@ class NodeResolver {
 
 		// if the uri doesn't have the post's name or ID in it, we must've found something we didn't expect
 		// so we will return null
-		if ( false === stripos( $this->wp->query_vars['uri'], $post->post_name, 0 ) && stripos( $this->wp->query_vars['uri'], $post->ID, 0 ) ) {
+		if ( false === stripos( $this->wp->query_vars['uri'], $post->post_name, 0 ) && false === stripos( $this->wp->query_vars['uri'], '=' . $post->ID, 0 ) ) {
 			return null;
 		}
 
