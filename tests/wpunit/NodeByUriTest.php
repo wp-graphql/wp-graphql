@@ -847,6 +847,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_plural_name' => 'testWithFronts',
 		]);
 		flush_rewrite_rules( true );
+		$this->clearSchema();
 
 		$post_id = $this->factory()->post->create( [
 			'post_type' => 'test_with_front',
@@ -1945,6 +1946,99 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->expectedField( 'nodeByUri.__typename', 'ContentType' ),
 			$this->expectedField( 'nodeByUri.uri', $uri ),
 		] );
+
+	}
+
+	public function testQueryPostsOfMultiplePostTypesBySameSlug() {
+
+		$slug = 'duplicate-slug-test';
+
+		/**
+		 * Create an attachment with a post set as it's parent
+		 */
+		$image_description = 'some description';
+		$attachment_id     = self::factory()->post->create( [
+			'post_type'    => 'attachment',
+			'post_parent'  => $this->post,
+			'post_content' => $image_description,
+			'post_name' => $slug,
+		] );
+
+		$meta_data = [
+			'width'      => 300,
+			'height'     => 300,
+			'file'       => 'example.jpg',
+			'sizes'      => [
+				'thumbnail' => [
+					'file'       => 'example-thumbnail.jpg',
+					'width'      => 150,
+					'height'     => 150,
+					'mime-type'  => 'image/jpeg',
+					'source_url' => 'example-thumbnail.jpg',
+				],
+				'full'      => [
+					'file'       => 'example-full.jpg',
+					'width'      => 1500,
+					'height'     => 1500,
+					'mime-type'  => 'image/jpeg',
+					'source_url' => 'example-full.jpg',
+				],
+			],
+			'image_meta' => [
+				'aperture'          => 0,
+				'credit'            => 'some photographer',
+				'camera'            => 'some camera',
+				'caption'           => 'some caption',
+				'created_timestamp' => strtotime( $this->current_date ),
+				'copyright'         => 'Copyright WPGraphQL',
+				'focal_length'      => 0,
+				'iso'               => 0,
+				'shutter_speed'     => 0,
+				'title'             => 'some title',
+				'orientation'       => 'some orientation',
+				'keywords'          => [
+					'keyword1',
+					'keyword2',
+				],
+			],
+		];
+
+		update_post_meta( $attachment_id, '_wp_attachment_metadata', $meta_data );
+
+		$post = self::factory()->post->create([
+			'post_type' => 'post',
+			'post_name' => $slug,
+			'post_status' => 'publish'
+		]);
+
+		$media_item =
+
+		$query = '
+		query PostAndPageBySlug($slug: ID!) {
+		  mediaItem(id: $slug, idType: SLUG) {
+		    __typename
+		    slug
+		  }
+		  post(id: $slug, idType: SLUG) {
+		    __typename
+		    slug
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'slug' => $slug,
+			]
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'mediaItem.slug', $slug ),
+			$this->expectedField( 'mediaItem.__typename', 'MediaItem' ),
+			$this->expectedField( 'post.slug', $slug ),
+			$this->expectedField( 'post.__typename', 'Post' )
+		]);
 
 	}
 
