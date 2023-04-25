@@ -13,7 +13,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'user_login' => 'queryPagebyUriTestUser',
 		]);
 
-		$this->page = $this->factory()->post->create( [
+		$this->page = self::factory()->post->create( [
 			'post_type'   => 'page',
 			'post_status' => 'publish',
 			'post_title'  => 'Test PageByUriTest',
@@ -25,6 +25,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$GLOBALS['wp_rewrite']->init();
 		flush_rewrite_rules();
 		WPGraphQL::show_in_graphql();
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
@@ -50,6 +51,8 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
+		flush_rewrite_rules( true );
+		wp_reset_postdata();
 		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
@@ -57,8 +60,11 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['page'] );
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'page',  self::IS_NULL ),
+		]);
+
+
 
 		$actual = $this->graphql([
 			'query'     => $query,
@@ -67,10 +73,12 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( ucfirst( get_post_type_object( 'page' )->graphql_single_name ), $actual['data']['page']['__typename'] );
-		$this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
-		$this->assertSame( str_ireplace( home_url(), '', get_permalink( $this->page ) ), $actual['data']['page']['uri'] );
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'page.__typename',  ucfirst( get_post_type_object( 'page' )->graphql_single_name ) ),
+			$this->expectedField( 'page.databaseId',   $this->page ),
+			$this->expectedField( 'page.uri',  str_ireplace( home_url(), '', get_permalink( $this->page ) ) ),
+		]);
+
 	}
 
 	public function testQueryPageForPostsByUriReturnsNull() {
