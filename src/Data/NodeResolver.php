@@ -70,13 +70,13 @@ class NodeResolver {
 		}
 		phpcs:enable */
 
-		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
+		if ( empty( $this->wp->query_vars['uri'] ) ) {
 			return $post;
 		}
 
 		// if the uri doesn't have the post's name or ID in it, we must've found something we didn't expect
 		// so we will return null
-		if ( false === stripos( $this->wp->query_vars['uri'], $post->post_name, 0 ) && false === stripos( $this->wp->query_vars['uri'], $post->ID, 0 ) ) {
+		if ( false === strpos( $this->wp->query_vars['uri'], $post->post_name ) && false === strpos( $this->wp->query_vars['uri'], (string) $post->ID ) ) {
 			return null;
 		}
 
