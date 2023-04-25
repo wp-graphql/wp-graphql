@@ -506,7 +506,7 @@ class NodeResolver {
 				if ( isset( $post_type_query_vars[ $wpvar ] ) ) {
 					$this->wp->query_vars['post_type'] = $post_type_query_vars[ $wpvar ];
 					$this->wp->query_vars['name']      = $this->wp->query_vars[ $wpvar ];
-				}           
+				}
 			}
 		}
 
