@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.14.3
+
+### Chores / Bugfixes
+
+- [#2801](https://github.com/wp-graphql/wp-graphql/pull/2801): fix: conflict between custom post type and media slugs
+- [#2799](https://github.com/wp-graphql/wp-graphql/pull/2794): fix: querying posts by slug fails when custom permalinks are set
+- [#2794](https://github.com/wp-graphql/wp-graphql/pull/2794): chore(deps): bump guzzlehttp/psr7 from 1.9.0 to 1.9.1
+
+
 ## 1.14.2
 
 ### Chores / Bugfixes

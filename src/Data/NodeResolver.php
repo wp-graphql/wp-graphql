@@ -8,6 +8,7 @@ use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
+use WPGraphQL\Router;
 
 class NodeResolver {
 
@@ -30,8 +31,9 @@ class NodeResolver {
 	 */
 	public function __construct( AppContext $context ) {
 		global $wp;
-		$this->wp      = $wp;
-		$this->context = $context;
+		$this->wp               = $wp;
+		$this->wp->matched_rule = Router::$route . '/?$';
+		$this->context          = $context;
 	}
 
 	/**
@@ -42,6 +44,7 @@ class NodeResolver {
 	 * @return \WP_Post|null
 	 */
 	public function validate_post( WP_Post $post ) {
+
 
 		if ( isset( $this->wp->query_vars['post_type'] ) && ( $post->post_type !== $this->wp->query_vars['post_type'] ) ) {
 			return null;
@@ -66,6 +69,16 @@ class NodeResolver {
 			return null;
 		}
 		phpcs:enable */
+
+		if ( empty( $this->wp->query_vars['uri'] ) ) {
+			return $post;
+		}
+
+		// if the uri doesn't have the post's name or ID in it, we must've found something we didn't expect
+		// so we will return null
+		if ( false === strpos( $this->wp->query_vars['uri'], $post->post_name ) && false === strpos( $this->wp->query_vars['uri'], (string) $post->ID ) ) {
+			return null;
+		}
 
 		return $post;
 	}
@@ -157,7 +170,7 @@ class NodeResolver {
 		if ( ! class_exists( $query_class ) ) {
 			throw new UserError(
 				sprintf(
-					/* translators: %s: The query class used to resolve the URI */
+				/* translators: %s: The query class used to resolve the URI */
 					__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
 					$query_class
 				)
@@ -167,7 +180,12 @@ class NodeResolver {
 		/** @var \WP_Query $query */
 		$query = new $query_class( $this->wp->query_vars );
 
-		$queried_object = $query->get_queried_object();
+		// is the query is an archive
+		if ( isset( $query->posts[0] ) && $query->posts[0] instanceof WP_Post && ! $query->is_archive() ) {
+			$queried_object = $query->posts[0];
+		} else {
+			$queried_object = $query->get_queried_object();
+		}
 
 		/**
 		 * When this filter return anything other than null, it will be used as a resolved node
@@ -230,10 +248,13 @@ class NodeResolver {
 
 		// Resolve Post Types.
 		if ( $queried_object instanceof \WP_Post_Type ) {
+
 			// Bail if we're explictly requesting a different GraphQL type.
 			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
 				return null;
 			}
+
+
 
 			return ! empty( $queried_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $queried_object->name ) : null;
 		}
