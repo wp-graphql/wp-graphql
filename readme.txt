@@ -4,7 +4,7 @@ Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, RES
 Requires at least: 5.0
 Tested up to: 6.1
 Requires PHP: 7.1
-Stable tag: 1.14.2
+Stable tag: 1.14.3
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -231,6 +231,15 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.14.3 =
+
+**Chores / Bugfixes**
+
+- [#2801](https://github.com/wp-graphql/wp-graphql/pull/2801): fix: conflict between custom post type and media slugs
+- [#2799](https://github.com/wp-graphql/wp-graphql/pull/2794): fix: querying posts by slug fails when custom permalinks are set
+- [#2794](https://github.com/wp-graphql/wp-graphql/pull/2794): chore(deps): bump guzzlehttp/psr7 from 1.9.0 to 1.9.1
+
 
 = 1.14.2 =
 
