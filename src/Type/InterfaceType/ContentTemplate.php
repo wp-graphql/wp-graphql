@@ -53,6 +53,10 @@ class ContentTemplate {
 
 			if ( ! empty( $replaced_name ) ) {
 				$name = $replaced_name;
+			} else {
+				// If replaced_name is empty, use the file name
+				$file_name = explode( '.', $file )[0] ?? '';
+				$name = preg_replace( '/[^\w]/', '', $file_name );
 			}
 
 			if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
