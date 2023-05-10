@@ -443,7 +443,7 @@ const AbstractArgView = (props) => {
       >
         {isInputObjectType(argType) ? (
           <span>
-            {!!argValue
+            {argValue
               ? props.styleConfig.arrowOpen
               : props.styleConfig.arrowClosed}
           </span>
