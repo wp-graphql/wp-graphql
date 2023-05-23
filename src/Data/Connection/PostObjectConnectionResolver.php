@@ -68,6 +68,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$this->post_type = $post_type;
 		}
 
+		$this->query_class = '\WP_Query';
+
 		/**
 		 * Call the parent construct to setup class data
 		 */
@@ -93,10 +95,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query() {
 		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_Query';
-
+		$queryClass = $this->query_class;
 		$query = new $queryClass( $this->query_args );
 
 		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {

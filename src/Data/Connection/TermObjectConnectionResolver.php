@@ -40,7 +40,8 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
-		$this->taxonomy = $taxonomy;
+		$this->taxonomy    = $taxonomy;
+		$this->query_class = '\WP_Term_Query';
 		parent::__construct( $source, $args, $context, $info );
 	}
 
@@ -161,13 +162,15 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of WP_Term_Query with the args mapped to the query
+	 * Return an instance of WP_Term_Query or similar class with the args mapped to the query
 	 *
-	 * @return \WP_Term_Query
+	 * @return mixed
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_Term_Query( $this->query_args );
+		// Get query class.
+		$queryClass = $this->query_class;
+		return new $queryClass( $this->query_args );
 	}
 
 	/**

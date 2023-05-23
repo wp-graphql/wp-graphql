@@ -20,3 +20,4 @@ modules:
         - wp-graphql/wp-graphql.php
       configFile:
         - 'tests/_data/config.php'
+bootstrap: _bootstrap.php

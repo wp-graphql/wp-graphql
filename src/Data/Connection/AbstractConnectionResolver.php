@@ -119,6 +119,13 @@ abstract class AbstractConnectionResolver {
 	protected $query_amount;
 
 	/**
+	 * The query class used to fetch the nodes.
+	 *
+	 * @var mixed
+	 */
+	protected $query_class;
+
+	/**
 	 * ConnectionResolver constructor.
 	 *
 	 * @param mixed       $source  source passed down from the resolve tree
@@ -304,6 +311,17 @@ abstract class AbstractConnectionResolver {
 		$this->query_args[ $key ] = $value;
 
 		return $this;
+	}
+
+	/**
+	 * Sets the connection Query class.
+	 *
+	 * @param string $class  Query class name.
+	 *
+	 * @return void
+	 */
+	public function set_query_class( $class ) {
+		$this->query_class = $class;
 	}
 
 	/**

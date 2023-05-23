@@ -182,8 +182,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query() {
 		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
+		$queryClass = ! empty( $this->query_class )
+			? $this->query_class
 			: '\WP_User_Query';
 
 		return new $queryClass( $this->query_args );

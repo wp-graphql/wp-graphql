@@ -1,5 +1,7 @@
 <?php
 
+use Test\WPGraphQL\Utils\WP_Query_Custom;
+
 class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $connection_config;
 
@@ -677,4 +679,45 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( 'TestObject', $actual['data']['testConnection']['nodes'][0]['__typename'] );
 	}
 
+	public function testRegisteringConnectionsWithCustomQueryClasses() {
+		add_action( 'graphql_register_types', function () {
+			register_graphql_connection([
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Post',
+				'fromFieldName' => 'customPosts',
+				'resolve'       => function ( $source, $args, $context, $info ) {
+					$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
+					$resolver->set_query_class( \WP_Query_Custom::class );
+					return $resolver->get_connection();
+				},
+			]);
+		});
+
+		$post_one   = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		$post_two   = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		$post_three = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		$post_four  = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		$post_five  = $this->factory->post->create( [ 'post_type' => 'post' ] );
+
+		$query = '
+			query {
+				customPosts(first: 100) {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+		$expected = [
+			$this->not()->expectedField( 'customPosts.nodes.#.id', $this->toRelayId( 'post', $post_one ) ),
+			$this->not()->expectedField( 'customPosts.nodes.#.id', $this->toRelayId( 'post', $post_two ) ),
+			$this->expectedField( 'customPosts.nodes.#.id', $this->toRelayId( 'post', $post_three ) ),
+			$this->expectedField( 'customPosts.nodes.#.id', $this->toRelayId( 'post', $post_four ) ),
+			$this->expectedField( 'customPosts.nodes.#.id', $this->toRelayId( 'post', $post_five ) ),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+	}
 }
