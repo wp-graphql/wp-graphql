@@ -175,10 +175,10 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of the WP_User_Query with the args for the connection being executed
+	 * Returns an instance of the query class with the args for the connection being executed.
+	 * Defaults to the WP_User_Query class.
 	 *
-	 * @return object|\WP_User_Query
-	 * @throws \Exception
+	 * @return mixed
 	 */
 	public function get_query() {
 		// Get query class.

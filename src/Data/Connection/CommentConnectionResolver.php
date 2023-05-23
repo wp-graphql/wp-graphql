@@ -148,12 +148,10 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get_query
-	 *
-	 * Return the instance of the Query class defaults to \WP_Comment_Query.
+	 * Returns an instance of the query class with the args for the connection being executed.
+	 * Defaults to the WP_Comment_Query class.
 	 *
 	 * @return mixed
-	 * @throws \Exception
 	 */
 	public function get_query() {
 		// Get query class.

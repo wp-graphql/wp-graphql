@@ -162,10 +162,10 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of WP_Term_Query or similar class with the args mapped to the query
+	 * Returns an instance of query class with the args mapped to the query.
+	 * Defaults to the WP_Term_Query class.
 	 *
 	 * @return mixed
-	 * @throws \Exception
 	 */
 	public function get_query() {
 		// Get query class.

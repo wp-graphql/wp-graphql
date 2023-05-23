@@ -87,11 +87,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns the query being executed
+	 * Returns an instance of query class with the args mapped to the query.
+	 * Defaults to the WP_Query class.
 	 *
-	 * @return \WP_Query|object
+	 * @throws \InvariantViolation  Suppress Query filters.
 	 *
-	 * @throws \Exception
+	 * @return mixed
 	 */
 	public function get_query() {
 		// Get query class.
