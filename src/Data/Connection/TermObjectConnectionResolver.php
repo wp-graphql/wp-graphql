@@ -45,7 +45,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
-		$this->taxonomy    = $taxonomy;
+		$this->taxonomy = $taxonomy;
 		parent::__construct( $source, $args, $context, $info );
 	}
 
