@@ -691,14 +691,31 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 					return $resolver->get_connection();
 				},
 			]);
+
+			register_graphql_connection([
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Post',
+				'fromFieldName' => 'failedCustomPosts',
+				'resolve'       => function ( $source, $args, $context, $info ) {
+					$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
+					$resolver->set_query_class( 'Invalid_Class_Name' );
+					return $resolver->get_connection();
+				},
+			]);
 		});
 
+		// Create posts for use in our queries.
 		$post_one   = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$post_two   = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$post_three = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$post_four  = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$post_five  = $this->factory->post->create( [ 'post_type' => 'post' ] );
 
+		/**
+		 * Assert connection with valid class works as expected.
+		 * 
+		 * We can tell it's in use by the number of results returned which should never be more than 3.
+		 */
 		$query = '
 			query {
 				customPosts(first: 100) {
@@ -719,5 +736,28 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		];
 
 		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Assert connection with invalid class fails.
+		 * 
+		 * Should throw an "InvariantViolation" error.
+		 */
+		$query = '
+			query {
+				failedCustomPosts(first: 100) {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$response = $this->graphql( compact( 'query' ) );
+		$expected = [
+			$this->expectedErrorPath( 'failedCustomPosts' ),
+			$this->expectedField( 'failedCustomPosts', self::IS_NULL ),
+		];
+
+		$this->assertQueryError( $response, $expected );
 	}
 }
