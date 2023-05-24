@@ -26,6 +26,11 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
+	protected $query_class = '\WP_Comment_Query';
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function get_query_args() {
 
 		/**
@@ -148,6 +153,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
+	}
+
+	/**
 	 * Returns an instance of the query class with the args for the connection being executed.
 	 * Defaults to the WP_Comment_Query class.
 	 *
@@ -155,9 +168,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query() {
 		// Get query class.
-		$queryClass = ! empty( $this->query_class )
-			? $this->query_class
-			: '\WP_Comment_Query';
+		$queryClass = $this->query_class;
 
 		return new $queryClass( $this->query_args );
 	}

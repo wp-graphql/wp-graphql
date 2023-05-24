@@ -315,7 +315,7 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Sets the connection Query class.
+	 * Validates provided query class.
 	 *
 	 * @param string $class  Query class name.
 	 *
@@ -323,7 +323,7 @@ abstract class AbstractConnectionResolver {
 	 * 
 	 * @return void
 	 */
-	public function set_query_class( $class ) {
+	public function is_valid_query_class( $class ) {
 		// Validate query class. It will simply throw if class not found.
 		if ( ! class_exists( $class ) ) {
 			throw new InvariantViolation(
@@ -336,7 +336,20 @@ abstract class AbstractConnectionResolver {
 				)
 			);
 		}
-		$this->query_class = $class;
+	}
+
+	/**
+	 * Sets the connection Query class.
+	 *
+	 * @param string $class  Query class name.
+	 * 
+	 * @return void
+	 */
+	public function set_query_class( $class ) {
+		throw new Exception( sprintf(
+			__( 'Class %s does not implement a valid method `set_query_class()`.', 'wp-graphql' ),
+			get_called_class()
+		) );
 	}
 
 	/**

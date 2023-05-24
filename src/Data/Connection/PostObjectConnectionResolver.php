@@ -29,6 +29,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var \WP_Query|object
 	 */
 	protected $query;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected $query_class = '\WP_Query';
+
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
@@ -68,8 +74,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$this->post_type = $post_type;
 		}
 
-		$this->query_class = '\WP_Query';
-
 		/**
 		 * Call the parent construct to setup class data
 		 */
@@ -84,6 +88,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_loader_name() {
 		return 'post';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
 	}
 
 	/**

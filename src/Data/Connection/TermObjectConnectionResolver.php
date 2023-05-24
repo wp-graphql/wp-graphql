@@ -22,6 +22,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	protected $query;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected $query_class = '\WP_Term_Query';
+
+	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
 	 * @var string
@@ -41,7 +46,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
 		$this->taxonomy    = $taxonomy;
-		$this->query_class = '\WP_Term_Query';
 		parent::__construct( $source, $args, $context, $info );
 	}
 
@@ -159,6 +163,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 
 		return $query_args;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
 	}
 
 	/**
