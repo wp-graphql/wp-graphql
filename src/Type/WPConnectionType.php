@@ -1,8 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use Closure;
-use Exception;
 use GraphQL\Exception\InvalidArgument;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Type\InterfaceType\PageInfo;
@@ -510,7 +508,7 @@ class WPConnectionType {
 	 * Registers the connection in the Graph
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function register_connection_field(): void {
 
