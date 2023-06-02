@@ -69,6 +69,11 @@
 			"WPGraphQL\\": "src/"
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"WPGraphQLTestSupport\\": "tests/_support/"
+		}
+	},
 	"scripts": {
 		"install-test-env": "bash bin/install-test-env.sh",
 		"docker-build": "bash bin/run-docker.sh build",

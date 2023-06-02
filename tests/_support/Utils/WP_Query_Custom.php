@@ -1,5 +1,8 @@
 <?php
+namespace WPGraphQLTestSupport\Utils;
+
 /**
+ *
  * WP_Query clone for testing
  *
  * @package Test\WPGraphQL

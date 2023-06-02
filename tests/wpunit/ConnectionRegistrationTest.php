@@ -1,6 +1,5 @@
 <?php
 
-use Test\WPGraphQL\Utils\WP_Query_Custom;
 
 class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $connection_config;
@@ -687,7 +686,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 				'fromFieldName' => 'customPosts',
 				'resolve'       => function ( $source, $args, $context, $info ) {
 					$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
-					$resolver->set_query_class( \WP_Query_Custom::class );
+					$resolver->set_query_class( \WPGraphQLTestSupport\Utils\WP_Query_Custom::class );
 					return $resolver->get_connection();
 				},
 			]);
@@ -713,7 +712,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		/**
 		 * Assert connection with valid class works as expected.
-		 * 
+		 *
 		 * We can tell it's in use by the number of results returned which should never be more than 3.
 		 */
 		$query = '
@@ -739,7 +738,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		/**
 		 * Assert connection with invalid class fails.
-		 * 
+		 *
 		 * Should throw an "InvariantViolation" error.
 		 */
 		$query = '
