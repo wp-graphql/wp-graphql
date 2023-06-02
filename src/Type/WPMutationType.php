@@ -2,11 +2,9 @@
 namespace WPGraphQL\Type;
 
 use Closure;
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class WPMutationType
