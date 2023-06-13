@@ -671,12 +671,69 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->markTestIncomplete();
 	}
 
+	public function testConnectionConfigIsAvailableInResolvers() {
+
+		$expected = uniqid( 'test', true );
+
+		// Pass the $expected value to the connection.
+		// We will filter the resolver to do something with the value
+		// And assert we have access to it
+		register_graphql_connection([
+			'fromType' => 'RootQuery',
+			'toType' => 'Post',
+			'fromFieldName' => 'connectionWithConfig',
+			'testField' => $expected
+		]);
+
+		// Here we filter the resolver and throw an error
+		// if the field definition had a value for testField
+		add_filter( 'graphql_resolve_field', function( $result, $source, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info ) {
+
+			if ( ! empty( $info->fieldDefinition->config['testField'] ) ) {
+				throw new \GraphQL\Error\UserError( $info->fieldDefinition->config['testField'] );
+			}
+
+			return $result;
+
+		}, 10, 5 );
+
+		$query = '
+		{
+		 connectionWithConfig {
+		   nodes {
+		     __typename
+		   }
+		 }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( [
+			'$actual' => $actual,
+		]);
+
+		// Here we're asserting that the $expected value exists in the errors
+		// This ensures that the value passed in to the connection config
+		// Is indeed accessible in the $info of the resolver
+		$this->assertQueryError($actual, [
+			$this->expectedErrorPath( 'connectionWithConfig' ),
+			$this->expectedErrorMessage( $expected, self::MESSAGE_EQUALS ),
+			$this->expectedField( 'connectionWithConfig', self::IS_NULL ),
+		]);
+
+
+	}
+
 	protected function assertValidTypes( $actual ) : void {
 		$this->assertEquals( 'RootQueryToTestObjectConnection', $actual['data']['testConnection']['__typename'] );
 		$this->assertEquals( 'RootQueryToTestObjectConnectionEdge', $actual['data']['testConnection']['edges'][0]['__typename'] );
 		$this->assertEquals( 'TestObject', $actual['data']['testConnection']['edges'][0]['node']['__typename'] );
 		$this->assertEquals( 'TestObject', $actual['data']['testConnection']['nodes'][0]['__typename'] );
 	}
+
 
 	public function testRegisteringConnectionsWithCustomQueryClasses() {
 		add_action( 'graphql_register_types', function () {
@@ -759,4 +816,5 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		$this->assertQueryError( $response, $expected );
 	}
+
 }

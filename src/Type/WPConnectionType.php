@@ -1,8 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use Closure;
-use Exception;
 use GraphQL\Exception\InvalidArgument;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Type\InterfaceType\PageInfo;
@@ -510,29 +508,34 @@ class WPConnectionType {
 	 * Registers the connection in the Graph
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function register_connection_field(): void {
+
+		// merge the config so the raw data passed to the connection
+		// is passed to the field and can be accessed via $info in resolvers
+		$field_config = array_merge( $this->config, [
+			'type'                  => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
+			'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
+			'auth'                  => $this->auth,
+			'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
+			'description'           => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+			'resolve'               => function ( $root, $args, $context, $info ) {
+				$context->connection_query_class = $this->query_class;
+				$resolve_connection              = $this->resolve_connection;
+
+				/**
+				 * Return the results of the connection resolver
+				 */
+				return $resolve_connection( $root, $args, $context, $info );
+			},
+			'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
+		] );
 
 		$this->type_registry->register_field(
 			$this->from_type,
 			$this->from_field_name,
-			[
-				'type'                  => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
-				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
-				'auth'                  => $this->auth,
-				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-				'description'           => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
-				'resolve'               => function ( $root, $args, $context, $info ) {
-					$context->connection_query_class = $this->query_class;
-					$resolve_connection              = $this->resolve_connection;
-
-					/**
-					 * Return the results of the connection resolver
-					 */
-					return $resolve_connection( $root, $args, $context, $info );
-				},
-				'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
-			]
+			$field_config
 		);
 
 	}
