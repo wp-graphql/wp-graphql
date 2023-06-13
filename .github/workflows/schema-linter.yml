@@ -14,7 +14,7 @@ jobs:
     name: Lint WPGraphQL Schema
     services:
       mariadb:
-        image: mariadb
+        image: mariadb:10.8.2
         ports:
           - 3306:3306
         env:

@@ -1,10 +1,10 @@
 === WPGraphQL ===
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
-Tags: GraphQL, API, Gatsby, Headless, Decoupled, React, Nextjs, Vue, Apollo, REST, JSON,  HTTP, Remote, Query Language
+Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nextjs, Vue, Apollo, REST, JSON, HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 6.1
+Tested up to: 6.2
 Requires PHP: 7.1
-Stable tag: 1.14.3
+Stable tag: 1.14.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -231,6 +231,18 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.14.4 =
+
+**New Features**
+
+- [#2826](https://github.com/wp-graphql/wp-graphql/pull/2826): feat: pass connection config to connection field
+
+**Chores / Bugfixes**
+
+- [#2818](https://github.com/wp-graphql/wp-graphql/pull/2818): chore: update webonyx/graphql-php to v14.11.9. Thanks @justlevine!
+- [#2813](https://github.com/wp-graphql/wp-graphql/pull/2813): fix: replace double negation with true. Thanks @cesarkohl!
+
 
 = 1.14.3 =
 
