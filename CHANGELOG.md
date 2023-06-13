@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.14.4
+
+### New Features
+
+- [#2826](https://github.com/wp-graphql/wp-graphql/pull/2826): feat: pass connection config to connection field
+
+### Chores / Bugfixes
+
+- [#2818](https://github.com/wp-graphql/wp-graphql/pull/2818): chore: update webonyx/graphql-php to v14.11.9. Thanks @justlevine!
+- [#2813](https://github.com/wp-graphql/wp-graphql/pull/2813): fix: replace double negation with true. Thanks @cesarkohl!
+
 ## 1.14.3
 
 ### Chores / Bugfixes
