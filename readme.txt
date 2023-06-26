@@ -234,6 +234,16 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 = 1.14.5 =
 
+**Chores / Bugfixes**
+
+- [#2834](https://github.com/wp-graphql/wp-graphql/pull/2834): fix: improve how the Query Analyzer tracks list types, only tracking lists from the RootType and not nested lists.
+- [#2828](https://github.com/wp-graphql/wp-graphql/pull/2828): chore: update composer dev-deps to latest. Thanks @justlevine!
+- [#2835](https://github.com/wp-graphql/wp-graphql/pull/2835): ci: update docker deploy workflow to use latest docker actions.
+- [#2836](https://github.com/wp-graphql/wp-graphql/pull/2836): ci: update schema upload workflow to pin mariadb to 10.8.2
+
+
+= 1.14.4 =
+
 **New Features**
 
 - [#2826](https://github.com/wp-graphql/wp-graphql/pull/2826): feat: pass connection config to connection field
