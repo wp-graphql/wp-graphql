@@ -264,4 +264,60 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testNestedConnectionDoesNotShowInListTypes() {
+
+		$query = '
+		query getCategory( $id: ID! $postId: ID! ) {
+		  category( id: $id idType: DATABASE_ID ) {
+		    name
+		    posts {
+		      nodes {
+		         id
+		         title
+		      }
+		    }
+		  }
+		  post (id: $postId idType: DATABASE_ID ) {
+		    title
+		    categories {
+		      nodes {
+		        id
+		        name
+		      }
+		    }
+		  }
+		  pages {
+		    nodes {
+		      id
+		      title
+		    }
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true);
+
+		// before execution, this should be null
+		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
+
+		// Execute the request
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+		codecept_debug( $types );
+
+		// this query queried for a list of posts and categories as nested connections
+		// so they shouldn't be tracked, only the root list (for list:page) should be tracked
+		$this->assertNotContains( 'list:post', $types );
+		$this->assertNotContains( 'list:category', $types );
+		$this->assertContains( 'list:page', $types );
+
+		$this->assertSame( [ 'list:page' ], $types );
+
+
+
+	}
+
 }

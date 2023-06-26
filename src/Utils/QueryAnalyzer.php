@@ -7,6 +7,7 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -336,9 +337,33 @@ class QueryAnalyzer {
 			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 
 				$type_info->enter( $node );
-				$type = $type_info->getType();
+				$field_def = $type_info->getFieldDef();
 
-				if ( ! $type ) {
+				if ( ! $field_def instanceof FieldDefinition ) {
+					return;
+				}
+
+				$field_type = $field_def->getType();
+
+				if ( empty( $field_type->config['interfaces'] ) ) {
+					return;
+				}
+
+				if ( ! in_array( 'Connection', $field_type->config['interfaces'], true ) ) {
+					return;
+				}
+
+				if ( empty( $field_def->config['fromType'] ) || 'rootquery' !== strtolower( $field_def->config['fromType'] ) ) {
+					return;
+				}
+
+				if ( empty( $field_def->config['toType'] ) ) {
+					return;
+				}
+
+				$to_type = $schema->getType( ucfirst( $field_def->config['toType'] ) );
+
+				if ( ! $to_type instanceof Type ) {
 					return;
 				}
 
@@ -346,18 +371,11 @@ class QueryAnalyzer {
 					return;
 				}
 
-				// If a type is queried as a list, add it to the queried_list_types
-				if ( false !== strpos( $type, '[' ) && false !== strpos( $type, ']' ) ) {
-					$this->queried_list_types[] = Type::getNamedType( $type );
-				}
-
-				$named_type = Type::getNamedType( $type );
-
-				if ( ! $named_type instanceof ObjectType && ! $named_type instanceof InterfaceType ) {
+				if ( ! $to_type instanceof ObjectType && ! $to_type instanceof InterfaceType ) {
 					return;
 				}
 
-				$interfaces = $named_type->getInterfaces();
+				$interfaces = $to_type->getInterfaces();
 
 				if ( empty( $interfaces ) ) {
 					return;
@@ -371,33 +389,18 @@ class QueryAnalyzer {
 					return;
 				}
 
-				// Get the parent type info
-				$parent_type       = $type_info->getParentType();
-				$parent_named_type = null;
-
-				// If the type has a parent, get the "named type" of the parent type (i.e. instead of [Post!]!, get Post)
-				if ( null !== $parent_type ) {
-					$parent_named_type = Type::getNamedType( $parent_type );
-				}
-
-				// If the node type hasn't been queried directly as a list or as a nested field
-				// of a list, we can consider it not queried as a list
-				if ( ! in_array( $parent_named_type, $this->queried_list_types, true ) && ! in_array( $named_type, $this->queried_list_types, true ) ) {
-					return;
-				}
-
 				// If the type being queried is an interface (i.e. ContentNode) the publishing a new
 				// item of any of the possible types (post, page, etc) should invalidate
 				// this query, so we need to tag this query with `list:$possible_type` for each possible type
-				if ( $named_type instanceof InterfaceType ) {
-					$possible_types = $schema->getPossibleTypes( $named_type );
+				if ( $to_type instanceof InterfaceType ) {
+					$possible_types = $schema->getPossibleTypes( $to_type );
 					if ( ! empty( $possible_types ) ) {
 						foreach ( $possible_types as $possible_type ) {
 							$type_map[] = 'list:' . strtolower( $possible_type );
 						}
 					}
 				} else {
-					$type_map[] = 'list:' . strtolower( $named_type );
+					$type_map[] = 'list:' . strtolower( $to_type );
 				}
 			},
 			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
