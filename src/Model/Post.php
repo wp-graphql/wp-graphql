@@ -562,6 +562,9 @@ class Post extends Model {
 
 						if ( ! empty( $replaced_name ) ) {
 							$name = $replaced_name;
+						} else {
+							// If replaced_name is empty, use the `_wp_page_template` meta value.
+							$name      = preg_replace( '/[^\w]/', '', $set_template );
 						}
 						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
 							$name = 'Template_' . $name;
