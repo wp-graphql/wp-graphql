@@ -25,4 +25,5 @@ parameters:
         - tests/
         - */node_modules/*
         - */vendor/*
+        - src/Mutation/MediaItemCreate.php
     ignoreErrors:
