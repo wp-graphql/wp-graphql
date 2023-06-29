@@ -159,7 +159,7 @@ class MediaItemCreate {
 			$check_file = wp_check_filetype( $uploaded_file_url );
 
 			// if the file doesn't pass the check, throw an error
-			if ( ! $check_file['ext'] || ! $check_file['type'] ) {
+			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
 				throw new UserError( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) );
 			}
 
