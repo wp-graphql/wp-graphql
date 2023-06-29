@@ -163,10 +163,21 @@ class MediaItemCreate {
 				throw new UserError( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) );
 			}
 
+			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
+
 			// prevent the filePath from being submitted with a non-allowed protocols
 			$allowed_protocols = [ 'https', 'http', 'file' ];
-			$allowed_protocols = apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols );
-			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
+
+			/**
+			 * Filter the allowed protocols for the mutation
+			 *
+			 * @param array                                $allowed_protocols The allowed protocols for filePaths to be submitted
+			 * @param mixed                                $protocol          The current protocol of the filePath
+			 * @param array                                $input             The input of the current mutation
+			 * @param \WPGraphQL\AppContext                $context           The context of the current request
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info              The ResolveInfo of the current field
+			 */
+			$allowed_protocols = apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
 
 			if ( ! in_array( $protocol, $allowed_protocols, true ) ) {
 				throw new UserError( sprintf( __( 'Invalid protocol. "%1$s". Only "%2$s" allowed.', 'wp-graphql' ), $protocol, implode( '", "', $allowed_protocols ) ) );
