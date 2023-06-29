@@ -40,7 +40,7 @@
 		"lucatume/wp-browser": "^3.1.6",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/extension-installer": "^1.1",
-		"phpstan/phpstan": "~1.10.11",
+		"phpstan/phpstan": "1.10.14",
 		"phpunit/phpunit": "^9.5",
 		"simpod/php-coveralls-mirror": "^3.0",
 		"slevomat/coding-standard": "^8.9",

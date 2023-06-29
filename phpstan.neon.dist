@@ -22,8 +22,6 @@ parameters:
         - src/
     excludePaths:
       analyseAndScan:
-        - tests/
         - */node_modules/*
         - */vendor/*
-        - src/Mutation/MediaItemCreate.php
     ignoreErrors:
