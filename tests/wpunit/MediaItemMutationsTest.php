@@ -1231,10 +1231,15 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			]
 		];
 
+		// set the user as admin, as they have privileges to create media items
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->graphql([
-			'$query' => $query,
-			'$variables' => $variables,
+			'query' => $query,
+			'variables' => $variables,
 		]);
+
+		codecept_debug( $actual );
 
 		$expected = [
 			$this->expectedErrorPath( 'createMediaItem' ),
@@ -1243,7 +1248,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$this->assertQueryError( $actual, $expected );
-
 
 	}
 
@@ -1267,10 +1271,15 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			]
 		];
 
+		// set the user as admin, as they have privileges to create media items
+		wp_set_current_user( $this->admin );
+
 		$actual = $this->graphql([
-			'$query' => $query,
-			'$variables' => $variables,
+			'query' => $query,
+			'variables' => $variables,
 		]);
+
+		codecept_debug( $actual );
 
 		$expected = [
 			$this->expectedErrorPath( 'createMediaItem' ),
@@ -1281,4 +1290,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertQueryError( $actual, $expected );
 
 	}
+
+
 }
