@@ -22,6 +22,7 @@ parameters:
         - src/
     excludePaths:
       analyseAndScan:
+        - tests/
         - */node_modules/*
         - */vendor/*
     ignoreErrors:
