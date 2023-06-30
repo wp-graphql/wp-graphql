@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.14.6
+
+## Chores / Bugfixes
+
+- [#2841](https://github.com/wp-graphql/wp-graphql/pull/2841): ci: support STEP_DEBUG in Code Quality workflow. Thanks @justlevine!
+- [#2840](https://github.com/wp-graphql/wp-graphql/pull/2840): fix: update createMediaItem mutation to have better validation of input.
+- [#2838](https://github.com/wp-graphql/wp-graphql/pull/2838): chore: update security.md
+
 ## 1.14.5
 
 ### Chores / Bugfixes
