@@ -41,4 +41,10 @@ jobs:
           composer-options: "--no-progress"
 
       - name: Run PHPStan
-        run: composer run-script phpstan
+        # If STEP_DEBUG is enabled, PHPStan will run in debug mode.
+        run: |
+          if [ "${{ secrets.ACTIONS_STEP_DEBUG }}" = "true" ]; then
+            php vendor/bin/phpstan analyse --memory-limit=2G --debug
+          else
+            composer run-script phpstan
+          fi
