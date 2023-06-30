@@ -141,7 +141,7 @@ class MediaItemCreate {
 				// Ensure authorId is a valid databaseId.
 				$input['authorId'] = Utils::get_database_id_from_id( $input['authorId'] );
 
-				// Bail if cant edit other users' attachments.
+				// Bail if can't edit other users' attachments.
 				if ( get_current_user_id() !== $input['authorId'] && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 					throw new UserError( __( 'Sorry, you are not allowed to create mediaItems as this user', 'wp-graphql' ) );
 				}
@@ -151,8 +151,37 @@ class MediaItemCreate {
 			 * Set the file name, whether it's a local file or from a URL.
 			 * Then set the url for the uploaded file
 			 */
-			$file_name         = basename( $input['filePath'] );
-			$uploaded_file_url = $input['filePath'];
+			$file_name           = basename( $input['filePath'] );
+			$uploaded_file_url   = $input['filePath'];
+			$sanitized_file_path = sanitize_file_name( $input['filePath'] );
+
+			// Check that the filetype is allowed
+			$check_file = wp_check_filetype( $uploaded_file_url );
+
+			// if the file doesn't pass the check, throw an error
+			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
+				throw new UserError( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) );
+			}
+
+			$protocol = wp_parse_url( $input['filePath'], PHP_URL_SCHEME );
+
+			// prevent the filePath from being submitted with a non-allowed protocols
+			$allowed_protocols = [ 'https', 'http', 'file' ];
+
+			/**
+			 * Filter the allowed protocols for the mutation
+			 *
+			 * @param array                                $allowed_protocols The allowed protocols for filePaths to be submitted
+			 * @param mixed                                $protocol          The current protocol of the filePath
+			 * @param array                                $input             The input of the current mutation
+			 * @param \WPGraphQL\AppContext                $context           The context of the current request
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info              The ResolveInfo of the current field
+			 */
+			$allowed_protocols = apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
+
+			if ( ! in_array( $protocol, $allowed_protocols, true ) ) {
+				throw new UserError( sprintf( __( 'Invalid protocol. "%1$s". Only "%2$s" allowed.', 'wp-graphql' ), $protocol, implode( '", "', $allowed_protocols ) ) );
+			}
 
 			/**
 			 * Require the file.php file from wp-admin. This file includes the

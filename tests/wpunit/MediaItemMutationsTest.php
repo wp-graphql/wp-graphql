@@ -1207,4 +1207,89 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testCannotInputPharAsFilePath() {
+
+		$query = '
+		mutation CreateMediaItem( $input: CreateMediaItemInput! ) {
+		  createMediaItem(input: $input) {
+		    mediaItem {
+		      link
+		      sourceUrl
+		      uri
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			"input" => [
+				"filePath" => "php://filter/resource=phar://phar.jpeg"
+			]
+		];
+
+		// set the user as admin, as they have privileges to create media items
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+		codecept_debug( $actual );
+
+		$expected = [
+			$this->expectedErrorPath( 'createMediaItem' ),
+			$this->expectedErrorMessage( 'Invalid filePath', self::MESSAGE_STARTS_WITH ),
+			$this->expectedField( 'createMediaItem', self::IS_NULL ),
+		];
+
+		$this->assertQueryError( $actual, $expected );
+
+	}
+
+	public function testCannotInputLocalhostAsFilePath() {
+
+		$query = '
+		mutation CreateMediaItem( $input: CreateMediaItemInput! ) {
+		  createMediaItem(input: $input) {
+		    mediaItem {
+		      link
+		      sourceUrl
+		      uri
+		    }
+		  }
+		}
+		';
+
+		$variables = [
+			"input" => [
+				"filePath" => "http://127.0.0.1:8000/?t=img.png"
+			]
+		];
+
+		// set the user as admin, as they have privileges to create media items
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => $variables,
+		]);
+
+		codecept_debug( $actual );
+
+		$expected = [
+			$this->expectedErrorPath( 'createMediaItem' ),
+			$this->expectedErrorMessage( 'Invalid filePath', self::MESSAGE_STARTS_WITH ),
+			$this->expectedField( 'createMediaItem', self::IS_NULL ),
+		];
+
+		$this->assertQueryError( $actual, $expected );
+
+	}
+
+
 }
