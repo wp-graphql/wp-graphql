@@ -47,7 +47,7 @@ jobs:
         # This is a temporary exclusion until a php74 image is released. See #2780
         exclude:
           - php: '7.4'
-          - wordpress: '6.2'
+            wordpress: '6.2'
 
     steps:
       - name: Cancel previous runs of this workflow (pull requests only)
