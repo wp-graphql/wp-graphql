@@ -32,7 +32,7 @@ jobs:
             wordpress: '6.2'
           # This is a temporary exclusion until a php74 image is released. See #2780
           - php: '7.4'
-          - wordpress: '6.2'
+            wordpress: '6.2'
       fail-fast: false
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
