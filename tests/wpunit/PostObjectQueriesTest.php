@@ -2243,6 +2243,56 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['post'] );
 	}
 
+	// create a post using emoji
+	public function testQueryPostBySlugWithEmojiSlug() {
+
+		$raw_title = '🍌';
+
+		// the $encoded_slug will have a dash between words i.e. 'سلا-دنیا'
+		$encoded_slug = urldecode( sanitize_title( $raw_title ) );
+
+		$non_ascii_post = $this->factory()->post->create_and_get([
+			'post_title' => $raw_title,
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+		]);
+
+		codecept_debug( [
+			'$non_ascii_string' => $raw_title,
+			'$encoded_slug' => $encoded_slug,
+			'$post_name' => $non_ascii_post->post_name,
+			'post' => $non_ascii_post,
+		]);
+
+		$query = '
+		query getPostBySlug( $id: ID! ) {
+		  post( id: $id idType: SLUG ) {
+		    __typename
+		    title
+		    slug
+		    databaseId
+		  }
+		}
+		';
+
+		// query the post by (encoded) slug
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $encoded_slug, // سلام-دنیا //
+			]
+		]);
+
+		// assert that the response is what we expect
+		self::assertQuerySuccessful($actual, [
+			$this->expectedField( 'post.__typename', 'Post' ),
+			$this->expectedField( 'post.title', $raw_title ),
+			$this->expectedField( 'post.slug', $encoded_slug ),
+			$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
+		]);
+
+	}
+
 	// create a post using unicode
 	public function testQueryPostBySlugWithNonAsciiSlug() {
 
