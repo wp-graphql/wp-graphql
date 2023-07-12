@@ -150,11 +150,11 @@ class Settings {
 				'type'              => 'number',
 				'default'           => 10,
 				'sanitize_callback' => static function ( $value ) {
-				    // if the entered value is not a positive integer, default to 10
-				    if ( ! absint( $value ) ) {
-				        $value = 10;
-				    }
-				    return absint( $value );
+					// if the entered value is not a positive integer, default to 10
+					if ( ! absint( $value ) ) {
+						$value = 10;
+					}
+					return absint( $value );
 				},
 			],
 			[
