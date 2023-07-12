@@ -244,6 +244,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **Chores / Bugfixes**
 
+- [#2853](https://github.com/wp-graphql/wp-graphql/pull/2853): fix: internal server error when query max depth setting is left empty
 - [#2851](https://github.com/wp-graphql/wp-graphql/pull/2851): fix: querying posts by slug or uri with non-ascii characters
 - [#2849](https://github.com/wp-graphql/wp-graphql/pull/2849): ci: Indent WP 6.2 in workflow file. Fixes Docker deploys. Thanks @markkelnar!
 - [#2846](https://github.com/wp-graphql/wp-graphql/pull/2846): chore(deps): bump tough-cookie from 4.0.0 to 4.1.3
