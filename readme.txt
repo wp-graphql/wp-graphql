@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.2
 Requires PHP: 7.1
-Stable tag: 1.14.6
+Stable tag: 1.14.7
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -239,6 +239,15 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.14.7 =
+
+**Chores / Bugfixes**
+
+- [#2851](https://github.com/wp-graphql/wp-graphql/pull/2851): fix: querying posts by slug or uri with non-ascii characters
+- [#2849](https://github.com/wp-graphql/wp-graphql/pull/2849): ci: Indent WP 6.2 in workflow file. Fixes Docker deploys. Thanks @markkelnar!
+- [#2846](https://github.com/wp-graphql/wp-graphql/pull/2846): chore(deps): bump tough-cookie from 4.0.0 to 4.1.3
+
 
 = 1.14.6 =
 
