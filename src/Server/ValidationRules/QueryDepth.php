@@ -31,6 +31,7 @@ class QueryDepth extends QuerySecurityRule {
 	 */
 	public function __construct() {
 		$max_query_depth = get_graphql_setting( 'query_depth_max', 10 );
+		$max_query_depth = absint( $max_query_depth ) ?? 10;
 		$this->setMaxQueryDepth( $max_query_depth );
 	}
 
