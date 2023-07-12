@@ -149,11 +149,11 @@ class Settings {
 				'desc'              => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10.', 'wp-graphql' ),
 				'type'              => 'number',
 				'default'           => 10,
-                'sanitize_callback' => static function( $value ) {
-                    // if the entered value is not a positive integer, default to 10
-                    if ( ! absint( $value ) ) {
-                        $value = 10;
-                    }
+				'sanitize_callback' => static function( $value ) {
+				    // if the entered value is not a positive integer, default to 10
+				    if ( ! absint( $value ) ) {
+				        $value = 10;
+				    }
                     return absint( $value );
                 }
 			],
