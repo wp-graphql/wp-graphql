@@ -527,7 +527,7 @@ class Post extends Model {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
 				},
 				'slug'                      => function () {
-					return ! empty( $this->data->post_name ) ? $this->data->post_name : null;
+					return ! empty( $this->data->post_name ) ? urldecode( $this->data->post_name ) : null;
 				},
 				'template'                  => function () {
 
@@ -683,7 +683,7 @@ class Post extends Model {
 						$link = get_permalink( $this->data->ID );
 					}
 
-					return ! empty( $link ) ? $link : null;
+					return ! empty( $link ) ? urldecode( $link ) : null;
 				},
 				'uri'                       => function () {
 					$uri = $this->link;

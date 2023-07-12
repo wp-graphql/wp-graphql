@@ -74,9 +74,9 @@ class NodeResolver {
 			return $post;
 		}
 
-		// if the uri doesn't have the post's name or ID in it, we must've found something we didn't expect
+		// if the uri doesn't have the post's urlencoded name or ID in it, we must've found something we didn't expect
 		// so we will return null
-		if ( false === strpos( $this->wp->query_vars['uri'], $post->post_name ) && false === strpos( $this->wp->query_vars['uri'], (string) $post->ID ) ) {
+		if ( false === strpos( $this->wp->query_vars['uri'], (string) $post->ID ) && false === strpos( $this->wp->query_vars['uri'], urldecode( sanitize_title( $post->post_name ) ) ) ) {
 			return null;
 		}
 
@@ -210,6 +210,7 @@ class NodeResolver {
 			return $node;
 		}
 
+
 		// Resolve Post Objects.
 		if ( $queried_object instanceof WP_Post ) {
 			// If Page for Posts is set, we need to return the Page archive, not the page.
@@ -230,6 +231,7 @@ class NodeResolver {
 
 			// Validate the post before returning it.
 			if ( ! $this->validate_post( $queried_object ) ) {
+
 				return null;
 			}
 
