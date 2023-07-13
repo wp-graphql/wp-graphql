@@ -102,4 +102,7 @@
 
 	<!-- Use FQCN for PHPDoc types -->
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
+	<!-- Enforce static closures -->
+	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+
 </ruleset>

@@ -200,7 +200,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			$matches = array_keys(
 				array_filter(
 					$all_plugins,
-					function ( $plugin ) use ( $s ) {
+					static function ( $plugin ) use ( $s ) {
 						foreach ( $plugin as $value ) {
 							if ( is_string( $value ) && false !== stripos( wp_strip_all_tags( $value ), $s ) ) {
 								return true;

@@ -55,7 +55,7 @@ class MediaItemDelete {
 			'deletedId' => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['mediaItemObject'];
 
 					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
@@ -64,7 +64,7 @@ class MediaItemDelete {
 			'mediaItem' => [
 				'type'        => 'MediaItem',
 				'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['mediaItemObject'];
 
@@ -80,7 +80,7 @@ class MediaItemDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input ) {
+		return static function ( $input ) {
 			// Get the database ID for the comment.
 			$media_item_id = Utils::get_database_id_from_id( $input['id'] );
 

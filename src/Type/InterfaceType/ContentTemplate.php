@@ -20,7 +20,7 @@ class ContentTemplate {
 						'description' => __( 'The name of the template', 'wp-graphql' ),
 					],
 				],
-				'resolveType' => function ( $value ) {
+				'resolveType' => static function ( $value ) {
 					return isset( $value['__typename'] ) ? $value['__typename'] : 'DefaultTemplate';
 				},
 			]
@@ -68,7 +68,7 @@ class ContentTemplate {
 					'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
 					'fields'          => [
 						'templateName' => [
-							'resolve' => function ( $template ) {
+							'resolve' => static function ( $template ) {
 								return isset( $template['templateName'] ) ? $template['templateName'] : null;
 							},
 						],

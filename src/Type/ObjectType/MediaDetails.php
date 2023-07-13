@@ -42,7 +42,7 @@ class MediaDetails {
 							],
 						],
 						'description' => __( 'The available sizes of the mediaItem', 'wp-graphql' ),
-						'resolve'     => function ( $media_details, array $args ) {
+						'resolve'     => static function ( $media_details, array $args ) {
 							// Bail early.
 							if ( empty( $media_details['sizes'] ) ) {
 								return null;
@@ -72,7 +72,7 @@ class MediaDetails {
 					'meta'   => [
 						'type'        => 'MediaItemMeta',
 						'description' => __( 'Meta information associated with the mediaItem', 'wp-graphql' ),
-						'resolve'     => function ( $media_details ) {
+						'resolve'     => static function ( $media_details ) {
 							return ! empty( $media_details['image_meta'] ) ? $media_details['image_meta'] : null;
 						},
 					],

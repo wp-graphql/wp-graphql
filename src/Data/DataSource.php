@@ -546,11 +546,11 @@ class DataSource {
 
 			$node_definition = Relay::nodeDefinitions(
 			// The ID fetcher definition
-				function ( $global_id, AppContext $context, ResolveInfo $info ) {
+				static function ( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},
 				// Type resolver
-				function ( $node ) {
+				static function ( $node ) {
 					self::resolve_node_type( $node );
 				}
 			);
