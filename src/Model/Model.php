@@ -85,6 +85,7 @@ abstract class Model {
 	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 
 		if ( empty( $this->data ) ) {
+			// translators: %s is the name of the model.
 			throw new Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
 		}
 

@@ -34,8 +34,11 @@ class TermObject {
 		$single_name = $tax_object->graphql_single_name;
 
 		$config = [
-			/* translators: post object singular name w/ description */
-			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
+			'description' => sprintf(
+				// translators: %s is the term object singular name.
+				__( 'The %s type', 'wp-graphql' ),
+				$single_name
+			),
 			'connections' => static::get_connections( $tax_object ),
 			'interfaces'  => static::get_interfaces( $tax_object ),
 			'fields'      => static::get_fields( $tax_object ),
@@ -58,6 +61,7 @@ class TermObject {
 		if ( empty( $tax_object->graphql_resolve_type ) || ! is_callable( $tax_object->graphql_resolve_type ) ) {
 			graphql_debug(
 				sprintf(
+					// translators: %1$s is the term object singular name, %2$s is the graphql kind.
 					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
 					$single_name,
 					$tax_object->graphql_kind
@@ -123,6 +127,7 @@ class TermObject {
 			$connections['children'] = [
 				'toType'         => $tax_object->graphql_single_name,
 				'description'    => sprintf(
+					// translators: %1$s is the term object singular name, %2$s is the term object plural name.
 					__( 'Connection between the %1$s type and its children %2$s.', 'wp-graphql' ),
 					$tax_object->graphql_single_name,
 					$tax_object->graphql_plural_name
@@ -142,6 +147,7 @@ class TermObject {
 			$connections['parent'] = [
 				'toType'             => $tax_object->graphql_single_name,
 				'description'        => sprintf(
+					// translators: %s is the term object singular name.
 					__( 'Connection between the %1$s type and its parent %1$s.', 'wp-graphql' ),
 					$tax_object->graphql_single_name
 				),
