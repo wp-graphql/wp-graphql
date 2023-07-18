@@ -4,11 +4,15 @@ namespace WPGraphQL\Utils;
 
 use Exception;
 use GraphQL\Error\SyntaxError;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -17,6 +21,7 @@ use GraphQLRelay\Relay;
 use Hoa\Math\Util;
 use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
+use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\WPSchema;
 
 /**
@@ -296,6 +301,62 @@ class QueryAnalyzer {
 		return $this->query_id;
 	}
 
+
+	/**
+	 * @param Type $type The Type of field
+	 * @param FieldDefinition $field_def The field definition the type is for
+	 * @param mixed $parent_type The Parent Type
+	 * @param bool $is_list_type Whether the field is a list type field
+	 *
+	 * @return Type|String|null
+	 */
+	public function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
+
+		if ( ! isset( $parent_type->name ) || 'RootQuery' !== $parent_type->name ) {
+			return null;
+		}
+
+		if ( $type instanceof NonNull || $type instanceof ListOfType ) {
+
+			if ( $type instanceof ListOfType && isset( $parent_type->name ) && 'RootQuery' === $parent_type->name ) {
+				$is_list_type = true;
+			}
+
+			return $this->get_wrapped_field_type( $type->getWrappedType(), $field_def, $parent_type, $is_list_type );
+		}
+
+		// Determine if we're dealing with a connection
+		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
+
+			$interfaces = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
+			$interface_names = ! empty( $interfaces ) ? array_map( static function( InterfaceType $interface ) {
+				return $interface->name;
+			}, $interfaces ) : [];
+
+			if ( array_key_exists( 'Connection', $interface_names ) ) {
+
+				if ( isset( $field_def->config['fromType'] ) && ( 'rootquery' !== strtolower( $field_def->config['fromType'] ) ) ) {
+					return null;
+				}
+
+				$to_type = $field_def->config['toType'] ?? null;
+				if ( empty( $to_type ) ) {
+					return null;
+				}
+
+				return $to_type;
+			}
+
+			if ( ! $is_list_type ) {
+				return null;
+			}
+
+			return $type;
+		}
+
+		return null;
+	}
+
 	/**
 	 * Given the Schema and a query string, return a list of GraphQL Types that are being asked for
 	 * by the query.
@@ -334,7 +395,13 @@ class QueryAnalyzer {
 		$type_info = new TypeInfo( $schema );
 
 		$visitor = [
-			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+			'enter' => function ( Node $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+
+				$parent_type = $type_info->getParentType();
+
+				if ( 'Field' !== $node->kind ) {
+					Visitor::skipNode();
+				}
 
 				$type_info->enter( $node );
 				$field_def = $type_info->getFieldDef();
@@ -343,65 +410,42 @@ class QueryAnalyzer {
 					return;
 				}
 
+				// Determine the wrapped type, which also determines if it's a listOf
 				$field_type = $field_def->getType();
+				$field_type = $this->get_wrapped_field_type( $field_type, $field_def, $parent_type );
 
-				if ( empty( $field_type->config['interfaces'] ) ) {
+				if ( null === $field_type ) {
 					return;
 				}
 
-				if ( ! in_array( 'Connection', $field_type->config['interfaces'], true ) ) {
+				if ( ! empty( $field_type ) && is_string( $field_type ) ) {
+					$field_type = $schema->getType( Utils::format_type_name( $field_type ) );
+				}
+
+				if ( ! $field_type ) {
 					return;
 				}
 
-				if ( empty( $field_def->config['fromType'] ) || 'rootquery' !== strtolower( $field_def->config['fromType'] ) ) {
-					return;
-				}
+				$field_type = $schema->getType( $field_type );
 
-				if ( empty( $field_def->config['toType'] ) ) {
-					return;
-				}
-
-				$to_type = $schema->getType( ucfirst( $field_def->config['toType'] ) );
-
-				if ( ! $to_type instanceof Type ) {
-					return;
-				}
-
-				if ( ! isset( $node->kind ) || 'Field' !== $node->kind ) {
-					return;
-				}
-
-				if ( ! $to_type instanceof ObjectType && ! $to_type instanceof InterfaceType ) {
-					return;
-				}
-
-				$interfaces = $to_type->getInterfaces();
-
-				if ( empty( $interfaces ) ) {
-					return;
-				}
-
-				// Get the interface names
-				$interface_names = array_keys( $interfaces );
-
-				// If the Node interface isn't applied, it's not a node type
-				if ( ! in_array( 'Node', $interface_names, true ) ) {
+				if ( ! $field_type instanceof ObjectType && ! $field_type instanceof InterfaceType ) {
 					return;
 				}
 
 				// If the type being queried is an interface (i.e. ContentNode) the publishing a new
 				// item of any of the possible types (post, page, etc) should invalidate
 				// this query, so we need to tag this query with `list:$possible_type` for each possible type
-				if ( $to_type instanceof InterfaceType ) {
-					$possible_types = $schema->getPossibleTypes( $to_type );
+				if ( $field_type instanceof InterfaceType ) {
+					$possible_types = $schema->getPossibleTypes( $field_type );
 					if ( ! empty( $possible_types ) ) {
 						foreach ( $possible_types as $possible_type ) {
 							$type_map[] = 'list:' . strtolower( $possible_type );
 						}
 					}
 				} else {
-					$type_map[] = 'list:' . strtolower( $to_type );
+					$type_map[] = 'list:' . strtolower( $field_type );
 				}
+
 			},
 			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
