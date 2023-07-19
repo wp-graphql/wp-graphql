@@ -303,12 +303,12 @@ class QueryAnalyzer {
 
 
 	/**
-	 * @param Type $type The Type of field
-	 * @param FieldDefinition $field_def The field definition the type is for
+	 * @param \GraphQL\Type\Definition\Type $type The Type of field
+	 * @param \GraphQL\Type\Definition\FieldDefinition $field_def The field definition the type is for
 	 * @param mixed $parent_type The Parent Type
 	 * @param bool $is_list_type Whether the field is a list type field
 	 *
-	 * @return Type|String|null
+	 * @return  \GraphQL\Type\Definition\Type|String|null
 	 */
 	public function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
 
@@ -328,8 +328,8 @@ class QueryAnalyzer {
 		// Determine if we're dealing with a connection
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
 
-			$interfaces = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
-			$interface_names = ! empty( $interfaces ) ? array_map( static function( InterfaceType $interface ) {
+			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
+			$interface_names = ! empty( $interfaces ) ? array_map( static function ( InterfaceType $interface ) {
 				return $interface->name;
 			}, $interfaces ) : [];
 
