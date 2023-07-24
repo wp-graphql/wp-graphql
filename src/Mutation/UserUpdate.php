@@ -61,7 +61,7 @@ class UserUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			// Get the user ID.
 			$user_id = Utils::get_database_id_from_id( $input['id'] );
 

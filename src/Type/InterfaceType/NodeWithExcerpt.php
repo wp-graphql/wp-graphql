@@ -28,7 +28,7 @@ class NodeWithExcerpt {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function ( $source, $args ) {
+						'resolve'     => static function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->excerptRaw;

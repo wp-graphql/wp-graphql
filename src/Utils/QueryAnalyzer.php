@@ -310,7 +310,7 @@ class QueryAnalyzer {
 	 *
 	 * @return  \GraphQL\Type\Definition\Type|String|null
 	 */
-	public function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
+	public static function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
 
 		if ( ! isset( $parent_type->name ) || 'RootQuery' !== $parent_type->name ) {
 			return null;
@@ -322,7 +322,7 @@ class QueryAnalyzer {
 				$is_list_type = true;
 			}
 
-			return $this->get_wrapped_field_type( $type->getWrappedType(), $field_def, $parent_type, $is_list_type );
+			return self::get_wrapped_field_type( $type->getWrappedType(), $field_def, $parent_type, $is_list_type );
 		}
 
 		// Determine if we're dealing with a connection
@@ -395,8 +395,7 @@ class QueryAnalyzer {
 		$type_info = new TypeInfo( $schema );
 
 		$visitor = [
-			'enter' => function ( Node $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
-
+			'enter' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 				$parent_type = $type_info->getParentType();
 
 				if ( 'Field' !== $node->kind ) {
@@ -412,7 +411,7 @@ class QueryAnalyzer {
 
 				// Determine the wrapped type, which also determines if it's a listOf
 				$field_type = $field_def->getType();
-				$field_type = $this->get_wrapped_field_type( $field_type, $field_def, $parent_type );
+				$field_type = self::get_wrapped_field_type( $field_type, $field_def, $parent_type );
 
 				if ( null === $field_type ) {
 					return;
@@ -447,7 +446,7 @@ class QueryAnalyzer {
 				}
 
 			},
-			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];
@@ -527,7 +526,7 @@ class QueryAnalyzer {
 					$type_map[] = strtolower( $named_type );
 				}
 			},
-			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];
@@ -574,7 +573,7 @@ class QueryAnalyzer {
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
 		$visitor   = [
-			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+			'enter' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 				$type_info->enter( $node );
 				$type = $type_info->getType();
 				if ( ! $type ) {
@@ -598,7 +597,7 @@ class QueryAnalyzer {
 					$type_map[] = $named_type->config['model'];
 				}
 			},
-			'leave' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];

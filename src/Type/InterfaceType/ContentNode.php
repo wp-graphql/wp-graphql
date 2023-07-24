@@ -32,7 +32,7 @@ class ContentNode {
 				'connections' => [
 					'contentType'         => [
 						'toType'   => 'ContentType',
-						'resolve'  => function ( Post $source, $args, $context, $info ) {
+						'resolve'  => static function ( Post $source, $args, $context, $info ) {
 
 							if ( $source->isRevision ) {
 								$parent    = get_post( $source->parentDatabaseId );
@@ -53,7 +53,7 @@ class ContentNode {
 					],
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -61,13 +61,13 @@ class ContentNode {
 					],
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
 						},
 					],
 				],
-				'resolveType' => function ( Post $post ) use ( $type_registry ) {
+				'resolveType' => static function ( Post $post ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
@@ -100,7 +100,7 @@ class ContentNode {
 					'contentTypeName'           => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'The name of the Content Type the node belongs to', 'wp-graphql' ),
-						'resolve'     => function ( $node ) {
+						'resolve'     => static function ( $node ) {
 							return $node->post_type;
 						},
 					],

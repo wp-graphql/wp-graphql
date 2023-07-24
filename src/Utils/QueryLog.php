@@ -149,7 +149,7 @@ class QueryLog {
 		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
-			$queries = array_map( function ( $query ) {
+			$queries = array_map( static function ( $query ) {
 				return [
 					'sql'   => $query[0],
 					'time'  => $query[1],

@@ -727,7 +727,7 @@ class Post extends Model {
 					},
 					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
 				],
-				'enqueuedScriptsQueue'      => function () {
+				'enqueuedScriptsQueue'      => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_scripts->queue;
@@ -736,7 +736,7 @@ class Post extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue'  => function () {
+				'enqueuedStylesheetsQueue'  => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;

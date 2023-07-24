@@ -56,7 +56,7 @@ class CommentAuthor {
 							],
 
 						],
-						'resolve' => function ( $comment_author, $args, $context, $info ) {
+						'resolve' => static function ( $comment_author, $args, $context, $info ) {
 							/**
 							 * If the $comment_author is a user, the User model only returns the email address if the requesting user is authenticated.
 							 * But, to resolve the Avatar we need a valid email, even for unauthenticated requests.

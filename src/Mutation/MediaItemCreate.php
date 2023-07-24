@@ -103,7 +103,7 @@ class MediaItemCreate {
 			'mediaItem' => [
 				'type'        => 'MediaItem',
 				'description' => __( 'The MediaItem object mutation type.', 'wp-graphql' ),
-				'resolve'     => function ( $payload, $args, AppContext $context ) {
+				'resolve'     => static function ( $payload, $args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}
@@ -120,7 +120,7 @@ class MediaItemCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			/**
 			 * Stop now if a user isn't allowed to upload a mediaItem
 			 */
