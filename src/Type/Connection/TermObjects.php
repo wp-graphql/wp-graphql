@@ -36,7 +36,7 @@ class TermObjects {
 						],
 					]
 				),
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'resolve'        => static function ( $source, $args, $context, $info ) {
 					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
 					$connection = $resolver->get_connection();
@@ -96,7 +96,7 @@ class TermObjects {
 			'toType'         => $tax_object->graphql_single_name,
 			'fromFieldName'  => $tax_object->graphql_plural_name,
 			'connectionArgs' => self::get_connection_args(),
-			'resolve'        => function ( $root, $args, $context, $info ) use ( $tax_object ) {
+			'resolve'        => static function ( $root, $args, $context, $info ) use ( $tax_object ) {
 				return DataSource::resolve_term_objects_connection( $root, $args, $context, $info, $tax_object->name );
 			},
 		];

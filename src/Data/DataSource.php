@@ -193,12 +193,14 @@ class DataSource {
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
 		if ( ! in_array( $taxonomy, $allowed_taxonomies, true ) ) {
+			// translators: %s is the name of the taxonomy.
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
 
 		$tax_object = get_taxonomy( $taxonomy );
 
 		if ( ! $tax_object instanceof \WP_Taxonomy ) {
+			// translators: %s is the name of the taxonomy.
 			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
 		}
 
@@ -257,6 +259,7 @@ class DataSource {
 		if ( $theme->exists() ) {
 			return new Theme( $theme );
 		} else {
+			// translators: %s is the name of the theme stylesheet.
 			throw new UserError( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
 		}
 	}
@@ -328,6 +331,7 @@ class DataSource {
 		$role = isset( wp_roles()->roles[ $name ] ) ? wp_roles()->roles[ $name ] : null;
 
 		if ( null === $role ) {
+			// translators: %s is the name of the user role.
 			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
 		} else {
 			$role                = (array) $role;
@@ -546,11 +550,11 @@ class DataSource {
 
 			$node_definition = Relay::nodeDefinitions(
 			// The ID fetcher definition
-				function ( $global_id, AppContext $context, ResolveInfo $info ) {
+				static function ( $global_id, AppContext $context, ResolveInfo $info ) {
 					self::resolve_node( $global_id, $context, $info );
 				},
 				// Type resolver
-				function ( $node ) {
+				static function ( $node ) {
 					self::resolve_node_type( $node );
 				}
 			);
@@ -701,6 +705,7 @@ class DataSource {
 			return null;
 
 		} else {
+			// translators: %s is the global ID.
 			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
 		}
 	}

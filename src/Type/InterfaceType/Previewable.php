@@ -35,7 +35,7 @@ class Previewable {
 						'description' => __( 'Whether the object is a node in the preview state', 'wp-graphql' ),
 					],
 				],
-				'resolveType' => function ( Post $post ) use ( $type_registry ) {
+				'resolveType' => static function ( Post $post ) use ( $type_registry ) {
 
 					$type = 'Post';
 

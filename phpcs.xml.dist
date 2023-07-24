@@ -81,9 +81,6 @@
 		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
 
-		<!-- Should maybe Add Back Later -->
-		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
-		
 		<!-- Should probably not be added back -->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
@@ -102,4 +99,7 @@
 
 	<!-- Use FQCN for PHPDoc types -->
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
+	<!-- Enforce static closures -->
+	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+
 </ruleset>

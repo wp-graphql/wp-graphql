@@ -316,8 +316,70 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertSame( [ 'list:page' ], $types );
 
+	}
 
+	public function testNonNullListOfNonNullPostMapsToListOfPosts() {
+
+		register_graphql_field( 'RootQuery', 'listOfThing', [
+			'type' => [
+				'non_null' => [
+					'list_of' => [
+						'non_null' => 'Post'
+					],
+				],
+			],
+		]);
+
+		$query = '
+		{
+		  listOfThing {
+		    __typename
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true );
+
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+
+		$this->assertContains( 'list:post', $types );
 
 	}
+
+	public function testListOfNonNullPostMapsToListOfPosts() {
+
+		register_graphql_field( 'RootQuery', 'listOfThing', [
+			'type' => [
+				'list_of' => [
+					'non_null' => 'Post'
+				],
+			],
+		]);
+
+		$query = '
+		{
+		  listOfThing {
+		    __typename
+		  }
+		}
+		';
+
+		$request = graphql([
+			'query' => $query,
+		], true );
+
+		$request->execute();
+
+		$types = $request->get_query_analyzer()->get_list_types();
+
+		$this->assertContains( 'list:post', $types );
+
+	}
+
+
 
 }

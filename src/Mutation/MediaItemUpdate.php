@@ -66,7 +66,7 @@ class MediaItemUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			$post_type_object = get_post_type_object( 'attachment' );
 
 			if ( empty( $post_type_object ) ) {

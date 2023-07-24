@@ -32,7 +32,7 @@ class User {
 				'connections' => [
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -40,7 +40,7 @@ class User {
 					],
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -52,7 +52,7 @@ class User {
 						'queryClass'         => 'WP_Query',
 						'description'        => __( 'Connection between the User and Revisions authored by the user', 'wp-graphql' ),
 						'connectionArgs'     => PostObjects::get_connection_args(),
-						'resolve'            => function ( $root, $args, $context, $info ) {
+						'resolve'            => static function ( $root, $args, $context, $info ) {
 							$resolver = new PostObjectConnectionResolver( $root, $args, $context, $info, 'revision' );
 
 							return $resolver->get_connection();
@@ -61,7 +61,7 @@ class User {
 					'roles'               => [
 						'toType'        => 'UserRole',
 						'fromFieldName' => 'roles',
-						'resolve'       => function ( UserModel $user, $args, $context, $info ) {
+						'resolve'       => static function ( UserModel $user, $args, $context, $info ) {
 							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
 							// Only get roles matching the slugs of the roles belonging to the user
 
@@ -80,7 +80,7 @@ class User {
 					'databaseId'             => [
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
-						'resolve'     => function ( \WPGraphQL\Model\User $user ) {
+						'resolve'     => static function ( \WPGraphQL\Model\User $user ) {
 							return absint( $user->userId );
 						},
 					],
@@ -178,7 +178,7 @@ class User {
 							],
 
 						],
-						'resolve' => function ( $user, $args, $context, $info ) {
+						'resolve' => static function ( $user, $args, $context, $info ) {
 
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {

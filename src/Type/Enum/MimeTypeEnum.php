@@ -26,7 +26,11 @@ class MimeTypeEnum {
 			foreach ( $allowed_mime_types as $mime_type ) {
 				$values[ WPEnumType::get_safe_name( $mime_type ) ] = [
 					'value'       => $mime_type,
-					'description' => sprintf( __( 'MimeType %s', 'wp-graphql' ), $mime_type ),
+					'description' => sprintf(
+						// translators: %s is the mime type.
+						__( '%s mime type.', 'wp-graphql' ),
+						$mime_type
+					),
 				];
 			}
 		}

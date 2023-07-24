@@ -65,6 +65,7 @@ class PostObject {
 		if ( empty( $post_type_object->graphql_resolve_type ) || ! is_callable( $post_type_object->graphql_resolve_type ) ) {
 			graphql_debug(
 				sprintf(
+					// translators: %1$s is the post type name, %2$s is the graphql kind.
 					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
 					$single_name,
 					$post_type_object->graphql_kind
@@ -115,7 +116,7 @@ class PostObject {
 			$connections['comments'] = [
 				'toType'         => 'Comment',
 				'connectionArgs' => Comments::get_connection_args(),
-				'resolve'        => function ( Post $post, $args, $context, $info ) {
+				'resolve'        => static function ( Post $post, $args, $context, $info ) {
 
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
@@ -136,8 +137,12 @@ class PostObject {
 				'toType'             => $post_type_object->graphql_single_name,
 				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
 				'oneToOne'           => true,
-				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null : sprintf( __( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) ),
-				'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null
+					: sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
+					),
+				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
 						return null;
 					}
@@ -161,7 +166,7 @@ class PostObject {
 				'toType'             => $post_type_object->graphql_single_name,
 				'queryClass'         => 'WP_Query',
 				'connectionArgs'     => PostObjects::get_connection_args( [], $post_type_object ),
-				'resolve'            => function ( Post $post, $args, $context, $info ) {
+				'resolve'            => static function ( Post $post, $args, $context, $info ) {
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
 					$resolver->set_query_arg( 'post_parent', $post->ID );
 
@@ -193,7 +198,7 @@ class PostObject {
 							],
 						]
 					),
-					'resolve'        => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'        => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
 						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
 
@@ -216,7 +221,7 @@ class PostObject {
 				'toType'         => $tax_object->graphql_single_name,
 				'queryClass'     => 'WP_Term_Query',
 				'connectionArgs' => TermObjects::get_connection_args(),
-				'resolve'        => function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
+				'resolve'        => static function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
 
 					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
@@ -355,7 +360,7 @@ class PostObject {
 				],
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => function ( Post $post, $args, $context, $info ) {
+				'resolve'           => static function ( Post $post, $args, $context, $info ) {
 					return absint( $post->ID );
 				},
 			],
@@ -435,7 +440,7 @@ class PostObject {
 							'description' => __( 'Format of the field output', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => function ( $source, $args ) {
+					'resolve'     => static function ( $source, $args ) {
 						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 							// @codingStandardsIgnoreLine.
 							return $source->captionRaw;
@@ -458,7 +463,7 @@ class PostObject {
 						],
 					],
 					'description' => __( 'The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths.', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args ) {
+					'resolve'     => static function ( $source, $args ) {
 						$size = 'medium';
 						if ( ! empty( $args['size'] ) ) {
 							$size = $args['size'];
@@ -478,7 +483,7 @@ class PostObject {
 						],
 					],
 					'description' => __( 'The sizes attribute value for an image.', 'wp-graphql' ),
-					'resolve'     => function ( $source, $args ) {
+					'resolve'     => static function ( $source, $args ) {
 						$size = 'medium';
 						if ( ! empty( $args['size'] ) ) {
 							$size = $args['size'];
@@ -507,7 +512,7 @@ class PostObject {
 							'description' => __( 'Format of the field output', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => function ( $source, $args ) {
+					'resolve'     => static function ( $source, $args ) {
 						if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 							// @codingStandardsIgnoreLine.
 							return $source->descriptionRaw;
@@ -534,7 +539,7 @@ class PostObject {
 							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => function ( $image, $args, $context, $info ) {
+					'resolve'     => static function ( $image, $args, $context, $info ) {
 						// @codingStandardsIgnoreLine.
 						$size = null;
 						if ( isset( $args['size'] ) ) {
@@ -553,7 +558,7 @@ class PostObject {
 							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => function ( $image, $args, $context, $info ) {
+					'resolve'     => static function ( $image, $args, $context, $info ) {
 
 						// @codingStandardsIgnoreLine.
 						$size = null;

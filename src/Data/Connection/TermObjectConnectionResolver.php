@@ -289,7 +289,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 					case 'termTaxonomId':
 					case 'termTaxonomyId':
 						if ( is_array( $input_value ) ) {
-							$args['where'][ $input_key ] = array_map( function ( $id ) {
+							$args['where'][ $input_key ] = array_map( static function ( $id ) {
 								return Utils::get_database_id_from_id( $id );
 							}, $input_value );
 							break;

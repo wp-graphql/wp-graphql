@@ -172,7 +172,7 @@ class Term extends Model {
 				'parentDatabaseId'         => function () {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
-				'enqueuedScriptsQueue'     => function () {
+				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
 					$wp_scripts->reset();
 					do_action( 'wp_enqueue_scripts' );
@@ -182,7 +182,7 @@ class Term extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function () {
+				'enqueuedStylesheetsQueue' => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;

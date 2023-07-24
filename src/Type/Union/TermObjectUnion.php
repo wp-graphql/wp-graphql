@@ -27,7 +27,7 @@ class TermObjectUnion {
 				'kind'        => 'union',
 				'typeNames'   => self::get_possible_types(),
 				'description' => __( 'Union between the Category, Tag and PostFormatPost types', 'wp-graphql' ),
-				'resolveType' => function ( $value ) use ( $type_registry ) {
+				'resolveType' => static function ( $value ) use ( $type_registry ) {
 					_doing_it_wrong( 'TermObjectUnion', esc_attr__( 'The TermObjectUnion GraphQL type is deprecated. Use the TermNode interface instead.', 'wp-graphql' ), '1.14.1' );
 
 					$type = null;

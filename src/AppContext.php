@@ -168,6 +168,7 @@ class AppContext {
 	 */
 	public function get_loader( $key ) {
 		if ( ! array_key_exists( $key, $this->loaders ) ) {
+			// translators: %s is the key of the loader that was not found.
 			throw new UserError( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) );
 		}
 

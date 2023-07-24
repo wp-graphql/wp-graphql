@@ -400,10 +400,13 @@ abstract class AbstractConnectionResolver {
 	 * @return array the array of IDs.
 	 */
 	public function get_ids_from_query() {
-		throw new Exception( sprintf(
-			__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-			get_class( $this )
-		) );
+		throw new Exception(
+			sprintf(
+				// translators: %s is the name of the connection resolver class.
+				__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
+				get_class( $this )
+			)
+		);
 	}
 
 	/**

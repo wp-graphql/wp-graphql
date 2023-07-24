@@ -78,7 +78,7 @@ class PostObjectUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
-		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
 			// Get the database ID for the comment.
 			$post_id       = Utils::get_database_id_from_id( $input['id'] );
 			$existing_post = ! empty( $post_id ) ? get_post( $post_id ) : null;

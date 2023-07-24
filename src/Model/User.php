@@ -185,7 +185,7 @@ class User extends Model {
 						$capabilities = array_keys(
 							array_filter(
 								$this->data->allcaps,
-								function ( $cap ) {
+								static function ( $cap ) {
 									return true === $cap;
 								}
 							)
@@ -255,7 +255,7 @@ class User extends Model {
 
 					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
 				},
-				'enqueuedScriptsQueue'     => function () {
+				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_scripts->queue;
@@ -264,7 +264,7 @@ class User extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function () {
+				'enqueuedStylesheetsQueue' => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;

@@ -65,7 +65,7 @@ class TermObjectDelete {
 			'deletedId'                    => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['termObject'];
 
 					return ! empty( $deleted->term_id ) ? Relay::toGlobalId( 'term', $deleted->term_id ) : null;
@@ -74,7 +74,7 @@ class TermObjectDelete {
 			$taxonomy->graphql_single_name => [
 				'type'        => $taxonomy->graphql_single_name,
 				'description' => __( 'The deteted term object', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					return new Term( $payload['termObject'] );
 				},
 			],
@@ -90,7 +90,7 @@ class TermObjectDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
-		return function ( $input ) use ( $taxonomy ) {
+		return static function ( $input ) use ( $taxonomy ) {
 			// Get the database ID for the comment.
 			$term_id = Utils::get_database_id_from_id( $input['id'] );
 

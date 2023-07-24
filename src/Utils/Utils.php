@@ -54,7 +54,7 @@ class Utils {
 
 			if ( is_array( $value ) && ! empty( $value ) ) {
 				$value = array_map(
-					function ( $value ) {
+					static function ( $value ) {
 						if ( is_string( $value ) ) {
 							$value = sanitize_text_field( $value );
 						}

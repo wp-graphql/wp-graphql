@@ -24,7 +24,7 @@ class MenuItemLinkable {
 			'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 			'fields'      => [],
-			'resolveType' => function ( $node ) use ( $type_registry ) {
+			'resolveType' => static function ( $node ) use ( $type_registry ) {
 
 				switch ( true ) {
 					case $node instanceof Post:

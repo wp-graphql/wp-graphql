@@ -183,7 +183,7 @@ final class WPGraphQL {
 
 				add_action(
 					'admin_notices',
-					function () {
+					static function () {
 
 						if ( ! current_user_can( 'manage_options' ) ) {
 							return;
@@ -238,7 +238,7 @@ final class WPGraphQL {
 		 */
 		add_action(
 			'after_setup_theme',
-			function () {
+			static function () {
 
 				new \WPGraphQL\Data\Config();
 				$router = new Router();
@@ -288,7 +288,7 @@ final class WPGraphQL {
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
-		add_action('init_graphql_request', function () {
+		add_action('init_graphql_request', static function () {
 			$tracing = new \WPGraphQL\Utils\Tracing();
 			$tracing->init();
 
@@ -309,7 +309,14 @@ final class WPGraphQL {
 	 */
 	public function min_php_version_check() {
 		if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
-			throw new \Exception( sprintf( __( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ), PHP_VERSION, GRAPHQL_MIN_PHP_VERSION ) );
+			throw new \Exception(
+				sprintf(
+					// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
+					__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
+					PHP_VERSION,
+					GRAPHQL_MIN_PHP_VERSION
+				)
+			);
 		}
 
 	}
@@ -385,7 +392,7 @@ final class WPGraphQL {
 		 *
 		 * @deprecated
 		 */
-		add_filter('graphql_type_interfaces', function ( $interfaces, $config, $type ) {
+		add_filter('graphql_type_interfaces', static function ( $interfaces, $config, $type ) {
 
 			if ( $type instanceof WPObjectType ) {
 				/**
