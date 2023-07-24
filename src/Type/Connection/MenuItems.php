@@ -40,7 +40,7 @@ class MenuItems {
 				[
 					'fromType'      => 'MenuItem',
 					'fromFieldName' => 'childItems',
-					'resolve'       => function ( MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'       => static function ( MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 
 						if ( empty( $menu_item->menuId ) || empty( $menu_item->databaseId ) ) {
 							return null;
@@ -65,7 +65,7 @@ class MenuItems {
 				[
 					'fromType' => 'Menu',
 					'toType'   => 'MenuItem',
-					'resolve'  => function ( Menu $menu, $args, AppContext $context, ResolveInfo $info ) {
+					'resolve'  => static function ( Menu $menu, $args, AppContext $context, ResolveInfo $info ) {
 
 						$resolver = new MenuItemConnectionResolver( $menu, $args, $context, $info );
 						$resolver->set_query_arg( 'tax_query', [
@@ -117,7 +117,7 @@ class MenuItems {
 						'description' => __( 'The database ID of the parent menu object', 'wp-graphql' ),
 					],
 				],
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'resolve'        => static function ( $source, $args, $context, $info ) {
 					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
 					$connection = $resolver->get_connection();
 

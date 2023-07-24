@@ -24,7 +24,7 @@ class Commenter {
 		register_graphql_interface_type( 'Commenter', [
 			'description' => __( 'The author of a comment', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
-			'resolveType' => function ( $comment_author ) use ( $type_registry ) {
+			'resolveType' => static function ( $comment_author ) use ( $type_registry ) {
 				if ( $comment_author instanceof User ) {
 					$type = $type_registry->get_type( 'User' );
 				} else {

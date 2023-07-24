@@ -103,7 +103,7 @@ class MediaItemCreate {
 			'mediaItem' => [
 				'type'        => 'MediaItem',
 				'description' => __( 'The MediaItem object mutation type.', 'wp-graphql' ),
-				'resolve'     => function ( $payload, $args, AppContext $context ) {
+				'resolve'     => static function ( $payload, $args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}
@@ -120,7 +120,7 @@ class MediaItemCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			/**
 			 * Stop now if a user isn't allowed to upload a mediaItem
 			 */
@@ -160,6 +160,7 @@ class MediaItemCreate {
 
 			// if the file doesn't pass the check, throw an error
 			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
+				// translators: %s is the file path.
 				throw new UserError( sprintf( __( 'Invalid filePath "%s"', 'wp-graphql' ), $input['filePath'] ) );
 			}
 
@@ -180,7 +181,14 @@ class MediaItemCreate {
 			$allowed_protocols = apply_filters( 'graphql_media_item_create_allowed_protocols', $allowed_protocols, $protocol, $input, $context, $info );
 
 			if ( ! in_array( $protocol, $allowed_protocols, true ) ) {
-				throw new UserError( sprintf( __( 'Invalid protocol. "%1$s". Only "%2$s" allowed.', 'wp-graphql' ), $protocol, implode( '", "', $allowed_protocols ) ) );
+				throw new UserError(
+					sprintf(
+						// translators: %1$s is the protocol, %2$s is the list of allowed protocols.
+						__( 'Invalid protocol. "%1$s". Only "%2$s" allowed.', 'wp-graphql' ),
+						$protocol,
+						implode( '", "', $allowed_protocols )
+					)
+				);
 			}
 
 			/**

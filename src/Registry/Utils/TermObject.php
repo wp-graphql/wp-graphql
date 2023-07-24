@@ -34,8 +34,11 @@ class TermObject {
 		$single_name = $tax_object->graphql_single_name;
 
 		$config = [
-			/* translators: post object singular name w/ description */
-			'description' => sprintf( __( 'The %s type', 'wp-graphql' ), $single_name ),
+			'description' => sprintf(
+				// translators: %s is the term object singular name.
+				__( 'The %s type', 'wp-graphql' ),
+				$single_name
+			),
 			'connections' => static::get_connections( $tax_object ),
 			'interfaces'  => static::get_interfaces( $tax_object ),
 			'fields'      => static::get_fields( $tax_object ),
@@ -58,6 +61,7 @@ class TermObject {
 		if ( empty( $tax_object->graphql_resolve_type ) || ! is_callable( $tax_object->graphql_resolve_type ) ) {
 			graphql_debug(
 				sprintf(
+					// translators: %1$s is the term object singular name, %2$s is the graphql kind.
 					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
 					$single_name,
 					$tax_object->graphql_kind
@@ -108,7 +112,7 @@ class TermObject {
 		$connections['taxonomy'] = [
 			'toType'   => 'Taxonomy',
 			'oneToOne' => true,
-			'resolve'  => function ( Term $source, $args, $context, $info ) {
+			'resolve'  => static function ( Term $source, $args, $context, $info ) {
 				if ( empty( $source->taxonomyName ) ) {
 					return null;
 				}
@@ -123,13 +127,14 @@ class TermObject {
 			$connections['children'] = [
 				'toType'         => $tax_object->graphql_single_name,
 				'description'    => sprintf(
+					// translators: %1$s is the term object singular name, %2$s is the term object plural name.
 					__( 'Connection between the %1$s type and its children %2$s.', 'wp-graphql' ),
 					$tax_object->graphql_single_name,
 					$tax_object->graphql_plural_name
 				),
 				'connectionArgs' => TermObjects::get_connection_args(),
 				'queryClass'     => 'WP_Term_Query',
-				'resolve'        => function ( Term $term, $args, AppContext $context, $info ) {
+				'resolve'        => static function ( Term $term, $args, AppContext $context, $info ) {
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
 					$resolver->set_query_arg( 'parent', $term->term_id );
 
@@ -142,12 +147,13 @@ class TermObject {
 			$connections['parent'] = [
 				'toType'             => $tax_object->graphql_single_name,
 				'description'        => sprintf(
+					// translators: %s is the term object singular name.
 					__( 'Connection between the %1$s type and its parent %1$s.', 'wp-graphql' ),
 					$tax_object->graphql_single_name
 				),
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToParent' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 				'oneToOne'           => true,
-				'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+				'resolve'            => static function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 					if ( ! isset( $term->parentDatabaseId ) || empty( $term->parentDatabaseId ) ) {
 						return null;
 					}
@@ -164,7 +170,7 @@ class TermObject {
 				'toType'             => $tax_object->graphql_single_name,
 				'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
-				'resolve'            => function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
+				'resolve'            => static function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
 					if ( ! $tax_object instanceof WP_Taxonomy ) {
 						return null;
 					}
@@ -199,7 +205,7 @@ class TermObject {
 
 				$connections['contentNodes'] = PostObjects::get_connection_config( $tax_object, [
 					'toType'  => 'ContentNode',
-					'resolve' => function ( Term $term, $args, $context, $info ) {
+					'resolve' => static function ( Term $term, $args, $context, $info ) {
 						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
 						$resolver->set_query_arg( 'tax_query', [
 							[
@@ -222,7 +228,7 @@ class TermObject {
 			$connections[ $post_type_object->graphql_plural_name ] = PostObjects::get_connection_config( $post_type_object, [
 				'toType'     => $post_type_object->graphql_single_name,
 				'queryClass' => 'WP_Query',
-				'resolve'    => function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
+				'resolve'    => static function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 					$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
 					$resolver->set_query_arg( 'tax_query', [
 						[
@@ -301,12 +307,12 @@ class TermObject {
 				'type'              => 'Int',
 				'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => function ( Term $term, $args, $context, $info ) {
+				'resolve'           => static function ( Term $term, $args, $context, $info ) {
 					return absint( $term->term_id );
 				},
 			],
 			'uri'               => [
-				'resolve' => function ( $term, $args, $context, $info ) {
+				'resolve' => static function ( $term, $args, $context, $info ) {
 					$url = $term->link;
 					if ( ! empty( $url ) ) {
 						$parsed = wp_parse_url( $url );

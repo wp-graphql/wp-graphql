@@ -157,7 +157,7 @@ class UserLoader extends AbstractDataLoader {
 		 */
 		return array_reduce(
 			$keys,
-			function ( $carry, $key ) use ( $public_users ) {
+			static function ( $carry, $key ) use ( $public_users ) {
 				$user = get_user_by( 'id', $key ); // Cached via previous WP_User_Query.
 
 				if ( $user instanceof \WP_User ) {

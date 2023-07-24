@@ -81,7 +81,7 @@ class TermObjectUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, $mutation_name ) {
-		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 			$term_id = Utils::get_database_id_from_id( $input['id'] );
 
 			/**

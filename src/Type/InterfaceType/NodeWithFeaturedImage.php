@@ -29,7 +29,7 @@ class NodeWithFeaturedImage {
 					'featuredImage' => [
 						'toType'   => 'MediaItem',
 						'oneToOne' => true,
-						'resolve'  => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'  => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 
 							if ( empty( $post->featuredImageDatabaseId ) ) {
 								return null;

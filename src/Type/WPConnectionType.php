@@ -169,7 +169,7 @@ class WPConnectionType {
 		$this->connection_args            = array_key_exists( 'connectionArgs', $config ) && is_array( $config['connectionArgs'] ) ? $config['connectionArgs'] : [];
 		$this->edge_fields                = array_key_exists( 'edgeFields', $config ) && is_array( $config['edgeFields'] ) ? $config['edgeFields'] : [];
 		$this->resolve_cursor             = array_key_exists( 'resolveCursor', $config ) && is_callable( $config['resolve'] ) ? $config['resolveCursor'] : null;
-		$this->resolve_connection         = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : function () {
+		$this->resolve_connection         = array_key_exists( 'resolve', $config ) && is_callable( $config['resolve'] ) ? $config['resolve'] : static function () {
 			return null;
 		};
 		$this->where_args                 = [];
@@ -284,8 +284,11 @@ class WPConnectionType {
 		$this->type_registry->register_input_type(
 			$input_name,
 			[
-				// Translators: Placeholder is the name of the connection
-				'description' => sprintf( __( 'Arguments for filtering the %s connection', 'wp-graphql' ), $this->connection_name ),
+				'description' => sprintf(
+					// translators: %s is the name of the connection
+					__( 'Arguments for filtering the %s connection', 'wp-graphql' ),
+					$this->connection_name
+				),
 				'fields'      => $this->connection_args,
 				'queryClass'  => $this->query_class,
 			]
@@ -324,8 +327,12 @@ class WPConnectionType {
 			$this->connection_name . 'Edge',
 			[
 				'interfaces'  => $interfaces,
-				// Translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
-				'description' => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'description' => sprintf(
+					// translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
+					__( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ),
+					$this->from_type,
+					$this->to_type
+				),
 				'fields'      => array_merge(
 					[
 						'node' => [
@@ -355,7 +362,11 @@ class WPConnectionType {
 
 		$this->type_registry->register_object_type( $this->connection_name . 'PageInfo', [
 			'interfaces'  => [ $this->to_type . 'ConnectionPageInfo' ],
-			'description' => sprintf( __( 'Page Info on the "%s"', 'wp-graphql' ), $this->connection_name ),
+			'description' => sprintf(
+				// translators: %s is the name of the connection.
+				__( 'Page Info on the "%s"', 'wp-graphql' ),
+				$this->connection_name
+			),
 			'fields'      => PageInfo::get_fields(),
 		] );
 
@@ -429,8 +440,12 @@ class WPConnectionType {
 		$this->type_registry->register_object_type(
 			$this->connection_name,
 			[
-				// Translators: the placeholders are the name of the Types the connection is between.
-				'description'       => sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+				'description'       => sprintf(
+					// translators: the placeholders are the name of the Types the connection is between.
+					__( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ),
+					$this->from_type,
+					$this->to_type
+				),
 				'interfaces'        => $interfaces,
 				'connection_config' => $this->config,
 				'fields'            => $this->get_connection_fields(),
@@ -454,7 +469,7 @@ class WPConnectionType {
 				],
 				'edges'    => [
 					'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->connection_name . 'Edge' ] ] ],
-					// Translators: Placeholder is the name of the connection
+					// translators: %s is the name of the connection.
 					'description' => sprintf( __( 'Edges for the %s connection', 'wp-graphql' ), $this->connection_name ),
 				],
 				'nodes'    => [
@@ -519,7 +534,14 @@ class WPConnectionType {
 			'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
 			'auth'                  => $this->auth,
 			'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-			'description'           => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ), $this->from_type, $this->to_type ),
+			'description'           => ! empty( $this->config['description'] ) 
+				? $this->config['description']
+				: sprintf(
+					// translators: the placeholders are the name of the Types the connection is between.
+					__( 'Connection between the %1$s type and the %2$s type', 'wp-graphql' ),
+					$this->from_type,
+					$this->to_type
+				),
 			'resolve'               => function ( $root, $args, $context, $info ) {
 				$context->connection_query_class = $this->query_class;
 				$resolve_connection              = $this->resolve_connection;
@@ -551,6 +573,7 @@ class WPConnectionType {
 		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionPageInfo' ) ) {
 			$this->type_registry->register_interface_type( $this->to_type . 'ConnectionPageInfo', [
 				'interfaces'  => [ 'WPPageInfo' ],
+				// translators: %s is the name of the connection edge.
 				'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
 				'fields'      => PageInfo::get_fields(),
 			] );
@@ -561,10 +584,12 @@ class WPConnectionType {
 
 			$this->type_registry->register_interface_type( $connection_edge_type, [
 				'interfaces'  => [ 'Edge' ],
+				// translators: %s is the name of the type the connection edge is to.
 				'description' => sprintf( __( 'Edge between a Node and a connected %s', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
 					'node' => [
 						'type'        => [ 'non_null' => $this->to_type ],
+						// translators: %s is the name of the type the connection edge is to.
 						'description' => sprintf( __( 'The connected %s Node', 'wp-graphql' ), $this->to_type ),
 					],
 				],
@@ -575,17 +600,24 @@ class WPConnectionType {
 		if ( ! $this->one_to_one && ! $this->type_registry->has_type( $this->to_type . 'Connection' ) ) {
 			$this->type_registry->register_interface_type( $this->to_type . 'Connection', [
 				'interfaces'  => [ 'Connection' ],
+				// translators: %s is the name of the type the connection is to.
 				'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
 				'fields'      => [
 					'edges'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
-						'description' => sprintf( __( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ), $this->from_type, $this->to_type ),
+						'description' => sprintf(
+							// translators: %1$s is the name of the type the connection is from, %2$s is the name of the type the connection is to.
+							__( 'A list of edges (relational context) between %1$s and connected %2$s Nodes', 'wp-graphql' ),
+							$this->from_type,
+							$this->to_type
+						),
 					],
 					'pageInfo' => [
 						'type' => [ 'non_null' => $this->to_type . 'ConnectionPageInfo' ],
 					],
 					'nodes'    => [
 						'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $this->to_type ] ] ],
+						// translators: %s is the name of the type the connection is to.
 						'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 					],
 				],

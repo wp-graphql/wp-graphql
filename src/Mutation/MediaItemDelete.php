@@ -55,7 +55,7 @@ class MediaItemDelete {
 			'deletedId' => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['mediaItemObject'];
 
 					return ! empty( $deleted->ID ) ? Relay::toGlobalId( 'post', $deleted->ID ) : null;
@@ -64,7 +64,7 @@ class MediaItemDelete {
 			'mediaItem' => [
 				'type'        => 'MediaItem',
 				'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['mediaItemObject'];
 
@@ -80,7 +80,7 @@ class MediaItemDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input ) {
+		return static function ( $input ) {
 			// Get the database ID for the comment.
 			$media_item_id = Utils::get_database_id_from_id( $input['id'] );
 
@@ -96,6 +96,7 @@ class MediaItemDelete {
 
 			// Stop now if the post isn't a mediaItem.
 			if ( 'attachment' !== $existing_media_item->post_type ) {
+				// Translators: the placeholder is the post_type of the object being deleted
 				throw new UserError( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $existing_media_item->post_type ) );
 			}
 
@@ -118,7 +119,7 @@ class MediaItemDelete {
 			 * don't remove from the trash
 			 */
 			if ( 'trash' === $existing_media_item->post_status && true !== $force_delete ) {
-				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+				// translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
 				throw new UserError( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) );
 			}
 

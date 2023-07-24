@@ -97,12 +97,17 @@ class Settings {
 			[
 				'name'              => 'graphql_endpoint',
 				'label'             => __( 'GraphQL Endpoint', 'wp-graphql' ),
-				'desc'              => sprintf( __( 'The endpoint (path) for the GraphQL API on the site. <a target="_blank" href="%1$s/%2$s">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than "graphql" <em>could</em> have an affect on tooling in the GraphQL ecosystem', 'wp-graphql' ), site_url(), get_graphql_setting( 'graphql_endpoint', 'graphql' ) ),
+				'desc'              => sprintf(
+					// translators: %1$s is the site url, %2$s is the default endpoint
+					__( 'The endpoint (path) for the GraphQL API on the site. <a target="_blank" href="%1$s/%2$s">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than "graphql" <em>could</em> have an affect on tooling in the GraphQL ecosystem', 'wp-graphql' ),
+					site_url(),
+					get_graphql_setting( 'graphql_endpoint', 'graphql' )
+				),
 				'type'              => 'text',
 				'value'             => ! empty( $custom_endpoint ) ? $custom_endpoint : null,
 				'default'           => ! empty( $custom_endpoint ) ? $custom_endpoint : 'graphql',
 				'disabled'          => ! empty( $custom_endpoint ) ? true : false,
-				'sanitize_callback' => function ( $value ) {
+				'sanitize_callback' => static function ( $value ) {
 					if ( empty( $value ) ) {
 						add_settings_error( 'graphql_endpoint', 'required', __( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ), 'error' );
 
@@ -181,7 +186,10 @@ class Settings {
 			[
 				'name'     => 'debug_mode_enabled',
 				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
-				'desc'     => defined( 'GRAPHQL_DEBUG' ) ? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' ) : __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
+				'desc'     => defined( 'GRAPHQL_DEBUG' )
+					// translators: %s is the value of the GRAPHQL_DEBUG constant
+					? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' )
+					: __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 				'type'     => 'checkbox',
 				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
 				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
@@ -217,7 +225,11 @@ class Settings {
 			[
 				'name'     => 'public_introspection_enabled',
 				'label'    => __( 'Enable Public Introspection', 'wp-graphql' ),
-				'desc'     => sprintf( __( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s ', 'wp-graphql' ), true === \WPGraphQL::debug() ? '<strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : null ),
+				'desc'     => sprintf(
+					// translators: %s is either empty or a string with a note about debug mode.
+					__( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s ', 'wp-graphql' ),
+					true === \WPGraphQL::debug() ? '<strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : ''
+				),
 				'type'     => 'checkbox',
 				'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
 				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
