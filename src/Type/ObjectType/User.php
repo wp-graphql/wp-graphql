@@ -67,6 +67,9 @@ class User {
 
 							if ( isset( $user->roles ) && ! empty( $user->roles ) ) {
 								$resolver->set_query_arg( 'slugIn', $user->roles );
+							} else {
+								// If the user has no roles, we don't want to return any roles
+								$resolver->set_query_arg('slugIn', []);
 							}
 
 							return $resolver->get_connection();
