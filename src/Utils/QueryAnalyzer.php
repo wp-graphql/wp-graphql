@@ -310,7 +310,7 @@ class QueryAnalyzer {
 	 *
 	 * @return  \GraphQL\Type\Definition\Type|String|null
 	 */
-	public function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
+	public static function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
 
 		if ( ! isset( $parent_type->name ) || 'RootQuery' !== $parent_type->name ) {
 			return null;
@@ -322,7 +322,7 @@ class QueryAnalyzer {
 				$is_list_type = true;
 			}
 
-			return $this->get_wrapped_field_type( $type->getWrappedType(), $field_def, $parent_type, $is_list_type );
+			return self::get_wrapped_field_type( $type->getWrappedType(), $field_def, $parent_type, $is_list_type );
 		}
 
 		// Determine if we're dealing with a connection
@@ -411,7 +411,7 @@ class QueryAnalyzer {
 
 				// Determine the wrapped type, which also determines if it's a listOf
 				$field_type = $field_def->getType();
-				$field_type = $this->get_wrapped_field_type( $field_type, $field_def, $parent_type );
+				$field_type = self::get_wrapped_field_type( $field_type, $field_def, $parent_type );
 
 				if ( null === $field_type ) {
 					return;

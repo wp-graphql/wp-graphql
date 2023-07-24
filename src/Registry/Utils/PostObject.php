@@ -142,7 +142,7 @@ class PostObject {
 						// translators: %s is the post type's GraphQL name.
 						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
 					),
-				'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
 						return null;
 					}
