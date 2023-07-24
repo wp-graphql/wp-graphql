@@ -96,6 +96,7 @@ class MediaItemDelete {
 
 			// Stop now if the post isn't a mediaItem.
 			if ( 'attachment' !== $existing_media_item->post_type ) {
+				// Translators: the placeholder is the post_type of the object being deleted
 				throw new UserError( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $existing_media_item->post_type ) );
 			}
 
@@ -118,7 +119,7 @@ class MediaItemDelete {
 			 * don't remove from the trash
 			 */
 			if ( 'trash' === $existing_media_item->post_status && true !== $force_delete ) {
-				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+				// translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
 				throw new UserError( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) );
 			}
 

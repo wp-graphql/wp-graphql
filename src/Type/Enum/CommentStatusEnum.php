@@ -22,6 +22,7 @@ class CommentStatusEnum {
 		foreach ( $stati as $status => $name ) {
 
 			$values[ WPEnumType::get_safe_name( $status ) ] = [
+				// translators: %s is the name of the comment status
 				'description' => sprintf( __( 'Comments with the %1$s status', 'wp-graphql' ), $name ),
 				'value'       => $status,
 			];

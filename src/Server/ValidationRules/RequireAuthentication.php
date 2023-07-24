@@ -94,6 +94,7 @@ class RequireAuthentication extends QuerySecurityRule {
 						$context->reportError(
 							new Error(
 								sprintf(
+									// translators: %s is the field name
 									__( 'The field "%s" cannot be accessed without authentication.', 'wp-graphql' ),
 									$context->getParentType() . '.' . $node->name->value
 								),

@@ -83,8 +83,10 @@ class MenuItem extends Model {
 		}
 
 		if ( is_wp_error( $menus ) ) {
+			// translators: %s is the menu item ID.
 			throw new Exception( sprintf( __( 'No menus could be found for menu item %s', 'wp-graphql' ), $this->data->ID ) );
 		}
+
 		$menu_id = $menus[0];
 		if ( empty( $location_ids ) || ! in_array( $menu_id, $location_ids, true ) ) {
 			return true;
