@@ -137,6 +137,7 @@ class UpdateSettings {
 
 				$output_fields[ Utils::format_field_name( $setting_type_name ) ] = [
 					'type'        => $setting_type_name,
+					// translators: %s is the setting type name
 					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name ),
 					'resolve'     => static function () use ( $setting_type_name ) {
 						return $setting_type_name;

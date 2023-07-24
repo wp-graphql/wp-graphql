@@ -29,7 +29,7 @@ class TermObjectCreate {
 							'type'        => [
 								'non_null' => 'String',
 							],
-							// Translators: The placeholder is the name of the taxonomy for the object being mutated
+							// translators: The placeholder is the name of the taxonomy for the object being mutated
 							'description' => sprintf( __( 'The name of the %1$s object to mutate', 'wp-graphql' ), $taxonomy->name ),
 						],
 					]
@@ -51,12 +51,12 @@ class TermObjectCreate {
 		$fields = [
 			'aliasOf'     => [
 				'type'        => 'String',
-				// Translators: The placeholder is the name of the taxonomy for the object being mutated
+				// translators: The placeholder is the name of the taxonomy for the object being mutated
 				'description' => sprintf( __( 'The slug that the %1$s will be an alias of', 'wp-graphql' ), $taxonomy->name ),
 			],
 			'description' => [
 				'type'        => 'String',
-				// Translators: The placeholder is the name of the taxonomy for the object being mutated
+				// translators: The placeholder is the name of the taxonomy for the object being mutated
 				'description' => sprintf( __( 'The description of the %1$s object', 'wp-graphql' ), $taxonomy->name ),
 			],
 			'slug'        => [
@@ -71,7 +71,7 @@ class TermObjectCreate {
 		if ( true === $taxonomy->hierarchical ) {
 			$fields['parentId'] = [
 				'type'        => 'ID',
-				// Translators: The placeholder is the name of the taxonomy for the object being mutated
+				// translators: The placeholder is the name of the taxonomy for the object being mutated
 				'description' => sprintf( __( 'The ID of the %1$s that should be set as the parent', 'wp-graphql' ), $taxonomy->name ),
 			];
 		}
@@ -130,13 +130,14 @@ class TermObjectCreate {
 			 * Ensure a name was provided
 			 */
 			if ( empty( $args['name'] ) ) {
-				// Translators: The placeholder is the name of the taxonomy of the term being mutated
+				// translators: The placeholder is the name of the taxonomy of the term being mutated
 				throw new UserError( sprintf( __( 'A name is required to create a %1$s', 'wp-graphql' ), $taxonomy->name ) );
 			}
 
 			$term_name = wp_slash( $args['name'] );
 
 			if ( ! is_string( $term_name ) ) {
+				// translators: The placeholder is the name of the taxonomy of the term being mutated
 				throw new UserError( sprintf( __( 'A valid name is required to create a %1$s', 'wp-graphql' ), $taxonomy->name ) );
 			}
 

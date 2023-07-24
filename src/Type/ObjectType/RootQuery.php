@@ -682,7 +682,12 @@ class RootQuery {
 				$post_type_object->graphql_single_name,
 				[
 					'type'        => $post_type_object->graphql_single_name,
-					'description' => sprintf( __( 'An object of the %1$s Type. %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_type_object->description ),
+					'description' => sprintf(
+						// translators: %1$s is the post type GraphQL name, %2$s is the post type description
+						__( 'An object of the %1$s Type. %2$s', 'wp-graphql' ),
+						$post_type_object->graphql_single_name,
+						$post_type_object->description
+					),
 					'args'        => [
 						'id'        => [
 							'type'        => [
@@ -779,21 +784,37 @@ class RootQuery {
 			$post_by_args = [
 				'id'  => [
 					'type'        => 'ID',
-					'description' => sprintf( __( 'Get the object by its global ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'Get the %s object by its global ID', 'wp-graphql' ),
+						$post_type_object->graphql_single_name
+					),
 				],
 				$post_type_object->graphql_single_name . 'Id' => [
 					'type'        => 'Int',
-					'description' => sprintf( __( 'Get the %s by its database ID', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'Get the %s by its database ID', 'wp-graphql' ),
+						$post_type_object->graphql_single_name
+					),
 				],
 				'uri' => [
 					'type'        => 'String',
-					'description' => sprintf( __( 'Get the %s by its uri', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'Get the %s by its uri', 'wp-graphql' ),
+						$post_type_object->graphql_single_name
+					),
 				],
 			];
 			if ( false === $post_type_object->hierarchical ) {
 				$post_by_args['slug'] = [
 					'type'        => 'String',
-					'description' => sprintf( __( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ),
+						$post_type_object->graphql_single_name
+					),
 				];
 			}
 
@@ -806,7 +827,11 @@ class RootQuery {
 				[
 					'type'              => $post_type_object->graphql_single_name,
 					'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
-					'description'       => sprintf( __( 'A %s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description'       => sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'A %s object', 'wp-graphql' ),
+						$post_type_object->graphql_single_name
+					),
 					'args'              => $post_by_args,
 					'resolve'           => static function ( $source, array $args, $context ) use ( $post_type_object ) {
 						$post_object = null;
@@ -890,7 +915,11 @@ class RootQuery {
 				$tax_object->graphql_single_name,
 				[
 					'type'        => $tax_object->graphql_single_name,
-					'description' => sprintf( __( 'A % object', 'wp-graphql' ), $tax_object->graphql_single_name ),
+					'description' => sprintf(
+						// translators: %s is the taxonomys' GraphQL name.
+						__( 'A % object', 'wp-graphql' ),
+						$tax_object->graphql_single_name
+					),
 					'args'        => [
 						'id'     => [
 							'type'        => [

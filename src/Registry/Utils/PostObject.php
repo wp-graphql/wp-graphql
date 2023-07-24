@@ -65,6 +65,7 @@ class PostObject {
 		if ( empty( $post_type_object->graphql_resolve_type ) || ! is_callable( $post_type_object->graphql_resolve_type ) ) {
 			graphql_debug(
 				sprintf(
+					// translators: %1$s is the post type name, %2$s is the graphql kind.
 					__( '%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure "graphql_resolve_type" is a valid callback function', 'wp-graphql' ),
 					$single_name,
 					$post_type_object->graphql_kind
@@ -136,8 +137,12 @@ class PostObject {
 				'toType'             => $post_type_object->graphql_single_name,
 				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
 				'oneToOne'           => true,
-				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null : sprintf( __( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name ) ),
-				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null
+					: sprintf(
+						// translators: %s is the post type's GraphQL name.
+						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
+					),
+				'resolve'            => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
 						return null;
 					}

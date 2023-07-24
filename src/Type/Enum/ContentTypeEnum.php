@@ -71,7 +71,11 @@ class ContentTypeEnum {
 				register_graphql_enum_type(
 					'ContentTypesOf' . Utils::format_type_name( $tax_object->graphql_single_name ) . 'Enum',
 					[
-						'description' => sprintf( __( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ), Utils::format_type_name( $tax_object->graphql_single_name ) ),
+						'description' => sprintf(
+							// translators: %s is the taxonomy's GraphQL name.
+							__( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ),
+							Utils::format_type_name( $tax_object->graphql_single_name )
+						),
 						'values'      => $taxonomy_values,
 					]
 				);

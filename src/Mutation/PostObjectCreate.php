@@ -147,7 +147,12 @@ class PostObjectCreate {
 			// If the taxonomy is in the array of taxonomies registered to the post_type
 			if ( in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
 				$fields[ $tax_object->graphql_plural_name ] = [
-					'description' => sprintf( __( 'Set connections between the %1$s and %2$s', 'wp-graphql' ), $post_type_object->graphql_single_name, $tax_object->graphql_plural_name ),
+					'description' => sprintf(
+						// translators: %1$s is the post type GraphQL name, %2$s is the taxonomy GraphQL name.
+						__( 'Set connections between the %1$s and %2$s', 'wp-graphql' ),
+						$post_type_object->graphql_single_name,
+						$tax_object->graphql_plural_name
+					),
 					'type'        => ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
 				];
 			}
@@ -336,7 +341,7 @@ class PostObjectCreate {
 				 * don't proceed.
 				 */
 				if ( ! $new_post = get_post( $post_id ) ) {
-					throw new UserError( sprintf( __( 'The status of the post could not be set', 'wp-graphql' ) ) );
+					throw new UserError( __( 'The status of the post could not be set', 'wp-graphql' ) );
 				}
 
 				/**

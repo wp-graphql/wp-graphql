@@ -34,7 +34,11 @@ class PostStatusEnum {
 				}
 
 				$post_status_enum_values[ WPEnumType::get_safe_name( $status ) ] = [
-					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
+					'description' => sprintf(
+						// translators: %1$s is the post status.
+						__( 'Objects with the %1$s status', 'wp-graphql' ),
+						$status
+					),
 					'value'       => $status,
 				];
 			}

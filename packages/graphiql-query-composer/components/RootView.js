@@ -239,7 +239,7 @@ const RootView = (props) => {
               style={{
                 textOverflow: `ellipsis`,
                 display: `inline-block`,
-                maxWidth: `65%`,
+                maxWidth: `100%`,
                 whiteSpace: `nowrap`,
                 overflow: `hidden`,
                 verticalAlign: `middle`,
