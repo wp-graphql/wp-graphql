@@ -558,7 +558,7 @@ class TypeRegistry {
 			$this->register_field( 'GeneralSettings', 'url', [
 				'type'        => 'String',
 				'description' => __( 'Site URL.', 'wp-graphql' ),
-				'resolve'     => function () {
+				'resolve'     => static function () {
 					return get_site_url();
 				},
 			] );
@@ -585,7 +585,7 @@ class TypeRegistry {
 							__( "Fields of the '%s' settings group", 'wp-graphql' ),
 							ucfirst( $group_name ) . 'Settings'
 						),
-						'resolve'     => function () use ( $setting_type ) {
+						'resolve'     => static function () use ( $setting_type ) {
 							return $setting_type;
 						},
 					]
@@ -1150,7 +1150,7 @@ class TypeRegistry {
 
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function ( $fields ) use ( $field_name ) {
+			static function ( $fields ) use ( $field_name ) {
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					unset( $fields[ $field_name ] );
@@ -1210,7 +1210,7 @@ class TypeRegistry {
 		// Prevent the mutation from being registered to the scheme directly.
 		add_filter(
 			'graphql_excluded_mutations',
-			function ( $excluded_mutations ) use ( $mutation_name ) : array {
+			static function ( $excluded_mutations ) use ( $mutation_name ) : array {
 				// Normalize the types to prevent case sensitivity issues.
 				$mutation_name = strtolower( $mutation_name );
 				// If the type isn't already excluded, add it to the array.
@@ -1236,7 +1236,7 @@ class TypeRegistry {
 	public function deregister_connection( string $connection_name ) : void {
 		add_filter(
 			'graphql_excluded_connections',
-			function ( $excluded_connections ) use ( $connection_name ) {
+			static function ( $excluded_connections ) use ( $connection_name ) {
 
 				$connection_name = strtolower( $connection_name );
 

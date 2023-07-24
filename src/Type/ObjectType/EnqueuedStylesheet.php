@@ -25,17 +25,17 @@ class EnqueuedStylesheet {
 					'type'    => [
 						'non_null' => 'ID',
 					],
-					'resolve' => function ( $asset ) {
+					'resolve' => static function ( $asset ) {
 						return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
 					},
 				],
 				'src'     => [
-					'resolve' => function ( \_WP_Dependency $stylesheet ) {
+					'resolve' => static function ( \_WP_Dependency $stylesheet ) {
 						return ! empty( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
 					},
 				],
 				'version' => [
-					'resolve' => function ( \_WP_Dependency $stylesheet ) {
+					'resolve' => static function ( \_WP_Dependency $stylesheet ) {
 						global $wp_styles;
 
 						return ! empty( $stylesheet->ver ) && is_string( $stylesheet->ver ) ? $stylesheet->ver : $wp_styles->default_version;

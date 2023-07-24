@@ -55,7 +55,7 @@ class SendPasswordResetEmail {
 				'type'              => 'User',
 				'description'       => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
 				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
-				'resolve'           => function ( $payload, $args, AppContext $context ) {
+				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
 				},
 			],
@@ -72,7 +72,7 @@ class SendPasswordResetEmail {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() : callable {
-		return function ( $input ) {
+		return static function ( $input ) {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
 			}

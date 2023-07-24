@@ -45,7 +45,7 @@ class Admin {
 
 		// This removes the menu page for WPGraphiQL as it's now built into WPGraphQL
 		if ( $this->graphiql_enabled ) {
-			add_action( 'admin_menu', function () {
+			add_action( 'admin_menu', static function () {
 				remove_menu_page( 'wp-graphiql/wp-graphiql.php' );
 			} );
 		}

@@ -36,19 +36,19 @@ class UniformResourceIdentifiable {
 					'isContentNode' => [
 						'type'        => [ 'non_null' => 'Boolean' ],
 						'description' => __( 'Whether the node is a Content Node', 'wp-graphql' ),
-						'resolve'     => function ( $node ) {
+						'resolve'     => static function ( $node ) {
 							return $node instanceof Post;
 						},
 					],
 					'isTermNode'    => [
 						'type'        => [ 'non_null' => 'Boolean' ],
 						'description' => __( 'Whether the node is a Term', 'wp-graphql' ),
-						'resolve'     => function ( $node ) {
+						'resolve'     => static function ( $node ) {
 							return $node instanceof Term;
 						},
 					],
 				],
-				'resolveType' => function ( $node ) use ( $type_registry ) {
+				'resolveType' => static function ( $node ) use ( $type_registry ) {
 
 					switch ( true ) {
 						case $node instanceof Post:

@@ -27,7 +27,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filter the query amount to be 1000 for
 		 */
-		add_filter( 'graphql_connection_max_query_amount', function ( $max, $source, $args, $context, ResolveInfo $info ) {
+		add_filter( 'graphql_connection_max_query_amount', static function ( $max, $source, $args, $context, ResolveInfo $info ) {
 			if ( 'enqueuedScripts' === $info->fieldName || 'registeredScripts' === $info->fieldName ) {
 				return 1000;
 			}

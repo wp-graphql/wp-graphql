@@ -72,7 +72,7 @@ class PostObjectDelete {
 			'deletedId'                            => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
@@ -82,7 +82,7 @@ class PostObjectDelete {
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
 
@@ -101,7 +101,7 @@ class PostObjectDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Post_Type $post_type_object, string $mutation_name ) {
-		return function ( $input ) use ( $post_type_object ) {
+		return static function ( $input ) use ( $post_type_object ) {
 			// Get the database ID for the post.
 			$post_id = Utils::get_database_id_from_id( $input['id'] );
 
