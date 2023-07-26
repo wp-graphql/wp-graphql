@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.2
 Requires PHP: 7.1
-Stable tag: 1.14.7
+Stable tag: 1.14.8
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -239,6 +239,17 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.14.8 =
+
+**Chores / Bugfixes**
+
+- [#2855](https://github.com/wp-graphql/wp-graphql/pull/2855): perf: enforce static closures when possible (PHPCS). Thanks @justlevine!
+- [#2857](https://github.com/wp-graphql/wp-graphql/pull/2857): fix: Prevent truncation of query name inside the GraphiQL Query composer explorer tab. Thanks @LarsEjaas!
+- [#2856](https://github.com/wp-graphql/wp-graphql/pull/2856): chore: add missing translator comments. Thanks @justlevine!
+- [#2862](https://github.com/wp-graphql/wp-graphql/pull/2862): chore(deps-dev): bump word-wrap from 1.2.3 to 1.2.4
+- [#2861](https://github.com/wp-graphql/wp-graphql/pull/2861): fix: output `list:$type` keys for Root fields that return a list of nodes
+
 
 = 1.14.7 =
 

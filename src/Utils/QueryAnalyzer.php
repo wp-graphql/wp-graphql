@@ -418,7 +418,7 @@ class QueryAnalyzer {
 				}
 
 				if ( ! empty( $field_type ) && is_string( $field_type ) ) {
-					$field_type = $schema->getType( Utils::format_type_name( $field_type ) );
+					$field_type = $schema->getType( ucfirst( $field_type ) );
 				}
 
 				if ( ! $field_type ) {

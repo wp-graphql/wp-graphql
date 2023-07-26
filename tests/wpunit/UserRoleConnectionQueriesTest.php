@@ -63,7 +63,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	 */
 	public function testUserWithNoRole()
 	{
-		wp_set_current_user($this->admin);
+		wp_set_current_user( $this->admin );
 
 		// Create a user with no role
 		$user_with_no_role = $this->factory()->user->create(['role' => false]);
