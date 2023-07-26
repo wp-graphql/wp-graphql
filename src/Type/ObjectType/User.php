@@ -63,15 +63,14 @@ class User {
 						'fromFieldName' => 'roles',
 						'resolve'       => static function ( UserModel $user, $args, $context, $info ) {
 							$resolver = new UserRoleConnectionResolver( $user, $args, $context, $info );
-							
+
 							// abort if no roles are set
-							if( empty( $user->roles ) )  return null;
+							if ( empty( $user->roles ) ) {
+								return null;
+							}
 
 							// Only get roles matching the slugs of the roles belonging to the user
-							if ( isset( $user->roles ) && ! empty( $user->roles ) ) {
-								$resolver->set_query_arg( 'slugIn', $user->roles );
-							} 
-							
+							$resolver->set_query_arg( 'slugIn', $user->roles );
 							return $resolver->get_connection();
 						},
 					],
