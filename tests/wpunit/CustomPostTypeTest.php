@@ -1561,4 +1561,36 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->clearSchema();
 	}
 
+	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {
+
+		register_post_type( 'test_events', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'test_event',
+			'graphql_plural_name' => 'test_events'
+		]);
+
+		$query = '
+		{
+		  testEvents {
+		    nodes {
+		      __typename
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		// ensure the query succeeds without error
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'testEvents.nodes', [] )
+		]);
+
+		unregister_post_type( 'test_events' );
+
+	}
+
 }
