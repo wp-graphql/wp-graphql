@@ -18,7 +18,10 @@ What does this implement/fix? Explain your changes.
 
 Does this close any currently open issues?
 ------------------------------------------
-…
+<!--
+### Write "closes #{pr number}"
+### see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
+-->
 
 
 Any relevant logs, error output, GraphiQL screenshots, etc?
