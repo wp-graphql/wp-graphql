@@ -115,6 +115,47 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 	}
 
+	/**
+	 * Test that a user with no role returns no roles in the query.
+	 */
+	public function testUserWithNoRole()
+	{
+		wp_set_current_user($this->admin);
+
+		// Create a user with no role
+		$user_with_no_role = $this->factory()->user->create(['role' => false]);
+
+		// Set the test query
+		$query = '
+			query MyQuery {
+				user(id: ' . $user_with_no_role . ', idType: DATABASE_ID) {
+					roles {
+						edges {
+							node {
+								displayName
+							}
+						}
+					}
+				}
+			}
+        ';
+
+		// Execute the GraphQL Query
+		$actual = $this->graphql(['query' => $query]);
+
+		var_dump($actual);
+
+		// Assert that the user with no role returns no roles in the query
+		$expected = [
+			'user' => [
+				'roles' => null
+			]
+		];
+
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertEquals($expected, $actual['data']);
+	}
+
 	public function testForwardPagination() {
 		wp_set_current_user( $this->admin );
 		$query = $this->getQuery();
