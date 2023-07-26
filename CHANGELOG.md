@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.14.9
+
+## Chores / Bugfixes
+
+- [#2865](https://github.com/wp-graphql/wp-graphql/pull/2865): fix: user roles should return empty if user doesn't have roles. Thanks @j3ang!
+- [#2870](https://github.com/wp-graphql/wp-graphql/pull/2870): fix: Type Loader returns null when "graphql_single_name" value has underscores [regression]
+- [#2871](https://github.com/wp-graphql/wp-graphql/pull/2871): fix: update tests, follow-up to [#2865](https://github.com/wp-graphql/wp-graphql/pull/2865)
+
 ## 1.14.8
 
 ## Chores / Bugfixes

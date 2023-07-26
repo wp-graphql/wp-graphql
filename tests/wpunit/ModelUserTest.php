@@ -100,7 +100,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		 * Loop through and create the users and update their user data.
 		 */
 		foreach ( $users as $user ) {
-			$this->{ $user['role'] } = $id = $this->factory->user->create([
+			$this->{ $user['role'] } = $id = (int) $this->factory->user->create([
 				'role' => $user['role'],
 			]);
 
@@ -195,16 +195,19 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $actual );
 
 		$this->assertNotEmpty( $actual['data']['users']['nodes'] );
+
+
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['id'] );
 		$this->assertTrue( in_array( $actual['data']['users']['nodes'][0]['userId'], $this->userIds, true ) );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['email'] );
+		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
 
 	}
@@ -224,7 +227,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
@@ -248,7 +251,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles']['nodes'] );
+		$this->assertEmpty( $actual['data']['users']['nodes'][0]['roles'] );
 		$this->assertNull( $actual['data']['users']['nodes'][0]['username'] );
 
 		// They should still have access to their own email & role
@@ -272,7 +275,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNull( $actual['data']['users']['nodes'][1]['email'] );
-		$this->assertEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
+		$this->assertEmpty( $actual['data']['users']['nodes'][1]['roles'] );
 		$this->assertNull( $actual['data']['users']['nodes'][1]['username'] );
 
 		// They should still have access to their own email & role
