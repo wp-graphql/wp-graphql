@@ -1580,18 +1580,13 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-//		$custom_post = $this->factory()->post->create([
-//			'post_type' => 'test_events',
-//			'post_status' => 'publish',
-//			'post_title' => 'test event'
-//		]);
-
 		$actual = $this->graphql([
 			'query' => $query
 		]);
 
+		// ensure the query succeeds without error
 		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testEvents.nodes', self::IS_NULL )
+			$this->expectedField( 'testEvents.nodes', [] )
 		]);
 
 		unregister_post_type( 'test_events' );
