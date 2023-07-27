@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
@@ -16,7 +16,68 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		$this->start_count      = 100;
+		$this->start_time       = time();
 		$this->created_post_ids = $this->create_posts();
+
+		register_graphql_fields(
+			'Post',
+			[
+				'testMetaDate' => [
+					'type'    => 'String',
+					'resolve' => function( $source ) {
+						return get_post_meta( $source->ID, 'test_meta_date', true );
+					}
+				],
+				'testMetaNumber' => [
+					'type'    => 'Number',
+					'resolve' => function( $source ) {
+						return get_post_meta( $source->ID, 'test_meta_number', true );
+					}
+				],
+			]
+		);
+
+		add_filter(
+			'graphql_PostObjectsConnectionOrderbyEnum_values',
+			function( $values ) {
+				$values['TEST_META_DATE'] = 'test_meta_date';
+				$values['TEST_META_NUMBER'] = 'test_meta_number';
+				return $values;
+			}
+		);
+
+		add_filter(
+			'graphql_post_object_connection_query_args',
+			function ( $query_args ) {
+				if ( isset( $query_args['orderby'] ) && is_array( $query_args['orderby'] ) ) {
+					foreach( $query_args['orderby'] as $field => $order ) {
+						if ( in_array( $field, [ 'test_meta_date', 'test_meta_number' ], true ) ) {
+							if ( empty( $query_args['meta_query'] ) ) {
+								$query_args['meta_query'] = [];
+							}
+							$query_args['meta_query'][] = [
+								'key' => $field,
+								'type' => 'numeric',
+								'compare' => 'EXISTS',
+							];
+						}
+					}
+				} elseif ( isset( $query_args['orderby'] ) && is_string( $query_args['orderby'] ) ) {
+					if ( in_array( $query_args['orderby'], [ 'test_meta_date', 'test_meta_number' ], true ) ) {
+						if ( empty( $query_args['meta_query'] ) ) {
+							$query_args['meta_query'] = [];
+						}
+						$query_args['meta_query'][] = [
+							'key' => $query_args['orderby'],
+							'compare' => 'EXISTS',
+						];
+					}
+				} 
+
+				return $query_args;
+			},
+		);
 	}
 
 	public function tearDown(): void {
@@ -59,6 +120,11 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		update_post_meta( $post_id, '_edit_lock', $this->current_time . ':' . $this->admin );
 		update_post_meta( $post_id, '_edit_last', $this->admin );
+
+		update_post_meta( $post_id, 'test_meta_date', $this->start_time - $this->start_count );
+		update_post_meta( $post_id, 'test_meta_number', $this->start_count );
+
+		$this->start_count -= 1;
 
 		/**
 		 * Return the $id of the post_object that was created
@@ -460,5 +526,286 @@ class PostObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 			'order'    => 'ASC',
 			'meta_key' => 'test_meta',
 		] );
+	}
+
+	public function testPostOrderingByMultipleMeta() {
+		$query    = '
+			query ($first: Int, $last: Int, $before: String, $after: String, $where: RootQueryToPostConnectionWhereArgs!) {
+				posts(first: $first, last: $last, before: $before, after: $after, where: $where) {
+					nodes {
+						id
+						databaseId
+						testMetaDate
+						testMetaNumber
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'first' => 5,
+			'where' => [
+				'orderby' => [
+					[
+						'field' => 'TEST_META_NUMBER',
+						'order' => 'ASC',
+					],
+					[
+						'field' => 'TEST_META_DATE',
+						'order' => 'DESC',
+					],
+				]
+			]
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[20] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 19) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 19) ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[19] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 18) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 18) ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[18] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 17) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 17) ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[17] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 16) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 16) ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[16] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 15) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 15) ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		$variables = [
+			'first' => 5,
+			'where' => [
+				'orderby' => [
+					[
+						'field' => 'TEST_META_NUMBER',
+						'order' => 'ASC',
+					],
+					[
+						'field' => 'TEST_META_DATE',
+						'order' => 'DESC',
+					],
+				],
+			],
+			'after' => base64_encode( 'arrayconnection:' . $this->created_post_ids[16] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[15] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 14) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 14) ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[14] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 13) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 13) ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[13] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 12) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 12) ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[12] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 11) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 11) ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[11] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - (100 - 10) ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100 - 10) ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		$variables = [
+			'last' => 5,
+			'where' => [
+				'orderby' => [
+					[
+						'field' => 'TEST_META_DATE',
+						'order' => 'DESC',
+					],
+					[
+						'field' => 'TEST_META_NUMBER',
+						'order' => 'ASC',
+					],
+				],
+			],
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [			
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[5] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 96 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(96) ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[4] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 97 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(97) ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[3] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 98 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(98) ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[2] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 99 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(99) ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[1] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 100 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(100) ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		$variables = [
+			'last' => 5,
+			'where' => [
+				'orderby' => [
+					[
+						'field' => 'TEST_META_DATE',
+						'order' => 'DESC',
+					],
+					[
+						'field' => 'TEST_META_NUMBER',
+						'order' => 'ASC',
+					],
+				],
+			],
+			'before' => base64_encode( 'arrayconnection:' . $this->created_post_ids[5] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[10] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 91 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(91) ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[9] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 92 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(92) ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[8] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 93 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(93) ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[7] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 94 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(94) ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'posts.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[6] ) ),
+					$this->expectedField( 'testMetaDate', strval( $this->start_time - 95 ) ),
+					$this->expectedField( 'testMetaNumber', floatval(95) ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
 	}
 }
