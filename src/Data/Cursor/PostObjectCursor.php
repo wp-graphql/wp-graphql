@@ -169,13 +169,13 @@ class PostObjectCursor extends AbstractCursor {
 				break;
 		}
 
-		$value = $this->cursor_node->{$by} ?? null;
+		$value     = $this->cursor_node->{$by} ?? null;
+		$cursor_id = $this->cursor_node->ID ?? null;
 
 		/**
 		 * Compare by the post field if the key matches a value
 		 */
-		if ( ! empty( $value ) && ! metadata_exists( 'post', $this->cursor_node->ID, $by ) ) {
-
+		if ( ! empty( $value ) && ! empty( $cursor_id ) && ! metadata_exists( 'post', $cursor_id, $by ) ) {
 			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 
 			return;
@@ -224,7 +224,7 @@ class PostObjectCursor extends AbstractCursor {
 			}
 
 			$meta_keys = array_column( $meta_query, 'key' );
-			$index = array_search( $meta_key, $meta_keys, true );
+			$index     = array_search( $meta_key, $meta_keys, true );
 
 			if ( 1 < count( $meta_query ) && false !== $index ) {
 				$key = "mt{$index}.meta_value";
