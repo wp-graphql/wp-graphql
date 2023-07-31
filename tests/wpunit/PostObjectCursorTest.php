@@ -19,65 +19,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->start_count      = 100;
 		$this->start_time       = time();
 		$this->created_post_ids = $this->create_posts();
-
-		register_graphql_fields(
-			'Post',
-			[
-				'testMetaDate' => [
-					'type'    => 'String',
-					'resolve' => function( $source ) {
-						return get_post_meta( $source->ID, 'test_meta_date', true );
-					}
-				],
-				'testMetaNumber' => [
-					'type'    => 'Number',
-					'resolve' => function( $source ) {
-						return get_post_meta( $source->ID, 'test_meta_number', true );
-					}
-				],
-			]
-		);
-
-		add_filter(
-			'graphql_PostObjectsConnectionOrderbyEnum_values',
-			function( $values ) {
-				$values['TEST_META_DATE'] = 'test_meta_date';
-				$values['TEST_META_NUMBER'] = 'test_meta_number';
-				return $values;
-			}
-		);
-
-		add_filter(
-			'graphql_post_object_connection_query_args',
-			function ( $query_args ) {
-				if ( isset( $query_args['orderby'] ) && is_array( $query_args['orderby'] ) ) {
-					foreach( $query_args['orderby'] as $field => $order ) {
-						if ( in_array( $field, [ 'test_meta_date', 'test_meta_number' ], true ) ) {
-							if ( empty( $query_args['meta_query'] ) ) {
-								$query_args['meta_query'] = [];
-							}
-							$query_args['meta_query'][] = [
-								'key' => $field,
-								'type' => 'numeric',
-								'compare' => 'EXISTS',
-							];
-						}
-					}
-				} elseif ( isset( $query_args['orderby'] ) && is_string( $query_args['orderby'] ) ) {
-					if ( in_array( $query_args['orderby'], [ 'test_meta_date', 'test_meta_number' ], true ) ) {
-						if ( empty( $query_args['meta_query'] ) ) {
-							$query_args['meta_query'] = [];
-						}
-						$query_args['meta_query'][] = [
-							'key' => $query_args['orderby'],
-							'compare' => 'EXISTS',
-						];
-					}
-				} 
-
-				return $query_args;
-			},
-		);
 	}
 
 	public function tearDown(): void {
@@ -529,6 +470,67 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testPostOrderingByMultipleMeta() {
+		register_graphql_fields(
+			'Post',
+			[
+				'testMetaDate' => [
+					'type'    => 'String',
+					'resolve' => function( $source ) {
+						return get_post_meta( $source->ID, 'test_meta_date', true );
+					}
+				],
+				'testMetaNumber' => [
+					'type'    => 'Number',
+					'resolve' => function( $source ) {
+						return get_post_meta( $source->ID, 'test_meta_number', true );
+					}
+				],
+			]
+		);
+
+		add_filter(
+			'graphql_PostObjectsConnectionOrderbyEnum_values',
+			function( $values ) {
+				$values['TEST_META_DATE'] = 'test_meta_date';
+				$values['TEST_META_NUMBER'] = 'test_meta_number';
+				return $values;
+			}
+		);
+
+		add_filter(
+			'graphql_post_object_connection_query_args',
+			function ( $query_args ) {
+				if ( isset( $query_args['orderby'] ) && is_array( $query_args['orderby'] ) ) {
+					foreach( $query_args['orderby'] as $field => $order ) {
+						if ( in_array( $field, [ 'test_meta_date', 'test_meta_number' ], true ) ) {
+							if ( empty( $query_args['meta_query'] ) ) {
+								$query_args['meta_query'] = [];
+							}
+							$query_args['meta_query'][] = [
+								'key' => $field,
+								'type' => 'numeric',
+								'compare' => 'EXISTS',
+							];
+						}
+					}
+				} elseif ( isset( $query_args['orderby'] ) && is_string( $query_args['orderby'] ) ) {
+					if ( in_array( $query_args['orderby'], [ 'test_meta_date', 'test_meta_number' ], true ) ) {
+						if ( empty( $query_args['meta_query'] ) ) {
+							$query_args['meta_query'] = [];
+						}
+						$query_args['meta_query'][] = [
+							'key' => $query_args['orderby'],
+							'compare' => 'EXISTS',
+						];
+					}
+				} 
+
+				return $query_args;
+			},
+		);
+		// Clear cached schema so new fields are seen.
+		$this->clearSchema();
+
 		$query    = '
 			query ($first: Int, $last: Int, $before: String, $after: String, $where: RootQueryToPostConnectionWhereArgs!) {
 				posts(first: $first, last: $last, before: $before, after: $after, where: $where) {
