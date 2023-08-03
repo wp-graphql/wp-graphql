@@ -169,13 +169,13 @@ class PostObjectCursor extends AbstractCursor {
 				break;
 		}
 
-		$value = $this->cursor_node->{$by} ?? null;
+		$value     = $this->cursor_node->{$by} ?? null;
+		$cursor_id = $this->cursor_node->ID ?? null;
 
 		/**
 		 * Compare by the post field if the key matches a value
 		 */
-		if ( ! empty( $value ) ) {
-
+		if ( ! empty( $value ) && ! empty( $cursor_id ) && ! metadata_exists( 'post', $cursor_id, $by ) ) {
 			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
 
 			return;
@@ -217,13 +217,20 @@ class PostObjectCursor extends AbstractCursor {
 		/**
 		 * WP uses mt1, mt2 etc. style aliases for additional meta value joins.
 		 */
-		if ( 0 !== $this->meta_join_alias ) {
-			$key = "mt{$this->meta_join_alias}.meta_value";
+		$meta_query = $this->get_query_var( 'meta_query' );
+		if ( ! empty( $meta_query ) && is_array( $meta_query ) ) {
+			if ( ! empty( $meta_query['relation'] ) ) {
+				unset( $meta_query['relation'] );
+			}
 
+			$meta_keys = array_column( $meta_query, 'key' );
+			$index     = array_search( $meta_key, $meta_keys, true );
+
+			if ( 1 < count( $meta_query ) && false !== $index ) {
+				$key = "mt{$index}.meta_value";
+			}
 		}
-
-		$this->meta_join_alias ++;
-
+		
 		$this->builder->add_field( $key, $meta_value, $meta_type, $order, $this );
 	}
 
