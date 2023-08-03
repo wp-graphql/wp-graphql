@@ -5,6 +5,7 @@
 ### Chores / Bugfixes
 
 - [#2874](https://github.com/wp-graphql/wp-graphql/pull/2874): fix: improve PostObjectCursor support for meta queries. Thanks @kidunot89!
+- [#2880](https://github.com/wp-graphql/wp-graphql/pull/2880): fix: increase clarity of the description of "asPreview" argument
 
 ## 1.14.9
 
