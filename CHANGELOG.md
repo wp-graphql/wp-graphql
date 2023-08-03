@@ -2,6 +2,8 @@
 
 ## 1.14.10
 
+### Chores / Bugfixes
+
 - [#2874](https://github.com/wp-graphql/wp-graphql/pull/2874): fix: improve PostObjectCursor support for meta queries. Thanks @kidunot89!
 
 ## 1.14.9
@@ -14,7 +16,7 @@
 
 ## 1.14.8
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - [#2855](https://github.com/wp-graphql/wp-graphql/pull/2855): perf: enforce static closures when possible (PHPCS). Thanks @justlevine!
 - [#2857](https://github.com/wp-graphql/wp-graphql/pull/2857): fix: Prevent truncation of query name inside the GraphiQL Query composer explorer tab. Thanks @LarsEjaas!
@@ -24,7 +26,7 @@
 
 ## 1.14.7
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - [#2853](https://github.com/wp-graphql/wp-graphql/pull/2853): fix: internal server error when query max depth setting is left empty
 - [#2851](https://github.com/wp-graphql/wp-graphql/pull/2851): fix: querying posts by slug or uri with non-ascii characters
@@ -33,7 +35,7 @@
 
 ## 1.14.6
 
-## Chores / Bugfixes
+### Chores / Bugfixes
 
 - [#2841](https://github.com/wp-graphql/wp-graphql/pull/2841): ci: support STEP_DEBUG in Code Quality workflow. Thanks @justlevine!
 - [#2840](https://github.com/wp-graphql/wp-graphql/pull/2840): fix: update createMediaItem mutation to have better validation of input.
