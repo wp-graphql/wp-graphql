@@ -225,6 +225,18 @@ class PostObjectCursor extends AbstractCursor {
 				$key = "mt{$index}.meta_value";
 			}
 		}
+
+		/**
+		 * Allow filtering the meta key used for cursor based pagination
+		 * 
+		 * 
+		 * @param string $key       The meta key to use for cursor based pagination
+		 * @param string $meta_key  The original meta key
+		 * @param string $meta_type The meta type
+		 * @param string $order     The order direction
+		 * @param object $this      The PostObjectCursor instance
+		 */
+		$key = apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
 		
 		$this->builder->add_field( $key, $meta_value, $meta_type, $order, $this );
 	}
