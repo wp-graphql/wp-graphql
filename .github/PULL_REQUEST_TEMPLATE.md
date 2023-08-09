@@ -5,7 +5,7 @@ Thanks for sending a pull request! Please make sure you click the link above to 
 
 🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/develop/.github/CONTRIBUTING.md
 
-- [ ] Make sure your PR title follows Conventional Commit standards. See: https://www.conventionalcommits.org/en/v1.0.0/#specification
+- [ ] Make sure your PR title follows Conventional Commit standards. See: https://www.conventionalcommits.org/en/v1.0.0/#specification . Allowed prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
 - [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our master*.
 - [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
 
