@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f2a22af29ee16cade4ae557e8999dcb7",
+    "content-hash": "2d8d32573b0aecc08501a09ef5c725fa",
     "packages": [
         {
             "name": "appsero/client",
@@ -264,6 +264,66 @@
                 "wiki": "https://github.com/Automattic/VIP-Coding-Standards/wiki"
             },
             "time": "2021-09-29T16:20:23+00:00"
+        },
+        {
+            "name": "axepress/wp-graphql-cs",
+            "version": "1.0.0-beta.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AxeWP/WPGraphQL-Coding-Standards.git",
+                "reference": "365a066df667d1aea3b6d48611b19fa50b2944a7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AxeWP/WPGraphQL-Coding-Standards/zipball/365a066df667d1aea3b6d48611b19fa50b2944a7",
+                "reference": "365a066df667d1aea3b6d48611b19fa50b2944a7",
+                "shasum": ""
+            },
+            "require": {
+                "automattic/vipwpcs": "^2.3",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2 || ^0.7 || ^1.0",
+                "php": ">=7.2",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "slevomat/coding-standard": "^8.12",
+                "squizlabs/php_codesniffer": "^3.7.1"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-console-highlighter": "^1.0.0",
+                "php-parallel-lint/php-parallel-lint": "^1.3.2",
+                "phpcompatibility/php-compatibility": "^9",
+                "phpcsstandards/phpcsdevtools": "^1.0",
+                "phpunit/phpunit": "^8.5 || ^9"
+            },
+            "type": "phpcodesniffer-standard",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "AxePress Development",
+                    "email": "support@axepress.dev",
+                    "homepage": "https://axepress.dev"
+                },
+                {
+                    "name": "David Levine",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP_CodeSniffer rules (sniffs) for the WPGraphQL ecosystem.",
+            "keywords": [
+                "phpcs",
+                "standards",
+                "static analysis",
+                "wordpress",
+                "wpcs",
+                "wpgraphql"
+            ],
+            "support": {
+                "issues": "https://github.com/AxeWP/WPGraphQL-Coding-Standards/issues",
+                "source": "https://github.com/AxeWP/WPGraphQL-Coding-Standards"
+            },
+            "time": "2023-08-04T19:56:47+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -2882,16 +2942,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.23.0",
+            "version": "1.23.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "a2b24135c35852b348894320d47b3902a94bc494"
+                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/a2b24135c35852b348894320d47b3902a94bc494",
-                "reference": "a2b24135c35852b348894320d47b3902a94bc494",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/846ae76eef31c6d7790fac9bc399ecee45160b26",
+                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26",
                 "shasum": ""
             },
             "require": {
@@ -2923,9 +2983,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.23.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.23.1"
             },
-            "time": "2023-07-23T22:17:56+00:00"
+            "time": "2023-08-03T16:32:59+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -4760,16 +4820,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.11.16",
+            "version": "v2.11.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "dc5582dc5a93a235557af73e523c389aac9a8e88"
+                "reference": "3b71162a6bf0cde2bff1752e40a1788d8273d049"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/dc5582dc5a93a235557af73e523c389aac9a8e88",
-                "reference": "dc5582dc5a93a235557af73e523c389aac9a8e88",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/3b71162a6bf0cde2bff1752e40a1788d8273d049",
+                "reference": "3b71162a6bf0cde2bff1752e40a1788d8273d049",
                 "shasum": ""
             },
             "require": {
@@ -4814,7 +4874,7 @@
                 "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
-            "time": "2023-03-31T16:46:32+00:00"
+            "time": "2023-08-05T23:46:11+00:00"
         },
         {
             "name": "slevomat/coding-standard",
@@ -7630,7 +7690,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "axepress/wp-graphql-cs": 10
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
