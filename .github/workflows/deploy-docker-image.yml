@@ -15,6 +15,11 @@ jobs:
       matrix:
         php: [ '8.1', '8.0', '7.4', '7.3' ]
         wordpress: [ '6.2', '6.1', '6.0', '5.9', '5.8', '5.7.2', '5.6', '5.5.3' ]
+        include:
+          - php: '8.1'
+            wordpress: 'beta-6.3'
+          - php: '8.2'
+            wordpress: 'beta-6.3'
         exclude:
           - php: '8.0'
             wordpress: '5.5.3'
