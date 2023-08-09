@@ -27,7 +27,6 @@ class PostObjectMutation {
 	 * @throws \Exception
 	 */
 	public static function prepare_post_object( $input, $post_type_object, $mutation_name ) {
-
 		$insert_post_args = [];
 
 		/**
@@ -117,7 +116,6 @@ class PostObjectMutation {
 		 * Return the $args
 		 */
 		return $insert_post_args;
-
 	}
 
 	/**
@@ -223,7 +221,6 @@ class PostObjectMutation {
 			 */
 			self::remove_edit_lock( $post_id );
 		}
-
 	}
 
 	/**
@@ -270,13 +267,12 @@ class PostObjectMutation {
 				 * If there is input for the taxonomy, process it
 				 */
 				if ( isset( $input[ lcfirst( $tax_object->graphql_plural_name ) ] ) ) {
-
 					$term_input = $input[ lcfirst( $tax_object->graphql_plural_name ) ];
 
 					/**
 					 * Default append to true, but allow input to set it to false.
 					 */
-					$append = isset( $term_input['append'] ) && false === $term_input['append'] ? false : true;
+					$append = ! isset( $term_input['append'] ) || false !== $term_input['append'];
 
 					/**
 					 * Start an array of terms to connect
@@ -300,18 +296,14 @@ class PostObjectMutation {
 					 * If there are nodes in the term_input
 					 */
 					if ( ! empty( $term_input['nodes'] ) && is_array( $term_input['nodes'] ) ) {
-
 						foreach ( $term_input['nodes'] as $node ) {
-
 							$term_exists = false;
 
 							/**
 							 * Handle the input for ID first.
 							 */
 							if ( ! empty( $node['id'] ) ) {
-
 								if ( ! absint( $node['id'] ) ) {
-
 									$id_parts = Relay::fromGlobalId( $node['id'] );
 
 									if ( ! empty( $id_parts['id'] ) ) {
@@ -373,7 +365,6 @@ class PostObjectMutation {
 					}
 
 					wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
-
 				}
 			}
 		}
@@ -389,7 +380,6 @@ class PostObjectMutation {
 	 * @return int $term_id The ID of the created term. 0 if no term was created.
 	 */
 	protected static function create_term_to_connect( $node, $taxonomy ) {
-
 		$created_term   = [];
 		$term_to_create = [];
 		$term_args      = [];
@@ -417,20 +407,17 @@ class PostObjectMutation {
 		}
 
 		if ( is_wp_error( $created_term ) ) {
-
 			if ( isset( $created_term->error_data['term_exists'] ) ) {
 				return $created_term->error_data['term_exists'];
 			}
 
 			return 0;
-
 		}
 
 		/**
 		 * Return the created term, or 0
 		 */
 		return isset( $created_term['term_id'] ) ? absint( $created_term['term_id'] ) : 0;
-
 	}
 
 	/**
@@ -445,7 +432,6 @@ class PostObjectMutation {
 	 *                     there is no current user.
 	 */
 	public static function set_edit_lock( $post_id ) {
-
 		$post    = get_post( $post_id );
 		$user_id = get_current_user_id();
 
@@ -462,7 +448,6 @@ class PostObjectMutation {
 		update_post_meta( $post->ID, '_edit_lock', $lock );
 
 		return [ $now, $user_id ];
-
 	}
 
 	/**
@@ -473,7 +458,6 @@ class PostObjectMutation {
 	 * @return bool
 	 */
 	public static function remove_edit_lock( int $post_id ) {
-
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) ) {
@@ -481,7 +465,6 @@ class PostObjectMutation {
 		}
 
 		return delete_post_meta( $post->ID, '_edit_lock' );
-
 	}
 
 	/**

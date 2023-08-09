@@ -18,7 +18,6 @@ class EnqueuedAsset {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type( 'EnqueuedAsset', [
 			'description' => __( 'Asset enqueued by the CMS', 'wp-graphql' ),
 			'resolveType' => static function ( $asset ) use ( $type_registry ) {
@@ -38,7 +37,6 @@ class EnqueuedAsset {
 				}
 
 				return ! empty( $type ) ? $type : null;
-
 			},
 			'fields'      => [
 				'id'           => [
@@ -78,7 +76,6 @@ class EnqueuedAsset {
 				],
 			],
 		]);
-
 	}
 
 }

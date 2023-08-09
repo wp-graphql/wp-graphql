@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -36,7 +35,6 @@ class Previewable {
 					],
 				],
 				'resolveType' => static function ( Post $post ) use ( $type_registry ) {
-
 					$type = 'Post';
 
 					$post_type_object = isset( $post->post_type ) ? get_post_type_object( $post->post_type ) : null;

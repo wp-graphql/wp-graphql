@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Union;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**

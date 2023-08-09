@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WP_Taxonomy;
@@ -31,7 +30,6 @@ class PostObjects {
 	 * @throws \Exception
 	 */
 	public static function register_connections() {
-
 		register_graphql_connection( [
 			'fromType'       => 'ContentType',
 			'toType'         => 'ContentNode',
@@ -39,12 +37,10 @@ class PostObjects {
 			'connectionArgs' => self::get_connection_args(),
 			'queryClass'     => 'WP_Query',
 			'resolve'        => static function ( PostType $post_type, $args, AppContext $context, ResolveInfo $info ) {
-
 				$resolver = new PostObjectConnectionResolver( $post_type, $args, $context, $info );
 				$resolver->set_query_arg( 'post_type', $post_type->name );
 
 				return $resolver->get_connection();
-
 			},
 		] );
 
@@ -72,7 +68,6 @@ class PostObjects {
 			'description'   => __( 'If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node.', 'wp-graphql' ),
 			'oneToOne'      => true,
 			'resolve'       => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
 				if ( ! $post->isRevision || ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
 					return null;
 				}
@@ -81,7 +76,6 @@ class PostObjects {
 				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
 
 				return $resolver->one_to_one()->get_connection();
-
 			},
 		] );
 
@@ -108,7 +102,6 @@ class PostObjects {
 			'description'        => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
 			'oneToOne'           => true,
 			'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
 				if ( ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
 					return null;
 				}
@@ -117,7 +110,6 @@ class PostObjects {
 				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
 
 				return $resolver->one_to_one()->get_connection();
-
 			},
 		] );
 
@@ -129,7 +121,6 @@ class PostObjects {
 			'connectionArgs'     => self::get_connection_args(),
 			'queryClass'         => 'WP_Query',
 			'resolve'            => static function ( Post $post, $args, $context, $info ) {
-
 				if ( $post->isRevision ) {
 					$id = $post->parentDatabaseId;
 				} else {
@@ -140,7 +131,6 @@ class PostObjects {
 				$resolver->set_query_arg( 'post_parent', $id );
 
 				return $resolver->get_connection();
-
 			},
 		] );
 
@@ -232,7 +222,6 @@ class PostObjects {
 	 * @return array
 	 */
 	public static function get_connection_config( $graphql_object, $args = [] ) {
-
 		$connection_args = self::get_connection_args( [], $graphql_object );
 
 		if ( 'revision' === $graphql_object->name ) {
@@ -264,7 +253,6 @@ class PostObjects {
 	 * @return array
 	 */
 	public static function get_connection_args( $args = [], $post_type_object = null ) {
-
 		$fields = [
 			/**
 			 * Search Parameter

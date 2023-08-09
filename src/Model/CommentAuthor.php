@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
 use WP_Comment;
 
@@ -44,9 +43,7 @@ class CommentAuthor extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'         => function () {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment_author', $this->data->comment_ID ) : null;
@@ -64,7 +61,6 @@ class CommentAuthor extends Model {
 					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : '';
 				},
 			];
-
 		}
 	}
 }

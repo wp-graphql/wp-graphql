@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithTitle {
@@ -17,7 +13,6 @@ class NodeWithTitle {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'NodeWithTitle',
 			[
@@ -46,6 +41,5 @@ class NodeWithTitle {
 				],
 			]
 		);
-
 	}
 }

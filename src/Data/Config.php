@@ -84,7 +84,6 @@ class Config {
 		add_filter(
 			'pre_user_query',
 			static function ( $query ) {
-
 				if ( ! $query->get( 'suppress_filters' ) ) {
 					$query->set( 'suppress_filters', 0 );
 				}
@@ -115,11 +114,9 @@ class Config {
 						$query->query_orderby,
 						&$query,
 					] );
-
 				}
 
 				return $query;
-
 			}
 		);
 
@@ -149,7 +146,6 @@ class Config {
 			10,
 			1
 		);
-
 	}
 
 	/**
@@ -165,7 +161,6 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_query_cursor_pagination_stability( string $orderby, WP_Query $wp_query ) {
-
 		if ( true !== is_graphql_request() ) {
 			return $orderby;
 		}
@@ -183,7 +178,6 @@ class Config {
 
 		// If there is a cursor compare in the arguments, use it as the stablizer for cursors.
 		return "{$orderby}, {$wpdb->posts}.ID {$order} ";
-
 	}
 
 	/**
@@ -227,7 +221,6 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
-
 		if ( true === is_graphql_request() ) {
 			global $wpdb;
 
@@ -305,7 +298,6 @@ class Config {
 		}
 
 		return $pieces;
-
 	}
 
 	/**
@@ -337,7 +329,6 @@ class Config {
 		}
 
 		return $pieces;
-
 	}
 
 }

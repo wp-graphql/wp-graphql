@@ -20,7 +20,6 @@ class Commenter {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type( 'Commenter', [
 			'description' => __( 'The author of a comment', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
@@ -68,7 +67,6 @@ class Commenter {
 				],
 			],
 		] );
-
 	}
 
 }

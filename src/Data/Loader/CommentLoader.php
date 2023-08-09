@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
 use WPGraphQL\Model\Comment;
 
 /**
@@ -20,7 +19,6 @@ class CommentLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( ! $entry instanceof \WP_Comment ) {
 			return null;
 		}

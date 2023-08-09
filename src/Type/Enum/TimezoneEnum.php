@@ -100,7 +100,6 @@ class TimezoneEnum {
 				'value'       => $value,
 				'description' => $display,
 			];
-
 		}
 		$offset_range = [
 			- 12,
@@ -160,7 +159,6 @@ class TimezoneEnum {
 			14,
 		];
 		foreach ( $offset_range as $offset ) {
-
 			if ( 0 <= $offset ) {
 				$offset_name = '+' . $offset;
 			} else {
@@ -188,7 +186,6 @@ class TimezoneEnum {
 					$offset_name
 				),
 			];
-
 		}
 
 		register_graphql_enum_type(

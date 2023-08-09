@@ -15,7 +15,6 @@ class DatabaseIdentifier {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_interface_type( 'DatabaseIdentifier', [
 			'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
 			'fields'      => [

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data\Cursor;
 
-use WP_User;
 use WP_User_Query;
 
 /**
@@ -115,7 +114,6 @@ class UserCursor extends AbstractCursor {
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
-
 		}
 
 		/**
@@ -139,7 +137,6 @@ class UserCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
-
 		switch ( $by ) {
 			case 'email':
 			case 'login':
@@ -170,7 +167,6 @@ class UserCursor extends AbstractCursor {
 
 			return;
 		}
-
 	}
 
 	/**
@@ -201,7 +197,6 @@ class UserCursor extends AbstractCursor {
 		 */
 		if ( 0 !== $this->meta_join_alias ) {
 			$key = "mt{$this->meta_join_alias}.meta_value";
-
 		}
 
 		$this->meta_join_alias ++;
@@ -217,7 +212,6 @@ class UserCursor extends AbstractCursor {
 	 * @return string|null
 	 */
 	private function get_meta_key( $by ) {
-
 		if ( 'meta_value' === $by ) {
 			return $this->get_query_var( 'meta_key' );
 		}

@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Deferred;
-use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
@@ -44,8 +42,6 @@ class NodeResolver {
 	 * @return \WP_Post|null
 	 */
 	public function validate_post( WP_Post $post ) {
-
-
 		if ( isset( $this->wp->query_vars['post_type'] ) && ( $post->post_type !== $this->wp->query_vars['post_type'] ) ) {
 			return null;
 		}
@@ -231,7 +227,6 @@ class NodeResolver {
 
 			// Validate the post before returning it.
 			if ( ! $this->validate_post( $queried_object ) ) {
-
 				return null;
 			}
 
@@ -431,7 +426,6 @@ class NodeResolver {
 						preg_match( "#^$match#", $request_match, $matches ) ||
 						preg_match( "#^$match#", urldecode( $request_match ), $matches )
 					) {
-
 						if ( $wp_rewrite->use_verbose_page_rules && preg_match( '/pagename=\$matches\[([0-9]+)\]/', $query, $varmatch ) ) {
 							// This is a verbose page match, let's check to be sure about it.
 							$page = get_page_by_path( $matches[ $varmatch[1] ] ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_page_by_path_get_page_by_path
@@ -498,7 +492,6 @@ class NodeResolver {
 		}
 
 		foreach ( $this->wp->public_query_vars as $wpvar ) {
-
 			$parsed_query = [];
 			if ( isset( $parsed_url['query'] ) ) {
 				parse_str( $parsed_url['query'], $parsed_query );
@@ -601,7 +594,6 @@ class NodeResolver {
 
 		// If the homepage is a static page, return the page.
 		if ( 'page' === $show_on_front && ! empty( $page_id ) ) {
-
 			$page = get_post( $page_id );
 
 			if ( empty( $page ) ) {

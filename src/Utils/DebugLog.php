@@ -49,7 +49,6 @@ class DebugLog {
 	 * @return array
 	 */
 	public function add_log_entry( $message, $config = [] ) {
-
 		if ( empty( $message ) ) {
 			return [];
 		}
@@ -92,7 +91,6 @@ class DebugLog {
 		}
 
 		return [];
-
 	}
 
 	/**

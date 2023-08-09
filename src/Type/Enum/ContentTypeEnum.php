@@ -67,7 +67,6 @@ class ContentTypeEnum {
 			}
 
 			if ( ! empty( $taxonomy_values ) ) {
-
 				register_graphql_enum_type(
 					'ContentTypesOf' . Utils::format_type_name( $tax_object->graphql_single_name ) . 'Enum',
 					[
@@ -81,6 +80,5 @@ class ContentTypeEnum {
 				);
 			}
 		}
-
 	}
 }

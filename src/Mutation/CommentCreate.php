@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -169,7 +168,6 @@ class CommentCreate {
 			 * Throw an exception if the comment failed to be created
 			 */
 			if ( is_wp_error( $comment_id ) ) {
-
 				$error_message = $comment_id->get_error_message();
 				if ( ! empty( $error_message ) ) {
 					throw new UserError( esc_html( $error_message ) );

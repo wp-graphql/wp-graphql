@@ -2,11 +2,9 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\ObjectType\User;
 
 class MenuItemLinkable {
 
@@ -19,13 +17,11 @@ class MenuItemLinkable {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
 		register_graphql_interface_type( 'MenuItemLinkable', [
 			'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
 			'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 			'fields'      => [],
 			'resolveType' => static function ( $node ) use ( $type_registry ) {
-
 				switch ( true ) {
 					case $node instanceof Post:
 						/** @var \WP_Post_Type $post_type_object */
@@ -42,9 +38,7 @@ class MenuItemLinkable {
 				}
 
 				return $type;
-
 			},
 		] );
-
 	}
 }

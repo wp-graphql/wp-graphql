@@ -82,7 +82,6 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function should_execute() {
-
 		if (
 			current_user_can( 'list_users' ) ||
 			(

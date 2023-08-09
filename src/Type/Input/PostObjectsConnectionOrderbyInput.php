@@ -30,6 +30,5 @@ class PostObjectsConnectionOrderbyInput {
 				],
 			]
 		);
-
 	}
 }

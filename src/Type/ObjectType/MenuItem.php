@@ -29,7 +29,6 @@ class MenuItem {
 						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
 						'oneToOne'    => true,
 						'resolve'     => static function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
-
 							if ( ! isset( $menu_item->databaseId ) ) {
 								return null;
 							}
@@ -58,7 +57,6 @@ class MenuItem {
 							}
 
 							return null !== $resolver ? $resolver->one_to_one()->get_connection() : null;
-
 						},
 					],
 					'menu'          => [
@@ -149,7 +147,6 @@ class MenuItem {
 						'deprecationReason' => __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' ),
 						'description'       => __( 'The object connected to this menu item.', 'wp-graphql' ),
 						'resolve'           => static function ( $menu_item, array $args, AppContext $context, $info ) {
-
 							$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
 
@@ -197,6 +194,5 @@ class MenuItem {
 				],
 			]
 		);
-
 	}
 }

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class Edge {
@@ -15,7 +14,6 @@ class Edge {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
 		register_graphql_interface_type( 'Edge', [
 			'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
 			'fields'      => [
@@ -29,6 +27,5 @@ class Edge {
 				],
 			],
 		] );
-
 	}
 }

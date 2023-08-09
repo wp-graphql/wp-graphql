@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class PageInfo {
@@ -15,7 +14,6 @@ class PageInfo {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
 		register_graphql_interface_type( 'WPPageInfo', [
 			'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 			'interfaces'  => [ 'PageInfo' ],
@@ -26,7 +24,6 @@ class PageInfo {
 			'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 			'fields'      => self::get_fields(),
 		] );
-
 	}
 
 	/**

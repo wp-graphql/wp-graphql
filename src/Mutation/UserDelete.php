@@ -152,7 +152,6 @@ class UserDelete {
 
 				// delete the user
 				$deleted_user = wpmu_delete_user( $user_id );
-
 			} else {
 				$deleted_user = wp_delete_user( $user_id, $reassign_id );
 			}

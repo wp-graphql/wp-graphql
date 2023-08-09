@@ -61,7 +61,6 @@ class Users {
 			'description'        => __( 'If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn\'t exist or is greater than 15 seconds', 'wp-graphql' ),
 			'oneToOne'           => true,
 			'resolve'            => static function ( Post $source, $args, $context, $info ) {
-
 				if ( ! isset( $source->editLock[1] ) || ! absint( $source->editLock[1] ) ) {
 					return null;
 				}
@@ -70,7 +69,6 @@ class Users {
 				$resolver->one_to_one()->set_query_arg( 'include', [ absint( $source->editLock[1] ) ] );
 
 				return $resolver->get_connection();
-
 			},
 		]);
 
@@ -82,7 +80,6 @@ class Users {
 			'description'        => __( 'The user that most recently edited the node', 'wp-graphql' ),
 			'oneToOne'           => true,
 			'resolve'            => static function ( Post $source, $args, $context, $info ) {
-
 				if ( empty( $source->editLastId ) ) {
 					return null;
 				}
@@ -90,7 +87,6 @@ class Users {
 				$resolver = new UserConnectionResolver( $source, $args, $context, $info );
 				$resolver->set_query_arg( 'include', [ absint( $source->editLastId ) ] );
 				return $resolver->one_to_one()->get_connection();
-
 			},
 		]);
 
@@ -100,7 +96,6 @@ class Users {
 			'fromFieldName' => 'author',
 			'oneToOne'      => true,
 			'resolve'       => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
 				if ( empty( $post->authorDatabaseId ) ) {
 					return null;
 				}
@@ -110,7 +105,6 @@ class Users {
 				return $resolver->one_to_one()->get_connection();
 			},
 		] );
-
 	}
 
 	/**

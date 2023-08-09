@@ -101,9 +101,7 @@ class MenuItem extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'               => function () {
 					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
@@ -156,7 +154,6 @@ class MenuItem extends Model {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
 				'path'             => function () {
-
 					$url = $this->url;
 
 					if ( ! empty( $url ) ) {
@@ -168,7 +165,6 @@ class MenuItem extends Model {
 					}
 
 					return $url;
-
 				},
 				'order'            => function () {
 					return $this->data->menu_order;
@@ -177,7 +173,6 @@ class MenuItem extends Model {
 					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
 				},
 				'menuDatabaseId'   => function () {
-
 					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
 					if ( is_wp_error( $menus ) ) {
 						throw new UserError( $menus->get_error_message() );
@@ -186,7 +181,6 @@ class MenuItem extends Model {
 					return ! empty( $menus[0]->term_id ) ? $menus[0]->term_id : null;
 				},
 				'locations'        => function () {
-
 					if ( empty( $this->menuDatabaseId ) ) {
 						return null;
 					}
@@ -205,12 +199,9 @@ class MenuItem extends Model {
 					}
 
 					return $locations;
-
 				},
 			];
-
 		}
-
 	}
 
 }

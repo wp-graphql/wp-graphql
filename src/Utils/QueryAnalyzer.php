@@ -2,10 +2,7 @@
 
 namespace WPGraphQL\Utils;
 
-use Exception;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
@@ -17,11 +14,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use GraphQLRelay\Relay;
-use Hoa\Math\Util;
-use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
-use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\WPSchema;
 
 /**
@@ -180,7 +173,6 @@ class QueryAnalyzer {
 			$this,
 			'show_query_analyzer_in_extensions',
 		], 10, 5 );
-
 	}
 
 	/**
@@ -223,7 +215,6 @@ class QueryAnalyzer {
 		 * @param string        $query          The query string being executed
 		 */
 		do_action( 'graphql_determine_graphql_keys', $this, $query );
-
 	}
 
 	/**
@@ -257,7 +248,6 @@ class QueryAnalyzer {
 		$runtime_nodes = apply_filters( 'graphql_query_analyzer_get_runtime_nodes', $this->runtime_nodes );
 
 		return array_unique( $runtime_nodes );
-
 	}
 
 	/**
@@ -273,7 +263,6 @@ class QueryAnalyzer {
 	 * @return string|null
 	 */
 	public function get_operation_name(): ?string {
-
 		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation : null;
 
 		if ( empty( $operation_name ) ) {
@@ -311,13 +300,11 @@ class QueryAnalyzer {
 	 * @return  \GraphQL\Type\Definition\Type|String|null
 	 */
 	public static function get_wrapped_field_type( Type $type, FieldDefinition $field_def, $parent_type, bool $is_list_type = false ) {
-
 		if ( ! isset( $parent_type->name ) || 'RootQuery' !== $parent_type->name ) {
 			return null;
 		}
 
 		if ( $type instanceof NonNull || $type instanceof ListOfType ) {
-
 			if ( $type instanceof ListOfType && isset( $parent_type->name ) && 'RootQuery' === $parent_type->name ) {
 				$is_list_type = true;
 			}
@@ -327,14 +314,12 @@ class QueryAnalyzer {
 
 		// Determine if we're dealing with a connection
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
-
 			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
 			$interface_names = ! empty( $interfaces ) ? array_map( static function ( InterfaceType $interface ) {
 				return $interface->name;
 			}, $interfaces ) : [];
 
 			if ( array_key_exists( 'Connection', $interface_names ) ) {
-
 				if ( isset( $field_def->config['fromType'] ) && ( 'rootquery' !== strtolower( $field_def->config['fromType'] ) ) ) {
 					return null;
 				}
@@ -444,7 +429,6 @@ class QueryAnalyzer {
 				} else {
 					$type_map[] = 'list:' . strtolower( $field_type );
 				}
-
 			},
 			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
@@ -501,7 +485,6 @@ class QueryAnalyzer {
 				}
 
 				if ( empty( $this->root_operation ) ) {
-
 					if ( $type === $schema->getQueryType() ) {
 						$this->root_operation = 'Query';
 					}
@@ -618,7 +601,6 @@ class QueryAnalyzer {
 	 * @return mixed
 	 */
 	public function track_nodes( $model ) {
-
 		if ( isset( $model->id ) && in_array( get_class( $model ), $this->get_query_models(), true ) ) {
 			// Is this model type part of the requested/returned data in the asked for query?
 
@@ -649,7 +631,6 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_graphql_keys() {
-
 		if ( ! empty( $this->graphql_keys ) ) {
 			return $this->graphql_keys;
 		}
@@ -678,7 +659,6 @@ class QueryAnalyzer {
 		}
 
 		if ( ! empty( $keys ) ) {
-
 			$all_keys = implode( ' ', array_unique( array_values( $keys ) ) );
 
 			// Use the header_length_limit to wrap the words with a separator
@@ -742,7 +722,6 @@ class QueryAnalyzer {
 		], $return_keys, $this->skipped_keys, $return_keys_array, $skipped_keys_array );
 
 		return $this->graphql_keys;
-
 	}
 
 
@@ -754,11 +733,9 @@ class QueryAnalyzer {
 	 * @return array
 	 */
 	public function get_headers( array $headers = [] ): array {
-
 		$keys = $this->get_graphql_keys();
 
 		if ( ! empty( $keys ) ) {
-
 			$headers['X-GraphQL-Query-ID'] = $this->query_id ?: null;
 			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
 		}
@@ -778,7 +755,6 @@ class QueryAnalyzer {
 	 * @return array|object|null
 	 */
 	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables ) {
-
 		$should = \WPGraphQL::debug();
 
 		/**
@@ -809,7 +785,6 @@ class QueryAnalyzer {
 		}
 
 		return $response;
-
 	}
 
 }

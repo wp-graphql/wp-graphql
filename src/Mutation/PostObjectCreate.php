@@ -102,7 +102,6 @@ class PostObjectCreate {
 		}
 
 		if ( post_type_supports( $post_type_object->name, 'trackbacks' ) ) {
-
 			$fields['pinged'] = [
 				'type'        => [
 					'list_of' => 'String',
@@ -174,7 +173,6 @@ class PostObjectCreate {
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The Post object mutation type.', 'wp-graphql' ),
 				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
-
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}

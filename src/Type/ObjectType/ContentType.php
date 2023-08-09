@@ -12,7 +12,6 @@ class ContentType {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		$interfaces = [ 'Node', 'UniformResourceIdentifiable' ];
 
 		register_graphql_object_type(
@@ -133,6 +132,5 @@ class ContentType {
 
 			]
 		);
-
 	}
 }
