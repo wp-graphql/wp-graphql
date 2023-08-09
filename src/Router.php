@@ -327,7 +327,8 @@ class Router {
 		);
 
 		// For cache url header, use the domain without protocol or path.
-		$endpoint_hostname = parse_url( graphql_get_endpoint_url() )['host'];
+		$graphql_endpoint = parse_url( graphql_get_endpoint_url() );
+		$endpoint_hostname = isset( $graphql_endpoint['host'] ) ? $graphql_endpoint['host'] : graphql_get_endpoint_url();
 
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
