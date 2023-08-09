@@ -18,7 +18,8 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array        $config
+	 * @param array                            $config        The config for the type.
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance.
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 		$name           = $config['name'];

@@ -215,7 +215,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' );
+		_deprecated_function( __METHOD__, '0.4.1', esc_attr( self::class ) . 'is_graphql_http_request()' );
 		return self::is_graphql_http_request();
 	}
 
@@ -412,7 +412,6 @@ class Router {
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
 	 * @return mixed
-	 * @throws \Exception Throws Exception.
 	 * @throws \Throwable Throws Exception.
 	 * @global WP_User $current_user The currently authenticated user.
 	 * @since  0.0.1
@@ -484,9 +483,9 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 *
-			 * @param array               $errors   Formatted errors object.
-			 * @param \Exception $error Thrown error.
-			 * @param \WPGraphQL\Request  $request  WPGraphQL Request object.
+			 * @param array               $errors  Formatted errors object.
+			 * @param \Throwable          $error   Thrown error.
+			 * @param \WPGraphQL\Request  $request WPGraphQL Request object.
 			 */
 			$response['errors'] = apply_filters(
 				'graphql_http_request_response_errors',

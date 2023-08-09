@@ -262,7 +262,7 @@ class TypeRegistry {
 	/**
 	 * Initialize the Type Registry
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @param self $type_registry
 	 *
 	 * @return void
 	 * @throws \Exception

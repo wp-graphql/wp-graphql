@@ -182,6 +182,9 @@ class WPMutationType {
 		return $output_fields;
 	}
 
+	/**
+	 * Gets the mutation resolver.
+	 */
 	protected function get_resolver() : callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
 			$unfiltered_input = $args['input'];
@@ -271,6 +274,9 @@ class WPMutationType {
 		);
 	}
 
+	/**
+	 * Registers the Mutation payload to the schema.
+	 */
 	protected function register_mutation_payload() : void {
 		$object_name = $this->mutation_name . 'Payload';
 

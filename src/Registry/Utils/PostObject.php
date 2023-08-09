@@ -417,6 +417,8 @@ class PostObject {
 	/**
 	 * Register fields to the Type used for attachments (MediaItem).
 	 *
+	 * @param \WP_Post_Type $post_type_object Post type.
+	 *
 	 * @return void
 	 */
 	private static function register_attachment_fields( WP_Post_Type $post_type_object ) {

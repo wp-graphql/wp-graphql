@@ -12,7 +12,6 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
@@ -352,7 +351,7 @@ class QueryAnalyzer {
 	 * @return array
 	 * @throws \GraphQL\Error\SyntaxError|\Exception
 	 */
-	public function set_list_types( ?Schema $schema, ?string $query ): array {
+	public function set_list_types( ?\GraphQL\Type\Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter
@@ -452,7 +451,7 @@ class QueryAnalyzer {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function set_query_types( ?Schema $schema, ?string $query ): array {
+	public function set_query_types( ?\GraphQL\Type\Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter
@@ -531,7 +530,7 @@ class QueryAnalyzer {
 	 * @return array
 	 * @throws \GraphQL\Error\SyntaxError|\Exception
 	 */
-	public function set_query_models( ?Schema $schema, ?string $query ): array {
+	public function set_query_models( ?\GraphQL\Type\Schema $schema, ?string $query ): array {
 
 		/**
 		 * @param array|null $null   Default value for the filter

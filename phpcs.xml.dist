@@ -50,10 +50,14 @@
 	-->
 	<config name="minimum_supported_wp_version" value="5.0"/>
 
-
 	<!-- Rules: WPGraphQL Coding Standards -->
 	<!-- https://github.com/AxeWP/WPGraphQL-Coding-Standards/WPGraphQL/ruleset.xml -->
-	<rule ref="WPGraphQL-Strict" />
+	<rule ref="WPGraphQL-Strict">
+		<!-- This would be a breaking change to fix-->
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
+		<!-- Conflicts with b/c in AbstractConnectionResolver -->
+		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+	</rule>
 
 	<!-- Individual rule configuration -->
 	<rule ref="WordPress.WP.I18n">

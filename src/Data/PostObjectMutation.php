@@ -122,19 +122,14 @@ class PostObjectMutation {
 	 * This updates additional data related to a post object, such as postmeta, term relationships,
 	 * etc.
 	 *
-	 * @param int          $post_id               $post_id      The ID of the postObject being
-	 *                                            mutated
-	 * @param array        $input                 The input for the mutation
-	 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being
- * mutated
-	 * @param string       $mutation_name         The name of the mutation (ex: create, update,
-	 *                                            delete)
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
+	 * @param int          $post_id                      The ID of the postObject being mutated
+	 * @param array        $input                        The input for the mutation
+	 * @param \WP_Post_Type $post_type_object            The Post Type Object for the type of post being mutated
+	 * @param string       $mutation_name                The name of the mutation (ex: create, update, delete)
+	 * @param \WPGraphQL\AppContext $context             The AppContext passed down to all resolvers
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
-	 * @param string       $intended_post_status  The intended post_status the post should have
-	 *                                            according to the mutation input
-	 * @param string       $default_post_status   The default status posts should use if an
-	 *                                            intended status wasn't set
+	 * @param string       $intended_post_status         The intended post_status the post should have according to the mutation input
+	 * @param string       $default_post_status          The default status posts should use if an intended status wasn't set
 	 *
 	 * @return void
 	 */

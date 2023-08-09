@@ -42,8 +42,6 @@ class MediaSize {
 						'type'        => 'Int',
 						'description' => __( 'The filesize of the resource', 'wp-graphql' ),
 						'resolve'     => static function ( $image, $args, $context, $info ) {
-							$src_url = null;
-
 							if ( ! empty( $image['ID'] ) && ! empty( $image['file'] ) ) {
 								$original_file = get_attached_file( absint( $image['ID'] ) );
 								$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $image['file'] ) : null;

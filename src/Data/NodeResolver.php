@@ -526,7 +526,7 @@ class NodeResolver {
 		}
 
 		// Convert urldecoded spaces back into '+'.
-		foreach ( get_taxonomies( [ 'show_in_graphql' => true ], 'objects' ) as $taxonomy => $t ) {
+		foreach ( get_taxonomies( [ 'show_in_graphql' => true ], 'objects' ) as $t ) {
 			if ( $t->query_var && isset( $this->wp->query_vars[ $t->query_var ] ) ) {
 				$this->wp->query_vars[ $t->query_var ] = str_replace( ' ', '+', $this->wp->query_vars[ $t->query_var ] );
 			}
@@ -576,6 +576,8 @@ class NodeResolver {
 
 	/**
 	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
+	 *
+	 * @param string $node_type The node type to check.
 	 */
 	protected function is_valid_node_type( string $node_type ) : bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;

@@ -392,9 +392,9 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @throws \Exception if child class forgot to implement this.
+	 * @throws \Exception If child class forgot to implement this.
 	 *
-	 * @return array the array of IDs.
+	 * @return array the array of IDs phpcs:ignore
 	 */
 	public function get_ids_from_query() {
 		throw new Exception(
@@ -631,6 +631,8 @@ abstract class AbstractConnectionResolver {
 	 * Returns the offset for a given cursor.
 	 *
 	 * Connections that use a string-based offset should override this method.
+	 *
+	 * @param ?string $cursor The cursor to get the offset for.
 	 *
 	 * @return int|mixed
 	 */

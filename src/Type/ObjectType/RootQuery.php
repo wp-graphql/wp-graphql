@@ -820,8 +820,8 @@ class RootQuery {
 					),
 					'args'              => $post_by_args,
 					'resolve'           => static function ( $source, array $args, $context ) use ( $post_type_object ) {
-						$post_object = null;
-						$post_id     = 0;
+						$post_id = 0;
+
 						if ( ! empty( $args['id'] ) ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
 							if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
