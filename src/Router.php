@@ -327,7 +327,7 @@ class Router {
 		);
 
 		// For cache url header, use the domain without protocol or path.
-		$graphql_endpoint  = graphql_get_endpoint_url() ;
+		$graphql_endpoint  = graphql_get_endpoint_url();
 		$endpoint_hostname = wp_parse_url( $graphql_endpoint, PHP_URL_HOST ) ?: $graphql_endpoint;
 
 		$headers = [
