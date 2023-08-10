@@ -326,6 +326,10 @@ class Router {
 			]
 		);
 
+		// For cache url header, use the domain without protocol or path.
+		$graphql_endpoint  = graphql_get_endpoint_url();
+		$endpoint_hostname = wp_parse_url( $graphql_endpoint, PHP_URL_HOST ) ?: $graphql_endpoint;
+
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
@@ -334,7 +338,7 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
-			'X-GraphQL-URL'                => graphql_get_endpoint_url(),
+			'X-GraphQL-URL'                => $endpoint_hostname,
 		];
 
 
