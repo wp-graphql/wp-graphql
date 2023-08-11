@@ -37,6 +37,9 @@ class PostObjectCursor extends AbstractCursor {
 
 		// Initialize the class properties.
 		parent::__construct( $query_vars, $cursor );
+
+		// Set ID key.
+		$this->id_key = "{$this->wpdb->posts}.ID";
 	}
 
 	/**
@@ -45,10 +48,18 @@ class PostObjectCursor extends AbstractCursor {
 	 * @return ?\WP_Post
 	 */
 	public function get_cursor_node() {
+		// Bail if no offset.
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
+		// If pre-hooked, return filtered node.
+		$pre_post = apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
+		if ( null !== $pre_post ) {
+			return $pre_post;
+		}
+
+		// Get cursor node.
 		$post = \WP_Post::get_instance( $this->cursor_offset );
 
 		return false !== $post ? $post : null;
@@ -133,13 +144,21 @@ class PostObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * No custom comparing. Use the default date
+		 * If there's no specific orderby, compare by the threshold fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_date();
+			$this->compare_with_threshold_fields(
+				[
+					[
+						'key'   => "{$this->wpdb->posts}.post_date",
+						'value' => $this->cursor_node->date,
+						'type'  => 'DATETIME'
+					],
+				]
+			);
 		}
 
-		$this->builder->add_field( "{$this->wpdb->posts}.ID", $this->cursor_offset, 'ID', $order );
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}
@@ -153,46 +172,44 @@ class PostObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
-		switch ( $by ) {
-			case 'author':
-			case 'title':
-			case 'type':
-			case 'name':
-			case 'modified':
-			case 'date':
-			case 'parent':
-				$by = 'post_' . $by;
-				break;
-		}
-
-		$value     = $this->cursor_node->{$by} ?? null;
-		$cursor_id = $this->cursor_node->ID ?? null;
-
-		/**
-		 * Compare by the post field if the key matches a value
-		 */
-		if ( ! empty( $value ) && ! empty( $cursor_id ) && ! metadata_exists( 'post', $cursor_id, $by ) ) {
-			$this->builder->add_field( "{$this->wpdb->posts}.{$by}", $value, null, $order );
-
+		// Bail early, if "key" and "value" provided in query_vars.
+		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		if ( ! empty( $key ) && ! empty( $value ) ) {
+			$this->builder->add_field( $key, $value, null, $order );
 			return;
 		}
 
 		/**
-		 * Find out whether this is a meta key based ordering
+		 * Find out whether this is a post field
 		 */
-		$meta_key = $this->get_meta_key( $by );
-		if ( $meta_key ) {
-			$this->compare_with_meta_field( $meta_key, $order );
+		$orderby_post_fields = [
+			'post_author',
+			'post_title',
+			'post_type',
+			'post_name',
+			'post_modified',
+			'post_date',
+			'post_parent',
+		];
+		if ( in_array( $by, $orderby_post_fields, true ) ) {
+			$key   = "{$this->wpdb->posts}.{$by}";
+			$value = $this->cursor_node->{$by} ?? null;
 		}
-	}
 
-	/**
-	 * Use post date based comparison
-	 *
-	 * @return void
-	 */
-	private function compare_with_date() {
-		$this->builder->add_field( "{$this->wpdb->posts}.post_date", $this->cursor_node->post_date ?? null, 'DATETIME' );
+		/**
+		 * If key or value are null, check whether this is a meta key based ordering before bailing.
+		 */
+		if ( null === $key || null === $value ) {
+			$meta_key = $this->get_meta_key( $by );
+			if ( $meta_key ) {
+				$this->compare_with_meta_field( $meta_key, $order );
+			}
+			return;
+		}
+
+		// Add field to build.
+		$this->builder->add_field( $key, $value, null, $order );
 	}
 
 	/**

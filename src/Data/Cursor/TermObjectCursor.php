@@ -18,6 +18,11 @@ class TermObjectCursor extends AbstractCursor {
 	public $meta_join_alias = 0;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected $id_key = 't.term_id';
+
+	/**
 	 * @param string $name The name of the query var to get
 	 *
 	 * @deprecated 1.9.0
@@ -36,10 +41,18 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return ?\WP_Term ;
 	 */
 	public function get_cursor_node() {
+		// Bail if no offset.
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
+	
+		// If pre-hooked, return filtered node.
+		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
+		if ( null !== $pre_term ) {
+			return $pre_term;
+		}
 
+		// Get cursor node.
 		$term = WP_Term::get_instance( $this->cursor_offset );
 
 		return $term instanceof WP_Term ? $term : null;
@@ -82,15 +95,21 @@ class TermObjectCursor extends AbstractCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
+		/**
+		 * If $orderby is just a string just compare with it directly as DESC
+		 */
 		if ( ! empty( $orderby ) && is_string( $orderby ) ) {
-
-			/**
-			 * If $orderby is just a string just compare with it directly as DESC
-			 */
 			$this->compare_with( $orderby, $order );
 		}
 
-		$this->builder->add_field( 't.term_id', $this->cursor_offset, 'ID' );
+		/**
+		 * If there's no specific orderby, compare by the threshold fields.
+		 */
+		if ( ! $this->builder->has_fields() ) {
+			$this->compare_with_threshold_fields();
+		}
+
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}
@@ -104,6 +123,16 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( string $by, string $order ) {
+
+		// Bail early, if "key" and "value" provided in query_vars.
+		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		if ( ! empty( $key ) && ! empty( $value ) ) {
+			$this->builder->add_field( $key, $value, null, $order );
+			return;
+		}
+
+		$key   = $by;
 		$value = $this->cursor_node->{$by};
 
 		/**
@@ -116,7 +145,7 @@ class TermObjectCursor extends AbstractCursor {
 				$order = 'ASC';
 			}
 
-			$this->builder->add_field( "{$by}", $value, null, $order );
+			$this->builder->add_field( $key, $value, null, $order );
 
 			return;
 		}

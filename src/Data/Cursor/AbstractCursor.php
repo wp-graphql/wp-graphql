@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use GraphQL\Error\InvariantViolation;
+
 /**
  * Abstract Cursor
  *
@@ -54,12 +56,21 @@ abstract class AbstractCursor {
 	public $query_vars = [];
 
 	/**
+	 * Stores SQL statement alias for the ID column applied to the cutoff
+	 *
+	 * @var string
+	 */
+	protected $id_key = '';
+
+	/**
 	 * The constructor
 	 *
-	 * @param array $query_vars
-	 * @param string|null $cursor
+	 * @param array       $query_vars         Query variable for the query to be executed.
+	 * @param string      $id_key             .
+	 * @param string|null $cursor             Cursor type. Either 'after' or 'before'.
+	 * @param array       $initial_threshold  
 	 */
-	public function __construct( $query_vars, $cursor = 'after' ) {
+	public function __construct( $query_vars, $cursor = 'after', $initial_threshold = [] ) {
 		global $wpdb;
 
 		$this->wpdb       = $wpdb;
@@ -99,7 +110,7 @@ abstract class AbstractCursor {
 	 * @return mixed|null
 	 */
 	public function get_query_var( string $name ) {
-		return ! empty( $this->query_vars[ $name ] ) ? $this->query_vars[ $name ] : null;
+		return isset( $this->query_vars[ $name ] ) ? $this->query_vars[ $name ] : null;
 	}
 
 	/**
@@ -130,6 +141,99 @@ abstract class AbstractCursor {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Validates threshold field configuration. Validation failure results in a fatal
+	 * error because query execution is guaranteed to fail.
+	 *
+	 * @param array $field  Threshold configuration.
+	 * 
+	 * @throws InvariationViolation Invalid configuration format.
+	 * 
+	 * @return void
+	 */
+	protected function is_valid_threshold_field( $field ) {
+		$class = get_called_class();
+		// Throw if an array not provided.
+		if ( ! is_array( $field ) ) {
+			$type  = gettype( $field );
+			throw new InvariantViolation( __( "Invalid value provided for {$class} threshold field. Expected Array, ${type} given.", 'ql-events' ) );
+		}
+
+		// Guard against missing or invalid "table column".
+		if ( empty( $field['key'] ) || ! is_string( $field['key'] ) ) {
+			throw new InvariantViolation( __( "Expected \"key\" value to be provided for {$class} threshold field. A string value must be given.", 'ql-events' ) );
+		}
+
+		// Guard against missing or invalid "by".
+		if ( empty( $field['value'] ) ) {
+			throw new InvariantViolation( __( "Expected \"value\" value to be provided for {$class} threshold field. A scalar value must be given.", 'ql-events' ) );
+		}
+		
+		// Guard against invalid "type".
+		if ( ! empty( $field['type'] ) && ! is_string( $field['type'] ) ) {
+			throw new InvariantViolation( __( "Invalid value provided for \"by\" value to be provided for type of {$class} threshold field. A string value must be given.", 'ql-events' ) );
+		}
+	}
+
+	/**
+	 * Returns the ID key.
+	 *
+	 * @return mixed
+	 */
+	public function get_cursor_id_key() {
+		$key = $this->get_query_var( 'graphql_cursor_id_key' );
+		if ( null === $key ) {
+			$key = $this->id_key;
+		}
+
+		return $key;
+	}
+
+	/**
+	 * Applies threshold fields to the cursor cutoff.
+	 * 
+	 * @param array $fallback  Default threshold fields.
+	 *
+	 * @return void
+	 */
+	protected function compare_with_threshold_fields( $fallback = [] ) {
+		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
+		if ( null === $threshold_fields ) {
+			$threshold_fields = $fallback;
+		}
+
+		// Check if only one threshold field provided, wrap it in an array.
+		if ( ! empty( $threshold_fields ) && is_array( $threshold_fields ) && ! isset( $threshold_fields[0] ) ) {
+			$threshold_fields = [ $threshold_fields ];
+		}
+
+		foreach ( $this->threshold_fields as $field ) {
+			$this->is_valid_threshold_field( $field );
+
+			$key   = $field['key'];
+			$value = $field['value'];
+			$type  = ! empty( $field['type'] ) ? $field['type'] : null;
+
+			$this->builder->add_field( $key, $value, $type );
+		}
+	}
+
+	/**
+	 * Applies ID field to the cursor builder.
+	 *
+	 * @return void
+	 */
+	protected function compare_with_id_field() {
+		$value = $this->get_query_var( 'graphql_cursor_id_value' );
+		if ( null === $value ) {
+			$value = (string) $this->cursor_offset;
+		}
+
+		$key = $this->get_cursor_id_key();
+		
+		$this->builder->add_field( $key, $value, 'ID' );
 	}
 
 	/**
