@@ -66,11 +66,9 @@ abstract class AbstractCursor {
 	 * The constructor
 	 *
 	 * @param array       $query_vars         Query variable for the query to be executed.
-	 * @param string      $id_key             .
 	 * @param string|null $cursor             Cursor type. Either 'after' or 'before'.
-	 * @param array       $initial_threshold  
 	 */
-	public function __construct( $query_vars, $cursor = 'after', $initial_threshold = [] ) {
+	public function __construct( $query_vars, $cursor = 'after' ) {
 		global $wpdb;
 
 		$this->wpdb       = $wpdb;
