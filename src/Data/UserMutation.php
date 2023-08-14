@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Data;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Types;
 
 /**
  * Class UserMutation
@@ -41,7 +41,7 @@ class UserMutation {
 				],
 				'websiteUrl'  => [
 					'type'        => 'String',
-					'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-grapql' ),
+					'description' => __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-graphql' ),
 				],
 				'email'       => [
 					'type'        => 'String',
@@ -122,6 +122,59 @@ class UserMutation {
 
 		$insert_user_args = [];
 
+		/**
+		 * Optional fields
+		 */
+		if ( isset( $input['nicename'] ) ) {
+			$insert_user_args['user_nicename'] = $input['nicename'];
+		}
+
+		if ( isset( $input['websiteUrl'] ) ) {
+			$insert_user_args['user_url'] = esc_url( $input['websiteUrl'] );
+		}
+
+		if ( isset( $input['displayName'] ) ) {
+			$insert_user_args['display_name'] = $input['displayName'];
+		}
+
+		if ( isset( $input['nickname'] ) ) {
+			$insert_user_args['nickname'] = $input['nickname'];
+		}
+
+		if ( isset( $input['firstName'] ) ) {
+			$insert_user_args['first_name'] = $input['firstName'];
+		}
+
+		if ( isset( $input['lastName'] ) ) {
+			$insert_user_args['last_name'] = $input['lastName'];
+		}
+
+		if ( isset( $input['description'] ) ) {
+			$insert_user_args['description'] = $input['description'];
+		}
+
+		if ( isset( $input['richEditing'] ) ) {
+			$insert_user_args['rich_editing'] = $input['richEditing'];
+		}
+
+		if ( isset( $input['registered'] ) ) {
+			$insert_user_args['user_registered'] = $input['registered'];
+		}
+
+		if ( isset( $input['locale'] ) ) {
+			$insert_user_args['locale'] = $input['locale'];
+		}
+
+		/**
+		 * Required fields
+		 */
+		if ( ! empty( $input['email'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
+				throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
+			}
+			$insert_user_args['user_email'] = $input['email'];
+		}
+
 		if ( ! empty( $input['password'] ) ) {
 			$insert_user_args['user_pass'] = $input['password'];
 		} else {
@@ -130,49 +183,6 @@ class UserMutation {
 
 		if ( ! empty( $input['username'] ) ) {
 			$insert_user_args['user_login'] = $input['username'];
-		}
-
-		if ( ! empty( $input['nicename'] ) ) {
-			$insert_user_args['user_nicename'] = $input['nicename'];
-		}
-
-		if ( ! empty( $input['websiteUrl'] ) ) {
-			$insert_user_args['user_url'] = esc_url( $input['websiteUrl'] );
-		}
-
-		if ( ! empty( $input['email'] ) ) {
-			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
-				throw new UserError( __( 'The email address you are trying to use is invalid', 'graphql' ) );
-			}
-			$insert_user_args['user_email'] = $input['email'];
-		}
-
-		if ( ! empty( $input['displayName'] ) ) {
-			$insert_user_args['display_name'] = $input['displayName'];
-		}
-
-		if ( ! empty( $input['nickname'] ) ) {
-			$insert_user_args['nickname'] = $input['nickname'];
-		}
-
-		if ( ! empty( $input['firstName'] ) ) {
-			$insert_user_args['first_name'] = $input['firstName'];
-		}
-
-		if ( ! empty( $input['lastName'] ) ) {
-			$insert_user_args['last_name'] = $input['lastName'];
-		}
-
-		if ( ! empty( $input['description'] ) ) {
-			$insert_user_args['description'] = $input['description'];
-		}
-
-		if ( ! empty( $input['richEditing'] ) ) {
-			$insert_user_args['rich_editing'] = $input['richEditing'];
-		}
-
-		if ( ! empty( $input['registered'] ) ) {
-			$insert_user_args['user_registered'] = $input['registered'];
 		}
 
 		if ( ! empty( $input['roles'] ) ) {
@@ -184,16 +194,12 @@ class UserMutation {
 			$insert_user_args['role'] = $input['roles'][0];
 		}
 
-		if ( ! empty( $input['locale'] ) ) {
-			$insert_user_args['locale'] = $input['locale'];
-		}
-
 		/**
 		 * Filters the mappings for input to arguments
 		 *
-		 * @var array  $insert_user_args The arguments to ultimately be passed to the WordPress function
-		 * @var array  $input            Input data from the GraphQL mutation
-		 * @var string $mutation_name    What user mutation is being performed for context
+		 * @param array  $insert_user_args The arguments to ultimately be passed to the WordPress function
+		 * @param array  $input            Input data from the GraphQL mutation
+		 * @param string $mutation_name    What user mutation is being performed for context
 		 */
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
@@ -208,9 +214,10 @@ class UserMutation {
 	 * @param int         $user_id       The ID of the user being mutated
 	 * @param array       $input         The input data from the GraphQL query
 	 * @param string      $mutation_name Name of the mutation currently being run
-	 * @param AppContext  $context       The AppContext passed down the resolve tree
-	 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 	 *
+	 * @return void
 	 * @throws \Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
@@ -226,8 +233,8 @@ class UserMutation {
 		 * @param int         $user_id       The ID of the user being mutated
 		 * @param array       $input         The input for the mutation
 		 * @param string      $mutation_name The name of the mutation (ex: create, update, delete)
-		 * @param AppContext  $context       The AppContext passed down the resolve tree
-		 * @param ResolveInfo $info          The ResolveInfo passed down the Resolve Tree
+		 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 		 */
 		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
 
@@ -239,6 +246,7 @@ class UserMutation {
 	 * @param int   $user_id The ID of the user
 	 * @param array $roles   List of roles that need to get added to the user
 	 *
+	 * @return void
 	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
@@ -259,10 +267,10 @@ class UserMutation {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
 					$message = $verified->get_error_message();
-					throw new \Exception( $message );
+					throw new Exception( $message );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new \Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
+					throw new Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
 				}
 			}
 		}

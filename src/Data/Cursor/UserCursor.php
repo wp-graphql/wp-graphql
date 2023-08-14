@@ -2,40 +2,22 @@
 
 namespace WPGraphQL\Data\Cursor;
 
+use WP_User;
+use WP_User_Query;
+
 /**
  * User Cursor
  *
  * This class generates the SQL AND operators for cursor based pagination for users
  *
- * @package WPGraphQL\Data
+ * @package WPGraphQL\Data\Cursor
  */
-class UserCursor {
+class UserCursor extends AbstractCursor {
 
 	/**
-	 * The global wpdb instance
-	 *
-	 * @var $wpdb
+	 * @var ?\WP_User
 	 */
-	public $wpdb;
-
-	/**
-	 * The WP_User_Query instance
-	 *
-	 * @var $query
-	 */
-	public $query;
-
-	/**
-	 * The current user id which is our cursor offset
-	 *
-	 * @var $user
-	 */
-	public $cursor_offset;
-
-	/**
-	 * @var \WPGraphQL\Data\Cursor\CursorBuilder
-	 */
-	public $builder;
+	public $cursor_node;
 
 	/**
 	 * Counter for meta value joins
@@ -45,86 +27,74 @@ class UserCursor {
 	public $meta_join_alias = 0;
 
 	/**
-	 * Copy of query vars so we can modify them safely
-	 */
-	public $query_vars = null;
-
-	/**
 	 * UserCursor constructor.
 	 *
-	 * @param \WP_User_Query $query The WP_User_Query instance
+	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
+	 * @param string|null         $cursor     Whether to generate the before or after cursor
+	 *
+	 * @return void
 	 */
-	public function __construct( $query ) {
-		global $wpdb;
-		$this->wpdb       = $wpdb;
-		$this->query      = $query;
-		$this->query_vars = $this->query->query_vars;
+	public function __construct( $query_vars, $cursor = 'after' ) {
+		// Handle deprecated use of $query.
+		if ( $query_vars instanceof WP_User_Query ) {
+			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '1.9.0' );
+			$query_vars = $query_vars->query_vars;
+		}
 
-		/**
-		 * Get the cursor offset if any
-		 */
-		$offset              = $this->get_query_var( 'graphql_cursor_offset' );
-		$this->cursor_offset = ! empty( $offset ) ? $offset : 0;
-
-		/**
-		 * Get the direction for the query builder
-		 */
-		$compare = ! empty( $query->get( 'graphql_cursor_compare' ) ) ? $query->get( 'graphql_cursor_compare' ) : '>';
-		$compare = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-
-		$this->builder = new CursorBuilder( $compare );
-
+		// Initialize the class properties.
+		parent::__construct( $query_vars, $cursor );
 	}
 
 	/**
-	 * Get user instance for the cursor.
+	 * {@inheritDoc}
 	 *
-	 * This is cached internally so it does not generate extra queries
-	 *
-	 * @return mixed WP_User|null
+	 * Unlike most queries, users by default are in ascending order.
 	 */
-	public function get_cursor_user() {
+	public function get_cursor_compare() {
+		if ( 'before' === $this->cursor ) {
+			return '<';
+		}
+		return '>';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @return ?\WP_User
+	 */
+	public function get_cursor_node() {
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
-		return get_user_by( 'id', $this->cursor_offset );
+		$user = get_user_by( 'id', $this->cursor_offset );
+
+		return false !== $user ? $user : null;
 	}
 
 	/**
-	 * Generate the final SQL string to be appended to WHERE clause
-	 *
-	 * @return string
+	 * @return ?\WP_User
+	 * @deprecated 1.9.0
+	 */
+	public function get_cursor_user() {
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		return $this->cursor_node;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function to_sql() {
 		return ' AND ' . $this->builder->to_sql();
 	}
 
 	/**
-	 * Get current WP_User_Query instance's query variables.
-	 *
-	 * @return mixed array|null
-	 */
-	public function get_query_var( $name ) {
-		return empty( $this->query_vars[ $name ] ) ? null : $this->query_vars[ $name ];
-	}
-
-	/**
-	 * Return the additional AND operators for the where statement
+	 * {@inheritDoc}
 	 */
 	public function get_where() {
-
-		/**
-		 * Ensure the cursor_offset is a positive integer
-		 */
-		if ( ! is_integer( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
-			return '';
-		}
-
-		/**
-		 * If we have bad cursor just skip...
-		 */
-		if ( ! $this->get_cursor_user() ) {
+		// If we have a bad cursor, just skip.
+		if ( ! $this->is_valid_offset_and_node() ) {
 			return '';
 		}
 
@@ -139,7 +109,7 @@ class UserCursor {
 			foreach ( $orderby as $by => $order ) {
 				$this->compare_with( $by, $order );
 			}
-		} elseif ( ! empty( $orderby ) && is_string( $orderby ) ) {
+		} elseif ( ! empty( $orderby ) && is_string( $orderby ) && 'login' !== $orderby ) {
 
 			/**
 			 * If $orderby is just a string just compare with it directly as DESC
@@ -155,16 +125,9 @@ class UserCursor {
 			$this->compare_with_login();
 		}
 
-		$this->builder->add_field( "{$this->wpdb->users}.ID", $this->cursor_offset, 'ID' );
+		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID', $order );
 
 		return $this->to_sql();
-	}
-
-	/**
-	 * Use user login based comparison
-	 */
-	private function compare_with_login() {
-		$this->builder->add_field( "{$this->wpdb->users}.user_login", $this->get_cursor_user()->user_login, 'CHAR' );
 	}
 
 	/**
@@ -173,7 +136,7 @@ class UserCursor {
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
 	 *
-	 * @return string
+	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
 
@@ -187,7 +150,7 @@ class UserCursor {
 				break;
 		}
 
-		$value = $this->get_cursor_user()->{$by};
+		$value = $this->cursor_node->{$by} ?? null;
 
 		/**
 		 * Compare by the user field if the key matches a value
@@ -211,14 +174,23 @@ class UserCursor {
 	}
 
 	/**
+	 * Use user login based comparison
+	 *
+	 * @return void
+	 */
+	private function compare_with_login() {
+		$this->builder->add_field( "{$this->wpdb->users}.user_login", $this->cursor_node->user_login ?? null, 'CHAR' );
+	}
+
+	/**
 	 * Compare with meta key field
 	 *
 	 * @param string $meta_key user meta key
 	 * @param string $order    The comparison string
 	 *
-	 * @return string
+	 * @return void
 	 */
-	private function compare_with_meta_field( $meta_key, $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ) {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_user_meta( $this->cursor_offset, $meta_key, true );
 

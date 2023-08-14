@@ -1,6 +1,9 @@
 <?php
 
 namespace WPGraphQL\Data\Loader;
+
+use Exception;
+use WPGraphQL\Model\Model;
 use WPGraphQL\Model\Plugin;
 
 /**
@@ -11,10 +14,10 @@ use WPGraphQL\Model\Plugin;
 class PluginLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return \WPGraphQL\Model\Model|Plugin
+	 * @return \WPGraphQL\Model\Model|\WPGraphQL\Model\Plugin
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -30,9 +33,16 @@ class PluginLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
+		if ( empty( $keys ) ) {
+			return $keys;
+		}
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		// This is missing must use and drop in plugins, so we need to fetch and merge them separately.
+		$site_plugins   = apply_filters( 'all_plugins', get_plugins() );
+		$mu_plugins     = apply_filters( 'show_advanced_plugins', true, 'mustuse' ) ? get_mu_plugins() : [];
+		$dropin_plugins = apply_filters( 'show_advanced_plugins', true, 'dropins' ) ? get_dropins() : [];
 
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		$plugins = apply_filters( 'all_plugins', get_plugins() );
+		$plugins = array_merge( $site_plugins, $mu_plugins, $dropin_plugins );
 
 		$loaded = [];
 		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
@@ -48,6 +58,5 @@ class PluginLoader extends AbstractDataLoader {
 		}
 
 		return $loaded;
-
 	}
 }

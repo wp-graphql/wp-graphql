@@ -5,6 +5,7 @@ namespace WPGraphQL\Mutation;
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
 use WPGraphQL\Model\User;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class UserDelete
@@ -14,6 +15,8 @@ use WPGraphQL\Model\User;
 class UserDelete {
 	/**
 	 * Registers the CommentCreate mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -56,16 +59,16 @@ class UserDelete {
 			'deletedId' => [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
-					$deleted = (object) $payload['userObject'];
+				'resolve'     => static function ( $payload ) {
+					$deleted = (object) $payload['user'];
 					return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
 				},
 			],
 			'user'      => [
 				'type'        => 'User',
 				'description' => __( 'The deleted user object', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
-					return new User( $payload['userObject'] );
+				'resolve'     => static function ( $payload ) {
+					return new User( $payload['user'] );
 				},
 			],
 		];
@@ -77,20 +80,22 @@ class UserDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input ) {
-			/**
-			 * Get the ID from the global ID
-			 */
-			$id_parts = Relay::fromGlobalId( $input['id'] );
+		return static function ( $input ) {
+			// Get the user ID.
+			$user_id = Utils::get_database_id_from_id( $input['id'] );
 
-			if ( ! current_user_can( 'delete_users', absint( $id_parts['id'] ) ) ) {
+			if ( empty( $user_id ) ) {
+				throw new UserError( __( 'The user ID passed is invalid', 'wp-graphql' ) );
+			}
+
+			if ( ! current_user_can( 'delete_users', $user_id ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to delete users.', 'wp-graphql' ) );
 			}
 
 			/**
 			 * Retrieve the user object before it's deleted
 			 */
-			$user_before_delete = get_user_by( 'id', absint( $id_parts['id'] ) );
+			$user_before_delete = get_user_by( 'id', $user_id );
 
 			/**
 			 * Throw an error if the user we are trying to delete doesn't exist
@@ -100,28 +105,56 @@ class UserDelete {
 			}
 
 			/**
-			 * Get the DB id for the user to reassign posts to from the relay ID.
+			 * Get the user to reassign posts to.
 			 */
-			$reassign_id_parts = ( ! empty( $input['reassignId'] ) ) ? Relay::fromGlobalId( $input['reassignId'] ) : null;
-			$reassign_id       = ( ! empty( $reassign_id_parts ) ) ? absint( $reassign_id_parts['id'] ) : null;
+			$reassign_id = 0;
+			if ( ! empty( $input['reassignId'] ) ) {
+				$reassign_id = Utils::get_database_id_from_id( $input['reassignId'] );
 
-			/**
-			 * If wpmu_delete_user() or wp_delete_user() doesn't exist yet,
-			 * load the files in which each is defined. I think we need to
-			 * load this manually here because WordPress only uses this
-			 * function on the user edit screen normally.
+				if ( empty( $reassign_id ) ) {
+					throw new UserError( __( 'The user ID passed to `reassignId` is invalid', 'wp-graphql' ) );
+				}
+				/**
+			 * Retrieve the user object before it's deleted
 			 */
-			if ( ! function_exists( 'wpmu_delete_user' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/ms.php';
+				$reassign_user = get_user_by( 'id', $reassign_id );
+
+				if ( false === $reassign_user ) {
+					throw new UserError( __( 'Could not find the existing user to reassign.', 'wp-graphql' ) );
+				}
 			}
+
 			if ( ! function_exists( 'wp_delete_user' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
 			if ( is_multisite() ) {
-				$deleted_user = wpmu_delete_user( absint( $id_parts['id'] ) );
+
+				/**
+				 * If wpmu_delete_user() or remove_user_from_blog() doesn't exist yet,
+				 * load the files in which each is defined. I think we need to
+				 * load this manually here because WordPress only uses this
+				 * function on the user edit screen normally.
+				 */
+
+				// only include these files for multisite requests
+				if ( ! function_exists( 'wpmu_delete_user' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/ms.php';
+				}
+				if ( ! function_exists( 'remove_user_from_blog' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/ms-functions.php';
+				}
+
+				$blog_id = get_current_blog_id();
+
+				// remove the user from the blog and reassign their posts
+				remove_user_from_blog( $user_id, $blog_id, $reassign_id );
+
+				// delete the user
+				$deleted_user = wpmu_delete_user( $user_id );
+
 			} else {
-				$deleted_user = wp_delete_user( absint( $id_parts['id'] ), $reassign_id );
+				$deleted_user = wp_delete_user( $user_id, $reassign_id );
 			}
 
 			if ( true !== $deleted_user ) {
@@ -129,7 +162,7 @@ class UserDelete {
 			}
 
 			return [
-				'userObject' => $user_before_delete,
+				'user' => $user_before_delete,
 			];
 		};
 	}

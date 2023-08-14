@@ -34,7 +34,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 		$role_to_test = 'norole';
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user_role', $role_to_test );
+		$global_id    = \GraphQLRelay\Relay::toGlobalId( 'user_role', $role_to_test );
 
 		$query = "
 		query {
@@ -48,7 +48,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = sprintf( 'No user role was found with the name %s', $role_to_test );
 
-		$actual = graphql(['query' => $query]);
+		$actual = graphql( [ 'query' => $query ] );
 		codecept_debug( $actual );
 
 		$this->assertEquals( $expected, $actual['errors'][0]['message'] );
@@ -67,7 +67,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$role_to_test = 'administrator';
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user_role', $role_to_test );
-		$role_obj = get_role( $role_to_test );
+		$role_obj  = get_role( $role_to_test );
 
 		$query = "
 		query {
@@ -81,13 +81,13 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'userRole' => [
-				'id' => $global_id,
-				'name' => $role_to_test,
+				'id'           => $global_id,
+				'name'         => $role_to_test,
 				'capabilities' => array_keys( $role_obj->capabilities, true, true ),
 			],
 		];
 
-		$actual = graphql(['query' => $query]);
+		$actual = graphql( [ 'query' => $query ] );
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );

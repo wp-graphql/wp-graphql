@@ -2,12 +2,16 @@
 
 namespace WPGraphQL\Model;
 
+use Exception;
 use GraphQLRelay\Relay;
+use WP_Post;
+use WP_User;
 
 /**
  * Class User - Models the data for the User object type
  *
  * @property string $id
+ * @property int    $databaseId
  * @property array  $capabilities
  * @property string $capKey
  * @property array  $roles
@@ -62,16 +66,17 @@ class User extends Model {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function __construct( \WP_User $user ) {
+	public function __construct( WP_User $user ) {
 
 		// Explicitly remove the user_pass early on so it doesn't show up in filters/hooks
-		$user->user_pass = null;
+		$user->user_pass = '';
 		$this->data      = $user;
 
 		$allowed_restricted_fields = [
 			'isRestricted',
 			'id',
 			'userId',
+			'databaseId',
 			'name',
 			'firstName',
 			'lastName',
@@ -88,6 +93,8 @@ class User extends Model {
 
 	/**
 	 * Setup the global data for the model to have proper context when resolving
+	 *
+	 * @return void
 	 */
 	public function setup() {
 
@@ -97,19 +104,21 @@ class User extends Model {
 		$this->global_post       = $post;
 		$this->global_authordata = $authordata;
 
-		if ( $this->data ) {
+		if ( $this->data instanceof WP_User ) {
 
 			// Reset postdata
 			$wp_query->reset_postdata();
 
 			// Parse the query to setup global state
-			$wp_query->parse_query([
-				'author_name' => $this->data->user_nicename,
-			]);
+			$wp_query->parse_query(
+				[
+					'author_name' => $this->data->user_nicename,
+				]
+			);
 
 			// Setup globals
 			$wp_query->is_author         = true;
-			$GLOBALS['authordata']       = $this->data;
+			$GLOBALS['authordata']       = $this->data; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 		}
@@ -119,10 +128,12 @@ class User extends Model {
 	/**
 	 * Reset global state after the model fields
 	 * have been generated
+	 *
+	 * @return void
 	 */
 	public function tear_down() {
-		$GLOBALS['authordata'] = $this->global_authordata;
-		$GLOBALS['post']       = $this->global_post;
+		$GLOBALS['authordata'] = $this->global_authordata; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+		$GLOBALS['post']       = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		wp_reset_postdata();
 	}
 
@@ -132,23 +143,21 @@ class User extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
-		if ( ! current_user_can( 'list_users' ) && false === $this->owner_matches_current_user() ) {
-
-			/**
-			 * @todo: We should handle this check in a Deferred resolver. Right now it queries once per user
-			 *      but we _could_ query once for _all_ users.
-			 *
-			 *      For now, we only query if the current user doesn't have list_users, instead of querying
-			 *      for ALL users. Slightly more efficient for authenticated users at least.
-			 */
-			if ( ! count_user_posts( absint( $this->data->ID ), \WPGraphQL::get_allowed_post_types(), true ) ) {
-				return true;
-			}
+		/**
+		 * If the user has permissions to list users.
+		 */
+		if ( current_user_can( $this->restricted_cap ) ) {
+			return false;
 		}
 
-		return false;
+		/**
+		 * If the owner of the content is the current user
+		 */
+		if ( true === $this->owner_matches_current_user() ) {
+			return false;
+		}
 
+		return $this->data->is_private ?? true;
 	}
 
 	/**
@@ -160,10 +169,13 @@ class User extends Model {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                       => function() {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', $this->data->ID ) : null;
+				'id'                       => function () {
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
 				},
-				'capabilities'             => function() {
+				'databaseId'               => function () {
+					return $this->userId;
+				},
+				'capabilities'             => function () {
 					if ( ! empty( $this->data->allcaps ) ) {
 
 						/**
@@ -173,7 +185,7 @@ class User extends Model {
 						$capabilities = array_keys(
 							array_filter(
 								$this->data->allcaps,
-								function( $cap ) {
+								static function ( $cap ) {
 									return true === $cap;
 								}
 							)
@@ -184,73 +196,81 @@ class User extends Model {
 					return ! empty( $capabilities ) ? $capabilities : null;
 
 				},
-				'capKey'                   => function() {
+				'capKey'                   => function () {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
-				'roles'                    => function() {
+				'roles'                    => function () {
 					return ! empty( $this->data->roles ) ? $this->data->roles : null;
 				},
-				'email'                    => function() {
+				'email'                    => function () {
 					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
-				'firstName'                => function() {
+				'firstName'                => function () {
 					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
 				},
-				'lastName'                 => function() {
+				'lastName'                 => function () {
 					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
 				},
-				'extraCapabilities'        => function() {
+				'extraCapabilities'        => function () {
 					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
 				},
-				'description'              => function() {
+				'description'              => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'username'                 => function() {
+				'username'                 => function () {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
 				},
-				'name'                     => function() {
+				'name'                     => function () {
 					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
 				},
-				'registeredDate'           => function() {
-					return ! empty( $this->data->user_registered ) ? gmdate( 'c', strtotime( $this->data->user_registered ) ) : null;
+				'registeredDate'           => function () {
+					$timestamp = ! empty( $this->data->user_registered ) ? strtotime( $this->data->user_registered ) : null;
+					return ! empty( $timestamp ) ? gmdate( 'c', $timestamp ) : null;
 				},
-				'nickname'                 => function() {
+				'nickname'                 => function () {
 					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
 				},
-				'url'                      => function() {
+				'url'                      => function () {
 					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
 				},
-				'slug'                     => function() {
+				'slug'                     => function () {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'nicename'                 => function() {
+				'nicename'                 => function () {
 					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
 				},
-				'locale'                   => function() {
+				'locale'                   => function () {
 					$user_locale = get_user_locale( $this->data );
 
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
+				'shouldShowAdminToolbar'   => function () {
+					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
+
+					return 'true' === $toolbar_preference_meta ? true : false;
+				},
 				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
-				'uri'                      => function() {
+				'uri'                      => function () {
 					$user_profile_url = get_author_posts_url( $this->data->ID );
 
 					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
 				},
-				'enqueuedScriptsQueue'     => function() {
+				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_scripts->queue;
 					$wp_scripts->reset();
 					$wp_scripts->queue = [];
+
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function() {
+				'enqueuedStylesheetsQueue' => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;
 					$wp_styles->reset();
 					$wp_styles->queue = [];
+
 					return $queue;
 				},
 			];

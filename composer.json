@@ -1,61 +1,111 @@
 {
-  "name": "wp-graphql/wp-graphql",
-  "description": "GraphQL API for WordPress",
-  "type": "wordpress-plugin",
-  "license": "GPL-3.0-or-later",
-  "authors": [
-    {
-      "name": "Jason Bahl",
-      "email": "jasonbahl@mac.com"
-    },
-    {
-      "name": "Edwin Cromley"
-    },
-    {
-      "name": "Ryan Kanner"
-    },
-    {
-      "name": "Hughie Devore"
-    },
-    {
-      "name": "Chris Zarate"
-    }
-  ],
-  "require": {
-    "php": "^7.1||^8.0",
-    "webonyx/graphql-php": "14.3.0",
-    "ivome/graphql-relay-php": "0.3.1"
-  },
-  "require-dev": {
-    "lucatume/wp-browser": "^2.4",
-    "codeception/module-asserts": "^1.0",
-    "codeception/module-phpbrowser": "^1.0",
-    "codeception/module-webdriver": "^1.0",
-    "codeception/module-db": "^1.0",
-    "codeception/module-filesystem": "^1.0",
-    "codeception/module-cli": "^1.0",
-    "codeception/util-universalframework": "^1.0",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-    "wp-coding-standards/wpcs": "2.1.1",
-    "phpcompatibility/phpcompatibility-wp": "2.1.0",
-    "squizlabs/php_codesniffer": "3.5.4",
-    "phpstan/phpstan": "^0.12.25",
-    "szepeviktor/phpstan-wordpress": "^0.7.1",
-    "codeception/module-rest": "^1.2",
-    "phpstan/extension-installer": "^1.0"
-  },
-  "config": {
-    "optimize-autoloader": true
-  },
-  "autoload": {
-    "psr-4": {
-      "WPGraphQL\\": "src/"
-    }
-  },
-  "scripts": {
-    "phpcs-i": ["phpcs -i"],
-    "check-cs": ["phpcs"],
-    "fix-cs": ["phpcbf"],
-    "phpstan": ["phpstan analyze --ansi --memory-limit=1G"]
-  }
+	"name": "wp-graphql/wp-graphql",
+	"description": "GraphQL API for WordPress",
+	"type": "wordpress-plugin",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Jason Bahl",
+			"email": "jasonbahl@mac.com"
+		},
+		{
+			"name": "Edwin Cromley"
+		},
+		{
+			"name": "Ryan Kanner"
+		},
+		{
+			"name": "Hughie Devore"
+		},
+		{
+			"name": "Chris Zarate"
+		}
+	],
+	"require": {
+		"php": "^7.1 || ^8.0",
+		"webonyx/graphql-php": "14.11.10",
+		"ivome/graphql-relay-php": "0.6.0",
+		"appsero/client": "1.2.1"
+	},
+	"require-dev": {
+		"automattic/vipwpcs": "^2.2",
+		"codeception/module-asserts": "^1.0",
+		"codeception/module-cli": "^1.0",
+		"codeception/module-db": "^1.0",
+		"codeception/module-filesystem": "^1.0",
+		"codeception/module-phpbrowser": "^1.0",
+		"codeception/module-rest": "^1.2",
+		"codeception/module-webdriver": "^1.0",
+		"codeception/util-universalframework": "^1.0",
+		"lucatume/wp-browser": "^3.1.6",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpstan/extension-installer": "^1.1",
+		"phpstan/phpstan": "~1.10.18",
+		"phpunit/phpunit": "^9.5",
+		"simpod/php-coveralls-mirror": "^3.0",
+		"slevomat/coding-standard": "^8.9",
+		"szepeviktor/phpstan-wordpress": "~1.3.0",
+		"wp-graphql/wp-graphql-testcase": "~2.3"
+	},
+	"config": {
+		"platform": {
+			"php": "7.3"
+		},
+		"optimize-autoloader": true,
+		"process-timeout": 0,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
+		}
+	},
+	"autoload": {
+		"files": [
+			"access-functions.php",
+			"activation.php",
+			"deactivation.php"
+		],
+		"psr-4": {
+			"WPGraphQL\\": "src/"
+		}
+	},
+	"scripts": {
+		"install-test-env": "bash bin/install-test-env.sh",
+		"docker-build": "bash bin/run-docker.sh build",
+		"docker-run": "bash bin/run-docker.sh run",
+		"docker-destroy": "docker-compose down",
+		"build-and-run": [
+			"@docker-build",
+			"@docker-run"
+		],
+		"build-app": "@docker-build -a",
+		"build-test": "@docker-build -t",
+		"run-app": "@docker-run -a",
+		"run-test": "@docker-run -t",
+		"lint": "vendor/bin/phpcs",
+		"phpcs-i": [
+			"php ./vendor/bin/phpcs -i"
+		],
+		"check-cs": [
+			"php ./vendor/bin/phpcs"
+		],
+		"fix-cs": [
+			"php ./vendor/bin/phpcbf"
+		],
+		"phpstan": [
+			"phpstan analyze --ansi --memory-limit=2G"
+		]
+	},
+	"archive": {
+		"exclude": [
+			"*.yml",
+			"!vendor/",
+			"plugin-build/",
+			"node_modules/",
+			"!.wordpress-org/",
+			"docs/",
+			"wp-graphql.zip",
+			"!build",
+			"packages"
+		]
+	}
 }

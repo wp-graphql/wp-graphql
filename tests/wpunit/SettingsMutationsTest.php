@@ -1,6 +1,6 @@
 <?php
 
-class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
+class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $clientMutationId;
 	public $defaultCategory;
@@ -29,8 +29,12 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 	public $admin_name;
 
 	public function setUp(): void {
+		// before
+		parent::setUp();
 
-		$this->subscriber = $this->factory->user->create( [
+		$this->clearSchema();
+
+		$this->subscriber      = $this->factory->user->create( [
 			'role' => 'subscriber',
 		] );
 		$this->subscriber_name = 'User ' . $this->subscriber;
@@ -45,7 +49,7 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin = $this->factory->user->create( [
+		$this->admin      = $this->factory->user->create( [
 			'role' => 'administrator',
 		] );
 		$this->admin_name = 'User ' . $this->admin;
@@ -75,59 +79,56 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		if ( is_multisite() ) {
 			$this->update_variables = [
 				'input' => [
-					'clientMutationId'                       => $this->clientMutationId,
+					'clientMutationId'                    => $this->clientMutationId,
 					'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-					'discussionSettingsDefaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-					'generalSettingsDateFormat'              => $this->generalSettingsDateFormat,
-					'generalSettingsDescription'             => $this->generalSettingsDescription,
-					'generalSettingsLanguage'                => $this->generalSettingsLanguage,
-					'generalSettingsStartOfWeek'             => $this->generalSettingsStartOfWeek,
-					'generalSettingsTimeFormat'              => $this->generalSettingsTimeFormat,
-					'generalSettingsTimezone'                => $this->generalSettingsTimezone,
-					'generalSettingsTitle'                   => $this->generalSettingsTitle,
-					'readingSettingsPostsPerPage'            => $this->readingSettingsPostsPerPage,
-					'writingSettingsDefaultCategory'         => $this->writingSettingsDefaultCategory,
-					'writingSettingsDefaultPostFormat'       => $this->writingSettingsDefaultPostFormat,
-					'writingSettingsUseSmilies'              => $this->writingSettingsUseSmilies,
+					'discussionSettingsDefaultPingStatus' => $this->discussionSettingsDefaultPingStatus,
+					'generalSettingsDateFormat'           => $this->generalSettingsDateFormat,
+					'generalSettingsDescription'          => $this->generalSettingsDescription,
+					'generalSettingsLanguage'             => $this->generalSettingsLanguage,
+					'generalSettingsStartOfWeek'          => $this->generalSettingsStartOfWeek,
+					'generalSettingsTimeFormat'           => $this->generalSettingsTimeFormat,
+					'generalSettingsTimezone'             => $this->generalSettingsTimezone,
+					'generalSettingsTitle'                => $this->generalSettingsTitle,
+					'readingSettingsPostsPerPage'         => $this->readingSettingsPostsPerPage,
+					'writingSettingsDefaultCategory'      => $this->writingSettingsDefaultCategory,
+					'writingSettingsDefaultPostFormat'    => $this->writingSettingsDefaultPostFormat,
+					'writingSettingsUseSmilies'           => $this->writingSettingsUseSmilies,
 				],
 			];
 		} else {
 			$this->update_variables = [
 				'input' => [
-					'clientMutationId'                       => $this->clientMutationId,
+					'clientMutationId'                    => $this->clientMutationId,
 					'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-					'discussionSettingsDefaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-					'generalSettingsDateFormat'              => $this->generalSettingsDateFormat,
-					'generalSettingsDescription'             => $this->generalSettingsDescription,
-					'generalSettingsEmail'                   => $this->generalSettingsEmail,
-					'generalSettingsLanguage'                => $this->generalSettingsLanguage,
-					'generalSettingsStartOfWeek'             => $this->generalSettingsStartOfWeek,
-					'generalSettingsTimeFormat'              => $this->generalSettingsTimeFormat,
-					'generalSettingsTimezone'                => $this->generalSettingsTimezone,
-					'generalSettingsTitle'                   => $this->generalSettingsTitle,
-					'readingSettingsPostsPerPage'            => $this->readingSettingsPostsPerPage,
-					'writingSettingsDefaultCategory'         => $this->writingSettingsDefaultCategory,
-					'writingSettingsDefaultPostFormat'       => $this->writingSettingsDefaultPostFormat,
-					'writingSettingsUseSmilies'              => $this->writingSettingsUseSmilies,
+					'discussionSettingsDefaultPingStatus' => $this->discussionSettingsDefaultPingStatus,
+					'generalSettingsDateFormat'           => $this->generalSettingsDateFormat,
+					'generalSettingsDescription'          => $this->generalSettingsDescription,
+					'generalSettingsEmail'                => $this->generalSettingsEmail,
+					'generalSettingsLanguage'             => $this->generalSettingsLanguage,
+					'generalSettingsStartOfWeek'          => $this->generalSettingsStartOfWeek,
+					'generalSettingsTimeFormat'           => $this->generalSettingsTimeFormat,
+					'generalSettingsTimezone'             => $this->generalSettingsTimezone,
+					'generalSettingsTitle'                => $this->generalSettingsTitle,
+					'readingSettingsPostsPerPage'         => $this->readingSettingsPostsPerPage,
+					'writingSettingsDefaultCategory'      => $this->writingSettingsDefaultCategory,
+					'writingSettingsDefaultPostFormat'    => $this->writingSettingsDefaultPostFormat,
+					'writingSettingsUseSmilies'           => $this->writingSettingsUseSmilies,
 				],
 			];
 		}
 
 		/**
 		* Manually Register a setting for testing
-	    *
-        * This registers a setting as a number to see if it gets the correct type
-        * associated with it and returned through WPGraphQL
-	    */
-		register_setting( 'Zool', 'points', array(
-			'type'         => 'number',
-			'description'  => __( 'Test how many points we have in Zool.' ),
+		*
+		* This registers a setting as a number to see if it gets the correct type
+		* associated with it and returned through WPGraphQL
+		*/
+		register_setting( 'Zool', 'points', [
+			'type'            => 'number',
+			'description'     => __( 'Test how many points we have in Zool.' ),
 			'show_in_graphql' => true,
-			'default' => 4.5,
-		) );
-
-		parent::setUp();
-
+			'default'         => 4.5,
+		] );
 	}
 
 	public function tearDown(): void {
@@ -148,103 +149,103 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		if ( is_multisite() ) {
 			$mutation = '
 				mutation updateSettings( $input: UpdateSettingsInput! ){
-				  updateSettings( input: $input ) {
-				    clientMutationId
-				    allSettings {
-				      discussionSettingsDefaultCommentStatus
-				      discussionSettingsDefaultPingStatus
-				      generalSettingsDateFormat
-				      generalSettingsDescription
-				      generalSettingsLanguage
-				      generalSettingsStartOfWeek
-				      generalSettingsTimeFormat
-				      generalSettingsTimezone
-				      generalSettingsTitle
-				      readingSettingsPostsPerPage
-				      writingSettingsDefaultCategory
-				      writingSettingsDefaultPostFormat
-				      writingSettingsUseSmilies
-				    }
-				    discussionSettings {
-				      defaultCommentStatus
-				      defaultPingStatus
-				    }
-				    generalSettings {
-				      dateFormat
-				      description
-				      language
-				      startOfWeek
-				      timeFormat
-				      timezone
-				      title
-				    }
-				    readingSettings {
-				      postsPerPage
-				    }
-				    writingSettings {
-				      defaultCategory
-				      defaultPostFormat
-				      useSmilies
-				    }
-				  }
+					updateSettings( input: $input ) {
+						clientMutationId
+						allSettings {
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
+						}
+						discussionSettings {
+							defaultCommentStatus
+							defaultPingStatus
+						}
+						generalSettings {
+							dateFormat
+							description
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
+						}
+						readingSettings {
+							postsPerPage
+						}
+						writingSettings {
+							defaultCategory
+							defaultPostFormat
+							useSmilies
+						}
+					}
 				}
 			';
 
 		} else {
 			$mutation = '
 				mutation updateSettings( $input: UpdateSettingsInput! ){
-				  updateSettings( input: $input ) {
-				    clientMutationId
-				    allSettings {
-				      discussionSettingsDefaultCommentStatus
-				      discussionSettingsDefaultPingStatus
-				      generalSettingsDateFormat
-				      generalSettingsDescription
-				      generalSettingsEmail
-				      generalSettingsLanguage
-				      generalSettingsStartOfWeek
-				      generalSettingsTimeFormat
-				      generalSettingsTimezone
-				      generalSettingsTitle
-				      generalSettingsUrl
-				      readingSettingsPostsPerPage
-				      writingSettingsDefaultCategory
-				      writingSettingsDefaultPostFormat
-				      writingSettingsUseSmilies
-				    }
-				    discussionSettings {
-				      defaultCommentStatus
-				      defaultPingStatus
-				    }
-				    generalSettings {
-				      dateFormat
-				      description
-				      email
-				      language
-				      startOfWeek
-				      timeFormat
-				      timezone
-				      title
-				      url
-				    }
-				    readingSettings {
-				      postsPerPage
-				    }
-				    writingSettings {
-				      defaultCategory
-				      defaultPostFormat
-				      useSmilies
-				    }
-				  }
+					updateSettings( input: $input ) {
+						clientMutationId
+						allSettings {
+							discussionSettingsDefaultCommentStatus
+							discussionSettingsDefaultPingStatus
+							generalSettingsDateFormat
+							generalSettingsDescription
+							generalSettingsEmail
+							generalSettingsLanguage
+							generalSettingsStartOfWeek
+							generalSettingsTimeFormat
+							generalSettingsTimezone
+							generalSettingsTitle
+							generalSettingsUrl
+							readingSettingsPostsPerPage
+							writingSettingsDefaultCategory
+							writingSettingsDefaultPostFormat
+							writingSettingsUseSmilies
+						}
+						discussionSettings {
+							defaultCommentStatus
+							defaultPingStatus
+						}
+						generalSettings {
+							dateFormat
+							description
+							email
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
+							url
+						}
+						readingSettings {
+							postsPerPage
+						}
+						writingSettings {
+							defaultCategory
+							defaultPostFormat
+							useSmilies
+						}
+					}
 				}
 			';
 
 		}
 
-		$actual = do_graphql_request( $mutation, 'updateSettings', $this->update_variables );
-
-		codecept_debug( $actual );
-
+		$actual = $this->graphql([
+			'query'     => $mutation,
+			'variables' => $this->update_variables,
+		]);
 
 		return $actual;
 	}
@@ -286,14 +287,14 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		 */
 		wp_set_current_user( $this->editor );
 
-		$query = "
+		$query  = '
 			query {
 				allSettings {
-				    generalSettingsEmail
+					generalSettingsEmail
 				}
-		    }
-	    ";
-		$actual = do_graphql_request( $query );
+			}
+		';
+		$actual = $this->graphql( compact( 'query' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
 
 	}
@@ -346,18 +347,18 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 					'clientMutationId'   => $this->clientMutationId,
 					'allSettings'        => [
 						'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
-						'discussionSettingsDefaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
-						'generalSettingsDateFormat'              => $this->generalSettingsDateFormat,
-						'generalSettingsDescription'             => $this->generalSettingsDescription,
-						'generalSettingsLanguage'                => $this->generalSettingsLanguage,
-						'generalSettingsStartOfWeek'             => $this->generalSettingsStartOfWeek,
-						'generalSettingsTimeFormat'              => $this->generalSettingsTimeFormat,
-						'generalSettingsTimezone'                => $this->generalSettingsTimezone,
-						'generalSettingsTitle'                   => $this->generalSettingsTitle,
-						'readingSettingsPostsPerPage'            => $this->readingSettingsPostsPerPage,
-						'writingSettingsDefaultCategory'         => $this->writingSettingsDefaultCategory,
-						'writingSettingsDefaultPostFormat'       => $this->writingSettingsDefaultPostFormat,
-						'writingSettingsUseSmilies'              => $this->writingSettingsUseSmilies,
+						'discussionSettingsDefaultPingStatus' => $this->discussionSettingsDefaultPingStatus,
+						'generalSettingsDateFormat'        => $this->generalSettingsDateFormat,
+						'generalSettingsDescription'       => $this->generalSettingsDescription,
+						'generalSettingsLanguage'          => $this->generalSettingsLanguage,
+						'generalSettingsStartOfWeek'       => $this->generalSettingsStartOfWeek,
+						'generalSettingsTimeFormat'        => $this->generalSettingsTimeFormat,
+						'generalSettingsTimezone'          => $this->generalSettingsTimezone,
+						'generalSettingsTitle'             => $this->generalSettingsTitle,
+						'readingSettingsPostsPerPage'      => $this->readingSettingsPostsPerPage,
+						'writingSettingsDefaultCategory'   => $this->writingSettingsDefaultCategory,
+						'writingSettingsDefaultPostFormat' => $this->writingSettingsDefaultPostFormat,
+						'writingSettingsUseSmilies'        => $this->writingSettingsUseSmilies,
 					],
 					'discussionSettings' => [
 						'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
@@ -385,29 +386,29 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 		} else {
 			$expected = [
 				'updateSettings' => [
-					'clientMutationId' => $this->clientMutationId,
-					'allSettings'             => [
-						'discussionSettingsDefaultCommentStatus'         => $this->discussionSettingsDefaultCommentStatus,
-						'discussionSettingsDefaultPingStatus'            => $this->discussionSettingsDefaultPingStatus,
-						'generalSettingsDateFormat'                      => $this->generalSettingsDateFormat,
-						'generalSettingsDescription'                     => $this->generalSettingsDescription,
-						'generalSettingsEmail'                           => $this->generalSettingsEmail,
-						'generalSettingsLanguage'                        => $this->generalSettingsLanguage,
-						'generalSettingsStartOfWeek'                     => $this->generalSettingsStartOfWeek,
-						'generalSettingsTimeFormat'                      => $this->generalSettingsTimeFormat,
-						'generalSettingsTimezone'                        => $this->generalSettingsTimezone,
-						'generalSettingsTitle'                           => $this->generalSettingsTitle,
-						'generalSettingsUrl'                             => 'http://wpgraphql.test',
-						'readingSettingsPostsPerPage'                    => $this->readingSettingsPostsPerPage,
-						'writingSettingsDefaultCategory'                 => $this->writingSettingsDefaultCategory,
-						'writingSettingsDefaultPostFormat'               => $this->writingSettingsDefaultPostFormat,
-						'writingSettingsUseSmilies'                      => $this->writingSettingsUseSmilies,
+					'clientMutationId'   => $this->clientMutationId,
+					'allSettings'        => [
+						'discussionSettingsDefaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
+						'discussionSettingsDefaultPingStatus' => $this->discussionSettingsDefaultPingStatus,
+						'generalSettingsDateFormat'        => $this->generalSettingsDateFormat,
+						'generalSettingsDescription'       => $this->generalSettingsDescription,
+						'generalSettingsEmail'             => $this->generalSettingsEmail,
+						'generalSettingsLanguage'          => $this->generalSettingsLanguage,
+						'generalSettingsStartOfWeek'       => $this->generalSettingsStartOfWeek,
+						'generalSettingsTimeFormat'        => $this->generalSettingsTimeFormat,
+						'generalSettingsTimezone'          => $this->generalSettingsTimezone,
+						'generalSettingsTitle'             => $this->generalSettingsTitle,
+						'generalSettingsUrl'               => 'http://localhost',
+						'readingSettingsPostsPerPage'      => $this->readingSettingsPostsPerPage,
+						'writingSettingsDefaultCategory'   => $this->writingSettingsDefaultCategory,
+						'writingSettingsDefaultPostFormat' => $this->writingSettingsDefaultPostFormat,
+						'writingSettingsUseSmilies'        => $this->writingSettingsUseSmilies,
 					],
-					'discussionSettings'    => [
+					'discussionSettings' => [
 						'defaultCommentStatus' => $this->discussionSettingsDefaultCommentStatus,
 						'defaultPingStatus'    => $this->discussionSettingsDefaultPingStatus,
 					],
-					'generalSettings'       => [
+					'generalSettings'    => [
 						'dateFormat'  => $this->generalSettingsDateFormat,
 						'description' => $this->generalSettingsDescription,
 						'email'       => $this->generalSettingsEmail,
@@ -416,12 +417,12 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 						'timeFormat'  => $this->generalSettingsTimeFormat,
 						'timezone'    => $this->generalSettingsTimezone,
 						'title'       => $this->generalSettingsTitle,
-						'url'         => 'http://wpgraphql.test',
+						'url'         => 'http://localhost',
 					],
-					'readingSettings'       => [
+					'readingSettings'    => [
 						'postsPerPage' => $this->readingSettingsPostsPerPage,
 					],
-					'writingSettings'       => [
+					'writingSettings'    => [
 						'defaultCategory'   => $this->writingSettingsDefaultCategory,
 						'defaultPostFormat' => $this->writingSettingsDefaultPostFormat,
 						'useSmilies'        => $this->writingSettingsUseSmilies,
@@ -460,11 +461,47 @@ class SettingsMutationsTest extends \Codeception\TestCase\WPTestCase  {
 
 		$actual = $this->updateSettingsMutation();
 
-		codecept_debug( $actual );
-
 		$start_of_week = $actual['data']['updateSettings']['generalSettings']['startOfWeek'];
 
-		$this->assertEquals( 0, $start_of_week);
+		$this->assertEquals( 0, $start_of_week );
+	}
+
+	public function testRegisteringSettingWithUnderscoresAllowsSettingToBeMutated() {
+
+		register_setting( 'my_setting_group', 'my_setting_field', [
+			'show_in_rest' => true,
+			'type'         => 'string',
+		] );
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		mutation updateSettings( $input: UpdateSettingsInput! ) {
+			updateSettings( input: $input ) { 
+				allSettings {
+					mySettingGroupSettingsMySettingField
+				}
+				mySettingGroupSettings {
+					mySettingField
+				}
+			}
+		}
+		';
+
+		$unique_value = uniqid( 'test', true );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'input' => [
+					'mySettingGroupSettingsMySettingField' => $unique_value,
+				],
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $unique_value, $actual['data']['updateSettings']['allSettings']['mySettingGroupSettingsMySettingField'] );
+		$this->assertSame( $unique_value, $actual['data']['updateSettings']['mySettingGroupSettings']['mySettingField'] );
 	}
 
 }

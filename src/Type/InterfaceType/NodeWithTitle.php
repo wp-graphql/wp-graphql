@@ -8,11 +8,20 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithTitle {
+
+	/**
+	 * Registers the NodeWithTitle Type to the Schema
+	 *
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
 		register_graphql_interface_type(
 			'NodeWithTitle',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
 				'fields'      => [
 					'title' => [
@@ -24,7 +33,7 @@ class NodeWithTitle {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function( $source, $args ) {
+						'resolve'     => static function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->titleRaw;

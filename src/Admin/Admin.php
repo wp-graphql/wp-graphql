@@ -27,7 +27,7 @@ class Admin {
 	protected $graphiql_enabled;
 
 	/**
-	 * @var Settings
+	 * @var \WPGraphQL\Admin\Settings\Settings
 	 */
 	protected $settings;
 
@@ -45,7 +45,7 @@ class Admin {
 
 		// This removes the menu page for WPGraphiQL as it's now built into WPGraphQL
 		if ( $this->graphiql_enabled ) {
-			add_action( 'admin_menu', function() {
+			add_action( 'admin_menu', static function () {
 				remove_menu_page( 'wp-graphiql/wp-graphiql.php' );
 			} );
 		}
@@ -59,6 +59,7 @@ class Admin {
 		$this->settings->init();
 
 		if ( 'on' === $this->graphiql_enabled || true === $this->graphiql_enabled ) {
+			global $graphiql;
 			$graphiql = new GraphiQL();
 			$graphiql->init();
 		}

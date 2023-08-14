@@ -3,10 +3,9 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentRestore
@@ -16,6 +15,8 @@ use WPGraphQL\Data\DataSource;
 class CommentRestore {
 	/**
 	 * Registers the CommentRestore mutation.
+	 *
+	 * @return void
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -54,20 +55,20 @@ class CommentRestore {
 			'restoredId' => [
 				'type'        => 'Id',
 				'description' => __( 'The ID of the restored comment', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$restore = (object) $payload['commentObject'];
 
-					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $restore->comment_ID ) ) : null;
+					return ! empty( $restore->comment_ID ) ? Relay::toGlobalId( 'comment', $restore->comment_ID ) : null;
 				},
 			],
 			'comment'    => [
 				'type'        => 'Comment',
 				'description' => __( 'The restored comment object', 'wp-graphql' ),
-				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload, $args, AppContext $context ) {
 					if ( ! isset( $payload['commentObject']->comment_ID ) || ! absint( $payload['commentObject']->comment_ID ) ) {
 						return null;
 					}
-					return DataSource::resolve_comment( absint( $payload['commentObject']->comment_ID ), $context );
+					return $context->get_loader( 'comment' )->load_deferred( absint( $payload['commentObject']->comment_ID ) );
 				},
 			],
 		];
@@ -79,28 +80,21 @@ class CommentRestore {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input ) {
-			/**
-			 * Get the ID from the global ID
-			 */
-			$id_parts = Relay::fromGlobalId( $input['id'] );
-
-			/**
-			 * Get the post object before deleting it
-			 */
-			$comment_id = absint( $id_parts['id'] );
-
-			/**
-			 * Stop now if a user isn't allowed to delete the comment
-			 */
+		return static function ( $input ) {
+			// Stop now if a user isn't allowed to delete the comment.
 			if ( ! current_user_can( 'moderate_comments' ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
+				throw new UserError( __( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
 			}
 
-			/**
-			 * Delete the comment
-			 */
-			wp_untrash_comment( $id_parts['id'] );
+			// Get the database ID for the comment.
+			$comment_id = Utils::get_database_id_from_id( $input['id'] );
+
+			if ( false === $comment_id ) {
+				throw new UserError( __( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
+			}
+
+			// Delete the comment.
+			wp_untrash_comment( $comment_id );
 
 			$comment = get_comment( $comment_id );
 

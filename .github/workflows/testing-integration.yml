@@ -9,38 +9,99 @@ on:
     branches:
       - develop
       - master
+    paths:
+      - '**.php'
+      - '.github/workflows/*.yml'
+      - '!docs/**'
+
 jobs:
-  run:
+  continuous_integration:
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        php: ['7.4', '7.3' ]
-        wordpress: ['5.3.2', '5.4.1', '5.5.3']
-        include:
-          - php: '7.4'
-            wordpress: '5.5.3'
-            coverage: true
       fail-fast: false
-    name: Testing w/ WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
+      matrix:
+        php: [ '8.2', '8.1', '8.0' ]
+        wordpress: [ '6.2', '6.1' ]
+        include:
+          - php: '8.1'
+            wordpress: 'beta-6.3'
+          - php: '8.1'
+            wordpress: '6.2'
+            multisite: true
+          - php: '8.1'
+            wordpress: '6.2'
+            coverage: 1
+          - php: '8.1'
+            wordpress: '6.1'
+          - php: '8.1'
+            wordpress: '6.0'
+          - php: '8.1'
+            wordpress: '5.9'
+          - php: '7.3'
+            wordpress: '5.9'
+          - php: '7.3'
+            wordpress: '5.8'
+          - php: '7.3'
+            wordpress: '5.7'
+          - php: '7.3'
+            wordpress: '5.6'
+          - php: '7.4'
+            wordpress: '6.1.1'
+
     steps:
+      - name: Cancel previous runs of this workflow (pull requests only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run tests w/ Docker.
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          extensions: json, mbstring
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-dev"
+
+      - name: Build "testing" Docker Image
         env:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
+        run: composer build-test
+
+      - name: Run Functional Tests w/ Docker.
+        env:
           COVERAGE: ${{ matrix.coverage }}
-        run: |
-          ./bin/run-docker-tests.sh 'wpunit'
-          ./bin/run-docker-tests.sh 'functional'
-          ./bin/run-docker-tests.sh 'acceptance'
-      - name: Setup PHP
-        if: matrix.coverage == true
-        uses: shivammathur/setup-php@v1
-        with:
-          php-version: 7.4.5
-          extensions: mbstring, intl
-          tools: composer
-      - name: Upload coverage to codecov
-        if: matrix.coverage == true
-        run: bash <(curl -s https://codecov.io/bash)
+          USING_XDEBUG: ${{ matrix.coverage }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
+          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
+          SUITES: functional
+          PHP_VERSION: ${{ matrix.php }}
+          WP_VERSION: ${{ matrix.wordpress }}
+        run: composer run-test
+
+      - name: Run WPUnit Tests w/ Docker.
+        env:
+          COVERAGE: ${{ matrix.coverage }}
+          USING_XDEBUG: ${{ matrix.coverage }}
+          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
+          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
+          PHP_VERSION: ${{ matrix.php }}
+          WP_VERSION: ${{ matrix.wordpress }}
+          MULTISITE: ${{ matrix.multisite }}
+        run: composer run-test
+
+      - name: Push Codecoverage to Coveralls.io
+        if: ${{ matrix.coverage == 1 }}
+        env:
+          COVERALLS_RUN_LOCALLY: 1
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: vendor/bin/php-coveralls -v

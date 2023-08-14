@@ -4,6 +4,16 @@ use WPGraphQL\Request;
 
 class RequestTest extends \Codeception\TestCase\WPTestCase {
 
+	public function setUp(): void {
+		parent::setUp();
+		WPGraphQL::clear_schema();
+	}
+
+	public function tearDown(): void {
+		WPGraphQL::clear_schema();
+		parent::tearDown();
+	}
+
 	/**
 	 * Create Request instance using example request data.
 	 *
@@ -12,7 +22,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	private function create_example_request() {
 		$request_data = [
 			'operation' => 'TestQuery',
-			'query'     => "
+			'query'     => '
 				query TestQuery {
 					posts {
 						nodes {
@@ -21,7 +31,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 						}
 					}
 				}
-			",
+			',
 		];
 
 		return new Request( $request_data );
@@ -65,7 +75,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory->post->create();
 		$request = $this->create_example_request();
 
-		add_filter( 'graphql_request_results', function() {
+		add_filter( 'graphql_request_results', function () {
 			return 'filtered response';
 		} );
 
@@ -105,7 +115,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testRequestCanGetOperationParams() {
 		$this->factory->post->create();
-		$request = $this->create_example_request();
+		$request          = $this->create_example_request();
 		$operation_params = $request->get_params();
 
 		// Operation params are null until query is executed.

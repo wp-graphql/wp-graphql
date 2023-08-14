@@ -32,29 +32,38 @@ class SettingsRegistry {
 	protected $settings_fields = [];
 
 	/**
-	 * SettingsRegistry constructor.
+	 * @return array
 	 */
-	public function __construct() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
-	}
-
 	public function get_settings_sections() {
 		return $this->settings_sections;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function get_settings_fields() {
 		return $this->settings_fields;
 	}
 
 	/**
 	 * Enqueue scripts and styles
+	 *
+	 * @param string $hook_suffix The current admin page.
+	 *
+	 * @return void
 	 */
-	function admin_enqueue_scripts() {
-		wp_enqueue_style( 'wp-color-picker' );
+	public function admin_enqueue_scripts( string $hook_suffix ) {
+		if ( 'graphql_page_graphql-settings' !== $hook_suffix ) {
+			return;
+		}
 
+		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'wp-color-picker' );
 		wp_enqueue_script( 'jquery' );
+
+		// Action to enqueue scripts on the WPGraphQL Settings page.
+		do_action( 'graphql_settings_enqueue_scripts' );
 	}
 
 	/**
@@ -63,9 +72,9 @@ class SettingsRegistry {
 	 * @param string $slug    Setting Section Slug
 	 * @param array  $section setting section config
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
-	function register_section( $slug, $section ) {
+	public function register_section( string $slug, array $section ) {
 		$section['id']                    = $slug;
 		$this->settings_sections[ $slug ] = $section;
 
@@ -78,9 +87,9 @@ class SettingsRegistry {
 	 * @param string $section The slug of the section to register a field to
 	 * @param array  $fields  settings fields array
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
-	function register_fields( $section, $fields ) {
+	public function register_fields( string $section, array $fields ) {
 		foreach ( $fields as $field ) {
 			$this->register_field( $section, $field );
 		}
@@ -94,9 +103,9 @@ class SettingsRegistry {
 	 * @param string $section The slug of the section to register a field to
 	 * @param array  $field   The config for the field being registered
 	 *
-	 * @return SettingsRegistry
+	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
-	function register_field( $section, $field ) {
+	public function register_field( string $section, array $field ) {
 		$defaults = [
 			'name'  => '',
 			'label' => '',
@@ -137,9 +146,10 @@ class SettingsRegistry {
 	 *
 	 * This function gets the initiated settings sections and fields. Then
 	 * registers them to WordPress and ready for use.
+	 *
+	 * @return void
 	 */
-	function admin_init() {
-
+	public function admin_init() {
 		// Action that fires when settings are being initialized
 		do_action( 'graphql_init_settings', $this );
 
@@ -157,7 +167,7 @@ class SettingsRegistry {
 
 			if ( isset( $section['desc'] ) && ! empty( $section['desc'] ) ) {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
-				$callback        = function() use ( $section ) {
+				$callback        = static function () use ( $section ) {
 					echo wp_kses( str_replace( '"', '\"', $section['desc'] ), Utils::get_allowed_wp_kses_html() );
 				};
 			} elseif ( isset( $section['callback'] ) ) {
@@ -218,7 +228,7 @@ class SettingsRegistry {
 	 *
 	 * @return string
 	 */
-	public function get_field_description( $args ): string {
+	public function get_field_description( array $args ): string {
 		if ( ! empty( $args['desc'] ) ) {
 			$desc = sprintf( '<p class="description">%s</p>', $args['desc'] );
 		} else {
@@ -232,51 +242,17 @@ class SettingsRegistry {
 	 * Displays a text field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_text( $args ) {
+	public function callback_text( array $args ) {
 		$value       = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$type        = isset( $args['type'] ) ? $args['type'] : 'text';
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
 		$disabled    = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
-		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
+		$html        = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s %7$s>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $disabled );
 		$html       .= $this->get_field_description( $args );
-
-		$allowedtags = [
-			'a'          => [
-				'href'  => true,
-				'title' => true,
-			],
-			'abbr'       => [
-				'title' => true,
-			],
-			'acronym'    => [
-				'title' => true,
-			],
-			'b'          => [],
-			'blockquote' => [
-				'cite' => true,
-			],
-			'cite'       => [],
-			'code'       => [],
-			'del'        => [
-				'datetime' => true,
-			],
-			'em'         => [],
-			'i'          => [],
-			'q'          => [
-				'cite' => true,
-			],
-			'strike'     => [],
-			'strong'     => [],
-			'input'      => [
-				'type'    => [],
-				'name'    => [],
-				'value'   => [],
-				'checked' => [],
-			],
-			'p'          => [],
-		];
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
@@ -285,8 +261,10 @@ class SettingsRegistry {
 	 * Displays a url field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_url( $args ) {
+	public function callback_url( array $args ) {
 		$this->callback_text( $args );
 	}
 
@@ -294,8 +272,10 @@ class SettingsRegistry {
 	 * Displays a number field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_number( $args ) {
+	public function callback_number( array $args ) {
 		$value       = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$type        = isset( $args['type'] ) ? $args['type'] : 'number';
@@ -304,7 +284,7 @@ class SettingsRegistry {
 		$max         = ( '' === $args['max'] ) ? '' : ' max="' . $args['max'] . '"';
 		$step        = ( '' === $args['step'] ) ? '' : ' step="' . $args['step'] . '"';
 
-		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s/>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
+		$html  = sprintf( '<input type="%1$s" class="%2$s-number" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"%6$s%7$s%8$s%9$s>', $type, $size, $args['section'], $args['id'], $value, $placeholder, $min, $max, $step );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -314,16 +294,18 @@ class SettingsRegistry {
 	 * Displays a checkbox for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_checkbox( $args ) {
+	public function callback_checkbox( array $args ) {
 
 		$value    = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$disabled = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
 
 		$html  = '<fieldset>';
 		$html .= sprintf( '<label for="wpuf-%1$s[%2$s]">', $args['section'], $args['id'] );
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id'] );
-		$html .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s %4$s/>', $args['section'], $args['id'], checked( $value, 'on', false ), $disabled );
+		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off">', $args['section'], $args['id'] );
+		$html .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s %4$s>', $args['section'], $args['id'], checked( $value, 'on', false ), $disabled );
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
@@ -334,16 +316,18 @@ class SettingsRegistry {
 	 * Displays a multicheckbox for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_multicheck( $args ) {
+	public function callback_multicheck( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="" />', $args['section'], $args['id'] );
+		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="">', $args['section'], $args['id'] );
 		foreach ( $args['options'] as $key => $label ) {
 			$checked = isset( $value[ $key ] ) ? $value[ $key ] : '0';
 			$html   .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s>', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
 			$html   .= sprintf( '%1$s</label><br>', $label );
 		}
 
@@ -357,15 +341,17 @@ class SettingsRegistry {
 	 * Displays a radio button for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_radio( $args ) {
+	public function callback_radio( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
 
 		foreach ( $args['options'] as $key => $label ) {
 			$html .= sprintf( '<label for="wpuf-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html .= sprintf( '<input type="radio" class="radio" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
+			$html .= sprintf( '<input type="radio" class="radio" id="wpuf-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s>', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
 			$html .= sprintf( '%1$s</label><br>', $label );
 		}
 
@@ -379,8 +365,10 @@ class SettingsRegistry {
 	 * Displays a selectbox for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_select( $args ) {
+	public function callback_select( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -400,8 +388,10 @@ class SettingsRegistry {
 	 * Displays a textarea for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_textarea( $args ) {
+	public function callback_textarea( array $args ) {
 
 		$value       = esc_textarea( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -418,9 +408,9 @@ class SettingsRegistry {
 	 *
 	 * @param array $args settings field args
 	 *
-	 * @return string
+	 * @return void
 	 */
-	function callback_html( $args ) {
+	public function callback_html( array $args ) {
 		echo wp_kses( $this->get_field_description( $args ), Utils::get_allowed_wp_kses_html() );
 	}
 
@@ -428,8 +418,10 @@ class SettingsRegistry {
 	 * Displays a rich text textarea for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_wysiwyg( $args ) {
+	public function callback_wysiwyg( array $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : '500px';
@@ -457,16 +449,18 @@ class SettingsRegistry {
 	 * Displays a file upload field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_file( $args ) {
+	public function callback_file( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$id    = $args['section'] . '[' . $args['id'] . ']';
-		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File' );
+		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File', 'wp-graphql' );
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
-		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '" />';
+		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
+		$html .= '<input type="button" class="button wpsa-browse" value="' . $label . '">';
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -476,13 +470,15 @@ class SettingsRegistry {
 	 * Displays a password field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_password( $args ) {
+	public function callback_password( array $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
+		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -492,13 +488,15 @@ class SettingsRegistry {
 	 * Displays a color picker field for a settings field
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_color( $args ) {
+	public function callback_color( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
-		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" />', $size, $args['section'], $args['id'], $value, $args['std'] );
+		$html  = sprintf( '<input type="text" class="%1$s-text wp-color-picker-field" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s">', $size, $args['section'], $args['id'], $value, $args['std'] );
 		$html .= $this->get_field_description( $args );
 
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
@@ -509,25 +507,36 @@ class SettingsRegistry {
 	 * Displays a select box for creating the pages select box
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_pages( $args ) {
+	public function callback_pages( array $args ) {
 
-		$dropdown_args = [
+		$dropdown_args = array_merge( [
 			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
 			'name'     => $args['section'] . '[' . $args['id'] . ']',
 			'id'       => $args['section'] . '[' . $args['id'] . ']',
 			'echo'     => 0,
-		];
-		$html          = wp_dropdown_pages( wp_kses( $dropdown_args, Utils::get_allowed_wp_kses_html() ) );
-		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
+		], $args );
+
+		$clean_args = [];
+		foreach ( $dropdown_args as $key => $arg ) {
+			$clean_args[ $key ] = wp_kses( $arg, Utils::get_allowed_wp_kses_html() );
+		}
+
+		// Ignore phpstan as this is providing an array as expected
+		// @phpstan-ignore-next-line
+		echo wp_dropdown_pages( $clean_args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
 	 * Displays a select box for user roles
 	 *
 	 * @param array $args settings field args
+	 *
+	 * @return void
 	 */
-	function callback_user_role_select( $args ) {
+	public function callback_user_role_select( array $args ) {
 		$selected = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
 		if ( empty( $selected ) ) {
@@ -547,9 +556,11 @@ class SettingsRegistry {
 	/**
 	 * Sanitize callback for Settings API
 	 *
+	 * @param array $options
+	 *
 	 * @return mixed
 	 */
-	function sanitize_options( $options ) {
+	public function sanitize_options( array $options ) {
 
 		if ( ! $options ) {
 			return $options;
@@ -575,7 +586,7 @@ class SettingsRegistry {
 	 *
 	 * @return mixed string or bool false
 	 */
-	function get_sanitize_callback( $slug = '' ) {
+	public function get_sanitize_callback( $slug = '' ) {
 		if ( empty( $slug ) ) {
 			return false;
 		}
@@ -604,7 +615,7 @@ class SettingsRegistry {
 	 *
 	 * @return string
 	 */
-	function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $default = '' ) {
 
 		$options = get_option( $section );
 
@@ -619,8 +630,10 @@ class SettingsRegistry {
 	 * Show navigations as tab
 	 *
 	 * Shows all the settings section labels as tab
+	 *
+	 * @return void
 	 */
-	function show_navigation() {
+	public function show_navigation() {
 		$html = '<h2 class="nav-tab-wrapper">';
 
 		$count = count( $this->settings_sections );
@@ -643,8 +656,10 @@ class SettingsRegistry {
 	 * Show the section settings forms
 	 *
 	 * This function displays every sections in a different form
+	 *
+	 * @return void
 	 */
-	function show_forms() {
+	public function show_forms() {
 		?>
 		<div class="metabox-holder">
 			<?php foreach ( $this->settings_sections as $id => $form ) { ?>
@@ -673,8 +688,10 @@ class SettingsRegistry {
 	 * Tabbable JavaScript codes & Initiate Color Picker
 	 *
 	 * This code uses localstorage for displaying active tabs
+	 *
+	 * @return void
 	 */
-	function script() {
+	public function script() {
 		?>
 		<script>
 			jQuery(document).ready(function ($) {
@@ -684,14 +701,14 @@ class SettingsRegistry {
 				// Switches option sections
 				$('.group').hide();
 				var activetab = '';
-				if (typeof(localStorage) != 'undefined') {
+				if (typeof (localStorage) != 'undefined') {
 					activetab = localStorage.getItem("activetab");
 				}
 
 				//if url has section id as hash then set it as active or override the current local storage value
 				if (window.location.hash) {
 					activetab = window.location.hash;
-					if (typeof(localStorage) != 'undefined') {
+					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", activetab);
 					}
 				}
@@ -714,15 +731,14 @@ class SettingsRegistry {
 
 				if (activetab != '' && $(activetab + '-tab').length) {
 					$(activetab + '-tab').addClass('nav-tab-active');
-				}
-				else {
+				} else {
 					$('.nav-tab-wrapper a:first').addClass('nav-tab-active');
 				}
 				$('.nav-tab-wrapper a').click(function (evt) {
 					$('.nav-tab-wrapper a').removeClass('nav-tab-active');
 					$(this).addClass('nav-tab-active').blur();
 					var clicked_group = $(this).attr('href');
-					if (typeof(localStorage) != 'undefined') {
+					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", $(this).attr('href'));
 					}
 					$('.group').hide();
@@ -758,7 +774,12 @@ class SettingsRegistry {
 		$this->_style_fix();
 	}
 
-	function _style_fix() {
+	/**
+	 * Add styles to adjust some settings
+	 *
+	 * @return void
+	 */
+	public function _style_fix() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		global $wp_version;
 
 		if ( version_compare( $wp_version, '3.8', '<=' ) ) :
@@ -776,5 +797,4 @@ class SettingsRegistry {
 			<?php
 		endif;
 	}
-
 }

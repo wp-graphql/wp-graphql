@@ -8,6 +8,9 @@ use WPGraphQL\AppContext;
 class ResetUserPassword {
 	/**
 	 * Registers the ResetUserPassword mutation.
+	 *
+	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -57,7 +60,7 @@ class ResetUserPassword {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 
 			if ( empty( $input['key'] ) ) {
 				throw new UserError( __( 'A password reset key is required.', 'wp-graphql' ) );
@@ -98,11 +101,15 @@ class ResetUserPassword {
 			 */
 			reset_password( $user, $input['password'] );
 
+			// Log in the user, since they already authenticated with the reset key.
+			wp_set_current_user( $user->ID );
+
 			/**
 			 * Return the user ID
 			 */
 			return [
-				'id' => $user->ID,
+				'id'   => $user->ID,
+				'user' => $context->get_loader( 'user' )->load_deferred( $user->ID ),
 			];
 		};
 	}

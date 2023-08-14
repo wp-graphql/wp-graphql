@@ -3,11 +3,11 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\UserError;
+use WP_User;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
 use WPGraphQL\Data\Loader\EnqueuedStylesheetLoader;
-use WPGraphQL\Data\Loader\MenuItemLoader;
 use WPGraphQL\Data\Loader\PluginLoader;
 use WPGraphQL\Data\Loader\PostObjectLoader;
 use WPGraphQL\Data\Loader\PostTypeLoader;
@@ -17,7 +17,7 @@ use WPGraphQL\Data\Loader\ThemeLoader;
 use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
 use WPGraphQL\Data\NodeResolver;
-use WPGraphQL\Model\Term;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class AppContext
@@ -47,23 +47,28 @@ class AppContext {
 	public $viewer;
 
 	/**
+	 * @var \WPGraphQL\Registry\TypeRegistry
+	 */
+	public $type_registry;
+
+	/**
 	 * Stores everything from the $_REQUEST global
 	 *
-	 * @var \mixed $request
+	 * @var mixed $request
 	 */
 	public $request;
 
 	/**
 	 * Stores additional $config properties
 	 *
-	 * @var \mixed $config
+	 * @var mixed $config
 	 */
 	public $config;
 
 	/**
 	 * Passes context about the current connection being resolved
 	 *
-	 * @var mixed| String | null
+	 * @var mixed|String|null
 	 */
 	public $currentConnection = null;
 
@@ -84,7 +89,7 @@ class AppContext {
 	/**
 	 * Instance of the NodeResolver class to resolve nodes by URI
 	 *
-	 * @var NodeResolver
+	 * @var \WPGraphQL\Data\NodeResolver
 	 */
 	public $node_resolver;
 
@@ -102,6 +107,7 @@ class AppContext {
 			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
 			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
 			'plugin'              => new PluginLoader( $this ),
+			'nav_menu_item'       => new PostObjectLoader( $this ),
 			'post'                => new PostObjectLoader( $this ),
 			'post_type'           => new PostTypeLoader( $this ),
 			'taxonomy'            => new TaxonomyLoader( $this ),
@@ -124,7 +130,7 @@ class AppContext {
 		/**
 		 * This sets up the NodeResolver to allow nodes to be resolved by URI
 		 *
-		 * @param AppContext $this The AppContext instance
+		 * @param \WPGraphQL\AppContext $app_context The AppContext instance
 		 */
 		$this->node_resolver = new NodeResolver( $this );
 
@@ -149,6 +155,7 @@ class AppContext {
 	 * @deprecated Use get_loader instead.
 	 */
 	public function getLoader( $key ) {
+		_deprecated_function( __METHOD__, '0.8.4', __CLASS__ . '::get_loader()' );
 		return $this->get_loader( $key );
 	}
 
@@ -161,6 +168,7 @@ class AppContext {
 	 */
 	public function get_loader( $key ) {
 		if ( ! array_key_exists( $key, $this->loaders ) ) {
+			// translators: %s is the key of the loader that was not found.
 			throw new UserError( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) );
 		}
 
@@ -170,11 +178,11 @@ class AppContext {
 	/**
 	 * Returns the $args for the connection the field is a part of
 	 *
-	 * @return array|mixed
-	 *
 	 * @deprecated use get_connection_args() instead
+	 * @return array|mixed
 	 */
 	public function getConnectionArgs() {
+		_deprecated_function( __METHOD__, '0.8.4', __CLASS__ . '::get_connection_args()' );
 		return $this->get_connection_args();
 	}
 
@@ -194,7 +202,6 @@ class AppContext {
 	 */
 	public function get_current_connection() {
 		return isset( $this->currentConnection ) ? $this->currentConnection : null;
-
 	}
 
 	/**

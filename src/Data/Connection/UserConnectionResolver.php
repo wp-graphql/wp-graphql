@@ -5,8 +5,7 @@ namespace WPGraphQL\Data\Connection;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Model\User;
-use WPGraphQL\Types;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class UserConnectionResolver
@@ -14,6 +13,14 @@ use WPGraphQL\Types;
  * @package WPGraphQL\Data\Connection
  */
 class UserConnectionResolver extends AbstractConnectionResolver {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * A custom class is assumed to have the same core functions as WP_User_Query.
+	 *
+	 * @var \WP_User_Query|object
+	 */
+	protected $query;
 
 	/**
 	 * Determines whether the query should execute at all. It's possible that in some
@@ -52,12 +59,18 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args['count_total'] = false;
 
 		/**
-		 * Set the graphql_cursor_offset which is used by Config::graphql_wp_user_query_cursor_pagination_support
-		 * to filter the WP_User_Query to support cursor pagination
+		 * Pass the graphql $args to the WP_Query
 		 */
-		$cursor_offset                        = $this->get_offset();
-		$query_args['graphql_cursor_offset']  = $cursor_offset;
+		$query_args['graphql_args'] = $this->args;
+
+		/**
+		 * Set the graphql_cursor_compare to determine what direction the
+		 * query should be paginated
+		 */
 		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+
+		$query_args['graphql_after_cursor']  = $this->get_after_offset();
+		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
@@ -98,11 +111,17 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 			$query_args['has_published_posts'] = true;
 		}
 
+		if ( ! empty( $query_args['search'] ) ) {
+			$query_args['search']  = '*' . $query_args['search'] . '*';
+			$query_args['orderby'] = 'user_login';
+			$query_args['order']   = ! empty( $last ) ? 'DESC' : 'ASC';
+		}
+
 		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			$query_args['orderby'] = [];
+
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
@@ -117,9 +136,18 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
-					$query_args['orderby'] = [
-						esc_sql( $orderby_input['field'] ) => esc_sql( $orderby_input['order'] ),
-					];
+
+					$order = $orderby_input['order'];
+					if ( ! empty( $this->args['last'] ) ) {
+						if ( 'ASC' === $order ) {
+							$order = 'DESC';
+						} else {
+							$order = 'ASC';
+						}
+					}
+
+					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
+					$query_args['order']   = esc_sql( $order );
 				}
 			}
 		}
@@ -130,7 +158,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
 			$query_args['orderby'] = [
-				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'],
+				'meta_value' => empty( $query_args['order'] ) ? 'DESC' : $query_args['order'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			];
 			unset( $query_args['order'] );
 			$query_args['meta_type'] = 'NUMERIC';
@@ -139,8 +167,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
-		if ( empty( $query_args['orderby'] ) ) {
-			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
+		if ( empty( $query_args['order'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
 		}
 
 		return $query_args;
@@ -149,23 +177,32 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Return an instance of the WP_User_Query with the args for the connection being executed
 	 *
-	 * @return mixed|\WP_User_Query
+	 * @return object|\WP_User_Query
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_User_Query( $this->query_args );
+		// Get query class.
+		$queryClass = ! empty( $this->context->queryClass )
+			? $this->context->queryClass
+			: '\WP_User_Query';
+
+		return new $queryClass( $this->query_args );
 	}
 
 	/**
 	 * Returns an array of ids from the query being executed.
 	 *
 	 * @return array
-	 * @throws \Exception
 	 */
-	public function get_ids() {
-		$results = $this->query->get_results();
+	public function get_ids_from_query() {
+		$ids = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : [];
 
-		return ! empty( $results ) ? $results : [];
+		// If we're going backwards, we need to reverse the array.
+		if ( ! empty( $this->args['last'] ) ) {
+			$ids = array_reverse( $ids );
+		}
+
+		return $ids;
 	}
 
 	/**
@@ -177,8 +214,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param array $args The query "where" args
 	 *
-	 * @since  0.0.5
 	 * @return array
+	 * @since  0.0.5
 	 */
 	protected function sanitize_input_fields( array $args ) {
 
@@ -210,7 +247,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map and sanitize the input args to the WP_User_Query compatible args
 		 */
-		$query_args = Types::map_input( $args, $arg_mapping );
+		$query_args = Utils::map_input( $args, $arg_mapping );
 
 		/**
 		 * Filter the input fields
@@ -222,11 +259,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $args       The query "where" args
 		 * @param mixed       $source     The query results of the query calling this relation
 		 * @param array       $all_args   Array of all the query args (not just the "where" args)
-		 * @param AppContext  $context    The AppContext object
-		 * @param ResolveInfo $info       The ResolveInfo object
+		 * @param \WPGraphQL\AppContext $context The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 		 *
-		 * @since 0.0.5
 		 * @return array
+		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
@@ -244,6 +281,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function is_valid_offset( $offset ) {
-		return ! empty( get_user_by( 'ID', absint( $offset ) ) );
+		return (bool) get_user_by( 'ID', absint( $offset ) );
 	}
 }

@@ -7,10 +7,10 @@ use GraphQLRelay\Relay;
 /**
  * Class UserRole - Models data for user roles
  *
+ * @property string $displayName
  * @property string $id
- * @property string name
+ * @property string $name
  * @property array  $capabilities
- * @property string displayName
  *
  * @package WPGraphQL\Model
  */
@@ -65,17 +65,17 @@ class UserRole extends Model {
 
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'           => function() {
+				'id'           => function () {
 					$id = Relay::toGlobalId( 'user_role', $this->data['id'] );
 					return $id;
 				},
-				'name'         => function() {
+				'name'         => function () {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
 				},
-				'displayName'  => function() {
+				'displayName'  => function () {
 					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
 				},
-				'capabilities' => function() {
+				'capabilities' => function () {
 					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
 						return null;
 					} else {

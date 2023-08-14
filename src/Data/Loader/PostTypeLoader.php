@@ -1,6 +1,7 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use WPGraphQL\Model\PostType;
 
 /**
@@ -11,10 +12,10 @@ use WPGraphQL\Model\PostType;
 class PostTypeLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|PostType
+	 * @return mixed|\WPGraphQL\Model\PostType
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -28,7 +29,7 @@ class PostTypeLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-		$post_types = get_post_types( [ 'show_in_graphql' => true ], 'objects' );
+		$post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
 		$loaded = [];
 		if ( ! empty( $post_types ) && is_array( $post_types ) ) {

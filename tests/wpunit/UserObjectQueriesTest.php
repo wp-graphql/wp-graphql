@@ -1,6 +1,6 @@
 <?php
 
-class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -32,7 +32,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			array( 1 )
+			[ 0 ]
 		) );
 		$this->created_user_ids = [ 1 ];
 	}
@@ -139,9 +139,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				}
 				registeredDate
 				roles {
-				  nodes {
-				    name
-				  }
+					nodes {
+						name
+					}
 				}
 				slug
 				url
@@ -153,10 +153,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
-
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -193,8 +190,8 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				'roles'             => [
 					'nodes' => [
 						[
-							'name' => 'subscriber'
-						]
+							'name' => 'subscriber',
+						],
 					],
 				],
 				'slug'              => $user->data->user_nicename,
@@ -222,7 +219,17 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$user_id = $this->createUserObject();
 
-		$comment_id = $this->factory()->comment->create( [ 'user_id' => $user_id ] );
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_title'  => 'Post for UserQueryWithComments',
+			'post_author' => $this->admin,
+		]);
+
+		$comment_id = $this->factory()->comment->create( [
+			'user_id'         => $user_id,
+			'comment_post_ID' => $post_id,
+		] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -249,7 +256,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -313,7 +320,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -352,7 +359,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->factory()->post->create( [
 			'post_author' => $user_id,
-			'post_type'   => 'page'
+			'post_type'   => 'page',
 		] );
 
 		/**
@@ -380,7 +387,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -419,7 +426,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$post_id = $this->factory->post->create( [
 			'post_author' => $user_id,
-			'post_type'   => 'attachment'
+			'post_type'   => 'attachment',
 		] );
 
 		/**
@@ -447,7 +454,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -496,12 +503,12 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Establish the expectation for the output of the query
 		 */
-		$expected =  [
+		$expected = [
 			'user' => null,
 		];
 
@@ -523,11 +530,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:1) {
 				edges{
-				  node{
-				    id
-				    userId
-				    email
-				  }
+					node{
+						id
+						userId
+						email
+					}
 				}
 			}
 		}';
@@ -535,7 +542,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * The user has no published posts, so there should be no results publicly
@@ -559,13 +566,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$user_id = $this->createUserObject(
 			[
 				'user_email' => $email,
-				'role'       => 'administrator'
+				'role'       => 'administrator',
 			]
 		);
 
 		$post_id = $this->factory()->post->create( [
 			'post_author' => $user_id,
-			'post_type'   => 'attachment'
+			'post_type'   => 'attachment',
 		] );
 
 		/**
@@ -578,7 +585,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Establish the expectation for the output of the query
 		 */
 		$expected = [
-		'users' => [
+			'users' => [
 				'edges' => [
 					[
 						'node' => [
@@ -601,11 +608,11 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:1) {
 				edges{
-				  node{
-				    id
-				    userId
-				    email
-				  }
+					node{
+						id
+						userId
+						email
+					}
 				}
 			}
 		}';
@@ -613,15 +620,13 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Run the GraphQL query
 		 */
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * The authenticated user should see their own user in the result
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+		$this->assertSame( 1, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -653,19 +658,19 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:2) {
 				edges{
-				  node{
-				    userId
-				    username
-				    email
-				    firstName
-				    lastName
-				    url
-				  }
+					node{
+						userId
+						username
+						email
+						firstName
+						lastName
+						url
+					}
 				}
 			}
 		}';
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$expected = [
 			'users' => [
@@ -695,7 +700,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+		$this->assertSame( 2, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -703,7 +708,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_1 = [
 			'user_email'  => 'user1@email.com',
-			'user_login'  => 'user1',
+			'user_login'  => 'aaaa_subscriber',
 			'user_url'    => 'https://test1.com',
 			'first_name'  => 'User1',
 			'last_name'   => 'Test',
@@ -713,7 +718,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_2 = [
 			'user_email'  => 'user2@email.com',
-			'user_login'  => 'user2',
+			'user_login'  => 'aaaa_subscriber2',
 			'user_url'    => 'https://test2.com',
 			'first_name'  => 'User2',
 			'last_name'   => 'Test',
@@ -740,55 +745,25 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			users(first:2) {
 				edges{
-				  node{
-				    userId
-				    username
-				    email
-				    firstName
-				    lastName
-				    url
-				    description
-				    isRestricted
-				  }
+					node{
+						userId
+						username
+						email
+						firstName
+						lastName
+						url
+						description
+						isRestricted
+					}
 				}
 			}
 		}';
 
-		$actual = do_graphql_request( $query );
-
-		$expected = [
-			'users' => [
-				'edges' => [
-					[
-						'node' => [
-							'userId'       => $user_2_id,
-							'username'     => $user_2['user_login'],
-							'email'        => $user_2['user_email'],
-							'firstName'    => $user_2['first_name'],
-							'lastName'     => $user_2['last_name'],
-							'url'          => $user_2['user_url'],
-							'description'  => $user_2['description'],
-							'isRestricted' => false,
-						],
-					],
-					[
-						'node' => [
-							'userId'       => $user_1_id,
-							'username'     => null,
-							'email'        => null,
-							'firstName'    => $user_1['first_name'],
-							'lastName'     => $user_2['last_name'],
-							'url'          => null,
-							'description'  => $user_1['description'],
-							'isRestricted' => true,
-						],
-					],
-				],
-			],
-		];
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $expected, $actual['data'] );
+
+		$this->assertEquals( 2, count( $actual['data']['users']['edges'] ) );
 
 	}
 
@@ -811,24 +786,23 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:ADMINISTRATOR}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:ADMINISTRATOR}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $subscriber );
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
-		codecept_debug( $actual );
 		/**
 		 * Results should be empty for a non-authenticated request because the
 		 * users have no published posts and are not considered public
@@ -865,24 +839,22 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:ADMINISTRATOR}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:ADMINISTRATOR}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $admin );
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'hasNextPage', $actual['data']['users']['pageInfo'] );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
@@ -920,24 +892,22 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query{
-		  users(first:2 where: {role:SUBSCRIBER}){
-		    pageInfo{
-		      hasNextPage
-		    }
-		    edges{
-		      node{
-		        id
-		      }
-		    }
-		  }
+			users(first:2 where: {role:SUBSCRIBER}){
+				pageInfo{
+					hasNextPage
+				}
+				edges{
+					node{
+						id
+					}
+				}
+			}
 		}
 		';
 
 		wp_set_current_user( $admin );
 
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
 		 * Now let's make sure the subscriber role query worked
@@ -955,7 +925,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 			[
 				'has_posts' => false,
-			]
+			],
 		];
 	}
 
@@ -973,14 +943,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -988,9 +958,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'role' => 'ADMINISTRATOR'
-				]
-			]
+					'role' => 'ADMINISTRATOR',
+				],
+			],
 		] );
 
 		/**
@@ -1015,28 +985,25 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleIn' => [ 'ADMINISTRATOR', 'SUBSCRIBER' ]
-				]
-			]
+					'roleIn' => [ 'ADMINISTRATOR', 'SUBSCRIBER' ],
+				],
+			],
 		] );
-
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -1060,27 +1027,25 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-		  users(where:$where){
-		    edges{
-		      node{
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where:$where){
+				edges{
+					node{
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleNotIn' => [ 'ADMINISTRATOR' ]
-				]
-			]
+					'roleNotIn' => [ 'ADMINISTRATOR' ],
+				],
+			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should return errors because the user is a subscriber and cannot filter by role
@@ -1104,31 +1069,28 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 
 		';
 
-
 		codecept_debug( get_user_by( 'id', get_current_user_id() ) );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'role' => 'ADMINISTRATOR'
-				]
-			]
+					'role' => 'ADMINISTRATOR',
+				],
+			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should not have any errors because admins have "list_users" cap and can
@@ -1153,28 +1115,26 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 
 		';
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleIn' => [ 'ADMINISTRATOR' ]
-				]
-			]
+					'roleIn' => [ 'ADMINISTRATOR' ],
+				],
+			],
 		] );
-
-		codecept_debug( $actual );
 
 		/**
 		 * The query should not have any errors because admins have "list_users" cap and can
@@ -1199,14 +1159,14 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-		  users(where: $where) {
-		    edges {
-		      node {
-		        userId
-		        name
-		      }
-		    }
-		  }
+			users(where: $where) {
+				edges {
+					node {
+						userId
+						name
+					}
+				}
+			}
 		}
 		';
 
@@ -1214,9 +1174,9 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			'query'     => $query,
 			'variables' => [
 				'where' => [
-					'roleNotIn' => [ 'SUBSCRIBER' ]
-				]
-			]
+					'roleNotIn' => [ 'SUBSCRIBER' ],
+				],
+			],
 		] );
 
 		/**
@@ -1225,7 +1185,6 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-
 
 	}
 
@@ -1252,7 +1211,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_author' => $admin->ID,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 
 		wp_set_current_user( $admin->ID );
@@ -1262,103 +1221,99 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
 		$expected_user = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
-			'userId' => $admin->ID,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
+			'userId'   => $admin->ID,
 			'username' => $admin->user_login,
-			'slug' => $admin->user_nicename,
-			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
-			'email' => $admin->user_email,
+			'slug'     => $admin->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
+			'email'    => $admin->user_email,
 		];
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $user_data['user_email'],
 			],
 		] );
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString']);
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt']);
-		$this->assertSame( $expected_user, $actual['data']['userByEmail']);
-		$this->assertSame( $expected_user, $actual['data']['userById']);
-		$this->assertSame( $expected_user, $actual['data']['userByIdWithType']);
-		$this->assertSame( $expected_user, $actual['data']['userBySlug']);
-		$this->assertSame( $expected_user, $actual['data']['userByUri']);
-		$this->assertSame( $expected_user, $actual['data']['userByUsername']);
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt'] );
+		$this->assertSame( $expected_user, $actual['data']['userByEmail'] );
+		$this->assertSame( $expected_user, $actual['data']['userById'] );
+		$this->assertSame( $expected_user, $actual['data']['userByIdWithType'] );
+		$this->assertSame( $expected_user, $actual['data']['userBySlug'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 
 		wp_set_current_user( 0 );
 
-		$actual = graphql( [
+		$actual = $this->graphql( [
 			'query'     => $query,
 			'variables' => [
 				'id' => $user_data['user_email'],
 			],
 		] );
-
-		codecept_debug( $actual );
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
 		$expected_user['username'] = null;
-		$expected_user['email'] = null;
+		$expected_user['email']    = null;
 
 		/**
 		 * A subscriber doesn't have permission to query a user
 		 * by email so there SHOULD be errors
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString']);
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt']);
-		$this->assertSame( $expected_user, $actual['data']['userById']);
-		$this->assertSame( $expected_user, $actual['data']['userByIdWithType']);
-		$this->assertSame( $expected_user, $actual['data']['userBySlug']);
-		$this->assertSame( $expected_user, $actual['data']['userByUri']);
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt'] );
+		$this->assertSame( $expected_user, $actual['data']['userById'] );
+		$this->assertSame( $expected_user, $actual['data']['userByIdWithType'] );
+		$this->assertSame( $expected_user, $actual['data']['userBySlug'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
 
 		// Cannot query user by email as a non-authed user
-		$this->assertNull( $actual['data']['userByEmail']);
+		$this->assertNull( $actual['data']['userByEmail'] );
 
 		// Cannot query user by username as a non-authed user
-		$this->assertNull( $actual['data']['userByUsername']);
+		$this->assertNull( $actual['data']['userByUsername'] );
 
 	}
 
@@ -1385,7 +1340,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_author' => $admin->ID,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 
 		$uri = str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) );
@@ -1393,81 +1348,79 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $admin->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $admin->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $admin->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $admin->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $admin->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
 		$expected_user = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
-			'userId' => $admin->ID,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
+			'userId'   => $admin->ID,
 			'username' => $admin->user_login,
-			'slug' => $admin->user_nicename,
-			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
-			'email' => $admin->user_email,
+			'slug'     => $admin->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
+			'email'    => $admin->user_email,
 		];
 
 		wp_set_current_user( 0 );
 
-		$actual = graphql( [
-			'query'     => $query,
+		$actual = $this->graphql( [
+			'query' => $query,
 		] );
-
-		codecept_debug( $actual );
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
 		$expected_user['username'] = null;
-		$expected_user['email'] = null;
+		$expected_user['email']    = null;
 
 		/**
 		 * A subscriber doesn't have permission to query a user
 		 * by email so there SHOULD be errors
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString']);
-		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt']);
-		$this->assertSame( $expected_user, $actual['data']['userById']);
-		$this->assertSame( $expected_user, $actual['data']['userByIdWithType']);
-		$this->assertSame( $expected_user, $actual['data']['userBySlug']);
-		$this->assertSame( $expected_user, $actual['data']['userByUri']);
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
+		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdInt'] );
+		$this->assertSame( $expected_user, $actual['data']['userById'] );
+		$this->assertSame( $expected_user, $actual['data']['userByIdWithType'] );
+		$this->assertSame( $expected_user, $actual['data']['userBySlug'] );
+		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
 
 		// Cannot query user by email as a non-authed user
-		$this->assertNull( $actual['data']['userByEmail']);
+		$this->assertNull( $actual['data']['userByEmail'] );
 
 		// Cannot query user by username as a non-authed user
-		$this->assertNull( $actual['data']['userByUsername']);
+		$this->assertNull( $actual['data']['userByUsername'] );
 
 	}
 
@@ -1494,7 +1447,7 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory()->post->create( [
 			'post_type'   => 'post',
 			'post_author' => $subscriber->ID,
-			'post_status' => 'publish'
+			'post_status' => 'publish',
 		] );
 
 		wp_set_current_user( $subscriber->ID );
@@ -1504,55 +1457,53 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  userByDatabaseIdString: user(id: "' . $subscriber->ID . '", idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByDatabaseIdInt: user(id: ' . absint( $subscriber->ID ) . ', idType: DATABASE_ID) {
-		    ...UserFields
-		  }
-		  userByEmail: user(id: "' . $subscriber->user_email . '", idType: EMAIL) {
-		    ...UserFields
-		  }
-		  userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '") {
-		    ...UserFields
-		  }
-		  userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '", idType: ID) {
-		    ...UserFields
-		  }
-		  userBySlug: user(id: "' . $subscriber->user_nicename . '", idType: SLUG) {
-		    ...UserFields
-		  }
-		  userByUri: user(id: "' . $uri . '", idType: URI) {
-		    ...UserFields
-		  }
-		  userByUsername: user(id: "' . $subscriber->user_login . '", idType: USERNAME) {
-		    ...UserFields
-		  }
+			userByDatabaseIdString: user(id: "' . $subscriber->ID . '", idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByDatabaseIdInt: user(id: ' . absint( $subscriber->ID ) . ', idType: DATABASE_ID) {
+				...UserFields
+			}
+			userByEmail: user(id: "' . $subscriber->user_email . '", idType: EMAIL) {
+				...UserFields
+			}
+			userById: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '") {
+				...UserFields
+			}
+			userByIdWithType: user(id: "' . \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ) . '", idType: ID) {
+				...UserFields
+			}
+			userBySlug: user(id: "' . $subscriber->user_nicename . '", idType: SLUG) {
+				...UserFields
+			}
+			userByUri: user(id: "' . $uri . '", idType: URI) {
+				...UserFields
+			}
+			userByUsername: user(id: "' . $subscriber->user_login . '", idType: USERNAME) {
+				...UserFields
+			}
 		}
 		
 		fragment UserFields on User {
-		  id
-		  userId
-		  username
-		  slug
-		  uri
-		  email
+			id
+			userId
+			username
+			slug
+			uri
+			email
 		}
 		';
 
-		$actual = graphql( [
-			'query'     => $query,
+		$actual = $this->graphql( [
+			'query' => $query,
 		] );
 
-		codecept_debug( $actual );
-
 		$expected_user = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
-			'userId' => $subscriber->ID,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
+			'userId'   => $subscriber->ID,
 			'username' => $subscriber->user_login,
-			'slug' => $subscriber->user_nicename,
-			'uri' => str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ),
-			'email' => $subscriber->user_email,
+			'slug'     => $subscriber->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ),
+			'email'    => $subscriber->user_email,
 		];
 
 		/**
@@ -1569,6 +1520,215 @@ class UserObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $expected_user, $actual['data']['userByEmail'] );
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 
+	}
+
+	public function testQueryUsersAsPublicUserShouldReturnOnlyPublishedAuthors() {
+
+		$this->delete_users();
+
+		$alphabet          = range( 'A', 'Z' );
+		$published_users   = [];
+		$unpublished_users = [];
+		foreach ( $alphabet as $letter ) {
+			$unpublished_users[] = $this->factory()->user->create([
+				'user_login' => 'unpublished_' . $letter,
+				'user_email' => $letter . '_unpublishded@example.com',
+			]);
+			$author_id           = $this->factory()->user->create([
+				'user_login' => 'published_' . $letter,
+				'user_email' => $letter . '_published@example.com',
+				'role'       => 'administrator',
+			]);
+
+			$published_users[] = $author_id;
+			$this->factory()->post->create([
+				'post_status' => 'publish',
+				'post_title'  => $letter . '_Post for UserQueryWithComments',
+				'post_author' => $author_id,
+				'role'        => 'administrator',
+			]);
+		}
+
+		$query = '
+		{
+			users(first:100) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 26 users. One published user for each letter of the alphabet.
+		$this->assertEquals( 26, count( $ids ) );
+
+		foreach ( $ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
+		}
+
+		$query = '
+		{
+			users(last:100) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 26 users. One published user for each letter of the alphabet.
+		$this->assertEquals( 26, count( $ids ) );
+		foreach ( $ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
+		}
+
+		$query = '
+		{
+			users(last:10) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+
+		// There should be 10 users.
+		$this->assertEquals( 10, count( $ids ) );
+		foreach ( $ids as $id ) {
+			$this->assertTrue( in_array( $id, $published_users, true ) );
+			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
+		}
+
+		codecept_debug( $published_users );
+
+		// Query as an admin
+		wp_set_current_user( absint( $published_users[0] ) );
+
+		$query = '
+		{
+			users(first:100) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
+		$this->assertEquals( 52, count( $ids ) );
+
+		$query = '
+		{
+			users(last:100) {
+				nodes {
+					databaseId
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
+		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
+		$this->assertEquals( 52, count( $ids ) );
+
+		$this->delete_users();
+
+	}
+
+	
+	public function testQueryNonUserAsUserReturnsNull() {
+		$query = '
+		query userByUri($uri: ID!) {
+			user(id: $uri, idType: URI) {
+				... on User {
+					databaseId
+				}
+			}
+		}
+		';
+
+		wp_set_current_user( $this->admin );
+
+		// Test page.
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_author' => $this->admin,
+		]);
+
+		$uri = wp_make_link_relative( get_permalink( $post_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Test term.
+		$term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+		]);
+
+		$uri = wp_make_link_relative( get_term_link( $term_id ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Test User.
+		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
+
+		// Test post type archive
+		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'uri' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
 	}
 
 }

@@ -4,10 +4,19 @@ namespace WPGraphQL\Type\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithRevisions {
+
+	/**
+	 * Registers the NodeWithRevisions Type to the Schema
+	 *
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @return void
+	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithRevisions',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have revisions', 'wp-graphql' ),
 				'fields'      => [
 					'isRevision' => [

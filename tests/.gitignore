@@ -1,4 +1,4 @@
 acceptance.suite.yml
 functional.suite.yml
-wpunit.suite.yml
+wpunit.suite.dist.yml
 unit.suite.yml

@@ -3,6 +3,12 @@
 namespace WPGraphQL\Type\Enum;
 
 class PostObjectsConnectionOrderbyEnum {
+
+	/**
+	 * Register the PostObjectsConnectionOrderbyEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
 		register_graphql_enum_type(
 			'PostObjectsConnectionOrderbyEnum',

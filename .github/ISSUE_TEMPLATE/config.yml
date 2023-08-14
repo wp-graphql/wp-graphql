@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: General Help Request
+    url: https://github.com/wp-graphql/wp-graphql/discussions
+    about: For general questions and help requests, create a new topic in Github Discussions
+  - name: Slack Community
+    url: https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA
+    about: The WPGraphQL Slack is a great place to communicate in real-time. Ask questions, discuss features, get to know other folks using WPGraphQL.

@@ -2,48 +2,40 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\Object\User;
+use WPGraphQL\Type\ObjectType\User;
 
 class MenuItemLinkable {
 
 	/**
 	 * Registers the MenuItemLinkable Interface Type
 	 *
-	 * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ) {
+	public static function register_type( TypeRegistry $type_registry ): void {
 
 		register_graphql_interface_type( 'MenuItemLinkable', [
 			'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
-			'fields'      => [
-				'uri'        => [
-					'type'        => [ 'non_null' => 'String' ],
-					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-				],
-				'id'         => [
-					'type'        => [ 'non_null' => 'ID' ],
-					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-				],
-				'databaseId' => [
-					'type'        => [
-						'non_null' => 'Int',
-					],
-					'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-				],
-			],
-			'resolveType' => function( $node ) use ( $type_registry ) {
+			'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
+			'fields'      => [],
+			'resolveType' => static function ( $node ) use ( $type_registry ) {
 
 				switch ( true ) {
 					case $node instanceof Post:
-						$type = $type_registry->get_type( get_post_type_object( $node->post_type )->graphql_single_name );
+						/** @var \WP_Post_Type $post_type_object */
+						$post_type_object = get_post_type_object( $node->post_type );
+						$type             = $type_registry->get_type( $post_type_object->graphql_single_name );
 						break;
 					case $node instanceof Term:
-						$type = $type_registry->get_type( get_taxonomy( $node->taxonomyName )->graphql_single_name );
+						/** @var \WP_Taxonomy $tax_object */
+						$tax_object = get_taxonomy( $node->taxonomyName );
+						$type       = $type_registry->get_type( $tax_object->graphql_single_name );
 						break;
 					default:
 						$type = null;

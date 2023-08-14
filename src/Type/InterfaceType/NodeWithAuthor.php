@@ -9,12 +9,17 @@ use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithAuthor {
 	/**
-	 * @param TypeRegistry $type_registry Instance of the Type Registry
+	 * Registers the NodeWithAuthor Type to the Schema
+	 *
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @return void
 	 */
-	public static function register_type( $type_registry ) {
+	public static function register_type( TypeRegistry $type_registry ) {
 		register_graphql_interface_type(
 			'NodeWithAuthor',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have an author assigned to it', 'wp-graphql' ),
 				'fields'      => [
 					'authorId'         => [

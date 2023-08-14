@@ -16,6 +16,32 @@ use WPGraphQL\Registry\TypeRegistry;
 class WPInputObjectType extends InputObjectType {
 
 	/**
+	 * WPInputObjectType constructor.
+	 *
+	 * @param array        $config
+	 */
+	public function __construct( array $config, TypeRegistry $type_registry ) {
+		$name           = $config['name'];
+		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
+
+		/**
+		 * Setup the fields
+		 *
+		 * @return array|mixed
+		 */
+		if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
+			$config['fields'] = function () use ( $config, $type_registry ) {
+				$fields = $this->prepare_fields( $config['fields'], $config['name'], $config, $type_registry );
+				$fields = $type_registry->prepare_fields( $fields, $config['name'] );
+
+				return $fields;
+			};
+		}
+
+		parent::__construct( $config );
+	}
+
+	/**
 	 * Prepare_fields
 	 *
 	 * This function sorts the fields and applies a filter to allow for easily
@@ -24,11 +50,11 @@ class WPInputObjectType extends InputObjectType {
 	 * @param array        $fields
 	 * @param string       $type_name
 	 * @param array        $config
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 * @return mixed
 	 * @since 0.0.5
 	 */
-	public static function prepare_fields( array $fields, $type_name, $config = [], TypeRegistry $type_registry ) {
+	public function prepare_fields( array $fields, string $type_name, array $config, TypeRegistry $type_registry ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
@@ -38,7 +64,9 @@ class WPInputObjectType extends InputObjectType {
 		 *
 		 * @param array  $fields    The array of fields for the object config
 		 * @param string $type_name The name of the object type
-		 * @param TypeRegistry $type_registry The TypeRegistry instance
+		 * @param array  $config    The type config
+		 *
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
 
@@ -55,7 +83,7 @@ class WPInputObjectType extends InputObjectType {
 		 * more specific overrides
 		 *
 		 * @param array $fields The array of fields for the object config
-		 * @param TypeRegistry $type_registry The TypeRegistry instance
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $type_registry );
 
@@ -66,7 +94,7 @@ class WPInputObjectType extends InputObjectType {
 		 * more specific overrides
 		 *
 		 * @param array $fields The array of fields for the object config
-		 * @param TypeRegistry $type_registry The TypeRegistry instance
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $type_registry );
 

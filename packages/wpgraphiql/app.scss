@@ -1,0 +1,29 @@
+@import "~graphiql/graphiql.css";
+@import "~antd/dist/antd.min";
+
+#wpcontent {
+  padding-left: 0;
+}
+
+#wpbody-content {
+  padding-bottom: 0;
+}
+
+#wpbody-content .wrap {
+  margin: 0;
+}
+
+#wpfooter {
+  display: none;
+}
+
+// Hides the update nags
+body:not(.graphiql-fullscreen) #wpbody-content{
+  position: sticky;
+  top: 32px;
+  margin-bottom: -32px;
+}
+
+#wpbody-content > *:not(.wrap) {
+  display: none;
+}

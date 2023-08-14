@@ -39,7 +39,7 @@ function verifyResponse( $I ) {
 	$I->assertNotEmpty( $response_array['data']['posts']['edges'][0]['node']['id'] );
 	$I->assertNotEmpty( $response_array['data']['posts']['edges'][0]['node']['title'] );
 	$I->assertNotEmpty( $response_array['data']['posts']['edges'][0]['node']['link'] );
-	$I->assertNotEmpty( $response_array['data']['posts']['edges'][0]['node']['date'] );	
+	$I->assertNotEmpty( $response_array['data']['posts']['edges'][0]['node']['date'] );
 }
 
 /**
@@ -57,7 +57,7 @@ $I->havePostInDatabase([
  * Set the content-type so we get a proper response from the API
  */
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [ 'query' => $query ] ) );
+$I->sendPOST( 'http://localhost/graphql', json_encode( [ 'query' => $query ] ) );
 
 verifyResponse( $I );
 
@@ -70,7 +70,7 @@ $query_vars = http_build_query( [
 ] );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendGET( "http://wpgraphql.test/graphql?{$query_vars}" );
+$I->sendGET( "http://localhost/graphql?{$query_vars}" );
 
 verifyResponse( $I );
 
@@ -85,6 +85,6 @@ $query_vars = http_build_query( [
 ] );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendGET( "http://wpgraphql.test/graphql?{$query_vars}" );
+$I->sendGET( "http://localhost/graphql?{$query_vars}" );
 
 verifyResponse( $I );

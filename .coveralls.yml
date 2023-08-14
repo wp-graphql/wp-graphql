@@ -1,3 +1,3 @@
 service_name: travis-ci
-coverage_clover: docker-output/*/_output/coverage.xml
-json_path: docker-output/coveralls-upload.json
+coverage_clover: tests/_output/coverage.xml
+json_path: tests/_output/coveralls-upload.json

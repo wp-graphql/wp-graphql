@@ -12,40 +12,40 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		$this->editor = $this->factory()->user->create([
-			'role' => 'editor'
+			'role' => 'editor',
 		]);
 
 		$this->category = $this->factory()->term->create( [
 			'taxonomy' => 'category',
-			'name'     => 'cat test' . uniqid()
+			'name'     => 'cat test' . uniqid(),
 		] );
 
 		$this->post = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Published Post',
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Published Post For PreviewTest',
 			'post_content' => 'Published Content',
-			'post_author' => $this->admin,
+			'post_author'  => $this->admin,
 		]);
 
 		wp_set_object_terms( $this->post, $this->category, 'category', false );
 
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename             = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$this->featured_image = $this->factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $this->post, '_thumbnail_id', $this->featured_image );
 
-
 		$this->preview = $this->factory()->post->create([
-			'post_status' => 'inherit',
-			'post_title' => 'Preview Post',
+			'post_status'  => 'inherit',
+			'post_title'   => 'Preview Post for PreviewTest',
 			'post_content' => 'Preview Content',
-			'post_type' => 'revision',
-			'post_parent' => $this->post,
-			'post_author' => $this->editor,
+			'post_type'    => 'revision',
+			'post_parent'  => $this->post,
+			'post_author'  => $this->editor,
+			'post_date'    => date( 'Y-m-d H:i:s', strtotime( 'now' ) ),
 		]);
 
 		WPGraphQL::clear_schema();
@@ -75,6 +75,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		        ...PostFields
 		      }
 		    }
+		  }
+		  preview:post( id: $id idType: DATABASE_ID asPreview: true ) {
+		    ...PostFields
 		  }
 		}
 		fragment PostFields on Post {
@@ -109,9 +112,12 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testPreviewReturnsNullForPublicRequest() {
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
@@ -124,26 +130,117 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotNull( $actual['data']['post']['preview'] );
 
-		add_filter( 'wp_revisions_to_keep', function() {
+		add_filter( 'wp_revisions_to_keep', function () {
 			return 0;
 		} );
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
-		add_filter( 'wp_revisions_to_keep', function( $default ) {
+		add_filter( 'wp_revisions_to_keep', function ( $default ) {
+			return $default;
+		} );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+	}
+
+	public function testGetPostMetaWithNullAsSingleDoesNotBreakPreview() {
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+		add_filter( 'wp_revisions_to_keep', function () {
+			return 0;
+		} );
+
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		// Tests #1864
+		// Getting the post meta with a null key should not fail requests.
+		// Previously this would cause errors
+		get_post_meta( $this->post, null, null );
+
+		codecept_debug( $actual );
+
+		add_filter( 'wp_revisions_to_keep', function ( $default ) {
+			return $default;
+		} );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+	}
+
+	public function testGetPostMetaWithNullMetaKeyDoesNotBreakPreviews() {
+
+		wp_set_current_user( $this->admin );
+
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post']['preview'] );
+
+		add_filter( 'wp_revisions_to_keep', function () {
+			return 0;
+		} );
+
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		// Tests #1864
+		// Getting the post meta with a null key should not fail requests.
+		// Previously this would cause errors
+		get_post_meta( $this->post, null, true );
+
+		codecept_debug( $actual );
+
+		add_filter( 'wp_revisions_to_keep', function ( $default ) {
 			return $default;
 		} );
 
@@ -156,9 +253,12 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
@@ -173,9 +273,12 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
@@ -192,9 +295,12 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([ 'query' => $this->get_query(), 'variables' => [
-			'id' => $this->post,
-		] ]);
+		$actual = graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
@@ -209,15 +315,15 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 	public function testMetaOnPreview() {
 
 		WPGraphQL::clear_schema();
-		$meta_key = 'metaKey';
+		$meta_key   = 'metaKey';
 		$meta_value = 'metaValue...';
 		update_post_meta( $this->post, $meta_key, $meta_value );
 
 		register_graphql_field( 'Post', $meta_key, [
-			'type' => 'String',
-			'resolve' => function( $post ) use ( $meta_key ) {
+			'type'    => 'String',
+			'resolve' => function ( $post ) use ( $meta_key ) {
 				return get_post_meta( $post->ID, $meta_key, true );
-			}
+			},
 		] );
 
 		wp_set_current_user( $this->admin );
@@ -227,7 +333,8 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $meta_value, get_post_meta( $this->post, $meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $meta_key, true ) );
 
-		$actual = graphql([ 'query' => '
+		$actual = graphql([
+			'query'     => '
 		query GET_POST( $id:ID! ) {
 		 post(id:$id idType: DATABASE_ID) {
 		   databaseId
@@ -254,16 +361,18 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   }
 		 }
 		}
-		', 'variables' => [
-			'id' => $this->post,
-		] ]);
+		',
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
 		codecept_debug( get_post_meta( $this->preview, $meta_key, true ) );
 
-		$this->assertSame( $meta_value,  $actual['data']['post']['metaKey'] );
-		$this->assertSame( $meta_value,  $actual['data']['post']['preview']['node']['metaKey'] );
+		$this->assertSame( $meta_value, $actual['data']['post']['metaKey'] );
+		$this->assertSame( $meta_value, $actual['data']['post']['preview']['node']['metaKey'] );
 
 		$this->assertSame( $meta_value, get_post_meta( $this->post, $meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $meta_key, true ) );
@@ -287,7 +396,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 	public function testRevisedMetaOnPreview() {
 
 		WPGraphQL::clear_schema();
-		$published_meta_key = 'publishedMetaKey';
+		$published_meta_key   = 'publishedMetaKey';
 		$published_meta_value = 'published metaValue...';
 
 		// Store meta on the published post
@@ -296,31 +405,31 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		// Register field for the published meta
 		register_graphql_field( 'Post', $published_meta_key, [
-			'type' => 'String',
-			'resolve' => function( $post ) use ( $published_meta_key ) {
+			'type'    => 'String',
+			'resolve' => function ( $post ) use ( $published_meta_key ) {
 				return get_post_meta( $post->ID, $published_meta_key, true );
-			}
+			},
 		] );
 
 		// Store meta on the preview post
-		$revised_meta_key = 'revisedMetaKey';
+		$revised_meta_key   = 'revisedMetaKey';
 		$revised_meta_value = 'revised metaValue...';
 		codecept_debug( add_metadata( 'post', $this->preview, $revised_meta_key, $revised_meta_value ) );
 		codecept_debug( get_post_meta( $this->preview, $revised_meta_key, true ) );
 
 		// Register field for the revised meta
 		register_graphql_field( 'Post', $revised_meta_key, [
-			'type' => 'String',
-			'resolve' => function( $post ) use ( $revised_meta_key ) {
+			'type'    => 'String',
+			'resolve' => function ( $post ) use ( $revised_meta_key ) {
 				return get_post_meta( $post->ID, $revised_meta_key, true );
-			}
+			},
 		] );
 
 		// Tell the resolver to resolve using the revision ID instead of the
 		// Parent ID for the revisedMetaKey. This means that for the meta_key "revisedMetaKey"
 		// WPGraphQL will look for the meta value on the revision post's meta instead of
 		// looking for it in the parent's meta, which is default WPGraphQL behavior.
-		add_filter( 'graphql_resolve_revision_meta_from_parent', function( $filter_revision_meta, $object_id, $meta_key, $single ) {
+		add_filter( 'graphql_resolve_revision_meta_from_parent', function ( $filter_revision_meta, $object_id, $meta_key, $single ) {
 			if ( $meta_key === 'revisedMetaKey' ) {
 				return false;
 			}
@@ -335,12 +444,13 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $published_meta_value, get_post_meta( $this->post, $published_meta_key, true ) );
 		$this->assertSame( $revised_meta_value, get_post_meta( $this->preview, $revised_meta_key, true ) );
 
-		$actual = graphql([ 'query' => '
+		$actual = graphql([
+			'query'     => '
 		query GET_POST( $id:ID! ) {
 		 post(id:$id idType: DATABASE_ID) {
 		   databaseId
-		   publishedMetaKey
 		   revisedMetaKey
+		   publishedMetaKey
 		   title
 		   content 
 		   author {
@@ -364,24 +474,95 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   }
 		 }
 		}
-		', 'variables' => [
-			'id' => $this->post,
-		] ]);
+		',
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
 
 		codecept_debug( $actual );
 
 		codecept_debug( get_post_meta( $this->preview, $revised_meta_key, true ) );
 
-		$this->assertSame( $published_meta_value,  $actual['data']['post']['publishedMetaKey'] );
-		$this->assertSame( $published_meta_value,  $actual['data']['post']['preview']['node']['publishedMetaKey'] );
+		$this->assertSame( $published_meta_value, $actual['data']['post']['publishedMetaKey'] );
+		$this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
 
 		$this->assertSame( $published_meta_value, get_post_meta( $this->post, $published_meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 
-		$this->assertSame( $revised_meta_value,  $actual['data']['post']['preview']['node']['revisedMetaKey'] );
+		$this->assertSame( $revised_meta_value, $actual['data']['post']['preview']['node']['revisedMetaKey'] );
 		$this->assertSame( $revised_meta_value, get_post_meta( $this->preview, $revised_meta_key, true ) );
 
 		WPGraphQL::clear_schema();
+
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/1615#issuecomment-741817101
+	 */
+	public function testMultipleMetaFieldsResolveOnPreviewNodes() {
+
+		WPGraphQL::clear_schema();
+		$published_meta_key   = 'publishedMetaKey';
+		$published_meta_value = 'published metaValue...';
+
+		// Store meta on the published post
+		update_post_meta( $this->post, $published_meta_key, $published_meta_value );
+		codecept_debug( get_post_meta( $this->post, $published_meta_key, $published_meta_value ) );
+
+		// Register field for the published meta
+		register_graphql_field( 'Post', $published_meta_key, [
+			'type'    => 'String',
+			'resolve' => function ( $post ) use ( $published_meta_key ) {
+				return get_post_meta( $post->ID, $published_meta_key, true );
+			},
+		] );
+
+		wp_set_current_user( $this->admin );
+
+		// Asking for the meta of a revision directly using the get_post_meta function should
+		// get the meta from the revision ID, which should be empty since we didn't set any
+		// value
+		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
+
+		$actual = graphql([
+			'query'     => '
+				query GET_POST( $id:ID! ) {
+				 post(id:$id idType: DATABASE_ID) {
+				   databaseId
+				   enclosure
+				   publishedMetaKey
+				   title
+				   content 
+				   preview {
+				     node {
+				       databaseId
+				       enclosure
+				       publishedMetaKey
+				       title
+				       content 
+				     }
+				   }
+				 }
+				 preview:post(id:$id idType: DATABASE_ID asPreview:true) {
+				   publishedMetaKey
+				 }
+				}
+			',
+			'variables' => [
+				'id' => $this->post,
+			],
+		]);
+
+		codecept_debug( $actual );
+
+		$this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
+		$this->assertSame( $published_meta_value, $actual['data']['preview']['publishedMetaKey'] );
+
+		// Asking for the meta of a revision directly using the get_post_meta function should
+		// get the meta from the revision ID, which should be empty since we didn't set any
+		// value
+		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 
 	}
 

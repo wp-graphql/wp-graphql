@@ -17,12 +17,13 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		WPGraphQL::clear_schema();
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
 		wp_set_current_user( 0 );
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
 	}
@@ -39,7 +40,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory()->post->create( [
 			'post_type'   => 'Post',
 			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test for PostTypeQueryForPosts',
 		] );
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -49,7 +50,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			posts(first:1) {
 				nodes {
@@ -114,7 +115,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  }
 				}
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -135,31 +136,31 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 					[
 						'contentType' => [
 							'node' => [
-								'canExport'              => true,
-								'connectedTaxonomies'    => [
+								'canExport'           => true,
+								'connectedTaxonomies' => [
 									'nodes' => [
 										[
-											'name' => 'category'
+											'name' => 'category',
 										],
 										[
-											'name' => 'post_tag'
+											'name' => 'post_tag',
 										],
 										[
-											'name' => 'post_format'
+											'name' => 'post_format',
 										],
-									]
+									],
 
 								],
-								'deleteWithUser'         => true,
-								'description'            => '',
-								'excludeFromSearch'      => false,
-								'graphqlPluralName'      => 'posts',
-								'graphqlSingleName'      => 'post',
-								'hasArchive'             => (boolean) get_post_type_archive_link( 'post' ),
-								'hierarchical'           => false,
-								'id'                     => $global_id,
-								'label'                  => 'Posts',
-								'labels'                 => [
+								'deleteWithUser'      => true,
+								'description'         => '',
+								'excludeFromSearch'   => false,
+								'graphqlPluralName'   => 'posts',
+								'graphqlSingleName'   => 'post',
+								'hasArchive'          => (bool) get_post_type_archive_link( 'post' ),
+								'hierarchical'        => false,
+								'id'                  => $global_id,
+								'label'               => 'Posts',
+								'labels'              => [
 									'name'                => 'Posts',
 									'singularName'        => 'Post',
 									'addNew'              => 'Add New',
@@ -186,24 +187,24 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'itemsListNavigation' => 'Posts list navigation',
 									'itemsList'           => 'Posts list',
 								],
-								'menuIcon'               => $post_type_object->menu_icon,
-								'menuPosition'           => 5,
-								'name'                   => 'post',
-								'public'                 => true,
-								'publiclyQueryable'      => true,
-								'restBase'               => 'posts',
-								'restControllerClass'    => 'WP_REST_Posts_Controller',
-								'showInAdminBar'         => true,
-								'showInGraphql'          => true,
-								'showInMenu'             => true,
-								'showInNavMenus'         => true,
-								'showInRest'             => true,
-								'showUi'                 => true,
+								'menuIcon'            => $post_type_object->menu_icon,
+								'menuPosition'        => 5,
+								'name'                => 'post',
+								'public'              => true,
+								'publiclyQueryable'   => true,
+								'restBase'            => 'posts',
+								'restControllerClass' => 'WP_REST_Posts_Controller',
+								'showInAdminBar'      => true,
+								'showInGraphql'       => true,
+								'showInMenu'          => true,
+								'showInNavMenus'      => true,
+								'showInRest'          => true,
+								'showUi'              => true,
 							],
 						],
-					]
-				]
-			]
+					],
+				],
+			],
 		];
 
 		codecept_debug( $actual );
@@ -221,9 +222,10 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostTypeQueryForPages() {
 
 		$this->factory()->post->create( [
-			'post_type'   => 'Page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_type'    => 'Page',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test for PostTypeQueryForPages',
+			'post_content' => 'Test post type query for pages',
 		] );
 
 		/**
@@ -236,7 +238,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			pages(first:1) {
 				nodes {
@@ -274,7 +276,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  }
 				}
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -335,15 +337,16 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testPostTypeQueryForMedia() {
 
 		$post_id = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test',
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Test PostTypeQueryForMedia',
+			'post_content' => __FUNCTION__,
 		] );
 
 		$this->factory()->post->create( [
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
-			'post_title'  => 'Test',
+			'post_title'  => 'Test attachment for PostTypeQueryForMedia',
 			'post_parent' => $post_id,
 		] );
 
@@ -357,7 +360,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the query string to pass to the $query
 		 */
-		$query = "
+		$query = '
 		query {
 			mediaItems(first:1) {
 			    nodes {
@@ -395,7 +398,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				  }
 				}
 			}
-		}";
+		}';
 
 		/**
 		 * Run the GraphQL query
@@ -445,7 +448,6 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 				],
 			],
 		];
-
 
 		$this->assertEquals( $expected, $actual['data'] );
 	}

@@ -27,6 +27,8 @@ class QueryLog {
 
 	/**
 	 * Initialize Query Logging
+	 *
+	 * @return void
 	 */
 	public function init() {
 
@@ -48,6 +50,8 @@ class QueryLog {
 	 * Tell WordPress to start saving queries.
 	 *
 	 * NOTE: This will affect all requests, not just GraphQL requests.
+	 *
+	 * @return void
 	 */
 	public function init_save_queries() {
 		if ( is_graphql_http_request() && ! defined( 'SAVEQUERIES' ) ) {
@@ -69,8 +73,8 @@ class QueryLog {
 			$can_see = false;
 		} else {
 
-			// If "all" is the selected role, anyone can see the logs
-			if ( 'all' === $this->query_log_user_role ) {
+			// If "any" is the selected role, anyone can see the logs
+			if ( 'any' === $this->query_log_user_role ) {
 				$can_see = true;
 			} else {
 				// Get the current users roles
@@ -78,7 +82,7 @@ class QueryLog {
 
 				// If the user doesn't have roles or the selected role isn't one the user has, the
 				// user cannot see roles;
-				if ( isset( $user->roles ) && in_array( $this->query_log_user_role, (array) $user->roles, true ) ) {
+				if ( in_array( $this->query_log_user_role, $user->roles, true ) ) {
 					$can_see = true;
 				}
 			}
@@ -97,7 +101,7 @@ class QueryLog {
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
 	 * @param mixed    $response
-	 * @param WPSchema $schema         The WPGraphQL Schema
+	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
 	 * @param string   $operation_name The operation name being executed
 	 * @param string   $request        The GraphQL Request being made
 	 * @param array    $variables      The variables sent with the request
@@ -117,6 +121,7 @@ class QueryLog {
 			if ( is_array( $response ) ) {
 				$response['extensions']['queryLog'] = $query_log;
 			} elseif ( is_object( $response ) ) {
+				// @phpstan-ignore-next-line
 				$response->extensions['queryLog'] = $query_log;
 			}
 		}
@@ -133,11 +138,18 @@ class QueryLog {
 	public function get_query_log() {
 		global $wpdb;
 
+		$save_queries_value = defined( 'SAVEQUERIES' ) && true === SAVEQUERIES ? 'true' : 'false';
+		$default_message    = sprintf(
+			// translators: %s is the value of the SAVEQUERIES constant
+			__( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ),
+			$save_queries_value
+		);
+
 		// Default message
-		$trace = [ sprintf( __( 'Query Logging has been disabled. The \'SAVEQUERIES\' Constant is set to \'%s\' on your server.', 'wp-graphql' ), SAVEQUERIES ? 'true' : 'false' ) ];
+		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
-			$queries = array_map( function( $query ) {
+			$queries = array_map( static function ( $query ) {
 				return [
 					'sql'   => $query[0],
 					'time'  => $query[1],
@@ -157,8 +169,8 @@ class QueryLog {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array   $trace The trace to return
-		 * @param Tracing $this  The Tracing class instance
+		 * @param array    $trace     The trace to return
+		 * @param \WPGraphQL\Utils\QueryLog $instance The QueryLog class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 

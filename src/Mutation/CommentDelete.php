@@ -2,15 +2,20 @@
 
 namespace WPGraphQL\Mutation;
 
+use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Model\Comment;
+use WPGraphQL\Utils\Utils;
 
 class CommentDelete {
 	/**
 	 * Registers the CommentDelete mutation.
+	 *
+	 * @return void
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -53,16 +58,16 @@ class CommentDelete {
 			'deletedId' => [
 				'type'        => 'Id',
 				'description' => __( 'The deleted comment ID', 'wp-graphql' ),
-				'resolve'     => function( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['commentObject'];
 
-					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', absint( $deleted->comment_ID ) ) : null;
+					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', $deleted->comment_ID ) : null;
 				},
 			],
 			'comment'   => [
 				'type'        => 'Comment',
 				'description' => __( 'The deleted comment object', 'wp-graphql' ),
-				'resolve'     => function( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					return $payload['commentObject'] ? $payload['commentObject'] : null;
 				},
 			],
@@ -75,17 +80,16 @@ class CommentDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function( $input ) {
-			/**
-			 * Get the ID from the global ID
-			 */
-			$id_parts = Relay::fromGlobalId( $input['id'] );
+		return static function ( $input ) {
+			// Get the database ID for the comment.
+			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 
-			/**
-			 * Get the post object before deleting it
-			 */
-			$comment_id            = absint( $id_parts['id'] );
-			$comment_before_delete = get_comment( $comment_id );
+			// Get the post object before deleting it.
+			$comment_before_delete = ! empty( $comment_id ) ? get_comment( $comment_id ) : false;
+
+			if ( empty( $comment_before_delete ) ) {
+				throw new UserError( __( 'The Comment could not be deleted', 'wp-graphql' ) );
+			}
 
 			/**
 			 * Stop now if a user isn't allowed to delete the comment
@@ -118,14 +122,14 @@ class CommentDelete {
 			/**
 			 * Check if we should force delete or not
 			 */
-			$force_delete = ( ! empty( $input['forceDelete'] ) && true === $input['forceDelete'] ) ? true : false;
+			$force_delete = ! empty( $input['forceDelete'] ) && true === $input['forceDelete'];
 
 			$comment_before_delete = new Comment( $comment_before_delete );
 
 			/**
 			 * Delete the comment
 			 */
-			wp_delete_comment( $id_parts['id'], $force_delete );
+			wp_delete_comment( (int) $comment_id, $force_delete );
 
 			return [
 				'commentObject' => $comment_before_delete,

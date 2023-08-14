@@ -66,7 +66,9 @@ class Taxonomy extends Model {
 			'isRestricted',
 		];
 
-		parent::__construct( $this->data->cap->edit_terms, $allowed_restricted_fields );
+		$capability = isset( $this->data->cap->edit_terms ) ? $this->data->cap->edit_terms : 'edit_terms';
+
+		parent::__construct( $capability, $allowed_restricted_fields );
 
 	}
 
@@ -77,7 +79,7 @@ class Taxonomy extends Model {
 	 */
 	protected function is_private() {
 
-		if ( false === $this->data->public && ! current_user_can( $this->data->cap->edit_terms ) ) {
+		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
 			return true;
 		}
 
@@ -95,67 +97,67 @@ class Taxonomy extends Model {
 		if ( empty( $this->fields ) ) {
 
 			$this->fields = [
-				'id'                  => function() {
+				'id'                  => function () {
 					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
 				},
-				'object_type'         => function() {
+				'object_type'         => function () {
 					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
 				},
-				'name'                => function() {
+				'name'                => function () {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'label'               => function() {
+				'label'               => function () {
 					return ! empty( $this->data->label ) ? $this->data->label : null;
 				},
-				'description'         => function() {
+				'description'         => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : '';
 				},
-				'public'              => function() {
+				'public'              => function () {
 					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
 				},
-				'hierarchical'        => function() {
+				'hierarchical'        => function () {
 					return ( true === $this->data->hierarchical ) ? true : false;
 				},
-				'showUi'              => function() {
+				'showUi'              => function () {
 					return ( true === $this->data->show_ui ) ? true : false;
 				},
-				'showInMenu'          => function() {
+				'showInMenu'          => function () {
 					return ( true === $this->data->show_in_menu ) ? true : false;
 				},
-				'showInNavMenus'      => function() {
+				'showInNavMenus'      => function () {
 					return ( true === $this->data->show_in_nav_menus ) ? true : false;
 				},
-				'showCloud'           => function() {
+				'showCloud'           => function () {
 					return ( true === $this->data->show_tagcloud ) ? true : false;
 				},
-				'showInQuickEdit'     => function() {
+				'showInQuickEdit'     => function () {
 					return ( true === $this->data->show_in_quick_edit ) ? true : false;
 				},
-				'showInAdminColumn'   => function() {
+				'showInAdminColumn'   => function () {
 					return ( true === $this->data->show_admin_column ) ? true : false;
 				},
-				'showInRest'          => function() {
+				'showInRest'          => function () {
 					return ( true === $this->data->show_in_rest ) ? true : false;
 				},
-				'restBase'            => function() {
+				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
 				},
-				'restControllerClass' => function() {
+				'restControllerClass' => function () {
 					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
 				},
-				'showInGraphql'       => function() {
+				'showInGraphql'       => function () {
 					return ( true === $this->data->show_in_graphql ) ? true : false;
 				},
-				'graphqlSingleName'   => function() {
+				'graphqlSingleName'   => function () {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
-				'graphql_single_name' => function() {
+				'graphql_single_name' => function () {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
-				'graphqlPluralName'   => function() {
+				'graphqlPluralName'   => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
-				'graphql_plural_name' => function() {
+				'graphql_plural_name' => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 			];

@@ -5,8 +5,15 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class TaxonomyEnum {
+
+	/**
+	 * Register the TaxonomyEnum Type to the Schema
+	 *
+	 * @return void
+	 */
 	public static function register_type() {
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
+		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		$values = [];
 
@@ -14,13 +21,17 @@ class TaxonomyEnum {
 		 * Loop through the taxonomies and create an array
 		 * of values for use in the enum type.
 		 */
-		if ( ! empty( $allowed_taxonomies ) && is_array( $allowed_taxonomies ) ) {
-			foreach ( $allowed_taxonomies as $allowed_taxonomy ) {
-				if ( ! isset( $values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] ) ) {
-					$values[ WPEnumType::get_safe_name( get_taxonomy( $allowed_taxonomy )->graphql_single_name ) ] = [
-						'value' => $allowed_taxonomy,
-					];
-				}
+
+		foreach ( $allowed_taxonomies as $tax_object ) {
+			if ( ! isset( $values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] ) ) {
+				$values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] = [
+					'value'       => $tax_object->name,
+					'description' => sprintf(
+						// translators: %s is the taxonomy name.
+						__( 'Taxonomy enum %s', 'wp-graphql' ),
+						$tax_object->name
+					),
+				];
 			}
 		}
 

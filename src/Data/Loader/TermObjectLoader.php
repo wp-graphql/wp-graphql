@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Data\Loader;
 
+use Exception;
 use GraphQL\Deferred;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Term;
@@ -14,10 +15,10 @@ use WPGraphQL\Model\Term;
 class TermObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @param $entry
-	 * @param $key
+	 * @param mixed $entry The User Role object
+	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Term
+	 * @return mixed|\WPGraphQL\Model\Term
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -25,12 +26,12 @@ class TermObjectLoader extends AbstractDataLoader {
 		if ( is_a( $entry, 'WP_Term' ) ) {
 
 			/**
-			 * For nav_menu_item terms, we want to pass through a different model
+			 * For nav_menu terms, we want to pass through a different model
 			 */
 			if ( 'nav_menu' === $entry->taxonomy ) {
 
 				$menu = new Menu( $entry );
-				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+				if ( empty( $menu->fields ) ) {
 					return null;
 				} else {
 					return $menu;
@@ -38,10 +39,10 @@ class TermObjectLoader extends AbstractDataLoader {
 			} else {
 
 				$term = new Term( $entry );
-				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+				if ( empty( $term->fields ) ) {
 					return null;
 				} else {
-					return  $term;
+					return $term;
 				}
 			}
 		}
@@ -58,7 +59,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * For example:
 	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
 	 *
-	 * @param array $keys
+	 * @param int[] $keys
 	 *
 	 * @return array
 	 * @throws \Exception

@@ -47,7 +47,7 @@ for ( $x = 1; $x <= $count; $x++ ) {
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 // Query for the menu.
-$I->sendPOST( 'http://wpgraphql.test/graphql', json_encode( [
+$I->sendPOST( 'http://localhost/graphql', json_encode( [
 	'query' => '
 	{
 		menus( where: { id: ' . $menu_id . ' } ){

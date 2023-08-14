@@ -1,14 +1,27 @@
 parameters:
-    level: 0
+    level: 8
     inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
+    treatPhpDocTypesAsCertain: false
+    stubFiles:
+        # Simulate added properties
+        - phpstan/class-wp-post-type.stub
+        - phpstan/class-wp-taxonomy.stub
+        - phpstan/class-wp-dependency.stub
     bootstrapFiles:
+        - phpstan/constants.php
         - wp-graphql.php
         - access-functions.php
+        - activation.php
+        - deactivation.php
     paths:
         - wp-graphql.php
         - access-functions.php
+        - activation.php
+        - deactivation.php
         - src/
+    excludePaths:
+      analyseAndScan:
+        - */node_modules/*
+        - */vendor/*
     ignoreErrors:
-        # Uses func_get_args()
-        # Ignore any filters that are applied with more than 2 paramaters
-        # '#^Function apply_filters(_ref_array)? invoked with [0[1-9]|1[0-2]] parameters, 2 required\.$#'

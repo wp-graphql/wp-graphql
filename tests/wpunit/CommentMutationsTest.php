@@ -1,6 +1,7 @@
 <?php
 
-class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
+class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+
 	public $title;
 	public $content;
 	public $client_mutation_id;
@@ -9,6 +10,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 	public $author;
 
 	public function setUp(): void {
+
 		// before
 		parent::setUp();
 
@@ -27,88 +29,17 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->subscriber = $this->factory()->user->create( [
 			'role' => 'subscriber',
 		] );
+
+		WPGraphQL::clear_schema();
+
 	}
 
 
 	public function tearDown(): void {
 		// your tear down methods here
-
+		WPGraphQL::clear_schema();
 		// then
 		parent::tearDown();
-	}
-
-	public function testCreateCommentByLoggedInUserShouldSetUserProperly() {
-
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'post_title' => 'Test for comments...'
-		]);
-
-		$query = '
-		mutation createComment($input: CreateCommentInput!) {
-		  createComment(input: $input) {
-		    clientMutationId
-		    success
-		    comment {
-		      id
-		      content
-		      author {
-		        node {
-		          name
-		          ... on User {
-		            id
-		            databaseId
-		            username
-		          }
-		        }
-		      }
-		    }
-		  }
-		}
-		';
-
-		$variables = [
-			'input' => [
-				'clientMutationId' => 'Create...',
-				'content' => 'Test comment ' . uniqid(),
-				'commentOn' => $post_id
-			]
-		];
-
-		wp_set_current_user( $this->admin );
-
-		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
-
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
-
-		add_filter( 'comment_flood_filter', '__return_false' );
-
-		wp_set_current_user( 0 );
-
-		$variables['input']['author'] = 'joe';
-		$variables['input']['authorEmail'] = 'joe@example.com';
-
-		sleep(1);
-		$actual = graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
-
-
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertTrue( $actual['data']['createComment']['success'] );
-
 	}
 
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
@@ -116,7 +47,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$post_args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Post Title',
+			'post_title'   => 'Post for CommentMutationsTest',
 			'post_content' => 'Post Content',
 		];
 
@@ -147,10 +78,13 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 	// tests
 	public function testCreateComment() {
+		add_filter( 'duplicate_comment_id', '__return_false' );
+		add_filter( 'comment_flood_filter', '__return_false' );
+
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -163,60 +97,148 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
+
+		$query = '
+		mutation createCommentTest( $commentOn:Int!, $author:String, $email: String, $content:String! ){
+			createComment( 
+				input: {
+					commentOn: $commentOn
+					content: $content
+					author: $author
+					authorEmail: $email
+				}
+			)
+			{
+				success
+				comment {
+					content
+					author {
+						node {
+							name
+							... on User {
+								id
+								databaseId
+								username
+							}
+						}
+					}
+					status
+				}
+			}
+		}
+		';
+
+		$expected_content = apply_filters( 'comment_text', $this->content );
+
+		// test with logged in user
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => null,
+			'email'     => null,
+		];
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertSame( $this->admin, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( $expected_content, $actual['data']['createComment']['comment']['content'] );
+		$this->assertEquals( 'APPROVE', $actual['data']['createComment']['comment']['status'] );
+
+		$count = wp_count_comments( $post_id );
+		$this->assertEquals( '1', $count->total_comments );
+
+		// Test logged in user without `moderate_comments`.
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+		$this->assertEquals( 'HOLD', $actual['data']['createComment']['comment']['status'] );
+
+
+		// Test logged in user different than author.
+		wp_set_current_user( $this->admin );
+
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => 'Comment Author',
+			'email'     => 'comment_author@example.com',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $variables['author'], $actual['data']['createComment']['comment']['author']['node']['name'] );
+
+		// Test logged in user different than author without `moderate_comments`.
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+	}
+
+
+	public function testCreateChildComment() {
+		// Create parent comment.
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$query = '
+			mutation createChildCommentTest( $commentOn: Int!, $parent: ID, $content: String!){
+				createComment(
+					input: {
+						commentOn: $commentOn,
+						content: $content,
+						parent: $parent,
+					}
+				){
+					success
+					comment {
+						databaseId
+						parent {
+							node {
+								databaseId
+							}
+						}
+					}
+				}
+			}
+		';
 
 		wp_set_current_user( $this->admin );
 
-		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
-		  createComment( 
-		    input: {
-		      clientMutationId: $clientMutationId
-		      commentOn: $commentOn
-              content: $content
-              author: $author
-              authorEmail: $email
-		    }
-          )
-          {
-		    clientMutationId
-		    comment {
-              content
-		    }
-          }
-        }
-		';
-		$variables = wp_json_encode( [
-			'clientMutationId' => $this->client_mutation_id,
-			'commentOn'        => $post_id,
-			'content'          => $this->content,
-			'author'           => 'Comment Author',
-			'email'            => 'subscriber@example.com',
-		] );
-
-		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
-
-		$expected = [
-			'createComment' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'comment'          => [
-					'content'  => apply_filters( 'comment_text', $this->content ),
-				],
-			],
+		// Test with database Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'parent'    => $comment_id,
 		];
 
-		/**
-		 * use --debug flag to view
-		 */
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
-		$this->assertEquals( $expected, $actual['data'] );
-		$count = wp_count_comments( $post_id );
-		$this->assertEquals( '1', $count->total_comments );
+		// Test with global Id
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => 'Testing with global Id',
+			'parent'    => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+		$this->assertEquals( $comment_id, $actual['data']['createComment']['comment']['parent']['node']['databaseId'] );
 	}
 
 	public function testUpdateCommentWithAuthorConnection() {
@@ -226,7 +248,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -235,54 +257,117 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
 		$this->assertEquals( $new_comment->comment_content, 'Comment Content' );
 
-		$content   = 'Updated Content';
-		$mutation  = '
-		mutation updateCommentTest( $clientMutationId: String!, $id: ID!, $content: String! ) {
-		  updateComment( 
-		    input: {
-		      clientMutationId: $clientMutationId
-              id: $id
-              content: $content
-		    }
-          )
-          {
-		    clientMutationId
-		    comment {
-              id
-              commentId
-              content
-		    }
-          }
-        }
-		';
-		$variables = wp_json_encode( [
-			'clientMutationId' => $this->client_mutation_id,
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-			'content'          => $content,
-		] );
+		$content = 'Updated Content';
 
-		$actual = do_graphql_request( $mutation, 'updateCommentTest', $variables );
+		$query = '
+		mutation updateCommentTest( $id: ID!, $content: String! ) {
+			updateComment( 
+				input: {
+					id: $id
+					content: $content
+				}
+			)
+			{
+				comment {
+					id
+					databaseId
+					content
+				}
+			}
+		}
+		';
 
 		$expected = [
 			'updateComment' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'comment'          => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+				'comment' => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * use --debug flag to view
-		 */
-		codecept_debug( $actual );
+		// Test with database ID.
+		$variables = [
+			'id'      => $comment_id,
+			'content' => $content,
+		];
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test with global ID
+		$content   = 'Updated via Global ID';
+		$variables = [
+			'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'content' => $content,
+		];
+		$expected['updateComment']['comment']['content'] = apply_filters( 'comment_text', $content );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $expected, $actual['data'] );
+	}
+
+	public function testUpdateCommentWithStatus() {
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$comment = get_comment( $comment_id );
+
+		$query = '
+		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
+			updateComment( 
+				input: {
+					id: $id
+					status: $status
+				}
+			)
+			{
+				comment {
+					databaseId
+					status
+				}
+			}
+		}
+		';
+
+		// Test HOLD status.
+		$variables = [
+			'id'     => $comment_id,
+			'status' => 'HOLD',
+		];
+
+		// Test without permissions.
+		wp_set_current_user( 0 );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test with permissions.
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'HOLD', $actual['data']['updateComment']['comment']['status'] );
+		
+		// Test with SPAM status.
+		$variables['status'] = 'SPAM';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'SPAM', $actual['data']['updateComment']['comment']['status'] );
+
+		// Test with TRASH status.
+		$variables['status'] = 'TRASH';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'TRASH', $actual['data']['updateComment']['comment']['status'] );
 	}
 
 	public function testDeleteCommentWithPostConnection() {
@@ -291,7 +376,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -300,53 +385,60 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
 		$this->assertEquals( $new_comment->comment_content, $content );
 
-		$mutation = '
-		mutation deleteCommentTest( $clientMutationId: String!, $id: ID! ) {
-		  deleteComment( 
-		    input: {
-		      clientMutationId: $clientMutationId
-              id: $id
-		    }
-          )
-          {
-            clientMutationId
-            deletedId
-            comment {
-              id
-              commentId
-              content
-            }
-          }
-        }
-        ';
+		$query = '
+		mutation deleteCommentTest( $id: ID! ) {
+			deleteComment( 
+				input: {
+					id: $id
+				}
+			)
+			{
+				deletedId
+				comment {
+					id
+					databaseId
+					content
+				}
+			}
+		}
+		';
 
+		// Test with database ID.
 		$variables = [
-			'clientMutationId' => $this->client_mutation_id,
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'id' => $comment_id,
 		];
 
-		$actual = do_graphql_request( $mutation, 'deleteCommentTest', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$expected = [
 			'deleteComment' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'deletedId'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-				'comment'          => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'   => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * use --debug flag to view
-		 */
-		\Codeception\Util\Debug::debug( $actual );
+		$this->assertEquals( $expected, $actual['data'] );
+		// Test with global Id
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		$expected = [
+			'deleteComment' => [
+				'deletedId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'   => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
+				],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		codecept_debug( $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
@@ -356,7 +448,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Post Title' );
+		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
@@ -367,56 +459,65 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->trashComment( $comment_id );
 
-		$mutation = '
-		mutation restoreCommentTest( $clientMutationId: String!, $id: ID! ) {
-		  restoreComment( 
-		    input: {
-		      clientMutationId: $clientMutationId
-              id: $id
-		    }
-          )
-          {
-            clientMutationId
-            restoredId
-            comment {
-              id
-              commentId
-              content
-            }
-          }
-        }
-        ';
+		$query = '
+		mutation restoreCommentTest( $id: ID! ) {
+			restoreComment( 
+				input: {
+					id: $id
+				}
+			)
+			{
+				restoredId
+				comment {
+					id
+					databaseId
+					content
+				}
+			}
+		}
+		';
 
+		// Test database ID
 		$variables = [
-			'clientMutationId' => $this->client_mutation_id,
-			'id'               => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+			'id' => $comment_id,
 		];
-
-		wp_set_current_user( $this->admin );
-
-		$actual = do_graphql_request( $mutation, 'restoreCommentTest', $variables );
 
 		$expected = [
 			'restoreComment' => [
-				'clientMutationId' => $this->client_mutation_id,
-				'restoredId'       => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-				'comment'          => [
-					'id'        => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'commentId' => $comment_id,
-					'content'   => apply_filters( 'comment_text', $content ),
+				'restoredId' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+				'comment'    => [
+					'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'databaseId' => $comment_id,
+					'content'    => apply_filters( 'comment_text', $content ),
 				],
 			],
 		];
 
-		/**
-		 * use --debug flag to view
-		 */
-		\Codeception\Util\Debug::debug( $actual );
+		// Test without permissions
+		wp_set_current_user( 0 );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
 
-		/**
-		 * Compare the actual output vs the expected output
-		 */
+		// Test with permissions
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test global Id
+		$this->trashComment( $comment_id );
+
+		$variables['id'] = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test bad ID
+		$variables['id'] = '3ab21';
+		$actual          = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
 	/**
@@ -428,7 +529,7 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -446,38 +547,35 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
-		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
-		  createComment(
-		    input: {
-		      clientMutationId: $clientMutationId
-		      commentOn: $commentOn
-		      content: $content
-		      author: $author
-		      authorEmail: $email
-		    }
-		  )
-		  {
-		    clientMutationId
-		    comment {
-		      content
-		    }
-		  }
+		$query = '
+		mutation createCommentTest( $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
+			createComment(
+				input: {
+					commentOn: $commentOn
+					content: $content
+					author: $author
+					authorEmail: $email
+				}
+			)
+			{
+				comment {
+					content
+				}
+			}
 		}
 		';
 
-		$variables = wp_json_encode( [
-			'clientMutationId' => $this->client_mutation_id,
-			'commentOn'        => $post_id,
-			'content'          => $this->content,
-			'author'           => 'Comment Author',
-			'email'            => 'subscriber@example.com',
-		] );
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => 'Comment Author',
+			'email'     => 'subscriber@example.com',
+		];
 
-		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertNotEmpty( $actual['errors'] );
 		$this->assertEmpty( $actual['data']['createComment'] );
@@ -490,12 +588,10 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testCanCreateCommentNotLoggedIn() {
 
-
-
 		$args = [
 			'post_type'    => 'post',
 			'post_status'  => 'publish',
-			'post_title'   => 'Original Title',
+			'post_title'   => 'Original Title for CommentMutationsTest',
 			'post_content' => 'Original Content',
 		];
 
@@ -513,40 +609,35 @@ class CommentMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
-		$this->assertEquals( $new_post->post_title, 'Original Title' );
+		$this->assertEquals( $new_post->post_title, 'Original Title for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Original Content' );
 
-		$mutation  = '
-		mutation createCommentTest( $clientMutationId:String!, $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
-		  createComment(
-		    input: {
-		      clientMutationId: $clientMutationId
-		      commentOn: $commentOn
-		      content: $content
-		      author: $author
-		      authorEmail: $email
-		    }
-		  )
-		  {
-		    clientMutationId
-		    success
-		  }
+		$query = '
+		mutation createCommentTest( $commentOn:Int!, $author:String!, $email: String!, $content:String! ){
+			createComment(
+				input: {
+					commentOn: $commentOn
+					content: $content
+					author: $author
+					authorEmail: $email
+				}
+			)
+			{
+				success
+			}
 		}
 		';
 
-		$variables = wp_json_encode( [
-			'clientMutationId' => $this->client_mutation_id,
-			'commentOn'        => $post_id,
-			'content'          => $this->content,
-			'author'           => 'Comment Author',
-			'email'            => 'subscriber@example.com',
-		] );
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => 'Comment Author',
+			'email'     => 'subscriber@example.com',
+		];
 
 		wp_set_current_user( 0 );
 
-		$actual = do_graphql_request( $mutation, 'createCommentTest', $variables );
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
