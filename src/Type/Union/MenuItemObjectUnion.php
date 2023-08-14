@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Union;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;

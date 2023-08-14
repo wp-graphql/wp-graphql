@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Registry\Utils;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Taxonomy;
 use WPGraphQL;

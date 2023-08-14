@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
-
 /**
  * Class Avatar - Models data for avatars
  *

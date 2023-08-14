@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use \WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
+use WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
 
 class CommentAuthor {
 

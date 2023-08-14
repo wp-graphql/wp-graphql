@@ -2,10 +2,7 @@
 
 namespace WPGraphQL\Utils;
 
-use Exception;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Server\OperationParams;
@@ -17,11 +14,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use GraphQLRelay\Relay;
-use Hoa\Math\Util;
-use WPGraphQL\Model\Model;
 use WPGraphQL\Request;
-use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\WPSchema;
 
 /**

@@ -117,8 +117,43 @@
 	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
-	<!-- Use FQCN for PHPDoc types -->
-	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
-	<!-- Enforce static closures -->
+	<!-- Slevomat Coding Standards-->
+	<rule ref="SlevomatCodingStandard.Arrays">
+		<!-- Conflicts with WPCS -->
+		<exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace"/>
+		<!-- Semantic sorting is a valid pattern -->
+		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Classes.ModernClassNameReference">
+		<properties>
+			<!-- Doesn't use PHPCompatibility-->
+			<property name="enableOnObjects" value="false"/>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Classes.RequireSelfReference" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowConstructorPropertyPromotion" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiConstantDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiPropertyDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowStringExpressionPropertyFetch" />
+	<rule ref="SlevomatCodingStandard.Classes.ClassConstantVisibility" />
+	<rule ref="SlevomatCodingStandard.Classes.UselessLateStaticBinding" />
+
+	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly" />
+
 	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
+
+	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
+	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+
+	<rule ref="SlevomatCodingStandard.PHP.OptimizedFunctionsWithoutUnpacking" />
+	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
+
+	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
 </ruleset>

@@ -2,9 +2,7 @@
 
 namespace WPGraphQL;
 
-use Exception;
 use GraphQL\Error\FormattedError;
-use GraphQL\Executor\ExecutionResult;
 use WP_User;
 use WPGraphQL\Utils\QueryAnalyzer;
 
@@ -217,7 +215,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', __CLASS__ . 'is_graphql_http_request()' );
+		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return self::is_graphql_http_request();
 	}
 
@@ -473,7 +471,7 @@ class Router {
 			$query          = isset( $params->query ) ? $params->query : '';
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
 			$variables      = isset( $params->variables ) ? $params->variables : null;
-		} catch ( Exception $error ) {
+		} catch ( \Throwable $error ) {
 
 			/**
 			 * If there are errors, set the status to 500
@@ -486,9 +484,9 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 *
-			 * @param array               $errors   Formatted errors object.
-			 * @param \Exception $error Thrown error.
-			 * @param \WPGraphQL\Request  $request  WPGraphQL Request object.
+			 * @param array               $errors  Formatted errors object.
+			 * @param \Throwable          $error   Thrown error.
+			 * @param \WPGraphQL\Request  $request WPGraphQL Request object.
 			 */
 			$response['errors'] = apply_filters(
 				'graphql_http_request_response_errors',

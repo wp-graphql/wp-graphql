@@ -3,7 +3,6 @@
 namespace WPGraphQL\Model;
 
 use Exception;
-use WP_User;
 
 /**
  * Class Model - Abstract class for modeling data for all core types

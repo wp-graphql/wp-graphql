@@ -4,15 +4,12 @@
 
 use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\InstrumentSchema;
-use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
-use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
-use WPGraphQL\WPSchema;
 
 /**
  * Class WPGraphQL
@@ -427,12 +424,12 @@ final class WPGraphQL {
 	 * @since  0.0.2
 	 */
 	public static function show_in_graphql() {
-		add_filter( 'register_post_type_args', [ __CLASS__, 'setup_default_post_types' ], 10, 2 );
-		add_filter( 'register_taxonomy_args', [ __CLASS__, 'setup_default_taxonomies' ], 10, 2 );
+		add_filter( 'register_post_type_args', [ self::class, 'setup_default_post_types' ], 10, 2 );
+		add_filter( 'register_taxonomy_args', [ self::class, 'setup_default_taxonomies' ], 10, 2 );
 
 		// Run late so the user can filter the args themselves.
-		add_filter( 'register_post_type_args', [ __CLASS__, 'register_graphql_post_type_args' ], 99, 2 );
-		add_filter( 'register_taxonomy_args', [ __CLASS__, 'register_graphql_taxonomy_args' ], 99, 2 );
+		add_filter( 'register_post_type_args', [ self::class, 'register_graphql_post_type_args' ], 99, 2 );
+		add_filter( 'register_taxonomy_args', [ self::class, 'register_graphql_taxonomy_args' ], 99, 2 );
 	}
 
 	/**

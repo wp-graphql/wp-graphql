@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 

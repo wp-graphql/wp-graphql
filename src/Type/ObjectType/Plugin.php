@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use \WPGraphQL\Model\Plugin as PluginModel;
+use WPGraphQL\Model\Plugin as PluginModel;
 
 /**
  * Class Plugin

@@ -2,9 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
-use GraphQL\Deferred;
-use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 

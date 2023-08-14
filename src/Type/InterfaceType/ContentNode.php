@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;

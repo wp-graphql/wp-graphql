@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data\Cursor;
 
-use WP_User;
 use WP_User_Query;
 
 /**

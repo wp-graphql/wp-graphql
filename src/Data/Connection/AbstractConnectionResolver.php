@@ -7,8 +7,6 @@ use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\Loader\AbstractDataLoader;
-use WPGraphQL\Model\Model;
 use WPGraphQL\Model\Post;
 
 /**
@@ -403,7 +401,7 @@ abstract class AbstractConnectionResolver {
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
 				__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-				get_class( $this )
+				static::class
 			)
 		);
 	}

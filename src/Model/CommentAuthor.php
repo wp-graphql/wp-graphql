@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
 use WP_Comment;
 

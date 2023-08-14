@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
-use WP_Post;
 use WP_User;
 
 /**

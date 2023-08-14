@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use Exception;
 use WP_Post_Type;
 use WPGraphQL\Registry\TypeRegistry;
 

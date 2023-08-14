@@ -2,10 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
-use WP_User;
 use WPGraphQL\AppContext;
 
 class SendPasswordResetEmail {

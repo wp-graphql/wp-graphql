@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data\Cursor;
 
-use wpdb;
-
 /**
  * Abstract Cursor
  *

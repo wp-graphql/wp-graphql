@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
-
 /**
  * Class MenuConnectionResolver
  *

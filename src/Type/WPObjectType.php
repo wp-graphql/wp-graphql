@@ -6,7 +6,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\InterfaceType\Node;
 
 /**
  * Class WPObjectType

@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
