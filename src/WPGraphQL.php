@@ -288,13 +288,16 @@ final class WPGraphQL {
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
 
-		add_action('init_graphql_request', static function () {
-			$tracing = new \WPGraphQL\Utils\Tracing();
-			$tracing->init();
+		add_action(
+			'init_graphql_request',
+			static function () {
+				$tracing = new \WPGraphQL\Utils\Tracing();
+				$tracing->init();
 
-			$query_log = new \WPGraphQL\Utils\QueryLog();
-			$query_log->init();
-		});
+				$query_log = new \WPGraphQL\Utils\QueryLog();
+				$query_log->init();
+			}
+		);
 
 	}
 
@@ -381,10 +384,15 @@ final class WPGraphQL {
 		);
 
 		// Filter how metadata is retrieved during GraphQL requests
-		add_filter('get_post_metadata', [
-			Preview::class,
-			'filter_post_meta_for_previews',
-		], 10, 4);
+		add_filter(
+			'get_post_metadata',
+			[
+				Preview::class,
+				'filter_post_meta_for_previews',
+			],
+			10,
+			4
+		);
 
 		/**
 		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
@@ -392,22 +400,27 @@ final class WPGraphQL {
 		 *
 		 * @deprecated
 		 */
-		add_filter('graphql_type_interfaces', static function ( $interfaces, $config, $type ) {
+		add_filter(
+			'graphql_type_interfaces',
+			static function ( $interfaces, $config, $type ) {
 
-			if ( $type instanceof WPObjectType ) {
-				/**
-				 * Filters the interfaces applied to an object type
-				 *
-				 * @param array                              $interfaces List of interfaces applied to the Object Type
-				 * @param array                              $config     The config for the Object Type
-				 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
-				 */
-				return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
-			}
+				if ( $type instanceof WPObjectType ) {
+					/**
+					 * Filters the interfaces applied to an object type
+					 *
+					 * @param array                              $interfaces List of interfaces applied to the Object Type
+					 * @param array                              $config     The config for the Object Type
+					 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
+					 */
+					return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
+				}
 
-			return $interfaces;
+				return $interfaces;
 
-		}, 10, 3);
+			},
+			10,
+			3
+		);
 
 	}
 
@@ -629,31 +642,34 @@ final class WPGraphQL {
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
 
 			// Filter the post type objects if the list of allowed types have changed.
-			$post_type_objects = array_filter( $post_type_objects, static function ( $obj ) use ( $allowed_post_type_names ) {
+			$post_type_objects = array_filter(
+				$post_type_objects,
+				static function ( $obj ) use ( $allowed_post_type_names ) {
 
-				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
-					$obj->graphql_plural_name = $obj->graphql_single_name;
+					if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
+						$obj->graphql_plural_name = $obj->graphql_single_name;
+					}
+
+					/**
+					 * Validate that the post_types have a graphql_single_name and graphql_plural_name
+					 */
+					if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
+						graphql_debug(
+							sprintf(
+							/* translators: %s will replaced with the registered type */
+								__( 'The "%s" post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
+								$obj->name
+							),
+							[
+								'invalid_post_type' => $obj,
+							]
+						);
+						return false;
+					}
+
+					return in_array( $obj->name, $allowed_post_type_names, true );
 				}
-
-				/**
-				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
-				 */
-				if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
-					graphql_debug(
-						sprintf(
-						/* translators: %s will replaced with the registered type */
-							__( 'The "%s" post_type isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
-							$obj->name
-						),
-						[
-							'invalid_post_type' => $obj,
-						]
-					);
-					return false;
-				}
-
-				return in_array( $obj->name, $allowed_post_type_names, true );
-			});
+			);
 
 			self::$allowed_post_types = $post_type_objects;
 		}
@@ -712,31 +728,34 @@ final class WPGraphQL {
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
 
-			$tax_objects = array_filter( $tax_objects, static function ( $obj ) use ( $allowed_tax_names ) {
+			$tax_objects = array_filter(
+				$tax_objects,
+				static function ( $obj ) use ( $allowed_tax_names ) {
 
-				if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
-					$obj->graphql_plural_name = $obj->graphql_single_name;
+					if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
+						$obj->graphql_plural_name = $obj->graphql_single_name;
+					}
+
+					/**
+					 * Validate that the post_types have a graphql_single_name and graphql_plural_name
+					 */
+					if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
+						graphql_debug(
+							sprintf(
+							/* translators: %s will replaced with the registered taxonomty */
+								__( 'The "%s" taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
+								$obj->name
+							),
+							[
+								'invalid_taxonomy' => $obj,
+							]
+						);
+						return false;
+					}
+
+					return in_array( $obj->name, $allowed_tax_names, true );
 				}
-
-				/**
-				 * Validate that the post_types have a graphql_single_name and graphql_plural_name
-				 */
-				if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
-					graphql_debug(
-						sprintf(
-						/* translators: %s will replaced with the registered taxonomty */
-							__( 'The "%s" taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
-							$obj->name
-						),
-						[
-							'invalid_taxonomy' => $obj,
-						]
-					);
-					return false;
-				}
-
-				return in_array( $obj->name, $allowed_tax_names, true );
-			});
+			);
 
 			self::$allowed_taxonomies = $tax_objects;
 		}

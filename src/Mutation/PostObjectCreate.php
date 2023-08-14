@@ -123,10 +123,14 @@ class PostObjectCreate {
 			];
 		}
 
-		if ( $post_type_object->hierarchical || in_array( $post_type_object->name, [
-			'attachment',
-			'revision',
-		], true ) ) {
+		if ( $post_type_object->hierarchical || in_array(
+			$post_type_object->name,
+			[
+				'attachment',
+				'revision',
+			],
+			true 
+		) ) {
 			$fields['parentId'] = [
 				'type'        => 'ID',
 				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
@@ -265,10 +269,14 @@ class PostObjectCreate {
 			 * If the current user cannot publish posts but their intent was to publish,
 			 * default the status to pending.
 			 */
-			if ( ( ! isset( $post_type_object->cap->publish_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) && ! in_array( $intended_post_status, [
-				'draft',
-				'pending',
-			], true ) ) {
+			if ( ( ! isset( $post_type_object->cap->publish_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) && ! in_array(
+				$intended_post_status,
+				[
+					'draft',
+					'pending',
+				],
+				true 
+			) ) {
 				$intended_post_status = 'pending';
 			}
 
@@ -340,7 +348,8 @@ class PostObjectCreate {
 				 * If the post was deleted by a side effect action before getting here,
 				 * don't proceed.
 				 */
-				if ( ! $new_post = get_post( $post_id ) ) {
+				$new_post = get_post( $post_id );
+				if ( empty( $new_post ) ) {
 					throw new UserError( __( 'The status of the post could not be set', 'wp-graphql' ) );
 				}
 

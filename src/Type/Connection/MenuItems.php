@@ -68,15 +68,18 @@ class MenuItems {
 					'resolve'  => static function ( Menu $menu, $args, AppContext $context, ResolveInfo $info ) {
 
 						$resolver = new MenuItemConnectionResolver( $menu, $args, $context, $info );
-						$resolver->set_query_arg( 'tax_query', [
+						$resolver->set_query_arg(
+							'tax_query',
 							[
-								'taxonomy'         => 'nav_menu',
-								'field'            => 'term_id',
-								'terms'            => (int) $menu->menuId,
-								'include_children' => true,
-								'operator'         => 'IN',
-							],
-						] );
+								[
+									'taxonomy'         => 'nav_menu',
+									'field'            => 'term_id',
+									'terms'            => (int) $menu->menuId,
+									'include_children' => true,
+									'operator'         => 'IN',
+								],
+							] 
+						);
 
 						return $resolver->get_connection();
 					},

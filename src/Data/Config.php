@@ -100,10 +100,13 @@ class Config {
 					 * @param string        $where The WHERE clause of the query.
 					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
-					$query->query_where = apply_filters_ref_array( 'graphql_users_where', [
-						$query->query_where,
-						&$query,
-					] );
+					$query->query_where = apply_filters_ref_array(
+						'graphql_users_where',
+						[
+							$query->query_where,
+							&$query,
+						] 
+					);
 
 					/**
 					 * Filters the ORDER BY clause of the query.
@@ -111,10 +114,13 @@ class Config {
 					 * @param string        $orderby The ORDER BY clause of the query.
 					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
-					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', [
-						$query->query_orderby,
-						&$query,
-					] );
+					$query->query_orderby = apply_filters_ref_array(
+						'graphql_users_orderby',
+						[
+							$query->query_orderby,
+							&$query,
+						] 
+					);
 
 				}
 

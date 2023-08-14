@@ -88,12 +88,16 @@ class Settings {
 	 */
 	public function register_settings() {
 
-		$this->settings_api->register_section( 'graphql_general_settings', [
-			'title' => __( 'WPGraphQL General Settings', 'wp-graphql' ),
-		] );
+		$this->settings_api->register_section(
+			'graphql_general_settings',
+			[
+				'title' => __( 'WPGraphQL General Settings', 'wp-graphql' ),
+			] 
+		);
 
 		$custom_endpoint = apply_filters( 'graphql_endpoint', null );
-		$this->settings_api->register_field( 'graphql_general_settings',
+		$this->settings_api->register_field(
+			'graphql_general_settings',
 			[
 				'name'              => 'graphql_endpoint',
 				'label'             => __( 'GraphQL Endpoint', 'wp-graphql' ),
@@ -119,123 +123,126 @@ class Settings {
 			]
 		);
 
-		$this->settings_api->register_fields( 'graphql_general_settings', [
+		$this->settings_api->register_fields(
+			'graphql_general_settings',
 			[
-				'name'    => 'restrict_endpoint_to_logged_in_users',
-				'label'   => __( 'Restrict Endpoint to Authenticated Users', 'wp-graphql' ),
-				'desc'    => __( 'Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'off',
-			],
-			[
-				'name'    => 'batch_queries_enabled',
-				'label'   => __( 'Enable Batch Queries', 'wp-graphql' ),
-				'desc'    => __( 'WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'on',
-			],
-			[
-				'name'    => 'batch_limit',
-				'label'   => __( 'Batch Query Limit', 'wp-graphql' ),
-				'desc'    => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
-				'type'    => 'number',
-				'default' => 10,
-			],
-			[
-				'name'    => 'query_depth_enabled',
-				'label'   => __( 'Enable Query Depth Limiting', 'wp-graphql' ),
-				'desc'    => __( 'Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'off',
-			],
-			[
-				'name'              => 'query_depth_max',
-				'label'             => __( 'Max Depth to allow for GraphQL Queries', 'wp-graphql' ),
-				'desc'              => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10.', 'wp-graphql' ),
-				'type'              => 'number',
-				'default'           => 10,
-				'sanitize_callback' => static function ( $value ) {
-					// if the entered value is not a positive integer, default to 10
-					if ( ! absint( $value ) ) {
-						$value = 10;
-					}
-					return absint( $value );
-				},
-			],
-			[
-				'name'    => 'graphiql_enabled',
-				'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
-				'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'on',
-			],
-			[
-				'name'    => 'show_graphiql_link_in_admin_bar',
-				'label'   => __( 'GraphiQL IDE Admin Bar Link', 'wp-graphql' ),
-				'desc'    => __( 'Show GraphiQL IDE Link in the WordPress Admin Bar', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'on',
-			],
-			[
-				'name'    => 'delete_data_on_deactivate',
-				'label'   => __( 'Delete Data on Deactivation', 'wp-graphql' ),
-				'desc'    => __( 'Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'on',
-			],
-			[
-				'name'     => 'debug_mode_enabled',
-				'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
-				'desc'     => defined( 'GRAPHQL_DEBUG' )
-					// translators: %s is the value of the GRAPHQL_DEBUG constant
-					? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' )
-					: __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
-				'type'     => 'checkbox',
-				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
-				'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
-			],
-			[
-				'name'    => 'tracing_enabled',
-				'label'   => __( 'Enable GraphQL Tracing', 'wp-graphql' ),
-				'desc'    => __( 'Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'off',
-			],
-			[
-				'name'    => 'tracing_user_role',
-				'label'   => __( 'Tracing Role', 'wp-graphql' ),
-				'desc'    => __( 'If Tracing is enabled, this limits it to requests from users with the specified User Role.', 'wp-graphql' ),
-				'type'    => 'user_role_select',
-				'default' => 'administrator',
-			],
-			[
-				'name'    => 'query_logs_enabled',
-				'label'   => __( 'Enable GraphQL Query Logs', 'wp-graphql' ),
-				'desc'    => __( 'Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production.', 'wp-graphql' ),
-				'type'    => 'checkbox',
-				'default' => 'off',
-			],
-			[
-				'name'    => 'query_log_user_role',
-				'label'   => __( 'Query Log Role', 'wp-graphql' ),
-				'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
-				'type'    => 'user_role_select',
-				'default' => 'administrator',
-			],
-			[
-				'name'     => 'public_introspection_enabled',
-				'label'    => __( 'Enable Public Introspection', 'wp-graphql' ),
-				'desc'     => sprintf(
-					// translators: %s is either empty or a string with a note about debug mode.
-					__( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s ', 'wp-graphql' ),
-					true === \WPGraphQL::debug() ? '<strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : ''
-				),
-				'type'     => 'checkbox',
-				'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
-				'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
-				'disabled' => true === \WPGraphQL::debug(),
-			],
-		] );
+				[
+					'name'    => 'restrict_endpoint_to_logged_in_users',
+					'label'   => __( 'Restrict Endpoint to Authenticated Users', 'wp-graphql' ),
+					'desc'    => __( 'Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'off',
+				],
+				[
+					'name'    => 'batch_queries_enabled',
+					'label'   => __( 'Enable Batch Queries', 'wp-graphql' ),
+					'desc'    => __( 'WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'on',
+				],
+				[
+					'name'    => 'batch_limit',
+					'label'   => __( 'Batch Query Limit', 'wp-graphql' ),
+					'desc'    => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
+					'type'    => 'number',
+					'default' => 10,
+				],
+				[
+					'name'    => 'query_depth_enabled',
+					'label'   => __( 'Enable Query Depth Limiting', 'wp-graphql' ),
+					'desc'    => __( 'Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'off',
+				],
+				[
+					'name'              => 'query_depth_max',
+					'label'             => __( 'Max Depth to allow for GraphQL Queries', 'wp-graphql' ),
+					'desc'              => __( 'If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10.', 'wp-graphql' ),
+					'type'              => 'number',
+					'default'           => 10,
+					'sanitize_callback' => static function ( $value ) {
+						// if the entered value is not a positive integer, default to 10
+						if ( ! absint( $value ) ) {
+							$value = 10;
+						}
+						return absint( $value );
+					},
+				],
+				[
+					'name'    => 'graphiql_enabled',
+					'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
+					'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'on',
+				],
+				[
+					'name'    => 'show_graphiql_link_in_admin_bar',
+					'label'   => __( 'GraphiQL IDE Admin Bar Link', 'wp-graphql' ),
+					'desc'    => __( 'Show GraphiQL IDE Link in the WordPress Admin Bar', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'on',
+				],
+				[
+					'name'    => 'delete_data_on_deactivate',
+					'label'   => __( 'Delete Data on Deactivation', 'wp-graphql' ),
+					'desc'    => __( 'Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'on',
+				],
+				[
+					'name'     => 'debug_mode_enabled',
+					'label'    => __( 'Enable GraphQL Debug Mode', 'wp-graphql' ),
+					'desc'     => defined( 'GRAPHQL_DEBUG' )
+						// translators: %s is the value of the GRAPHQL_DEBUG constant
+						? sprintf( __( 'This setting is disabled. "GRAPHQL_DEBUG" has been set to "%s" with code', 'wp-graphql' ), GRAPHQL_DEBUG ? 'true' : 'false' )
+						: __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
+					'type'     => 'checkbox',
+					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
+					'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
+				],
+				[
+					'name'    => 'tracing_enabled',
+					'label'   => __( 'Enable GraphQL Tracing', 'wp-graphql' ),
+					'desc'    => __( 'Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'off',
+				],
+				[
+					'name'    => 'tracing_user_role',
+					'label'   => __( 'Tracing Role', 'wp-graphql' ),
+					'desc'    => __( 'If Tracing is enabled, this limits it to requests from users with the specified User Role.', 'wp-graphql' ),
+					'type'    => 'user_role_select',
+					'default' => 'administrator',
+				],
+				[
+					'name'    => 'query_logs_enabled',
+					'label'   => __( 'Enable GraphQL Query Logs', 'wp-graphql' ),
+					'desc'    => __( 'Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production.', 'wp-graphql' ),
+					'type'    => 'checkbox',
+					'default' => 'off',
+				],
+				[
+					'name'    => 'query_log_user_role',
+					'label'   => __( 'Query Log Role', 'wp-graphql' ),
+					'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
+					'type'    => 'user_role_select',
+					'default' => 'administrator',
+				],
+				[
+					'name'     => 'public_introspection_enabled',
+					'label'    => __( 'Enable Public Introspection', 'wp-graphql' ),
+					'desc'     => sprintf(
+						// translators: %s is either empty or a string with a note about debug mode.
+						__( 'GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s ', 'wp-graphql' ),
+						true === \WPGraphQL::debug() ? '<strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : ''
+					),
+					'type'     => 'checkbox',
+					'default'  => ( 'local' === $this->get_wp_environment() || 'development' === $this->get_wp_environment() ) ? 'on' : 'off',
+					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
+					'disabled' => true === \WPGraphQL::debug(),
+				],
+			] 
+		);
 
 		// Action to hook into to register settings
 		do_action( 'graphql_register_settings', $this );

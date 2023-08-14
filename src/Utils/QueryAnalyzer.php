@@ -176,10 +176,15 @@ class QueryAnalyzer {
 		add_filter( 'graphql_dataloader_get_model', [ $this, 'track_nodes' ], 10, 1 );
 
 		// Expose query analyzer data in extensions
-		add_filter( 'graphql_request_results', [
-			$this,
-			'show_query_analyzer_in_extensions',
-		], 10, 5 );
+		add_filter(
+			'graphql_request_results',
+			[
+				$this,
+				'show_query_analyzer_in_extensions',
+			],
+			10,
+			5 
+		);
 
 	}
 
@@ -329,9 +334,12 @@ class QueryAnalyzer {
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
 
 			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
-			$interface_names = ! empty( $interfaces ) ? array_map( static function ( InterfaceType $interface ) {
-				return $interface->name;
-			}, $interfaces ) : [];
+			$interface_names = ! empty( $interfaces ) ? array_map(
+				static function ( InterfaceType $interface ) {
+					return $interface->name;
+				},
+				$interfaces 
+			) : [];
 
 			if ( array_key_exists( 'Connection', $interface_names ) ) {
 
@@ -731,15 +739,22 @@ class QueryAnalyzer {
 		 * @param array  $return_keys_array  The keys returned to the X-GraphQL-Keys header, in array instead of string
 		 * @param array  $skipped_keys_array The keys skipped, in array instead of string
 		 */
-		$this->graphql_keys = apply_filters( 'graphql_query_analyzer_graphql_keys', [
-			'keys'             => $return_keys,
-			'keysLength'       => strlen( $return_keys ),
-			'keysCount'        => ! empty( $return_keys_array ) ? count( $return_keys_array ) : 0,
-			'skippedKeys'      => $this->skipped_keys,
-			'skippedKeysSize'  => strlen( $this->skipped_keys ),
-			'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0,
-			'skippedTypes'     => $skipped_types,
-		], $return_keys, $this->skipped_keys, $return_keys_array, $skipped_keys_array );
+		$this->graphql_keys = apply_filters(
+			'graphql_query_analyzer_graphql_keys',
+			[
+				'keys'             => $return_keys,
+				'keysLength'       => strlen( $return_keys ),
+				'keysCount'        => ! empty( $return_keys_array ) ? count( $return_keys_array ) : 0,
+				'skippedKeys'      => $this->skipped_keys,
+				'skippedKeysSize'  => strlen( $this->skipped_keys ),
+				'skippedKeysCount' => ! empty( $skipped_keys_array ) ? count( $skipped_keys_array ) : 0,
+				'skippedTypes'     => $skipped_types,
+			],
+			$return_keys,
+			$this->skipped_keys,
+			$return_keys_array,
+			$skipped_keys_array 
+		);
 
 		return $this->graphql_keys;
 
