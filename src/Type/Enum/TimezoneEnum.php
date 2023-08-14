@@ -43,7 +43,7 @@ class TimezoneEnum {
 			load_textdomain( 'continents-cities', $mofile );
 			$mo_loaded = true;
 		}
-	
+
 		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );

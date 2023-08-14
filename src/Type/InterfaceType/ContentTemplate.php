@@ -47,7 +47,7 @@ class ContentTemplate {
 		}
 
 		// Register each template to the schema
-		foreach ( $page_templates as $file => $name ) {
+		foreach ( $page_templates as $name ) {
 			$name          = ucwords( $name );
 			$replaced_name = preg_replace( '/[^\w]/', '', $name );
 
