@@ -72,18 +72,13 @@ class TimezoneEnum {
 		}
 		usort( $zonen, '_wp_timezone_choice_usort_callback' );
 
-		foreach ( $zonen as $key => $zone ) {
+		foreach ( $zonen as $zone ) {
 			// Build value in an array to join later
 			$value = [ $zone['continent'] ];
 			if ( empty( $zone['city'] ) ) {
 				// It's at the continent level (generally won't happen)
 				$display = $zone['t_continent'];
 			} else {
-				// It's inside a continent group
-				// Continent optgroup
-				if ( ! isset( $zonen[ $key - 1 ] ) || $zonen[ $key - 1 ]['continent'] !== $zone['continent'] ) {
-					$label = $zone['t_continent'];
-				}
 				// Add the city to the value
 				$value[] = $zone['city'];
 				$display = $zone['t_city'];
