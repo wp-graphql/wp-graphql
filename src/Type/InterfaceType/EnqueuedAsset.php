@@ -18,7 +18,6 @@ class EnqueuedAsset {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'EnqueuedAsset',
 			[
@@ -40,7 +39,6 @@ class EnqueuedAsset {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 				'fields'      => [
 					'id'           => [
@@ -81,7 +79,6 @@ class EnqueuedAsset {
 				],
 			]
 		);
-
 	}
 
 }

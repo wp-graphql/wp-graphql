@@ -42,6 +42,5 @@ class TaxonomyEnum {
 				'values'      => $values,
 			]
 		);
-
 	}
 }

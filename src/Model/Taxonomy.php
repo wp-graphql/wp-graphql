@@ -48,7 +48,6 @@ class Taxonomy extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Taxonomy $taxonomy ) {
-
 		$this->data = $taxonomy;
 
 		$allowed_restricted_fields = [
@@ -69,7 +68,6 @@ class Taxonomy extends Model {
 		$capability = isset( $this->data->cap->edit_terms ) ? $this->data->cap->edit_terms : 'edit_terms';
 
 		parent::__construct( $capability, $allowed_restricted_fields );
-
 	}
 
 	/**
@@ -78,13 +76,11 @@ class Taxonomy extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
 		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
 			return true;
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -93,9 +89,7 @@ class Taxonomy extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                  => function () {
 					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
@@ -161,7 +155,6 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 			];
-
 		}
 	}
 }

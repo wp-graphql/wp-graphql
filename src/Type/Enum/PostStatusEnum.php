@@ -28,7 +28,6 @@ class PostStatusEnum {
 			 * Loop through the post_stati
 			 */
 			foreach ( $post_stati as $status ) {
-
 				if ( ! is_string( $status ) ) {
 					continue;
 				}
@@ -51,6 +50,5 @@ class PostStatusEnum {
 				'values'      => $post_status_enum_values,
 			]
 		);
-
 	}
 }

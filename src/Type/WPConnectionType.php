@@ -138,7 +138,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-
 		$this->type_registry = $type_registry;
 
 		/**
@@ -199,7 +198,6 @@ class WPConnectionType {
 	 * @return void
 	 */
 	protected function validate_config( array $config ): void {
-
 		if ( ! array_key_exists( 'fromType', $config ) ) {
 			throw new InvalidArgument( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
@@ -211,7 +209,6 @@ class WPConnectionType {
 		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
 			throw new InvalidArgument( __( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
-
 	}
 
 	/**
@@ -258,7 +255,6 @@ class WPConnectionType {
 		}
 
 		return $connection_name;
-
 	}
 
 	/**
@@ -270,7 +266,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	protected function register_connection_input() {
-
 		if ( empty( $this->connection_args ) ) {
 			return;
 		}
@@ -300,7 +295,6 @@ class WPConnectionType {
 				'type'        => $this->connection_name . 'WhereArgs',
 			],
 		];
-
 	}
 
 	/**
@@ -311,7 +305,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	protected function register_one_to_one_connection_edge_type(): void {
-
 		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
 			return;
 		}
@@ -355,7 +348,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	public function register_connection_page_info_type(): void {
-
 		if ( $this->type_registry->has_type( $this->connection_name . 'PageInfo' ) ) {
 			return;
 		}
@@ -372,7 +364,6 @@ class WPConnectionType {
 				'fields'      => PageInfo::get_fields(),
 			] 
 		);
-
 	}
 
 	/**
@@ -383,7 +374,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	protected function register_connection_edge_type(): void {
-
 		if ( $this->type_registry->has_type( $this->connection_name . 'Edge' ) ) {
 			return;
 		}
@@ -416,7 +406,6 @@ class WPConnectionType {
 				),
 			]
 		);
-
 	}
 
 	/**
@@ -427,7 +416,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	protected function register_connection_type(): void {
-
 		if ( $this->type_registry->has_type( $this->connection_name ) ) {
 			return;
 		}
@@ -454,7 +442,6 @@ class WPConnectionType {
 				'fields'            => $this->get_connection_fields(),
 			]
 		);
-
 	}
 
 	/**
@@ -463,7 +450,6 @@ class WPConnectionType {
 	 * @return array
 	 */
 	protected function get_connection_fields(): array {
-
 		return array_merge(
 			[
 				'pageInfo' => [
@@ -482,7 +468,6 @@ class WPConnectionType {
 			],
 			$this->connection_fields
 		);
-
 	}
 
 	/**
@@ -491,13 +476,9 @@ class WPConnectionType {
 	 * @return array|array[]
 	 */
 	protected function get_pagination_args(): array {
-
 		if ( true === $this->one_to_one ) {
-
 			$pagination_args = [];
-
 		} else {
-
 			$pagination_args = [
 				'first'  => [
 					'type'        => 'Int',
@@ -516,7 +497,6 @@ class WPConnectionType {
 					'description' => __( 'Cursor used along with the "last" argument to reference where in the dataset to get data', 'wp-graphql' ),
 				],
 			];
-
 		}
 
 		return $pagination_args;
@@ -565,7 +545,6 @@ class WPConnectionType {
 			$this->from_field_name,
 			$field_config
 		);
-
 	}
 
 	/**
@@ -573,7 +552,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	public function register_connection_interfaces(): void {
-
 		$connection_edge_type = Utils::format_type_name( $this->to_type . 'ConnectionEdge' );
 
 		if ( ! $this->type_registry->has_type( $this->to_type . 'ConnectionPageInfo' ) ) {
@@ -590,7 +568,6 @@ class WPConnectionType {
 
 
 		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
-
 			$this->type_registry->register_interface_type(
 				$connection_edge_type,
 				[
@@ -606,7 +583,6 @@ class WPConnectionType {
 					],
 				] 
 			);
-
 		}
 
 		if ( ! $this->one_to_one && ! $this->type_registry->has_type( $this->to_type . 'Connection' ) ) {
@@ -638,7 +614,6 @@ class WPConnectionType {
 				] 
 			);
 		}
-
 	}
 
 	/**
@@ -651,7 +626,6 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	public function register_connection(): void {
-
 		$this->register_connection_input();
 
 		if ( false !== $this->include_default_interfaces ) {
@@ -667,7 +641,6 @@ class WPConnectionType {
 		}
 
 		$this->register_connection_field();
-
 	}
 
 	/**

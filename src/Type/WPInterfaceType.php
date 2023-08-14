@@ -31,7 +31,6 @@ class WPInterfaceType extends InterfaceType {
 	 * @throws \Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-
 		$this->type_registry = $type_registry;
 
 		$this->config = $config;
@@ -39,7 +38,6 @@ class WPInterfaceType extends InterfaceType {
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = function () use ( $config ) {
-
 			$fields = $config['fields'];
 
 			/**
@@ -48,11 +46,9 @@ class WPInterfaceType extends InterfaceType {
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
-
 				$interface_fields = [];
 
 				foreach ( $this->getInterfaces() as $interface_type ) {
-
 					if ( ! $interface_type instanceof InterfaceType ) {
 						$interface_type = $this->type_registry->get_type( $interface_type );
 					}

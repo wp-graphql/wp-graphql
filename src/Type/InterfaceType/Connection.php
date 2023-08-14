@@ -15,7 +15,6 @@ class Connection {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
 		register_graphql_interface_type(
 			'Connection',
 			[
@@ -36,6 +35,5 @@ class Connection {
 				],
 			]
 		);
-
 	}
 }

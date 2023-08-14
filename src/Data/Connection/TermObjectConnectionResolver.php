@@ -48,8 +48,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-
-
 		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		$taxonomy       = ! empty( $this->taxonomy ) && in_array( $this->taxonomy, $all_taxonomies, true ) ? [ $this->taxonomy ] : $all_taxonomies;
 
@@ -133,7 +131,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
 		if ( ! empty( $query_args['order'] ) ) {
-
 			if ( ! empty( $last ) ) {
 				if ( 'ASC' === $query_args['order'] ) {
 					$query_args['order'] = 'DESC';
@@ -212,7 +209,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function sanitize_input_fields() {
-
 		$arg_mapping = [
 			'objectIds'           => 'object_ids',
 			'hideEmpty'           => 'hide_empty',

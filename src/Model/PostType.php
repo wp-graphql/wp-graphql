@@ -53,7 +53,6 @@ class PostType extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
-
 		$this->data = $post_type;
 
 		$allowed_restricted_fields = [
@@ -78,7 +77,6 @@ class PostType extends Model {
 		$capability = isset( $post_type->cap->edit_posts ) ? $post_type->cap->edit_posts : 'edit_posts';
 
 		parent::__construct( $capability, $allowed_restricted_fields );
-
 	}
 
 	/**
@@ -87,13 +85,11 @@ class PostType extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
 		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_posts ) || ! current_user_can( $this->data->cap->edit_posts ) ) ) {
 			return true;
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -102,9 +98,7 @@ class PostType extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                  => function () {
 					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
@@ -194,7 +188,6 @@ class PostType extends Model {
 				},
 				// If the homepage settings are ot set to
 				'isPostsPage'         => function () {
-
 					if (
 						'post' === $this->name &&
 						(
@@ -207,7 +200,6 @@ class PostType extends Model {
 					return false;
 				},
 				'isFrontPage'         => function () {
-
 					if (
 						'post' === $this->name &&
 						(
@@ -221,7 +213,6 @@ class PostType extends Model {
 					return false;
 				},
 			];
-
 		}
 	}
 }

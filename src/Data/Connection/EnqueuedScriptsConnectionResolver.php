@@ -58,7 +58,6 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return $ids;
-
 	}
 
 	/**

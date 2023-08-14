@@ -43,6 +43,5 @@ class PostTypeLoader extends AbstractDataLoader {
 		}
 
 		return $loaded;
-
 	}
 }

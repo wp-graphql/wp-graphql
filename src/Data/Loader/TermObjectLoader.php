@@ -22,14 +22,12 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( is_a( $entry, 'WP_Term' ) ) {
 
 			/**
 			 * For nav_menu terms, we want to pass through a different model
 			 */
 			if ( 'nav_menu' === $entry->taxonomy ) {
-
 				$menu = new Menu( $entry );
 				if ( empty( $menu->fields ) ) {
 					return null;
@@ -37,7 +35,6 @@ class TermObjectLoader extends AbstractDataLoader {
 					return $menu;
 				}
 			} else {
-
 				$term = new Term( $entry );
 				if ( empty( $term->fields ) ) {
 					return null;
@@ -65,7 +62,6 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -105,11 +101,9 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * object isn't in the cache, meaning it didn't come back when queried.
 			 */
 			$loaded[ $key ] = get_term( (int) $key );
-
 		}
 
 		return $loaded;
-
 	}
 
 }

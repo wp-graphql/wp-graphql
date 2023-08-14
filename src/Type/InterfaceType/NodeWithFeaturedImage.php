@@ -19,7 +19,6 @@ class NodeWithFeaturedImage {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'NodeWithFeaturedImage',
 			[
@@ -30,7 +29,6 @@ class NodeWithFeaturedImage {
 						'toType'   => 'MediaItem',
 						'oneToOne' => true,
 						'resolve'  => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
 							if ( empty( $post->featuredImageDatabaseId ) ) {
 								return null;
 							}
@@ -39,7 +37,6 @@ class NodeWithFeaturedImage {
 							$resolver->set_query_arg( 'p', absint( $post->featuredImageDatabaseId ) );
 
 							return $resolver->one_to_one()->get_connection();
-
 						},
 					],
 				],

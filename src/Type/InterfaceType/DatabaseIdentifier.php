@@ -15,7 +15,6 @@ class DatabaseIdentifier {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_interface_type(
 			'DatabaseIdentifier',
 			[

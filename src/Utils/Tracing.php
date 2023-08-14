@@ -151,7 +151,6 @@ class Tracing {
 			'startOffset'    => $this->get_start_offset(),
 			'startMicrotime' => microtime( true ),
 		];
-
 	}
 
 	/**
@@ -160,7 +159,6 @@ class Tracing {
 	 * @return void
 	 */
 	public function end_field_resolver_trace() {
-
 		if ( ! empty( $this->field_trace ) ) {
 			$this->field_trace['duration'] = $this->get_field_resolver_duration();
 			$sanitized_trace               = $this->sanitize_resolver_trace( $this->field_trace );
@@ -197,7 +195,6 @@ class Tracing {
 	 * @return mixed
 	 */
 	public function sanitize_resolver_trace( array $trace ) {
-
 		$sanitized_trace                = [];
 		$sanitized_trace['path']        = ! empty( $trace['path'] ) && is_array( $trace['path'] ) ? array_map(
 			[
@@ -308,7 +305,6 @@ class Tracing {
 	 * @return boolean
 	 */
 	public function user_can_see_trace_data(): bool {
-
 		$can_see = false;
 
 		// If logs are disabled, user cannot see logs
@@ -336,7 +332,6 @@ class Tracing {
 		 * @param boolean $can_see Whether the requestor can see the logs or not
 		 */
 		return apply_filters( 'graphql_user_can_see_trace_data', $can_see );
-
 	}
 
 	/**

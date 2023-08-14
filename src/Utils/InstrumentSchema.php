@@ -24,7 +24,6 @@ class InstrumentSchema {
 	 * @return \GraphQL\Type\Definition\Type
 	 */
 	public static function instrument_resolvers( Type $type, string $type_name ): Type {
-
 		if ( ! method_exists( $type, 'getFields' ) ) {
 			return $type;
 		}
@@ -37,7 +36,6 @@ class InstrumentSchema {
 		$type->config['fields'] = $fields;
 
 		return $type;
-
 	}
 
 	/**
@@ -52,7 +50,6 @@ class InstrumentSchema {
 	 * @return mixed
 	 */
 	protected static function wrap_fields( array $fields, string $type_name ) {
-
 		if ( empty( $fields ) || ! is_array( $fields ) ) {
 			return $fields;
 		}
@@ -149,7 +146,6 @@ class InstrumentSchema {
 						$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
 					} else {
 						$result = $field_resolver( $source, $args, $context, $info );
-
 					}
 				}
 
@@ -184,7 +180,6 @@ class InstrumentSchema {
 				do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
 
 				return $result;
-
 			};
 		}
 
@@ -192,7 +187,6 @@ class InstrumentSchema {
 		 * Return the fields
 		 */
 		return $fields;
-
 	}
 
 	/**
@@ -214,7 +208,6 @@ class InstrumentSchema {
 	 * @throws \GraphQL\Error\UserError
 	 */
 	public static function check_field_permissions( $source, array $args, AppContext $context, ResolveInfo $info, $field_resolver, string $type_name, string $field_key, FieldDefinition $field ) {
-
 		if ( ( ! isset( $field->config['auth'] ) || ! is_array( $field->config['auth'] ) ) && ! isset( $field->config['isPrivate'] ) ) {
 			return;
 		}
@@ -237,7 +230,6 @@ class InstrumentSchema {
 		 * execute the callback before continuing resolution
 		 */
 		if ( isset( $field->config['auth']['callback'] ) && is_callable( $field->config['auth']['callback'] ) ) {
-
 			$authorized = call_user_func( $field->config['auth']['callback'], $field, $field_key, $source, $args, $context, $info, $field_resolver );
 
 			// If callback returns explicit false throw.
@@ -278,7 +270,6 @@ class InstrumentSchema {
 				throw new UserError( $auth_error );
 			}
 		}
-
 	}
 
 }

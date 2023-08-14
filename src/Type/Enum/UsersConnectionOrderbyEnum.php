@@ -10,7 +10,6 @@ class UsersConnectionOrderbyEnum {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_enum_type(
 			'UsersConnectionOrderbyEnum',
 			[
@@ -51,6 +50,5 @@ class UsersConnectionOrderbyEnum {
 				],
 			]
 		);
-
 	}
 }

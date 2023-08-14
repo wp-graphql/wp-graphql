@@ -66,7 +66,6 @@ abstract class AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function load_deferred( $database_id ) {
-
 		if ( empty( $database_id ) ) {
 			return null;
 		}
@@ -80,7 +79,6 @@ abstract class AbstractDataLoader {
 				return $this->load( $database_id );
 			}
 		);
-
 	}
 
 	/**
@@ -117,7 +115,6 @@ abstract class AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function load( $key ) {
-
 		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new Exception(

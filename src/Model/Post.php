@@ -165,7 +165,6 @@ class Post extends Model {
 		$restricted_cap = $this->get_restricted_cap();
 
 		parent::__construct( $restricted_cap, $allowed_restricted_fields, (int) $post->post_author );
-
 	}
 
 	/**
@@ -174,7 +173,6 @@ class Post extends Model {
 	 * @return void
 	 */
 	public function setup() {
-
 		global $wp_query, $post;
 
 		/**
@@ -188,7 +186,6 @@ class Post extends Model {
 		 * post data being set up.
 		 */
 		if ( $this->data instanceof WP_Post ) {
-
 			$id        = $this->data->ID;
 			$post_type = $this->data->post_type;
 			$post_name = $this->data->post_name;
@@ -249,7 +246,6 @@ class Post extends Model {
 			$GLOBALS['post']             = $data; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			$wp_query->queried_object    = get_post( $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
-
 		}
 	}
 
@@ -278,7 +274,6 @@ class Post extends Model {
 		}
 
 		return $cap;
-
 	}
 
 	/**
@@ -305,7 +300,6 @@ class Post extends Model {
 
 			// Determine if the revision is private using capabilities relative to the parent
 			return $this->is_post_private( $parent_post );
-
 		}
 
 		/**
@@ -343,7 +337,6 @@ class Post extends Model {
 	 * @return bool
 	 */
 	protected function is_post_private( $post_object = null ) {
-
 		$post_type_object = $this->post_type_object;
 
 		if ( ! $post_type_object ) {
@@ -403,7 +396,6 @@ class Post extends Model {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -412,9 +404,7 @@ class Post extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'ID'                        => function () {
 					return $this->data->ID;
@@ -441,14 +431,12 @@ class Post extends Model {
 					return ! empty( $this->data->post_type ) ? $this->data->post_type : null;
 				},
 				'authorId'                  => function () {
-
 					if ( true === $this->isPreview ) {
 						$parent_post = get_post( $this->data->post_parent );
 						if ( empty( $parent_post ) ) {
 							return null;
 						}
 						$id = (int) $parent_post->post_author;
-
 					} else {
 						$id = ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
 					}
@@ -466,7 +454,6 @@ class Post extends Model {
 					}
 
 					return ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
-
 				},
 				'date'                      => function () {
 					return ! empty( $this->data->post_date ) && '0000-00-00 00:00:00' !== $this->data->post_date ? Utils::prepare_date_response( $this->data->post_date_gmt, $this->data->post_date ) : null;
@@ -530,7 +517,6 @@ class Post extends Model {
 					return ! empty( $this->data->post_name ) ? urldecode( $this->data->post_name ) : null;
 				},
 				'template'                  => function () {
-
 					$registered_templates = wp_get_theme()->get_page_templates( null, $this->data->post_type );
 
 					$template = [
@@ -539,7 +525,6 @@ class Post extends Model {
 					];
 
 					if ( true === $this->isPreview ) {
-
 						$parent_post = get_post( $this->parentDatabaseId );
 
 						if ( empty( $parent_post ) ) {
@@ -563,7 +548,6 @@ class Post extends Model {
 						}
 
 						$template_name = ! empty( $template_name ) ? $template_name : 'Default';
-
 					} else {
 						if ( empty( $registered_templates ) ) {
 							return $template;
@@ -652,7 +636,6 @@ class Post extends Model {
 					return ! empty( $edit_last ) ? absint( $edit_last ) : null;
 				},
 				'editLock'                  => function () {
-
 					require_once ABSPATH . 'wp-admin/includes/post.php';
 					if ( ! wp_check_post_lock( $this->data->ID ) ) {
 						return null;
@@ -710,7 +693,6 @@ class Post extends Model {
 					return ! empty( $this->featuredImageDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->featuredImageDatabaseId ) : null;
 				},
 				'featuredImageDatabaseId'   => function () {
-
 					if ( $this->isRevision ) {
 						$id = $this->parentDatabaseId;
 					} else {
@@ -871,9 +853,7 @@ class Post extends Model {
 					return absint( $this->data->ID );
 				};
 			};
-
 		}
-
 	}
 
 }

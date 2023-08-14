@@ -20,7 +20,6 @@ class TermNode {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'TermNode',
 			[
@@ -63,7 +62,6 @@ class TermNode {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 				'fields'      => [
 					'databaseId'     => [
@@ -112,6 +110,5 @@ class TermNode {
 				],
 			]
 		);
-
 	}
 }

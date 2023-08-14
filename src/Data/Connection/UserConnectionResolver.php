@@ -121,7 +121,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
 		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-
 			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
@@ -136,7 +135,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 				) ) {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
-
 					$order = $orderby_input['order'];
 					if ( ! empty( $this->args['last'] ) ) {
 						if ( 'ASC' === $order ) {
@@ -268,7 +266,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
-
 	}
 
 	/**

@@ -65,7 +65,6 @@ class QueryLog {
 	 * @return boolean
 	 */
 	public function user_can_see_logs() {
-
 		$can_see = false;
 
 		// If logs are disabled, user cannot see logs
@@ -94,7 +93,6 @@ class QueryLog {
 		 * @param boolean $can_see Whether the requestor can see the logs or not
 		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
-
 	}
 
 	/**
@@ -109,7 +107,6 @@ class QueryLog {
 	 * @return array
 	 */
 	public function show_results( $response, $schema, $operation_name, $request, $variables ) {
-
 		$query_log = $this->get_query_log();
 
 		// If the user cannot see the logs, return the response as-is without the logs
@@ -127,7 +124,6 @@ class QueryLog {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -176,7 +172,6 @@ class QueryLog {
 		 * @param \WPGraphQL\Utils\QueryLog $instance The QueryLog class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
-
 	}
 
 }

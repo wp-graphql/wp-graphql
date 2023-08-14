@@ -24,7 +24,6 @@ class MenuItemObjectUnion {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_union_type(
 			'MenuItemObjectUnion',
 			[

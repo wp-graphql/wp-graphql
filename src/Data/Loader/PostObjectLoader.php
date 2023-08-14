@@ -23,7 +23,6 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( ! $entry instanceof \WP_Post ) {
 			return null;
 		}
@@ -74,7 +73,6 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -134,7 +132,6 @@ class PostObjectLoader extends AbstractDataLoader {
 				 * Once dependencies are loaded, return the Post Object
 				 */
 				$loaded_posts[ $key ] = $post_object;
-
 			}
 		}
 		return $loaded_posts;

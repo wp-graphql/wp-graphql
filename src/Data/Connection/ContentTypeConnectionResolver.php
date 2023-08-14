@@ -18,7 +18,6 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-
 		$ids     = [];
 		$queried = $this->query;
 
@@ -48,7 +47,6 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function get_query() {
-
 		if ( isset( $this->query_args['contentTypeNames'] ) && is_array( $this->query_args['contentTypeNames'] ) ) {
 			return $this->query_args['contentTypeNames'];
 		}

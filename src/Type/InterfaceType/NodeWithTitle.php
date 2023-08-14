@@ -17,7 +17,6 @@ class NodeWithTitle {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'NodeWithTitle',
 			[
@@ -46,6 +45,5 @@ class NodeWithTitle {
 				],
 			]
 		);
-
 	}
 }

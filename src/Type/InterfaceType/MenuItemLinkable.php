@@ -19,7 +19,6 @@ class MenuItemLinkable {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
-
 		register_graphql_interface_type(
 			'MenuItemLinkable',
 			[
@@ -27,7 +26,6 @@ class MenuItemLinkable {
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 				'fields'      => [],
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
-
 					switch ( true ) {
 						case $node instanceof Post:
 							/** @var \WP_Post_Type $post_type_object */
@@ -44,10 +42,8 @@ class MenuItemLinkable {
 					}
 
 					return $type;
-
 				},
 			] 
 		);
-
 	}
 }

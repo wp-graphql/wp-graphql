@@ -73,7 +73,6 @@ function graphql( array $request_data = [], bool $return_request = false ) {
 	}
 
 	return $request->execute();
-
 }
 
 /**
@@ -135,7 +134,6 @@ function get_graphql_register_action() {
  * @return void
  */
 function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
-
 	if ( is_string( $type_names ) ) {
 		$type_names = [ $type_names ];
 	}
@@ -151,7 +149,6 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 			add_filter(
 				'graphql_type_interfaces',
 				static function ( $interfaces, $config ) use ( $type_name, $interface_names ) {
-
 					$interfaces = is_array( $interfaces ) ? $interfaces : [];
 
 					if ( strtolower( $type_name ) === strtolower( $config['name'] ) ) {
@@ -163,7 +160,6 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 				10,
 				2
 			);
-
 		}
 	}
 }
@@ -243,7 +239,6 @@ function register_graphql_input_type( string $type_name, array $config ) {
  * @return void
  */
 function register_graphql_union_type( string $type_name, array $config ) {
-
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $type_name, $config ) {
@@ -280,7 +275,6 @@ function register_graphql_enum_type( string $type_name, array $config ) {
  * @since 0.1.0
  */
 function register_graphql_field( string $type_name, string $field_name, array $config ) {
-
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $type_name, $field_name, $config ) {
@@ -776,7 +770,6 @@ function register_graphql_settings_fields( string $group, array $fields ) {
  * @since 0.13.0
  */
 function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
-
 	$section_fields = get_option( $section_name );
 
 	/**

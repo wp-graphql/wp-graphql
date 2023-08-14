@@ -42,6 +42,5 @@ class MimeTypeEnum {
 				'values'      => $values,
 			]
 		);
-
 	}
 }

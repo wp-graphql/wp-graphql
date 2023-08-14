@@ -128,7 +128,6 @@ class WPMutationType {
 	 * @return bool
 	 */
 	protected function is_config_valid( array $config ): bool {
-
 		$is_valid = true;
 
 		if ( ! array_key_exists( 'name', $config ) || ! is_string( $config['name'] ) ) {
@@ -152,7 +151,6 @@ class WPMutationType {
 		}
 
 		return (bool) $is_valid;
-
 	}
 
 	/**
@@ -304,7 +302,6 @@ class WPMutationType {
 	 * @throws \Exception
 	 */
 	protected function register_mutation_field() : void {
-
 		$field_config = array_merge(
 			$this->config,
 			[
