@@ -125,8 +125,9 @@
 		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
 	</rule>
 
-	<!-- Enforce static closures -->
 	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
 
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
