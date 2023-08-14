@@ -117,6 +117,14 @@
 	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
+	<!-- Slevomat Coding Standards-->
+	<rule ref="SlevomatCodingStandard.Arrays">
+		<!-- Conflicts with WPCS -->
+		<exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace"/>
+		<!-- Semantic sorting is a valid pattern -->
+		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
+	</rule>
+
 	<!-- Use FQCN for PHPDoc types -->
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
 	<!-- Enforce static closures -->
