@@ -129,6 +129,9 @@
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
 	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
 
+	<rule ref="SlevomatCodingStandard.PHP.OptimizedFunctionsWithoutUnpacking" />
+	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
+
 	<!-- Enforce static closures -->
 	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
 </ruleset>
