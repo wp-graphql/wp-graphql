@@ -509,7 +509,7 @@ class Post extends Model {
 					'capability' => $this->post_type_object->cap->edit_posts,
 				],
 				'excerptRendered'           => function() {
-					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : null;
+					$excerpt = ! empty( $this->data->post_excerpt ) ? $this->data->post_excerpt : '';
 					$excerpt = apply_filters( 'get_the_excerpt', $excerpt, $this->data );
 
 					return $this->html_entity_decode( apply_filters( 'the_excerpt', $excerpt ), 'excerptRendered' );
