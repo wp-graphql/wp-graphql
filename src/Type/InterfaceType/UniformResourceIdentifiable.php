@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use WP_Post_Type;
-use WP_Taxonomy;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;

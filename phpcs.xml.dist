@@ -125,8 +125,10 @@
 		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
 	</rule>
 
-	<!-- Use FQCN for PHPDoc types -->
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
+	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+
 	<!-- Enforce static closures -->
 	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
 </ruleset>

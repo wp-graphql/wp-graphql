@@ -7,7 +7,7 @@ use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
-use \WPGraphQL\Model\User as UserModel;
+use WPGraphQL\Model\User as UserModel;
 use WPGraphQL\Type\Connection\PostObjects;
 
 /**

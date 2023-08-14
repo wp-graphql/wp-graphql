@@ -3,7 +3,6 @@
 namespace WPGraphQL\Utils;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Model\Model;
 
 class Utils {
 

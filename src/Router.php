@@ -4,7 +4,6 @@ namespace WPGraphQL;
 
 use Exception;
 use GraphQL\Error\FormattedError;
-use GraphQL\Executor\ExecutionResult;
 use WP_User;
 use WPGraphQL\Utils\QueryAnalyzer;
 

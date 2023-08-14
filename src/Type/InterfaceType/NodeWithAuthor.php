@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithAuthor {

@@ -3,7 +3,6 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\UserError;
-use WP_User;
 use WPGraphQL\Data\Loader\CommentAuthorLoader;
 use WPGraphQL\Data\Loader\CommentLoader;
 use WPGraphQL\Data\Loader\EnqueuedScriptLoader;
@@ -17,7 +16,6 @@ use WPGraphQL\Data\Loader\ThemeLoader;
 use WPGraphQL\Data\Loader\UserLoader;
 use WPGraphQL\Data\Loader\UserRoleLoader;
 use WPGraphQL\Data\NodeResolver;
-use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class AppContext

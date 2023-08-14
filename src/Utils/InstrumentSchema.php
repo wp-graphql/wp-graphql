@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Utils;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Type\Definition\FieldDefinition;

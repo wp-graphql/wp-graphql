@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Registry;
 
-use Exception;
 use GraphQL\Type\SchemaConfig;
 use WPGraphQL\WPSchema;
 

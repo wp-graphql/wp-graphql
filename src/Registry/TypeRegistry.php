@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Registry;
 
-use Exception;
 use GraphQL\Type\Definition\Type;
-use InvalidArgumentException;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
@@ -71,7 +69,6 @@ use WPGraphQL\Type\InterfaceType\Commenter;
 use WPGraphQL\Type\InterfaceType\Connection;
 use WPGraphQL\Type\InterfaceType\ContentNode;
 use WPGraphQL\Type\InterfaceType\ContentTemplate;
-use WPGraphQL\Type\InterfaceType\ContentTypeConnection;
 use WPGraphQL\Type\InterfaceType\DatabaseIdentifier;
 use WPGraphQL\Type\InterfaceType\Edge;
 use WPGraphQL\Type\InterfaceType\EnqueuedAsset;

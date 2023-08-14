@@ -10,8 +10,6 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
-use WP_Post;
-use WP_Query;
 use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;

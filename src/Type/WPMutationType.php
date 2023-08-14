@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\TypeRegistry;

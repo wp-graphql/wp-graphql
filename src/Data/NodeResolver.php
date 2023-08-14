@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Deferred;
-use WP;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;

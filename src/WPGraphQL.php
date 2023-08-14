@@ -4,15 +4,12 @@
 
 use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\InstrumentSchema;
-use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
-use WPGraphQL\Type\WPInterfaceType;
 use WPGraphQL\Type\WPObjectType;
-use WPGraphQL\WPSchema;
 
 /**
  * Class WPGraphQL

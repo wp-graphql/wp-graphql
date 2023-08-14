@@ -8,7 +8,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\ValidationContext;
-use WPGraphQL\AppContext;
 
 /**
  * Class RequireAuthentication

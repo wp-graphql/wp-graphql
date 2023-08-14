@@ -3,7 +3,6 @@
 namespace WPGraphQL\Data\Loader;
 
 use Exception;
-use Generator;
 use GraphQL\Deferred;
 use GraphQL\Utils\Utils;
 use WPGraphQL\AppContext;

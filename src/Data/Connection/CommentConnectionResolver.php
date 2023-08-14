@@ -2,11 +2,8 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use WP_Comment_Query;
-use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
 
 /**

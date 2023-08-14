@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WP_Taxonomy;

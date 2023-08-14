@@ -7,8 +7,6 @@ use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
-use WPGraphQL\Data\Loader\AbstractDataLoader;
-use WPGraphQL\Model\Model;
 use WPGraphQL\Model\Post;
 
 /**

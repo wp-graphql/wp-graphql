@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
-use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 class OneToOneConnection {

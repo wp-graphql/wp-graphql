@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Utils;
 
-use WPGraphQL\WPSchema;
-
 /**
  * Class QueryLog
  *

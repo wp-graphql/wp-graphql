@@ -2,11 +2,9 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\ObjectType\User;
 
 class MenuItemLinkable {
 

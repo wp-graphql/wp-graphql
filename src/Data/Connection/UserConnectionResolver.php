@@ -3,8 +3,6 @@
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
 
 /**

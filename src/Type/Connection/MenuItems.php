@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\MenuItemConnectionResolver;
