@@ -292,7 +292,7 @@ abstract class AbstractDataLoader {
 		if ( ! empty( $keysToLoad ) ) {
 			try {
 				$loaded = $this->loadKeys( $keysToLoad );
-			} catch ( Exception $e ) {
+			} catch ( \Throwable $e ) {
 				throw new Exception(
 					'Method ' . get_class( $this ) . '::loadKeys is expected to return array, but it threw: ' .
 					$e->getMessage(),

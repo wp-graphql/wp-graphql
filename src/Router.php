@@ -2,7 +2,6 @@
 
 namespace WPGraphQL;
 
-use Exception;
 use GraphQL\Error\FormattedError;
 use WP_User;
 use WPGraphQL\Utils\QueryAnalyzer;
@@ -472,7 +471,7 @@ class Router {
 			$query          = isset( $params->query ) ? $params->query : '';
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
 			$variables      = isset( $params->variables ) ? $params->variables : null;
-		} catch ( Exception $error ) {
+		} catch ( \Throwable $error ) {
 
 			/**
 			 * If there are errors, set the status to 500

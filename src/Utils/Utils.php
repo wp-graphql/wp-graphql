@@ -26,7 +26,7 @@ class Utils {
 			$query_ast = \GraphQL\Language\Parser::parse( $query );
 			$query     = \GraphQL\Language\Printer::doPrint( $query_ast );
 			return hash( $hash_algorithm, $query );
-		} catch ( \Exception $exception ) {
+		} catch ( \Throwable $exception ) {
 			return null;
 		}
 	}

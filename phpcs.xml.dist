@@ -125,6 +125,10 @@
 		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
 	</rule>
 
+	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly" />
+
 	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
