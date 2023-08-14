@@ -13,6 +13,12 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 
+	<!--
+	Prevent errors caused by WordPress Coding Standards not supporting PHP 8.0+.
+	See: https://github.com/WordPress/WordPress-Coding-Standards/issues/2035
+	See: https://github.com/WordPress/WordPress-Coding-Standards/issues/2035#issuecomment-1325532520
+	-->
+	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED" />
 
 	<!--How to scan: include CLI args so you don't need to pass them manually -->
 	<!--Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
@@ -102,7 +108,7 @@
 
 		<!-- Should maybe Add Back Later -->
 		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
-		
+
 		<!-- Should probably not be added back -->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
 		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
