@@ -106,7 +106,7 @@ class Settings {
 				'type'              => 'text',
 				'value'             => ! empty( $custom_endpoint ) ? $custom_endpoint : null,
 				'default'           => ! empty( $custom_endpoint ) ? $custom_endpoint : 'graphql',
-				'disabled'          => ! empty( $custom_endpoint ) ? true : false,
+				'disabled'          => ! empty( $custom_endpoint ),
 				'sanitize_callback' => static function ( $value ) {
 					if ( empty( $value ) ) {
 						add_settings_error( 'graphql_endpoint', 'required', __( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ), 'error' );
@@ -194,7 +194,7 @@ class Settings {
 						: __( 'Whether GraphQL requests should execute in "debug" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>.', 'wp-graphql' ),
 					'type'     => 'checkbox',
 					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
-					'disabled' => defined( 'GRAPHQL_DEBUG' ) ? true : false,
+					'disabled' => defined( 'GRAPHQL_DEBUG' ),
 				],
 				[
 					'name'    => 'tracing_enabled',
