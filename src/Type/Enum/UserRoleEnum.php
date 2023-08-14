@@ -19,7 +19,6 @@ class UserRoleEnum {
 
 		if ( ! empty( $editable_roles ) && is_array( $editable_roles ) ) {
 			foreach ( $editable_roles as $key => $role ) {
-
 				$formatted_role = WPEnumType::get_safe_name( isset( $role['name'] ) ? $role['name'] : $key );
 
 				$roles[ $formatted_role ] = [

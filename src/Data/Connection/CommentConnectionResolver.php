@@ -282,7 +282,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function sanitize_input_fields( array $args ) {
-
 		$arg_mapping = [
 			'authorEmail'        => 'author_email',
 			'authorIn'           => 'author__in',
@@ -325,7 +324,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
-
 	}
 
 	/**

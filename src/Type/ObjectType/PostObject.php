@@ -25,7 +25,6 @@ class PostObject {
 	 * @deprecated 1.12.0
 	 */
 	public static function register_post_object_types( WP_Post_Type $post_type_object, TypeRegistry $type_registry ) {
-
 		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::register_types()' );
 
 		\WPGraphQL\Registry\Utils\PostObject::register_types( $post_type_object );

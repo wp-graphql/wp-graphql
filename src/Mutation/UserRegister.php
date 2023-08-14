@@ -53,7 +53,6 @@ class UserRegister {
 		unset( $input_fields['role'], $input_fields['roles'] );
 
 		return $input_fields;
-
 	}
 
 	/**
@@ -72,7 +71,6 @@ class UserRegister {
 	 */
 	public static function mutate_and_get_payload() {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) {
-
 			if ( ! get_option( 'users_can_register' ) ) {
 				throw new UserError( __( 'User registration is currently not allowed.', 'wp-graphql' ) );
 			}
@@ -161,7 +159,6 @@ class UserRegister {
 				'id'   => $user_id,
 				'user' => $context->get_loader( 'user' )->load_deferred( $user_id ),
 			];
-
 		};
 	}
 

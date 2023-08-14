@@ -88,7 +88,6 @@ class TermObjectCursor extends AbstractCursor {
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
-
 		}
 
 		$this->builder->add_field( 't.term_id', $this->cursor_offset, 'ID' );
@@ -105,14 +104,12 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( string $by, string $order ) {
-
 		$value = $this->cursor_node->{$by};
 
 		/**
 		 * Compare by the term field if the key matches an value
 		 */
 		if ( ! empty( $value ) ) {
-
 			if ( '>' === $this->compare ) {
 				$order = 'DESC';
 			} else {
@@ -133,7 +130,6 @@ class TermObjectCursor extends AbstractCursor {
 
 			return;
 		}
-
 	}
 
 	/**
@@ -155,7 +151,6 @@ class TermObjectCursor extends AbstractCursor {
 		 */
 		if ( 0 !== $this->meta_join_alias ) {
 			$key = "mt{$this->meta_join_alias}.meta_value";
-
 		}
 
 		$this->meta_join_alias ++;
@@ -171,7 +166,6 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return string|null
 	 */
 	private function get_meta_key( string $by ) {
-
 		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
 			return $this->get_query_var( 'meta_key' );
 		}

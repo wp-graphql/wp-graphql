@@ -61,7 +61,6 @@ class ResetUserPassword {
 	 */
 	public static function mutate_and_get_payload() {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) {
-
 			if ( empty( $input['key'] ) ) {
 				throw new UserError( __( 'A password reset key is required.', 'wp-graphql' ) );
 			}

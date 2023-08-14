@@ -33,7 +33,6 @@ class ContentNode {
 					'contentType'         => [
 						'toType'   => 'ContentType',
 						'resolve'  => static function ( Post $source, $args, $context, $info ) {
-
 							if ( $source->isRevision ) {
 								$parent    = get_post( $source->parentDatabaseId );
 								$post_type = $parent->post_type ?? null;
@@ -94,7 +93,6 @@ class ContentNode {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 				'fields'      => [
 					'contentTypeName'           => [
@@ -173,7 +171,6 @@ class ContentNode {
 				],
 			]
 		);
-
 	}
 
 }

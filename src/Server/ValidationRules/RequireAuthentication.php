@@ -21,7 +21,6 @@ class RequireAuthentication extends QuerySecurityRule {
 	 * @return bool
 	 */
 	protected function isEnabled() {
-
 		$restrict_endpoint = null;
 
 		/**
@@ -64,7 +63,6 @@ class RequireAuthentication extends QuerySecurityRule {
 	 * @return callable[]|mixed[]
 	 */
 	public function getVisitor( ValidationContext $context ) {
-
 		$allowed_root_fields = [];
 
 		/**
@@ -79,7 +77,6 @@ class RequireAuthentication extends QuerySecurityRule {
 			$context,
 			[
 				NodeKind::FIELD => static function ( FieldNode $node ) use ( $context, $allowed_root_fields ) {
-
 					$parent_type = $context->getParentType();
 
 					if ( ! $parent_type instanceof Type || empty( $parent_type->name ) ) {

@@ -42,7 +42,6 @@ class MediaSize {
 						'type'        => 'Int',
 						'description' => __( 'The filesize of the resource', 'wp-graphql' ),
 						'resolve'     => static function ( $image, $args, $context, $info ) {
-
 							$src_url = null;
 
 							if ( ! empty( $image['ID'] ) && ! empty( $image['file'] ) ) {
@@ -52,14 +51,12 @@ class MediaSize {
 							}
 
 							return null;
-
 						},
 					],
 					'sourceUrl' => [
 						'type'        => 'String',
 						'description' => __( 'The url of the referenced size', 'wp-graphql' ),
 						'resolve'     => static function ( $image, $args, $context, $info ) {
-
 							$src_url = null;
 
 							if ( ! empty( $image['ID'] ) ) {
@@ -77,6 +74,5 @@ class MediaSize {
 				],
 			]
 		);
-
 	}
 }

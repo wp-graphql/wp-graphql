@@ -117,7 +117,6 @@ class PostObject {
 				'toType'         => 'Comment',
 				'connectionArgs' => Comments::get_connection_args(),
 				'resolve'        => static function ( Post $post, $args, $context, $info ) {
-
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
 					} else {
@@ -181,7 +180,6 @@ class PostObject {
 		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_taxonomies as $tax_object ) {
-
 			if ( ! in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
 				continue;
 			}
@@ -223,7 +221,6 @@ class PostObject {
 				'queryClass'     => 'WP_Term_Query',
 				'connectionArgs' => TermObjects::get_connection_args(),
 				'resolve'        => static function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
-
 					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
 					if ( empty( $object_id ) || ! absint( $object_id ) ) {
@@ -236,7 +233,6 @@ class PostObject {
 					return $resolver->get_connection();
 				},
 			];
-
 		}
 
 		// Merge with connections set in register_post_type.
@@ -578,7 +574,6 @@ class PostObject {
 						$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
 
 						return ! empty( $filesize_path ) ? filesize( $filesize_path ) : null;
-
 					},
 				],
 				'mimeType'     => [

@@ -46,7 +46,6 @@ class CommentMutation {
 		$user = self::get_comment_author( $input['authorEmail'] ?? null );
 
 		if ( false !== $user ) {
-
 			$output_args['user_id'] = $user->ID;
 
 			$input['author']      = ! empty( $input['author'] ) ? $input['author'] : $user->display_name;

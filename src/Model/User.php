@@ -88,7 +88,6 @@ class User extends Model {
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
-
 	}
 
 	/**
@@ -97,7 +96,6 @@ class User extends Model {
 	 * @return void
 	 */
 	public function setup() {
-
 		global $wp_query, $post, $authordata;
 
 		// Store variables for resetting at tear down
@@ -122,7 +120,6 @@ class User extends Model {
 			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 		}
-
 	}
 
 	/**
@@ -166,7 +163,6 @@ class User extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'                       => function () {
@@ -190,11 +186,9 @@ class User extends Model {
 								}
 							)
 						);
-
 					}
 
 					return ! empty( $capabilities ) ? $capabilities : null;
-
 				},
 				'capKey'                   => function () {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
@@ -274,9 +268,7 @@ class User extends Model {
 					return $queue;
 				},
 			];
-
 		}
-
 	}
 
 }

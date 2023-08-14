@@ -21,7 +21,6 @@ class HierarchicalNode {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ):void {
-
 		register_graphql_interface_type(
 			'HierarchicalNode',
 			[
@@ -42,7 +41,6 @@ class HierarchicalNode {
 				],
 			]
 		);
-
 	}
 
 }

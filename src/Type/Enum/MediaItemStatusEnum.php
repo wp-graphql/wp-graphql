@@ -25,7 +25,6 @@ class MediaItemStatusEnum {
 		 * Loop through the post_stati
 		 */
 		foreach ( $post_stati as $status ) {
-
 			$values[ WPEnumType::get_safe_name( $status ) ] = [
 				'description' => sprintf(
 					// translators: %1$s is the post status.
@@ -43,6 +42,5 @@ class MediaItemStatusEnum {
 				'values'      => $values,
 			]
 		);
-
 	}
 }

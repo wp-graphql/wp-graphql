@@ -30,7 +30,6 @@ class Utils {
 		} catch ( \Exception $exception ) {
 			return null;
 		}
-
 	}
 
 	/**
@@ -43,7 +42,6 @@ class Utils {
 	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map ) {
-
 		if ( ! is_array( $args ) || ! is_array( $map ) ) {
 			return [];
 		}
@@ -51,7 +49,6 @@ class Utils {
 		$query_args = [];
 
 		foreach ( $args as $arg => $value ) {
-
 			if ( is_array( $value ) && ! empty( $value ) ) {
 				$value = array_map(
 					static function ( $value ) {
@@ -75,7 +72,6 @@ class Utils {
 		}
 
 		return $query_args;
-
 	}
 
 	/**
@@ -111,7 +107,6 @@ class Utils {
 	 * @return string
 	 */
 	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
-
 		$replaced = preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name );
 
 		// If any values were replaced, use the replaced string as the new field name

@@ -181,7 +181,6 @@ class User {
 
 						],
 						'resolve' => static function ( $user, $args, $context, $info ) {
-
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {
 								$avatar_args['size'] = absint( $args['size'] );

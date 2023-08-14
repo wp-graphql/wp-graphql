@@ -148,7 +148,6 @@ class SendPasswordResetEmail {
 	 */
 	private static function get_user_data( $username ) {
 		if ( self::is_email_address( $username ) ) {
-
 			$username = wp_unslash( $username );
 
 			if ( ! is_string( $username ) ) {

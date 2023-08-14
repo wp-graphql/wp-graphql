@@ -33,7 +33,6 @@ class CommentObjectCursor extends AbstractCursor {
 
 		// Initialize the class properties.
 		parent::__construct( $query_vars, $cursor );
-
 	}
 
 	/**
@@ -76,7 +75,6 @@ class CommentObjectCursor extends AbstractCursor {
 		$this->builder->add_field( "{$this->wpdb->comments}.comment_ID", $this->cursor_offset, 'ID', null, $this );
 
 		return $this->to_sql();
-
 	}
 
 	/**
@@ -88,7 +86,6 @@ class CommentObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	public function compare_with( $by, $order ) {
-
 		$type = null;
 
 		if ( 'comment_date' === $by ) {
@@ -100,7 +97,6 @@ class CommentObjectCursor extends AbstractCursor {
 			$this->builder->add_field( "{$this->wpdb->comments}.{$by}", $value, $type );
 			return;
 		}
-
 	}
 
 	/**

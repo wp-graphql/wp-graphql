@@ -72,7 +72,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Call the parent construct to setup class data
 		 */
 		parent::__construct( $source, $args, $context, $info );
-
 	}
 
 	/**
@@ -130,7 +129,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function should_execute() {
-
 		if ( false === $this->should_execute ) {
 			return false;
 		}
@@ -143,7 +141,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * even execute the connection
 		 */
 		if ( isset( $this->post_type ) && 'revision' === $this->post_type ) {
-
 			if ( $this->source instanceof Post ) {
 				$parent_post_type_obj = get_post_type_object( $this->source->post_type );
 				if ( ! isset( $parent_post_type_obj->cap->edit_post ) || ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
@@ -273,7 +270,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		if ( empty( $this->args['where']['orderby'] ) && ! empty( $query_args['post__in'] ) ) {
-
 			$post_in = $query_args['post__in'];
 			// Make sure the IDs are integers
 			$post_in = array_map(
@@ -386,7 +382,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the GraphQL tree
 		 */
 		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
-
 	}
 
 	/**
@@ -401,7 +396,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @since  0.0.5
 	 */
 	public function sanitize_input_fields( array $where_args ) {
-
 		$arg_mapping = [
 			'authorIn'      => 'author__in',
 			'authorName'    => 'author_name',
@@ -465,7 +459,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Return the Query Args
 		 */
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
-
 	}
 
 	/**

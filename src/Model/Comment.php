@@ -48,7 +48,6 @@ class Comment extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( WP_Comment $comment ) {
-
 		$allowed_restricted_fields = [
 			'id',
 			'ID',
@@ -73,7 +72,6 @@ class Comment extends Model {
 		$this->data = $comment;
 		$owner      = ! empty( $comment->user_id ) ? absint( $comment->user_id ) : null;
 		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $owner );
-
 	}
 
 	/**
@@ -83,7 +81,6 @@ class Comment extends Model {
 	 * @throws \Exception
 	 */
 	protected function is_private() {
-
 		if ( empty( $this->data->comment_post_ID ) ) {
 			return true;
 		}
@@ -109,7 +106,6 @@ class Comment extends Model {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -118,9 +114,7 @@ class Comment extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                 => function () {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
@@ -196,8 +190,6 @@ class Comment extends Model {
 					return ! empty( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
 				},
 			];
-
 		}
-
 	}
 }

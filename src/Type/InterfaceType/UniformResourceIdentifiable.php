@@ -49,7 +49,6 @@ class UniformResourceIdentifiable {
 					],
 				],
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
-
 					switch ( true ) {
 						case $node instanceof Post:
 							/** @var \WP_Post_Type $post_type_object */

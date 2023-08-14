@@ -61,6 +61,11 @@
 			</property>
 		</properties>
 	</rule>
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+		<properties>
+			<property name="blank_line_check" value="true"/>
+		</properties>
+	</rule>
 
 	<!-- Rules -->
 

@@ -139,7 +139,6 @@ class TermObject {
 					$resolver->set_query_arg( 'parent', $term->term_id );
 
 					return $resolver->get_connection();
-
 				},
 			];
 
@@ -195,14 +194,12 @@ class TermObject {
 		$allowed_post_types = WPGraphQL::get_allowed_post_types( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
-
 			if ( ! in_array( $tax_object->name, get_object_taxonomies( $post_type_object->name ), true ) ) {
 				continue;
 			}
 
 			// ContentNodes.
 			if ( ! $already_registered ) {
-
 				$connections['contentNodes'] = PostObjects::get_connection_config(
 					$tax_object,
 					[

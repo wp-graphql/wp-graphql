@@ -66,7 +66,6 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return $ids;
-
 	}
 
 	/**

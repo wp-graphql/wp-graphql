@@ -50,7 +50,6 @@ class Router {
 	 * @throws \Exception
 	 */
 	public function init() {
-
 		self::$route = graphql_get_endpoint();
 
 		/**
@@ -78,8 +77,6 @@ class Router {
 		 * Adds support for application passwords
 		 */
 		add_filter( 'application_password_is_api_request', [ $this, 'is_api_request' ] );
-
-
 	}
 
 	/**
@@ -99,13 +96,11 @@ class Router {
 	 * @uses   add_rewrite_rule()
 	 */
 	public static function add_rewrite_rule() {
-
 		add_rewrite_rule(
 			self::$route . '/?$',
 			'index.php?' . self::$route . '=true',
 			'top'
 		);
-
 	}
 
 	/**
@@ -130,11 +125,9 @@ class Router {
 	 * @since  0.0.1
 	 */
 	public static function add_query_var( $query_vars ) {
-
 		$query_vars[] = self::$route;
 
 		return $query_vars;
-
 	}
 
 	/**
@@ -173,12 +166,10 @@ class Router {
 		if ( isset( $_GET[ self::$route ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 
 			$is_graphql_http_request = true;
-
 		} else {
 
 			// Check the server to determine if the GraphQL endpoint is being requested
 			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-
 				$host = wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
@@ -213,7 +204,6 @@ class Router {
 		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
 		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
-
 	}
 
 	/**
@@ -375,7 +365,6 @@ class Router {
 	 * @since  0.0.1
 	 */
 	public static function set_headers() {
-
 		if ( false === headers_sent() ) {
 
 			/**
@@ -392,7 +381,6 @@ class Router {
 			 * If there are headers, set them for the response
 			 */
 			if ( ! empty( $headers ) && is_array( $headers ) ) {
-
 				foreach ( $headers as $key => $value ) {
 					self::send_header( $key, $value );
 				}
@@ -404,7 +392,6 @@ class Router {
 			 * @param array $headers The headers sent in the response
 			 */
 			do_action( 'graphql_response_set_headers', $headers );
-
 		}
 	}
 
@@ -479,7 +466,6 @@ class Router {
 		self::$request  = new Request();
 
 		try {
-
 			$response = self::$request->execute_http();
 
 			// Get the operation params from the request.
@@ -487,7 +473,6 @@ class Router {
 			$query          = isset( $params->query ) ? $params->query : '';
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
 			$variables      = isset( $params->variables ) ? $params->variables : null;
-
 		} catch ( Exception $error ) {
 
 			/**
@@ -541,7 +526,6 @@ class Router {
 		 * Send the response
 		 */
 		wp_send_json( $response );
-
 	}
 
 	/**
@@ -577,6 +561,5 @@ class Router {
 		 * Set the response headers
 		 */
 		self::set_headers();
-
 	}
 }

@@ -86,7 +86,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 
 		// Loop through the plugins, add additional data, and store them in $plugins_by_status.
 		foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
-
 			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
 				unset( $all_plugins[ $plugin_file ] );
 				continue;

@@ -39,7 +39,6 @@ class TermObjectUnion {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 			]
 		);

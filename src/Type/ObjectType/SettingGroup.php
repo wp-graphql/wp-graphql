@@ -20,7 +20,6 @@ class SettingGroup {
 	 * @throws \Exception
 	 */
 	public static function register_settings_group( string $group_name, string $group, TypeRegistry $type_registry ) {
-
 		$fields = self::get_settings_group_fields( $group_name, $group, $type_registry );
 
 		// if the settings group doesn't have any fields that
@@ -40,7 +39,6 @@ class SettingGroup {
 		);
 
 		return ucfirst( $group_name ) . 'Settings';
-
 	}
 
 	/**
@@ -53,14 +51,11 @@ class SettingGroup {
 	 * @return array
 	 */
 	public static function get_settings_group_fields( string $group_name, string $group, TypeRegistry $type_registry ) {
-
 		$setting_fields = DataSource::get_setting_group_fields( $group, $type_registry );
 		$fields         = [];
 
 		if ( ! empty( $setting_fields ) && is_array( $setting_fields ) ) {
-
 			foreach ( $setting_fields as $key => $setting_field ) {
-
 				if ( ! isset( $setting_field['type'] ) || ! $type_registry->get_type( $setting_field['type'] ) ) {
 					continue;
 				}
@@ -122,13 +117,11 @@ class SettingGroup {
 							return ! empty( $option ) ? $option : null;
 						},
 					];
-
 				}
 			}
 		}
 
 		return $fields;
-
 	}
 
 }

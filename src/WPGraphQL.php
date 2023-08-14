@@ -100,7 +100,6 @@ final class WPGraphQL {
 	public function __clone() {
 		// Cloning instances of the class is forbidden.
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'The WPGraphQL class should not be cloned.', 'wp-graphql' ), '0.0.1' );
-
 	}
 
 	/**
@@ -112,7 +111,6 @@ final class WPGraphQL {
 	public function __wakeup() {
 		// De-serializing instances of the class is forbidden.
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'De-serializing instances of the WPGraphQL class is not allowed', 'wp-graphql' ), '0.0.1' );
-
 	}
 
 	/**
@@ -149,7 +147,6 @@ final class WPGraphQL {
 		if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
 			define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
 		}
-
 	}
 
 	/**
@@ -170,7 +167,6 @@ final class WPGraphQL {
 		 * so this is set to false for tests.
 		 */
 		if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
-
 			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 				// Autoload Required Classes.
 				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
@@ -180,11 +176,9 @@ final class WPGraphQL {
 			// detected. This likely means the user cloned the repo from Github
 			// but did not run `composer install`
 			if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
-
 				add_action(
 					'admin_notices',
 					static function () {
-
 						if ( ! current_user_can( 'manage_options' ) ) {
 							return;
 						}
@@ -203,7 +197,6 @@ final class WPGraphQL {
 		}
 
 		return true;
-
 	}
 
 	/**
@@ -239,7 +232,6 @@ final class WPGraphQL {
 		add_action(
 			'after_setup_theme',
 			static function () {
-
 				new \WPGraphQL\Data\Config();
 				$router = new Router();
 				$router->init();
@@ -298,7 +290,6 @@ final class WPGraphQL {
 				$query_log->init();
 			}
 		);
-
 	}
 
 	/**
@@ -321,7 +312,6 @@ final class WPGraphQL {
 				)
 			);
 		}
-
 	}
 
 	/**
@@ -334,7 +324,6 @@ final class WPGraphQL {
 		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
 			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( dirname( __DIR__ ) . '/wp-graphql.php' ) );
 		}
-
 	}
 
 	/**
@@ -403,7 +392,6 @@ final class WPGraphQL {
 		add_filter(
 			'graphql_type_interfaces',
 			static function ( $interfaces, $config, $type ) {
-
 				if ( $type instanceof WPObjectType ) {
 					/**
 					 * Filters the interfaces applied to an object type
@@ -416,12 +404,10 @@ final class WPGraphQL {
 				}
 
 				return $interfaces;
-
 			},
 			10,
 			3
 		);
-
 	}
 
 	/**
@@ -531,7 +517,6 @@ final class WPGraphQL {
 		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
 
 		return wp_parse_args( $args, $graphql_args );
-
 	}
 
 	/**
@@ -561,7 +546,6 @@ final class WPGraphQL {
 		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 
 		return wp_parse_args( $args, $graphql_args );
-
 	}
 
 	/**
@@ -570,7 +554,6 @@ final class WPGraphQL {
 	 * @since 1.12.0
 	 */
 	public static function get_default_graphql_type_args(): array {
-
 		return [
 			// The "kind" of GraphQL type to register. Can be `interface`, `object`, or `union`.
 			'graphql_kind'                     => 'object',
@@ -645,7 +628,6 @@ final class WPGraphQL {
 			$post_type_objects = array_filter(
 				$post_type_objects,
 				static function ( $obj ) use ( $allowed_post_type_names ) {
-
 					if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
 						$obj->graphql_plural_name = $obj->graphql_single_name;
 					}
@@ -731,7 +713,6 @@ final class WPGraphQL {
 			$tax_objects = array_filter(
 				$tax_objects,
 				static function ( $obj ) use ( $allowed_tax_names ) {
-
 					if ( empty( $obj->graphql_plural_name ) && ! empty( $obj->graphql_single_name ) ) {
 						$obj->graphql_plural_name = $obj->graphql_single_name;
 					}
@@ -795,7 +776,6 @@ final class WPGraphQL {
 	 */
 	public static function get_schema() {
 		if ( null === self::$schema ) {
-
 			$schema_registry = new SchemaRegistry();
 			$schema          = $schema_registry->get_schema();
 
@@ -851,7 +831,6 @@ final class WPGraphQL {
 	 */
 	public static function get_type_registry() {
 		if ( null === self::$type_registry ) {
-
 			$type_registry = new TypeRegistry();
 
 			/**
@@ -875,7 +854,6 @@ final class WPGraphQL {
 		 * Return the Schema after applying filters
 		 */
 		return ! empty( self::$type_registry ) ? self::$type_registry : null;
-
 	}
 
 	/**
