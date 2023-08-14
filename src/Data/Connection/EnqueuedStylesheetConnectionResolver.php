@@ -33,12 +33,17 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filter the query amount to be 1000 for
 		 */
-		add_filter( 'graphql_connection_max_query_amount', static function ( $max, $source, $args, $context, ResolveInfo $info ) {
-			if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
-				return 1000;
-			}
-			return $max;
-		}, 10, 5 );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			static function ( $max, $source, $args, $context, ResolveInfo $info ) {
+				if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
+					return 1000;
+				}
+				return $max;
+			},
+			10,
+			5 
+		);
 
 		parent::__construct( $source, $args, $context, $info );
 	}

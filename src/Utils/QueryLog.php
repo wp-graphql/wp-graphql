@@ -149,13 +149,16 @@ class QueryLog {
 		$trace = [ $default_message ];
 
 		if ( ! empty( $wpdb->queries ) && is_array( $wpdb->queries ) ) {
-			$queries = array_map( static function ( $query ) {
-				return [
-					'sql'   => $query[0],
-					'time'  => $query[1],
-					'stack' => $query[2],
-				];
-			}, $wpdb->queries );
+			$queries = array_map(
+				static function ( $query ) {
+					return [
+						'sql'   => $query[0],
+						'time'  => $query[1],
+						'stack' => $query[2],
+					];
+				},
+				$wpdb->queries 
+			);
 
 			$times      = wp_list_pluck( $queries, 'time' );
 			$total_time = array_sum( $times );

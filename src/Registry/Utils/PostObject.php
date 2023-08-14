@@ -140,7 +140,8 @@ class PostObject {
 				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null
 					: sprintf(
 						// translators: %s is the post type's GraphQL name.
-						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
+						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ),
+						WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
 					),
 				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
@@ -492,10 +493,15 @@ class PostObject {
 						$image = wp_get_attachment_image_src( $source->ID, $size );
 						if ( $image ) {
 							list( $src, $width, $height ) = $image;
-							$sizes                        = wp_calculate_image_sizes( [
-								absint( $width ),
-								absint( $height ),
-							], $src, null, $source->ID );
+							$sizes                        = wp_calculate_image_sizes(
+								[
+									absint( $width ),
+									absint( $height ),
+								],
+								$src,
+								null,
+								$source->ID 
+							);
 
 							return ! empty( $sizes ) ? $sizes : null;
 						}

@@ -132,16 +132,22 @@ class WPMutationType {
 		$is_valid = true;
 
 		if ( ! array_key_exists( 'name', $config ) || ! is_string( $config['name'] ) ) {
-			graphql_debug( __( 'Mutation config needs to have a valid name.', 'wp-graphql' ), [
-				'config' => $config,
-			] );
+			graphql_debug(
+				__( 'Mutation config needs to have a valid name.', 'wp-graphql' ),
+				[
+					'config' => $config,
+				] 
+			);
 			$is_valid = false;
 		}
 
 		if ( ! array_key_exists( 'mutateAndGetPayload', $config ) || ! is_callable( $config['mutateAndGetPayload'] ) ) {
-			graphql_debug( __( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ), [
-				'config' => $config,
-			] );
+			graphql_debug(
+				__( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ),
+				[
+					'config' => $config,
+				] 
+			);
 			$is_valid = false;
 		}
 
@@ -299,7 +305,8 @@ class WPMutationType {
 	 */
 	protected function register_mutation_field() : void {
 
-		$field_config = array_merge( $this->config,
+		$field_config = array_merge(
+			$this->config,
 			[
 				'args'        => [
 					'input' => [

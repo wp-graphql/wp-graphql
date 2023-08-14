@@ -97,10 +97,15 @@ class Tracing {
 		add_filter( 'do_graphql_request', [ $this, 'init_trace' ] );
 		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
-		add_filter( 'graphql_request_results', [
-			$this,
-			'add_tracing_to_response_extensions',
-		], 10, 1 );
+		add_filter(
+			'graphql_request_results',
+			[
+				$this,
+				'add_tracing_to_response_extensions',
+			],
+			10,
+			1 
+		);
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
 	}
@@ -194,10 +199,13 @@ class Tracing {
 	public function sanitize_resolver_trace( array $trace ) {
 
 		$sanitized_trace                = [];
-		$sanitized_trace['path']        = ! empty( $trace['path'] ) && is_array( $trace['path'] ) ? array_map( [
-			$this,
-			'sanitize_trace_resolver_path',
-		], $trace['path'] ) : [];
+		$sanitized_trace['path']        = ! empty( $trace['path'] ) && is_array( $trace['path'] ) ? array_map(
+			[
+				$this,
+				'sanitize_trace_resolver_path',
+			],
+			$trace['path'] 
+		) : [];
 		$sanitized_trace['parentType']  = ! empty( $trace['parentType'] ) ? esc_html( $trace['parentType'] ) : '';
 		$sanitized_trace['fieldName']   = ! empty( $trace['fieldName'] ) ? esc_html( $trace['fieldName'] ) : '';
 		$sanitized_trace['returnType']  = ! empty( $trace['returnType'] ) ? esc_html( $trace['returnType'] ) : '';

@@ -225,9 +225,12 @@ class TypeRegistry {
 	protected function get_eager_type_map() {
 
 		if ( ! empty( $this->eager_type_map ) ) {
-			return array_map( function ( $type_name ) {
-				return $this->get_type( $type_name );
-			}, $this->eager_type_map );
+			return array_map(
+				function ( $type_name ) {
+					return $this->get_type( $type_name );
+				},
+				$this->eager_type_map 
+			);
 
 		}
 
@@ -508,7 +511,8 @@ class TypeRegistry {
 									'type'        => 'Boolean',
 									'description' => sprintf(
 										// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-										__( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ), $tax_object->graphql_single_name,
+										__( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ),
+										$tax_object->graphql_single_name,
 										$tax_object->graphql_plural_name
 									),
 								],
@@ -555,13 +559,17 @@ class TypeRegistry {
 		 * to expose the URL to the Schema for multisite sites
 		 */
 		if ( is_multisite() ) {
-			$this->register_field( 'GeneralSettings', 'url', [
-				'type'        => 'String',
-				'description' => __( 'Site URL.', 'wp-graphql' ),
-				'resolve'     => static function () {
-					return get_site_url();
-				},
-			] );
+			$this->register_field(
+				'GeneralSettings',
+				'url',
+				[
+					'type'        => 'String',
+					'description' => __( 'Site URL.', 'wp-graphql' ),
+					'resolve'     => static function () {
+						return get_site_url();
+					},
+				] 
+			);
 		}
 
 		if ( ! empty( $allowed_setting_types ) && is_array( $allowed_setting_types ) ) {

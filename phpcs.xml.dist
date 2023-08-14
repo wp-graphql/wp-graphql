@@ -2,7 +2,6 @@
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 	<description>Coding standards for the WPGraphQL plugin</description>
 
-
 	<!-- What to scan: include any root-level PHP files, and the /src folder -->
 	<file>./access-functions.php</file>
 	<file>./activation.php</file>
@@ -75,27 +74,18 @@
 
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
+		<!-- Definitely should not be added back -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
+		<exclude name="WordPress.Files.FileName"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+
 		<!-- This would be a breaking change to fix-->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
-		<!-- Conflicts with b/c in AbstractConnectionResolver -->
-		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
-		<!-- Definitely should not be added back -->
-		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
-		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
 
 		<!-- Should probably not be added back -->
 		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
-		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure"/>
-		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
-		<exclude name="WordPress.Files.FileName"/>
-		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
-
-		<!-- Should maybe Add Back Later -->
-		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
-		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
-		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
-		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
@@ -104,6 +94,19 @@
 
 		<!-- Should be re-enabled -->
 		<exclude name="Squiz.Commenting"/>
+	</rule>
+
+		<!-- Additional commenting sniffs are in WPGraphQL-Docs -->
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<!-- Conflicts with b/c in AbstractConnectionResolver -->
+		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+
+		<!-- Should probably be added back -->
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
+		<properties>
+				<property name="skipIfInheritdoc" value="true" />
+		</properties>
 	</rule>
 
 	<!-- Enforce short array syntax -->

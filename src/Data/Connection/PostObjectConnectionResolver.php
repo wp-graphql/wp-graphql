@@ -276,9 +276,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 			$post_in = $query_args['post__in'];
 			// Make sure the IDs are integers
-			$post_in = array_map( static function ( $id ) {
-				return absint( $id );
-			}, $post_in );
+			$post_in = array_map(
+				static function ( $id ) {
+					return absint( $id );
+				},
+				$post_in 
+			);
 
 			// If we're coming backwards, let's reverse the IDs
 			if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
@@ -586,9 +589,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 					case 'tagIn':
 					case 'tagNotIn':
 						if ( is_array( $input_value ) ) {
-							$args['where'][ $input_key ] = array_map( static function ( $id ) {
-								return Utils::get_database_id_from_id( $id );
-							}, $input_value );
+							$args['where'][ $input_key ] = array_map(
+								static function ( $id ) {
+									return Utils::get_database_id_from_id( $id );
+								},
+								$input_value 
+							);
 							break;
 						}
 

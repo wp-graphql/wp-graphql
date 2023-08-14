@@ -75,10 +75,13 @@ class DebugLog {
 		}
 
 		if ( ! isset( $this->logs[ wp_json_encode( $message ) ] ) ) {
-			$log_entry = array_merge( [
-				'type'    => $type,
-				'message' => $message,
-			], $config );
+			$log_entry = array_merge(
+				[
+					'type'    => $type,
+					'message' => $message,
+				],
+				$config 
+			);
 
 			$this->logs[ wp_json_encode( $message ) ] = $log_entry;
 

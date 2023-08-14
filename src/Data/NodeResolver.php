@@ -302,9 +302,12 @@ class NodeResolver {
 		$parsed_url = wp_parse_url( $uri );
 
 		if ( false === $parsed_url ) {
-			graphql_debug( __( 'Cannot parse provided URI', 'wp-graphql' ), [
-				'uri' => $uri,
-			] );
+			graphql_debug(
+				__( 'Cannot parse provided URI', 'wp-graphql' ),
+				[
+					'uri' => $uri,
+				] 
+			);
 			return null;
 		}
 
@@ -325,9 +328,12 @@ class NodeResolver {
 				],
 				true
 			) ) {
-				graphql_debug( __( 'Cannot return a resource for an external URI', 'wp-graphql' ), [
-					'uri' => $uri,
-				] );
+				graphql_debug(
+					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
+					[
+						'uri' => $uri,
+					] 
+				);
 				return null;
 			}
 		}

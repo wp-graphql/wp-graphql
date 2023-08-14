@@ -620,10 +620,13 @@ class Request {
 		}
 
 		if ( is_array( $this->params ) ) {
-			return array_map(function ( $data ) {
-				$this->data = $data;
-				return $this->execute();
-			}, $this->params);
+			return array_map(
+				function ( $data ) {
+					$this->data = $data;
+					return $this->execute();
+				},
+				$this->params
+			);
 		}
 
 		// If $this->params isnt an array or an OperationParams instance, then something probably went wrong.

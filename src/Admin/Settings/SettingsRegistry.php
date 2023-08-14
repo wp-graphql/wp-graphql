@@ -512,12 +512,15 @@ class SettingsRegistry {
 	 */
 	public function callback_pages( array $args ) {
 
-		$dropdown_args = array_merge( [
-			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
-			'name'     => $args['section'] . '[' . $args['id'] . ']',
-			'id'       => $args['section'] . '[' . $args['id'] . ']',
-			'echo'     => 0,
-		], $args );
+		$dropdown_args = array_merge(
+			[
+				'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
+				'name'     => $args['section'] . '[' . $args['id'] . ']',
+				'id'       => $args['section'] . '[' . $args['id'] . ']',
+				'echo'     => 0,
+			],
+			$args 
+		);
 
 		$clean_args = [];
 		foreach ( $dropdown_args as $key => $arg ) {

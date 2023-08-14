@@ -768,10 +768,14 @@ class RootQuery {
 									return null;
 								}
 
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
-									'revision',
-									$post_type_object->name,
-								], true ) ) {
+								if ( ! isset( $post->post_type ) || ! in_array(
+									$post->post_type,
+									[
+										'revision',
+										$post_type_object->name,
+									],
+									true 
+								) ) {
 									return null;
 								}
 
@@ -882,10 +886,14 @@ class RootQuery {
 									return null;
 								}
 
-								if ( ! isset( $post->post_type ) || ! in_array( $post->post_type, [
-									'revision',
-									$post_type_object->name,
-								], true ) ) {
+								if ( ! isset( $post->post_type ) || ! in_array(
+									$post->post_type,
+									[
+										'revision',
+										$post_type_object->name,
+									],
+									true 
+								) ) {
 									return null;
 								}
 
