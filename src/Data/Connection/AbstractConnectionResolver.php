@@ -401,7 +401,7 @@ abstract class AbstractConnectionResolver {
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
 				__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-				get_class( $this )
+				static::class
 			)
 		);
 	}

@@ -270,7 +270,7 @@ class TypeRegistry {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function init_type_registry( TypeRegistry $type_registry ) {
+	public function init_type_registry( self $type_registry ) {
 
 		/**
 		 * Fire an action as the type registry is initialized. This executes
