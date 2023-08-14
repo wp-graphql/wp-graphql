@@ -348,7 +348,8 @@ class PostObjectCreate {
 				 * If the post was deleted by a side effect action before getting here,
 				 * don't proceed.
 				 */
-				if ( ! $new_post = get_post( $post_id ) ) {
+				$new_post = get_post( $post_id );
+				if ( empty( $new_post ) ) {
 					throw new UserError( __( 'The status of the post could not be set', 'wp-graphql' ) );
 				}
 
