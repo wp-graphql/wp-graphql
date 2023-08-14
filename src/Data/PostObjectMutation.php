@@ -272,7 +272,7 @@ class PostObjectMutation {
 					/**
 					 * Default append to true, but allow input to set it to false.
 					 */
-					$append = isset( $term_input['append'] ) && false === $term_input['append'] ? false : true;
+					$append = ! isset( $term_input['append'] ) || false !== $term_input['append'];
 
 					/**
 					 * Start an array of terms to connect
