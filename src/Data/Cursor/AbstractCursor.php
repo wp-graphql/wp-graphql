@@ -158,7 +158,7 @@ abstract class AbstractCursor {
 				sprintf(
 					/* translators: %1$s: Cursor class name. %2$s: value type. */
 					__( 'Invalid value provided for %1$s threshold field. Expected Array, %2$s given.', 'wp-graphql' ),
-					get_called_class(),
+					static::class,
 					gettype( $field )
 				)
 			);
@@ -170,7 +170,7 @@ abstract class AbstractCursor {
 				sprintf(
 					/* translators: %s: Cursor class name. */
 					__( 'Expected "key" value to be provided for %s threshold field. A string value must be given.', 'wp-graphql' ),
-					get_called_class()
+					static::class
 				)
 			);
 		}
@@ -181,7 +181,7 @@ abstract class AbstractCursor {
 				sprintf(
 					/* translators: %s: Cursor class name. */
 					__( 'Expected "value" value to be provided for %s threshold field. A scalar value must be given.', 'wp-graphql' ),
-					get_called_class()
+					static::class
 				)
 			);
 		}
@@ -192,7 +192,7 @@ abstract class AbstractCursor {
 				sprintf(
 					/* translators: %s: Cursor class name. */
 					__( 'Invalid value provided for "type" value to be provided for type of %s threshold field. A string value must be given.', 'wp-graphql' ),
-					get_called_class()
+					static::class
 				)
 			);
 		}
@@ -203,7 +203,7 @@ abstract class AbstractCursor {
 				sprintf(
 					/* translators: %s: Cursor class name. */
 					__( 'Invalid value provided for "order" value to be provided for type of %s threshold field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
-					get_called_class()
+					static::class
 				)
 			);
 		}

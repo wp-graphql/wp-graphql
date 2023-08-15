@@ -208,7 +208,6 @@ class Config {
 
 		// If there is a cursor compare in the arguments, use it as the stablizer for cursors.
 		return "{$orderby}, {$key} {$order}";
-
 	}
 
 	/**
