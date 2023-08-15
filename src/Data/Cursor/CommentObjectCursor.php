@@ -49,7 +49,15 @@ class CommentObjectCursor extends AbstractCursor {
 			return null;
 		}
 
-		// If pre-hooked, return filtered node.
+		/**
+		 * If pre-hooked, return filtered node.
+		 * 
+		 * @param null|\WP_Comment    $pre_comment The pre-filtered comment node.
+		 * @param int                 $offset      The cursor offset.
+		 * @param CommentObjectCursor $this        The cursor instance.
+		 * 
+		 * @return null|\WP_Comment
+		 */
 		$pre_comment = apply_filters( 'graphql_pre_comment_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_comment ) {
 			return $pre_comment;
@@ -93,7 +101,7 @@ class CommentObjectCursor extends AbstractCursor {
 			);
 		}
 
-		$this->compare_with_id_field();
+		$this->compare_with_id_field( $order );
 
 		return $this->to_sql();
 	}

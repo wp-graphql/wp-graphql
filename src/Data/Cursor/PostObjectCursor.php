@@ -53,7 +53,15 @@ class PostObjectCursor extends AbstractCursor {
 			return null;
 		}
 
-		// If pre-hooked, return filtered node.
+		/**
+		 * If pre-hooked, return filtered node.
+		 * 
+		 * @param null|\WP_Post    $pre_post The pre-filtered post node.
+		 * @param int              $offset   The cursor offset.
+		 * @param PostObjectCursor $this     The cursor instance.
+		 * 
+		 * @return null|\WP_Post
+		 */
 		$pre_post = apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_post ) {
 			return $pre_post;
@@ -151,14 +159,14 @@ class PostObjectCursor extends AbstractCursor {
 				[
 					[
 						'key'   => "{$this->wpdb->posts}.post_date",
-						'value' => $this->cursor_node->date,
+						'value' => $this->cursor_node->post_date,
 						'type'  => 'DATETIME'
 					],
 				]
 			);
 		}
 
-		$this->compare_with_id_field();
+		$this->compare_with_id_field( $order );
 
 		return $this->to_sql();
 	}

@@ -46,7 +46,15 @@ class TermObjectCursor extends AbstractCursor {
 			return null;
 		}
 	
-		// If pre-hooked, return filtered node.
+		/**
+		 * If pre-hooked, return filtered node.
+		 * 
+		 * @param null|\WP_Term    $pre_term The pre-filtered term node.
+		 * @param int              $offset   The cursor offset.
+		 * @param TermObjectCursor $this     The cursor instance.
+		 * 
+		 * @return null|\WP_Term
+		 */
 		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_term ) {
 			return $pre_term;
@@ -95,6 +103,11 @@ class TermObjectCursor extends AbstractCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
+		// Set order if not set.
+		if ( empty( $order ) ) {
+			$order = '>' === $this->compare ? 'DESC' : 'ASC';
+		}
+
 		/**
 		 * If $orderby is just a string just compare with it directly as DESC
 		 */
@@ -132,33 +145,22 @@ class TermObjectCursor extends AbstractCursor {
 			return;
 		}
 
-		$key   = $by;
+		// Set "key" as term table column and get "value" from cursor node.
+		$key   = "t.{$by}";
 		$value = $this->cursor_node->{$by};
 
 		/**
-		 * Compare by the term field if the key matches an value
+		 * If key or value are null, check whether this is a meta key based ordering before bailing.
 		 */
-		if ( ! empty( $value ) ) {
-			if ( '>' === $this->compare ) {
-				$order = 'DESC';
-			} else {
-				$order = 'ASC';
+		if ( null === $key || null === $value ) {
+			$meta_key = $this->get_meta_key( $by );
+			if ( $meta_key ) {
+				$this->compare_with_meta_field( $meta_key, $order );
 			}
-
-			$this->builder->add_field( $key, $value, null, $order );
-
 			return;
 		}
 
-		/**
-		 * Find out whether this is a meta key based ordering
-		 */
-		$meta_key = $this->get_meta_key( $by );
-		if ( $meta_key ) {
-			$this->compare_with_meta_field( $meta_key, $order );
-
-			return;
-		}
+		$this->builder->add_field( $key, $value, null, $order );
 	}
 
 	/**

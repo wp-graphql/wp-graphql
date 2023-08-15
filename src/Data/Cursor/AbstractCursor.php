@@ -152,26 +152,60 @@ abstract class AbstractCursor {
 	 * @return void
 	 */
 	protected function is_valid_threshold_field( $field ) {
-		$class = get_called_class();
 		// Throw if an array not provided.
 		if ( ! is_array( $field ) ) {
-			$type  = gettype( $field );
-			throw new InvariantViolation( __( "Invalid value provided for {$class} threshold field. Expected Array, ${type} given.", 'ql-events' ) );
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %1$s: Cursor class name. %2$s: value type. */
+					__( 'Invalid value provided for %1$s threshold field. Expected Array, %2$s given.', 'wp-graphql' ),
+					get_called_class(),
+					gettype( $field )
+				)
+			);
 		}
 
 		// Guard against missing or invalid "table column".
 		if ( empty( $field['key'] ) || ! is_string( $field['key'] ) ) {
-			throw new InvariantViolation( __( "Expected \"key\" value to be provided for {$class} threshold field. A string value must be given.", 'ql-events' ) );
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %s: Cursor class name. */
+					__( 'Expected "key" value to be provided for %s threshold field. A string value must be given.', 'wp-graphql' ),
+					get_called_class()
+				)
+			);
 		}
 
 		// Guard against missing or invalid "by".
-		if ( empty( $field['value'] ) ) {
-			throw new InvariantViolation( __( "Expected \"value\" value to be provided for {$class} threshold field. A scalar value must be given.", 'ql-events' ) );
+		if ( ! isset( $field['value'] ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %s: Cursor class name. */
+					__( 'Expected "value" value to be provided for %s threshold field. A scalar value must be given.', 'wp-graphql' ),
+					get_called_class()
+				)
+			);
 		}
 		
 		// Guard against invalid "type".
 		if ( ! empty( $field['type'] ) && ! is_string( $field['type'] ) ) {
-			throw new InvariantViolation( __( "Invalid value provided for \"by\" value to be provided for type of {$class} threshold field. A string value must be given.", 'ql-events' ) );
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %s: Cursor class name. */
+					__( 'Invalid value provided for "type" value to be provided for type of %s threshold field. A string value must be given.', 'wp-graphql' ),
+					get_called_class()
+				)
+			);
+		}
+
+		// Guard against invalid "order".
+		if ( ! empty( $field['order'] ) && ! in_array( strtoupper( $field['order'] ), [ 'ASC', 'DESC', ], true ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %s: Cursor class name. */
+					__( 'Invalid value provided for "order" value to be provided for type of %s threshold field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
+					get_called_class()
+				)
+			);
 		}
 	}
 
@@ -197,9 +231,19 @@ abstract class AbstractCursor {
 	 * @return void
 	 */
 	protected function compare_with_threshold_fields( $fallback = [] ) {
-		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
+		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' ) ;
 		if ( null === $threshold_fields ) {
 			$threshold_fields = $fallback;
+		}
+
+		if ( ! empty( $threshold_fields ) && ! is_array( $threshold_fields ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %s: value type. */
+					__( 'Invalid value provided for graphql_cursor_threshold_fields. Expected Array, %s given.', 'wp-graphql' ), 
+					gettype( $threshold_fields )
+				)
+			);
 		}
 
 		// Check if only one threshold field provided, wrap it in an array.
@@ -207,31 +251,36 @@ abstract class AbstractCursor {
 			$threshold_fields = [ $threshold_fields ];
 		}
 
-		foreach ( $this->threshold_fields as $field ) {
+		foreach ( $threshold_fields as $field ) {
 			$this->is_valid_threshold_field( $field );
 
 			$key   = $field['key'];
 			$value = $field['value'];
 			$type  = ! empty( $field['type'] ) ? $field['type'] : null;
+			$order = ! empty( $field['order'] ) ? $field['order'] : null;
 
-			$this->builder->add_field( $key, $value, $type );
+			$this->builder->add_field( $key, $value, $type, $order );
 		}
 	}
 
 	/**
 	 * Applies ID field to the cursor builder.
+	 * 
+	 * @param string|null $order  The order direction. Either 'ASC' or 'DESC'.
 	 *
 	 * @return void
 	 */
-	protected function compare_with_id_field() {
+	protected function compare_with_id_field( $order = null ) {
+		// Get ID value.
 		$value = $this->get_query_var( 'graphql_cursor_id_value' );
 		if ( null === $value ) {
 			$value = (string) $this->cursor_offset;
 		}
 
-		$key = $this->get_cursor_id_key();
-		
-		$this->builder->add_field( $key, $value, 'ID' );
+		// Get ID SQL Query alias.
+		$key   = $this->get_cursor_id_key();
+	
+		$this->builder->add_field( $key, $value, 'ID', $order );
 	}
 
 	/**

@@ -70,7 +70,15 @@ class UserCursor extends AbstractCursor {
 			return null;
 		}
 
-		// If pre-hooked, return filtered node.
+		/**
+		 * If pre-hooked, return filtered node.
+		 * 
+		 * @param null|\WP_User $pre_user The pre-filtered user node.
+		 * @param int           $offset   The cursor offset.
+		 * @param UserCursor    $this     The cursor instance.
+		 * 
+		 * @return null|\WP_User
+		 */
 		$pre_user = apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_user ) {
 			return $pre_user;
@@ -134,15 +142,15 @@ class UserCursor extends AbstractCursor {
 			$this->compare_with_threshold_fields(
 				[
 					[
-						'key'  => "{$this->wpdb->users}.user_login",
-						'by'   => $this->cursor_node->login,
-						'type' => 'CHAR',
+						'key'   => "{$this->wpdb->users}.user_login",
+						'value' => $this->cursor_node->user_login,
+						'type'  => 'CHAR',
 					],
 				]
 			);
 		}
 
-		$this->compare_with_id_field();
+		$this->compare_with_id_field( $order );
 
 		return $this->to_sql();
 	}

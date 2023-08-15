@@ -1,4 +1,5 @@
 <?php
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 
 class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $current_time;
@@ -36,6 +37,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_excerpt'  => 'Test excerpt',
 			'post_status'   => 'publish',
 			'post_title'    => 'Test Title for PostObjectCursorTest',
+			'post_name'     => "test-post-{$this->start_count}",
 			'post_type'     => 'post',
 			'post_date'     => $this->current_date,
 			'has_password'  => false,
@@ -169,22 +171,24 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			return $edge['node']['postId'];
 		}, $second['data']['posts']['edges']);
 
-		// Make correspondig WP_Query
+		// Make corresponding WP_Query.
 		WPGraphQL::set_is_graphql_request( true );
 		$first_page = new WP_Query( array_merge( $meta_fields, [
-			'post_status'    => 'publish',
-			'post_type'      => 'post',
-			'post_author'    => $this->admin,
-			'posts_per_page' => $posts_per_page,
-			'paged'          => 1,
+			'graphql_cursor_compare' => '<', // Without this, the query won't hit the cursor logic.
+			'post_status'            => 'publish',
+			'post_type'              => 'post',
+			'post_author'            => $this->admin,
+			'posts_per_page'         => $posts_per_page,
+			'paged'                  => 1,
 		] ) );
 
 		$second_page = new WP_Query( array_merge( $meta_fields, [
-			'post_status'    => 'publish',
-			'post_type'      => 'post',
-			'post_author'    => $this->admin,
-			'posts_per_page' => $posts_per_page,
-			'paged'          => 2,
+			'graphql_cursor_compare' => '<', // Without this, the query won't hit the cursor logic.
+			'post_status'            => 'publish',
+			'post_type'              => 'post',
+			'post_author'            => $this->admin,
+			'posts_per_page'         => $posts_per_page,
+			'paged'                  => 2,
 		] ) );
 		WPGraphQL::set_is_graphql_request( true );
 
@@ -470,6 +474,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testPostOrderingByMultipleMeta() {
+		// Add fields to Post type.
 		register_graphql_fields(
 			'Post',
 			[
@@ -488,6 +493,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		// Register orderby enum values.
 		add_filter(
 			'graphql_PostObjectsConnectionOrderbyEnum_values',
 			function( $values ) {
@@ -497,6 +503,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		);
 
+		// Process meta fields in orderby.
 		add_filter(
 			'graphql_post_object_connection_query_args',
 			function ( $query_args ) {
@@ -808,6 +815,296 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
+		$this->assertQuerySuccessful( $response, $expected );
+	}
+
+	public function testThresholdFieldsQueryVar() {
+		// Register new posts connection.
+		register_graphql_connection(
+			[
+				'fromType'       => 'RootQuery',
+				'toType'         => 'Post',
+				'fromFieldName'  => 'postsOrderedBySlug',
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					global $wpdb;
+					$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
+
+					// Get cursor node
+					$cursor  = $args['after'] ?? null;
+					$cursor  = $cursor ?: ( $args['before'] ?? null );
+					$post_id = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
+					$post    = get_post( $post_id );
+
+					// Get order.
+					$order   = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
+
+					$resolver->set_query_arg(
+						'graphql_cursor_threshold_fields',
+						[
+							[
+								'key'   => "{$wpdb->posts}.post_name",
+								'value' => null !== $post ? $post->post_name : null,
+								'type'  => 'CHAR',
+								'order' => $order,
+							],
+						]
+					);
+
+					// Set default ordering.
+					if ( empty( $args['where']['orderby'] ) ) {
+						$resolver->set_query_arg( 'orderby', 'post_name' );
+					}
+
+					if ( empty( $args['where']['order'] ) ) {
+						$resolver->set_query_arg( 'order', $order );
+					}
+
+					return $resolver->get_connection();
+				}
+			]
+		);
+
+		// Clear cached schema so new fields are seen.
+		$this->clearSchema();
+
+		// Create query.
+		$query = '
+			query ($first: Int, $last: Int, $before: String, $after: String) {
+				postsOrderedBySlug(first: $first, last: $last, before: $before, after: $after) {
+					nodes {
+						id
+						databaseId
+						slug
+						date
+					}
+				}
+			}
+		';
+
+		
+
+		/**
+		 * Assert that the query is successful.
+		 */
+		$variables = [ 'first' => 5 ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[2] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[2] ),
+					$this->expectedField( 'slug', 'test-post-99' ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[3] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[3] ),
+					$this->expectedField( 'slug', 'test-post-98' ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[4] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[4] ),
+					$this->expectedField( 'slug', 'test-post-97' ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[5] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[5] ),
+					$this->expectedField( 'slug', 'test-post-96' ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[6] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[6] ),
+					$this->expectedField( 'slug', 'test-post-95' ),
+				],
+				4
+			),
+		];
+		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Assert that the query for second batch is successful.
+		 */
+		$variables = [
+			'first' => 5,
+			'after' => base64_encode( 'arrayconnection:' . $this->created_post_ids[6] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[7] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[7] ),
+					$this->expectedField( 'slug', 'test-post-94' ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[8] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[8] ),
+					$this->expectedField( 'slug', 'test-post-93' ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[9] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[9] ),
+					$this->expectedField( 'slug', 'test-post-92' ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[10] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[10] ),
+					$this->expectedField( 'slug', 'test-post-91' ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[11] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[11] ),
+					$this->expectedField( 'slug', 'test-post-90' ),
+				],
+				4
+			),
+		];
+		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Assert that the reverse query is successful.
+		 */
+		$variables = [ 'last' => 5 ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[17] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[17] ),
+					$this->expectedField( 'slug', 'test-post-84' ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[18] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[18] ),
+					$this->expectedField( 'slug', 'test-post-83' ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[19] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[19] ),
+					$this->expectedField( 'slug', 'test-post-82' ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[20] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[20] ),
+					$this->expectedField( 'slug', 'test-post-81' ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[1] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[1] ),
+					$this->expectedField( 'slug', 'test-post-100' ),
+				],
+				4
+			),
+			
+			
+		];
+		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Assert that the query for second batch is successful.
+		 */
+		$variables = [
+			'last'   => 5,
+			'before' => base64_encode( 'arrayconnection:' . $this->created_post_ids[17] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[12] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[12] ),
+					$this->expectedField( 'slug', 'test-post-89' ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[13] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[13] ),
+					$this->expectedField( 'slug', 'test-post-88' ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[14] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[14] ),
+					$this->expectedField( 'slug', 'test-post-87' ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[15] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[15] ),
+					$this->expectedField( 'slug', 'test-post-86' ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'postsOrderedBySlug.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'post', $this->created_post_ids[16] ) ),
+					$this->expectedField( 'databaseId', $this->created_post_ids[16] ),
+					$this->expectedField( 'slug', 'test-post-85' ),
+				],
+				4
+			),
+		];
 		$this->assertQuerySuccessful( $response, $expected );
 	}
 }
