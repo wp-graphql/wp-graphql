@@ -102,7 +102,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	protected function is_valid_model( $model ) {
-		return isset( $model->handle ) ? true : false;
+		return isset( $model->handle );
 	}
 
 	/**

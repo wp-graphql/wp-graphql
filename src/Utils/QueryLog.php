@@ -32,7 +32,7 @@ class QueryLog {
 
 		// Check whether Query Logs have been enabled from the settings page
 		$enabled                  = get_graphql_setting( 'query_logs_enabled', 'off' );
-		$this->query_logs_enabled = 'on' === $enabled ? true : false;
+		$this->query_logs_enabled = 'on' === $enabled;
 
 		$this->query_log_user_role = get_graphql_setting( 'query_log_user_role', 'manage_options' );
 

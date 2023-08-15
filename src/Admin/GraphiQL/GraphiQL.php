@@ -24,7 +24,7 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function init() {
-		$this->is_enabled = get_graphql_setting( 'graphiql_enabled' ) === 'off' ? false : true;
+		$this->is_enabled = get_graphql_setting( 'graphiql_enabled' ) !== 'off';
 
 		/**
 		 * If GraphiQL is disabled, don't set it up in the Admin
