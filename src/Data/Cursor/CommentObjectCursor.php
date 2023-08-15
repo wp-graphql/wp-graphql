@@ -145,5 +145,4 @@ class CommentObjectCursor extends AbstractCursor {
 		$sql = $this->builder->to_sql();
 		return ! empty( $sql ) ? ' AND ' . $sql : '';
 	}
-
 }

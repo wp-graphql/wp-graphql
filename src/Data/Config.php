@@ -257,8 +257,6 @@ class Config {
 			$where        .= $before_cursor->get_where();
 		}
 
-		\codecept_debug( $where );
-
 		return $where;
 	}
 
@@ -477,6 +475,8 @@ class Config {
 			$before_cursor    = new CommentObjectCursor( $query->query_vars, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
+
+		\codecept_debug( compact( 'pieces' ) );
 
 		return $pieces;
 	}
