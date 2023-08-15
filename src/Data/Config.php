@@ -197,8 +197,6 @@ class Config {
 			return $orderby;
 		}
 
-		global $wpdb;
-
 		// Check the cursor compare order
 		$order = '>' === $query->query_vars['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 
@@ -228,11 +226,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 * 
-		 * @param null|mixed $pre_where The pre-filtered WHERE clause of the query.
+		 * @param null|string $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string     $where     The WHERE clause of the query.
 		 * @param \WP_Query  $query     The WP_Query instance (passed by reference).
 		 * 
-		 * @return null|mixed
+		 * @return null|string
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -279,11 +277,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
 		 * 
-		 * @param null|mixed      $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param null|string     $pre_orderby The pre-filtered ORDER BY clause of the query.
 		 * @param string          $orderby     The ORDER BY clause of the query.
 		 * @param \WP_User_Query  $query       The WP_User_Query instance (passed by reference).
 		 * 
-		 * @return null|mixed
+		 * @return null|string
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -300,8 +298,6 @@ class Config {
 		if ( ! isset( $query->query_vars['graphql_cursor_compare'] ) ) {
 			return $orderby;
 		}
-
-		global $wpdb;
 
 		// Check the cursor compare order
 		$order = '>' === $query->query_vars['graphql_cursor_compare'] ? 'ASC' : 'DESC';
@@ -332,11 +328,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 * 
-		 * @param null|mixed     $pre_where The pre-filtered WHERE clause of the query.
+		 * @param null|string    $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string         $where     The WHERE clause of the query.
 		 * @param \WP_User_Query $query     The WP_Query instance (passed by reference).
 		 * 
-		 * @return null|mixed
+		 * @return null|string
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -349,13 +345,13 @@ class Config {
 			return $where;
 		}
 
-		// Apply the after cursor, moving forward through results
+		// Apply the after cursor.
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
 			$after_cursor = new UserCursor( $query->query_vars, 'after' );
 			$where        = $where . $after_cursor->get_where();
 		}
 
-		// Apply the after cursor, moving backward through results.
+		// Apply the after cursor.
 		if ( ! empty( $query->query_vars['graphql_before_cursor'] ) ) {
 			$before_cursor = new UserCursor( $query->query_vars, 'before' );
 			$where         = $where . $before_cursor->get_where();
@@ -385,12 +381,12 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 * 
-		 * @param null|mixed $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param null|array $pre_pieces The pre-filtered term query SQL clauses.
 		 * @param array      $pieces     Terms query SQL clauses.
 		 * @param array      $taxonomies An array of taxonomies.
 		 * @param array      $args       An array of terms query arguments.
 		 * 
-		 * @return null|mixed
+		 * @return null|array
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
 		if ( null !== $pre_pieces ) {
@@ -413,13 +409,13 @@ class Config {
 			$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
 		}
 
-		// Apply the after cursor, moving forward through results.
+		// Apply the after cursor.
 		if ( ! empty( $args['graphql_after_cursor'] ) ) {
 			$after_cursor    = new TermObjectCursor( $args, 'after' );
 			$pieces['where'] = $pieces['where'] . $after_cursor->get_where();
 		}
 
-		// Apply the after cursor, moving backward through results.
+		// Apply the before cursor.
 		if ( ! empty( $args['graphql_before_cursor'] ) ) {
 			$before_cursor   = new TermObjectCursor( $args, 'before' );
 			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
@@ -447,11 +443,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 * 
-		 * @param null|mixed             $pre_pieces The pre-filtered comment query clauses.
+		 * @param null|array        $pre_pieces The pre-filtered comment query clauses.
 		 * @param array             $pieces     A compacted array of comment query clauses.
 		 * @param \WP_Comment_Query $query      Current instance of WP_Comment_Query, passed by reference.
 		 * 
-		 * @return null|mixed
+		 * @return null|array
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
 		if ( null !== $pre_pieces ) {
@@ -475,8 +471,6 @@ class Config {
 			$before_cursor    = new CommentObjectCursor( $query->query_vars, 'before' );
 			$pieces['where'] .= $before_cursor->get_where();
 		}
-
-		\codecept_debug( compact( 'pieces' ) );
 
 		return $pieces;
 	}
