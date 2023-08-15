@@ -257,6 +257,8 @@ class Config {
 			$where        .= $before_cursor->get_where();
 		}
 
+		\codecept_debug( $where );
+
 		return $where;
 	}
 

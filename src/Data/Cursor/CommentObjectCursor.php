@@ -101,7 +101,7 @@ class CommentObjectCursor extends AbstractCursor {
 			);
 		}
 
-		$this->compare_with_id_field( $order );
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}

@@ -166,7 +166,7 @@ class PostObjectCursor extends AbstractCursor {
 			);
 		}
 
-		$this->compare_with_id_field( $order );
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}
@@ -199,6 +199,7 @@ class PostObjectCursor extends AbstractCursor {
 			'post_modified',
 			'post_date',
 			'post_parent',
+			'menu_order',
 		];
 		if ( in_array( $by, $orderby_post_fields, true ) ) {
 			$key   = "{$this->wpdb->posts}.{$by}";

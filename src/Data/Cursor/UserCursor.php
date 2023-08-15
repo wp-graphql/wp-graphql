@@ -75,7 +75,7 @@ class UserCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_User $pre_user The pre-filtered user node.
 		 * @param int           $offset   The cursor offset.
-		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
+		 * @param UserCursor    $node     The cursor instance.
 		 * 
 		 * @return null|\WP_User
 		 */
@@ -150,7 +150,7 @@ class UserCursor extends AbstractCursor {
 			);
 		}
 
-		$this->compare_with_id_field( $order );
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}

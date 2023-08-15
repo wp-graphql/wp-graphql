@@ -103,9 +103,14 @@ class TermObjectCursor extends AbstractCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
-		// Set order if not set.
-		if ( empty( $order ) ) {
-			$order = '>' === $this->compare ? 'DESC' : 'ASC';
+		if ( 'name' === $orderby ) {
+			if ( '>' === $this->compare ) {
+				$order         = 'DESC';
+				$this->compare = '<';
+			} elseif ( '<' === $this->compare ) {
+				$this->compare = '>';
+				$order         = 'ASC';
+			}
 		}
 
 		/**
@@ -122,7 +127,13 @@ class TermObjectCursor extends AbstractCursor {
 			$this->compare_with_threshold_fields();
 		}
 
-		$this->compare_with_id_field();
+		/**
+		 * If there's no threshold fields applied then compare by the ID field.
+		 */
+		if ( ! $this->builder->has_fields() ) {
+			$this->compare_with_id_field();
+		}
+
 
 		return $this->to_sql();
 	}

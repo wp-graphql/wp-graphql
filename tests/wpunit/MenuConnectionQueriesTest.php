@@ -170,15 +170,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		wp_set_current_user( $this->admin );
 
 		$query    = $this->getQuery();
-		$wp_query = get_terms(
-			[
-				'graphql_cursor_compare' => '>',
-				'taxonomy'               => 'nav_menu',
-				'hide_empty'             => false,
-				'orderby'                => 'name',
-			]
-		);
-
+		$wp_query = wp_get_nav_menus();
 
 		/**
 		 * Test the first two results.
@@ -254,14 +246,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		wp_set_current_user( $this->admin );
 
 		$query    = $this->getQuery();
-		$wp_query = get_terms(
-			[
-				'graphql_cursor_compare' => '>',
-				'taxonomy'               => 'nav_menu',
-				'hide_empty'             => false,
-				'orderby'                => 'name',
-			]
-		);;
+		$wp_query = wp_get_nav_menus();
 
 		/**
 		 * Test the first two results.

@@ -186,27 +186,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 	public function testForwardPagination() {
 		$query    = $this->getQuery();
-		$menu     = wp_get_nav_menu_object( 'my-menu-items-test' );
-		$wp_query = get_posts(
-			[
-				'graphql_cursor_compare' => '>',
-				'order'                  => 'ASC',
-				'orderby'                => 'menu_order',
-				'post_type'              => 'nav_menu_item',
-				'post_status'            => 'publish',
-				'output'                 => ARRAY_A,
-				'output_key'             => 'menu_order',
-				'nopaging'               => true,
-				'update_menu_item_cache' => true,
-				'tax_query'              => [
-					[
-						'taxonomy' => 'nav_menu',
-						'field'    => 'term_taxonomy_id',
-						'terms'    => $menu->term_taxonomy_id,
-					],
-				]
-			]
-		);
+		$wp_query = wp_get_nav_menu_items( 'my-menu-items-test' );
 
 		/**
 		 * Test the first two results.

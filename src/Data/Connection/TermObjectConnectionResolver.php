@@ -125,13 +125,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		if ( empty( $query_args['orderby'] ) ) {
 			$query_args['orderby'] = 'name';
-			$query_args['order']   = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**
 		 * If orderby params set but not order, default to ASC if going forward, DESC if going backward.
 		 */
-		if ( empty( $query_args['order'] ) ) {
+		if ( empty( $query_args['order'] ) && 'name' === $query_args['orderby'] ) {
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
+		} elseif ( empty( $query_args['order'] ) ) {
 			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 

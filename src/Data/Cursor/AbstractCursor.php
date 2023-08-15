@@ -272,12 +272,10 @@ abstract class AbstractCursor {
 
 	/**
 	 * Applies ID field to the cursor builder.
-	 * 
-	 * @param string|null $order  The order direction. Either 'ASC' or 'DESC'.
 	 *
 	 * @return void
 	 */
-	protected function compare_with_id_field( $order = null ) {
+	protected function compare_with_id_field() {
 		// Get ID value.
 		$value = $this->get_query_var( 'graphql_cursor_id_value' );
 		if ( null === $value ) {
@@ -287,7 +285,7 @@ abstract class AbstractCursor {
 		// Get ID SQL Query alias.
 		$key = $this->get_cursor_id_key();
 	
-		$this->builder->add_field( $key, $value, 'ID', $order );
+		$this->builder->add_field( $key, $value, 'ID' );
 	}
 
 	/**

@@ -36,7 +36,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				'fromType'       => 'RootQuery',
 				'toType'         => 'TermNode',
-				'fromFieldName'  => 'termsOrderedByName',
+				'fromFieldName'  => 'termsOrderedBySlug',
 				'resolve'        => function ( $source, $args, $context, $info ) {
                     global $wpdb;
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, 'letter' );
@@ -54,17 +54,16 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                         'graphql_cursor_threshold_fields',
                         [
                             [
-                                'key'   => "{$wpdb->terms}.name",
+                                'key'   => "{$wpdb->terms}.slug",
                                 'value' => ( null !== $term && ! is_wp_error( $term ) ) ? $term->name : null,
                                 'type'  => 'CHAR',
-                                'order' => $order,
                             ],
                         ]
                     );
 
                     // Set default ordering.
 					if ( empty( $args['where']['orderby'] ) ) {
-						$resolver->set_query_arg( 'orderby', 'name' );
+						$resolver->set_query_arg( 'orderby', 'slug' );
 					}
 
 					if ( empty( $args['where']['order'] ) ) {
@@ -82,7 +81,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
         // Create query.
 		$query = '
 			query ($first: Int, $last: Int, $before: String, $after: String) {
-				termsOrderedByName(first: $first, last: $last, before: $before, after: $after) {
+				termsOrderedBySlug(first: $first, last: $last, before: $before, after: $after) {
 					nodes {
 						id
 						databaseId
@@ -100,7 +99,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[25] ) ),
 					$this->expectedField( 'databaseId', $term_ids[25] ),
@@ -110,7 +109,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				0
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[24] ) ),
 					$this->expectedField( 'databaseId', $term_ids[24] ),
@@ -120,7 +119,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				1
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[23] ) ),
 					$this->expectedField( 'databaseId', $term_ids[23] ),
@@ -130,7 +129,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				2
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[22] ) ),
 					$this->expectedField( 'databaseId', $term_ids[22] ),
@@ -140,7 +139,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				3
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[21] ) ),
 					$this->expectedField( 'databaseId', $term_ids[21] ),
@@ -163,7 +162,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[20] ) ),
 					$this->expectedField( 'databaseId', $term_ids[20] ),
@@ -173,7 +172,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				0
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[19] ) ),
 					$this->expectedField( 'databaseId', $term_ids[19] ),
@@ -183,7 +182,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				1
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[18] ) ),
 					$this->expectedField( 'databaseId', $term_ids[18] ),
@@ -193,7 +192,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				2
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[17] ) ),
 					$this->expectedField( 'databaseId', $term_ids[17] ),
@@ -203,7 +202,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				3
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[16] ) ),
 					$this->expectedField( 'databaseId', $term_ids[16] ),
@@ -223,7 +222,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[4] ) ),
 					$this->expectedField( 'databaseId', $term_ids[4] ),
@@ -233,7 +232,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				0
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[3] ) ),
 					$this->expectedField( 'databaseId', $term_ids[3] ),
@@ -243,7 +242,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				1
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[2] ) ),
 					$this->expectedField( 'databaseId', $term_ids[2] ),
@@ -253,7 +252,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				2
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[1] ) ),
 					$this->expectedField( 'databaseId', $term_ids[1] ),
@@ -263,7 +262,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				3
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[0] ) ),
 					$this->expectedField( 'databaseId', $term_ids[0] ),
@@ -286,7 +285,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[9] ) ),
 					$this->expectedField( 'databaseId', $term_ids[9] ),
@@ -296,7 +295,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				0
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[8] ) ),
 					$this->expectedField( 'databaseId', $term_ids[8] ),
@@ -306,7 +305,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				1
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[7] ) ),
 					$this->expectedField( 'databaseId', $term_ids[7] ),
@@ -316,7 +315,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				2
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[6] ) ),
 					$this->expectedField( 'databaseId', $term_ids[6] ),
@@ -326,7 +325,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				3
 			),
             $this->expectedNode(
-				'termsOrderedByName.nodes',
+				'termsOrderedBySlug.nodes',
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'term', $term_ids[5] ) ),
 					$this->expectedField( 'databaseId', $term_ids[5] ),
