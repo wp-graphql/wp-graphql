@@ -75,7 +75,7 @@ class UserCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_User $pre_user The pre-filtered user node.
 		 * @param int           $offset   The cursor offset.
-		 * @param UserCursor    $node     The cursor instance.
+		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
 		 * 
 		 * @return null|\WP_User
 		 */
@@ -165,8 +165,8 @@ class UserCursor extends AbstractCursor {
 	 */
 	private function compare_with( $by, $order ) {
 		// Bail early, if "key" and "value" provided in query_vars.
-		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
-		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;

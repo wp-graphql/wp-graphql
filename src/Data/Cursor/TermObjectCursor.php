@@ -51,7 +51,7 @@ class TermObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Term    $pre_term The pre-filtered term node.
 		 * @param int              $offset   The cursor offset.
-		 * @param TermObjectCursor $node     The cursor instance.
+		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Term
 		 */
@@ -138,8 +138,8 @@ class TermObjectCursor extends AbstractCursor {
 	private function compare_with( string $by, string $order ) {
 
 		// Bail early, if "key" and "value" provided in query_vars.
-		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
-		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;

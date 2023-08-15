@@ -54,7 +54,7 @@ class CommentObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Comment    $pre_comment The pre-filtered comment node.
 		 * @param int                 $offset      The cursor offset.
-		 * @param CommentObjectCursor $node        The cursor instance.
+		 * @param \WPGraphQL\Data\Cursor\CommentObjectCursor $node        The cursor instance.
 		 * 
 		 * @return null|\WP_Comment
 		 */
@@ -95,7 +95,7 @@ class CommentObjectCursor extends AbstractCursor {
 					[
 						'key'  => "{$this->wpdb->comments}.comment_date",
 						'by'   => $this->cursor_node ? $this->cursor_node->comment_date : null,
-						'type' => 'DATETIME'
+						'type' => 'DATETIME',
 					],
 				]
 			);
@@ -116,8 +116,8 @@ class CommentObjectCursor extends AbstractCursor {
 	 */
 	public function compare_with( $by, $order ) {
 		// Bail early, if "key" and "value" provided in query_vars.
-		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
-		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;

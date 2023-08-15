@@ -309,7 +309,7 @@ class Config {
 
 		// Get Cursor ID key.
 		$cursor = new UserCursor( $query->query_vars );
-		$key = $cursor->get_cursor_id_key();
+		$key    = $cursor->get_cursor_id_key();
 
 		return "{$orderby}, {$key} {$order}";
 	}

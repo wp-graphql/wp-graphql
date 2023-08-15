@@ -58,7 +58,7 @@ class PostObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Post    $pre_post The pre-filtered post node.
 		 * @param int              $offset   The cursor offset.
-		 * @param PostObjectCursor $node     The cursor instance.
+		 * @param \WPGraphQL\Data\Cursor\PostObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Post
 		 */
@@ -160,7 +160,7 @@ class PostObjectCursor extends AbstractCursor {
 					[
 						'key'   => "{$this->wpdb->posts}.post_date",
 						'value' => $this->cursor_node ? $this->cursor_node->post_date : null,
-						'type'  => 'DATETIME'
+						'type'  => 'DATETIME',
 					],
 				]
 			);
@@ -181,8 +181,8 @@ class PostObjectCursor extends AbstractCursor {
 	 */
 	private function compare_with( $by, $order ) {
 		// Bail early, if "key" and "value" provided in query_vars.
-		$key    = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
-		$value  = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;

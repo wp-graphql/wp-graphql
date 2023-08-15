@@ -147,7 +147,7 @@ abstract class AbstractCursor {
 	 *
 	 * @param array $field  Threshold configuration.
 	 * 
-	 * @throws InvariantViolation Invalid configuration format.
+	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 * 
 	 * @return void
 	 */
@@ -198,7 +198,7 @@ abstract class AbstractCursor {
 		}
 
 		// Guard against invalid "order".
-		if ( ! empty( $field['order'] ) && ! in_array( strtoupper( $field['order'] ), [ 'ASC', 'DESC', ], true ) ) {
+		if ( ! empty( $field['order'] ) && ! in_array( strtoupper( $field['order'] ), [ 'ASC', 'DESC' ], true ) ) {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: Cursor class name. */
@@ -228,7 +228,7 @@ abstract class AbstractCursor {
 	 * 
 	 * @param array $fallback  Default threshold fields.
 	 * 
-	 * @throws InvariantViolation Invalid configuration format.
+	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 *
 	 * @return void
 	 */
@@ -238,7 +238,7 @@ abstract class AbstractCursor {
 		 * 
 		 * @var array|null
 		 */
-		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' ) ;
+		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
 		if ( null === $threshold_fields ) {
 			$threshold_fields = $fallback;
 		}
@@ -285,7 +285,7 @@ abstract class AbstractCursor {
 		}
 
 		// Get ID SQL Query alias.
-		$key   = $this->get_cursor_id_key();
+		$key = $this->get_cursor_id_key();
 	
 		$this->builder->add_field( $key, $value, 'ID', $order );
 	}
