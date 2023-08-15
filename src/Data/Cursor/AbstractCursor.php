@@ -147,7 +147,7 @@ abstract class AbstractCursor {
 	 *
 	 * @param array $field  Threshold configuration.
 	 * 
-	 * @throws InvariationViolation Invalid configuration format.
+	 * @throws InvariantViolation Invalid configuration format.
 	 * 
 	 * @return void
 	 */
@@ -227,10 +227,17 @@ abstract class AbstractCursor {
 	 * Applies threshold fields to the cursor cutoff.
 	 * 
 	 * @param array $fallback  Default threshold fields.
+	 * 
+	 * @throws InvariantViolation Invalid configuration format.
 	 *
 	 * @return void
 	 */
 	protected function compare_with_threshold_fields( $fallback = [] ) {
+		/**
+		 * Get threshold fields from query vars.
+		 * 
+		 * @var array|null
+		 */
 		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' ) ;
 		if ( null === $threshold_fields ) {
 			$threshold_fields = $fallback;

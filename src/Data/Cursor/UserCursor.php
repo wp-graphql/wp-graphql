@@ -75,7 +75,7 @@ class UserCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_User $pre_user The pre-filtered user node.
 		 * @param int           $offset   The cursor offset.
-		 * @param UserCursor    $this     The cursor instance.
+		 * @param UserCursor    $node     The cursor instance.
 		 * 
 		 * @return null|\WP_User
 		 */
@@ -143,7 +143,7 @@ class UserCursor extends AbstractCursor {
 				[
 					[
 						'key'   => "{$this->wpdb->users}.user_login",
-						'value' => $this->cursor_node->user_login,
+						'value' => $this->cursor_node ? $this->cursor_node->user_login : null,
 						'type'  => 'CHAR',
 					],
 				]

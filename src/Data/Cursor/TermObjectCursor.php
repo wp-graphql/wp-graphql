@@ -51,7 +51,7 @@ class TermObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Term    $pre_term The pre-filtered term node.
 		 * @param int              $offset   The cursor offset.
-		 * @param TermObjectCursor $this     The cursor instance.
+		 * @param TermObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Term
 		 */
@@ -152,7 +152,7 @@ class TermObjectCursor extends AbstractCursor {
 		/**
 		 * If key or value are null, check whether this is a meta key based ordering before bailing.
 		 */
-		if ( null === $key || null === $value ) {
+		if ( null === $value ) {
 			$meta_key = $this->get_meta_key( $by );
 			if ( $meta_key ) {
 				$this->compare_with_meta_field( $meta_key, $order );

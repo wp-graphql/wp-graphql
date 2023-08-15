@@ -175,9 +175,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
 		 * 
-		 * @param string    $pre_orderby The pre-filtered ORDER BY clause of the query.
-		 * @param string    $orderby     The ORDER BY clause of the query.
-		 * @param \WP_Query $query       The WP_Query instance (passed by reference).
+		 * @param null|mixed $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param string     $orderby     The ORDER BY clause of the query.
+		 * @param \WP_Query  $query       The WP_Query instance (passed by reference).
+		 * 
+		 * @return null|mixed
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -227,11 +229,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 * 
-		 * @param string    $pre_where The pre-filtered WHERE clause of the query.
-		 * @param string    $where     The WHERE clause of the query.
-		 * @param \WP_Query $query     The WP_Query instance (passed by reference).
+		 * @param null|mixed $pre_where The pre-filtered WHERE clause of the query.
+		 * @param string     $where     The WHERE clause of the query.
+		 * @param \WP_Query  $query     The WP_Query instance (passed by reference).
 		 * 
-		 * @return string
+		 * @return null|mixed
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -275,7 +277,15 @@ class Config {
 			return $orderby;
 		}
 
-		// If pre-filter hooked, return $pre_orderby.
+		/**
+		 * If pre-filter hooked, return $pre_orderby.
+		 * 
+		 * @param null|mixed      $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param string          $orderby     The ORDER BY clause of the query.
+		 * @param \WP_User_Query  $query       The WP_User_Query instance (passed by reference).
+		 * 
+		 * @return null|mixed
+		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
 			return $pre_orderby;
@@ -323,11 +333,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 * 
-		 * @param string         $pre_where The pre-filtered WHERE clause of the query.
+		 * @param null|mixed     $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string         $where     The WHERE clause of the query.
 		 * @param \WP_User_Query $query     The WP_Query instance (passed by reference).
 		 * 
-		 * @return string
+		 * @return null|mixed
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -376,12 +386,12 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 * 
-		 * @param array $pre_pieces The pre-filtered term query SQL clauses.
-		 * @param array $pieces     Terms query SQL clauses.
-		 * @param array $taxonomies An array of taxonomies.
-		 * @param array $args       An array of terms query arguments.
+		 * @param null|mixed $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param array      $pieces     Terms query SQL clauses.
+		 * @param array      $taxonomies An array of taxonomies.
+		 * @param array      $args       An array of terms query arguments.
 		 * 
-		 * @return array
+		 * @return null|mixed
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
 		if ( null !== $pre_pieces ) {
@@ -438,11 +448,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 * 
-		 * @param array             $pre_pieces The pre-filtered comment query clauses.
+		 * @param null|mixed             $pre_pieces The pre-filtered comment query clauses.
 		 * @param array             $pieces     A compacted array of comment query clauses.
 		 * @param \WP_Comment_Query $query      Current instance of WP_Comment_Query, passed by reference.
 		 * 
-		 * @return array
+		 * @return null|mixed
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
 		if ( null !== $pre_pieces ) {

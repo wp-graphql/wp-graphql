@@ -58,7 +58,7 @@ class PostObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Post    $pre_post The pre-filtered post node.
 		 * @param int              $offset   The cursor offset.
-		 * @param PostObjectCursor $this     The cursor instance.
+		 * @param PostObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Post
 		 */
@@ -159,7 +159,7 @@ class PostObjectCursor extends AbstractCursor {
 				[
 					[
 						'key'   => "{$this->wpdb->posts}.post_date",
-						'value' => $this->cursor_node->post_date,
+						'value' => $this->cursor_node ? $this->cursor_node->post_date : null,
 						'type'  => 'DATETIME'
 					],
 				]

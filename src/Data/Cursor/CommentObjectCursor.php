@@ -54,7 +54,7 @@ class CommentObjectCursor extends AbstractCursor {
 		 * 
 		 * @param null|\WP_Comment    $pre_comment The pre-filtered comment node.
 		 * @param int                 $offset      The cursor offset.
-		 * @param CommentObjectCursor $this        The cursor instance.
+		 * @param CommentObjectCursor $node        The cursor instance.
 		 * 
 		 * @return null|\WP_Comment
 		 */
@@ -94,7 +94,7 @@ class CommentObjectCursor extends AbstractCursor {
 				[
 					[
 						'key'  => "{$this->wpdb->comments}.comment_date",
-						'by'   => $this->cursor_node->comment_date,
+						'by'   => $this->cursor_node ? $this->cursor_node->comment_date : null,
 						'type' => 'DATETIME'
 					],
 				]
