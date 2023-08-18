@@ -42,7 +42,6 @@ class Utils {
 	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map, $skip = [] ) {
-
 		if ( ! is_array( $args ) || ! is_array( $map ) ) {
 			return [];
 		}
