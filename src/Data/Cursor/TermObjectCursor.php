@@ -49,8 +49,8 @@ class TermObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 * 
-		 * @param null|\WP_Term    $pre_term The pre-filtered term node.
-		 * @param int              $offset   The cursor offset.
+		 * @param null|\WP_Term                           $pre_term The pre-filtered term node.
+		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Term

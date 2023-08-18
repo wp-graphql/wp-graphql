@@ -52,8 +52,8 @@ class CommentObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 * 
-		 * @param null|\WP_Comment    $pre_comment The pre-filtered comment node.
-		 * @param int                 $offset      The cursor offset.
+		 * @param null|\WP_Comment                           $pre_comment The pre-filtered comment node.
+		 * @param int                                        $offset      The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\CommentObjectCursor $node        The cursor instance.
 		 * 
 		 * @return null|\WP_Comment

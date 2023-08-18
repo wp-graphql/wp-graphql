@@ -108,7 +108,10 @@ abstract class AbstractCursor {
 	 * @return mixed|null
 	 */
 	public function get_query_var( string $name ) {
-		return isset( $this->query_vars[ $name ] ) ? $this->query_vars[ $name ] : null;
+		if ( isset( $this->query_vars[ $name ] ) && '' !== $this->query_vars[ $name ] ) {
+			return $this->query_vars[ $name ];
+		}
+		return null;
 	}
 
 	/**

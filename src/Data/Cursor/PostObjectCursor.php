@@ -56,8 +56,8 @@ class PostObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 * 
-		 * @param null|\WP_Post    $pre_post The pre-filtered post node.
-		 * @param int              $offset   The cursor offset.
+		 * @param null|\WP_Post                           $pre_post The pre-filtered post node.
+		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\PostObjectCursor $node     The cursor instance.
 		 * 
 		 * @return null|\WP_Post
