@@ -36,7 +36,7 @@ class Utils {
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
-	 * @param array              $skip Fields to skipped and not be added to the output array.
+	 * @param string[]           $skip Fields to skipped and not be added to the output array.
 	 *
 	 * @return array
 	 * @since  0.5.0
@@ -50,7 +50,7 @@ class Utils {
 		$query_args = [];
 
 		foreach ( $args as $arg => $value ) {
-			if ( in_array( $arg, $skip, true ) ) {
+			if ( [] !== $skip && in_array( $arg, $skip, true ) ) {
 				continue;
 			}
 
