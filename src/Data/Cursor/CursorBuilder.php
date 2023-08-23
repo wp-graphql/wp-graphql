@@ -58,10 +58,10 @@ class CursorBuilder {
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',
 			[
-				'key'   => esc_sql( $key ),
-				'value' => esc_sql( $value ),
-				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
-				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
+				'key'   => $key,
+				'value' => $value,
+				'type'  => ! empty( $type ) ? $type : '',
+				'order' => ! empty( $order ) ? $order : '',
 			],
 			$this,
 			$object_cursor
@@ -77,12 +77,15 @@ class CursorBuilder {
 			return;
 		}
 
-		$escaped_field = [];
-
-		// Escape the filtered array
-		foreach ( $field as $field_key => $value ) {
-			$escaped_field[ $field_key ] = esc_sql( $value );
+		// Bail If there's not a key or value
+		if ( ! isset( $field['key'], $field['value'] ) ) {
+			return;
 		}
+
+		// Escape the values of the filtered array
+		$escaped_field = array_map( static function( $value ) {
+			return esc_sql( $value );
+		}, $field );
 
 		$this->fields[] = $escaped_field;
 	}
@@ -107,6 +110,10 @@ class CursorBuilder {
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}
+
+		wp_send_json( [
+			'$fields' => $this->fields,
+		]);
 
 		if ( count( $fields ) === 0 ) {
 			return '';

@@ -85,3 +85,70 @@ function graphql_init_appsero_telemetry() {
 }
 
 graphql_init_appsero_telemetry();
+
+add_filter('graphql_PostObjectsConnectionOrderbyEnum_values', function ($values) {
+
+	$values['EVENT_DATE'] = [
+		'value' => 'event_date',
+		'description' => __('The event date (stored in meta)', 'wp-graphql'),
+	];
+
+	$values['EVENT_PRICE'] = [
+		'value' => 'price',
+		'description' => __('The event price (stored in meta)', 'wp-graphql'),
+	];
+
+	return $values;
+});
+
+add_filter('graphql_post_object_connection_query_args', function ($query_args, $source, $input) {
+
+	global $wpdb;
+
+	if ( isset($input['where']['orderby'] ) && is_array($input['where']['orderby'] ) ) {
+
+		$new_orderby = isset( $query_args['orderby'] ) ? $query_args['orderby'] : [];
+
+		if ( ! is_array( $new_orderby ) ) {
+			$new_orderby = [ $query_args['orderby'] ];
+		}
+
+		foreach ( $input['where']['orderby'] as $orderby ) {
+
+			if ( ! isset( $orderby['field'] ) || ! in_array( $orderby['field'], [ 'event_date', 'price' ], true ) ) {
+				continue;
+			}
+
+			$meta_query = isset( $query_args['meta_query'] ) ? $query_args['meta_query'] : [];
+
+			// set the relation
+			$meta_query['relation'] = isset( $meta_query['relation'] ) ? $meta_query['relation'] : 'AND';
+
+			$type = 'NUMERIC';
+
+			if ( 'event_date' === $orderby['field'] ) {
+				$type = 'DATETIME';
+			}
+
+			if ( 'price' === $orderby['field'] ) {
+				$type = 'DECIMAL';
+			}
+
+			// Add the claus
+			$meta_query[ $orderby['field'] . '_claus' ] = [
+				'key' => $orderby['field'],
+				'compare' => 'EXISTS',
+				'type' => $type,
+			];
+
+
+			$new_orderby[ $orderby['field'] . '_claus' ] = $orderby['order'];
+
+			$query_args['orderby'] = $new_orderby;
+			$query_args['meta_query'] = $meta_query;
+
+		}
+	}
+
+	return $query_args;
+}, 10, 3);

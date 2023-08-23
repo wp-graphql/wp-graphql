@@ -55,11 +55,11 @@ class PostObjectCursor extends AbstractCursor {
 
 		/**
 		 * If pre-hooked, return filtered node.
-		 * 
+		 *
 		 * @param null|\WP_Post                           $pre_post The pre-filtered post node.
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\PostObjectCursor $node     The cursor instance.
-		 * 
+		 *
 		 * @return null|\WP_Post
 		 */
 		$pre_post = apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
@@ -134,7 +134,6 @@ class PostObjectCursor extends AbstractCursor {
 				$order         = 'ASC';
 			}
 		}
-
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 
 			/**
@@ -155,6 +154,7 @@ class PostObjectCursor extends AbstractCursor {
 		 * If there's no specific orderby, compare by the threshold fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
+
 			$this->compare_with_threshold_fields(
 				[
 					[
@@ -183,6 +183,7 @@ class PostObjectCursor extends AbstractCursor {
 		// Bail early, if "key" and "value" provided in query_vars.
 		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
 		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;
@@ -201,6 +202,7 @@ class PostObjectCursor extends AbstractCursor {
 			'post_parent',
 			'menu_order',
 		];
+
 		if ( in_array( $by, $orderby_post_fields, true ) ) {
 			$key   = "{$this->wpdb->posts}.{$by}";
 			$value = $this->cursor_node->{$by} ?? null;
@@ -262,7 +264,7 @@ class PostObjectCursor extends AbstractCursor {
 		 * @param object $cursor    The PostObjectCursor instance
 		 */
 		$key = apply_filters( 'graphql_post_object_cursor_meta_key', $key, $meta_key, $meta_type, $order, $this );
-		
+
 		$this->builder->add_field( $key, $meta_value, $meta_type, $order, $this );
 	}
 
