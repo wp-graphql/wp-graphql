@@ -189,6 +189,5 @@ class PostTypeLabelDetails {
 				],
 			]
 		);
-
 	}
 }

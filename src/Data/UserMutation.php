@@ -27,9 +27,7 @@ class UserMutation {
 	 * @return array|null
 	 */
 	public static function input_fields() {
-
 		if ( empty( self::$input_fields ) ) {
-
 			$input_fields = [
 				'password'    => [
 					'type'        => 'String',
@@ -103,11 +101,9 @@ class UserMutation {
 			 * @var array $input_fields
 			 */
 			self::$input_fields = apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
-
 		}
 
 		return ( ! empty( self::$input_fields ) ) ? self::$input_fields : null;
-
 	}
 
 	/**
@@ -119,7 +115,6 @@ class UserMutation {
 	 * @return array
 	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
-
 		$insert_user_args = [];
 
 		/**
@@ -204,7 +199,6 @@ class UserMutation {
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
 		return $insert_user_args;
-
 	}
 
 	/**
@@ -221,7 +215,6 @@ class UserMutation {
 	 * @throws \Exception
 	 */
 	public static function update_additional_user_object_data( $user_id, $input, $mutation_name, AppContext $context, ResolveInfo $info ) {
-
 		$roles = ! empty( $input['roles'] ) ? $input['roles'] : [];
 		self::add_user_roles( $user_id, $roles );
 
@@ -237,7 +230,6 @@ class UserMutation {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 		 */
 		do_action( 'graphql_user_object_mutation_update_additional_data', $user_id, $input, $mutation_name, $context, $info );
-
 	}
 
 	/**
@@ -250,7 +242,6 @@ class UserMutation {
 	 * @throws \Exception
 	 */
 	private static function add_user_roles( $user_id, $roles ) {
-
 		if ( empty( $roles ) || ! is_array( $roles ) || ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
 		}
@@ -258,9 +249,7 @@ class UserMutation {
 		$user = get_user_by( 'ID', $user_id );
 
 		if ( false !== $user ) {
-
 			foreach ( $roles as $role ) {
-
 				$verified = self::verify_user_role( $role, $user_id );
 
 				if ( true === $verified ) {
@@ -274,7 +263,6 @@ class UserMutation {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -287,7 +275,6 @@ class UserMutation {
 	 * @return mixed|bool|\WP_Error
 	 */
 	private static function verify_user_role( $role, $user_id ) {
-
 		global $wp_roles;
 
 		$potential_role = isset( $wp_roles->role_objects[ $role ] ) ? $wp_roles->role_objects[ $role ] : '';
@@ -324,7 +311,6 @@ class UserMutation {
 		} else {
 			return true;
 		}
-
 	}
 
 }

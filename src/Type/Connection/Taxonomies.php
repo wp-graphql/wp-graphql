@@ -13,7 +13,6 @@ class Taxonomies {
 	 * @return void
 	 */
 	public static function register_connections() {
-
 		register_graphql_connection(
 			[
 				'fromType'      => 'RootQuery',

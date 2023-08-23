@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 
@@ -27,12 +26,17 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filter the query amount to be 1000 for
 		 */
-		add_filter( 'graphql_connection_max_query_amount', static function ( $max, $source, $args, $context, ResolveInfo $info ) {
-			if ( 'enqueuedScripts' === $info->fieldName || 'registeredScripts' === $info->fieldName ) {
-				return 1000;
-			}
-			return $max;
-		}, 10, 5 );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			static function ( $max, $source, $args, $context, ResolveInfo $info ) {
+				if ( 'enqueuedScripts' === $info->fieldName || 'registeredScripts' === $info->fieldName ) {
+					return 1000;
+				}
+				return $max;
+			},
+			10,
+			5 
+		);
 
 		parent::__construct( $source, $args, $context, $info );
 	}
@@ -53,7 +57,6 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return $ids;
-
 	}
 
 	/**
@@ -91,7 +94,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	protected function is_valid_model( $model ) {
-		return isset( $model->handle ) ? true : false;
+		return isset( $model->handle );
 	}
 
 	/**

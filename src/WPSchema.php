@@ -38,7 +38,6 @@ class WPSchema extends Schema {
 	 * @since 0.0.9
 	 */
 	public function __construct( SchemaConfig $config, TypeRegistry $type_registry ) {
-
 		$this->config = $config;
 
 		/**

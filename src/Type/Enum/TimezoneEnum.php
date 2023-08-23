@@ -43,7 +43,7 @@ class TimezoneEnum {
 			load_textdomain( 'continents-cities', $mofile );
 			$mo_loaded = true;
 		}
-	
+
 		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );
@@ -72,18 +72,13 @@ class TimezoneEnum {
 		}
 		usort( $zonen, '_wp_timezone_choice_usort_callback' );
 
-		foreach ( $zonen as $key => $zone ) {
+		foreach ( $zonen as $zone ) {
 			// Build value in an array to join later
 			$value = [ $zone['continent'] ];
 			if ( empty( $zone['city'] ) ) {
 				// It's at the continent level (generally won't happen)
 				$display = $zone['t_continent'];
 			} else {
-				// It's inside a continent group
-				// Continent optgroup
-				if ( ! isset( $zonen[ $key - 1 ] ) || $zonen[ $key - 1 ]['continent'] !== $zone['continent'] ) {
-					$label = $zone['t_continent'];
-				}
 				// Add the city to the value
 				$value[] = $zone['city'];
 				$display = $zone['t_city'];
@@ -100,7 +95,6 @@ class TimezoneEnum {
 				'value'       => $value,
 				'description' => $display,
 			];
-
 		}
 		$offset_range = [
 			- 12,
@@ -160,7 +154,6 @@ class TimezoneEnum {
 			14,
 		];
 		foreach ( $offset_range as $offset ) {
-
 			if ( 0 <= $offset ) {
 				$offset_name = '+' . $offset;
 			} else {
@@ -188,7 +181,6 @@ class TimezoneEnum {
 					$offset_name
 				),
 			];
-
 		}
 
 		register_graphql_enum_type(

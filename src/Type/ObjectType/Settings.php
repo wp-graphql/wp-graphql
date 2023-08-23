@@ -22,7 +22,6 @@ class Settings {
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		$fields = self::get_fields( $type_registry );
 
 		if ( empty( $fields ) ) {
@@ -36,7 +35,6 @@ class Settings {
 				'fields'      => $fields,
 			]
 		);
-
 	}
 
 	/**
@@ -58,7 +56,6 @@ class Settings {
 			 * proper fields
 			 */
 			foreach ( $registered_settings as $key => $setting_field ) {
-
 				if ( ! isset( $setting_field['type'] ) || ! $type_registry->get_type( $setting_field['type'] ) ) {
 					continue;
 				}
@@ -122,7 +119,6 @@ class Settings {
 							return isset( $option ) ? $option : null;
 						},
 					];
-
 				}
 			}
 		}

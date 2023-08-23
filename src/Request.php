@@ -10,8 +10,6 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
-use WP_Post;
-use WP_Query;
 use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
@@ -182,7 +180,6 @@ class Request {
 		// to return in headers and debug messages to help developers understand
 		// what was resolved, how to cache it, etc.
 		$this->query_analyzer->init();
-
 	}
 
 	/**
@@ -205,7 +202,6 @@ class Request {
 	 * @return array
 	 */
 	protected function get_validation_rules(): array {
-
 		$validation_rules = GraphQL::getStandardValidationRules();
 
 		$validation_rules['require_authentication'] = new RequireAuthentication();
@@ -219,7 +215,6 @@ class Request {
 		 * @param \WPGraphQL\Request $request The Request instance
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
-
 	}
 
 	/**
@@ -295,7 +290,6 @@ class Request {
 
 			// Process the batched requests
 			array_walk( $this->params, [ $this, 'do_action' ] );
-
 		} else {
 			$this->do_action( $this->params );
 		}
@@ -306,7 +300,6 @@ class Request {
 		 * @param \WPGraphQL\Request $request The instance of the Request being executed
 		 */
 		do_action( 'graphql_before_execute', $this );
-
 	}
 
 	/**
@@ -359,7 +352,6 @@ class Request {
 			 * If the user is not logged in, determine if there's a nonce
 			 */
 		} else {
-
 			$nonce = null;
 
 			if ( isset( $_REQUEST['_wpnonce'] ) ) {
@@ -477,7 +469,6 @@ class Request {
 		 * Return the filtered response
 		 */
 		return $filtered_response;
-
 	}
 
 	/**
@@ -620,10 +611,13 @@ class Request {
 		}
 
 		if ( is_array( $this->params ) ) {
-			return array_map(function ( $data ) {
-				$this->data = $data;
-				return $this->execute();
-			}, $this->params);
+			return array_map(
+				function ( $data ) {
+					$this->data = $data;
+					return $this->execute();
+				},
+				$this->params
+			);
 		}
 
 		// If $this->params isnt an array or an OperationParams instance, then something probably went wrong.
@@ -760,7 +754,6 @@ class Request {
 		 * @param \GraphQL\Server\OperationParams $params Request operation params
 		 */
 		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
-
 	}
 
 	/**
@@ -800,6 +793,5 @@ class Request {
 		do_action( 'graphql_server_config', $config, $this->params );
 
 		return new StandardServer( $config );
-
 	}
 }

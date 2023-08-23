@@ -1,8 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
-use WPGraphQL\Model\Model;
 use WPGraphQL\Model\Theme;
 
 /**
@@ -35,7 +33,6 @@ class ThemeLoader extends AbstractDataLoader {
 
 		if ( is_array( $themes ) && ! empty( $themes ) ) {
 			foreach ( $keys as $key ) {
-
 				$loaded[ $key ] = null;
 
 				if ( isset( $themes[ $key ] ) ) {

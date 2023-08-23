@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\MenuItemConnectionResolver;
@@ -41,7 +40,6 @@ class MenuItems {
 					'fromType'      => 'MenuItem',
 					'fromFieldName' => 'childItems',
 					'resolve'       => static function ( MenuItem $menu_item, $args, AppContext $context, ResolveInfo $info ) {
-
 						if ( empty( $menu_item->menuId ) || empty( $menu_item->databaseId ) ) {
 							return null;
 						}
@@ -51,7 +49,6 @@ class MenuItems {
 						$resolver->set_query_arg( 'meta_key', '_menu_item_menu_item_parent' );
 						$resolver->set_query_arg( 'meta_value', (int) $menu_item->databaseId );
 						return $resolver->get_connection();
-
 					},
 				]
 			)
@@ -66,24 +63,25 @@ class MenuItems {
 					'fromType' => 'Menu',
 					'toType'   => 'MenuItem',
 					'resolve'  => static function ( Menu $menu, $args, AppContext $context, ResolveInfo $info ) {
-
 						$resolver = new MenuItemConnectionResolver( $menu, $args, $context, $info );
-						$resolver->set_query_arg( 'tax_query', [
+						$resolver->set_query_arg(
+							'tax_query',
 							[
-								'taxonomy'         => 'nav_menu',
-								'field'            => 'term_id',
-								'terms'            => (int) $menu->menuId,
-								'include_children' => true,
-								'operator'         => 'IN',
-							],
-						] );
+								[
+									'taxonomy'         => 'nav_menu',
+									'field'            => 'term_id',
+									'terms'            => (int) $menu->menuId,
+									'include_children' => true,
+									'operator'         => 'IN',
+								],
+							] 
+						);
 
 						return $resolver->get_connection();
 					},
 				]
 			)
 		);
-
 	}
 
 	/**

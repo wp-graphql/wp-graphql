@@ -3,7 +3,6 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
@@ -27,7 +26,6 @@ class MediaItemMutation {
 	 * @return array $media_item_args
 	 */
 	public static function prepare_media_item( array $input, WP_Post_Type $post_type_object, string $mutation_name, $file ) {
-
 		$insert_post_args = [];
 		
 		/**
@@ -142,7 +140,6 @@ class MediaItemMutation {
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo that is passed down the resolve tree
 		 */
 		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
-
 	}
 
 }

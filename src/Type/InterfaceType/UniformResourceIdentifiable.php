@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use WP_Post_Type;
-use WP_Taxonomy;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
@@ -49,7 +47,6 @@ class UniformResourceIdentifiable {
 					],
 				],
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
-
 					switch ( true ) {
 						case $node instanceof Post:
 							/** @var \WP_Post_Type $post_type_object */

@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
 use WPGraphQL\Model\PostType;
 
 /**
@@ -43,6 +42,5 @@ class PostTypeLoader extends AbstractDataLoader {
 		}
 
 		return $loaded;
-
 	}
 }

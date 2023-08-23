@@ -96,7 +96,6 @@ class TermObjectCreate {
 					$id = isset( $payload['termId'] ) ? absint( $payload['termId'] ) : null;
 
 					return $context->get_loader( 'term' )->load_deferred( $id );
-
 				},
 			],
 		];

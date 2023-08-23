@@ -6,7 +6,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Type\InterfaceType\Node;
 
 /**
  * Class WPObjectType
@@ -81,7 +80,6 @@ class WPObjectType extends ObjectType {
 		 * @return array|mixed
 		 */
 		$config['fields'] = function () use ( $config ) {
-
 			$fields = $config['fields'];
 
 			/**
@@ -90,11 +88,9 @@ class WPObjectType extends ObjectType {
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
-
 				$interface_fields = [];
 
 				foreach ( $this->getInterfaces() as $interface_type ) {
-
 					if ( ! $interface_type instanceof InterfaceType ) {
 						$interface_type = $this->type_registry->get_type( $interface_type );
 					}
@@ -155,14 +151,12 @@ class WPObjectType extends ObjectType {
 	 * @since 0.0.5
 	 */
 	public static function node_interface() {
-
 		if ( null === self::$node_interface ) {
 			$node_interface       = DataSource::get_node_definition();
 			self::$node_interface = $node_interface['nodeInterface'];
 		}
 
 		return self::$node_interface;
-
 	}
 
 	/**

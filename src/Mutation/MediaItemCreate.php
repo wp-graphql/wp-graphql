@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -156,7 +155,7 @@ class MediaItemCreate {
 			$sanitized_file_path = sanitize_file_name( $input['filePath'] );
 
 			// Check that the filetype is allowed
-			$check_file = wp_check_filetype( $uploaded_file_url );
+			$check_file = wp_check_filetype( $sanitized_file_path );
 
 			// if the file doesn't pass the check, throw an error
 			if ( ! $check_file['ext'] || ! $check_file['type'] || ! wp_http_validate_url( $uploaded_file_url ) ) {
