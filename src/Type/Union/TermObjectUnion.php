@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\Union;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -39,7 +38,6 @@ class TermObjectUnion {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 			]
 		);

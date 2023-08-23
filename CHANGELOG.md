@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.15.0
+
+### New Features
+
+- [#2908](https://github.com/wp-graphql/wp-graphql/pull/2908): feat: Skip param added to Utils::map_input(). Thanks @kidunot89!
+
+### Chores / Bugfixes
+
+- [#2907](https://github.com/wp-graphql/wp-graphql/pull/2907): ci: Use WP 6.3 image, not the beta one
+- [#2902](https://github.com/wp-graphql/wp-graphql/pull/2902): chore: handle unused variables (phpcs). Thanks @justlevine!
+- [#2901](https://github.com/wp-graphql/wp-graphql/pull/2901): chore: remove useless ternaries (phpcs). Thanks @justlevine!
+- [#2898](https://github.com/wp-graphql/wp-graphql/pull/2898): chore: restore excluded PHPCS sniffs. Thanks @justlevine!
+- [#2899](https://github.com/wp-graphql/wp-graphql/pull/2899): chore: Configure PHPCS blank line check and autofix. Thanks @justlevine!
+- [#2900](https://github.com/wp-graphql/wp-graphql/pull/2900): chore: implement PHPCS sniffs from Slevomat Coding Standards. Thanks @justlevine!
+- [#2897](https://github.com/wp-graphql/wp-graphql/pull/2897): fix: default excerptRendered to empty string. Thanks @izzygld!
+- [#2890](https://github.com/wp-graphql/wp-graphql/pull/2890): fix: Use hostname for graphql cache header url for varnish
+- [#2892](https://github.com/wp-graphql/wp-graphql/pull/2889): chore: GitHub template tweaks. Thanks @justlevine!
+- [#2889](https://github.com/wp-graphql/wp-graphql/pull/2889): ci: update tests to test against WordPress 6.3, simplify the matrix
+- [#2891](https://github.com/wp-graphql/wp-graphql/pull/2891): chore: bump graphql-php to 14.11.10 and update Composer dev-deps. Thanks @justlevine!
+
 ## 1.14.10
 
 ### Chores / Bugfixes

@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
 use WPGraphQL\Model\User;
 
 /**
@@ -50,9 +49,12 @@ class UserLoader extends AbstractDataLoader {
 		// Get public post types that are set to show in GraphQL
 		// as public users are determined by whether they've published
 		// content in one of these post types
-		$post_types = \WPGraphQL::get_allowed_post_types( 'names', [
-			'public' => true,
-		] );
+		$post_types = \WPGraphQL::get_allowed_post_types(
+			'names',
+			[
+				'public' => true,
+			] 
+		);
 
 		/**
 		 * Exclude revisions and attachments, since neither ever receive the
@@ -119,7 +121,6 @@ class UserLoader extends AbstractDataLoader {
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}

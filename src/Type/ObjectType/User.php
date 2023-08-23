@@ -7,7 +7,7 @@ use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
-use \WPGraphQL\Model\User as UserModel;
+use WPGraphQL\Model\User as UserModel;
 use WPGraphQL\Type\Connection\PostObjects;
 
 /**
@@ -181,7 +181,6 @@ class User {
 
 						],
 						'resolve' => static function ( $user, $args, $context, $info ) {
-
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {
 								$avatar_args['size'] = absint( $args['size'] );

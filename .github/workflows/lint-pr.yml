@@ -18,18 +18,18 @@ jobs:
         with:
           # see: https://github.com/commitizen/conventional-commit-types
           types: |
+            build
+            chore
+            ci
+            docs
             feat
             fix
-            docs
-            style
-            refactor
             perf
-            test
-            build
-            ci
-            chore
-            revert
+            refactor
             release
+            revert
+            style
+            test
           requireScope: false
           ignoreLabels: |
             bot

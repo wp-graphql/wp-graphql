@@ -182,7 +182,6 @@ class SettingsRegistry {
 		//register settings fields
 		foreach ( $this->settings_fields as $section => $field ) {
 			foreach ( $field as $option ) {
-
 				$name     = $option['name'];
 				$type     = isset( $option['type'] ) ? $option['type'] : 'text';
 				$label    = isset( $option['label'] ) ? $option['label'] : '';
@@ -298,7 +297,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_checkbox( array $args ) {
-
 		$value    = isset( $args['value'] ) && ! empty( $args['value'] ) ? esc_attr( $args['value'] ) : esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$disabled = isset( $args['disabled'] ) && true === $args['disabled'] ? 'disabled' : null;
 
@@ -320,7 +318,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_multicheck( array $args ) {
-
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
 		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="">', $args['section'], $args['id'] );
@@ -345,7 +342,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_radio( array $args ) {
-
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$html  = '<fieldset>';
 
@@ -369,7 +365,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_select( array $args ) {
-
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$html  = sprintf( '<select class="%1$s" name="%2$s[%3$s]" id="%2$s[%3$s]">', $size, $args['section'], $args['id'] );
@@ -392,7 +387,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_textarea( array $args ) {
-
 		$value       = esc_textarea( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size        = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 		$placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
@@ -422,7 +416,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_wysiwyg( array $args ) {
-
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : '500px';
 
@@ -453,10 +446,8 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_file( array $args ) {
-
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
-		$id    = $args['section'] . '[' . $args['id'] . ']';
 		$label = isset( $args['options']['button_label'] ) ? $args['options']['button_label'] : __( 'Choose File', 'wp-graphql' );
 
 		$html  = sprintf( '<input type="text" class="%1$s-text wpsa-url" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s">', $size, $args['section'], $args['id'], $value );
@@ -474,7 +465,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_password( array $args ) {
-
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
@@ -492,7 +482,6 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_color( $args ) {
-
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
 
@@ -511,13 +500,15 @@ class SettingsRegistry {
 	 * @return void
 	 */
 	public function callback_pages( array $args ) {
-
-		$dropdown_args = array_merge( [
-			'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
-			'name'     => $args['section'] . '[' . $args['id'] . ']',
-			'id'       => $args['section'] . '[' . $args['id'] . ']',
-			'echo'     => 0,
-		], $args );
+		$dropdown_args = array_merge(
+			[
+				'selected' => esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) ),
+				'name'     => $args['section'] . '[' . $args['id'] . ']',
+				'id'       => $args['section'] . '[' . $args['id'] . ']',
+				'echo'     => 0,
+			],
+			$args 
+		);
 
 		$clean_args = [];
 		foreach ( $dropdown_args as $key => $arg ) {
@@ -561,7 +552,6 @@ class SettingsRegistry {
 	 * @return mixed
 	 */
 	public function sanitize_options( array $options ) {
-
 		if ( ! $options ) {
 			return $options;
 		}
@@ -592,7 +582,7 @@ class SettingsRegistry {
 		}
 
 		// Iterate over registered fields and see if we can find proper callback
-		foreach ( $this->settings_fields as $section => $options ) {
+		foreach ( $this->settings_fields as $options ) {
 			foreach ( $options as $option ) {
 				if ( $slug !== $option['name'] ) {
 					continue;
@@ -616,7 +606,6 @@ class SettingsRegistry {
 	 * @return string
 	 */
 	public function get_option( $option, $section, $default = '' ) {
-
 		$options = get_option( $section );
 
 		if ( isset( $options[ $option ] ) ) {

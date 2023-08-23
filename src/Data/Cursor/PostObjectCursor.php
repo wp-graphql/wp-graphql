@@ -69,7 +69,6 @@ class PostObjectCursor extends AbstractCursor {
 	 * {@inheritDoc}
 	 */
 	public function to_sql() {
-
 		$orderby = isset( $this->query_vars['orderby'] ) ? $this->query_vars['orderby'] : null;
 
 		$orderby_should_not_convert_to_sql = isset( $orderby ) && in_array(
@@ -109,7 +108,6 @@ class PostObjectCursor extends AbstractCursor {
 
 		if ( 'menu_order' === $orderby ) {
 			if ( '>' === $this->compare ) {
-
 				$order         = 'DESC';
 				$this->compare = '<';
 			} elseif ( '<' === $this->compare ) {
@@ -132,7 +130,6 @@ class PostObjectCursor extends AbstractCursor {
 			 * If $orderby is just a string just compare with it directly as DESC
 			 */
 			$this->compare_with( $orderby, $order );
-
 		}
 
 		/**
@@ -156,7 +153,6 @@ class PostObjectCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
-
 		switch ( $by ) {
 			case 'author':
 			case 'title':
@@ -188,7 +184,6 @@ class PostObjectCursor extends AbstractCursor {
 		if ( $meta_key ) {
 			$this->compare_with_meta_field( $meta_key, $order );
 		}
-
 	}
 
 	/**
@@ -242,7 +237,6 @@ class PostObjectCursor extends AbstractCursor {
 	 * @return string|null
 	 */
 	private function get_meta_key( $by ) {
-
 		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
 			return $this->get_query_var( 'meta_key' );
 		}

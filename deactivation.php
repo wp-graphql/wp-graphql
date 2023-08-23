@@ -13,7 +13,6 @@ function graphql_deactivation_callback() {
 
 	// Delete data during activation
 	delete_graphql_data();
-
 }
 
 /**
@@ -50,5 +49,4 @@ function delete_graphql_data() {
 	}
 
 	do_action( 'graphql_delete_data' );
-
 }

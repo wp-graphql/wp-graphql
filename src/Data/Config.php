@@ -84,7 +84,6 @@ class Config {
 		add_filter(
 			'pre_user_query',
 			static function ( $query ) {
-
 				if ( ! $query->get( 'suppress_filters' ) ) {
 					$query->set( 'suppress_filters', 0 );
 				}
@@ -100,10 +99,13 @@ class Config {
 					 * @param string        $where The WHERE clause of the query.
 					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
-					$query->query_where = apply_filters_ref_array( 'graphql_users_where', [
-						$query->query_where,
-						&$query,
-					] );
+					$query->query_where = apply_filters_ref_array(
+						'graphql_users_where',
+						[
+							$query->query_where,
+							&$query,
+						] 
+					);
 
 					/**
 					 * Filters the ORDER BY clause of the query.
@@ -111,15 +113,16 @@ class Config {
 					 * @param string        $orderby The ORDER BY clause of the query.
 					 * @param \WPGraphQL\Data\WP_User_Query $query The WP_User_Query instance (passed by reference).
 					 */
-					$query->query_orderby = apply_filters_ref_array( 'graphql_users_orderby', [
-						$query->query_orderby,
-						&$query,
-					] );
-
+					$query->query_orderby = apply_filters_ref_array(
+						'graphql_users_orderby',
+						[
+							$query->query_orderby,
+							&$query,
+						] 
+					);
 				}
 
 				return $query;
-
 			}
 		);
 
@@ -149,7 +152,6 @@ class Config {
 			10,
 			1
 		);
-
 	}
 
 	/**
@@ -165,7 +167,6 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_query_cursor_pagination_stability( string $orderby, WP_Query $wp_query ) {
-
 		if ( true !== is_graphql_request() ) {
 			return $orderby;
 		}
@@ -183,7 +184,6 @@ class Config {
 
 		// If there is a cursor compare in the arguments, use it as the stablizer for cursors.
 		return "{$orderby}, {$wpdb->posts}.ID {$order} ";
-
 	}
 
 	/**
@@ -227,7 +227,6 @@ class Config {
 	 * @return string
 	 */
 	public function graphql_wp_user_query_cursor_pagination_stability( $orderby ) {
-
 		if ( true === is_graphql_request() ) {
 			global $wpdb;
 
@@ -305,7 +304,6 @@ class Config {
 		}
 
 		return $pieces;
-
 	}
 
 	/**
@@ -337,7 +335,6 @@ class Config {
 		}
 
 		return $pieces;
-
 	}
 
 }

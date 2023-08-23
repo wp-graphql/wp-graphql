@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
@@ -48,8 +47,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-
-
 		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		$taxonomy       = ! empty( $this->taxonomy ) && in_array( $this->taxonomy, $all_taxonomies, true ) ? [ $this->taxonomy ] : $all_taxonomies;
 
@@ -133,7 +130,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
 		 */
 		if ( ! empty( $query_args['order'] ) ) {
-
 			if ( ! empty( $last ) ) {
 				if ( 'ASC' === $query_args['order'] ) {
 					$query_args['order'] = 'DESC';
@@ -212,7 +208,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function sanitize_input_fields() {
-
 		$arg_mapping = [
 			'objectIds'           => 'object_ids',
 			'hideEmpty'           => 'hide_empty',
@@ -289,9 +284,12 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 					case 'termTaxonomId':
 					case 'termTaxonomyId':
 						if ( is_array( $input_value ) ) {
-							$args['where'][ $input_key ] = array_map( static function ( $id ) {
-								return Utils::get_database_id_from_id( $id );
-							}, $input_value );
+							$args['where'][ $input_key ] = array_map(
+								static function ( $id ) {
+									return Utils::get_database_id_from_id( $id );
+								},
+								$input_value 
+							);
 							break;
 						}
 

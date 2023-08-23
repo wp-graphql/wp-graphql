@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Union;
 
-use Exception;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
@@ -24,7 +23,6 @@ class MenuItemObjectUnion {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_union_type(
 			'MenuItemObjectUnion',
 			[

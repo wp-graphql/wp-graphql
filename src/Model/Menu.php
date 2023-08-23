@@ -72,9 +72,7 @@ class Menu extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'         => function () {
 					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
@@ -109,12 +107,9 @@ class Menu extends Model {
 					}
 
 					return $locations;
-
 				},
 			];
-
 		}
-
 	}
 
 }

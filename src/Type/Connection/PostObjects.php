@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WP_Taxonomy;
@@ -31,59 +30,60 @@ class PostObjects {
 	 * @throws \Exception
 	 */
 	public static function register_connections() {
+		register_graphql_connection(
+			[
+				'fromType'       => 'ContentType',
+				'toType'         => 'ContentNode',
+				'fromFieldName'  => 'contentNodes',
+				'connectionArgs' => self::get_connection_args(),
+				'queryClass'     => 'WP_Query',
+				'resolve'        => static function ( PostType $post_type, $args, AppContext $context, ResolveInfo $info ) {
+					$resolver = new PostObjectConnectionResolver( $post_type, $args, $context, $info );
+					$resolver->set_query_arg( 'post_type', $post_type->name );
 
-		register_graphql_connection( [
-			'fromType'       => 'ContentType',
-			'toType'         => 'ContentNode',
-			'fromFieldName'  => 'contentNodes',
-			'connectionArgs' => self::get_connection_args(),
-			'queryClass'     => 'WP_Query',
-			'resolve'        => static function ( PostType $post_type, $args, AppContext $context, ResolveInfo $info ) {
+					return $resolver->get_connection();
+				},
+			] 
+		);
 
-				$resolver = new PostObjectConnectionResolver( $post_type, $args, $context, $info );
-				$resolver->set_query_arg( 'post_type', $post_type->name );
+		register_graphql_connection(
+			[
+				'fromType'      => 'Comment',
+				'toType'        => 'ContentNode',
+				'queryClass'    => 'WP_Query',
+				'oneToOne'      => true,
+				'fromFieldName' => 'commentedOn',
+				'resolve'       => static function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
+					if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
+						return null;
+					}
+					$id       = absint( $comment->comment_post_ID );
+					$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, 'any' );
 
-				return $resolver->get_connection();
+					return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
+				},
+			] 
+		);
 
-			},
-		] );
+		register_graphql_connection(
+			[
+				'fromType'      => 'NodeWithRevisions',
+				'toType'        => 'ContentNode',
+				'fromFieldName' => 'revisionOf',
+				'description'   => __( 'If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node.', 'wp-graphql' ),
+				'oneToOne'      => true,
+				'resolve'       => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					if ( ! $post->isRevision || ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
+						return null;
+					}
 
-		register_graphql_connection( [
-			'fromType'      => 'Comment',
-			'toType'        => 'ContentNode',
-			'queryClass'    => 'WP_Query',
-			'oneToOne'      => true,
-			'fromFieldName' => 'commentedOn',
-			'resolve'       => static function ( Comment $comment, $args, AppContext $context, ResolveInfo $info ) {
-				if ( empty( $comment->comment_post_ID ) || ! absint( $comment->comment_post_ID ) ) {
-					return null;
-				}
-				$id       = absint( $comment->comment_post_ID );
-				$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, 'any' );
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
+					$resolver->set_query_arg( 'p', $post->parentDatabaseId );
 
-				return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
-			},
-		] );
-
-		register_graphql_connection( [
-			'fromType'      => 'NodeWithRevisions',
-			'toType'        => 'ContentNode',
-			'fromFieldName' => 'revisionOf',
-			'description'   => __( 'If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node.', 'wp-graphql' ),
-			'oneToOne'      => true,
-			'resolve'       => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
-				if ( ! $post->isRevision || ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
-					return null;
-				}
-
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
-
-				return $resolver->one_to_one()->get_connection();
-
-			},
-		] );
+					return $resolver->one_to_one()->get_connection();
+				},
+			] 
+		);
 
 		register_graphql_connection(
 			[
@@ -100,70 +100,72 @@ class PostObjects {
 			]
 		);
 
-		register_graphql_connection( [
-			'fromType'           => 'HierarchicalContentNode',
-			'toType'             => 'ContentNode',
-			'fromFieldName'      => 'parent',
-			'connectionTypeName' => 'HierarchicalContentNodeToParentContentNodeConnection',
-			'description'        => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
-			'oneToOne'           => true,
-			'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+		register_graphql_connection(
+			[
+				'fromType'           => 'HierarchicalContentNode',
+				'toType'             => 'ContentNode',
+				'fromFieldName'      => 'parent',
+				'connectionTypeName' => 'HierarchicalContentNodeToParentContentNodeConnection',
+				'description'        => __( 'The parent of the node. The parent object can be of various types', 'wp-graphql' ),
+				'oneToOne'           => true,
+				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
+					if ( ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
+						return null;
+					}
 
-				if ( ! isset( $post->parentDatabaseId ) || ! absint( $post->parentDatabaseId ) ) {
-					return null;
-				}
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
+					$resolver->set_query_arg( 'p', $post->parentDatabaseId );
 
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-				$resolver->set_query_arg( 'p', $post->parentDatabaseId );
+					return $resolver->one_to_one()->get_connection();
+				},
+			] 
+		);
 
-				return $resolver->one_to_one()->get_connection();
+		register_graphql_connection(
+			[
+				'fromType'           => 'HierarchicalContentNode',
+				'fromFieldName'      => 'children',
+				'toType'             => 'ContentNode',
+				'connectionTypeName' => 'HierarchicalContentNodeToContentNodeChildrenConnection',
+				'connectionArgs'     => self::get_connection_args(),
+				'queryClass'         => 'WP_Query',
+				'resolve'            => static function ( Post $post, $args, $context, $info ) {
+					if ( $post->isRevision ) {
+						$id = $post->parentDatabaseId;
+					} else {
+						$id = $post->ID;
+					}
 
-			},
-		] );
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
+					$resolver->set_query_arg( 'post_parent', $id );
 
-		register_graphql_connection( [
-			'fromType'           => 'HierarchicalContentNode',
-			'fromFieldName'      => 'children',
-			'toType'             => 'ContentNode',
-			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeChildrenConnection',
-			'connectionArgs'     => self::get_connection_args(),
-			'queryClass'         => 'WP_Query',
-			'resolve'            => static function ( Post $post, $args, $context, $info ) {
+					return $resolver->get_connection();
+				},
+			] 
+		);
 
-				if ( $post->isRevision ) {
-					$id = $post->parentDatabaseId;
-				} else {
-					$id = $post->ID;
-				}
+		register_graphql_connection(
+			[
+				'fromType'           => 'HierarchicalContentNode',
+				'toType'             => 'ContentNode',
+				'fromFieldName'      => 'ancestors',
+				'connectionArgs'     => self::get_connection_args(),
+				'connectionTypeName' => 'HierarchicalContentNodeToContentNodeAncestorsConnection',
+				'queryClass'         => 'WP_Query',
+				'description'        => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
+				'resolve'            => static function ( Post $post, $args, $context, $info ) {
+					$ancestors = get_ancestors( $post->ID, '', 'post_type' );
+					if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
+						return null;
+					}
+					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
+					$resolver->set_query_arg( 'post__in', $ancestors );
+					$resolver->set_query_arg( 'orderby', 'post__in' );
 
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
-				$resolver->set_query_arg( 'post_parent', $id );
-
-				return $resolver->get_connection();
-
-			},
-		] );
-
-		register_graphql_connection( [
-			'fromType'           => 'HierarchicalContentNode',
-			'toType'             => 'ContentNode',
-			'fromFieldName'      => 'ancestors',
-			'connectionArgs'     => self::get_connection_args(),
-			'connectionTypeName' => 'HierarchicalContentNodeToContentNodeAncestorsConnection',
-			'queryClass'         => 'WP_Query',
-			'description'        => __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
-			'resolve'            => static function ( Post $post, $args, $context, $info ) {
-				$ancestors = get_ancestors( $post->ID, '', 'post_type' );
-				if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
-					return null;
-				}
-				$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-				$resolver->set_query_arg( 'post__in', $ancestors );
-				$resolver->set_query_arg( 'orderby', 'post__in' );
-
-				return $resolver->get_connection();
-			},
-		] );
+					return $resolver->get_connection();
+				},
+			] 
+		);
 
 		/**
 		 * Register Connections to PostObjects
@@ -232,7 +234,6 @@ class PostObjects {
 	 * @return array
 	 */
 	public static function get_connection_config( $graphql_object, $args = [] ) {
-
 		$connection_args = self::get_connection_args( [], $graphql_object );
 
 		if ( 'revision' === $graphql_object->name ) {
@@ -264,7 +265,6 @@ class PostObjects {
 	 * @return array
 	 */
 	public static function get_connection_args( $args = [], $post_type_object = null ) {
-
 		$fields = [
 			/**
 			 * Search Parameter

@@ -3,7 +3,6 @@
 namespace WPGraphQL\Model;
 
 use Exception;
-use WP_User;
 
 /**
  * Class Model - Abstract class for modeling data for all core types
@@ -83,7 +82,6 @@ abstract class Model {
 	 * @throws \Exception Throws Exception.
 	 */
 	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
-
 		if ( empty( $this->data ) ) {
 			// translators: %s is the name of the model.
 			throw new Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
@@ -100,7 +98,6 @@ abstract class Model {
 
 		$this->init();
 		$this->prepare_fields();
-
 	}
 
 	/**
@@ -183,7 +180,6 @@ abstract class Model {
 	 * @return string
 	 */
 	protected function get_model_name() {
-
 		$name = static::class;
 
 		if ( empty( $this->model_name ) ) {
@@ -197,7 +193,6 @@ abstract class Model {
 		}
 
 		return ! empty( $this->model_name ) ? $this->model_name : $name;
-
 	}
 
 	/**
@@ -206,7 +201,6 @@ abstract class Model {
 	 * @return string|null
 	 */
 	public function get_visibility() {
-
 		if ( null === $this->visibility ) {
 
 			/**
@@ -283,7 +277,6 @@ abstract class Model {
 		 * @return string
 		 */
 		return apply_filters( 'graphql_object_visibility', $this->visibility, $this->get_model_name(), $this->data, $this->owner, $this->current_user );
-
 	}
 
 	/**
@@ -341,7 +334,6 @@ abstract class Model {
 	 * @return void
 	 */
 	protected function wrap_fields() {
-
 		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
 			return;
 		}
@@ -349,7 +341,6 @@ abstract class Model {
 		$clean_array = [];
 		$self        = $this;
 		foreach ( $this->fields as $key => $data ) {
-
 			$clean_array[ $key ] = function () use ( $key, $data, $self ) {
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
@@ -439,7 +430,6 @@ abstract class Model {
 		}
 
 		$this->fields = $clean_array;
-
 	}
 
 	/**
@@ -461,7 +451,6 @@ abstract class Model {
 		$this->fields['isPrivate']    = function () {
 			return 'private' === $this->get_visibility();
 		};
-
 	}
 
 	/**
@@ -470,7 +459,6 @@ abstract class Model {
 	 * @return void
 	 */
 	protected function prepare_fields() {
-
 		if ( 'restricted' === $this->get_visibility() ) {
 			$this->restrict_fields();
 		}
@@ -534,7 +522,6 @@ abstract class Model {
 		}
 
 		return html_entity_decode( $string );
-
 	}
 
 	/**
@@ -549,7 +536,6 @@ abstract class Model {
 	 * @return void
 	 */
 	public function filter( $fields ) {
-
 		if ( is_string( $fields ) ) {
 			$fields = [ $fields ];
 		}
@@ -557,7 +543,6 @@ abstract class Model {
 		if ( is_array( $fields ) ) {
 			$this->fields = array_intersect_key( $this->fields, array_flip( $fields ) );
 		}
-
 	}
 
 	/**

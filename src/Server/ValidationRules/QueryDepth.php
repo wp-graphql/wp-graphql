@@ -160,7 +160,6 @@ class QueryDepth extends QuerySecurityRule {
 	 * @return bool
 	 */
 	protected function isEnabled() {
-
 		$is_enabled = false;
 
 		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );
@@ -170,6 +169,5 @@ class QueryDepth extends QuerySecurityRule {
 		}
 
 		return $is_enabled;
-
 	}
 }

@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
-
 /**
  * Class Avatar - Models data for avatars
  *
@@ -47,9 +45,7 @@ class Avatar extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'size'         => function () {
 					return ! empty( $this->data['size'] ) ? absint( $this->data['size'] ) : null;
@@ -82,7 +78,6 @@ class Avatar extends Model {
 					return ! empty( $this->data['url'] ) ? $this->data['url'] : null;
 				},
 			];
-
 		}
 	}
 }

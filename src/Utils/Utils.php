@@ -3,7 +3,6 @@
 namespace WPGraphQL\Utils;
 
 use GraphQLRelay\Relay;
-use WPGraphQL\Model\Model;
 
 class Utils {
 
@@ -27,23 +26,22 @@ class Utils {
 			$query_ast = \GraphQL\Language\Parser::parse( $query );
 			$query     = \GraphQL\Language\Printer::doPrint( $query_ast );
 			return hash( $hash_algorithm, $query );
-		} catch ( \Exception $exception ) {
+		} catch ( \Throwable $exception ) {
 			return null;
 		}
-
 	}
 
 	/**
-	 * Maps new input query args and sa nitizes the input
+	 * Maps new input query args and sanitizes the input
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
+	 * @param string[]           $skip Fields to skipped and not be added to the output array.
 	 *
 	 * @return array
 	 * @since  0.5.0
 	 */
-	public static function map_input( $args, $map ) {
-
+	public static function map_input( $args, $map, $skip = [] ) {
 		if ( ! is_array( $args ) || ! is_array( $map ) ) {
 			return [];
 		}
@@ -51,6 +49,9 @@ class Utils {
 		$query_args = [];
 
 		foreach ( $args as $arg => $value ) {
+			if ( [] !== $skip && in_array( $arg, $skip, true ) ) {
+				continue;
+			}
 
 			if ( is_array( $value ) && ! empty( $value ) ) {
 				$value = array_map(
@@ -75,7 +76,6 @@ class Utils {
 		}
 
 		return $query_args;
-
 	}
 
 	/**
@@ -111,7 +111,6 @@ class Utils {
 	 * @return string
 	 */
 	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
-
 		$replaced = preg_replace( '[^a-zA-Z0-9 -]', '_', $field_name );
 
 		// If any values were replaced, use the replaced string as the new field name

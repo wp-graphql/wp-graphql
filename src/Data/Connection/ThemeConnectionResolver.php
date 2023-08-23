@@ -31,7 +31,6 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return $ids;
-
 	}
 
 	/**

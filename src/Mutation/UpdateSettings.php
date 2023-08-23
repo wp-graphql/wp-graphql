@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -61,7 +60,6 @@ class UpdateSettings {
 			 * for the individual settings
 			 */
 			foreach ( $allowed_settings as $key => $setting ) {
-
 				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 					continue;
 				}
@@ -131,7 +129,6 @@ class UpdateSettings {
 
 		if ( ! empty( $allowed_setting_groups ) && is_array( $allowed_setting_groups ) ) {
 			foreach ( $allowed_setting_groups as $group => $setting_type ) {
-
 				$setting_type      = DataSource::format_group_name( $group );
 				$setting_type_name = Utils::format_type_name( $setting_type . 'Settings' );
 
@@ -143,7 +140,6 @@ class UpdateSettings {
 						return $setting_type_name;
 					},
 				];
-
 			}
 		}
 		return $output_fields;
@@ -199,7 +195,6 @@ class UpdateSettings {
 				'option' => $key,
 				'group'  => $setting['group'],
 			];
-
 		}
 
 		foreach ( $input as $key => $value ) {

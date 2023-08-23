@@ -20,7 +20,6 @@ trait WPInterfaceTrait {
 	 * @return array
 	 */
 	protected function get_implemented_interfaces(): array {
-
 		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
 			$interfaces = parent::getInterfaces();
 		} else {
@@ -43,7 +42,6 @@ trait WPInterfaceTrait {
 		$new_interfaces = [];
 
 		foreach ( $interfaces as $interface ) {
-
 			if ( $interface instanceof InterfaceType && $interface->name !== $this->name ) {
 				$new_interfaces[ $interface->name ] = $interface;
 				continue;
@@ -104,7 +102,6 @@ trait WPInterfaceTrait {
 		}
 
 		return array_unique( $new_interfaces );
-
 	}
 
 }

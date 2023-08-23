@@ -24,8 +24,7 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function init() {
-
-		$this->is_enabled = get_graphql_setting( 'graphiql_enabled' ) === 'off' ? false : true;
+		$this->is_enabled = get_graphql_setting( 'graphiql_enabled' ) !== 'off';
 
 		/**
 		 * If GraphiQL is disabled, don't set it up in the Admin
@@ -49,7 +48,6 @@ class GraphiQL {
 		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_query_composer' ] );
 		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_auth_switch' ] );
 		add_action( 'enqueue_graphiql_extension', [ $this, 'graphiql_enqueue_fullscreen_toggle' ] );
-
 	}
 
 	/**
@@ -60,24 +58,27 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function register_admin_bar_menu( WP_Admin_Bar $admin_bar ) {
-
 		if ( ! current_user_can( 'manage_options' ) || 'off' === get_graphql_setting( 'show_graphiql_link_in_admin_bar' ) ) {
 			return;
 		}
 
 		$icon_url = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj48cGF0aCBmaWxsPSIjRTEwMDk4IiBkPSJNNTcuNDY4IDMwMi42NmwtMTQuMzc2LTguMyAxNjAuMTUtMjc3LjM4IDE0LjM3NiA4LjN6Ii8+PHBhdGggZmlsbD0iI0UxMDA5OCIgZD0iTTM5LjggMjcyLjJoMzIwLjN2MTYuNkgzOS44eiIvPjxwYXRoIGZpbGw9IiNFMTAwOTgiIGQ9Ik0yMDYuMzQ4IDM3NC4wMjZsLTE2MC4yMS05Mi41IDguMy0xNC4zNzYgMTYwLjIxIDkyLjV6TTM0NS41MjIgMTMyLjk0N2wtMTYwLjIxLTkyLjUgOC4zLTE0LjM3NiAxNjAuMjEgOTIuNXoiLz48cGF0aCBmaWxsPSIjRTEwMDk4IiBkPSJNNTQuNDgyIDEzMi44ODNsLTguMy0xNC4zNzUgMTYwLjIxLTkyLjUgOC4zIDE0LjM3NnoiLz48cGF0aCBmaWxsPSIjRTEwMDk4IiBkPSJNMzQyLjU2OCAzMDIuNjYzbC0xNjAuMTUtMjc3LjM4IDE0LjM3Ni04LjMgMTYwLjE1IDI3Ny4zOHpNNTIuNSAxMDcuNWgxNi42djE4NUg1Mi41ek0zMzAuOSAxMDcuNWgxNi42djE4NWgtMTYuNnoiLz48cGF0aCBmaWxsPSIjRTEwMDk4IiBkPSJNMjAzLjUyMiAzNjdsLTcuMjUtMTIuNTU4IDEzOS4zNC04MC40NSA3LjI1IDEyLjU1N3oiLz48cGF0aCBmaWxsPSIjRTEwMDk4IiBkPSJNMzY5LjUgMjk3LjljLTkuNiAxNi43LTMxIDIyLjQtNDcuNyAxMi44LTE2LjctOS42LTIyLjQtMzEtMTIuOC00Ny43IDkuNi0xNi43IDMxLTIyLjQgNDcuNy0xMi44IDE2LjggOS43IDIyLjUgMzEgMTIuOCA0Ny43TTkwLjkgMTM3Yy05LjYgMTYuNy0zMSAyMi40LTQ3LjcgMTIuOC0xNi43LTkuNi0yMi40LTMxLTEyLjgtNDcuNyA5LjYtMTYuNyAzMS0yMi40IDQ3LjctMTIuOCAxNi43IDkuNyAyMi40IDMxIDEyLjggNDcuN00zMC41IDI5Ny45Yy05LjYtMTYuNy0zLjktMzggMTIuOC00Ny43IDE2LjctOS42IDM4LTMuOSA0Ny43IDEyLjggOS42IDE2LjcgMy45IDM4LTEyLjggNDcuNy0xNi44IDkuNi0zOC4xIDMuOS00Ny43LTEyLjhNMzA5LjEgMTM3Yy05LjYtMTYuNy0zLjktMzggMTIuOC00Ny43IDE2LjctOS42IDM4LTMuOSA0Ny43IDEyLjggOS42IDE2LjcgMy45IDM4LTEyLjggNDcuNy0xNi43IDkuNi0zOC4xIDMuOS00Ny43LTEyLjhNMjAwIDM5NS44Yy0xOS4zIDAtMzQuOS0xNS42LTM0LjktMzQuOSAwLTE5LjMgMTUuNi0zNC45IDM0LjktMzQuOSAxOS4zIDAgMzQuOSAxNS42IDM0LjkgMzQuOSAwIDE5LjItMTUuNiAzNC45LTM0LjkgMzQuOU0yMDAgNzRjLTE5LjMgMC0zNC45LTE1LjYtMzQuOS0zNC45IDAtMTkuMyAxNS42LTM0LjkgMzQuOS0zNC45IDE5LjMgMCAzNC45IDE1LjYgMzQuOSAzNC45IDAgMTkuMy0xNS42IDM0LjktMzQuOSAzNC45Ii8+PC9zdmc+';
 
-		$icon = sprintf( '<span class="custom-icon" style="
+		$icon = sprintf(
+			'<span class="custom-icon" style="
     background-image:url(\'%s\'); float:left; width:22px !important; height:22px !important;
     margin-left: 5px !important; margin-top: 5px !important; margin-right: 5px !important;
-    "></span>', $icon_url );
+    "></span>',
+			$icon_url 
+		);
 
-		$admin_bar->add_menu( [
-			'id'    => 'graphiql-ide',
-			'title' => $icon . __( 'GraphiQL IDE', 'wp-graphql' ),
-			'href'  => trailingslashit( admin_url() ) . 'admin.php?page=graphiql-ide',
-		] );
-
+		$admin_bar->add_menu(
+			[
+				'id'    => 'graphiql-ide',
+				'title' => $icon . __( 'GraphiQL IDE', 'wp-graphql' ),
+				'href'  => trailingslashit( admin_url() ) . 'admin.php?page=graphiql-ide',
+			] 
+		);
 	}
 
 	/**
@@ -125,7 +126,6 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function enqueue_graphiql() {
-
 		if ( null === get_current_screen() || ! strpos( get_current_screen()->id, 'graphiql' ) ) {
 			return;
 		}
@@ -173,7 +173,6 @@ class GraphiQL {
 		// Extensions looking to extend GraphiQL can hook in here,
 		// after the window object is established, but before the App renders
 		do_action( 'enqueue_graphiql_extension' );
-
 	}
 
 	/**
@@ -183,7 +182,6 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function graphiql_enqueue_auth_switch() {
-
 		$auth_switch_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlAuthSwitch.asset.php';
 
 		wp_enqueue_script(
@@ -222,7 +220,6 @@ class GraphiQL {
 			[ 'wp-components' ],
 			$composer_asset_file['version']
 		);
-
 	}
 
 	/**
@@ -232,7 +229,6 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function graphiql_enqueue_fullscreen_toggle() {
-
 		$fullscreen_toggle_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphiqlFullscreenToggle.asset.php';
 
 		wp_enqueue_script(
@@ -249,7 +245,6 @@ class GraphiQL {
 			[ 'wp-components' ],
 			$fullscreen_toggle_asset_file['version']
 		);
-
 	}
 
 }

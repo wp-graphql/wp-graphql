@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use Exception;
 use WP_Taxonomy;
 
 /**

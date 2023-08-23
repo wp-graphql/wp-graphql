@@ -49,7 +49,6 @@ class DebugLog {
 	 * @return array
 	 */
 	public function add_log_entry( $message, $config = [] ) {
-
 		if ( empty( $message ) ) {
 			return [];
 		}
@@ -75,10 +74,13 @@ class DebugLog {
 		}
 
 		if ( ! isset( $this->logs[ wp_json_encode( $message ) ] ) ) {
-			$log_entry = array_merge( [
-				'type'    => $type,
-				'message' => $message,
-			], $config );
+			$log_entry = array_merge(
+				[
+					'type'    => $type,
+					'message' => $message,
+				],
+				$config 
+			);
 
 			$this->logs[ wp_json_encode( $message ) ] = $log_entry;
 
@@ -92,7 +94,6 @@ class DebugLog {
 		}
 
 		return [];
-
 	}
 
 	/**

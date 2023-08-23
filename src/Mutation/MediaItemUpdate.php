@@ -2,11 +2,8 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\MediaItemMutation;
 use WPGraphQL\Utils\Utils;

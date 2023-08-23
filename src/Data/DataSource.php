@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
-use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -81,7 +79,6 @@ class DataSource {
 	 * @throws \Exception Throws Exception.
 	 */
 	public static function resolve_comment_author( int $comment_id ) {
-
 		$comment_author = get_comment( $comment_id );
 
 		return ! empty( $comment_author ) ? new CommentAuthor( $comment_author ) : null;
@@ -205,7 +202,6 @@ class DataSource {
 		}
 
 		return new Taxonomy( $tax_object );
-
 	}
 
 	/**
@@ -314,7 +310,6 @@ class DataSource {
 		$resolver = new UserConnectionResolver( $source, $args, $context, $info );
 
 		return $resolver->get_connection();
-
 	}
 
 	/**
@@ -327,7 +322,6 @@ class DataSource {
 	 * @since  0.0.30
 	 */
 	public static function resolve_user_role( $name ) {
-
 		$role = isset( wp_roles()->roles[ $name ] ) ? wp_roles()->roles[ $name ] : null;
 
 		if ( null === $role ) {
@@ -341,7 +335,6 @@ class DataSource {
 
 			return new UserRole( $role );
 		}
-
 	}
 
 	/**
@@ -354,7 +347,6 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_avatar( int $user_id, array $args ) {
-
 		$avatar = get_avatar_data( absint( $user_id ), $args );
 
 		// if there's no url returned, return null
@@ -363,7 +355,6 @@ class DataSource {
 		}
 
 		return new Avatar( $avatar );
-
 	}
 
 	/**
@@ -378,7 +369,6 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
 		$resolver = new UserRoleConnectionResolver( $source, $args, $context, $info );
 
 		return $resolver->get_connection();
@@ -421,7 +411,6 @@ class DataSource {
 		$settings_groups = self::get_allowed_settings_by_group( $type_registry );
 
 		return ! empty( $settings_groups[ $group ] ) ? $settings_groups[ $group ] : [];
-
 	}
 
 	/**
@@ -473,7 +462,6 @@ class DataSource {
 		 * @param array $allowed_settings_by_group
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
-
 	}
 
 	/**
@@ -502,7 +490,6 @@ class DataSource {
 			 * add it to the $allowed_settings array
 			 */
 			foreach ( $registered_settings as $key => $setting ) {
-
 				if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 					continue;
 				}
@@ -545,9 +532,7 @@ class DataSource {
 	 * @throws \GraphQL\Error\UserError
 	 */
 	public static function get_node_definition() {
-
 		if ( null === self::$node_definition ) {
-
 			$node_definition = Relay::nodeDefinitions(
 			// The ID fetcher definition
 				static function ( $global_id, AppContext $context, ResolveInfo $info ) {
@@ -560,7 +545,6 @@ class DataSource {
 			);
 
 			self::$node_definition = $node_definition;
-
 		}
 
 		return self::$node_definition;
@@ -577,7 +561,6 @@ class DataSource {
 		$type = null;
 
 		if ( true === is_object( $node ) ) {
-
 			switch ( true ) {
 				case $node instanceof Post:
 					if ( $node->isRevision ) {
@@ -671,7 +654,6 @@ class DataSource {
 	 * @throws \Exception
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
-
 		if ( empty( $global_id ) ) {
 			throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 		}
@@ -703,7 +685,6 @@ class DataSource {
 			}
 
 			return null;
-
 		} else {
 			// translators: %s is the global ID.
 			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
@@ -737,7 +718,6 @@ class DataSource {
 		$node_resolver = new NodeResolver( $context );
 
 		return $node_resolver->resolve_uri( $uri );
-
 	}
 
 }

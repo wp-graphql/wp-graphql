@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use \WPGraphQL\Model\Menu as MenuModel;
+use WPGraphQL\Model\Menu as MenuModel;
 
 class Menu {
 

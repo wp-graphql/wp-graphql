@@ -21,7 +21,6 @@ class TermObjectMutation {
 	 * @return mixed
 	 */
 	public static function prepare_object( array $input, WP_Taxonomy $taxonomy, string $mutation_name ) {
-
 		$insert_args = [];
 
 		/**

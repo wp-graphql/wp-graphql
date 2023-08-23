@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\Connection;
 
-use Exception;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Comment;
@@ -35,28 +34,36 @@ class Comments {
 		/**
 		 * Register connection from User to Comments
 		 */
-		register_graphql_connection( self::get_connection_config( [
-			'fromType' => 'User',
-			'resolve'  => static function ( User $user, $args, $context, $info ) {
-				$resolver = new CommentConnectionResolver( $user, $args, $context, $info );
+		register_graphql_connection(
+			self::get_connection_config(
+				[
+					'fromType' => 'User',
+					'resolve'  => static function ( User $user, $args, $context, $info ) {
+						$resolver = new CommentConnectionResolver( $user, $args, $context, $info );
 
-				return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
-			},
+						return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
+					},
 
-		] ) );
+				] 
+			) 
+		);
 
-		register_graphql_connection( self::get_connection_config( [
-			'fromType'           => 'Comment',
-			'toType'             => 'Comment',
-			'fromFieldName'      => 'parent',
-			'connectionTypeName' => 'CommentToParentCommentConnection',
-			'oneToOne'           => true,
-			'resolve'            => static function ( Comment $comment, $args, $context, $info ) {
-				$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
+		register_graphql_connection(
+			self::get_connection_config(
+				[
+					'fromType'           => 'Comment',
+					'toType'             => 'Comment',
+					'fromFieldName'      => 'parent',
+					'connectionTypeName' => 'CommentToParentCommentConnection',
+					'oneToOne'           => true,
+					'resolve'            => static function ( Comment $comment, $args, $context, $info ) {
+						$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
-				return ! empty( $comment->comment_parent_id ) ? $resolver->one_to_one()->set_query_arg( 'comment__in', [ $comment->comment_parent_id ] )->get_connection() : null;
-			},
-		] ) );
+						return ! empty( $comment->comment_parent_id ) ? $resolver->one_to_one()->set_query_arg( 'comment__in', [ $comment->comment_parent_id ] )->get_connection() : null;
+					},
+				] 
+			) 
+		);
 
 		/**
 		 * Register connection from Comment to children comments

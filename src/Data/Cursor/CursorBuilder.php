@@ -85,7 +85,6 @@ class CursorBuilder {
 		}
 
 		$this->fields[] = $escaped_field;
-
 	}
 
 	/**
@@ -105,7 +104,6 @@ class CursorBuilder {
 	 * @return string
 	 */
 	public function to_sql( $fields = null ) {
-
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}

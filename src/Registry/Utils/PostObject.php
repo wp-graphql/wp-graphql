@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Registry\Utils;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WP_Post_Type;
 use WPGraphQL;
@@ -117,7 +116,6 @@ class PostObject {
 				'toType'         => 'Comment',
 				'connectionArgs' => Comments::get_connection_args(),
 				'resolve'        => static function ( Post $post, $args, $context, $info ) {
-
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
 					} else {
@@ -140,7 +138,8 @@ class PostObject {
 				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null
 					: sprintf(
 						// translators: %s is the post type's GraphQL name.
-						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ), WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
+						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ),
+						WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
 					),
 				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 					if ( $post->isRevision ) {
@@ -180,7 +179,6 @@ class PostObject {
 		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_taxonomies as $tax_object ) {
-
 			if ( ! in_array( $post_type_object->name, $tax_object->object_type, true ) ) {
 				continue;
 			}
@@ -222,7 +220,6 @@ class PostObject {
 				'queryClass'     => 'WP_Term_Query',
 				'connectionArgs' => TermObjects::get_connection_args(),
 				'resolve'        => static function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
-
 					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
 					if ( empty( $object_id ) || ! absint( $object_id ) ) {
@@ -235,7 +232,6 @@ class PostObject {
 					return $resolver->get_connection();
 				},
 			];
-
 		}
 
 		// Merge with connections set in register_post_type.
@@ -492,10 +488,15 @@ class PostObject {
 						$image = wp_get_attachment_image_src( $source->ID, $size );
 						if ( $image ) {
 							list( $src, $width, $height ) = $image;
-							$sizes                        = wp_calculate_image_sizes( [
-								absint( $width ),
-								absint( $height ),
-							], $src, null, $source->ID );
+							$sizes                        = wp_calculate_image_sizes(
+								[
+									absint( $width ),
+									absint( $height ),
+								],
+								$src,
+								null,
+								$source->ID 
+							);
 
 							return ! empty( $sizes ) ? $sizes : null;
 						}
@@ -572,7 +573,6 @@ class PostObject {
 						$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
 
 						return ! empty( $filesize_path ) ? filesize( $filesize_path ) : null;
-
 					},
 				],
 				'mimeType'     => [

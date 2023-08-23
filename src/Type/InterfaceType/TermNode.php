@@ -2,10 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
-use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Registry\TypeRegistry;
 
@@ -20,7 +18,6 @@ class TermNode {
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'TermNode',
 			[
@@ -63,7 +60,6 @@ class TermNode {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 				'fields'      => [
 					'databaseId'     => [
@@ -112,6 +108,5 @@ class TermNode {
 				],
 			]
 		);
-
 	}
 }
