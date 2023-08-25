@@ -110,7 +110,7 @@ add_filter('graphql_post_object_connection_query_args', function ($query_args, $
 		$new_orderby = isset( $query_args['orderby'] ) ? $query_args['orderby'] : [];
 
 		if ( ! is_array( $new_orderby ) ) {
-			$new_orderby = [ $query_args['orderby'] ];
+			$new_orderby = [ $new_orderby ];
 		}
 
 		foreach ( $input['where']['orderby'] as $orderby ) {
@@ -131,18 +131,18 @@ add_filter('graphql_post_object_connection_query_args', function ($query_args, $
 			}
 
 			if ( 'price' === $orderby['field'] ) {
-				$type = 'DECIMAL';
+				$type = 'NUMBER';
 			}
 
 			// Add the claus
-			$meta_query[ $orderby['field'] . '_claus' ] = [
+			$meta_query[ $orderby['field'] ] = [
 				'key' => $orderby['field'],
 				'compare' => 'EXISTS',
 				'type' => $type,
 			];
 
 
-			$new_orderby[ $orderby['field'] . '_claus' ] = $orderby['order'];
+			$new_orderby[ $orderby['field'] ] = $orderby['order'];
 
 			$query_args['orderby'] = $new_orderby;
 			$query_args['meta_query'] = $meta_query;
@@ -152,3 +152,21 @@ add_filter('graphql_post_object_connection_query_args', function ($query_args, $
 
 	return $query_args;
 }, 10, 3);
+
+add_action( 'graphql_register_types', function() {
+
+	register_graphql_field( 'Post', 'price', [
+		'type' => 'String',
+		'resolve' => function( $post ) {
+			return get_post_meta( $post->databaseId, 'price', true );
+		}
+	]);
+
+	register_graphql_field( 'Post', 'eventDate', [
+		'type' => 'String',
+		'resolve' => function( $post ) {
+			return get_post_meta( $post->databaseId, 'event_date', true );
+		}
+	]);
+
+} );

@@ -15,6 +15,16 @@ class CursorBuilder {
 	public $fields;
 
 	/**
+	 * @var array
+	 */
+	public $cursor_fields;
+
+	/**
+	 * @var array
+	 */
+	public $cursor_values;
+
+	/**
 	 * Default comparison operator. < or >
 	 *
 	 * @var string
@@ -111,9 +121,10 @@ class CursorBuilder {
 			$fields = $this->fields;
 		}
 
-		wp_send_json( [
-			'$fields' => $this->fields,
-		]);
+		foreach ( $fields as $field ) {
+			$this->cursor_fields[] = $field['key'];
+			$this->cursor_values[] = $field['value'];
+		}
 
 		if ( count( $fields ) === 0 ) {
 			return '';
@@ -131,6 +142,11 @@ class CursorBuilder {
 		if ( $order ) {
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
+
+		$tuple = sprintf( '(%1$s) %2$s (\'%3$s\')', implode( ', ', $this->cursor_fields ), $compare, implode( "', '", $this->cursor_values ) );
+
+
+		return $tuple;
 
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );
