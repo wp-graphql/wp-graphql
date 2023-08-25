@@ -15,16 +15,6 @@ class CursorBuilder {
 	public $fields;
 
 	/**
-	 * @var array
-	 */
-	public $cursor_fields;
-
-	/**
-	 * @var array
-	 */
-	public $cursor_values;
-
-	/**
 	 * Default comparison operator. < or >
 	 *
 	 * @var string
@@ -68,10 +58,10 @@ class CursorBuilder {
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',
 			[
-				'key'   => $key,
-				'value' => $value,
-				'type'  => ! empty( $type ) ? $type : '',
-				'order' => ! empty( $order ) ? $order : '',
+				'key'   => esc_sql( $key ),
+				'value' => esc_sql( $value ),
+				'type'  => ! empty( $type ) ? esc_sql( $type ) : '',
+				'order' => ! empty( $order ) ? esc_sql( $order ) : '',
 			],
 			$this,
 			$object_cursor
@@ -87,15 +77,12 @@ class CursorBuilder {
 			return;
 		}
 
-		// Bail If there's not a key or value
-		if ( ! isset( $field['key'], $field['value'] ) ) {
-			return;
-		}
+		$escaped_field = [];
 
-		// Escape the values of the filtered array
-		$escaped_field = array_map( static function( $value ) {
-			return esc_sql( $value );
-		}, $field );
+		// Escape the filtered array
+		foreach ( $field as $field_key => $value ) {
+			$escaped_field[ $field_key ] = esc_sql( $value );
+		}
 
 		$this->fields[] = $escaped_field;
 	}
@@ -121,11 +108,6 @@ class CursorBuilder {
 			$fields = $this->fields;
 		}
 
-		foreach ( $fields as $field ) {
-			$this->cursor_fields[] = $field['key'];
-			$this->cursor_values[] = $field['value'];
-		}
-
 		if ( count( $fields ) === 0 ) {
 			return '';
 		}
@@ -142,11 +124,6 @@ class CursorBuilder {
 		if ( $order ) {
 			$compare = 'DESC' === $order ? '<' : '>';
 		}
-
-		$tuple = sprintf( '(%1$s) %2$s (\'%3$s\')', implode( ', ', $this->cursor_fields ), $compare, implode( "', '", $this->cursor_values ) );
-
-
-		return $tuple;
 
 		if ( 'ID' !== $type ) {
 			$cast = $this->get_cast_for_type( $type );

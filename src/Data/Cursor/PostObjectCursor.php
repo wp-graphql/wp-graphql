@@ -10,7 +10,6 @@ namespace WPGraphQL\Data\Cursor;
  * @package WPGraphQL\Data\Cursor
  */
 class PostObjectCursor extends AbstractCursor {
-
 	/**
 	 * @var ?\WP_Post
 	 */
@@ -89,18 +88,17 @@ class PostObjectCursor extends AbstractCursor {
 	 * {@inheritDoc}
 	 */
 	public function to_sql() {
-
 		$orderby = isset( $this->query_vars['orderby'] ) ? $this->query_vars['orderby'] : null;
 
 		$orderby_should_not_convert_to_sql = isset( $orderby ) && in_array(
-			$orderby,
-			[
-				'post__in',
-				'post_name__in',
-				'post_parent__in',
-			],
-			true
-		);
+				$orderby,
+				[
+					'post__in',
+					'post_name__in',
+					'post_parent__in',
+				],
+				true
+			);
 
 		if ( true === $orderby_should_not_convert_to_sql ) {
 			return '';
@@ -136,6 +134,7 @@ class PostObjectCursor extends AbstractCursor {
 				$order         = 'ASC';
 			}
 		}
+
 		if ( ! empty( $orderby ) && is_array( $orderby ) ) {
 
 			/**
@@ -156,12 +155,11 @@ class PostObjectCursor extends AbstractCursor {
 		 * If there's no specific orderby, compare by the threshold fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-
 			$this->compare_with_threshold_fields(
 				[
 					[
 						'key'   => "{$this->wpdb->posts}.post_date",
-						'value' => $this->cursor_node->post_date ?? null,
+						'value' => $this->cursor_node ? $this->cursor_node->post_date : null,
 						'type'  => 'DATETIME',
 					],
 				]
@@ -170,32 +168,7 @@ class PostObjectCursor extends AbstractCursor {
 
 		$this->compare_with_id_field();
 
-
-
-		$sql = $this->to_sql();
-
-		graphql_debug( [
-			'expected' => "
-				SELECT *
-FROM wp_posts
-INNER JOIN wp_postmeta AS mt0 ON wp_posts.ID = mt0.post_id
-INNER JOIN wp_postmeta AS mt1 ON wp_posts.ID = mt1.post_id
-WHERE mt0.meta_key = 'price'
-  AND mt1.meta_key = 'event_date'
-  AND wp_posts.post_type = 'event'
-  AND wp_posts.post_status = 'publish'
-  AND (mt0.meta_value, wp_posts.post_title, mt1.meta_value) < ('22.00', 'March', '20230301')
-ORDER BY CAST(mt0.meta_value AS DECIMAL) DESC,
-  wp_posts.post_title DESC,
-  CAST(mt1.meta_value AS DATETIME) DESC,
-  wp_posts.ID DESC
-LIMIT 0, 2;
-			",
-			'$sql' => $sql,
-		]);
-
-		return $sql;
-
+		return $this->to_sql();
 	}
 
 	/**
@@ -210,8 +183,6 @@ LIMIT 0, 2;
 		// Bail early, if "key" and "value" provided in query_vars.
 		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
 		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
-
-
 		if ( ! empty( $key ) && ! empty( $value ) ) {
 			$this->builder->add_field( $key, $value, null, $order );
 			return;
@@ -230,30 +201,24 @@ LIMIT 0, 2;
 			'post_parent',
 			'menu_order',
 		];
-
 		if ( in_array( $by, $orderby_post_fields, true ) ) {
 			$key   = "{$this->wpdb->posts}.{$by}";
 			$value = $this->cursor_node->{$by} ?? null;
 		}
 
-		$this->builder->_fields[] = $by;
-
-		if ( null !== $key && null !== $value ) {
-			// Add field to build.
-			$this->builder->add_field( $key, $value, null, $order );
-			return;
-		}
-
 		/**
 		 * If key or value are null, check whether this is a meta key based ordering before bailing.
 		 */
-		$meta_key = $this->get_meta_key( $by );
-		if ( $meta_key ) {
-			$this->compare_with_meta_field( $meta_key, $order );
+		if ( null === $key || null === $value ) {
+			$meta_key = $this->get_meta_key( $by );
+			if ( $meta_key ) {
+				$this->compare_with_meta_field( $meta_key, $order );
+			}
+			return;
 		}
 
-
-
+		// Add field to build.
+		$this->builder->add_field( $key, $value, null, $order );
 	}
 
 	/**
