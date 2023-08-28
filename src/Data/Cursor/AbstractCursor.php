@@ -149,12 +149,12 @@ abstract class AbstractCursor {
 	 * error because query execution is guaranteed to fail.
 	 *
 	 * @param array $field  Threshold configuration.
-	 * 
+	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
-	 * 
+	 *
 	 * @return void
 	 */
-	protected function is_valid_threshold_field( $field ) {
+	protected function validate_threshold_field( $field ) {
 		// Throw if an array not provided.
 		if ( ! is_array( $field ) ) {
 			throw new InvariantViolation(
@@ -188,7 +188,7 @@ abstract class AbstractCursor {
 				)
 			);
 		}
-		
+
 		// Guard against invalid "type".
 		if ( ! empty( $field['type'] ) && ! is_string( $field['type'] ) ) {
 			throw new InvariantViolation(
@@ -228,9 +228,9 @@ abstract class AbstractCursor {
 
 	/**
 	 * Applies threshold fields to the cursor cutoff.
-	 * 
+	 *
 	 * @param array $fallback  Default threshold fields.
-	 * 
+	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 *
 	 * @return void
@@ -238,7 +238,7 @@ abstract class AbstractCursor {
 	protected function compare_with_threshold_fields( $fallback = [] ) {
 		/**
 		 * Get threshold fields from query vars.
-		 * 
+		 *
 		 * @var array|null
 		 */
 		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
@@ -250,7 +250,7 @@ abstract class AbstractCursor {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: value type. */
-					__( 'Invalid value provided for graphql_cursor_threshold_fields. Expected Array, %s given.', 'wp-graphql' ), 
+					__( 'Invalid value provided for graphql_cursor_threshold_fields. Expected Array, %s given.', 'wp-graphql' ),
 					gettype( $threshold_fields )
 				)
 			);
@@ -262,7 +262,7 @@ abstract class AbstractCursor {
 		}
 
 		foreach ( $threshold_fields as $field ) {
-			$this->is_valid_threshold_field( $field );
+			$this->validate_threshold_field( $field );
 
 			$key   = $field['key'];
 			$value = $field['value'];
@@ -287,7 +287,7 @@ abstract class AbstractCursor {
 
 		// Get ID SQL Query alias.
 		$key = $this->get_cursor_id_key();
-	
+
 		$this->builder->add_field( $key, $value, 'ID' );
 	}
 
