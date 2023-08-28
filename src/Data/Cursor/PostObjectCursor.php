@@ -152,10 +152,10 @@ class PostObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * If there's no specific orderby, compare by the threshold fields.
+		 * If there's no orderby specified yet, compare with the following fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_threshold_fields(
+			$this->compare_with_cursor_fields(
 				[
 					[
 						'key'   => "{$this->wpdb->posts}.post_date",

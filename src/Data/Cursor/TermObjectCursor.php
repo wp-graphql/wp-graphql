@@ -45,14 +45,14 @@ class TermObjectCursor extends AbstractCursor {
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
-	
+
 		/**
 		 * If pre-hooked, return filtered node.
-		 * 
+		 *
 		 * @param null|\WP_Term                           $pre_term The pre-filtered term node.
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
-		 * 
+		 *
 		 * @return null|\WP_Term
 		 */
 		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
@@ -121,14 +121,14 @@ class TermObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * If there's no specific orderby, compare by the threshold fields.
+		 * If there's no orderby specified yet, compare with the following fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_threshold_fields();
+			$this->compare_with_cursor_fields();
 		}
 
 		/**
-		 * If there's no threshold fields applied then compare by the ID field.
+		 * If there's no cursor_compare fields applied then compare by the ID field.
 		 */
 		if ( ! $this->builder->has_fields() ) {
 			$this->compare_with_id_field();

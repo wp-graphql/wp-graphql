@@ -51,11 +51,11 @@ class CommentObjectCursor extends AbstractCursor {
 
 		/**
 		 * If pre-hooked, return filtered node.
-		 * 
+		 *
 		 * @param null|\WP_Comment                           $pre_comment The pre-filtered comment node.
 		 * @param int                                        $offset      The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\CommentObjectCursor $node        The cursor instance.
-		 * 
+		 *
 		 * @return null|\WP_Comment
 		 */
 		$pre_comment = apply_filters( 'graphql_pre_comment_cursor_node', null, $this->cursor_offset, $this );
@@ -87,10 +87,10 @@ class CommentObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * If there's no specific orderby, compare by the threshold fields.
+		 * If there's no orderby specified yet, compare with the following fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_threshold_fields(
+			$this->compare_with_cursor_fields(
 				[
 					[
 						'key'  => "{$this->wpdb->comments}.comment_date",

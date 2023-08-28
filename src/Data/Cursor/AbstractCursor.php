@@ -146,22 +146,22 @@ abstract class AbstractCursor {
 	}
 
 	/**
-	 * Validates threshold field configuration. Validation failure results in a fatal
+	 * Validates cursor compare field configuration. Validation failure results in a fatal
 	 * error because query execution is guaranteed to fail.
 	 *
 	 * @param array|mixed $field  Threshold configuration.
-	 * 
+	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 *
 	 * @return void
 	 */
-	protected function validate_threshold_field( $field ) {
+	protected function validate_cursor_compare_field( $field ): void {
 		// Throw if an array not provided.
 		if ( ! is_array( $field ) ) {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %1$s: Cursor class name. %2$s: value type. */
-					__( 'Invalid value provided for %1$s threshold field. Expected Array, %2$s given.', 'wp-graphql' ),
+					__( 'Invalid value provided for %1$s cursor compare field. Expected Array, %2$s given.', 'wp-graphql' ),
 					static::class,
 					gettype( $field )
 				)
@@ -173,7 +173,7 @@ abstract class AbstractCursor {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Expected "key" value to be provided for %s threshold field. A string value must be given.', 'wp-graphql' ),
+					__( 'Expected "key" value to be provided for %s cursor compare field. A string value must be given.', 'wp-graphql' ),
 					static::class
 				)
 			);
@@ -184,7 +184,7 @@ abstract class AbstractCursor {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Expected "value" value to be provided for %s threshold field. A scalar value must be given.', 'wp-graphql' ),
+					__( 'Expected "value" value to be provided for %s cursor compare field. A scalar value must be given.', 'wp-graphql' ),
 					static::class
 				)
 			);
@@ -195,7 +195,7 @@ abstract class AbstractCursor {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Invalid value provided for "type" value to be provided for type of %s threshold field. A string value must be given.', 'wp-graphql' ),
+					__( 'Invalid value provided for "type" value to be provided for type of %s cursor compare field. A string value must be given.', 'wp-graphql' ),
 					static::class
 				)
 			);
@@ -206,7 +206,7 @@ abstract class AbstractCursor {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Invalid value provided for "order" value to be provided for type of %s threshold field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
+					__( 'Invalid value provided for "order" value to be provided for type of %s cursor compare field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
 					static::class
 				)
 			);
@@ -228,44 +228,44 @@ abstract class AbstractCursor {
 	}
 
 	/**
-	 * Applies threshold fields to the cursor cutoff.
+	 * Applies cursor compare fields to the cursor cutoff.
 	 *
-	 * @param array $fallback  Default threshold fields.
+	 * @param array $fallback  Fallback cursor compare fields.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 */
-	protected function compare_with_threshold_fields( $fallback = [] ): void {
+	protected function compare_with_cursor_fields( $fallback = [] ): void {
 		/**
-		 * Get threshold fields from query vars.
-		 * 
-		 * @var array|null $threshold_fields
+		 * Get cursor compare fields from query vars.
+		 *
+		 * @var array|null $cursor_compare_fields
 		 */
-		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
-		if ( null === $threshold_fields ) {
-			$threshold_fields = $fallback;
+		$cursor_compare_fields = $this->get_query_var( 'graphql_cursor_compare_fields' );
+		if ( null === $cursor_compare_fields ) {
+			$cursor_compare_fields = $fallback;
 		}
-		// Bail early if no threshold fields.
-		if ( empty( $threshold_fields ) ) {
+		// Bail early if no cursor compare fields.
+		if ( empty( $cursor_compare_fields ) ) {
 			return;
 		}
 
-		if ( ! is_array( $threshold_fields ) ) {
+		if ( ! is_array( $cursor_compare_fields ) ) {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: value type. */
-					__( 'Invalid value provided for graphql_cursor_threshold_fields. Expected Array, %s given.', 'wp-graphql' ),
-					gettype( $threshold_fields )
+					__( 'Invalid value provided for graphql_cursor_compare_fields. Expected Array, %s given.', 'wp-graphql' ),
+					gettype( $cursor_compare_fields )
 				)
 			);
 		}
 
-		// Check if only one threshold field provided, wrap it in an array.
-		if ( ! isset( $threshold_fields[0] ) ) {
-			$threshold_fields = [ $threshold_fields ];
+		// Check if only one cursor compare field provided, wrap it in an array.
+		if ( ! isset( $cursor_compare_fields[0] ) ) {
+			$cursor_compare_fields = [ $cursor_compare_fields ];
 		}
 
-		foreach ( $threshold_fields as $field ) {
-			$this->validate_threshold_field( $field );
+		foreach ( $cursor_compare_fields as $field ) {
+			$this->validate_cursor_compare_field( $field );
 
 			$key   = $field['key'];
 			$value = $field['value'];
