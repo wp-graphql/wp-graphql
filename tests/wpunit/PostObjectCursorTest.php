@@ -530,7 +530,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 							'compare' => 'EXISTS',
 						];
 					}
-				} 
+				}
 
 				return $query_args;
 			},
@@ -700,7 +700,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		];
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
-		$expected  = [			
+		$expected  = [
 			$this->expectedNode(
 				'posts.nodes',
 				[
@@ -881,7 +881,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		';
 
-		
+
 
 		/**
 		 * Assert that the query is successful.
@@ -1045,8 +1045,8 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				],
 				4
 			),
-			
-			
+
+
 		];
 		$this->assertQuerySuccessful( $response, $expected );
 
@@ -1106,5 +1106,499 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 		$this->assertQuerySuccessful( $response, $expected );
+	}
+
+	/**
+	 * This test ensures that ordering by multiple fields returns expected results and paginates
+	 * appropriately.
+	 *
+	 * This ensures that records are not skipped between pagination when there are multiple records
+	 * with the same value.
+	 *
+	 * @return void
+	 */
+	public function testPaginationOrderedByMultipleMetaKeys() {
+
+		$post_type = 'cursor_test';
+
+		register_post_type( $post_type, [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'CursorTest'
+		]);
+
+		// create posts
+		$posts = [
+			[
+				'post_title' => 'AAA JANUARY',
+				'price' => 1,
+				'event_date' => '20230101'
+			],
+			[
+				'post_title' => 'April',
+				'price' => 22,
+				'event_date' => '20230401'
+			],
+			[
+				'post_title' => 'BBB January',
+				'price' => 66.00,
+				'event_date' => '20230101'
+			],
+			[
+				'post_title' => 'CCC January',
+				'price' => 1,
+				'event_date' => '20230101'
+			],
+			[
+				'post_title' => 'DDD January',
+				'price' => 1,
+				'event_date' => '20230101'
+			],
+			[
+				'post_title' => 'February',
+				'price' => 99,
+				'event_date' => '20230201'
+			],
+			[
+				'post_title' => 'March',
+				'price' => 22.00,
+				'event_date' => '20230201'
+			],
+		];
+
+		$created_posts = [];
+
+		foreach ( $posts as $post ) {
+			$created_posts[] = self::factory()->post->create([
+				'post_type' => $post_type,
+				'post_status' => 'publish',
+				'post_title' => $post['post_title'],
+				'post_author' => $this->admin,
+				'meta_input' => [
+					'price' => $post['price'],
+					'event_date' => $post['event_date'],
+				],
+			]);
+		}
+
+
+		// filter WPGraphQL Schema
+		add_filter('graphql_PostObjectsConnectionOrderbyEnum_values', function ($values) {
+
+			$values['EVENT_DATE'] = [
+				'value' => 'event_date',
+				'description' => __('The event date (stored in meta)', 'wp-graphql'),
+			];
+
+			$values['EVENT_PRICE'] = [
+				'value' => 'price',
+				'description' => __('The event price (stored in meta)', 'wp-graphql'),
+			];
+
+			return $values;
+		});
+
+		add_filter('graphql_post_object_connection_query_args', function ($query_args, $source, $input) {
+
+			global $wpdb;
+
+			if ( isset($input['where']['orderby'] ) && is_array($input['where']['orderby'] ) ) {
+
+				$new_orderby = isset( $query_args['orderby'] ) ? $query_args['orderby'] : [];
+
+				if ( ! is_array( $new_orderby ) ) {
+					$new_orderby = [ $new_orderby ];
+				}
+
+				foreach ( $input['where']['orderby'] as $orderby ) {
+
+					if ( ! isset( $orderby['field'] ) || ! in_array( $orderby['field'], [ 'event_date', 'price' ], true ) ) {
+						continue;
+					}
+
+					$meta_query = isset( $query_args['meta_query'] ) ? $query_args['meta_query'] : [];
+
+					// set the relation
+					$meta_query['relation'] = isset( $meta_query['relation'] ) ? $meta_query['relation'] : 'AND';
+
+					$type = 'NUMERIC';
+
+					if ( 'event_date' === $orderby['field'] ) {
+						$type = 'DATETIME';
+					}
+
+					if ( 'price' === $orderby['field'] ) {
+						$type = 'NUMBER';
+					}
+
+					// Add the claus
+					$meta_query[ $orderby['field'] ] = [
+						'key' => $orderby['field'],
+						'compare' => 'EXISTS',
+						'type' => $type,
+					];
+
+
+					$new_orderby[ $orderby['field'] ] = $orderby['order'];
+
+					$query_args['orderby'] = $new_orderby;
+					$query_args['meta_query'] = $meta_query;
+
+				}
+			}
+
+			return $query_args;
+		}, 10, 3);
+
+		add_action( 'graphql_register_types', function() {
+
+			register_graphql_field( 'CursorTest', 'price', [
+				'type' => 'String',
+				'resolve' => function( $post ) {
+					return get_post_meta( $post->databaseId, 'price', true );
+				}
+			]);
+
+			register_graphql_field( 'CursorTest', 'eventDate', [
+				'type' => 'String',
+				'resolve' => function( $post ) {
+					return get_post_meta( $post->databaseId, 'event_date', true );
+				}
+			]);
+
+		} );
+
+		$this->clearSchema();
+
+
+		$query = '
+		query GetPaginatedPosts( $after: String $before: String $first: Int = 10 $last: Int $where: RootQueryToCursorTestConnectionWhereArgs ) {
+		  allCursorTest(
+		    first: $first
+		    after: $after
+		    last: $last
+		    before: $before
+		    where: $where
+		  ) {
+		    pageInfo {
+		      hasNextPage
+		      hasPreviousPage
+		      startCursor
+		      endCursor
+		    }
+		    edges {
+		      cursor
+		      node {
+		        title
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		codecept_debug( [
+			'actual' => $actual,
+		]);
+
+		// Assert the same number of created posts are returned when queried for.
+		$this->assertTrue( count( $created_posts ) === count( $actual['data']['allCursorTest']['edges'] ) );
+
+		$where = [
+			'orderby' => [
+				[
+					'field' => 'EVENT_PRICE',
+					'order' => 'DESC',
+				],
+				[
+					'field' => 'TITLE',
+					'order' => 'DESC',
+				],
+				[
+					'field' => 'EVENT_DATE',
+					'order' => 'DESC'
+				]
+			]
+		];
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'where' => $where
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[5]['post_title'] ),
+			], 0 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[2]['post_title'] ),
+			], 1 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[6]['post_title'] ),
+			], 2 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[1]['post_title'] ),
+			], 3 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[4]['post_title'] ),
+			], 4 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[3]['post_title'] ),
+			], 5 ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[0]['post_title'] ),
+			], 6 )
+		]);
+
+		$page_1 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_1, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[5]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_2 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_1['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_2, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[2]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_3 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_2['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_3, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[6]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_4 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_3['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_4, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[1]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_5 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_4['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_5, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[4]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_6 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_5['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_6, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[3]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_7 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where,
+				'after' => $page_6['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_7, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', false ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[0]['post_title'] ),
+			], 0 )
+		]);
+
+		$where_price_asc = [
+			'orderby' => [
+				[
+					'field' => 'EVENT_PRICE',
+					'order' => 'ASC',
+				],
+				[
+					'field' => 'TITLE',
+					'order' => 'DESC',
+				],
+				[
+					'field' => 'EVENT_DATE',
+					'order' => 'DESC'
+				]
+			]
+		];
+
+		$page_1 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_1, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[4]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_2 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_1['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_2, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[3]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_3 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_2['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_3, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[0]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_4 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_3['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_4, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[6]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_5 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_4['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_5, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[1]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_6 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_5['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_6, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', true ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[2]['post_title'] ),
+			], 0 )
+		]);
+
+		$page_7 = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'first' => 1,
+				'where' => $where_price_asc,
+				'after' => $page_6['data']['allCursorTest']['pageInfo']['endCursor']
+			]
+		]);
+
+		self::assertQuerySuccessful( $page_7, [
+			$this->expectedField( 'allCursorTest.pageInfo.hasNextPage', false ),
+			$this->expectedNode( 'allCursorTest.edges', [
+				$this->expectedField( 'node.title', $posts[5]['post_title'] ),
+			], 0 )
+		]);
+
+
+		// cleanup the created posts
+		foreach ( $created_posts as $created_post ) {
+			wp_delete_post( $created_post, true );
+		}
+
 	}
 }
