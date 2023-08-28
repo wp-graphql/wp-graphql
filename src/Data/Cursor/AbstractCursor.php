@@ -237,7 +237,7 @@ abstract class AbstractCursor {
 		/**
 		 * Get threshold fields from query vars.
 		 * 
-		 * @var array|null
+		 * @var array|null $threshold_fields
 		 */
 		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
 		if ( null === $threshold_fields ) {
