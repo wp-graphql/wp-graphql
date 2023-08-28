@@ -243,8 +243,12 @@ abstract class AbstractCursor {
 		if ( null === $threshold_fields ) {
 			$threshold_fields = $fallback;
 		}
+		// Bail early if no threshold fields.
+		if ( empty ( $threshold_fields ) ) {
+			return;
+		}
 
-		if ( ! empty( $threshold_fields ) && ! is_array( $threshold_fields ) ) {
+		if ( ! is_array( $threshold_fields ) ) {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: value type. */
@@ -255,7 +259,7 @@ abstract class AbstractCursor {
 		}
 
 		// Check if only one threshold field provided, wrap it in an array.
-		if ( ! empty( $threshold_fields ) && is_array( $threshold_fields ) && ! isset( $threshold_fields[0] ) ) {
+		if ( ! isset( $threshold_fields[0] ) ) {
 			$threshold_fields = [ $threshold_fields ];
 		}
 
