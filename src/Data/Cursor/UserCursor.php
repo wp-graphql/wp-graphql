@@ -42,6 +42,9 @@ class UserCursor extends AbstractCursor {
 
 		// Initialize the class properties.
 		parent::__construct( $query_vars, $cursor );
+
+		// Set ID key.
+		$this->id_key = "{$this->wpdb->users}.ID";
 	}
 
 	/**
@@ -62,10 +65,26 @@ class UserCursor extends AbstractCursor {
 	 * @return ?\WP_User
 	 */
 	public function get_cursor_node() {
+		// Bail if no offset.
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
+		/**
+		 * If pre-hooked, return filtered node.
+		 *
+		 * @param null|\WP_User                        $pre_user The pre-filtered user node.
+		 * @param int                                  $offset   The cursor offset.
+		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
+		 *
+		 * @return null|\WP_User
+		 */
+		$pre_user = apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
+		if ( null !== $pre_user ) {
+			return $pre_user;
+		}
+
+		// Get cursor node.
 		$user = get_user_by( 'id', $this->cursor_offset );
 
 		return false !== $user ? $user : null;
@@ -117,13 +136,21 @@ class UserCursor extends AbstractCursor {
 		}
 
 		/**
-		 * No custom comparing. Order by login
+		 * If there's no orderby specified yet, compare with the following fields.
 		 */
 		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_login();
+			$this->compare_with_cursor_fields(
+				[
+					[
+						'key'   => "{$this->wpdb->users}.user_login",
+						'value' => $this->cursor_node ? $this->cursor_node->user_login : null,
+						'type'  => 'CHAR',
+					],
+				]
+			);
 		}
 
-		$this->builder->add_field( "{$this->wpdb->users}.ID", (string) $this->cursor_offset, 'ID', $order );
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}
@@ -137,45 +164,42 @@ class UserCursor extends AbstractCursor {
 	 * @return void
 	 */
 	private function compare_with( $by, $order ) {
-		switch ( $by ) {
-			case 'email':
-			case 'login':
-			case 'nicename':
-			case 'registered':
-			case 'url':
-				$by = 'user_' . $by;
-				break;
-		}
-
-		$value = $this->cursor_node->{$by} ?? null;
-
-		/**
-		 * Compare by the user field if the key matches a value
-		 */
-		if ( ! empty( $value ) ) {
-			$this->builder->add_field( "{$this->wpdb->users}.{$by}", $value, null, $order );
-
+		// Bail early, if "key" and "value" provided in query_vars.
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		if ( ! empty( $key ) && ! empty( $value ) ) {
+			$this->builder->add_field( $key, $value, null, $order );
 			return;
 		}
 
 		/**
-		 * Find out whether this is a meta key based ordering
+		 * Find out whether this is a user field
 		 */
-		$meta_key = $this->get_meta_key( $by );
-		if ( $meta_key ) {
-			$this->compare_with_meta_field( $meta_key, $order );
+		$orderby_user_fields = [
+			'user_email',
+			'user_login',
+			'user_nicename',
+			'user_registered',
+			'user_url',
+		];
+		if ( in_array( $by, $orderby_user_fields, true ) ) {
+			$key   = "{$this->wpdb->users}.{$by}";
+			$value = $this->cursor_node->{$by} ?? null;
+		}
 
+		/**
+		 * If key or value are null, check whether this is a meta key based ordering before bailing.
+		 */
+		if ( null === $key || null === $value ) {
+			$meta_key = $this->get_meta_key( $by );
+			if ( $meta_key ) {
+				$this->compare_with_meta_field( $meta_key, $order );
+			}
 			return;
 		}
-	}
 
-	/**
-	 * Use user login based comparison
-	 *
-	 * @return void
-	 */
-	private function compare_with_login() {
-		$this->builder->add_field( "{$this->wpdb->users}.user_login", $this->cursor_node->user_login ?? null, 'CHAR' );
+		// Add field to build.
+		$this->builder->add_field( $key, $value, null, $order );
 	}
 
 	/**
