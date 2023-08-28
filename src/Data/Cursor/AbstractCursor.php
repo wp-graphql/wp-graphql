@@ -11,7 +11,8 @@ use GraphQL\Error\InvariantViolation;
  * @since 1.9.0
  */
 abstract class AbstractCursor {
-		/**
+
+	/**
 	 * The global WordPress Database instance
 	 *
 	 * @var \wpdb $wpdb
@@ -148,8 +149,8 @@ abstract class AbstractCursor {
 	 * Validates threshold field configuration. Validation failure results in a fatal
 	 * error because query execution is guaranteed to fail.
 	 *
-	 * @param array $field  Threshold configuration.
-	 *
+	 * @param array|mixed $field  Threshold configuration.
+	 * 
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 *
 	 * @return void
@@ -232,21 +233,23 @@ abstract class AbstractCursor {
 	 * @param array $fallback  Default threshold fields.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
-	 *
-	 * @return void
 	 */
-	protected function compare_with_threshold_fields( $fallback = [] ) {
+	protected function compare_with_threshold_fields( $fallback = [] ): void {
 		/**
 		 * Get threshold fields from query vars.
-		 *
-		 * @var array|null
+		 * 
+		 * @var array|null $threshold_fields
 		 */
 		$threshold_fields = $this->get_query_var( 'graphql_cursor_threshold_fields' );
 		if ( null === $threshold_fields ) {
 			$threshold_fields = $fallback;
 		}
+		// Bail early if no threshold fields.
+		if ( empty( $threshold_fields ) ) {
+			return;
+		}
 
-		if ( ! empty( $threshold_fields ) && ! is_array( $threshold_fields ) ) {
+		if ( ! is_array( $threshold_fields ) ) {
 			throw new InvariantViolation(
 				sprintf(
 					/* translators: %s: value type. */
@@ -257,7 +260,7 @@ abstract class AbstractCursor {
 		}
 
 		// Check if only one threshold field provided, wrap it in an array.
-		if ( ! empty( $threshold_fields ) && is_array( $threshold_fields ) && ! isset( $threshold_fields[0] ) ) {
+		if ( ! isset( $threshold_fields[0] ) ) {
 			$threshold_fields = [ $threshold_fields ];
 		}
 
@@ -275,10 +278,8 @@ abstract class AbstractCursor {
 
 	/**
 	 * Applies ID field to the cursor builder.
-	 *
-	 * @return void
 	 */
-	protected function compare_with_id_field() {
+	protected function compare_with_id_field(): void {
 		// Get ID value.
 		$value = $this->get_query_var( 'graphql_cursor_id_value' );
 		if ( null === $value ) {
