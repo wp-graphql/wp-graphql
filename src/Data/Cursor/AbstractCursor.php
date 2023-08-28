@@ -277,10 +277,8 @@ abstract class AbstractCursor {
 
 	/**
 	 * Applies ID field to the cursor builder.
-	 *
-	 * @return void
 	 */
-	protected function compare_with_id_field() {
+	protected function compare_with_id_field(): void {
 		// Get ID value.
 		$value = $this->get_query_var( 'graphql_cursor_id_value' );
 		if ( null === $value ) {
