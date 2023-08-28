@@ -148,7 +148,7 @@ abstract class AbstractCursor {
 	 * Validates threshold field configuration. Validation failure results in a fatal
 	 * error because query execution is guaranteed to fail.
 	 *
-	 * @param array $field  Threshold configuration.
+	 * @param array|mixed $field  Threshold configuration.
 	 * 
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 * 
