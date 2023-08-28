@@ -232,10 +232,8 @@ abstract class AbstractCursor {
 	 * @param array $fallback  Default threshold fields.
 	 * 
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
-	 *
-	 * @return void
 	 */
-	protected function compare_with_threshold_fields( $fallback = [] ) {
+	protected function compare_with_threshold_fields( $fallback = [] ): void {
 		/**
 		 * Get threshold fields from query vars.
 		 * 
