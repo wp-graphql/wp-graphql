@@ -119,25 +119,25 @@ class PostType extends Model {
 					return ! empty( $this->data->public ) ? (bool) $this->data->public : null;
 				},
 				'hierarchical'        => function () {
-					return ( true === $this->data->hierarchical || ! empty( $this->data->hierarchical ) ) ? true : false;
+					return true === $this->data->hierarchical || ! empty( $this->data->hierarchical );
 				},
 				'excludeFromSearch'   => function () {
-					return ( true === $this->data->exclude_from_search ) ? true : false;
+					return true === $this->data->exclude_from_search;
 				},
 				'publiclyQueryable'   => function () {
-					return ( true === $this->data->publicly_queryable ) ? true : false;
+					return true === $this->data->publicly_queryable;
 				},
 				'showUi'              => function () {
-					return ( true === $this->data->show_ui ) ? true : false;
+					return true === $this->data->show_ui;
 				},
 				'showInMenu'          => function () {
-					return ( true === $this->data->show_in_menu ) ? true : false;
+					return true === $this->data->show_in_menu;
 				},
 				'showInNavMenus'      => function () {
-					return ( true === $this->data->show_in_nav_menus ) ? true : false;
+					return true === $this->data->show_in_nav_menus;
 				},
 				'showInAdminBar'      => function () {
-					return ( true === $this->data->show_in_admin_bar ) ? true : false;
+					return true === $this->data->show_in_admin_bar;
 				},
 				'menuPosition'        => function () {
 					return ! empty( $this->data->menu_position ) ? $this->data->menu_position : null;
@@ -146,20 +146,20 @@ class PostType extends Model {
 					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
 				},
 				'hasArchive'          => function () {
-					return ! empty( $this->uri ) ? true : false;
+					return ! empty( $this->uri );
 				},
 				'canExport'           => function () {
-					return ( true === $this->data->can_export ) ? true : false;
+					return true === $this->data->can_export;
 				},
 				'deleteWithUser'      => function () {
-					return ( true === $this->data->delete_with_user ) ? true : false;
+					return true === $this->data->delete_with_user;
 				},
 				'taxonomies'          => function () {
 					$object_taxonomies = get_object_taxonomies( $this->data->name );
 					return ( ! empty( $object_taxonomies ) ) ? $object_taxonomies : null;
 				},
 				'showInRest'          => function () {
-					return ( true === $this->data->show_in_rest ) ? true : false;
+					return true === $this->data->show_in_rest;
 				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
@@ -168,7 +168,7 @@ class PostType extends Model {
 					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
 				},
 				'showInGraphql'       => function () {
-					return ( true === $this->data->show_in_graphql ) ? true : false;
+					return true === $this->data->show_in_graphql;
 				},
 				'graphqlSingleName'   => function () {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;

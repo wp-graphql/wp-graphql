@@ -532,7 +532,7 @@ class NodeResolver {
 		}
 
 		// Convert urldecoded spaces back into '+'.
-		foreach ( get_taxonomies( [ 'show_in_graphql' => true ], 'objects' ) as $taxonomy => $t ) {
+		foreach ( get_taxonomies( [ 'show_in_graphql' => true ], 'objects' ) as $t ) {
 			if ( $t->query_var && isset( $this->wp->query_vars[ $t->query_var ] ) ) {
 				$this->wp->query_vars[ $t->query_var ] = str_replace( ' ', '+', $this->wp->query_vars[ $t->query_var ] );
 			}

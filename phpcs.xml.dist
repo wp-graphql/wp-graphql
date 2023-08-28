@@ -140,6 +140,8 @@
 	<rule ref="SlevomatCodingStandard.Classes.ClassConstantVisibility" />
 	<rule ref="SlevomatCodingStandard.Classes.UselessLateStaticBinding" />
 
+	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator" />
+
 	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch" />
 	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch" />
 	<rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly" />
@@ -156,4 +158,9 @@
 	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
 
 	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
+	<rule ref="SlevomatCodingStandard.Variables.UnusedVariable" >
+		<properties>
+			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true" />
+		</properties>
+	</rule>
 </ruleset>

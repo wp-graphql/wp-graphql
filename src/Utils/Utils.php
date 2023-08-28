@@ -32,15 +32,16 @@ class Utils {
 	}
 
 	/**
-	 * Maps new input query args and sa nitizes the input
+	 * Maps new input query args and sanitizes the input
 	 *
 	 * @param mixed|array|string $args The raw query args from the GraphQL query
 	 * @param mixed|array|string $map  The mapping of where each of the args should go
+	 * @param string[]           $skip Fields to skipped and not be added to the output array.
 	 *
 	 * @return array
 	 * @since  0.5.0
 	 */
-	public static function map_input( $args, $map ) {
+	public static function map_input( $args, $map, $skip = [] ) {
 		if ( ! is_array( $args ) || ! is_array( $map ) ) {
 			return [];
 		}
@@ -48,6 +49,10 @@ class Utils {
 		$query_args = [];
 
 		foreach ( $args as $arg => $value ) {
+			if ( [] !== $skip && in_array( $arg, $skip, true ) ) {
+				continue;
+			}
+
 			if ( is_array( $value ) && ! empty( $value ) ) {
 				$value = array_map(
 					static function ( $value ) {

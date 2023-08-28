@@ -549,7 +549,7 @@ class Post extends Model {
 						if ( empty( $registered_templates ) ) {
 							return $template;
 						}
-						$post_type     = $this->data->post_type;
+
 						$set_template  = get_post_meta( $this->data->ID, '_wp_page_template', true );
 						$template_name = get_page_template_slug( $this->data->ID );
 
