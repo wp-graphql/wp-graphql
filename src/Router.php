@@ -314,6 +314,10 @@ class Router {
 			]
 		);
 
+		// For cache url header, use the domain without protocol. Path for when it's multisite.
+		// Remove the starting http://, https://, :// from the full hostname/path.
+		$host_and_path = preg_replace( '#^.*?://#', '', graphql_get_endpoint_url() );
+
 		$headers = [
 			'Access-Control-Allow-Origin'  => '*',
 			'Access-Control-Allow-Headers' => implode( ', ', $access_control_allow_headers ),
@@ -322,7 +326,7 @@ class Router {
 			'Content-Type'                 => 'application/json ; charset=' . get_option( 'blog_charset' ),
 			'X-Robots-Tag'                 => 'noindex',
 			'X-Content-Type-Options'       => 'nosniff',
-			'X-GraphQL-URL'                => graphql_get_endpoint_url(),
+			'X-GraphQL-URL'                => $host_and_path,
 		];
 
 
