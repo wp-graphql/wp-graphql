@@ -175,11 +175,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
 		 * 
-		 * @param null|mixed $pre_orderby The pre-filtered ORDER BY clause of the query.
-		 * @param string     $orderby     The ORDER BY clause of the query.
-		 * @param \WP_Query  $query       The WP_Query instance (passed by reference).
+		 * @param null|string $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param string      $orderby     The ORDER BY clause of the query.
+		 * @param \WP_Query   $query       The WP_Query instance (passed by reference).
 		 * 
-		 * @return null|mixed
+		 * @return null|string
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
