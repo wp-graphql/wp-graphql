@@ -94,19 +94,12 @@
 		],
 		"phpstan": [
 			"phpstan analyze --ansi --memory-limit=2G"
-		]
-	},
-	"archive": {
-		"exclude": [
-			"*.yml",
-			"!vendor/",
-			"plugin-build/",
-			"node_modules/",
-			"!.wordpress-org/",
-			"docs/",
-			"wp-graphql.zip",
-			"!build",
-			"packages"
+		],
+		"zip": [
+			"mkdir -p plugin-build/wp-graphql",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
+			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
+			"rm -rf plugin-build/wp-graphql/"
 		]
 	}
 }
