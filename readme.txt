@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.2
 Requires PHP: 7.1
-Stable tag: 1.15.0
+Stable tag: 1.16.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -86,6 +86,18 @@ Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
 == Upgrade Notice ==
+
+= 1.16.0 =
+
+**WPGraphQL Smart Cache**
+For WPGraphQL Smart Cache users, you should update WPGraphQL Smart Cache to v1.2.0 when updating
+WPGraphQL to v1.16.0 to ensure caches continue to purge as expected.
+
+**Cursor Pagination Updates**
+This version fixes some behaviors of Cursor Pagination which _may_ lead to behavior changes in your application.
+
+As with any release, we recommend you test in staging environments. For this release, specifically any
+queries you have using pagination arguments (`first`, `last`, `after`, `before`).
 
 = 1.14.6 =
 
@@ -239,6 +251,14 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.16.0 =
+
+### New Features
+
+- [#2918](https://github.com/wp-graphql/wp-graphql/pull/2918): feat: Use graphql endpoint without scheme in url header.
+- [#2882](https://github.com/wp-graphql/wp-graphql/pull/2882): feat: Config and Cursor Classes refactor
+
 
 = 1.15.0 =
 

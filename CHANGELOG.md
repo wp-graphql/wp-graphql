@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.16.0
+
+### Upgrade Notice
+
+**WPGraphQL Smart Cache**
+For WPGraphQL Smart Cache users, you should update WPGraphQL Smart Cache to v1.2.0 when updating 
+WPGraphQL to v1.16.0 to ensure caches continue to purge as expected.
+
+**Cursor Pagination Updates**
+This version fixes some behaviors of Cursor Pagination which _may_ lead to behavior changes in your application.
+
+As with any release, we recommend you test in staging environments. For this release, specifically any 
+queries you have using pagination arguments (`first`, `last`, `after`, `before`). 
+
+### New Features
+
+- [#2918](https://github.com/wp-graphql/wp-graphql/pull/2918): feat: Use graphql endpoint without scheme in url header. 
+- [#2882](https://github.com/wp-graphql/wp-graphql/pull/2882): feat: Config and Cursor Classes refactor
+
 ## 1.15.0
 
 ### New Features
