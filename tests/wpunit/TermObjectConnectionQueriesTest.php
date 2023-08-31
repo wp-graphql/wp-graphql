@@ -130,13 +130,14 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		// Set the variables to use in the WP query.
 		$query_args = [
-			'taxonomy'   => 'category',
-			'number'     => 2,
-			'offset'     => 0,
-			'order'      => 'ASC',
-			'orderby'    => 'name',
-			'parent'     => 0,
-			'hide_empty' => false,
+			'graphql_cursor_compare' => '>',
+			'taxonomy'               => 'category',
+			'number'                 => 2,
+			'offset'                 => 0,
+			'order'                  => 'ASC',
+			'orderby'                => 'name',
+			'parent'                 => 0,
+			'hide_empty'             => false,
 		];
 
 		// Run the GraphQL Query
@@ -221,13 +222,14 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		// Set the variables to use in the WP query.
 		$query_args = [
-			'taxonomy'   => 'category',
-			'number'     => 2,
-			'offset'     => 0,
-			'order'      => 'DESC',
-			'orderby'    => 'name',
-			'parent'     => 0,
-			'hide_empty' => false,
+			'graphql_cursor_compare' => '>',
+			'taxonomy'               => 'category',
+			'number'                 => 2,
+			'offset'                 => 0,
+			'order'                  => 'DESC',
+			'orderby'                => 'name',
+			'parent'                 => 0,
+			'hide_empty'             => false,
 		];
 
 		// Run the GraphQL Query

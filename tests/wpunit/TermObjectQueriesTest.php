@@ -28,18 +28,21 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'name'        => 'AAA1 Term',
 			'taxonomy'    => 'category',
 			'description' => 'just a description',
+			'slug'        => 'aaa1-term'
 		] );
 
 		$term_id2 = $this->createTermObject( [
 			'name'        => 'AAA2 Term',
 			'taxonomy'    => 'category',
 			'description' => 'just a description',
+			'slug'        => 'aaa2-term'
 		] );
 
 		$term_id3 = $this->createTermObject( [
 			'name'        => 'AAA3 Term',
 			'taxonomy'    => 'category',
 			'description' => 'just a description',
+			'slug'        => 'aaa3-term'
 		] );
 
 		$query = '

@@ -136,7 +136,7 @@ class CursorBuilder {
 		}
 
 		if ( count( $fields ) === 1 ) {
-			return " {$key} {$compare} {$value}";
+			return " {$key} {$compare} {$value} ";
 		}
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );

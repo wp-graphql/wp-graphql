@@ -80,12 +80,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
 
 		/**
-		 * Orderby Name by default
-		 */
-		$query_args['orderby'] = 'name';
-		$query_args['order']   = 'ASC';
-
-		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
 		 */
 		$query_args['count'] = false;
@@ -127,16 +121,19 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ids';
 
 		/**
-		 * If there's no orderby params in the inputArgs, set order based on the first/last argument
+		 * If there's no orderby params in the inputArgs, default to ordering by name.
 		 */
-		if ( ! empty( $query_args['order'] ) ) {
-			if ( ! empty( $last ) ) {
-				if ( 'ASC' === $query_args['order'] ) {
-					$query_args['order'] = 'DESC';
-				} else {
-					$query_args['order'] = 'ASC';
-				}
-			}
+		if ( empty( $query_args['orderby'] ) ) {
+			$query_args['orderby'] = 'name';
+		}
+
+		/**
+		 * If orderby params set but not order, default to ASC if going forward, DESC if going backward.
+		 */
+		if ( empty( $query_args['order'] ) && 'name' === $query_args['orderby'] ) {
+			$query_args['order'] = ! empty( $last ) ? 'DESC' : 'ASC';
+		} elseif ( empty( $query_args['order'] ) ) {
+			$query_args['order'] = ! empty( $last ) ? 'ASC' : 'DESC';
 		}
 
 		/**
