@@ -94,6 +94,9 @@
 		],
 		"phpstan": [
 			"phpstan analyze --ansi --memory-limit=2G"
+		],
+		"build-plugin": [
+			"composer install --no-dev && composer run-script zip && composer install"
 		]
 	},
 	"archive": {
