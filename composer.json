@@ -103,5 +103,6 @@
 			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
 			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
 			"rm -rf plugin-build/wp-graphql/"
+		]
 	}
 }
