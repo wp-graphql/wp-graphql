@@ -312,5 +312,4 @@ class UserMutation {
 			return true;
 		}
 	}
-
 }

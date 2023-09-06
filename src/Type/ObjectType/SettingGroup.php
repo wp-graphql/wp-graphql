@@ -122,5 +122,4 @@ class SettingGroup {
 
 		return $fields;
 	}
-
 }

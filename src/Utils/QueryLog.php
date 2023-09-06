@@ -161,7 +161,7 @@ class QueryLog {
 				'totalTime'  => $total_time,
 				'queries'    => $queries,
 			];
-		};
+		}
 
 		/**
 		 * Filter the trace
@@ -171,5 +171,4 @@ class QueryLog {
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}
-
 }

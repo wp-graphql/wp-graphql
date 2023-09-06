@@ -180,7 +180,7 @@ final class WPGraphQL {
 							return;
 						}
 
-						echo sprintf(
+						printf(
 							'<div class="notice notice-error">' .
 							'<p>%s</p>' .
 							'</div>',

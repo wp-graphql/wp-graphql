@@ -549,5 +549,4 @@ abstract class Model {
 	 * @return mixed
 	 */
 	abstract protected function init();
-
 }

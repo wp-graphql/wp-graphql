@@ -126,7 +126,3 @@ class Settings {
 		return $fields;
 	}
 }
-
-
-
-

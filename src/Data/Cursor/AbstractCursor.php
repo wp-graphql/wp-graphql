@@ -314,5 +314,4 @@ abstract class AbstractCursor {
 	 * @return string
 	 */
 	abstract public function to_sql();
-
 }

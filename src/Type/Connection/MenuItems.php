@@ -125,5 +125,4 @@ class MenuItems {
 			$args
 		);
 	}
-
 }

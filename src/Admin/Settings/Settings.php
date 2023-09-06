@@ -258,7 +258,7 @@ class Settings {
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */
-	public function initialize_settings_page_scripts( string $hook_suffix ) : void {
+	public function initialize_settings_page_scripts( string $hook_suffix ): void {
 		$this->settings_api->admin_enqueue_scripts( $hook_suffix );
 	}
 
@@ -278,5 +278,4 @@ class Settings {
 		</div>
 		<?php
 	}
-
 }

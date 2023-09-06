@@ -26,5 +26,4 @@ class TermObject {
 
 		\WPGraphQL\Registry\Utils\TermObject::register_types( $tax_object );
 	}
-
 }

@@ -646,7 +646,7 @@ class WPConnectionType {
 	/**
 	 * Checks whether the connection should be registered to the Schema.
 	 */
-	protected function should_register() : bool {
+	protected function should_register(): bool {
 
 		// Don't register if the connection has been excluded from the schema.
 		$excluded_connections = $this->type_registry->get_excluded_connections();
@@ -662,5 +662,4 @@ class WPConnectionType {
 
 		return true;
 	}
-
 }

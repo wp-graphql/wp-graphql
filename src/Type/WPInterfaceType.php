@@ -171,5 +171,4 @@ class WPInterfaceType extends InterfaceType {
 
 		return $fields;
 	}
-
 }

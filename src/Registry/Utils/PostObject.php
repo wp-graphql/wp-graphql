@@ -586,5 +586,4 @@ class PostObject {
 			]
 		);
 	}
-
 }

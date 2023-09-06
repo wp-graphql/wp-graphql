@@ -165,7 +165,7 @@ class UserRegister {
 	/**
 	 * @return bool False.
 	 */
-	public static function return_false() : bool {
+	public static function return_false(): bool {
 		return false;
 	}
 }

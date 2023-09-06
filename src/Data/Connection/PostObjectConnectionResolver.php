@@ -149,10 +149,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				 * If the connection is from the RootQuery, check if the user
 				 * has the 'edit_posts' capability
 				 */
-			} else {
-				if ( ! current_user_can( 'edit_posts' ) ) {
+			} elseif ( ! current_user_can( 'edit_posts' ) ) {
 					$this->should_execute = false;
-				}
 			}
 		}
 
@@ -621,5 +619,4 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return (bool) get_post( absint( $offset ) );
 	}
-
 }

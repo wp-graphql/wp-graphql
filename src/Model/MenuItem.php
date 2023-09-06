@@ -203,5 +203,4 @@ class MenuItem extends Model {
 			];
 		}
 	}
-
 }

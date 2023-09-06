@@ -94,17 +94,11 @@
 
 		<!-- temporary: vipcs 3.0-->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+		<exclude name="Universal.ControlStructures.DisallowLonelyIf.Found" />
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 		<exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound" />
 		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
-		<!-- temporary: vipcs 3.0 autofix-->
-		<exclude name="Generic.CodeAnalysis.EmptyPHPStatement.SemicolonWithoutCodeDetected" />
-		<exclude name="PSR12.Functions.ReturnTypeDeclaration" />
-		<exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody" />
-		<exclude name="PSR2.Files.EndFileNewline.TooMany" />
-		<exclude name="Universal.CodeAnalysis.NoEchoSprintf.Found" />
-		<exclude name="Universal.ControlStructures.DisallowLonelyIf.Found" />
 	</rule>
 
 	<!-- Tests for inline documentation of code -->

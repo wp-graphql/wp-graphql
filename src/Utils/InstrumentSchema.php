@@ -270,5 +270,4 @@ class InstrumentSchema {
 			}
 		}
 	}
-
 }

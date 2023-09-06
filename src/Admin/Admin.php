@@ -67,5 +67,4 @@ class Admin {
 			$graphiql->init();
 		}
 	}
-
 }

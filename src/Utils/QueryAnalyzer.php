@@ -801,5 +801,4 @@ class QueryAnalyzer {
 
 		return $response;
 	}
-
 }

@@ -56,6 +56,4 @@ class SchemaRegistry {
 		 */
 		return apply_filters( 'graphql_schema', $schema, $this );
 	}
-
-
 }

@@ -719,5 +719,4 @@ class DataSource {
 
 		return $node_resolver->resolve_uri( $uri );
 	}
-
 }

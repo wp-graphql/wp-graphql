@@ -217,5 +217,4 @@ class TermObjects {
 			$args
 		);
 	}
-
 }

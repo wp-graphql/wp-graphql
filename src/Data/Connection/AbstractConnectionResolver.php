@@ -1027,5 +1027,4 @@ abstract class AbstractConnectionResolver {
 			}
 		);
 	}
-
 }

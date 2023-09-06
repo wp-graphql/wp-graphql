@@ -224,5 +224,4 @@ class TermObjectCursor extends AbstractCursor {
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
 	}
-
 }

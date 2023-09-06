@@ -111,5 +111,4 @@ class Menu extends Model {
 			];
 		}
 	}
-
 }

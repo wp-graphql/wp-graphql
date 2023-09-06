@@ -209,5 +209,4 @@ class AppContext {
 	public function getCurrentConnection() {
 		return $this->get_current_connection();
 	}
-
 }

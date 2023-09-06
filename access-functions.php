@@ -315,7 +315,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
  *
  * @since 1.13.0
  */
-function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -336,7 +336,7 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
  *
  * @since 1.13.0
  */
-function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -358,7 +358,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -379,7 +379,7 @@ function register_graphql_connection_where_arg( string $from_type, string $to_ty
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -520,11 +520,11 @@ function register_graphql_scalar( string $type_name, array $config ) {
  *
  * @since 1.13.0
  */
-function deregister_graphql_type( string $type_name ) : void {
+function deregister_graphql_type( string $type_name ): void {
 	// Prevent the type from being registered to the scheme directly.
 	add_filter(
 		'graphql_excluded_types',
-		static function ( $excluded_types ) use ( $type_name ) : array {
+		static function ( $excluded_types ) use ( $type_name ): array {
 			// Normalize the types to prevent case sensitivity issues.
 			$type_name = strtolower( $type_name );
 			// If the type isn't already excluded, add it to the array.
@@ -540,7 +540,7 @@ function deregister_graphql_type( string $type_name ) : void {
 	// Prevent the type from being inherited as an interface.
 	add_filter(
 		'graphql_type_interfaces',
-		static function ( $interfaces ) use ( $type_name ) : array {
+		static function ( $interfaces ) use ( $type_name ): array {
 			// Normalize the needle and haystack to prevent case sensitivity issues.
 			$key = array_search(
 				strtolower( $type_name ),
@@ -586,7 +586,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  *
  * @since 1.14.0
  */
-function deregister_graphql_connection( string $connection_name ) : void {
+function deregister_graphql_connection( string $connection_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $connection_name ) {
@@ -603,7 +603,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  *
  * @since 1.14.0
  */
-function deregister_graphql_mutation( string $mutation_name ) : void {
+function deregister_graphql_mutation( string $mutation_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $mutation_name ) {

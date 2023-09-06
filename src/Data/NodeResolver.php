@@ -583,7 +583,7 @@ class NodeResolver {
 	/**
 	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
 	 */
-	protected function is_valid_node_type( string $node_type ) : bool {
+	protected function is_valid_node_type( string $node_type ): bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
 	}
 
@@ -594,7 +594,7 @@ class NodeResolver {
 	 *
 	 * @todo Replace `ContentType` with an `Archive` type.
 	 */
-	protected function resolve_home_page() : ?Deferred {
+	protected function resolve_home_page(): ?Deferred {
 		$page_id       = get_option( 'page_on_front', 0 );
 		$show_on_front = get_option( 'show_on_front', 'posts' );
 
