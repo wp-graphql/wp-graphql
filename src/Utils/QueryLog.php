@@ -68,20 +68,17 @@ class QueryLog {
 		// If logs are disabled, user cannot see logs
 		if ( ! $this->query_logs_enabled ) {
 			$can_see = false;
-		} else {
-
+		} elseif ( 'any' === $this->query_log_user_role ) {
 			// If "any" is the selected role, anyone can see the logs
-			if ( 'any' === $this->query_log_user_role ) {
-				$can_see = true;
-			} else {
-				// Get the current users roles
-				$user = wp_get_current_user();
+			$can_see = true;
+		} else {
+			// Get the current users roles
+			$user = wp_get_current_user();
 
-				// If the user doesn't have roles or the selected role isn't one the user has, the
-				// user cannot see roles;
-				if ( in_array( $this->query_log_user_role, $user->roles, true ) ) {
-					$can_see = true;
-				}
+			// If the user doesn't have roles or the selected role isn't one the user has, the
+			// user cannot see roles;
+			if ( in_array( $this->query_log_user_role, $user->roles, true ) ) {
+				$can_see = true;
 			}
 		}
 
