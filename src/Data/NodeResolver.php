@@ -471,7 +471,7 @@ class NodeResolver {
 
 				// If we're processing a 404 request, clear the error var since we found something.
 				// @phpstan-ignore-next-line
-				if ( '404' == $error ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+				if ( '404' == $error ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					unset( $error );
 				}
 			}
