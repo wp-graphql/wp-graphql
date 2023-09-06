@@ -91,11 +91,13 @@
 
 		<!-- Should probably not be added back -->
 		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
-
-		<!-- temporary: vipcs 3.0-->
-		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
-		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
+
+		<!-- Maybe should be added back -->
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+
+		<!-- temporary: vipcs 3.0 -->
+		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 	</rule>
 
 	<!-- Tests for inline documentation of code -->
