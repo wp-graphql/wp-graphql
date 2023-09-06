@@ -80,7 +80,6 @@
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
 		<!-- Definitely should not be added back -->
-		<exclude name="Generic.CodeAnalysis.AssignmentInCondition.Found"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.Files.FileName"/>
