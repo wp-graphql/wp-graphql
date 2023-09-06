@@ -96,7 +96,6 @@
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 		<exclude name="Universal.ControlStructures.DisallowLonelyIf.Found" />
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
-		<exclude name="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound" />
 		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 	</rule>
