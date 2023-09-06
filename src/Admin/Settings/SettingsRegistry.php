@@ -601,18 +601,18 @@ class SettingsRegistry {
 	 *
 	 * @param string $option  settings field name
 	 * @param string $section the section name this field belongs to
-	 * @param string $default default text if it's not found
+	 * @param string $default_value default text if it's not found
 	 *
 	 * @return string
 	 */
-	public function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $default_value = '' ) {
 		$options = get_option( $section );
 
 		if ( isset( $options[ $option ] ) ) {
 			return $options[ $option ];
 		}
 
-		return $default;
+		return $default_value;
 	}
 
 	/**

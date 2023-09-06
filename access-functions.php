@@ -762,14 +762,14 @@ function register_graphql_settings_fields( string $group, array $fields ) {
 /**
  * Get an option value from GraphQL settings
  *
- * @param string $option_name  The key of the option to return
- * @param mixed  $default      The default value the setting should return if no value is set
- * @param string $section_name The settings group section that the option belongs to
+ * @param string $option_name   The key of the option to return
+ * @param mixed  $default_value The default value the setting should return if no value is set
+ * @param string $section_name  The settings group section that the option belongs to
  *
  * @return mixed|string|int|boolean
  * @since 0.13.0
  */
-function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
+function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {
 	$section_fields = get_option( $section_name );
 
 	/**
@@ -777,25 +777,25 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 	 *
 	 * @param array  $section_fields The values of the fields stored for the section
 	 * @param string $section_name   The name of the section
-	 * @param mixed  $default        The default value for the option being retrieved
+	 * @param mixed  $default_value  The default value for the option being retrieved
 	 */
-	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default );
+	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
 	/**
 	 * Get the value from the stored data, or return the default
 	 */
-	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default;
+	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default_value;
 
 	/**
 	 * Filter the value before returning it
 	 *
 	 * @param mixed  $value          The value of the field
-	 * @param mixed  $default        The default value if there is no value set
+	 * @param mixed  $default_value  The default value if there is no value set
 	 * @param string $option_name    The name of the option
 	 * @param array  $section_fields The setting values within the section
 	 * @param string $section_name   The name of the section the setting belongs to
 	 */
-	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default, $option_name, $section_fields, $section_name );
+	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
 
 /**
@@ -838,12 +838,12 @@ function graphql_get_endpoint_url() {
 if ( ! function_exists( 'array_key_first' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_first( array $array ) {
-		foreach ( $array as $key => $value ) {
+	function array_key_first( array $arr ) {
+		foreach ( $arr as $key => $value ) {
 			return $key;
 		}
 		return null;
@@ -860,13 +860,13 @@ if ( ! function_exists( 'array_key_first' ) ) {
 if ( ! function_exists( 'array_key_last' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_last( array $array ) {
-		end( $array );
+	function array_key_last( array $arr ) {
+		end( $arr );
 
-		return key( $array );
+		return key( $arr );
 	}
 }

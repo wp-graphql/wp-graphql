@@ -321,8 +321,8 @@ class QueryAnalyzer {
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
 			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
 			$interface_names = ! empty( $interfaces ) ? array_map(
-				static function ( InterfaceType $interface ) {
-					return $interface->name;
+				static function ( InterfaceType $interface_obj ) {
+					return $interface_obj->name;
 				},
 				$interfaces 
 			) : [];
@@ -388,7 +388,7 @@ class QueryAnalyzer {
 		$type_info = new TypeInfo( $schema );
 
 		$visitor = [
-			'enter' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+			'enter' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 				$parent_type = $type_info->getParentType();
 
 				if ( 'Field' !== $node->kind ) {
@@ -438,7 +438,7 @@ class QueryAnalyzer {
 					$type_map[] = 'list:' . strtolower( $field_type );
 				}
 			},
-			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];
@@ -485,7 +485,7 @@ class QueryAnalyzer {
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
 		$visitor   = [
-			'enter' => function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+			'enter' => function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 				$type_info->enter( $node );
 				$type = $type_info->getType();
 				if ( ! $type ) {
@@ -517,7 +517,7 @@ class QueryAnalyzer {
 					$type_map[] = strtolower( $named_type );
 				}
 			},
-			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];
@@ -564,7 +564,7 @@ class QueryAnalyzer {
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
 		$visitor   = [
-			'enter' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
+			'enter' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
 				$type_info->enter( $node );
 				$type = $type_info->getType();
 				if ( ! $type ) {
@@ -588,7 +588,7 @@ class QueryAnalyzer {
 					$type_map[] = $named_type->config['model'];
 				}
 			},
-			'leave' => static function ( $node, $key, $parent, $path, $ancestors ) use ( $type_info ) {
+			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
 				$type_info->leave( $node );
 			},
 		];

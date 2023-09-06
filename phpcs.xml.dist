@@ -94,7 +94,6 @@
 
 		<!-- temporary: vipcs 3.0-->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
-		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 	</rule>
