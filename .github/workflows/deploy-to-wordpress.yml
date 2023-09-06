@@ -28,8 +28,7 @@ jobs:
           SLUG: wp-graphql
       - name: Create Artifact
         run: |
-          mkdir plugin-build
-          composer archive -vvv --format=zip --file="plugin-build/wp-graphql"
+          composer run-script zip
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
