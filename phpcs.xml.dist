@@ -84,13 +84,10 @@
 		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
 		<!-- This would be a breaking change to fix-->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
-
-		<!-- Should probably not be added back -->
-		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
-		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
 		<!-- Maybe should be added back -->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
