@@ -91,7 +91,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Throw an exception if the query is attempted to be queried by
 		 */
 		if ( 'comment__in' === $query_args['orderby'] && empty( $query_args['comment__in'] ) ) {
-			throw new UserError( __( 'In order to sort by comment__in, an array of IDs must be passed as the commentIn argument', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'In order to sort by comment__in, an array of IDs must be passed as the commentIn argument', 'wp-graphql' ) );
 		}
 
 		/**

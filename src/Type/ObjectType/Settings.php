@@ -96,7 +96,7 @@ class Settings {
 							 * All other options should be public by default
 							 */
 							if ( 'admin_email' === $key && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 
 							$option = get_option( (string) $key );

@@ -87,7 +87,7 @@ class CommentDelete {
 			$comment_before_delete = ! empty( $comment_id ) ? get_comment( $comment_id ) : false;
 
 			if ( empty( $comment_before_delete ) ) {
-				throw new UserError( __( 'The Comment could not be deleted', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The Comment could not be deleted', 'wp-graphql' ) );
 			}
 
 			/**
@@ -115,7 +115,7 @@ class CommentDelete {
 			 * If the mutation has been prevented
 			 */
 			if ( true === $not_allowed ) {
-				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
 			}
 
 			/**

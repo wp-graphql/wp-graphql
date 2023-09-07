@@ -73,7 +73,7 @@ class CommentUpdate {
 			$comment_args = ! empty( $comment_id ) ? get_comment( $comment_id, ARRAY_A ) : null;
 
 			if ( empty( $comment_id ) || empty( $comment_args ) ) {
-				throw new UserError( __( 'The Comment could not be updated', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The Comment could not be updated', 'wp-graphql' ) );
 			}
 
 			/**
@@ -102,7 +102,7 @@ class CommentUpdate {
 			 * If the mutation has been prevented
 			 */
 			if ( true === $not_allowed ) {
-				throw new UserError( __( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -115,7 +115,7 @@ class CommentUpdate {
 			 * Throw an exception if the comment failed to be created
 			 */
 			if ( ! $success ) {
-				throw new UserError( __( 'The comment failed to update', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The comment failed to update', 'wp-graphql' ) );
 			}
 
 			/**

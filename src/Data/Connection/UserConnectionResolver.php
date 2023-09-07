@@ -226,7 +226,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 			) &&
 			! current_user_can( 'list_users' )
 		) {
-			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}
 
 		$arg_mapping = [

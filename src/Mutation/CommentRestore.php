@@ -83,14 +83,14 @@ class CommentRestore {
 		return static function ( $input ) {
 			// Stop now if a user isn't allowed to delete the comment.
 			if ( ! current_user_can( 'moderate_comments' ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
 			}
 
 			// Get the database ID for the comment.
 			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 
 			if ( false === $comment_id ) {
-				throw new UserError( __( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to restore this comment.', 'wp-graphql' ) );
 			}
 
 			// Delete the comment.

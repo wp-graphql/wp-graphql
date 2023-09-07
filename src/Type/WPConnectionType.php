@@ -199,15 +199,15 @@ class WPConnectionType {
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 	}
 

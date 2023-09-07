@@ -191,14 +191,14 @@ class DataSource {
 
 		if ( ! in_array( $taxonomy, $allowed_taxonomies, true ) ) {
 			// translators: %s is the name of the taxonomy.
-			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			throw new UserError( esc_html( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) ) );
 		}
 
 		$tax_object = get_taxonomy( $taxonomy );
 
 		if ( ! $tax_object instanceof \WP_Taxonomy ) {
 			// translators: %s is the name of the taxonomy.
-			throw new UserError( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) );
+			throw new UserError( esc_html( sprintf( __( 'No taxonomy was found with the name %s', 'wp-graphql' ), $taxonomy ) ) );
 		}
 
 		return new Taxonomy( $tax_object );
@@ -256,7 +256,7 @@ class DataSource {
 			return new Theme( $theme );
 		} else {
 			// translators: %s is the name of the theme stylesheet.
-			throw new UserError( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) );
+			throw new UserError( esc_html( sprintf( __( 'No theme was found with the stylesheet: %s', 'wp-graphql' ), $stylesheet ) ) );
 		}
 	}
 
@@ -326,7 +326,7 @@ class DataSource {
 
 		if ( null === $role ) {
 			// translators: %s is the name of the user role.
-			throw new UserError( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) );
+			throw new UserError( esc_html( sprintf( __( 'No user role was found with the name %s', 'wp-graphql' ), $name ) ) );
 		} else {
 			$role                = (array) $role;
 			$role['id']          = $name;
@@ -632,7 +632,7 @@ class DataSource {
 		 * @since 0.0.6
 		 */
 		if ( empty( $type ) ) {
-			throw new UserError( __( 'No type was found matching the node', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'No type was found matching the node', 'wp-graphql' ) );
 		}
 
 		/**
@@ -655,7 +655,7 @@ class DataSource {
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
 		if ( empty( $global_id ) ) {
-			throw new UserError( __( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'An ID needs to be provided to resolve a node.', 'wp-graphql' ) );
 		}
 
 		/**
@@ -687,7 +687,7 @@ class DataSource {
 			return null;
 		} else {
 			// translators: %s is the global ID.
-			throw new UserError( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) );
+			throw new UserError( esc_html( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) ) );
 		}
 	}
 

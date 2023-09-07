@@ -91,9 +91,6 @@
 
 		<!-- Maybe should be added back -->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
-
-		<!-- temporary: vipcs 3.0 -->
-		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 	</rule>
 
 	<!-- Tests for inline documentation of code -->

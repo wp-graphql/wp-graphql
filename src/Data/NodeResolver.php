@@ -165,11 +165,13 @@ class NodeResolver {
 
 		if ( ! class_exists( $query_class ) ) {
 			throw new UserError(
-				sprintf(
-				/* translators: %s: The query class used to resolve the URI */
-					__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
-					$query_class
-				)
+				esc_html(
+					sprintf(
+					/* translators: %s: The query class used to resolve the URI */
+						__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
+						$query_class
+					)
+				) 
 			);
 		}
 

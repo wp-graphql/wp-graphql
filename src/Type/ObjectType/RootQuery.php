@@ -179,7 +179,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -229,7 +229,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 									}
 									$post_id = absint( $id_components['id'] );
 									break;
@@ -383,7 +383,7 @@ class RootQuery {
 									$locations = get_nav_menu_locations();
 
 									if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
-										throw new UserError( __( 'No menu set for the provided location', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'No menu set for the provided location', 'wp-graphql' ) );
 									}
 
 									$id = absint( $locations[ $args['id'] ] );
@@ -415,7 +415,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -450,7 +450,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -513,7 +513,7 @@ class RootQuery {
 										],
 										true
 									) ) {
-										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
 									if ( 'database_id' === $idType ) {
 										$term = get_term( absint( $args['id'] ) );
@@ -534,7 +534,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$term_id = absint( $id_components['id'] );
 									break;
@@ -593,7 +593,7 @@ class RootQuery {
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_login !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
-											throw new UserError( __( 'You do not have permission to request a User by Username', 'wp-graphql' ) );
+											throw new UserError( esc_html__( 'You do not have permission to request a User by Username', 'wp-graphql' ) );
 										}
 									}
 
@@ -604,7 +604,7 @@ class RootQuery {
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_email !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
-											throw new UserError( __( 'You do not have permission to request a User by Email', 'wp-graphql' ) );
+											throw new UserError( esc_html__( 'You do not have permission to request a User by Email', 'wp-graphql' ) );
 										}
 									}
 
@@ -728,7 +728,7 @@ class RootQuery {
 							default:
 								$id_components = Relay::fromGlobalId( $args['id'] );
 								if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-									throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 								}
 								$post_id = absint( $id_components['id'] );
 								break;
@@ -829,7 +829,7 @@ class RootQuery {
 						if ( ! empty( $args['id'] ) ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
 							if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
-								throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
+								throw new UserError( esc_html__( 'The "id" is invalid', 'wp-graphql' ) );
 							}
 							$post_id = absint( $id_components['id'] );
 						} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
@@ -948,7 +948,7 @@ class RootQuery {
 							default:
 								$id_components = Relay::fromGlobalId( $args['id'] );
 								if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-									throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 								}
 								$term_id = absint( $id_components['id'] );
 								break;

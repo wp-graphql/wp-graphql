@@ -59,7 +59,7 @@ class TermObjectMutation {
 			$parent_id = Utils::get_database_id_from_id( $input['parentId'] );
 
 			if ( empty( $parent_id ) ) {
-				throw new UserError( __( 'The parent ID is not a valid ID', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The parent ID is not a valid ID', 'wp-graphql' ) );
 			}
 
 			/**
@@ -68,7 +68,7 @@ class TermObjectMutation {
 			$parent_term = get_term( absint( $parent_id ), $taxonomy->name );
 
 			if ( ! $parent_term instanceof \WP_Term ) {
-				throw new UserError( __( 'The parent does not exist', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The parent does not exist', 'wp-graphql' ) );
 			}
 
 			$insert_args['parent'] = $parent_term->term_id;

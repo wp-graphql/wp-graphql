@@ -216,7 +216,7 @@ abstract class AbstractConnectionResolver {
 	protected function getLoader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
-			throw new Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+			throw new Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
 		return $this->context->get_loader( $name );
@@ -400,7 +400,7 @@ abstract class AbstractConnectionResolver {
 		throw new Exception(
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
-				__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
+				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
 				static::class
 			)
 		);

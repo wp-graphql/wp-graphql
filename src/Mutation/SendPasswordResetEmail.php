@@ -71,7 +71,7 @@ class SendPasswordResetEmail {
 	public static function mutate_and_get_payload(): callable {
 		return static function ( $input ) {
 			if ( ! self::was_username_provided( $input ) ) {
-				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Enter a username or email address.', 'wp-graphql' ) );
 			}
 
 			// We obsfucate the actual success of this mutation to prevent user enumeration.
