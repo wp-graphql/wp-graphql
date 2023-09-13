@@ -1,36 +1,14 @@
 <?php
 namespace WPGraphQL\Data\Cursor;
 
-use WP_Term_Query;
-use wpdb;
+use WP_Term;
 
-class TermObjectCursor {
-
-	/**
-	 * The global WordPress Database instance
-	 *
-	 * @var wpdb $wpdb
-	 */
-	public $wpdb;
+class TermObjectCursor extends AbstractCursor {
 
 	/**
-	 * The WP_Query instance
-	 *
-	 * @var WP_Term_Query $query
+	 * @var ?\WP_Term ;
 	 */
-	public $query;
-
-	/**
-	 * The current term id which is our cursor offset
-	 *
-	 * @var int $cursor_offset
-	 */
-	public $cursor_offset;
-
-	/**
-	 * @var CursorBuilder
-	 */
-	public $builder;
+	public $cursor_node;
 
 	/**
 	 * Counter for meta value joins
@@ -40,113 +18,62 @@ class TermObjectCursor {
 	public $meta_join_alias = 0;
 
 	/**
-	 * @var array
+	 * {@inheritDoc}
 	 */
-	public $query_args = [];
-
-
-	/**
-	 * @var string|null
-	 */
-	public $cursor;
-
-	/**
-	 * @var string
-	 */
-	public $compare;
-
-	/**
-	 * TermObjectCursor constructor.
-	 *
-	 * @param array  $args The query args used for the WP_Term_Query
-	 * @param string $cursor Whether to generate the before or after cursor. Default "after"
-	 */
-	public function __construct( array $args, $cursor = '' ) {
-
-		global $wpdb;
-		$this->wpdb       = $wpdb;
-		$this->query_args = $args;
-		$this->cursor     = $cursor;
-
-		/**
-		 * Get the cursor offset if any
-		 */
-		$offset              = $this->get_query_arg( 'graphql_' . $cursor . '_cursor' );
-		$this->cursor_offset = ! empty( $offset ) ? absint( $offset ) : 0;
-		$compare             = ! empty( $this->get_query_arg( 'graphql_cursor_compare' ) ) ? $this->get_query_arg( 'graphql_cursor_compare' ) : '>';
-		$this->compare       = in_array( $compare, [ '>', '<' ], true ) ? $compare : '>';
-
-		if ( 'before' === $cursor ) {
-			$this->compare = '>';
-		} elseif ( 'after' === $cursor ) {
-			$this->compare = '<';
-		}
-
-		$this->builder = new CursorBuilder( $this->compare );
-
-	}
+	protected $id_key = 't.term_id';
 
 	/**
 	 * @param string $name The name of the query var to get
 	 *
+	 * @deprecated 1.9.0
+	 *
 	 * @return mixed|null
 	 */
 	public function get_query_arg( string $name ) {
-		return ! isset( $this->query_args[ $name ] ) ? null : $this->query_args[ $name ];
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_query_var()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		return $this->get_query_var( $name );
 	}
 
 	/**
-	 * Return the additional AND operators for the where statement
+	 * {@inheritDoc}
 	 *
-	 * @return string|null
+	 * @return ?\WP_Term ;
 	 */
-	public function get_where() {
-
-		/**
-		 * Ensure the cursor_offset is a positive integer
-		 */
-		if ( ! is_integer( $this->cursor_offset ) || 0 >= $this->cursor_offset ) {
-			return '';
-		}
-
-		/**
-		 * If we have bad cursor just skip...
-		 */
-		if ( ! $this->get_cursor_term() ) {
-			return '';
-		}
-
-		$orderby = $this->get_query_arg( 'orderby' );
-		$order   = $this->get_query_arg( 'order' );
-
-		if ( ! empty( $orderby ) && is_string( $orderby ) ) {
-
-			/**
-			 * If $orderby is just a string just compare with it directly as DESC
-			 */
-			$this->compare_with( $orderby, $order );
-
-		}
-
-		$this->builder->add_field( 't.term_id', $this->cursor_offset, 'ID' );
-
-		return $this->to_sql();
-	}
-
-	/**
-	 * Get term instance for the cursor.
-	 *
-	 * This is cached internally so it does not generate extra queries
-	 *
-	 * @return mixed \WP_Term|null
-	 */
-	public function get_cursor_term() {
+	public function get_cursor_node() {
+		// Bail if no offset.
 		if ( ! $this->cursor_offset ) {
 			return null;
 		}
 
-		$term = \WP_Term::get_instance( $this->cursor_offset );
-		return $term instanceof \WP_Term ? $term : null;
+		/**
+		 * If pre-hooked, return filtered node.
+		 *
+		 * @param null|\WP_Term                           $pre_term The pre-filtered term node.
+		 * @param int                                     $offset   The cursor offset.
+		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
+		 *
+		 * @return null|\WP_Term
+		 */
+		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
+		if ( null !== $pre_term ) {
+			return $pre_term;
+		}
+
+		// Get cursor node.
+		$term = WP_Term::get_instance( $this->cursor_offset );
+
+		return $term instanceof WP_Term ? $term : null;
+	}
+
+	/**
+	 * @return ?\WP_Term ;
+	 * @deprecated 1.9.0
+	 */
+	public function get_cursor_term() {
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		return $this->cursor_node;
 	}
 
 	/**
@@ -154,16 +81,62 @@ class TermObjectCursor {
 	 *
 	 * @param array|null $fields The fields from the CursorBuilder to convert to SQL
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public function to_sql( $fields = null ) {
 		$sql = $this->builder->to_sql( $fields );
 		if ( empty( $sql ) ) {
-			return null;
+			return '';
 		}
 		return ' AND ' . $sql;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_where() {
+		// If we have a bad cursor, just skip.
+		if ( ! $this->is_valid_offset_and_node() ) {
+			return '';
+		}
+
+		$orderby = $this->get_query_var( 'orderby' );
+		$order   = $this->get_query_var( 'order' );
+
+		if ( 'name' === $orderby ) {
+			if ( '>' === $this->compare ) {
+				$order         = 'DESC';
+				$this->compare = '<';
+			} elseif ( '<' === $this->compare ) {
+				$this->compare = '>';
+				$order         = 'ASC';
+			}
+		}
+
+		/**
+		 * If $orderby is just a string just compare with it directly as DESC
+		 */
+		if ( ! empty( $orderby ) && is_string( $orderby ) ) {
+			$this->compare_with( $orderby, $order );
+		}
+
+		/**
+		 * If there's no orderby specified yet, compare with the following fields.
+		 */
+		if ( ! $this->builder->has_fields() ) {
+			$this->compare_with_cursor_fields();
+		}
+
+		/**
+		 * If there's no cursor_compare fields applied then compare by the ID field.
+		 */
+		if ( ! $this->builder->has_fields() ) {
+			$this->compare_with_id_field();
+		}
+
+
+		return $this->to_sql();
+	}
 
 	/**
 	 * Get AND operator for given order by key
@@ -175,34 +148,30 @@ class TermObjectCursor {
 	 */
 	private function compare_with( string $by, string $order ) {
 
-		$value = $this->get_cursor_term()->{$by};
+		// Bail early, if "key" and "value" provided in query_vars.
+		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
+		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
+		if ( ! empty( $key ) && ! empty( $value ) ) {
+			$this->builder->add_field( $key, $value, null, $order );
+			return;
+		}
+
+		// Set "key" as term table column and get "value" from cursor node.
+		$key   = "t.{$by}";
+		$value = $this->cursor_node->{$by};
 
 		/**
-		 * Compare by the term field if the key matches an value
+		 * If key or value are null, check whether this is a meta key based ordering before bailing.
 		 */
-		if ( ! empty( $value ) ) {
-
-			if ( '>' === $this->compare ) {
-				$order = 'DESC';
-			} else {
-				$order = 'ASC';
+		if ( null === $value ) {
+			$meta_key = $this->get_meta_key( $by );
+			if ( $meta_key ) {
+				$this->compare_with_meta_field( $meta_key, $order );
 			}
-
-			$this->builder->add_field( "{$by}", $value, null, $order );
-
 			return;
 		}
 
-		/**
-		 * Find out whether this is a meta key based ordering
-		 */
-		$meta_key = $this->get_meta_key( $by );
-		if ( $meta_key ) {
-			$this->compare_with_meta_field( $meta_key, $order );
-
-			return;
-		}
-
+		$this->builder->add_field( $key, $value, null, $order );
 	}
 
 	/**
@@ -214,7 +183,7 @@ class TermObjectCursor {
 	 * @return void
 	 */
 	private function compare_with_meta_field( string $meta_key, string $order ) {
-		$meta_type  = $this->get_query_arg( 'meta_type' );
+		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_term_meta( $this->cursor_offset, $meta_key, true );
 
 		$key = "{$this->wpdb->termmeta}.meta_value";
@@ -224,10 +193,9 @@ class TermObjectCursor {
 		 */
 		if ( 0 !== $this->meta_join_alias ) {
 			$key = "mt{$this->meta_join_alias}.meta_value";
-
 		}
 
-		$this->meta_join_alias ++;
+		++$this->meta_join_alias;
 
 		$this->builder->add_field( $key, $meta_value, $meta_type, $order, $this );
 	}
@@ -240,22 +208,20 @@ class TermObjectCursor {
 	 * @return string|null
 	 */
 	private function get_meta_key( string $by ) {
-
 		if ( 'meta_value' === $by || 'meta_value_num' === $by ) {
-			return $this->get_query_arg( 'meta_key' );
+			return $this->get_query_var( 'meta_key' );
 		}
 
 		/**
 		 * Check for the WP 4.2+ style meta clauses
 		 * https://make.wordpress.org/core/2015/03/30/query-improvements-in-wp-4-2-orderby-and-meta_query/
 		 */
-		if ( ! isset( $this->query_args['meta_query'][ $by ] ) ) {
+		if ( ! isset( $this->query_vars['meta_query'][ $by ] ) ) {
 			return null;
 		}
 
-		$clause = $this->query_args['meta_query'][ $by ];
+		$clause = $this->query_vars['meta_query'][ $by ];
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
 	}
-
 }

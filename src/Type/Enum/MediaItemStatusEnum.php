@@ -21,21 +21,18 @@ class MediaItemStatusEnum {
 			'auto-draft',
 		];
 
-		if ( ! empty( $post_stati ) && is_array( $post_stati ) ) {
-			/**
-			 * Reset the array
-			 */
-			$values = [];
-			/**
-			 * Loop through the post_stati
-			 */
-			foreach ( $post_stati as $status ) {
-
-				$values[ WPEnumType::get_safe_name( $status ) ] = [
-					'description' => sprintf( __( 'Objects with the %1$s status', 'wp-graphql' ), $status ),
-					'value'       => $status,
-				];
-			}
+		/**
+		 * Loop through the post_stati
+		 */
+		foreach ( $post_stati as $status ) {
+			$values[ WPEnumType::get_safe_name( $status ) ] = [
+				'description' => sprintf(
+					// translators: %1$s is the post status.
+					__( 'Objects with the %1$s status', 'wp-graphql' ),
+					$status
+				),
+				'value'       => $status,
+			];
 		}
 
 		register_graphql_enum_type(
@@ -45,6 +42,5 @@ class MediaItemStatusEnum {
 				'values'      => $values,
 			]
 		);
-
 	}
 }

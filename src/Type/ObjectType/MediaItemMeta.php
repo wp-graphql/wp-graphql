@@ -39,7 +39,7 @@ class MediaItemMeta {
 					'createdTimestamp' => [
 						'type'        => 'Int',
 						'description' => __( 'The date/time when the media was created.', 'wp-graphql' ),
-						'resolve'     => function ( $meta, $args, $context, $info ) {
+						'resolve'     => static function ( $meta, $args, $context, $info ) {
 							return ! empty( $meta['created_timestamp'] ) ? $meta['created_timestamp'] : null;
 						},
 					],
@@ -50,7 +50,7 @@ class MediaItemMeta {
 					'focalLength'      => [
 						'type'        => 'Float',
 						'description' => __( 'The focal length value of the media item.', 'wp-graphql' ),
-						'resolve'     => function ( $meta, $args, $context, $info ) {
+						'resolve'     => static function ( $meta, $args, $context, $info ) {
 							return ! empty( $meta['focal_length'] ) ? $meta['focal_length'] : null;
 						},
 					],
@@ -61,7 +61,7 @@ class MediaItemMeta {
 					'shutterSpeed'     => [
 						'type'        => 'Float',
 						'description' => __( 'The shutter speed information of the media item.', 'wp-graphql' ),
-						'resolve'     => function ( $meta, $args, $context, $info ) {
+						'resolve'     => static function ( $meta, $args, $context, $info ) {
 							return ! empty( $meta['shutter_speed'] ) ? $meta['shutter_speed'] : null;
 						},
 					],

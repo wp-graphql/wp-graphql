@@ -34,7 +34,7 @@ class Avatar extends Model {
 	 *
 	 * @throws \Exception Throws Exception.
 	 */
-	public function __construct( $avatar ) {
+	public function __construct( array $avatar ) {
 		$this->data = $avatar;
 		parent::__construct();
 	}
@@ -45,9 +45,7 @@ class Avatar extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'size'         => function () {
 					return ! empty( $this->data['size'] ) ? absint( $this->data['size'] ) : null;
@@ -62,7 +60,7 @@ class Avatar extends Model {
 					return ! empty( $this->data['default'] ) ? $this->data['default'] : null;
 				},
 				'forceDefault' => function () {
-					return ( ! empty( $this->data['force_default'] ) && true === $this->data['force_default'] ) ? true : false;
+					return ! empty( $this->data['force_default'] );
 				},
 				'rating'       => function () {
 					return ! empty( $this->data['rating'] ) ? $this->data['rating'] : null;
@@ -74,13 +72,12 @@ class Avatar extends Model {
 					return ! empty( $this->data['extra_attr'] ) ? $this->data['extra_attr'] : null;
 				},
 				'foundAvatar'  => function () {
-					return ! empty( $this->data['found_avatar'] && true === $this->data['found_avatar'] ) ? true : false;
+					return ! empty( $this->data['found_avatar'] );
 				},
 				'url'          => function () {
 					return ! empty( $this->data['url'] ) ? $this->data['url'] : null;
 				},
 			];
-
 		}
 	}
 }

@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
 use WPGraphQL\Model\Taxonomy;
 
 /**
@@ -15,8 +14,8 @@ class TaxonomyLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Taxonomy
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Taxonomy
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
 		return new Taxonomy( $entry );
@@ -26,10 +25,10 @@ class TaxonomyLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-		$taxonomies = get_taxonomies( [ 'show_in_graphql' => true ], 'objects' );
+		$taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		$loaded = [];
 		if ( ! empty( $taxonomies ) && is_array( $taxonomies ) ) {

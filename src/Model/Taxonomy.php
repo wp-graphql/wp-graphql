@@ -48,7 +48,6 @@ class Taxonomy extends Model {
 	 * @throws \Exception
 	 */
 	public function __construct( \WP_Taxonomy $taxonomy ) {
-
 		$this->data = $taxonomy;
 
 		$allowed_restricted_fields = [
@@ -69,7 +68,6 @@ class Taxonomy extends Model {
 		$capability = isset( $this->data->cap->edit_terms ) ? $this->data->cap->edit_terms : 'edit_terms';
 
 		parent::__construct( $capability, $allowed_restricted_fields );
-
 	}
 
 	/**
@@ -78,13 +76,11 @@ class Taxonomy extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
 		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_terms ) || ! current_user_can( $this->data->cap->edit_terms ) ) ) {
 			return true;
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -93,9 +89,7 @@ class Taxonomy extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                  => function () {
 					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
@@ -116,28 +110,28 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
 				},
 				'hierarchical'        => function () {
-					return ( true === $this->data->hierarchical ) ? true : false;
+					return true === $this->data->hierarchical;
 				},
 				'showUi'              => function () {
-					return ( true === $this->data->show_ui ) ? true : false;
+					return true === $this->data->show_ui;
 				},
 				'showInMenu'          => function () {
-					return ( true === $this->data->show_in_menu ) ? true : false;
+					return true === $this->data->show_in_menu;
 				},
 				'showInNavMenus'      => function () {
-					return ( true === $this->data->show_in_nav_menus ) ? true : false;
+					return true === $this->data->show_in_nav_menus;
 				},
 				'showCloud'           => function () {
-					return ( true === $this->data->show_tagcloud ) ? true : false;
+					return true === $this->data->show_tagcloud;
 				},
 				'showInQuickEdit'     => function () {
-					return ( true === $this->data->show_in_quick_edit ) ? true : false;
+					return true === $this->data->show_in_quick_edit;
 				},
 				'showInAdminColumn'   => function () {
-					return ( true === $this->data->show_admin_column ) ? true : false;
+					return true === $this->data->show_admin_column;
 				},
 				'showInRest'          => function () {
-					return ( true === $this->data->show_in_rest ) ? true : false;
+					return true === $this->data->show_in_rest;
 				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
@@ -146,7 +140,7 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
 				},
 				'showInGraphql'       => function () {
-					return ( true === $this->data->show_in_graphql ) ? true : false;
+					return true === $this->data->show_in_graphql;
 				},
 				'graphqlSingleName'   => function () {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
@@ -161,7 +155,6 @@ class Taxonomy extends Model {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
 			];
-
 		}
 	}
 }

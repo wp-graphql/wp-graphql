@@ -1,6 +1,8 @@
 <?php
 
-class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
+use WPGraphQL\Data\Connection\UserConnectionResolver;
+
+class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  {
 
 	public $current_time;
 	public $current_date;
@@ -17,7 +19,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->delete_users();
 
 		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator'
+			'role' => 'administrator',
 		]);
 
 		// Set admin as current user to authorize 'users' queries
@@ -30,20 +32,20 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->create_users();
 
 		$this->query = '
-		query GET_USERS($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToUserConnectionWhereArgs) {
-			users(last: $last, before: $before, first: $first, after: $after, where: $where) {
-				pageInfo {
-					startCursor
-					endCursor
-					hasNextPage
-					hasPreviousPage
+			query GET_USERS($first: Int, $last: Int, $after: String, $before: String, $where: RootQueryToUserConnectionWhereArgs) {
+				users(last: $last, before: $before, first: $first, after: $after, where: $where) {
+					pageInfo {
+						startCursor
+						endCursor
+						hasNextPage
+						hasPreviousPage
+					}
+					nodes {
+						userId
+						username
+					}
 				}
-			    nodes {
-			      	userId
-			      	username
-				}
-		  	}
-		}
+			}
 		';
 
 	}
@@ -96,7 +98,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 				[
 					'user_login' => $alphabet[ $i ],
 					'user_email' => 'test_user_' . $i . '@test.com',
-					'role'       => 'administrator'
+					'role'       => 'administrator',
 				]
 			);
 		}
@@ -113,7 +115,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-				array( 1 )
+				[ 1 ]
 			)
 		);
 		$this->created_user_ids = [ 1 ];
@@ -131,7 +133,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$user_query = new WP_User_Query([
 			'search' => '*' . $search_string . '*',
 			'fields' => 'ids',
-			'number' => -1
+			'number' => -1,
 		]);
 
 		$expected_user_ids = $user_query->get_results();
@@ -186,9 +188,9 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( (bool) $hasNextPage, $actual['data']['users']['pageInfo']['hasNextPage'] );
 
 		// Page 2 of forward pagination should be the 4th, 5th, and 6th (-1 for 0 indexing) users in the response
-		$this->assertEquals( $expected_user_ids[3], $actual['data']['users']['nodes'][ 0 ]['userId'] );
-		$this->assertEquals( $expected_user_ids[4], $actual['data']['users']['nodes'][ 1 ]['userId'] );
-		$this->assertEquals( $expected_user_ids[5], $actual['data']['users']['nodes'][ 2 ]['userId'] );
+		$this->assertEquals( $expected_user_ids[3], $actual['data']['users']['nodes'][0]['userId'] );
+		$this->assertEquals( $expected_user_ids[4], $actual['data']['users']['nodes'][1]['userId'] );
+		$this->assertEquals( $expected_user_ids[5], $actual['data']['users']['nodes'][2]['userId'] );
 	}
 
 	/**
@@ -205,7 +207,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$user_query = new WP_User_Query([
 			'search' => '*' . $search_string . '*',
 			'fields' => 'ids',
-			'number' => -1
+			'number' => -1,
 		]);
 
 		codecept_debug( $user_query );
@@ -268,15 +270,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	private function deleteByMetaKey( $key, $value ) {
-		$args = array(
-			'meta_query' => array(
-				array(
+		$args = [
+			'meta_query' => [
+				[
 					'key'     => $key,
 					'value'   => $value,
 					'compare' => '=',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		 $query = new WP_User_Query( $args );
 
@@ -290,16 +292,15 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @throws Exception
 	 */
-	public function assertQueryInCursor( $graphql_args = [], $wp_user_query_args, $order_by_meta_field = false ) {
+	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
 		$graphql_args = ! empty( $graphql_args ) ? $graphql_args : [];
-
 
 		// Meta field orderby is not supported in schema and needs to be passed in through hook
 		if ( $order_by_meta_field ) {
 			add_filter(
 				'graphql_map_input_fields_to_wp_user_query',
-				function( $query_args ) use ( $wp_user_query_args ) {
+				function ( $query_args ) use ( $wp_user_query_args ) {
 					return array_merge( $query_args, $wp_user_query_args );
 				},
 				10,
@@ -310,7 +311,6 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$users_per_page = ceil( $this->count / 2 );
 
 		codecept_debug( $graphql_args );
-
 
 		$query = '
 		query getUsers($cursor: String $first: Int $where:RootQueryToUserConnectionWhereArgs) {
@@ -331,8 +331,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		codecept_debug( $query );
 
 		$first = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first' => $users_per_page,
-			'cursor' => null
+			'first'  => $users_per_page,
+			'cursor' => null,
 		]) );
 
 		codecept_debug( $first );
@@ -340,7 +340,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map(
-			function( $edge ) {
+			function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$first['data']['users']['edges']
@@ -348,8 +348,8 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 
 		$cursor = $first['data']['users']['pageInfo']['endCursor'];
 		$second = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first' => $users_per_page,
-			'cursor' => $cursor
+			'first'  => $users_per_page,
+			'cursor' => $cursor,
 		]) );
 
 		codecept_debug( $second );
@@ -357,7 +357,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map(
-			function( $edge ) {
+			function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$second['data']['users']['edges']
@@ -392,7 +392,7 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 	 * Test default order
 	 */
 	public function testDefaultUserOrdering() {
-		$this->assertQueryInCursor( null, [] );
+		$this->assertQueryInCursor( [], [] );
 	}
 
 	/**
@@ -858,4 +858,308 @@ class UserObjectCursorTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	public function testThresholdFieldsQueryVar() {
+		// Get username.
+		$usernames = range( 'a', 'z' );
+		// Register new posts connection.
+		register_graphql_connection(
+			[
+				'fromType'       => 'RootQuery',
+				'toType'         => 'User',
+				'fromFieldName'  => 'usersOrderedByEmail',
+				'resolve'        => function ( $source, $args, $context, $info ) {
+					global $wpdb;
+					$resolver = new UserConnectionResolver( $source, $args, $context, $info );
+
+					// Get cursor node
+					$cursor  = $args['after'] ?? null;
+					$cursor  = $cursor ?: ( $args['before'] ?? null );
+					$post_id = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
+					$user    = get_user_by( 'ID', $post_id );
+
+					// Get order.
+					$order   = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
+
+					// Set threshold field.
+					$resolver->set_query_arg(
+						'graphql_cursor_threshold_fields',
+						[
+							[
+								'key'   => "{$wpdb->users}.user_email",
+								'value' => false !== $user ? $user->user_email : null,
+								'order' => $order,
+							],
+						]
+					);
+
+					// Set default ordering.
+					if ( empty( $args['where']['orderby'] ) ) {
+						$resolver->set_query_arg( 'orderby', 'user_email' );
+					}
+
+					if ( empty( $args['where']['order'] ) ) {
+						$resolver->set_query_arg( 'order', $order );
+					}
+
+					return $resolver->get_connection();
+				}
+			]
+		);
+
+		// Clear cached schema so new fields are seen.
+		$this->clearSchema();
+
+		$query = '
+			query ($first: Int, $last: Int, $after: String, $before: String) {
+				usersOrderedByEmail(last: $last, before: $before, first: $first, after: $after) {
+					nodes {
+						id
+						databaseId
+						email
+						username
+					}
+				}
+			}
+		';
+
+		/**
+		 * Assert query successful
+		 */
+		$variables = [ 'first' => 5 ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->admin ) ),
+					$this->expectedField( 'databaseId', $this->admin ),
+					$this->expectedField( 'email', self::NOT_NULL ),
+					$this->expectedField( 'username', self::NOT_NULL ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[0] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[0] ),
+					$this->expectedField( 'email', 'test_user_9@test.com' ),
+					$this->expectedField( 'username', $usernames[9] ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[1] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[1] ),
+					$this->expectedField( 'email', 'test_user_8@test.com' ),
+					$this->expectedField( 'username', $usernames[8] ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[2] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[2] ),
+					$this->expectedField( 'email', 'test_user_7@test.com' ),
+					$this->expectedField( 'username', $usernames[7] ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[3] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[3] ),
+					$this->expectedField( 'email', 'test_user_6@test.com' ),
+					$this->expectedField( 'username', $usernames[6] ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		$variables = [
+			'first' => 5,
+			'after' => base64_encode( 'arrayconnection:' . $this->created_user_ids[3] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[4] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[4] ),
+					$this->expectedField( 'email', 'test_user_5@test.com' ),
+					$this->expectedField( 'username', $usernames[5] ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[5] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[5] ),
+					$this->expectedField( 'email', 'test_user_4@test.com' ),
+					$this->expectedField( 'username', $usernames[4] ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[6] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[6] ),
+					$this->expectedField( 'email', 'test_user_3@test.com' ),
+					$this->expectedField( 'username', $usernames[3] ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[7] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[7] ),
+					$this->expectedField( 'email', 'test_user_2@test.com' ),
+					$this->expectedField( 'username', $usernames[2] ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[8] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[8] ),
+					$this->expectedField( 'email', 'test_user_1@test.com' ),
+					$this->expectedField( 'username', $usernames[1] ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		/**
+		 * Assert query successful in reverse
+		 */
+		$variables = [ 'last' => 5 ];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[5] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[5] ),
+					$this->expectedField( 'email', 'test_user_4@test.com' ),
+					$this->expectedField( 'username', $usernames[4] ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[6] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[6] ),
+					$this->expectedField( 'email', 'test_user_3@test.com' ),
+					$this->expectedField( 'username', $usernames[3] ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[7] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[7] ),
+					$this->expectedField( 'email', 'test_user_2@test.com' ),
+					$this->expectedField( 'username', $usernames[2] ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[8] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[8] ),
+					$this->expectedField( 'email', 'test_user_1@test.com' ),
+					$this->expectedField( 'username', $usernames[1] ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', 1 ) ),
+					$this->expectedField( 'databaseId', 1 ),
+					$this->expectedField( 'email', self::NOT_NULL ),
+					$this->expectedField( 'username', 'admin' ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+
+		$variables = [
+			'last'   => 5,
+			'before' => base64_encode( 'arrayconnection:' . $this->created_user_ids[5] ),
+		];
+		$response  = $this->graphql( compact( 'query', 'variables' ) );
+		$expected  = [
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[0] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[0] ),
+					$this->expectedField( 'email', 'test_user_9@test.com' ),
+					$this->expectedField( 'username', $usernames[9] ),
+				],
+				0
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[1] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[1] ),
+					$this->expectedField( 'email', 'test_user_8@test.com' ),
+					$this->expectedField( 'username', $usernames[8] ),
+				],
+				1
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[2] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[2] ),
+					$this->expectedField( 'email', 'test_user_7@test.com' ),
+					$this->expectedField( 'username', $usernames[7] ),
+				],
+				2
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[3] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[3] ),
+					$this->expectedField( 'email', 'test_user_6@test.com' ),
+					$this->expectedField( 'username', $usernames[6] ),
+				],
+				3
+			),
+			$this->expectedNode(
+				'usersOrderedByEmail.nodes',
+				[
+					$this->expectedField( 'id', $this->toRelayId( 'user', $this->created_user_ids[4] ) ),
+					$this->expectedField( 'databaseId', $this->created_user_ids[4] ),
+					$this->expectedField( 'email', 'test_user_5@test.com' ),
+					$this->expectedField( 'username', $usernames[5] ),
+				],
+				4
+			),
+		];
+
+		$this->assertQuerySuccessful( $response, $expected );
+	}
 }

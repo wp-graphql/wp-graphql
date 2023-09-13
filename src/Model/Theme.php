@@ -48,8 +48,8 @@ class Theme extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
-		if ( current_user_can( 'edit_themes' ) ) {
+		// Don't assume a capabilities hierarchy, since it's likely headless sites might disable some capabilities site-wide.
+		if ( current_user_can( 'edit_themes' ) || current_user_can( 'switch_themes' ) || current_user_can( 'update_themes' ) ) {
 			return false;
 		}
 
@@ -58,7 +58,6 @@ class Theme extends Model {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -67,9 +66,7 @@ class Theme extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'          => function () {
 					$stylesheet = $this->data->get_stylesheet();
@@ -108,7 +105,6 @@ class Theme extends Model {
 					return ! empty( $this->data->version ) ? $this->data->version : null;
 				},
 			];
-
 		}
 	}
 }

@@ -383,11 +383,11 @@ fragment MenuFragment on MenuItem {
 }
 ```
 
-**How to find out the type for Fragment?**
+##### How to find out the type for Fragment?
 
 You can use the Doc section of the Graphiql, and search for the query, and then as shown in the gif below, find the type of the field.
 
-![Example use of graphql to query menu items](./intro-graphql-MenuItems.gif)
+![Example use of graphql to query menu items](./images/intro-graphql-MenuItems.gif)
 
 Let's put this together and try it in GraphiQL
 
@@ -416,7 +416,7 @@ fragment MenuItem on MenuItem {
 }
 ```
 
-![Example use of fragments in a query](./intro-graphql-fragments.png)
+![Example use of fragments in a query](./images/intro-graphql-fragments.png)
 
 So as you can see that with the help of Fragments we can reuse the same piece of logic in both queries and when needed, we only need to make updates at one place.
 
@@ -547,7 +547,7 @@ At the root of the GraphQL Schema is a Query Type, but there can also be a Mutat
 
 Query and Mutation types are the same as all other Object Types, the difference is that they are at the root of the Schema and serve as the entry point to the API.
 
-Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for r retrieving data, and Mutations for *changing* data.
+Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for retrieving data, and Mutations for *changing* data.
 
 #### Scalar Types
 
@@ -556,8 +556,8 @@ Above, we saw the `String` Scalar type, but GraphQL has a few built-in Scalar ty
 - `Int`: A signed 32‐bit integer.
 - `Float`: A signed double-precision floating-point value.
 - `String`: A UTF‐8 character sequence.
-- `Boolean`:&nbsp;`true`&nbsp;or&nbsp;`false`.
-- `ID`: The ID scalar type represents a unique identifier, often used to refetch an object or as the key for a cache. The ID type is serialized in the same way as a String; however, defining it as an&nbsp;`ID`&nbsp;signifies that it is not intended to be human‐readable.
+- `Boolean`: `true` or `false`.
+- `ID`: The ID scalar type represents a unique identifier, often used to refetch an object or as the key for a cache. The ID type is serialized in the same way as a String; however, defining it as an `ID` signifies that it is not intended to be human‐readable.
 
 #### Custom Scalars
 

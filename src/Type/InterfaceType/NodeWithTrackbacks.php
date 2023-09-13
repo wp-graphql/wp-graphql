@@ -8,7 +8,7 @@ class NodeWithTrackbacks {
 	/**
 	 * Registers the NodeWithTrackbacks Type to the Schema
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 */
@@ -16,6 +16,7 @@ class NodeWithTrackbacks {
 		register_graphql_interface_type(
 			'NodeWithTrackbacks',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have trackbacks and pingbacks', 'wp-graphql' ),
 				'fields'      => [
 					'toPing'     => [

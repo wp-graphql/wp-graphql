@@ -10,7 +10,6 @@ class UsersConnectionOrderbyInput {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_input_type(
 			'UsersConnectionOrderbyInput',
 			[
@@ -29,6 +28,5 @@ class UsersConnectionOrderbyInput {
 				],
 			]
 		);
-
 	}
 }

@@ -31,11 +31,12 @@ class QueryDepth extends QuerySecurityRule {
 	 */
 	public function __construct() {
 		$max_query_depth = get_graphql_setting( 'query_depth_max', 10 );
+		$max_query_depth = absint( $max_query_depth ) ?? 10;
 		$this->setMaxQueryDepth( $max_query_depth );
 	}
 
 	/**
-	 * @param ValidationContext $context
+	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
 	 * @return callable[]|mixed[]
 	 */
@@ -45,7 +46,7 @@ class QueryDepth extends QuerySecurityRule {
 			// @phpstan-ignore-next-line
 			[
 				NodeKind::OPERATION_DEFINITION => [
-					'leave' => function ( OperationDefinitionNode $operationDefinition ) use ( $context ) : void {
+					'leave' => function ( OperationDefinitionNode $operationDefinition ) use ( $context ): void {
 						$maxDepth = $this->fieldDepth( $operationDefinition );
 
 						if ( $maxDepth <= $this->getMaxQueryDepth() ) {
@@ -83,7 +84,7 @@ class QueryDepth extends QuerySecurityRule {
 	/**
 	 * Determine node depth
 	 *
-	 * @param Node $node The node being analyzed in the operation
+	 * @param \GraphQL\Language\AST\Node $node The node being analyzed in the operation
 	 * @param int  $depth The depth of the operation
 	 * @param int  $maxDepth The Max Depth of the operation
 	 *
@@ -104,9 +105,7 @@ class QueryDepth extends QuerySecurityRule {
 
 			case $node instanceof InlineFragmentNode:
 				// node has children?
-				if ( isset( $node->selectionSet ) ) {
-					$maxDepth = $this->fieldDepth( $node, $depth, $maxDepth );
-				}
+				$maxDepth = $this->fieldDepth( $node, $depth, $maxDepth );
 				break;
 
 			case $node instanceof FragmentSpreadNode:
@@ -161,7 +160,6 @@ class QueryDepth extends QuerySecurityRule {
 	 * @return bool
 	 */
 	protected function isEnabled() {
-
 		$is_enabled = false;
 
 		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );
@@ -171,6 +169,5 @@ class QueryDepth extends QuerySecurityRule {
 		}
 
 		return $is_enabled;
-
 	}
 }

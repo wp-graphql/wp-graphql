@@ -1,6 +1,5 @@
 import {
   AuthSwitchProvder,
-  useAuthSwitch,
   useAuthSwitchContext,
 } from "./AuthSwitchContext";
 import AuthSwitch from "./AuthSwitch";
@@ -61,8 +60,8 @@ hooks.addFilter("graphiql_app", "graphiql-auth", (app) => {
 hooks.addFilter(
   "graphiql_toolbar_before_buttons",
   "graphiql-auth-switch",
-  (res, props) => {
-    res.push(<AuthSwitch />);
+  (res) => {
+    res.push(<AuthSwitch key="auth-switch" />);
     return res;
   },
   1

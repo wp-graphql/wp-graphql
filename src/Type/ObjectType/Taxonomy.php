@@ -16,26 +16,21 @@ class Taxonomy {
 	 * @return void
 	 */
 	public static function register_type() {
-
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
-
 		register_graphql_object_type(
 			'Taxonomy',
 			[
 				'description' => __( 'A taxonomy object', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],
+				'model'       => TaxonomyModel::class,
 				'connections' => [
 					'connectedContentTypes' => [
-						'toType'               => 'ContentType',
-						'connectionInterfaces' => [ 'ContentTypeConnection' ],
-						'description'          => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
-						'resolve'              => function ( TaxonomyModel $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
-
+						'toType'      => 'ContentType',
+						'description' => __( 'List of Content Types associated with the Taxonomy', 'wp-graphql' ),
+						'resolve'     => static function ( TaxonomyModel $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 							$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 							$resolver             = new ContentTypeConnectionResolver( $taxonomy, $args, $context, $info );
 							$resolver->set_query_arg( 'contentTypeNames', $connected_post_types );
 							return $resolver->get_connection();
-
 						},
 					],
 					'connectedTerms'        => [

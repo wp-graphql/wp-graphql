@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
+use WPGraphQL\Model\PostType;
+
 class ContentType {
 
 	/**
@@ -10,7 +12,6 @@ class ContentType {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		$interfaces = [ 'Node', 'UniformResourceIdentifiable' ];
 
 		register_graphql_object_type(
@@ -18,6 +19,7 @@ class ContentType {
 			[
 				'description' => __( 'An Post Type object', 'wp-graphql' ),
 				'interfaces'  => $interfaces,
+				'model'       => PostType::class,
 				'fields'      => [
 					'id'                  => [
 						'description' => __( 'The globally unique identifier of the post-type object.', 'wp-graphql' ),
@@ -130,6 +132,5 @@ class ContentType {
 
 			]
 		);
-
 	}
 }

@@ -2,9 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
-use GraphQL\Deferred;
-use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 
@@ -19,11 +16,10 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Post
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Post
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( ! $entry instanceof \WP_Post ) {
 			return null;
 		}
@@ -34,15 +30,11 @@ class PostObjectLoader extends AbstractDataLoader {
 		 * will batch the loading so when `setup_post_data()` is called the user
 		 * is already in the cache.
 		 */
-		$context     = $this->context;
-		$user_id     = null;
-		$post_parent = null;
+		$context = $this->context;
 
 		if ( ! empty( $entry->post_author ) && absint( $entry->post_author ) ) {
-			if ( ! empty( $entry->post_author ) ) {
-				$user_id = $entry->post_author;
-				$context->get_loader( 'user' )->load_deferred( $user_id );
-			}
+			$user_id = $entry->post_author;
+			$context->get_loader( 'user' )->load_deferred( $user_id );
 		}
 
 		if ( 'revision' === $entry->post_type && ! empty( $entry->post_parent ) && absint( $entry->post_parent ) ) {
@@ -55,7 +47,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		}
 
 		$post = new Post( $entry );
-		if ( ! isset( $post->fields ) || empty( $post->fields ) ) {
+		if ( empty( $post->fields ) ) {
 			return null;
 		}
 
@@ -75,10 +67,9 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -96,7 +87,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		$args       = [
 			'post_type'           => $post_types,
 			'post_status'         => 'any',
-			'posts_per_page'      => count( $keys ),
+			'posts_per_page'      => count( $keys ), // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 			'post__in'            => $keys,
 			'orderby'             => 'post__in',
 			'no_found_rows'       => true,
@@ -109,7 +100,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 */
 		add_filter(
 			'split_the_query',
-			function ( $split, \WP_Query $query ) {
+			static function ( $split, \WP_Query $query ) {
 				if ( false === $query->get( 'split_the_query' ) ) {
 					return false;
 				}
@@ -138,10 +129,8 @@ class PostObjectLoader extends AbstractDataLoader {
 				 * Once dependencies are loaded, return the Post Object
 				 */
 				$loaded_posts[ $key ] = $post_object;
-
 			}
 		}
-		return ! empty( $loaded_posts ) ? $loaded_posts : [];
+		return $loaded_posts;
 	}
-
 }

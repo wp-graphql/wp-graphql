@@ -60,18 +60,17 @@ class ResetUserPassword {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
-
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			if ( empty( $input['key'] ) ) {
-				throw new UserError( __( 'A password reset key is required.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'A password reset key is required.', 'wp-graphql' ) );
 			}
 
 			if ( empty( $input['login'] ) ) {
-				throw new UserError( __( 'A user login is required.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'A user login is required.', 'wp-graphql' ) );
 			}
 
 			if ( empty( $input['password'] ) ) {
-				throw new UserError( __( 'A new password is required.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'A new password is required.', 'wp-graphql' ) );
 			}
 
 			$user = check_password_reset_key( $input['key'], $input['login'] );
@@ -93,13 +92,16 @@ class ResetUserPassword {
 				/**
 				 * Throw an error with the message
 				 */
-				throw new UserError( $message );
+				throw new UserError( esc_html( $message ) );
 			}
 
 			/**
 			 * Reset the password
 			 */
 			reset_password( $user, $input['password'] );
+
+			// Log in the user, since they already authenticated with the reset key.
+			wp_set_current_user( $user->ID );
 
 			/**
 			 * Return the user ID

@@ -10,12 +10,11 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use WPGraphQL\Server\ValidationRules\DisableIntrospection;
-use WP_Post;
-use WP_Query;
 use WPGraphQL\Server\ValidationRules\QueryDepth;
 use WPGraphQL\Server\ValidationRules\RequireAuthentication;
 use WPGraphQL\Server\WPHelper;
 use WPGraphQL\Utils\DebugLog;
+use WPGraphQL\Utils\QueryAnalyzer;
 
 /**
  * Class Request
@@ -27,31 +26,32 @@ use WPGraphQL\Utils\DebugLog;
  */
 class Request {
 
+
 	/**
 	 * App context for this request.
 	 *
-	 * @var AppContext
+	 * @var \WPGraphQL\AppContext
 	 */
 	public $app_context;
 
 	/**
 	 * Request data.
 	 *
-	 * @var mixed|array|OperationParams
+	 * @var mixed|array|\GraphQL\Server\OperationParams
 	 */
 	public $data;
 
 	/**
 	 * Cached global post.
 	 *
-	 * @var WP_Post
+	 * @var ?\WP_Post
 	 */
 	public $global_post;
 
 	/**
 	 * Cached global wp_the_query.
 	 *
-	 * @var WP_Query
+	 * @var ?\WP_Query
 	 */
 	private $global_wp_the_query;
 
@@ -59,28 +59,28 @@ class Request {
 	 * GraphQL operation parameters for this request. Can also be an array of
 	 * OperationParams.
 	 *
-	 * @var mixed|array|OperationParams|OperationParams[]
+	 * @var mixed|array|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
 	 */
 	public $params;
 
 	/**
 	 * Schema for this request.
 	 *
-	 * @var WPSchema
+	 * @var \WPGraphQL\WPSchema
 	 */
 	public $schema;
 
 	/**
 	 * Debug log for WPGraphQL Requests
 	 *
-	 * @var DebugLog
+	 * @var \WPGraphQL\Utils\DebugLog
 	 */
 	public $debug_log;
 
 	/**
 	 * The Type Registry the Schema is built with
 	 *
-	 * @var Registry\TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	public $type_registry;
 
@@ -106,13 +106,18 @@ class Request {
 	protected $root_value;
 
 	/**
+	 * @var \WPGraphQL\Utils\QueryAnalyzer
+	 */
+	protected $query_analyzer;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array $data The request data (for non-HTTP requests).
 	 *
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( array $data = [] ) {
 
@@ -165,16 +170,30 @@ class Request {
 		$app_context                = new AppContext();
 		$app_context->viewer        = wp_get_current_user();
 		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request = !empty($_REQUEST) ? $_REQUEST : null; // phpcs:ignore
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
+
+		$this->query_analyzer = new QueryAnalyzer( $this );
+
+		// The query analyzer tracks nodes, models, list types and more
+		// to return in headers and debug messages to help developers understand
+		// what was resolved, how to cache it, etc.
+		$this->query_analyzer->init();
 	}
 
 	/**
-	 * @return null
+	 * @return \WPGraphQL\Utils\QueryAnalyzer
+	 */
+	public function get_query_analyzer(): QueryAnalyzer {
+		return $this->query_analyzer;
+	}
+
+	/**
+	 * @return mixed
 	 */
 	protected function get_field_resolver() {
-		return null;
+		return $this->field_resolver;
 	}
 
 	/**
@@ -182,8 +201,7 @@ class Request {
 	 *
 	 * @return array
 	 */
-	protected function get_validation_rules() {
-
+	protected function get_validation_rules(): array {
 		$validation_rules = GraphQL::getStandardValidationRules();
 
 		$validation_rules['require_authentication'] = new RequireAuthentication();
@@ -194,10 +212,9 @@ class Request {
 		 * Return the validation rules to use in the request
 		 *
 		 * @param array   $validation_rules The validation rules to use in the request
-		 * @param Request $this             The Request instance
+		 * @param \WPGraphQL\Request $request The Request instance
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
-
 	}
 
 	/**
@@ -206,7 +223,6 @@ class Request {
 	 * @return mixed|null
 	 */
 	protected function get_root_value() {
-
 		/**
 		 * Set the root value based on what was passed to the request
 		 */
@@ -216,7 +232,7 @@ class Request {
 		 * Return the filtered root value
 		 *
 		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
-		 * @param Request $this       The Request instance
+		 * @param \WPGraphQL\Request $request The Request instance
 		 */
 		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
@@ -225,12 +241,12 @@ class Request {
 	 * Apply filters and do actions before GraphQL execution
 	 *
 	 * @return void
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
-	private function before_execute() {
+	private function before_execute(): void {
 
 		/**
-		 * Store the global post so it can be reset after GraphQL execution
+		 * Store the global post so that it can be reset after GraphQL execution
 		 *
 		 * This allows for a GraphQL query to be used in the middle of post content, such as in a Shortcode
 		 * without disrupting the flow of the post as the global POST before and after GraphQL execution will be
@@ -252,7 +268,7 @@ class Request {
 			// If the request is a batch request, but batch requests are disabled,
 			// bail early
 			if ( ! $this->is_batch_queries_enabled() ) {
-				throw new Error( __( 'Batch Queries are not supported', 'wp-graphql' ) );
+				throw new Error( esc_html__( 'Batch Queries are not supported', 'wp-graphql' ) );
 			}
 
 			$batch_limit = get_graphql_setting( 'batch_limit', 10 );
@@ -262,19 +278,18 @@ class Request {
 			// fail now
 			if ( $batch_limit < count( $this->params ) ) {
 				// translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
-				throw new Error( sprintf( __( 'Batch requests are limited to %1$d operations. This request contained %2$d', 'wp-graphql' ), absint( $batch_limit ), count( $this->params ) ) );
+				throw new Error( sprintf( esc_html__( 'Batch requests are limited to %1$d operations. This request contained %2$d', 'wp-graphql' ), absint( $batch_limit ), count( $this->params ) ) );
 			}
 
 			/**
 			 * Execute batch queries
 			 *
-			 * @param OperationParams[] $params The operation params of the batch request
+			 * @param \GraphQL\Server\OperationParams[] $params The operation params of the batch request
 			 */
 			do_action( 'graphql_execute_batch_queries', $this->params );
 
 			// Process the batched requests
 			array_walk( $this->params, [ $this, 'do_action' ] );
-
 		} else {
 			$this->do_action( $this->params );
 		}
@@ -282,10 +297,9 @@ class Request {
 		/**
 		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)
 		 *
-		 * @param Request $request The instance of the Request being executed
+		 * @param \WPGraphQL\Request $request The instance of the Request being executed
 		 */
 		do_action( 'graphql_before_execute', $this );
-
 	}
 
 	/**
@@ -298,10 +312,9 @@ class Request {
 	 * request.
 	 *
 	 * @return boolean
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function has_authentication_errors() {
-
 		/**
 		 * Bail if this is not an HTTP request.
 		 *
@@ -339,13 +352,12 @@ class Request {
 			 * If the user is not logged in, determine if there's a nonce
 			 */
 		} else {
-
 			$nonce = null;
 
 			if ( isset( $_REQUEST['_wpnonce'] ) ) {
-				$nonce = $_REQUEST['_wpnonce'];
+				$nonce = $_REQUEST['_wpnonce']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			} elseif ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
-				$nonce = $_SERVER['HTTP_X_WP_NONCE'];
+				$nonce = $_SERVER['HTTP_X_WP_NONCE']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			}
 
 			if ( null === $nonce ) {
@@ -359,7 +371,7 @@ class Request {
 			$result = wp_verify_nonce( $nonce, 'wp_rest' );
 
 			if ( ! $result ) {
-				throw new Exception( __( 'Cookie nonce is invalid', 'wp-graphql' ) );
+				throw new Exception( esc_html__( 'Cookie nonce is invalid', 'wp-graphql' ) );
 			}
 		}
 
@@ -385,7 +397,7 @@ class Request {
 		 * GraphQL request will be prevented and an error will be thrown.
 		 *
 		 * @param boolean $authentication_errors Whether there are authentication errors with the request
-		 * @param Request $this                  Instance of the Request
+		 * @param \WPGraphQL\Request $request Instance of the Request
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
 	}
@@ -398,7 +410,7 @@ class Request {
 	 *
 	 * @return array
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private function after_execute( $response ) {
 
@@ -406,7 +418,7 @@ class Request {
 		 * If there are authentication errors, prevent execution and throw an exception.
 		 */
 		if ( false !== $this->has_authentication_errors() ) {
-			throw new Exception( __( 'Authentication Error', 'wp-graphql' ) );
+			throw new Exception( esc_html__( 'Authentication Error', 'wp-graphql' ) );
 		}
 
 		/**
@@ -436,12 +448,12 @@ class Request {
 		 */
 
 		if ( ! empty( $this->global_wp_the_query ) ) {
-			$GLOBALS['wp_the_query'] = $this->global_wp_the_query;
-			wp_reset_query();
+			$GLOBALS['wp_the_query'] = $this->global_wp_the_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+			wp_reset_query(); // phpcs:ignore WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query
 		}
 
 		if ( ! empty( $this->global_post ) ) {
-			$GLOBALS['post'] = $this->global_post;
+			$GLOBALS['post'] = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 			setup_postdata( $this->global_post );
 		}
 
@@ -449,7 +461,7 @@ class Request {
 		 * Run an action after GraphQL Execution
 		 *
 		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
-		 * @param Request $this              Instance of the Request being executed
+		 * @param \WPGraphQL\Request $request Instance of the Request being executed
 		 */
 		do_action( 'graphql_after_execute', $filtered_response, $this );
 
@@ -457,14 +469,13 @@ class Request {
 		 * Return the filtered response
 		 */
 		return $filtered_response;
-
 	}
 
 	/**
 	 * Apply filters and do actions after GraphQL execution
 	 *
 	 * @param mixed|array|object $response The response for your GraphQL request
-	 * @param mixed|Int|null     $key      The array key of the params for batch requests
+	 * @param mixed|int|null     $key      The array key of the params for batch requests
 	 *
 	 * @return array
 	 */
@@ -476,15 +487,17 @@ class Request {
 		$query     = null;
 		$operation = null;
 		$variables = null;
+		$query_id  = null;
 
 		if ( $this->params instanceof OperationParams ) {
-			$operation = $this->params->operation ?? '';
-			$query     = $this->params->query ?? '';
-			$variables = $this->params->variables ?? null;
+			$operation = $this->params->operation;
+			$query     = $this->params->query;
+			$query_id  = $this->params->queryId;
+			$variables = $this->params->variables;
 		} elseif ( is_array( $this->params ) ) {
-
 			$operation = $this->params[ $key ]->operation ?? '';
 			$query     = $this->params[ $key ]->query ?? '';
+			$query_id  = $this->params[ $key ]->queryId ?? null;
 			$variables = $this->params[ $key ]->variables ?? null;
 		}
 
@@ -492,11 +505,11 @@ class Request {
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
 		 * @param mixed|array $response  The response your GraphQL request
-		 * @param WPSchema    $schema    The schema object for the root request
-		 * @param string      $operation The name of the operation
+		 * @param \WPGraphQL\WPSchema $schema The schema object for the root request
+		 * @param mixed|string|null      $operation The name of the operation
 		 * @param string      $query     The query that GraphQL executed
 		 * @param array|null  $variables Variables to passed to your GraphQL query
-		 * @param Request     $this      Instance of the Request
+		 * @param \WPGraphQL\Request $request Instance of the Request
 		 *
 		 * @since 0.0.4
 		 */
@@ -528,15 +541,16 @@ class Request {
 		 * to be hooked in and included in the $response.
 		 *
 		 * @param array      $response  The response for your GraphQL query
-		 * @param WPSchema   $schema    The schema object for the root query
+		 * @param \WPGraphQL\WPSchema $schema The schema object for the root query
 		 * @param string     $operation The name of the operation
 		 * @param string     $query     The query that GraphQL executed
 		 * @param array|null $variables Variables to passed to your GraphQL request
-		 * @param Request    $request   Instance of the Request
+		 * @param \WPGraphQL\Request $request Instance of the Request
+		 * @param string|null $query_id The query id that GraphQL executed
 		 *
 		 * @since 0.0.5
 		 */
-		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this );
+		$filtered_response = apply_filters( 'graphql_request_results', $response, $this->schema, $operation, $query, $variables, $this, $query_id );
 
 		/**
 		 * Run an action after the response has been filtered, as the response is being returned.
@@ -544,13 +558,14 @@ class Request {
 		 *
 		 * @param array      $filtered_response The filtered response for the GraphQL request
 		 * @param array      $response          The response for your GraphQL request
-		 * @param WPSchema   $schema            The schema object for the root request
+		 * @param \WPGraphQL\WPSchema $schema The schema object for the root request
 		 * @param string     $operation         The name of the operation
 		 * @param string     $query             The query that GraphQL executed
 		 * @param array|null $variables         Variables to passed to your GraphQL query
-		 * @param Request    $this              Instance of the Request
+		 * @param \WPGraphQL\Request $request Instance of the Request
+		 * @param string|null $query_id          The query id that GraphQL executed
 		 */
-		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this );
+		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
 
 		/**
 		 * Filter "is_graphql_request" back to false.
@@ -563,7 +578,7 @@ class Request {
 	/**
 	 * Run action for a request.
 	 *
-	 * @param OperationParams $params OperationParams for the request.
+	 * @param \GraphQL\Server\OperationParams $params OperationParams for the request.
 	 *
 	 * @return void
 	 */
@@ -572,10 +587,10 @@ class Request {
 		/**
 		 * Run an action for each request.
 		 *
-		 * @param string          $query     The GraphQL query
-		 * @param string          $operation The name of the operation
-		 * @param array           $variables Variables to be passed to your GraphQL request
-		 * @param OperationParams $params    The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+		 * @param ?string          $query     The GraphQL query
+		 * @param ?string          $operation The name of the operation
+		 * @param ?array          $variables Variables to be passed to your GraphQL request
+		 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
 		 */
 		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 	}
@@ -584,10 +599,9 @@ class Request {
 	 * Execute an internal request (graphql() function call).
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function execute() {
-
 		$helper = new WPHelper();
 
 		if ( ! $this->data instanceof OperationParams ) {
@@ -597,64 +611,76 @@ class Request {
 		}
 
 		if ( is_array( $this->params ) ) {
-			return array_map( function ( $data ) {
-				$this->data = $data;
-				return $this->execute();
-			}, $this->params );
-		} elseif ( $this->params instanceof OperationParams ) {
-
-			/**
-			 * Initialize the GraphQL Request
-			 */
-			$this->before_execute();
-
-			$response = apply_filters( 'pre_graphql_execute_request', null, $this );
-
-			if ( null === $response ) {
-				$result = \GraphQL\GraphQL::executeQuery(
-					$this->schema,
-					isset( $this->params->query ) ? $this->params->query : '',
-					$this->root_value,
-					$this->app_context,
-					isset( $this->params->variables ) ? $this->params->variables : null,
-					isset( $this->params->operation ) ? $this->params->operation : null,
-					$this->field_resolver,
-					$this->validation_rules
-				);
-
-				/**
-				 * Return the result of the request
-				 */
-				$response = $result->toArray( $this->get_debug_flag() );
-			}
-
-			/**
-			 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
-			 */
-			if ( empty( $response ) || ! is_array( $response ) ) {
-				$response = [
-					'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
-				];
-			}
-
-			/**
-			 * If the request is a batch request it will come back as an array
-			 */
-			return $this->after_execute( $response );
-
+			return array_map(
+				function ( $data ) {
+					$this->data = $data;
+					return $this->execute();
+				},
+				$this->params
+			);
 		}
 
-		return [];
+		// If $this->params isnt an array or an OperationParams instance, then something probably went wrong.
+		if ( ! $this->params instanceof OperationParams ) {
+			throw new \Exception( 'Invalid request params.' );
+		}
+
+		/**
+		 * Initialize the GraphQL Request
+		 */
+		$this->before_execute();
+		$response = apply_filters( 'pre_graphql_execute_request', null, $this );
+
+		if ( null === $response ) {
+
+			/**
+			 * Allow the query string to be determined by a filter. Ex, when params->queryId is present, query can be retrieved.
+			 */
+			$query = apply_filters(
+				'graphql_execute_query_params',
+				isset( $this->params->query ) ? $this->params->query : '',
+				$this->params
+			);
+
+			$result = GraphQL::executeQuery(
+				$this->schema,
+				$query,
+				$this->root_value,
+				$this->app_context,
+				isset( $this->params->variables ) ? $this->params->variables : null,
+				isset( $this->params->operation ) ? $this->params->operation : null,
+				$this->field_resolver,
+				$this->validation_rules
+			);
+
+			/**
+			 * Return the result of the request
+			 */
+			$response = $result->toArray( $this->get_debug_flag() );
+		}
+
+		/**
+		 * Ensure the response is returned as a proper, populated array. Otherwise add an error.
+		 */
+		if ( empty( $response ) || ! is_array( $response ) ) {
+			$response = [
+				'errors' => __( 'The GraphQL request returned an invalid response', 'wp-graphql' ),
+			];
+		}
+
+		/**
+		 * If the request is a batch request it will come back as an array
+		 */
+		return $this->after_execute( $response );
 	}
 
 	/**
 	 * Execute an HTTP request.
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function execute_http() {
-
 		/**
 		 * Parse HTTP request.
 		 */
@@ -685,7 +711,7 @@ class Request {
 	/**
 	 * Get the operation params for the request.
 	 *
-	 * @return OperationParams|OperationParams[]
+	 * @return \GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
 	 */
 	public function get_params() {
 		return $this->params;
@@ -714,7 +740,6 @@ class Request {
 	 * @return bool
 	 */
 	private function is_batch_queries_enabled() {
-
 		$batch_queries_enabled = true;
 
 		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
@@ -725,20 +750,18 @@ class Request {
 		/**
 		 * Filter whether batch queries are supported or not
 		 *
-		 * @param $batch_queries_enabled boolean Whether Batch Queries should be enabled
-		 * @param OperationParams $params Request operation params
+		 * @param boolean         $batch_queries_enabled Whether Batch Queries should be enabled
+		 * @param \GraphQL\Server\OperationParams $params Request operation params
 		 */
 		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
-
 	}
 
 	/**
 	 * Create the GraphQL server that will process the request.
 	 *
-	 * @return StandardServer
+	 * @return \GraphQL\Server\StandardServer
 	 */
 	private function get_server() {
-
 		$debug_flag = $this->get_debug_flag();
 
 		$config = new ServerConfig();
@@ -762,14 +785,13 @@ class Request {
 		 * upon directly to override default values or implement new features, e.g.,
 		 * $config->setValidationRules().
 		 *
-		 * @param ServerConfig    $config Server config
-		 * @param OperationParams $params Request operation params
+		 * @param \GraphQL\Server\ServerConfig $config Server config
+		 * @param \GraphQL\Server\OperationParams $params Request operation params
 		 *
 		 * @since 0.2.0
 		 */
 		do_action( 'graphql_server_config', $config, $this->params );
 
 		return new StandardServer( $config );
-
 	}
 }

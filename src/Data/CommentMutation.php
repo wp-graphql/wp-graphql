@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class CommentMutation
@@ -23,7 +23,7 @@ class CommentMutation {
 	 * @param bool   $update        Whether it's an update action
 	 *
 	 * @return array $output_args
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function prepare_comment_object( array $input, array &$output_args, string $mutation_name, $update = false ) {
 		/**
@@ -42,31 +42,33 @@ class CommentMutation {
 		 *    'comment_approved' => 1,
 		 */
 
-		$user = wp_get_current_user();
-		if ( $user instanceof \WP_User && 0 !== $user->ID ) {
-			$output_args['user_id']              = $user->ID;
-			$output_args['comment_author']       = $user->display_name;
-			$output_args['comment_author_email'] = $user->user_email;
-			if ( ! empty( $user->user_url ) ) {
-				$output_args['comment_author_url'] = $user->user_url;
+		$user = self::get_comment_author( $input['authorEmail'] ?? null );
+
+		if ( false !== $user ) {
+			$output_args['user_id'] = $user->ID;
+
+			$input['author']      = ! empty( $input['author'] ) ? $input['author'] : $user->display_name;
+			$input['authorEmail'] = ! empty( $input['authorEmail'] ) ? $input['authorEmail'] : $user->user_email;
+			$input['authorUrl']   = ! empty( $input['authorUrl'] ) ? $input['authorUrl'] : $user->user_url;
+		}
+
+		if ( empty( $input['author'] ) ) {
+			if ( ! $update ) {
+				throw new UserError( esc_html__( 'Comment must include an authorName.', 'wp-graphql' ) );
 			}
 		} else {
-			if ( empty( $input['author'] ) ) {
-				if ( ! $update ) {
-					throw new UserError( __( 'Comment must include an authorName', 'wp-graphql' ) );
-				}
-			} else {
-				$output_args['comment_author'] = $input['author'];
+			$output_args['comment_author'] = $input['author'];
+		}
+
+		if ( ! empty( $input['authorEmail'] ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
+				throw new UserError( esc_html__( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
-			if ( ! empty( $input['authorEmail'] ) ) {
-				if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-					throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
-				}
-				$output_args['comment_author_email'] = $input['authorEmail'];
-			}
-			if ( ! empty( $input['authorUrl'] ) ) {
-				$output_args['comment_author_url'] = $input['authorUrl'];
-			}
+			$output_args['comment_author_email'] = $input['authorEmail'];
+		}
+
+		if ( ! empty( $input['authorUrl'] ) ) {
+			$output_args['comment_author_url'] = $input['authorUrl'];
 		}
 
 		if ( ! empty( $input['commentOn'] ) ) {
@@ -82,14 +84,19 @@ class CommentMutation {
 		}
 
 		if ( ! empty( $input['parent'] ) ) {
-			$output_args['comment_parent'] = $input['parent'];
+			$output_args['comment_parent'] = Utils::get_database_id_from_id( $input['parent'] );
 		}
 
 		if ( ! empty( $input['type'] ) ) {
 			$output_args['comment_type'] = $input['type'];
 		}
 
-		if ( ! empty( $input['approved'] ) ) {
+		if ( ! empty( $input['status'] ) ) {
+			$output_args['comment_approved'] = $input['status'];
+		}
+
+		// Fallback to deprecated `approved` input.
+		if ( empty( $output_args['comment_approved'] ) && isset( $input['approved'] ) ) {
 			$output_args['comment_approved'] = $input['approved'];
 		}
 
@@ -111,8 +118,8 @@ class CommentMutation {
 	 * @param int         $comment_id    The ID of the postObject the comment is connected to
 	 * @param array       $input         The input for the mutation
 	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
-	 * @param AppContext  $context       The AppContext passed down to all resolvers
-	 * @param ResolveInfo $info          The ResolveInfo passed down to all resolvers
+	 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 	 *
 	 * @return void
 	 */
@@ -125,5 +132,30 @@ class CommentMutation {
 		$default_comment_status  = 0;
 
 		do_action( 'graphql_comment_object_mutation_update_additional_data', $comment_id, $input, $mutation_name, $context, $info, $intended_comment_status, $default_comment_status );
+	}
+
+	/**
+	 * Gets the user object for the comment author.
+	 *
+	 * @param ?string $author_email The authorEmail provided to the mutation input.
+	 *
+	 * @return \WP_User|false
+	 */
+	protected static function get_comment_author( string $author_email = null ) {
+		$user = wp_get_current_user();
+
+		// Fail if no logged in user.
+		if ( 0 === $user->ID ) {
+			return false;
+		}
+
+		// Return the current user if they can only handle their own comments or if there's no specified author.
+		if ( empty( $author_email ) || ! $user->has_cap( 'moderate_comments' ) ) {
+			return $user;
+		}
+
+		$author = get_user_by( 'email', $author_email );
+
+		return ! empty( $author->ID ) ? $author : false;
 	}
 }

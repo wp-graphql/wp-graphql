@@ -6,4 +6,6 @@
 define( 'WP_LANG_DIR', true );
 define( 'SAVEQUERIES', true );
 define( 'WPGRAPHQL_PLUGIN_URL', true );
-
+define( 'WP_CONTENT_DIR', true );
+define( 'WP_PLUGIN_DIR', true );
+define( 'PHPSTAN', true );

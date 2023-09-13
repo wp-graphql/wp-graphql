@@ -8,7 +8,7 @@ class NodeWithPageAttributes {
 	/**
 	 * Registers the NodeWithPageAttributes Type to the Schema
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 */
@@ -16,6 +16,7 @@ class NodeWithPageAttributes {
 		register_graphql_interface_type(
 			'NodeWithPageAttributes',
 			[
+				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have page attributes', 'wp-graphql' ),
 				'fields'      => [
 					'menuOrder' => [

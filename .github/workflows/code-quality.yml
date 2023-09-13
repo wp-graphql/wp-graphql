@@ -16,31 +16,35 @@ jobs:
     name: Check code
     strategy:
       matrix:
-        php: [ 7.4.5 ]
+        php: [ 8.1 ]
+
     steps:
+      - name: Cancel previous runs of this workflow (pull requests only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, intl
-          tools: composer
-
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: php-${{ matrix.php }}N-${{ runner.os }}-composer
-
+          tools: composer:v2
+          coverage: none
+      
       - name: Install dependencies
-        run: composer install --no-progress
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--no-progress"
 
       - name: Run PHPStan
-        run: composer run-script phpstan
+        # If STEP_DEBUG is enabled, PHPStan will run in debug mode.
+        run: |
+          if [ "${{ secrets.ACTIONS_STEP_DEBUG }}" = "true" ]; then
+            php vendor/bin/phpstan analyse --memory-limit=2G --debug
+          else
+            composer run-script phpstan
+          fi

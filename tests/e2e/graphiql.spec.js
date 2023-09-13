@@ -169,4 +169,44 @@ describe('Graphiql', function () {
 
     })
 
+    it ('can toggle from a public to a logged-in user', async() => {
+        await loadGraphiQL();
+
+        const userToggleButton = await page.$(".graphiql-auth-toggle button");
+
+        // Confirm the default user toggle state is to toggle to the logged-in user.
+        let userToggleButtonLabel = await page.evaluate(() => {
+            return document.querySelector(".graphiql-auth-toggle button").ariaLabel;
+        });
+        expect(userToggleButtonLabel).toContain( 'logged-in user' );
+
+        // Toggle to the logged-in user.
+        userToggleButton.click();
+
+        // Confirm user badge appears on the icon and button text now mentions public users.
+        await page.waitForSelector('.ant-badge-dot'); // Green logged-in user badge.
+        userToggleButtonLabel = await page.evaluate(() => {
+            return document.querySelector(".graphiql-auth-toggle button").ariaLabel;
+        });
+        expect(userToggleButtonLabel).toContain( 'public user' );
+    })
+
+    it( 'loads when invalid JSON has been saved as variables to local storage', async() => {
+
+        const invalidJson = "{ invalid json";
+
+        await page.evaluate((val) => {
+            window.localStorage.setItem( 'graphiql:variables', val )
+        }, invalidJson);
+
+        const actualVariables = await page.evaluate(() => { return window.localStorage.getItem( "graphiql:variables" ) } );
+
+        expect(actualVariables).toEqual(invalidJson);
+
+        await loadGraphiQL();
+        const graphiqlContainer = await page.$( '.graphiql-container .editorWrap' );
+        expect( graphiqlContainer ).toBeTruthy()
+
+    })
+
 })

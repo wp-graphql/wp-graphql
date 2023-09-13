@@ -1,13 +1,17 @@
 <?php
 
-class TermNodeTest extends \Codeception\TestCase\WPTestCase {
+class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->set_permalink_structure( '/%postname%/' );
+		create_initial_taxonomies();
+		flush_rewrite_rules( true );
+
+		$this->clearSchema();
 	}
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -26,37 +30,35 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  categories: terms(first: 1, where: {taxonomies: [CATEGORY]}) {
-		    nodes {
-		      ...TermFields
-		    }
-		  }
-		  tags: terms(first: 1, where: {taxonomies: [TAG]}) {
-		    nodes {
-		      ...TermFields
-		    }
-		  }
+			categories: terms(first: 1, where: {taxonomies: [CATEGORY]}) {
+				nodes {
+					...TermFields
+				}
+			}
+			tags: terms(first: 1, where: {taxonomies: [TAG]}) {
+				nodes {
+					...TermFields
+				}
+			}
 		}
 		
 		fragment TermFields on TermNode {
-		  __typename
-		  ... on Category {
-		    categoryId
-		  }
-		  ... on Tag {
-            tagId
-          }
+			__typename
+			... on Category {
+				categoryId
+			}
+			... on Tag {
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql([ 'query' => $query ]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql( [ 'query' => $query ] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->assertEquals(  'Category', $actual['data']['categories']['nodes'][0]['__typename'] );
-		$this->assertEquals(  'Tag', $actual['data']['tags']['nodes'][0]['__typename'] );
+		$this->assertEquals( 'Category', $actual['data']['categories']['nodes'][0]['__typename'] );
+		$this->assertEquals( 'Tag', $actual['data']['tags']['nodes'][0]['__typename'] );
 
 	}
 
@@ -65,32 +67,32 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByGlobalId() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -103,35 +105,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByDatabaseId() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:DATABASE_ID) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:DATABASE_ID) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -143,35 +143,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByName() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:NAME) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:NAME) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $tag->name,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -183,35 +181,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagBySlug() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:SLUG) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:SLUG) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $tag->slug,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -223,35 +219,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTagByUri() {
 		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag'
+			'taxonomy' => 'post_tag',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
+			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'  => $tag->name,
+			'slug'  => $tag->slug,
 			'tagId' => $tag->term_id,
 		];
 
 		$query = '
 		query TagByGlobalId($id:ID!){
-		  tag(id: $id idType:URI) {
-		    id
-		    name
-		    slug
-		    tagId
-		  }
+			tag(id: $id idType:URI) {
+				id
+				name
+				slug
+				tagId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $tag->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
@@ -267,28 +261,28 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -305,31 +299,29 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query CategoryByDatabaseId($id:ID!){
-		  category(id: $id idType:DATABASE_ID) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:DATABASE_ID) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $cat->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -341,35 +333,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryByName() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id idType:NAME) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:NAME) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -381,35 +371,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryBySlug() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query CategoryByGlobalId($id:ID!){
-		  category(id: $id idType:SLUG) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:SLUG) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -421,35 +409,33 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryCategoryByUri() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query CatByGlobalId($id:ID!){
-		  category(id: $id idType:URI) {
-		    id
-		    name
-		    slug
-		    categoryId
-		  }
+			category(id: $id idType:URI) {
+				id
+				name
+				slug
+				categoryId
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
@@ -466,31 +452,31 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query TermByGlobal($id:ID!){
-		  termNode(id: $id) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+					categoryId
+				}
+			}
 		}
 		';
 
 		$actual = graphql([
-			'query' => $query,
+			'query'     => $query,
 			'variables' => [
 				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			]
+			],
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -508,34 +494,32 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = [
 			'__typename' => 'Tag',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			'name' => $tag->name,
-			'slug' => $tag->slug,
-			'tagId' => $tag->term_id,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+			'name'       => $tag->name,
+			'slug'       => $tag->slug,
+			'tagId'      => $tag->term_id,
 		];
 
 		$query = '
 		query TermNodeByDatabaseId($id:ID!){
-		  termNode(id: $id idType:DATABASE_ID) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Tag {
-		      tagId
-		    }
-		  }
+			termNode(id: $id idType:DATABASE_ID) {
+				__typename
+				id
+				name
+				slug
+				...on Tag {
+					tagId
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => absint( $tag->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -547,39 +531,37 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeByName() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:NAME, taxonomy: CATEGORY) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id idType:NAME, taxonomy: CATEGORY) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+					categoryId
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->name,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -591,39 +573,37 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeBySlug() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
 		];
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:SLUG, taxonomy: CATEGORY) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		  }
+			termNode(id: $id idType:SLUG, taxonomy: CATEGORY) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+					categoryId
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $cat->slug,
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -635,44 +615,42 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testQueryTermNodeByUri() {
 		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category'
+			'taxonomy' => 'category',
 		]);
 
-		$link = get_term_link( $cat->term_id );
+		$link     = get_term_link( $cat->term_id );
 		$term_uri = str_ireplace( home_url(), '', $link );
 
 		$expected = [
 			'__typename' => 'Category',
-			'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			'name' => $cat->name,
-			'slug' => $cat->slug,
+			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+			'name'       => $cat->name,
+			'slug'       => $cat->slug,
 			'categoryId' => $cat->term_id,
-			'uri' => $term_uri,
+			'uri'        => $term_uri,
 		];
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:URI) {
-		    __typename
-		    id
-		    name
-		    slug
-		    ...on Category {
-		        categoryId
-		    }
-		    uri
-		  }
+			termNode(id: $id idType:URI) {
+				__typename
+				id
+				name
+				slug
+				...on Category {
+					categoryId
+				}
+				uri
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
+		$actual = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
-			]
+			],
 		]);
-
-		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
@@ -696,9 +674,9 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 			return str_replace( $site_url, $frontend_uri, $term_link );
 		});
 
-		$link     = get_term_link( $cat->term_id );
-		$parsed   = parse_url( $link );
-		$term_uri = $parsed['path'] ?? '';
+		$link      = get_term_link( $cat->term_id );
+		$parsed    = parse_url( $link );
+		$term_uri  = $parsed['path'] ?? '';
 		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
 
 		$expected = [
@@ -708,24 +686,63 @@ class TermNodeTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		query TermByGlobalId($id:ID!){
-		  termNode(id: $id idType:URI) {
-		    __typename
-		    uri
-		  }
+			termNode(id: $id idType:URI) {
+				__typename
+				uri
+			}
 		}
 		';
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query'     => $query,
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
 		]);
 
-		codecept_debug( $actual );
-
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
+
+	}
+
+	public function testQueryContentNodesOnCustomTaxonomyTest() {
+
+		register_taxonomy( 'no-posts', [], [
+			'public'              => true,
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'NoPost',
+			'graphql_plural_name' => 'NoPosts',
+		]);
+
+		register_taxonomy( 'with-graphql', [ 'post', 'page' ], [
+			'show_in_graphql'     => true,
+			'graphql_single_name' => 'TestTax',
+			'graphql_plural_name' => 'AllTestTax',
+			'public'              => true,
+		]);
+
+		$query = '
+		{
+			allTestTax {
+				nodes {
+					id
+					contentNodes {
+						__typename
+					}
+				}
+			}
+		}
+		';
+
+		$actual = graphql([
+			'query' => $query,
+		]);
+
+		// assert that the query was valid
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		unregister_taxonomy( 'no-posts' );
+		unregister_taxonomy( 'with-graphql' );
 
 	}
 

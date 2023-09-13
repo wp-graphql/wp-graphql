@@ -21,7 +21,8 @@ class TimezoneEnum {
 
 		$locale           = get_locale();
 		static $mo_loaded = false, $locale_loaded = null;
-		$continents       = [
+
+		$continents = [
 			'Africa',
 			'America',
 			'Antarctica',
@@ -33,6 +34,7 @@ class TimezoneEnum {
 			'Indian',
 			'Pacific',
 		];
+
 		// Load translations for continents and cities.
 		if ( ! $mo_loaded || $locale !== $locale_loaded ) {
 			$locale_loaded = $locale ? $locale : get_locale();
@@ -41,47 +43,42 @@ class TimezoneEnum {
 			load_textdomain( 'continents-cities', $mofile );
 			$mo_loaded = true;
 		}
+
 		$zonen = [];
 		foreach ( timezone_identifiers_list() as $zone ) {
 			$zone = explode( '/', $zone );
+
 			if ( ! in_array( $zone[0], $continents, true ) ) {
 				continue;
 			}
+
 			// This determines what gets set and translated - we don't translate Etc/* strings here, they are done later
 			$exists = [
-				0 => $zone[0] ?? null,
-				1 => $zone[1] ?? null,
-				2 => $zone[2] ?? null,
+				$zone[0],
+				! empty( $zone[1] ) ? $zone[1] : null,
+				! empty( $zone[2] ) ? $zone[2] : null,
 			];
 
-			$exists[3] = ( $exists[0] && 'Etc' !== $zone[0] );
-			$exists[4] = ( $exists[1] && $exists[3] );
-			$exists[5] = ( $exists[2] && $exists[3] );
 			// phpcs:disable WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText
 			$zonen[] = [
-				'continent'   => ( $exists[0] ? $zone[0] : '' ),
-				'city'        => ( $exists[1] ? $zone[1] : '' ),
-				'subcity'     => ( $exists[2] ? $zone[2] : '' ),
-				't_continent' => ( $exists[3] ? translate( str_replace( '_', ' ', $zone[0] ), 'continents-cities' ) : '' ),
-				't_city'      => ( $exists[4] ? translate( str_replace( '_', ' ', $zone[1] ), 'continents-cities' ) : '' ),
-				't_subcity'   => ( $exists[5] ? translate( str_replace( '_', ' ', $zone[2] ), 'continents-cities' ) : '' ),
+				'continent'   => $zone[0],
+				'city'        => $exists[1] ? $zone[1] : '',
+				'subcity'     => $exists[2] ? $zone[2] : '',
+				't_continent' => translate( str_replace( '_', ' ', $zone[0] ), 'wp-graphql' ),
+				't_city'      => $exists[1] ? translate( str_replace( '_', ' ', $zone[1] ), 'wp-graphql' ) : '',
+				't_subcity'   => $exists[2] ? translate( str_replace( '_', ' ', $zone[2] ), 'wp-graphql' ) : '',
 			];
 			// phpcs:enable
 		}
 		usort( $zonen, '_wp_timezone_choice_usort_callback' );
 
-		foreach ( $zonen as $key => $zone ) {
+		foreach ( $zonen as $zone ) {
 			// Build value in an array to join later
 			$value = [ $zone['continent'] ];
 			if ( empty( $zone['city'] ) ) {
 				// It's at the continent level (generally won't happen)
 				$display = $zone['t_continent'];
 			} else {
-				// It's inside a continent group
-				// Continent optgroup
-				if ( ! isset( $zonen[ $key - 1 ] ) || $zonen[ $key - 1 ]['continent'] !== $zone['continent'] ) {
-					$label = $zone['t_continent'];
-				}
 				// Add the city to the value
 				$value[] = $zone['city'];
 				$display = $zone['t_city'];
@@ -98,7 +95,6 @@ class TimezoneEnum {
 				'value'       => $value,
 				'description' => $display,
 			];
-
 		}
 		$offset_range = [
 			- 12,
@@ -158,7 +154,6 @@ class TimezoneEnum {
 			14,
 		];
 		foreach ( $offset_range as $offset ) {
-
 			if ( 0 <= $offset ) {
 				$offset_name = '+' . $offset;
 			} else {
@@ -180,9 +175,12 @@ class TimezoneEnum {
 			// Intentionally avoid WPEnumType::get_safe_name here for specific timezone formatting
 			$enum_values[ WPEnumType::get_safe_name( $offset_name ) ] = [
 				'value'       => $offset_value,
-				'description' => sprintf( __( 'UTC offset: %s', 'wp-graphql' ), $offset_name ),
+				'description' => sprintf(
+					// translators: %s is the UTC offset.
+					__( 'UTC offset: %s', 'wp-graphql' ),
+					$offset_name
+				),
 			];
-
 		}
 
 		register_graphql_enum_type(

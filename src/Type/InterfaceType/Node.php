@@ -21,7 +21,7 @@ class Node {
 						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
 					],
 				],
-				'resolveType' => function ( $node ) {
+				'resolveType' => static function ( $node ) {
 					return DataSource::resolve_node_type( $node );
 				},
 			]

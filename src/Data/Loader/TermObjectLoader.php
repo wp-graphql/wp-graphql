@@ -2,8 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
-use GraphQL\Deferred;
 use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\Term;
 
@@ -18,31 +16,28 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Term
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Term
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( is_a( $entry, 'WP_Term' ) ) {
 
 			/**
 			 * For nav_menu terms, we want to pass through a different model
 			 */
 			if ( 'nav_menu' === $entry->taxonomy ) {
-
 				$menu = new Menu( $entry );
-				if ( ! isset( $menu->fields ) || empty( $menu->fields ) ) {
+				if ( empty( $menu->fields ) ) {
 					return null;
 				} else {
 					return $menu;
 				}
 			} else {
-
 				$term = new Term( $entry );
-				if ( ! isset( $term->fields ) || empty( $term->fields ) ) {
+				if ( empty( $term->fields ) ) {
 					return null;
 				} else {
-					return  $term;
+					return $term;
 				}
 			}
 		}
@@ -59,13 +54,12 @@ class TermObjectLoader extends AbstractDataLoader {
 	 * For example:
 	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
 	 *
-	 * @param array $keys
+	 * @param int[] $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -84,7 +78,6 @@ class TermObjectLoader extends AbstractDataLoader {
 		/**
 		 * Execute the query. This adds the terms to the cache
 		 */
-		// @phpstan-ignore-next-line
 		$query = new \WP_Term_Query( $args );
 		$terms = $query->get_terms();
 
@@ -106,11 +99,8 @@ class TermObjectLoader extends AbstractDataLoader {
 			 * object isn't in the cache, meaning it didn't come back when queried.
 			 */
 			$loaded[ $key ] = get_term( (int) $key );
-
 		}
 
 		return $loaded;
-
 	}
-
 }

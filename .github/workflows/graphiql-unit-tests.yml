@@ -19,17 +19,38 @@ jobs:
         node: ['14']
 
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
+      - name: Cancel previous runs of this workflow (pull requests only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Use desired version of NodeJS
-        uses: actions/setup-node@38d90ce44d5275ad62cc48384b3d8a58c500bb5f # v2.2.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
-      - name: Npm install and build
+      - name: Setup PHP w/ Composer & WP-CLI
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
+          coverage: none
+          tools: composer, wp-cli
+
+      - name: Install Composer Dependencies
         run: |
-          npm install && npm run build
+          composer install --no-dev
+
+      - name: Install NPM Dependencies and Build the GraphiQL App
+        id: install-and-build
+        run: |
+          npm ci && npm run build
+
       - name: Install WordPress
         run: |
           npm run wp-env start

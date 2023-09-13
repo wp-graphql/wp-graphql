@@ -13,3 +13,5 @@ if $( wp maintenance-mode is-active --allow-root ); then
   echo "Deactivating maintenance mode"
   wp maintenance-mode deactivate --allow-root
 fi
+
+

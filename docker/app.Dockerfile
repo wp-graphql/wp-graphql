@@ -53,16 +53,16 @@ ENV DATA_DUMP_DIR="${PROJECT_DIR}/tests/_data"
 # Remove exec statement from base entrypoint script.
 RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
 
-# Set up Apache
+# Set up Apache catch all name
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 # Custom PHP settings
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini \
     ;
 
-# Install XDebug 3
-RUN echo "Installing XDebug 3 (in disabled state)" \
-    && pecl install xdebug \
+# Install XDebug 3. If PHP version 7, use last supported version
+RUN echo "Installing XDebug 3 version $XDEBUG_VERSION (in disabled state)" \
+    && if [[ $PHP_VERSION == 7* ]] ; then pecl install xdebug-3.1.5 ; else pecl install xdebug ; fi \
     && mkdir -p /usr/local/etc/php/conf.d/disabled \
     && echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     && echo "xdebug.mode=develop,debug,coverage" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \

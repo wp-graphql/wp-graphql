@@ -1,75 +1,407 @@
 <?php
 
-class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $current_time;
-	public $current_date;
-	public $current_date_gmt;
 	public $admin;
+	public $current_date_gmt;
+	public $current_date;
+	public $current_time;
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
 		$this->admin            = $this->factory()->user->create( [
 			'role' => 'administrator',
 		] );
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
 
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		// then
 		wp_logout();
 		parent::tearDown();
 	}
 
-	/**
-	 * testPluginsQuery
-	 * This tests querying for a list of plugins.
-	 * The test suite should have Hello Dolly and Akismet plugins, so this
-	 * should return those plugins.
-	 * @since 0.0.5
-	 */
-	public function testPluginsQuery() {
-
-		$query = '
-		{
-		  plugins {
-		    edges {
-		      node {
-		        id
-		        name
-		      }
-		    }
-		    nodes {
-		      id
-		    }
-		  }
-		}
+	public function getQuery() {
+		return '
+			query pluginsQuery( $first: Int, $last:Int, $after:String, $before:String, $where:RootQueryToPluginConnectionWhereArgs ) {
+				plugins( first: $first, last: $last, after: $after, before: $before, where: $where ) {
+					pageInfo {
+						hasNextPage
+						hasPreviousPage
+						startCursor
+						endCursor
+					}
+					edges {
+						cursor
+						node {
+							id
+							path
+						}
+					}
+					nodes {
+						path
+						name
+					}
+				}
+			}
 		';
+	}
 
+	public function testForwardPagination() {
 		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
+		$query = $this->getQuery();
+
+		// The list of plugins might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 100,
+			],
+		] );
+
+		// Confirm its valid.
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['path'] );
+
+		// Store for use by $expected.
+		$wp_query = $actual['data']['plugins'];
 
 		/**
-		 * We don't really care what the specifics are because the default plugins could change at any time
-		 * and we don't care to maintain the exact match, we just want to make sure we are
-		 * properly getting a theme back in the query
+		 * Test the first two results.
 		 */
-		$this->assertNotEmpty( $actual['data']['plugins']['edges'] );
-		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['id'] );
-		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['name'] );
-		$this->assertNotEmpty( $actual['data']['plugins']['nodes'][0]['id'] );
-		$this->assertEquals( $actual['data']['plugins']['nodes'][0]['id'], $actual['data']['plugins']['edges'][0]['node']['id'] );
 
-		foreach ( $actual['data']['plugins']['edges'] as $key => $edge ) {
-			$this->assertEquals( $actual['data']['plugins']['nodes'][ $key ]['id'], $edge['node']['id'] );
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'first' => 2,
+		];
+
+		// Run the GraphQL Query
+		$expected = $wp_query;
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['after'] = '';
+		$expected           = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['after'] = $actual['data']['plugins']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['after'] = $actual['data']['plugins']['pageInfo']['startCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 2, null, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 2, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Theres only one item, so we cant assertValidPagination()
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 1, count( $actual['data']['plugins']['edges'] ) );
+
+		$plugin_path = $expected['nodes'][0]['path'];
+		$cursor      = $this->toRelayId( 'arrayconnection', $plugin_path );
+
+		$this->assertEquals( $plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
+		$this->assertEquals( $plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['edges'][0]['cursor'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['startCursor'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['endCursor'] );
+
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'last' => 100,
+		];
+		$expected  = $wp_query;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins'] );
+	}
+
+	public function testBackwardPagination() {
+		wp_set_current_user( $this->admin );
+		$query = $this->getQuery();
+
+		// The list of plugins might change, so we'll reuse this to check late.
+		$actual = graphql( [
+			'query'     => $query,
+			'variables' => [
+				'last' => 100,
+			],
+		] );
+
+		// Confirm its valid.
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['path'] );
+
+		// Store for use by $expected.
+		$wp_query = $actual['data']['plugins'];
+
+		/**
+		 * Test the first two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		$variables = [
+			'last' => 2,
+		];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( $expected['edges'], 1, 2, false );
+		$expected['nodes'] = array_slice( $expected['nodes'], 1, 2, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test with empty offset.
+		 */
+		$variables['before'] = '';
+		$expected            = $actual;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual );
+
+		/**
+		 * Test the next two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['before'] = $actual['data']['plugins']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 1, 2, false );
+		$expected['edges'] = array_reverse( $expected['edges'] );
+		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 1, 2, false );
+		$expected['nodes'] = array_reverse( $expected['nodes'] );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertValidPagination( $expected, $actual );
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results.
+		 */
+
+		// Set the variables to use in the GraphQL query.
+		// We dont have enough to paginate twice.
+		$variables['before'] = $actual['data']['plugins']['pageInfo']['endCursor'];
+
+		// Run the GraphQL Query
+		$expected          = $wp_query;
+		$expected['edges'] = array_slice( array_reverse( $expected['edges'] ), 2, null, false );
+		$expected['nodes'] = array_slice( array_reverse( $expected['nodes'] ), 2, null, false );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Theres only one item, so we cant assertValidPagination()
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertEquals( 1, count( $actual['data']['plugins']['edges'] ) );
+
+		$plugin_path = $expected['nodes'][0]['path'];
+		$cursor      = $this->toRelayId( 'arrayconnection', $plugin_path );
+
+		$this->assertEquals( $plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
+		$this->assertEquals( $plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['edges'][0]['cursor'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['startCursor'] );
+		$this->assertEquals( $cursor, $actual['data']['plugins']['pageInfo']['endCursor'] );
+
+		$this->assertEquals( false, $actual['data']['plugins']['pageInfo']['hasPreviousPage'] );
+		$this->assertEquals( true, $actual['data']['plugins']['pageInfo']['hasNextPage'] );
+
+		/**
+		 * Test the last two results are equal to `last:2`.
+		 */
+		$variables = [
+			'first' => 100,
+		];
+		$expected  = $wp_query;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertEqualSets( $expected, $actual['data']['plugins'] );
+	}
+
+	public function testQueryWithFirstAndLast() {
+		wp_set_current_user( $this->admin );
+
+		$query = $this->getQuery();
+
+		// The list of plugins might change, so we'll reuse this to check late.
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'first' => 100,
+			],
+		] );
+
+		$after_cursor  = $actual['data']['plugins']['edges'][0]['cursor'];
+		$before_cursor = $actual['data']['plugins']['edges'][2]['cursor'];
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$variables = [
+			'first'  => 5,
+			'after'  => $after_cursor,
+			'before' => $before_cursor,
+		];
+
+		$expected = $actual['data']['plugins']['nodes'][1];
+		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
+
+		/**
+		 * Test `last`.
+		 */
+		$variables['last'] = 5;
+
+		// Using first and last should throw an error.
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		unset( $variables['first'] );
+
+		// Get 5 items, but between the bounds of a before and after cursor.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
+
+	}
+
+	/**
+	 * Tests querying for plugin with where args.
+	 */
+	public function testPluginsQueryWithWhereArgs() {
+		$query = $this->getQuery();
+
+		$active_plugin   = 'WPGraphQL';
+		global $wp_version;
+
+		$inactive_plugin = 'Akismet Anti-Spam: Spam Protection';
+
+		// previous versions of WordPress have a different name of the plugin shipped with the docker images
+		if ( version_compare( $wp_version, '6.2', '<') ) {
+			$inactive_plugin = 'Akismet Anti-Spam';
 		}
 
+		wp_set_current_user( $this->admin );
+
+		// Filter by search term
+
+		$variables = [
+			'where' => [
+				'search' => $active_plugin,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $active_plugin, $actual_plugins );
+		$this->assertNotContains( $inactive_plugin, $actual_plugins );
+
+		// Filter by status
+		// Active status
+		$variables = [
+			'where' => [
+				'status' => 'ACTIVE',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $active_plugin, $actual_plugins );
+		$this->assertNotContains( $inactive_plugin, $actual_plugins );
+
+		// Inactive status
+		$variables['where']['status'] = 'INACTIVE';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $inactive_plugin, $actual_plugins );
+		$this->assertNotContains( $active_plugin, $actual_plugins );
+
+		// Filter by statii
+		$variables = [
+			'where' => [
+				'stati' => [ 'INACTIVE' ],
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertIsValidQueryResponse( $actual );
+
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$this->assertContains( $inactive_plugin, $actual_plugins );
+		$this->assertNotContains( $active_plugin, $actual_plugins );
 	}
 
 	/**
@@ -79,25 +411,7 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_logout();
 
-		$query = '
-		{
-		  plugins {
-		    edges {
-		      node {
-		        id
-		        name
-		      }
-		    }
-		    nodes {
-		      id
-		    }
-		  }
-		}
-		';
-
-		$actual = graphql([ 'query' => $query ]);
-
-		codecept_debug( $actual );
+		$actual = graphql( [ 'query' => $this->getQuery() ] );
 
 		$this->assertEmpty( $actual['data']['plugins']['edges'] );
 		$this->assertEmpty( $actual['data']['plugins']['nodes'] );
@@ -105,67 +419,30 @@ class PluginConnectionQueriesTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * testPluginQuery
-	 * @since 0.0.5
+	 * Common asserts for testing pagination.
+	 *
+	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+	 * @param array $actual The GraphQL results.
 	 */
-	public function testPluginQuery() {
+	public function assertValidPagination( $expected, $actual ) {
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$path = 'wp-graphql/wp-graphql.php';
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'plugin', $path );
+		$this->assertEquals( 2, count( $actual['data']['plugins']['edges'] ) );
 
-		codecept_debug( $global_id );
+		$first_plugin_path  = $expected['nodes'][0]['path'];
+		$second_plugin_path = $expected['nodes'][1]['path'];
 
-		$query = '
-		{
-		  plugin(id: "' . $global_id . '"){
-		    id
-		    name
-		    author
-		    authorUri
-		    description
-		    name
-		    pluginUri
-		    version
-		    path
-		  }
-		}
-		';
+		$start_cursor = $this->toRelayId( 'arrayconnection', $first_plugin_path );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_plugin_path );
 
-		wp_set_current_user( $this->admin );
-		$actual = do_graphql_request( $query );
-
-		codecept_debug( $actual );
-
-		/**
-		 * We don't really care what the specifics are because the default plugins could change at any time
-		 * and we don't care to maintain the exact match, we just want to make sure we are
-		 * properly getting a theme back in the query
-		 */
-		$this->assertNotEmpty( $actual['data']['plugin']['id'] );
-		$this->assertNotEmpty( $actual['data']['plugin']['name'] );
-
-		$plugin_id = $actual['data']['plugin']['id'];
-		$this->assertTrue( ( is_string( $plugin_id ) || null === $plugin_id ) );
-
-		$plugin_name = $actual['data']['plugin']['name'];
-		$this->assertTrue( ( is_string( $plugin_name ) || null === $plugin_name ) );
-
-		$plugin_author = $actual['data']['plugin']['author'];
-		$this->assertTrue( ( is_string( $plugin_author ) || null === $plugin_author ) );
-
-		$plugin_author_uri = $actual['data']['plugin']['authorUri'];
-		$this->assertTrue( ( is_string( $plugin_author_uri ) || null === $plugin_author_uri ) );
-
-		$plugin_description = $actual['data']['plugin']['description'];
-		$this->assertTrue( ( is_string( $plugin_description ) || null === $plugin_description ) );
-
-		$plugin_uri = $actual['data']['plugin']['pluginUri'];
-		$this->assertTrue( ( is_string( $plugin_uri ) || null === $plugin_uri ) );
-
-		$plugin_version = $actual['data']['plugin']['version'];
-		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
-
-		$this->assertSame( $path, $actual['data']['plugin']['path'] );
-
+		$this->assertEquals( $first_plugin_path, $actual['data']['plugins']['edges'][0]['node']['path'] );
+		$this->assertEquals( $first_plugin_path, $actual['data']['plugins']['nodes'][0]['path'] );
+		$this->assertEquals( $start_cursor, $actual['data']['plugins']['edges'][0]['cursor'] );
+		$this->assertEquals( $second_plugin_path, $actual['data']['plugins']['edges'][1]['node']['path'] );
+		$this->assertEquals( $second_plugin_path, $actual['data']['plugins']['nodes'][1]['path'] );
+		$this->assertEquals( $end_cursor, $actual['data']['plugins']['edges'][1]['cursor'] );
+		$this->assertEquals( $start_cursor, $actual['data']['plugins']['pageInfo']['startCursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['plugins']['pageInfo']['endCursor'] );
 	}
 }

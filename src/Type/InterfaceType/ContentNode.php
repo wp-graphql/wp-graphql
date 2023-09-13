@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedScriptsConnectionResolver;
 use WPGraphQL\Data\Connection\EnqueuedStylesheetConnectionResolver;
@@ -13,10 +12,10 @@ class ContentNode {
 	/**
 	 * Adds the ContentNode Type to the WPGraphQL Registry
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
 
@@ -32,8 +31,7 @@ class ContentNode {
 				'connections' => [
 					'contentType'         => [
 						'toType'   => 'ContentType',
-						'resolve'  => function ( Post $source, $args, $context, $info ) {
-
+						'resolve'  => static function ( Post $source, $args, $context, $info ) {
 							if ( $source->isRevision ) {
 								$parent    = get_post( $source->parentDatabaseId );
 								$post_type = $parent->post_type ?? null;
@@ -53,7 +51,7 @@ class ContentNode {
 					],
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -61,13 +59,13 @@ class ContentNode {
 					],
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
-						'resolve' => function ( $source, $args, $context, $info ) {
+						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
 						},
 					],
 				],
-				'resolveType' => function ( Post $post ) use ( $type_registry ) {
+				'resolveType' => static function ( Post $post ) use ( $type_registry ) {
 
 					/**
 					 * The resolveType callback is used at runtime to determine what Type an object
@@ -82,7 +80,7 @@ class ContentNode {
 
 					if ( isset( $post->post_type ) && 'revision' === $post->post_type ) {
 						$parent = get_post( $post->parentDatabaseId );
-						if ( ! empty( $parent ) && isset( $parent->post_type ) ) {
+						if ( $parent instanceof \WP_Post ) {
 							$post_type = $parent->post_type;
 						}
 					}
@@ -94,13 +92,12 @@ class ContentNode {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 				'fields'      => [
 					'contentTypeName'           => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => __( 'The name of the Content Type the node belongs to', 'wp-graphql' ),
-						'resolve'     => function ( $node ) {
+						'resolve'     => static function ( $node ) {
 							return $node->post_type;
 						},
 					],
@@ -173,7 +170,5 @@ class ContentNode {
 				],
 			]
 		);
-
 	}
-
 }

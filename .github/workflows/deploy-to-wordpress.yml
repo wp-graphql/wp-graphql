@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -18,12 +18,7 @@ jobs:
       - name: Install PHP dependencies
         run: |
           composer install --no-dev --optimize-autoloader
-      - name: Install NPM Dependencies
-        run: |
-          npm install
-      - name: Build JavaScript App (GraphiQL)
-        run: |
-          npm build
+
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
@@ -33,8 +28,7 @@ jobs:
           SLUG: wp-graphql
       - name: Create Artifact
         run: |
-          mkdir plugin-build
-          composer archive -vvv --format=zip --file="plugin-build/wp-graphql"
+          composer run-script zip
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
