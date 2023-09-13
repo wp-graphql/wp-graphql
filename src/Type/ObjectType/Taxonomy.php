@@ -37,7 +37,7 @@ class Taxonomy {
 						'toType'               => 'TermNode',
 						'connectionInterfaces' => [ 'TermNodeConnection' ],
 						'description'          => __( 'List of Term Nodes associated with the Taxonomy', 'wp-graphql' ),
-						'resolve'              => function ( TaxonomyModel $source, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'              => static function ( TaxonomyModel $source, $args, AppContext $context, ResolveInfo $info ) {
 							$taxonomies = [ $source->name ];
 
 							$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomies );
