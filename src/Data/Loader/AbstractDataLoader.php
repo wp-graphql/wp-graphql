@@ -94,8 +94,10 @@ abstract class AbstractDataLoader {
 			if ( ! is_scalar( $key ) ) {
 				throw new Exception(
 					static::class . '::buffer expects all keys to be scalars, but key ' .
-					'at position ' . $index . ' is ' . Utils::printSafe( $keys ) . '. ' .
-					$this->get_scalar_key_hint( $key )
+					'at position ' . esc_html( $index ) . ' is ' . esc_html(
+						Utils::printSafe( $keys ) . '. ' .
+						$this->get_scalar_key_hint( $key ) 
+					)
 				);
 			}
 			$this->buffer[ $key ] = 1;
@@ -117,8 +119,10 @@ abstract class AbstractDataLoader {
 		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new Exception(
-				static::class . '::load expects key to be scalar, but got ' . Utils::printSafe( $key ) .
-				$this->get_scalar_key_hint( $key )
+				static::class . '::load expects key to be scalar, but got ' . esc_html(
+					Utils::printSafe( $key ) .
+					$this->get_scalar_key_hint( $key ) 
+				)
 			);
 		}
 		if ( ! $this->shouldCache ) {
@@ -145,8 +149,10 @@ abstract class AbstractDataLoader {
 		$key = $this->key_to_scalar( $key );
 		if ( ! is_scalar( $key ) ) {
 			throw new Exception(
-				static::class . '::prime is expecting scalar $key, but got ' . Utils::printSafe( $key )
-				. $this->get_scalar_key_hint( $key )
+				static::class . '::prime is expecting scalar $key, but got ' . esc_html(
+					Utils::printSafe( $key )
+					. $this->get_scalar_key_hint( $key ) 
+				)
 			);
 		}
 		if ( null === $value ) {
@@ -295,16 +301,16 @@ abstract class AbstractDataLoader {
 			} catch ( \Throwable $e ) {
 				throw new Exception(
 					'Method ' . static::class . '::loadKeys is expected to return array, but it threw: ' .
-					$e->getMessage(),
+					esc_html( $e->getMessage() ),
 					0,
-					$e
+					$e // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 			}
 
 			if ( ! is_array( $loaded ) ) {
 				throw new Exception(
 					'Method ' . static::class . '::loadKeys is expected to return an array with keys ' .
-					'but got: ' . Utils::printSafe( $loaded )
+					'but got: ' . esc_html( Utils::printSafe( $loaded ) )
 				);
 			}
 			if ( $this->shouldCache ) {

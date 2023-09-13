@@ -117,5 +117,4 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	public function should_execute() {
 		return true;
 	}
-
 }

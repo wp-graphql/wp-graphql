@@ -178,5 +178,4 @@ class UserLoader extends AbstractDataLoader {
 			[]
 		);
 	}
-
 }

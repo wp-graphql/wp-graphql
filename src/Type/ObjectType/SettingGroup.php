@@ -93,7 +93,7 @@ class SettingGroup {
 							 */
 							if ( 'admin_email' === $setting_field['key'] ) {
 								if ( ! current_user_can( 'manage_options' ) ) {
-									throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 								}
 							}
 
@@ -122,5 +122,4 @@ class SettingGroup {
 
 		return $fields;
 	}
-
 }

@@ -474,5 +474,4 @@ class Config {
 
 		return $pieces;
 	}
-
 }

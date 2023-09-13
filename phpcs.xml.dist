@@ -51,7 +51,7 @@
 		Tests for WordPress version compatibility.
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
 	-->
-	<config name="minimum_supported_wp_version" value="5.0"/>
+	<config name="minimum_wp_version" value="5.0"/>
 
 	<!-- Individual rule configuration -->
 	<rule ref="WordPress.WP.I18n">
@@ -80,17 +80,17 @@
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
 		<!-- Definitely should not be added back -->
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
-		<exclude name="WordPress.CodeAnalysis.AssignmentInCondition.Found"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
-		<exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
 		<!-- This would be a breaking change to fix-->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
 
-		<!-- Should probably not be added back -->
-		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.objectFound"/>
+		<!-- Maybe should be added back -->
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	</rule>
 
 	<!-- Tests for inline documentation of code -->

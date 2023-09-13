@@ -133,5 +133,4 @@ class PostObjectLoader extends AbstractDataLoader {
 		}
 		return $loaded_posts;
 	}
-
 }

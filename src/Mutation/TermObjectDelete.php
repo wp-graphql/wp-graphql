@@ -96,7 +96,7 @@ class TermObjectDelete {
 
 			if ( empty( $term_id ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being deleted
-				throw new UserError( sprintf( __( 'The ID for the %1$s was not valid', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+				throw new UserError( esc_html( sprintf( __( 'The ID for the %1$s was not valid', 'wp-graphql' ), $taxonomy->graphql_single_name ) ) );
 			}
 
 			/**
@@ -105,7 +105,7 @@ class TermObjectDelete {
 			$term_object = get_term( $term_id, $taxonomy->name );
 
 			if ( ! $term_object instanceof \WP_Term ) {
-				throw new UserError( __( 'The ID passed is invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The ID passed is invalid', 'wp-graphql' ) );
 			}
 
 			/**
@@ -113,7 +113,7 @@ class TermObjectDelete {
 			 */
 			if ( $taxonomy->name !== $term_object->taxonomy ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being edited
-				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+				throw new UserError( esc_html( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) ) );
 			}
 
 			/**
@@ -121,7 +121,7 @@ class TermObjectDelete {
 			 */
 			if ( ! current_user_can( 'delete_term', $term_object->term_id ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being deleted
-				throw new UserError( sprintf( __( 'You do not have permission to delete %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
+				throw new UserError( esc_html( sprintf( __( 'You do not have permission to delete %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) ) );
 			}
 
 			/**
@@ -138,7 +138,7 @@ class TermObjectDelete {
 					throw new UserError( esc_html( $error_message ) );
 				} else {
 					// Translators: The placeholder is the name of the taxonomy for the term being deleted
-					throw new UserError( sprintf( __( 'The %1$s failed to delete but no error was provided', 'wp-graphql' ), $taxonomy->name ) );
+					throw new UserError( esc_html( sprintf( __( 'The %1$s failed to delete but no error was provided', 'wp-graphql' ), $taxonomy->name ) ) );
 				}
 			}
 

@@ -128,5 +128,4 @@ class DebugLog {
 		 */
 		return apply_filters( 'graphql_debug_log', array_values( $this->logs ), $this );
 	}
-
 }

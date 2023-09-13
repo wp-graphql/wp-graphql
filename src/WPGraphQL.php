@@ -180,7 +180,7 @@ final class WPGraphQL {
 							return;
 						}
 
-						echo sprintf(
+						printf(
 							'<div class="notice notice-error">' .
 							'<p>%s</p>' .
 							'</div>',
@@ -301,11 +301,13 @@ final class WPGraphQL {
 	public function min_php_version_check() {
 		if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
 			throw new \Exception(
-				sprintf(
-					// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
-					__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
-					PHP_VERSION,
-					GRAPHQL_MIN_PHP_VERSION
+				esc_html(
+					sprintf(
+						// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
+						__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
+						PHP_VERSION,
+						GRAPHQL_MIN_PHP_VERSION
+					)
 				)
 			);
 		}

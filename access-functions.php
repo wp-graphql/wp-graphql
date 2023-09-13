@@ -315,7 +315,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
  *
  * @since 1.13.0
  */
-function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -336,7 +336,7 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
  *
  * @since 1.13.0
  */
-function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -358,7 +358,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -379,7 +379,7 @@ function register_graphql_connection_where_arg( string $from_type, string $to_ty
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -520,11 +520,11 @@ function register_graphql_scalar( string $type_name, array $config ) {
  *
  * @since 1.13.0
  */
-function deregister_graphql_type( string $type_name ) : void {
+function deregister_graphql_type( string $type_name ): void {
 	// Prevent the type from being registered to the scheme directly.
 	add_filter(
 		'graphql_excluded_types',
-		static function ( $excluded_types ) use ( $type_name ) : array {
+		static function ( $excluded_types ) use ( $type_name ): array {
 			// Normalize the types to prevent case sensitivity issues.
 			$type_name = strtolower( $type_name );
 			// If the type isn't already excluded, add it to the array.
@@ -540,7 +540,7 @@ function deregister_graphql_type( string $type_name ) : void {
 	// Prevent the type from being inherited as an interface.
 	add_filter(
 		'graphql_type_interfaces',
-		static function ( $interfaces ) use ( $type_name ) : array {
+		static function ( $interfaces ) use ( $type_name ): array {
 			// Normalize the needle and haystack to prevent case sensitivity issues.
 			$key = array_search(
 				strtolower( $type_name ),
@@ -586,7 +586,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  *
  * @since 1.14.0
  */
-function deregister_graphql_connection( string $connection_name ) : void {
+function deregister_graphql_connection( string $connection_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $connection_name ) {
@@ -603,7 +603,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  *
  * @since 1.14.0
  */
-function deregister_graphql_mutation( string $mutation_name ) : void {
+function deregister_graphql_mutation( string $mutation_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $mutation_name ) {
@@ -762,14 +762,14 @@ function register_graphql_settings_fields( string $group, array $fields ) {
 /**
  * Get an option value from GraphQL settings
  *
- * @param string $option_name  The key of the option to return
- * @param mixed  $default      The default value the setting should return if no value is set
- * @param string $section_name The settings group section that the option belongs to
+ * @param string $option_name   The key of the option to return
+ * @param mixed  $default_value The default value the setting should return if no value is set
+ * @param string $section_name  The settings group section that the option belongs to
  *
  * @return mixed|string|int|boolean
  * @since 0.13.0
  */
-function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
+function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {
 	$section_fields = get_option( $section_name );
 
 	/**
@@ -777,25 +777,25 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 	 *
 	 * @param array  $section_fields The values of the fields stored for the section
 	 * @param string $section_name   The name of the section
-	 * @param mixed  $default        The default value for the option being retrieved
+	 * @param mixed  $default_value  The default value for the option being retrieved
 	 */
-	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default );
+	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
 	/**
 	 * Get the value from the stored data, or return the default
 	 */
-	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default;
+	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default_value;
 
 	/**
 	 * Filter the value before returning it
 	 *
 	 * @param mixed  $value          The value of the field
-	 * @param mixed  $default        The default value if there is no value set
+	 * @param mixed  $default_value  The default value if there is no value set
 	 * @param string $option_name    The name of the option
 	 * @param array  $section_fields The setting values within the section
 	 * @param string $section_name   The name of the section the setting belongs to
 	 */
-	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default, $option_name, $section_fields, $section_name );
+	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
 
 /**
@@ -838,12 +838,12 @@ function graphql_get_endpoint_url() {
 if ( ! function_exists( 'array_key_first' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_first( array $array ) {
-		foreach ( $array as $key => $value ) {
+	function array_key_first( array $arr ) {
+		foreach ( $arr as $key => $value ) {
 			return $key;
 		}
 		return null;
@@ -860,13 +860,13 @@ if ( ! function_exists( 'array_key_first' ) ) {
 if ( ! function_exists( 'array_key_last' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_last( array $array ) {
-		end( $array );
+	function array_key_last( array $arr ) {
+		end( $arr );
 
-		return key( $array );
+		return key( $arr );
 	}
 }

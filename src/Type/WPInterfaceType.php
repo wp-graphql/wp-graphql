@@ -78,20 +78,20 @@ class WPInterfaceType extends InterfaceType {
 			return $fields;
 		};
 
-		$config['resolveType'] = function ( $object ) use ( $config ) {
+		$config['resolveType'] = function ( $obj ) use ( $config ) {
 			$type = null;
 			if ( is_callable( $config['resolveType'] ) ) {
-				$type = call_user_func( $config['resolveType'], $object );
+				$type = call_user_func( $config['resolveType'], $obj );
 			}
 
 			/**
 			 * Filter the resolve type method for all interfaces
 			 *
-			 * @param mixed           $type   The Type to resolve to, based on the object being resolved.
-			 * @param mixed           $object The Object being resolved.
+			 * @param mixed $type The Type to resolve to, based on the object being resolved.
+			 * @param mixed $obj  The Object being resolved.
 			 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The WPInterfaceType instance.
 			 */
-			return apply_filters( 'graphql_interface_resolve_type', $type, $object, $this );
+			return apply_filters( 'graphql_interface_resolve_type', $type, $obj, $this );
 		};
 
 		/**
@@ -171,5 +171,4 @@ class WPInterfaceType extends InterfaceType {
 
 		return $fields;
 	}
-
 }

@@ -493,5 +493,4 @@ class PostObjectMutation {
 
 		return false;
 	}
-
 }
