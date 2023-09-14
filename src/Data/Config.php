@@ -421,6 +421,17 @@ class Config {
 			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
 		}
 
+		// Check the cursor compare order
+		$order = '>' === $args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
+
+		// Get Cursor ID key.
+		$cursor = new TermObjectCursor( $args );
+		$key    = $cursor->get_cursor_id_key();
+
+		// If there is a cursor compare in the arguments, use it as the stabilizer for cursors.
+		$pieces['orderby'] = "{$pieces['orderby']} {$pieces['order']}, {$key} {$order}";
+		$pieces['order'] = '';
+
 		return $pieces;
 	}
 
