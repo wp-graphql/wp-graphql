@@ -118,7 +118,7 @@ class TermObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * Always apply the compare with id to stabilize the cursor.
+		 * Stabilize cursor by consistently comparing with the ID.
 		 */
 		$this->compare_with_id_field();
 
