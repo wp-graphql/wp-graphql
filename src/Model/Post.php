@@ -566,7 +566,7 @@ class Post extends Model {
 							// If replaced_name is empty, use the `_wp_page_template` meta value.
 							$file_parts = explode( '.', $set_template );
 							$file_name  = ! empty( $file_parts[0] ) ? Utils::format_type_name( $file_parts[0] ) : '';
-							$name       = ! empty( $file_name ) ? ucfirst( $file_name ) : $name;
+							$name       = ! empty( $file_name ) ? $file_name : $name;
 						}
 
 						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
