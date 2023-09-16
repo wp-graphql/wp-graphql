@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use WPGraphQL\Utils\Utils;
+
 class ContentTemplate {
 
 	/**
@@ -56,8 +58,8 @@ class ContentTemplate {
 			} else {
 				// If replaced_name is empty, use the file name
 				$file_parts = explode( '.', $file );
-				$file_name  = ! empty( $file_parts[0] ) ? preg_replace( '/[^\w]/', '', $file_parts[0] ) : '';
-				$name       = ! empty( $file_name ) ? ucfirst( $file_name ) : $name;
+				$file_name  = ! empty( $file_parts[0] ) ? Utils::format_type_name( $file_parts[0] ) : '';
+				$name       = ! empty( $file_name ) ? $file_name : $name;
 			}
 
 			if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
