@@ -3,9 +3,7 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Utils\Utils;
 
@@ -66,7 +64,7 @@ class CommentDelete {
 			'comment'   => [
 				'type'        => 'Comment',
 				'description' => __( 'The deleted comment object', 'wp-graphql' ),
-				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload ) {
 					return $payload['commentObject'] ? $payload['commentObject'] : null;
 				},
 			],

@@ -180,7 +180,7 @@ class User {
 							],
 
 						],
-						'resolve' => static function ( $user, $args, $context, $info ) {
+						'resolve' => static function ( $user, $args ) {
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {
 								$avatar_args['size'] = absint( $args['size'] );
