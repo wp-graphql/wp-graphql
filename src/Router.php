@@ -212,7 +212,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' );
 		return self::is_graphql_http_request();
 	}
 

@@ -153,7 +153,7 @@ class AppContext {
 	 * @deprecated Use get_loader instead.
 	 */
 	public function getLoader( $key ) {
-		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_loader()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_loader()' );
 		return $this->get_loader( $key );
 	}
 
@@ -180,7 +180,7 @@ class AppContext {
 	 * @return array|mixed
 	 */
 	public function getConnectionArgs() {
-		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_connection_args()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_connection_args()' );
 		return $this->get_connection_args();
 	}
 

@@ -446,7 +446,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
 
@@ -525,7 +524,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
 	}
 
@@ -596,7 +594,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_query_models', $map, $schema, $query, $type_info );
 	}
 

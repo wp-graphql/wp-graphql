@@ -633,7 +633,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Get all sizes except the thumbnail.
 		$variables = [
 			'id'      => $attachment_global_id,
-			'exclude' => 'THUMBNAIL', // phpcs:ignore
+			'exclude' => 'THUMBNAIL',
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -647,7 +647,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$variables = [
 			'id'      => $attachment_global_id,
 			'include' => [ 'THUMBNAIL', 'MEDIUM' ],
-			'exclude' => 'MEDIUM', // phpcs:ignore
+			'exclude' => 'MEDIUM',
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );

@@ -408,7 +408,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			'in'            => 'post__in',
 			'mimeType'      => 'post_mime_type',
 			'nameIn'        => 'post_name__in',
-			'notIn'         => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+			'notIn'         => 'post__not_in',
 			'parent'        => 'post_parent',
 			'parentIn'      => 'post_parent__in',
 			'parentNotIn'   => 'post_parent__not_in',
