@@ -564,8 +564,9 @@ class Post extends Model {
 							$name = $replaced_name;
 						} else {
 							// If replaced_name is empty, use the `_wp_page_template` meta value.
-							$file_name = preg_replace( '/[^\w]/', '', $set_template );
-							$name      = ! empty( $file_name ) ? $file_name : $name;
+							$file_parts = explode( '.', $set_template );
+							$file_name  = ! empty( $file_parts[0] ) ? preg_replace( '/[^\w]/', '', $file_parts[0] ) : '';
+							$name       = ! empty( $file_name ) ? ucfirst( $file_name ) : $name;
 						}
 
 						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
