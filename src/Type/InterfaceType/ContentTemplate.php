@@ -47,7 +47,7 @@ class ContentTemplate {
 		}
 
 		// Register each template to the schema
-		foreach ( $page_templates as $name ) {
+		foreach ( $page_templates as $file => $name ) {
 			$name          = ucwords( $name );
 			$replaced_name = preg_replace( '/[^\w]/', '', $name );
 
@@ -55,8 +55,9 @@ class ContentTemplate {
 				$name = $replaced_name;
 			} else {
 				// If replaced_name is empty, use the file name
-				$file_name = explode( '.', $file )[0] ?? '';
-				$name      = preg_replace( '/[^\w]/', '', $file_name );
+				$file_parts = explode( '.', $file );
+				$file_name  = ! empty( $file_parts[0] ) ? preg_replace( '/[^\w]/', '', $file_parts[0] ) : '';
+				$name       = ! empty( $file_name ) ? $file_name : $name;
 			}
 
 			if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
