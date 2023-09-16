@@ -176,7 +176,7 @@ class QueryAnalyzer {
 				'show_query_analyzer_in_extensions',
 			],
 			10,
-			5 
+			5
 		);
 	}
 
@@ -324,7 +324,7 @@ class QueryAnalyzer {
 				static function ( InterfaceType $interface_obj ) {
 					return $interface_obj->name;
 				},
-				$interfaces 
+				$interfaces
 			) : [];
 
 			if ( array_key_exists( 'Connection', $interface_names ) ) {
@@ -730,7 +730,7 @@ class QueryAnalyzer {
 			$return_keys,
 			$this->skipped_keys,
 			$return_keys_array,
-			$skipped_keys_array 
+			$skipped_keys_array
 		);
 
 		return $this->graphql_keys;

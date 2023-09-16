@@ -1208,7 +1208,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1247,7 +1247,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1286,7 +1286,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1399,7 +1399,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"GraphqlExcludeField") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1445,7 +1445,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query GetType( $name: String! ){
 		  __type(name:$name) {
-		    fields(includeDeprecated:true) { 
+		    fields(includeDeprecated:true) {
 		      name
 		    }
 		  }

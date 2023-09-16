@@ -52,13 +52,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = '
-		query getPageByNode( $id:ID! ) { 
-			node( id:$id ) { 
-				__typename 
+		query getPageByNode( $id:ID! ) {
+			node( id:$id ) {
+				__typename
 				...on Page {
 					pageId
 				}
-			} 
+			}
 		}';
 
 		$variables = [
@@ -118,13 +118,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		 * Create the query string to pass to the $query
 		 */
 		$query = "
-		query { 
-			node(id: \"{$global_id}\") { 
-				__typename 
+		query {
+			node(id: \"{$global_id}\") {
+				__typename
 				...on Page {
 					pageId
 				}
-			} 
+			}
 		}";
 
 		/**
@@ -165,13 +165,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
 		$query  = "
-		query { 
-			node(id: \"{$global_id}\") { 
+		query {
+			node(id: \"{$global_id}\") {
 				__typename
 				... on Post {
 					postId
 				}
-			} 
+			}
 		}";
 		$actual = do_graphql_request( $query );
 
@@ -203,13 +203,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$attachment_id = $this->factory->post->create( $args );
 		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$query         = "
-		query { 
-			node(id: \"{$global_id}\") { 
+		query {
+			node(id: \"{$global_id}\") {
 				__typename
 				...on MediaItem {
 					mediaItemId
 				}
-			} 
+			}
 		}";
 		$actual        = do_graphql_request( $query );
 
@@ -233,13 +233,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$plugin_path = 'wp-graphql/wp-graphql.php';
 		$global_id   = \GraphQLRelay\Relay::toGlobalId( 'plugin', $plugin_path );
 		$query       = "
-		query { 
-			node(id: \"{$global_id}\") { 
+		query {
+			node(id: \"{$global_id}\") {
 				__typename
 				... on Plugin {
 					path
 				}
-			} 
+			}
 		}";
 
 		wp_set_current_user( $this->admin );
@@ -271,13 +271,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'theme', $active_theme );
 		$query     = "
-		query { 
-			node(id: \"{$global_id}\") { 
-				__typename 
-				...on Theme{ 
-					slug 
-				} 
-			} 
+		query {
+			node(id: \"{$global_id}\") {
+				__typename
+				...on Theme{
+					slug
+				}
+			}
 		}";
 		wp_set_current_user( $this->admin );
 		$actual = do_graphql_request( $query );
@@ -340,13 +340,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 		$query     = "
-		query { 
-			node(id: \"{$global_id}\") { 
-				__typename 
-				...on User{ 
-					userId 
-				} 
-			} 
+		query {
+			node(id: \"{$global_id}\") {
+				__typename
+				...on User{
+					userId
+				}
+			}
 		}
 		";
 		$actual    = do_graphql_request( $query );
@@ -423,13 +423,13 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 		$query     = "
-		query { 
+		query {
 			node(id: \"{$global_id}\") {
-				__typename 
-				...on Comment{ 
-					commentId 
-				} 
-			} 
+				__typename
+				...on Comment{
+					commentId
+				}
+			}
 		}
 		";
 		$actual    = do_graphql_request( $query );

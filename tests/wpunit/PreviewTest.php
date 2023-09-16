@@ -340,7 +340,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   databaseId
 		   metaKey
 		   title
-		   content 
+		   content
 		   author {
 		     node {
 		       id
@@ -351,7 +351,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		       databaseId
 		       metaKey
 		       title
-		       content 
+		       content
 		      author {
 		         node {
 		           id
@@ -452,7 +452,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   revisedMetaKey
 		   publishedMetaKey
 		   title
-		   content 
+		   content
 		   author {
 		     node {
 		       id
@@ -464,7 +464,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		       publishedMetaKey
 		       revisedMetaKey
 		       title
-		       content 
+		       content
 		      author {
 		         node {
 		           id
@@ -533,14 +533,14 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 				   enclosure
 				   publishedMetaKey
 				   title
-				   content 
+				   content
 				   preview {
 				     node {
 				       databaseId
 				       enclosure
 				       publishedMetaKey
 				       title
-				       content 
+				       content
 				     }
 				   }
 				 }

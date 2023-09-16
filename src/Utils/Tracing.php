@@ -104,7 +104,7 @@ class Tracing {
 				'add_tracing_to_response_extensions',
 			],
 			10,
-			1 
+			1
 		);
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
@@ -201,7 +201,7 @@ class Tracing {
 				$this,
 				'sanitize_trace_resolver_path',
 			],
-			$trace['path'] 
+			$trace['path']
 		) : [];
 		$sanitized_trace['parentType']  = ! empty( $trace['parentType'] ) ? esc_html( $trace['parentType'] ) : '';
 		$sanitized_trace['fieldName']   = ! empty( $trace['fieldName'] ) ? esc_html( $trace['fieldName'] ) : '';

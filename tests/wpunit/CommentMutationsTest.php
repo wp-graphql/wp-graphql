@@ -102,7 +102,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation createCommentTest( $commentOn:Int!, $author:String, $email: String, $content:String! ){
-			createComment( 
+			createComment(
 				input: {
 					commentOn: $commentOn
 					content: $content
@@ -261,7 +261,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation updateCommentTest( $id: ID!, $content: String! ) {
-			updateComment( 
+			updateComment(
 				input: {
 					id: $id
 					content: $content
@@ -317,7 +317,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
-			updateComment( 
+			updateComment(
 				input: {
 					id: $id
 					status: $status
@@ -387,7 +387,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation deleteCommentTest( $id: ID! ) {
-			deleteComment( 
+			deleteComment(
 				input: {
 					id: $id
 				}
@@ -461,7 +461,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation restoreCommentTest( $id: ID! ) {
-			restoreComment( 
+			restoreComment(
 				input: {
 					id: $id
 				}

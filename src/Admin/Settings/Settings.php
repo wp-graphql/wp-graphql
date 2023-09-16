@@ -88,7 +88,7 @@ class Settings {
 			'graphql_general_settings',
 			[
 				'title' => __( 'WPGraphQL General Settings', 'wp-graphql' ),
-			] 
+			]
 		);
 
 		$custom_endpoint = apply_filters( 'graphql_endpoint', null );
@@ -237,7 +237,7 @@ class Settings {
 					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
 					'disabled' => true === \WPGraphQL::debug(),
 				],
-			] 
+			]
 		);
 
 		// Action to hook into to register settings

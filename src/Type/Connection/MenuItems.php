@@ -74,7 +74,7 @@ class MenuItems {
 									'include_children' => true,
 									'operator'         => 'IN',
 								],
-							] 
+							]
 						);
 
 						return $resolver->get_connection();

@@ -148,7 +148,7 @@ class QueryLog {
 						'stack' => $query[2],
 					];
 				},
-				$wpdb->queries 
+				$wpdb->queries
 			);
 
 			$times      = wp_list_pluck( $queries, 'time' );

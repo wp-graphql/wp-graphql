@@ -507,7 +507,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$query_by_source_url = '
 			query GetMediaItem($id:ID!) {
 				mediaItem(
-				id: $id, 
+				id: $id,
 				idType: SOURCE_URL
 			) {
 				__typename

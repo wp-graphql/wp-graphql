@@ -134,7 +134,7 @@ class WPMutationType {
 				__( 'Mutation config needs to have a valid name.', 'wp-graphql' ),
 				[
 					'config' => $config,
-				] 
+				]
 			);
 			$is_valid = false;
 		}
@@ -144,7 +144,7 @@ class WPMutationType {
 				__( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ),
 				[
 					'config' => $config,
-				] 
+				]
 			);
 			$is_valid = false;
 		}
