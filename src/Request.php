@@ -170,7 +170,7 @@ class Request {
 		$app_context                = new AppContext();
 		$app_context->viewer        = wp_get_current_user();
 		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request = !empty($_REQUEST) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$app_context->type_registry = $this->type_registry;
 		$this->app_context          = $app_context;
 
