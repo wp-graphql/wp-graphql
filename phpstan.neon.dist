@@ -5,9 +5,9 @@ parameters:
     treatPhpDocTypesAsCertain: false
     stubFiles:
         # Simulate added properties
-        - phpstan/class-wp-post-type.stub
-        - phpstan/class-wp-taxonomy.stub
-        - phpstan/class-wp-dependency.stub
+        - phpstan/class-wp-post-type.php
+        - phpstan/class-wp-taxonomy.php
+        - phpstan/class-wp-dependency.php
     bootstrapFiles:
         - phpstan/constants.php
         - wp-graphql.php
