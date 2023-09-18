@@ -176,7 +176,7 @@ class QueryAnalyzer {
 				'show_query_analyzer_in_extensions',
 			],
 			10,
-			5 
+			5
 		);
 	}
 
@@ -324,7 +324,7 @@ class QueryAnalyzer {
 				static function ( InterfaceType $interface_obj ) {
 					return $interface_obj->name;
 				},
-				$interfaces 
+				$interfaces
 			) : [];
 
 			if ( array_key_exists( 'Connection', $interface_names ) ) {
@@ -446,7 +446,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
 
@@ -525,7 +524,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
 	}
 
@@ -596,7 +594,6 @@ class QueryAnalyzer {
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
-		// @phpcs:ignore
 		return apply_filters( 'graphql_cache_collection_get_query_models', $map, $schema, $query, $type_info );
 	}
 
@@ -733,7 +730,7 @@ class QueryAnalyzer {
 			$return_keys,
 			$this->skipped_keys,
 			$return_keys_array,
-			$skipped_keys_array 
+			$skipped_keys_array
 		);
 
 		return $this->graphql_keys;

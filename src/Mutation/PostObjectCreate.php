@@ -128,7 +128,7 @@ class PostObjectCreate {
 				'attachment',
 				'revision',
 			],
-			true 
+			true
 		) ) {
 			$fields['parentId'] = [
 				'type'        => 'ID',
@@ -273,7 +273,7 @@ class PostObjectCreate {
 					'draft',
 					'pending',
 				],
-				true 
+				true
 			) ) {
 				$intended_post_status = 'pending';
 			}

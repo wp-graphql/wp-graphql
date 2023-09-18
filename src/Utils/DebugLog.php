@@ -79,7 +79,7 @@ class DebugLog {
 					'type'    => $type,
 					'message' => $message,
 				],
-				$config 
+				$config
 			);
 
 			$this->logs[ wp_json_encode( $message ) ] = $log_entry;

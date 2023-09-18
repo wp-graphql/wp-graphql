@@ -175,11 +175,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Introspection query to query the names of fields on the Type
 		 */
 		$query = '{
-			__type( name: "RootQueryToTestCptConnectionWhereArgs" ) { 
+			__type( name: "RootQueryToTestCptConnectionWhereArgs" ) {
 				inputFields {
 					name
 				}
-			} 
+			}
 		}';
 
 		$response = $this->graphql( compact( 'query' ) );
@@ -332,7 +332,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Introspection query to query the names of fields on the Type
 		 */
 		$query = '{
-			__type( name: "RootQueryToRegisterFieldsCptConnectionWhereArgs" ) { 
+			__type( name: "RootQueryToRegisterFieldsCptConnectionWhereArgs" ) {
 				inputFields {
 					name
 				}
@@ -1728,7 +1728,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query GetType( $name: String! ){
 		  __type(name:$name) {
-		    fields(includeDeprecated:true) { 
+		    fields(includeDeprecated:true) {
 		      name
 		    }
 		  }

@@ -214,7 +214,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
         ];
 
         $this->assertQuerySuccessful( $response, $expected );
-    
+
         /**
 		 * Assert that the reverse query is successful.
 		 */

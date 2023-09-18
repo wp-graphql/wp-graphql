@@ -230,7 +230,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
-		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' );
 		return $this->get_args();
 	}
 
@@ -283,7 +283,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
-		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' );
 
 		return $this->set_query_arg( $key, $value );
 	}
@@ -618,7 +618,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' );
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
@@ -639,7 +639,7 @@ abstract class AbstractConnectionResolver {
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
 		if ( ! empty( $cursor ) ) {
-			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
 		}
 
 		/**
@@ -795,7 +795,7 @@ abstract class AbstractConnectionResolver {
 	 * @return string
 	 */
 	protected function get_cursor_for_node( $id ) {
-		return base64_encode( 'arrayconnection:' . $id ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		return base64_encode( 'arrayconnection:' . $id );
 	}
 
 	/**

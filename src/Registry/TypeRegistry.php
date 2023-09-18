@@ -225,7 +225,7 @@ class TypeRegistry {
 				function ( $type_name ) {
 					return $this->get_type( $type_name );
 				},
-				$this->eager_type_map 
+				$this->eager_type_map
 			);
 		}
 
@@ -560,7 +560,7 @@ class TypeRegistry {
 					'resolve'     => static function () {
 						return get_site_url();
 					},
-				] 
+				]
 			);
 		}
 

@@ -214,12 +214,12 @@ class TermObject {
 										'field'            => 'term_id',
 										'include_children' => false,
 									],
-								] 
+								]
 							);
 
 							return $resolver->get_connection();
 						},
-					] 
+					]
 				);
 
 				// We won't need to register this connection again.
@@ -243,7 +243,7 @@ class TermObject {
 									'field'            => 'term_id',
 									'include_children' => false,
 								],
-							] 
+							]
 						);
 
 						return $resolver->get_connection();

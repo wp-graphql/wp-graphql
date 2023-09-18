@@ -229,7 +229,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 								static function ( $id ) {
 									return Utils::get_database_id_from_id( $id );
 								},
-								$input_value 
+								$input_value
 							);
 							break;
 						}
@@ -247,7 +247,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 								return Utils::get_database_id_from_id( $id );
 							},
-							$input_value 
+							$input_value
 						);
 						break;
 				}
@@ -294,7 +294,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'contentAuthorNotIn' => 'post_author__not_in',
 			'contentId'          => 'post_id',
 			'contentIdIn'        => 'post__in',
-			'contentIdNotIn'     => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+			'contentIdNotIn'     => 'post__not_in',
 			'contentName'        => 'post_name',
 			'contentParent'      => 'post_parent',
 			'contentStatus'      => 'post_status',

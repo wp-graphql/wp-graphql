@@ -35,7 +35,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 				return $max;
 			},
 			10,
-			5 
+			5
 		);
 
 		parent::__construct( $source, $args, $context, $info );

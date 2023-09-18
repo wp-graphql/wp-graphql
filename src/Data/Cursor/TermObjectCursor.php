@@ -30,7 +30,7 @@ class TermObjectCursor extends AbstractCursor {
 	 * @return mixed|null
 	 */
 	public function get_query_arg( string $name ) {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_query_var()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_query_var()' );
 
 		return $this->get_query_var( $name );
 	}
@@ -71,7 +71,7 @@ class TermObjectCursor extends AbstractCursor {
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_term() {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' );
 
 		return $this->cursor_node;
 	}

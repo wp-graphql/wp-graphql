@@ -495,7 +495,7 @@ class PostObject {
 								],
 								$src,
 								null,
-								$source->ID 
+								$source->ID
 							);
 
 							return ! empty( $sizes ) ? $sizes : null;

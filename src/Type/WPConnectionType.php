@@ -362,7 +362,7 @@ class WPConnectionType {
 					$this->connection_name
 				),
 				'fields'      => PageInfo::get_fields(),
-			] 
+			]
 		);
 	}
 
@@ -519,7 +519,7 @@ class WPConnectionType {
 				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
 				'auth'                  => $this->auth,
 				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-				'description'           => ! empty( $this->config['description'] ) 
+				'description'           => ! empty( $this->config['description'] )
 					? $this->config['description']
 					: sprintf(
 						// translators: the placeholders are the name of the Types the connection is between.
@@ -537,7 +537,7 @@ class WPConnectionType {
 					return $resolve_connection( $root, $args, $context, $info );
 				},
 				'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
-			] 
+			]
 		);
 
 		$this->type_registry->register_field(
@@ -562,7 +562,7 @@ class WPConnectionType {
 					// translators: %s is the name of the connection edge.
 					'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
 					'fields'      => PageInfo::get_fields(),
-				] 
+				]
 			);
 		}
 
@@ -581,7 +581,7 @@ class WPConnectionType {
 							'description' => sprintf( __( 'The connected %s Node', 'wp-graphql' ), $this->to_type ),
 						],
 					],
-				] 
+				]
 			);
 		}
 
@@ -611,7 +611,7 @@ class WPConnectionType {
 							'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 						],
 					],
-				] 
+				]
 			);
 		}
 	}

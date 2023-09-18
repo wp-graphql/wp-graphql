@@ -862,8 +862,8 @@ final class WPGraphQL {
 	 */
 	public static function get_static_schema() {
 		$schema = null;
-		if (file_exists(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql') && !empty(file_get_contents(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql'))) { // phpcs:ignore
-			$schema = file_get_contents(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql'); // phpcs:ignore
+		if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) && ! empty( file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) ) ) {
+			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
 		}
 
 		return $schema;
@@ -883,7 +883,7 @@ final class WPGraphQL {
 		$app_context           = new AppContext();
 		$app_context->viewer   = wp_get_current_user();
 		$app_context->root_url = get_bloginfo( 'url' );
-		$app_context->request = !empty($_REQUEST) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		return $app_context;
 	}

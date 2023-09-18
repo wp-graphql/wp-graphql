@@ -13,7 +13,7 @@ class TermObjectMutation {
 	 * and mapped from input args to WordPress $args
 	 *
 	 * @throws \GraphQL\Error\UserError User error for invalid term.
-	 * 
+	 *
 	 * @param array        $input         The input from the GraphQL Request
 	 * @param \WP_Taxonomy $taxonomy The Taxonomy object for the type of term being mutated
 	 * @param string       $mutation_name The name of the mutation (create, update, etc)

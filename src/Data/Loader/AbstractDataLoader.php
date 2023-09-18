@@ -205,7 +205,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated in favor of clear_all
 	 */
 	public function clearAll() {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::clear_all()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::clear_all()' );
 		return $this->clear_all();
 	}
 
@@ -235,7 +235,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated Use load_many instead
 	 */
 	public function loadMany( array $keys, $asArray = false ) {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::load_many()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::load_many()' );
 		return $this->load_many( $keys, $asArray );
 	}
 
@@ -303,7 +303,7 @@ abstract class AbstractDataLoader {
 					'Method ' . static::class . '::loadKeys is expected to return array, but it threw: ' .
 					esc_html( $e->getMessage() ),
 					0,
-					$e // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$e // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				);
 			}
 
@@ -364,7 +364,7 @@ abstract class AbstractDataLoader {
 	 * @deprecated Use key_to_scalar instead
 	 */
 	protected function keyToScalar( $key ) {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::key_to_scalar()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.8.4', static::class . '::key_to_scalar()' );
 		return $this->key_to_scalar( $key );
 	}
 
