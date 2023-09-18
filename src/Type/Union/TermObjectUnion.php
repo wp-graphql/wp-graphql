@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\Union;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -15,10 +14,10 @@ class TermObjectUnion {
 	/**
 	 * Registers the Type
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
 		register_graphql_union_type(
@@ -27,7 +26,8 @@ class TermObjectUnion {
 				'kind'        => 'union',
 				'typeNames'   => self::get_possible_types(),
 				'description' => __( 'Union between the Category, Tag and PostFormatPost types', 'wp-graphql' ),
-				'resolveType' => function ( $value ) use ( $type_registry ) {
+				'resolveType' => static function ( $value ) use ( $type_registry ) {
+					_doing_it_wrong( 'TermObjectUnion', esc_attr__( 'The TermObjectUnion GraphQL type is deprecated. Use the TermNode interface instead.', 'wp-graphql' ), '1.14.1' );
 
 					$type = null;
 					if ( isset( $value->taxonomyName ) ) {
@@ -38,7 +38,6 @@ class TermObjectUnion {
 					}
 
 					return ! empty( $type ) ? $type : null;
-
 				},
 			]
 		);

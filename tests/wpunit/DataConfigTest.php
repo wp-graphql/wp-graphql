@@ -75,7 +75,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 			[
 				'graphql_after_cursor' => $posts[9]->ID,
 				'order'                => '<' === $operator ? 'DESC' : 'ASC',
-				'orderby'              => 'date',
+				'orderby'              => 'post_date',
 				'posts_per_page'       => 11,
 			]
 		);

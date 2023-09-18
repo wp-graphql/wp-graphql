@@ -2,9 +2,6 @@
 
 namespace WPGraphQL\Data\Loader;
 
-use Exception;
-use GraphQL\Deferred;
-use WPGraphQL\Model\Menu;
 use WPGraphQL\Model\MenuItem;
 use WPGraphQL\Model\Post;
 
@@ -19,11 +16,10 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param mixed $entry The User Role object
 	 * @param mixed $key The Key to identify the user role by
 	 *
-	 * @return mixed|Post
-	 * @throws Exception
+	 * @return mixed|\WPGraphQL\Model\Post
+	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
-
 		if ( ! $entry instanceof \WP_Post ) {
 			return null;
 		}
@@ -71,10 +67,9 @@ class PostObjectLoader extends AbstractDataLoader {
 	 * @param array $keys
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {
-
 		if ( empty( $keys ) ) {
 			return $keys;
 		}
@@ -105,7 +100,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		 */
 		add_filter(
 			'split_the_query',
-			function ( $split, \WP_Query $query ) {
+			static function ( $split, \WP_Query $query ) {
 				if ( false === $query->get( 'split_the_query' ) ) {
 					return false;
 				}
@@ -134,7 +129,6 @@ class PostObjectLoader extends AbstractDataLoader {
 				 * Once dependencies are loaded, return the Post Object
 				 */
 				$loaded_posts[ $key ] = $post_object;
-
 			}
 		}
 		return $loaded_posts;

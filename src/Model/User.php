@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
-use WP_Post;
 use WP_User;
 
 /**
@@ -40,31 +38,31 @@ class User extends Model {
 	/**
 	 * Stores the WP_User object for the incoming data
 	 *
-	 * @var WP_User $data
+	 * @var \WP_User $data
 	 */
 	protected $data;
 
 	/**
 	 * The Global Post at time of Model generation
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * The global authordata at time of Model generation
 	 *
-	 * @var WP_User
+	 * @var \WP_User
 	 */
 	protected $global_authordata;
 
 	/**
 	 * User constructor.
 	 *
-	 * @param WP_User $user The incoming WP_User object that needs modeling
+	 * @param \WP_User $user The incoming WP_User object that needs modeling
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_User $user ) {
 
@@ -88,7 +86,6 @@ class User extends Model {
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
-
 	}
 
 	/**
@@ -97,7 +94,6 @@ class User extends Model {
 	 * @return void
 	 */
 	public function setup() {
-
 		global $wp_query, $post, $authordata;
 
 		// Store variables for resetting at tear down
@@ -122,7 +118,6 @@ class User extends Model {
 			$wp_query->queried_object    = get_user_by( 'id', $this->data->ID );
 			$wp_query->queried_object_id = $this->data->ID;
 		}
-
 	}
 
 	/**
@@ -166,7 +161,6 @@ class User extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'                       => function () {
@@ -185,16 +179,14 @@ class User extends Model {
 						$capabilities = array_keys(
 							array_filter(
 								$this->data->allcaps,
-								function ( $cap ) {
+								static function ( $cap ) {
 									return true === $cap;
 								}
 							)
 						);
-
 					}
 
 					return ! empty( $capabilities ) ? $capabilities : null;
-
 				},
 				'capKey'                   => function () {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
@@ -244,13 +236,18 @@ class User extends Model {
 
 					return ! empty( $user_locale ) ? $user_locale : null;
 				},
+				'shouldShowAdminToolbar'   => function () {
+					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
+
+					return 'true' === $toolbar_preference_meta;
+				},
 				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 				'uri'                      => function () {
 					$user_profile_url = get_author_posts_url( $this->data->ID );
 
 					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
 				},
-				'enqueuedScriptsQueue'     => function () {
+				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_scripts->queue;
@@ -259,7 +256,7 @@ class User extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function () {
+				'enqueuedStylesheetsQueue' => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;
@@ -269,9 +266,7 @@ class User extends Model {
 					return $queue;
 				},
 			];
-
 		}
-
 	}
 
 }

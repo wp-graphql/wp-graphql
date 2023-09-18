@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -13,13 +12,12 @@ class NodeWithFeaturedImage {
 	/**
 	 * Registers the NodeWithFeaturedImage Type to the Schema
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'NodeWithFeaturedImage',
 			[
@@ -29,8 +27,7 @@ class NodeWithFeaturedImage {
 					'featuredImage' => [
 						'toType'   => 'MediaItem',
 						'oneToOne' => true,
-						'resolve'  => function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-
+						'resolve'  => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 							if ( empty( $post->featuredImageDatabaseId ) ) {
 								return null;
 							}
@@ -39,7 +36,6 @@ class NodeWithFeaturedImage {
 							$resolver->set_query_arg( 'p', absint( $post->featuredImageDatabaseId ) );
 
 							return $resolver->one_to_one()->get_connection();
-
 						},
 					],
 				],

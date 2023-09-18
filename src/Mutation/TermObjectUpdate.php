@@ -3,7 +3,6 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
@@ -18,7 +17,7 @@ class TermObjectUpdate {
 	/**
 	 * Registers the TermObjectUpdate mutation.
 	 *
-	 * @param WP_Taxonomy $taxonomy The Taxonomy the mutation is registered for.
+	 * @param \WP_Taxonomy $taxonomy The Taxonomy the mutation is registered for.
 	 *
 	 * @return void
 	 */
@@ -37,7 +36,7 @@ class TermObjectUpdate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @param WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -64,7 +63,7 @@ class TermObjectUpdate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @param WP_Taxonomy $taxonomy    The taxonomy type of the mutation.
+	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
 	 * @return array
 	 */
@@ -75,13 +74,13 @@ class TermObjectUpdate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param WP_Taxonomy $taxonomy       The taxonomy type of the mutation.
+	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 * @param string       $mutation_name  The name of the mutation.
 	 *
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, $mutation_name ) {
-		return function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
 			$term_id = Utils::get_database_id_from_id( $input['id'] );
 
 			/**
@@ -153,11 +152,11 @@ class TermObjectUpdate {
 			 * Fires an action when a term is updated via a GraphQL Mutation
 			 *
 			 * @param int         $term_id       The ID of the term object that was mutated
-			 * @param WP_Taxonomy $taxonomy     The taxonomy of the term being updated
+			 * @param \WP_Taxonomy $taxonomy The taxonomy of the term being updated
 			 * @param array       $args          The args used to update the term
 			 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
-			 * @param AppContext  $context       The AppContext passed down the resolve tree
-			 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the resolve tree
 			 */
 			do_action( 'graphql_update_term', $existing_term->term_id, $taxonomy, $args, $mutation_name, $context, $info );
 
@@ -167,8 +166,8 @@ class TermObjectUpdate {
 			 * @param int         $term_id       The ID of the term object that was mutated
 			 * @param array       $args          The args used to update the term
 			 * @param string      $mutation_name The name of the mutation being performed (create, update, delete, etc)
-			 * @param AppContext  $context       The AppContext passed down the resolve tree
-			 * @param ResolveInfo $info          The ResolveInfo passed down the resolve tree
+			 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the resolve tree
 			 */
 			do_action( "graphql_update_{$taxonomy->name}", $existing_term->term_id, $args, $mutation_name, $context, $info );
 

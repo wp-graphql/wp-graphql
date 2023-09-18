@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
@@ -15,7 +14,7 @@ class CommentDelete {
 	 * Registers the CommentDelete mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -58,7 +57,7 @@ class CommentDelete {
 			'deletedId' => [
 				'type'        => 'Id',
 				'description' => __( 'The deleted comment ID', 'wp-graphql' ),
-				'resolve'     => function ( $payload ) {
+				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['commentObject'];
 
 					return ! empty( $deleted->comment_ID ) ? Relay::toGlobalId( 'comment', $deleted->comment_ID ) : null;
@@ -67,7 +66,7 @@ class CommentDelete {
 			'comment'   => [
 				'type'        => 'Comment',
 				'description' => __( 'The deleted comment object', 'wp-graphql' ),
-				'resolve'     => function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
 					return $payload['commentObject'] ? $payload['commentObject'] : null;
 				},
 			],
@@ -80,7 +79,7 @@ class CommentDelete {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input ) {
+		return static function ( $input ) {
 			// Get the database ID for the comment.
 			$comment_id = Utils::get_database_id_from_id( $input['id'] );
 

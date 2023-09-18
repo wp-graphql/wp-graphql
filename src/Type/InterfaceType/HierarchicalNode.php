@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
-use Exception;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -15,13 +14,12 @@ class HierarchicalNode {
 	/**
 	 * Register the HierarchicalNode Interface Type
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ):void {
-
 		register_graphql_interface_type(
 			'HierarchicalNode',
 			[
@@ -42,7 +40,6 @@ class HierarchicalNode {
 				],
 			]
 		);
-
 	}
 
 }

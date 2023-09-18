@@ -337,7 +337,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testMediaItemImageUrl() {
 
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		$expected_filesize = filesize( $filename );
@@ -366,10 +366,10 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testQueryMediaItemsByMimeType() {
 		
-		$png_filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$png_filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$png_attachment_id = $this->factory()->attachment->create_upload_object( $png_filename );
 
-		$pdf_filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/media/test.pdf' );
+		$pdf_filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/media/test.pdf' );
 		$pdf_attachment_id = $this->factory()->attachment->create_upload_object( $pdf_filename );
 
 		$query = '
@@ -416,7 +416,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testQueryMediaItemBySourceUrl() {
 
-		$filename          = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename          = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$attachment_id     = $this->factory()->attachment->create_upload_object( $filename );
 		$expected_filesize = filesize( $filename );
 
@@ -539,7 +539,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Upload a medium size attachment
 		 */
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test-medium.png' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-medium.png' );
 		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		/**
@@ -592,7 +592,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Upload a medium size attachment
 		 */
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . '/tests/_data/images/test.png' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		/**

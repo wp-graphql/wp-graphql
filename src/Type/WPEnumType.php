@@ -31,7 +31,6 @@ class WPEnumType extends EnumType {
 	 * @return string
 	 */
 	public static function get_safe_name( string $value ) {
-
 		$replaced = preg_replace( '#[^A-z0-9]#', '_', $value );
 
 		if ( ! empty( $replaced ) ) {
@@ -96,7 +95,6 @@ class WPEnumType extends EnumType {
 		 * @since 0.0.5
 		 */
 		return $values;
-
 	}
 
 }

@@ -3,8 +3,6 @@
 namespace WPGraphQL\Server;
 
 use GraphQL\Server\Helper;
-use GraphQL\Server\OperationParams;
-use GraphQL\Server\RequestError;
 
 /**
  * Extends GraphQL\Server\Helper to apply filters and parse query extensions.
@@ -20,8 +18,8 @@ class WPHelper extends Helper {
 	 * @param string $method The method of the request (GET, POST, etc).
 	 * @param array  $bodyParams The params passed to the body of the request.
 	 * @param array  $queryParams The query params passed to the request.
-	 * @return OperationParams|OperationParams[]
-	 * @throws RequestError Throws RequestError.
+	 * @return \GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
+	 * @throws \GraphQL\Server\RequestError Throws RequestError.
 	 */
 	public function parseRequestParams( $method, array $bodyParams, array $queryParams ) {
 		// Apply wp_unslash to query (GET) variables to undo wp_magic_quotes. We

@@ -8,7 +8,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\ValidationContext;
-use WPGraphQL\AppContext;
 
 /**
  * Class RequireAuthentication
@@ -21,7 +20,6 @@ class RequireAuthentication extends QuerySecurityRule {
 	 * @return bool
 	 */
 	protected function isEnabled() {
-
 		$restrict_endpoint = null;
 
 		/**
@@ -59,19 +57,18 @@ class RequireAuthentication extends QuerySecurityRule {
 	}
 
 	/**
-	 * @param ValidationContext $context
+	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
 	 * @return callable[]|mixed[]
 	 */
 	public function getVisitor( ValidationContext $context ) {
-
 		$allowed_root_fields = [];
 
 		/**
 		 * Filters the allowed
 		 *
 		 * @param array             $allowed_root_fields The Root fields allowed to be requested without authentication
-		 * @param ValidationContext $context             The Validation context of the field being executed.
+		 * @param \GraphQL\Validator\ValidationContext $context The Validation context of the field being executed.
 		 */
 		$allowed_root_fields = apply_filters( 'graphql_require_authentication_allowed_fields', $allowed_root_fields, $context );
 
@@ -79,7 +76,6 @@ class RequireAuthentication extends QuerySecurityRule {
 			$context,
 			[
 				NodeKind::FIELD => static function ( FieldNode $node ) use ( $context, $allowed_root_fields ) {
-
 					$parent_type = $context->getParentType();
 
 					if ( ! $parent_type instanceof Type || empty( $parent_type->name ) ) {
@@ -94,6 +90,7 @@ class RequireAuthentication extends QuerySecurityRule {
 						$context->reportError(
 							new Error(
 								sprintf(
+									// translators: %s is the field name
 									__( 'The field "%s" cannot be accessed without authentication.', 'wp-graphql' ),
 									$context->getParentType() . '.' . $node->name->value
 								),

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
 use WP_Comment;
 
@@ -36,19 +35,18 @@ class Comment extends Model {
 	/**
 	 * Stores the incoming WP_Comment object to be modeled
 	 *
-	 * @var WP_Comment $data
+	 * @var \WP_Comment $data
 	 */
 	protected $data;
 
 	/**
 	 * Comment constructor.
 	 *
-	 * @param WP_Comment $comment The incoming WP_Comment to be modeled
+	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_Comment $comment ) {
-
 		$allowed_restricted_fields = [
 			'id',
 			'ID',
@@ -73,17 +71,15 @@ class Comment extends Model {
 		$this->data = $comment;
 		$owner      = ! empty( $comment->user_id ) ? absint( $comment->user_id ) : null;
 		parent::__construct( 'moderate_comments', $allowed_restricted_fields, $owner );
-
 	}
 
 	/**
 	 * Method for determining if the data should be considered private or not
 	 *
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function is_private() {
-
 		if ( empty( $this->data->comment_post_ID ) ) {
 			return true;
 		}
@@ -109,7 +105,6 @@ class Comment extends Model {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -118,9 +113,7 @@ class Comment extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                 => function () {
 					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
@@ -196,8 +189,6 @@ class Comment extends Model {
 					return ! empty( $this->data->user_id ) ? absint( $this->data->user_id ) : null;
 				},
 			];
-
 		}
-
 	}
 }

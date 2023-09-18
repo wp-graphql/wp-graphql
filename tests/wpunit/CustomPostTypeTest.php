@@ -1426,5 +1426,171 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testGraphqlSingleNameWithUnderscoresIsAllowed() {
+
+		register_post_type( 'indicator', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'indicator',
+			'graphql_plural_name' => 'indicators',
+		] );
+
+		register_taxonomy( 'indicator_category', 'indicator', [
+			'public' => true,
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'indicator_category',
+			'graphql_plural_name' => 'indicator_categories',
+		] );
+
+		$query = '
+		query GetType( $name: String! ){
+		  __type(name:$name) {
+		    fields(includeDeprecated:true) { 
+		      name
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'name' => 'Indicator_category'
+			]
+		]);
+
+		$this->assertNotContains( 'errors', $actual );
+
+		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
+
+		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
+
+		codecept_debug( $field_names );
+
+		// the included field that was not excluded should still remain
+		$this->assertContains(  'indicator_categoryId', $field_names );
+
+		unregister_post_type( 'indicator' );
+		unregister_taxonomy( 'indicator_category' );
+
+	}
+
+	public function testRegisterCustomPostTypeWithUnderscoresInGraphqlNameHasValidSchema() {
+
+			$args = [
+				'public'              => true,
+				'show_in_rest'        => true,
+				'hierarchical'        => true,
+				'show_ui'             => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'with_underscore',
+				'graphql_plural_name' => 'with_underscore',
+				'has_archive'         => true,
+				'query_var'           => true,
+				'rewrite'             => [ 'slug' => 'casinos' ],
+				'supports'            => [ 'editor', 'thumbnail', 'title' ],
+				'label'               => _( 'With Underscores' ),
+				'map_meta_cap'        => true
+			];
+
+			// register the post type with underscore in the graphql_single_name / graphql_plural_name
+			register_post_type( 'with_underscore', $args );
+
+			$request = new \WPGraphQL\Request();
+
+			// clean up
+			unregister_post_type( 'with_underscore' );
+
+			$request->schema->assertValid();
+
+			// Assert true upon success.
+			$this->assertTrue( true );
+
+	}
+
+	public function testRegisterPostTypeWithoutGraphqlPluralNameIsValid() {
+
+		register_post_type( 'cpt_no_plural', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'noPlural'
+		]);
+
+		$this->clearSchema();
+
+		$query = '
+		{
+			allNoPlural {
+				nodes {
+					id
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		$request = new \WPGraphQL\Request();
+		$request->schema->assertValid();
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY )
+		]);
+
+		// Cleanup.
+		unregister_post_type( 'cpt_no_plural' );
+		$this->clearSchema();
+	}
+
+	public function testRegisterPostTypeWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
+
+		register_post_type( 'cpt_no_single_plural', [
+			'show_in_graphql' => true,
+			// no graphql_single_name
+			// no graphql_plural_name
+		]);
+
+		// assert that the schema is still valid, even though the tax
+		// didn't provide the single/plural name (it will be left out of the schema)
+		$request = new \WPGraphQL\Request();
+		$request->schema->assertValid();
+
+		// Cleanup
+		unregister_post_type( 'cpt_no_single_plural' );
+		$this->clearSchema();
+	}
+
+	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {
+
+		register_post_type( 'test_events', [
+			'show_in_graphql' => true,
+			'graphql_single_name' => 'test_event',
+			'graphql_plural_name' => 'test_events'
+		]);
+
+		$query = '
+		{
+		  testEvents {
+		    nodes {
+		      __typename
+		      id
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		// ensure the query succeeds without error
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'testEvents.nodes', [] )
+		]);
+
+		unregister_post_type( 'test_events' );
+
+	}
 
 }

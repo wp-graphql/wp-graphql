@@ -2,11 +2,8 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use WP_Comment_Query;
-use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
 
 /**
@@ -19,7 +16,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var WP_Comment_Query
+	 * @var \WP_Comment_Query
 	 */
 	protected $query;
 
@@ -139,8 +136,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * @param array       $query_args array of query_args being passed to the
 		 * @param mixed       $source     source passed down from the resolve tree
 		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param AppContext  $context    object passed down the resolve tree
-		 * @param ResolveInfo $info       info about fields passed down the resolve tree
+		 * @param \WPGraphQL\AppContext $context object passed down the resolve tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
 		 *
 		 * @since 0.0.6
 		 */
@@ -152,8 +149,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * Return the instance of the WP_Comment_Query
 	 *
-	 * @return WP_Comment_Query
-	 * @throws Exception
+	 * @return \WP_Comment_Query
+	 * @throws \Exception
 	 */
 	public function get_query() {
 		return new WP_Comment_Query( $this->query_args );
@@ -228,9 +225,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 					case 'contentAuthor':
 					case 'userId':
 						if ( is_array( $input_value ) ) {
-							$args['where'][ $input_key ] = array_map( function ( $id ) {
-								return Utils::get_database_id_from_id( $id );
-							}, $input_value );
+							$args['where'][ $input_key ] = array_map(
+								static function ( $id ) {
+									return Utils::get_database_id_from_id( $id );
+								},
+								$input_value 
+							);
 							break;
 						}
 						$args['where'][ $input_key ] = Utils::get_database_id_from_id( $input_value );
@@ -239,13 +239,16 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 						if ( is_string( $input_value ) ) {
 							$input_value = [ $input_value ];
 						}
-						$args['where'][ $input_key ] = array_map( function ( $id ) {
-							if ( is_email( $id ) ) {
-								return $id;
-							}
+						$args['where'][ $input_key ] = array_map(
+							static function ( $id ) {
+								if ( is_email( $id ) ) {
+									return $id;
+								}
 
-							return Utils::get_database_id_from_id( $id );
-						}, $input_value );
+								return Utils::get_database_id_from_id( $id );
+							},
+							$input_value 
+						);
 						break;
 				}
 			}
@@ -256,7 +259,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array                     $args                The GraphQL args passed to the resolver.
-		 * @param CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param \WPGraphQL\Data\Connection\CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
 		 * @since 1.11.0
 		 */
@@ -276,7 +279,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return array
 	 */
 	public function sanitize_input_fields( array $args ) {
-
 		$arg_mapping = [
 			'authorEmail'        => 'author_email',
 			'authorIn'           => 'author__in',
@@ -319,7 +321,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
-
 	}
 
 	/**

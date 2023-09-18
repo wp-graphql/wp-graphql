@@ -2,11 +2,8 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\MediaItemMutation;
 use WPGraphQL\Utils\Utils;
@@ -16,7 +13,7 @@ class MediaItemUpdate {
 	 * Registers the MediaItemUpdate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -35,7 +32,7 @@ class MediaItemUpdate {
 	 * @return array
 	 */
 	public static function get_input_fields() {
-		/** @var WP_Post_Type $post_type_object */
+		/** @var \WP_Post_Type $post_type_object */
 		$post_type_object = get_post_type_object( 'attachment' );
 		return array_merge(
 			MediaItemCreate::get_input_fields(),
@@ -66,7 +63,7 @@ class MediaItemUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			$post_type_object = get_post_type_object( 'attachment' );
 
 			if ( empty( $post_type_object ) ) {

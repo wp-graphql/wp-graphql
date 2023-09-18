@@ -28,8 +28,7 @@ class MenuItem {
 						'toType'      => 'MenuItemLinkable',
 						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
 						'oneToOne'    => true,
-						'resolve'     => function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
-
+						'resolve'     => static function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 							if ( ! isset( $menu_item->databaseId ) ) {
 								return null;
 							}
@@ -58,14 +57,13 @@ class MenuItem {
 							}
 
 							return null !== $resolver ? $resolver->one_to_one()->get_connection() : null;
-
 						},
 					],
 					'menu'          => [
 						'toType'      => 'Menu',
 						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
 						'oneToOne'    => true,
-						'resolve'     => function ( MenuItemModel $menu_item, $args, $context, $info ) {
+						'resolve'     => static function ( MenuItemModel $menu_item, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
 							$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
 
@@ -148,8 +146,7 @@ class MenuItem {
 						'type'              => 'MenuItemObjectUnion',
 						'deprecationReason' => __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' ),
 						'description'       => __( 'The object connected to this menu item.', 'wp-graphql' ),
-						'resolve'           => function ( $menu_item, array $args, AppContext $context, $info ) {
-
+						'resolve'           => static function ( $menu_item, array $args, AppContext $context, $info ) {
 							$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 							$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
 
@@ -176,8 +173,8 @@ class MenuItem {
 							 *
 							 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
 							 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
-							 * @param AppContext        $context         Object containing app context that gets passed down the resolve tree
-							 * @param ResolveInfo       $info            Info about fields passed down the resolve tree
+							 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
+							 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 							 * @param int               $object_id       Post or term ID of connected object
 							 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
 							 *
@@ -197,6 +194,5 @@ class MenuItem {
 				],
 			]
 		);
-
 	}
 }

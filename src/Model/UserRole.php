@@ -42,7 +42,6 @@ class UserRole extends Model {
 	 * @return bool
 	 */
 	protected function is_private() {
-
 		if ( current_user_can( 'list_users' ) ) {
 			return false;
 		}
@@ -62,7 +61,6 @@ class UserRole extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
 				'id'           => function () {
@@ -83,7 +81,6 @@ class UserRole extends Model {
 					}
 				},
 			];
-
 		}
 	}
 

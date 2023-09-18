@@ -1,10 +1,6 @@
 <?php
 namespace WPGraphQL\Type\InterfaceType;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-use WPGraphQL\Data\DataSource;
-use WPGraphQL\Model\Post;
 use WPGraphQL\Registry\TypeRegistry;
 
 class NodeWithTitle {
@@ -12,12 +8,11 @@ class NodeWithTitle {
 	/**
 	 * Registers the NodeWithTitle Type to the Schema
 	 *
-	 * @param TypeRegistry $type_registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		register_graphql_interface_type(
 			'NodeWithTitle',
 			[
@@ -33,7 +28,7 @@ class NodeWithTitle {
 								'description' => __( 'Format of the field output', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function ( $source, $args ) {
+						'resolve'     => static function ( $source, $args ) {
 							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
 								// @codingStandardsIgnoreLine.
 								return $source->titleRaw;
@@ -46,6 +41,5 @@ class NodeWithTitle {
 				],
 			]
 		);
-
 	}
 }

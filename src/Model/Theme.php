@@ -58,7 +58,6 @@ class Theme extends Model {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -67,9 +66,7 @@ class Theme extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'          => function () {
 					$stylesheet = $this->data->get_stylesheet();
@@ -108,7 +105,6 @@ class Theme extends Model {
 					return ! empty( $this->data->version ) ? $this->data->version : null;
 				},
 			];
-
 		}
 	}
 }

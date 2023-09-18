@@ -7,7 +7,8 @@ run_tests() {
     if [[ -n "$COVERAGE" ]]; then
         local coverage="--coverage --coverage-xml"
     fi
-    if [[ -n "$DEBUG" ]]; then
+    if [[ "1" -eq "$DEBUG" || "true" == "$DEBUG" ]]; then
+        echo "Debug enabled"
         local debug="--debug"
     fi
 

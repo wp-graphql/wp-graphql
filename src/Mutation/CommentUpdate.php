@@ -2,10 +2,8 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQLRelay\Relay;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\CommentMutation;
 use WPGraphQL\Utils\Utils;
@@ -20,7 +18,7 @@ class CommentUpdate {
 	 * Registers the CommentUpdate mutation.
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -67,7 +65,7 @@ class CommentUpdate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			// Get the database ID for the comment.
 			$comment_id = ! empty( $input['id'] ) ? Utils::get_database_id_from_id( $input['id'] ) : null;
 

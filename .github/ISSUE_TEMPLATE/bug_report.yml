@@ -6,7 +6,9 @@ body:
       value: >-
         Thank you for taking the time to report a possible bug!
 
-        Please remember, a bug report is not the place to ask questions. You can
+        Before submitting a bug report, please take a minute to review the [WPGraphQL Debugging Guide](https://www.wpgraphql.com/docs/debugging) so you can share the necessary information to help us debug your issue.
+
+        Please remember, a bug report is _not the place to ask questions_. You can
         use [Slack](https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA) for that, or start a topic in [GitHub
         Discussions](https://github.com/wp-graphql/wp-graphql/discussions).
   - type: textarea

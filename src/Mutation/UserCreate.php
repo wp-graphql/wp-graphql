@@ -6,7 +6,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\UserMutation;
-use WPGraphQL\Model\User;
 
 /**
  * Class UserCreate
@@ -137,7 +136,7 @@ class UserCreate {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() {
-		return function ( $input, AppContext $context, ResolveInfo $info ) {
+		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			if ( ! current_user_can( 'create_users' ) ) {
 				throw new UserError( __( 'Sorry, you are not allowed to create a new user.', 'wp-graphql' ) );
 			}

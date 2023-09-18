@@ -2,10 +2,7 @@
 
 namespace WPGraphQL\Mutation;
 
-use Exception;
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
-use WP_User;
 use WPGraphQL\AppContext;
 
 class SendPasswordResetEmail {
@@ -14,7 +11,7 @@ class SendPasswordResetEmail {
 	 * Registers the sendPasswordResetEmail Mutation
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function register_mutation() {
 		register_graphql_mutation(
@@ -55,7 +52,7 @@ class SendPasswordResetEmail {
 				'type'              => 'User',
 				'description'       => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
 				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
-				'resolve'           => function ( $payload, $args, AppContext $context ) {
+				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
 				},
 			],
@@ -72,7 +69,7 @@ class SendPasswordResetEmail {
 	 * @return callable
 	 */
 	public static function mutate_and_get_payload() : callable {
-		return function ( $input ) {
+		return static function ( $input ) {
 			if ( ! self::was_username_provided( $input ) ) {
 				throw new UserError( __( 'Enter a username or email address.', 'wp-graphql' ) );
 			}
@@ -144,11 +141,10 @@ class SendPasswordResetEmail {
 	 *
 	 * @param  string $username The user's username or email address.
 	 *
-	 * @return WP_User|false WP_User object on success, false on failure.
+	 * @return \WP_User|false WP_User object on success, false on failure.
 	 */
 	private static function get_user_data( $username ) {
 		if ( self::is_email_address( $username ) ) {
-
 			$username = wp_unslash( $username );
 
 			if ( ! is_string( $username ) ) {
@@ -190,7 +186,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Get the subject of the password reset email
 	 *
-	 * @param WP_User $user_data User data
+	 * @param \WP_User $user_data User data
 	 *
 	 * @return string
 	 */
@@ -203,7 +199,7 @@ class SendPasswordResetEmail {
 		 *
 		 * @param string   $title      Default email title.
 		 * @param string   $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param \WP_User $user_data WP_User object.
 		 */
 		return apply_filters( 'retrieve_password_title', $title, $user_data->user_login, $user_data );
 	}
@@ -232,7 +228,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Get the message body of the password reset email
 	 *
-	 * @param WP_User $user_data User data
+	 * @param \WP_User $user_data User data
 	 * @param string   $key       Password reset key
 	 *
 	 * @return string
@@ -255,7 +251,7 @@ class SendPasswordResetEmail {
 		 * @param string   $message    Default mail message.
 		 * @param string   $key        The activation key.
 		 * @param string   $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param \WP_User $user_data WP_User object.
 		 */
 		return apply_filters( 'retrieve_password_message', $message, $key, $user_data->user_login, $user_data );
 	}

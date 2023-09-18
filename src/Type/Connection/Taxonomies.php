@@ -13,13 +13,12 @@ class Taxonomies {
 	 * @return void
 	 */
 	public static function register_connections() {
-
 		register_graphql_connection(
 			[
 				'fromType'      => 'RootQuery',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'taxonomies',
-				'resolve'       => function ( $source, $args, $context, $info ) {
+				'resolve'       => static function ( $source, $args, $context, $info ) {
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
 					return $resolver->get_connection();
 				},
@@ -31,7 +30,7 @@ class Taxonomies {
 				'fromType'      => 'ContentType',
 				'toType'        => 'Taxonomy',
 				'fromFieldName' => 'connectedTaxonomies',
-				'resolve'       => function ( PostType $source, $args, $context, $info ) {
+				'resolve'       => static function ( PostType $source, $args, $context, $info ) {
 					if ( empty( $source->taxonomies ) ) {
 						return null;
 					}

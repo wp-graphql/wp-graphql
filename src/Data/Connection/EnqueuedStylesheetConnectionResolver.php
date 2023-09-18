@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 
@@ -23,22 +22,27 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param mixed       $source     source passed down from the resolve tree
 	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
+	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 
 		/**
 		 * Filter the query amount to be 1000 for
 		 */
-		add_filter( 'graphql_connection_max_query_amount', function ( $max, $source, $args, $context, ResolveInfo $info ) {
-			if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
-				return 1000;
-			}
-			return $max;
-		}, 10, 5 );
+		add_filter(
+			'graphql_connection_max_query_amount',
+			static function ( $max, $source, $args, $context, ResolveInfo $info ) {
+				if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
+					return 1000;
+				}
+				return $max;
+			},
+			10,
+			5 
+		);
 
 		parent::__construct( $source, $args, $context, $info );
 	}
@@ -61,7 +65,6 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		return $ids;
-
 	}
 
 	/**
@@ -99,7 +102,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 * @return bool
 	 */
 	protected function is_valid_model( $model ) {
-		return isset( $model->handle ) ? true : false;
+		return isset( $model->handle );
 	}
 
 	/**

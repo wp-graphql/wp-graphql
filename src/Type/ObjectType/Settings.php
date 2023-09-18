@@ -17,12 +17,11 @@ class Settings {
 	 * Registers a Settings Type with fields for all settings based on settings
 	 * registered using the core register_setting API
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return void
 	 */
 	public static function register_type( TypeRegistry $type_registry ) {
-
 		$fields = self::get_fields( $type_registry );
 
 		if ( empty( $fields ) ) {
@@ -36,13 +35,12 @@ class Settings {
 				'fields'      => $fields,
 			]
 		);
-
 	}
 
 	/**
 	 * Returns an array of fields for all settings based on the `register_setting` WordPress API
 	 *
-	 * @param TypeRegistry $type_registry The WPGraphQL TypeRegistry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array
 	 */
@@ -58,7 +56,6 @@ class Settings {
 			 * proper fields
 			 */
 			foreach ( $registered_settings as $key => $setting_field ) {
-
 				if ( ! isset( $setting_field['type'] ) || ! $type_registry->get_type( $setting_field['type'] ) ) {
 					continue;
 				}
@@ -91,8 +88,9 @@ class Settings {
 					 */
 					$fields[ $field_key ] = [
 						'type'        => $setting_field['type'],
+						// translators: %s is the name of the setting group.
 						'description' => sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
-						'resolve'     => function ( $root, $args, $context, $info ) use ( $setting_field, $key ) {
+						'resolve'     => static function ( $root, $args, $context, $info ) use ( $setting_field, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
@@ -121,7 +119,6 @@ class Settings {
 							return isset( $option ) ? $option : null;
 						},
 					];
-
 				}
 			}
 		}

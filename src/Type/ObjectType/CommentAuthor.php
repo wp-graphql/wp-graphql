@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use \WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
+use WPGraphQL\Model\CommentAuthor as CommentAuthorModel;
 
 class CommentAuthor {
 
@@ -56,7 +56,7 @@ class CommentAuthor {
 							],
 
 						],
-						'resolve' => function ( $comment_author, $args, $context, $info ) {
+						'resolve' => static function ( $comment_author, $args, $context, $info ) {
 							/**
 							 * If the $comment_author is a user, the User model only returns the email address if the requesting user is authenticated.
 							 * But, to resolve the Avatar we need a valid email, even for unauthenticated requests.
@@ -84,7 +84,7 @@ class CommentAuthor {
 							}
 
 							if ( ! empty( $args['rating'] ) ) {
-								$avatar_args['rating'] = esc_sql( $args['rating'] );
+								$avatar_args['rating'] = esc_sql( (string) $args['rating'] );
 							}
 
 							$avatar = get_avatar_data( $comment_author_email, $avatar_args );

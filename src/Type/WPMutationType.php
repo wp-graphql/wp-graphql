@@ -1,13 +1,9 @@
 <?php
 namespace WPGraphQL\Type;
 
-use Closure;
-use Exception;
-use GraphQL\Exception\InvalidArgument;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\TypeRegistry;
-use WPGraphQL\Utils\Utils;
 
 /**
  * Class WPMutationType
@@ -60,14 +56,14 @@ class WPMutationType {
 	/**
 	 * The resolver function to resole the connection
 	 *
-	 * @var callable|Closure
+	 * @var callable|\Closure
 	 */
 	protected $resolve_mutation;
 
 	/**
 	 * The WPGraphQL TypeRegistry
 	 *
-	 * @var TypeRegistry
+	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	protected $type_registry;
 
@@ -75,9 +71,9 @@ class WPMutationType {
 	 * WPMutationType constructor.
 	 *
 	 * @param array        $config        The config array for the mutation
-	 * @param TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 
@@ -85,7 +81,7 @@ class WPMutationType {
 		 * Filter the config of WPMutationType
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPMutationType when instantiating a new type
-		 * @param WPMutationType $wp_mutation_type The instance of the WPMutationType class
+		 * @param \WPGraphQL\Type\WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
 		 * @since 1.13.0
 		 */
@@ -95,9 +91,15 @@ class WPMutationType {
 			return;
 		}
 
-		$this->config           = $config;
-		$this->type_registry    = $type_registry;
-		$this->mutation_name    = $config['name'] ?? null;
+		$this->config        = $config;
+		$this->type_registry = $type_registry;
+		$this->mutation_name = $config['name'];
+
+		// Bail if the mutation should be excluded from the schema.
+		if ( ! $this->should_register() ) {
+			return;
+		}
+
 		$this->auth             = array_key_exists( 'auth', $config ) && is_array( $config['auth'] ) ? $config['auth'] : [];
 		$this->is_private       = array_key_exists( 'isPrivate', $config ) ? $config['isPrivate'] : false;
 		$this->input_fields     = $this->get_input_fields();
@@ -108,7 +110,7 @@ class WPMutationType {
 		 * Run an action when the WPMutationType is instantiating.
 		 *
 		 * @param array        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param WPMutationType $wp_mutation_type The instance of the WPMutationType class
+		 * @param \WPGraphQL\Type\WPMutationType $wp_mutation_type The instance of the WPMutationType class
 		 *
 		 * @since 1.13.0
 		 */
@@ -125,25 +127,29 @@ class WPMutationType {
 	 * @return bool
 	 */
 	protected function is_config_valid( array $config ): bool {
-
 		$is_valid = true;
 
 		if ( ! array_key_exists( 'name', $config ) || ! is_string( $config['name'] ) ) {
-			graphql_debug( __( 'Mutation config needs to have a valid name.', 'wp-graphql' ), [
-				'config' => $config,
-			] );
+			graphql_debug(
+				__( 'Mutation config needs to have a valid name.', 'wp-graphql' ),
+				[
+					'config' => $config,
+				] 
+			);
 			$is_valid = false;
 		}
 
 		if ( ! array_key_exists( 'mutateAndGetPayload', $config ) || ! is_callable( $config['mutateAndGetPayload'] ) ) {
-			graphql_debug( __( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ), [
-				'config' => $config,
-			] );
+			graphql_debug(
+				__( 'Mutation config needs to have "mutateAndGetPayload" defined as a callable.', 'wp-graphql' ),
+				[
+					'config' => $config,
+				] 
+			);
 			$is_valid = false;
 		}
 
 		return (bool) $is_valid;
-
 	}
 
 	/**
@@ -192,8 +198,8 @@ class WPMutationType {
 			 * Filters the mutation input before it's passed to the `mutateAndGetPayload` callback.
 			 *
 			 * @param array $input The mutation input args.
-			 * @param AppContext $context The AppContext object.
-			 * @param ResolveInfo $info The ResolveInfo object.
+			 * @param \WPGraphQL\AppContext $context The AppContext object.
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
 			$input = apply_filters( 'graphql_mutation_input', $unfiltered_input, $context, $info, $this->mutation_name );
@@ -205,10 +211,10 @@ class WPMutationType {
 			 *
 			 * @param array|callable|null $payload. The payload returned from the callback. Null by default.
 			 * @param string $mutation_name The name of the mutation field.
-			 * @param callable|Closure $mutateAndGetPayload The callback for the mutation.
+			 * @param callable|\Closure $mutateAndGetPayload The callback for the mutation.
 			 * @param array $input The mutation input args.
-			 * @param AppContext $context The AppContext object.
-			 * @param ResolveInfo $info The ResolveInfo object.
+			 * @param \WPGraphQL\AppContext $context The AppContext object.
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
 			 */
 			$pre = apply_filters( 'graphql_pre_mutate_and_get_payload', null, $this->mutation_name, $this->config['mutateAndGetPayload'], $input, $context, $info );
 
@@ -223,8 +229,8 @@ class WPMutationType {
 				 * @param array $payload The payload returned from the callback.
 				 * @param string $mutation_name The name of the mutation field.
 				 * @param array $input The mutation input args.
-				 * @param AppContext $context The AppContext object.
-				 * @param ResolveInfo $info The ResolveInfo object.
+				 * @param \WPGraphQL\AppContext $context The AppContext object.
+				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
 				 */
 				$payload = apply_filters( 'graphql_mutation_payload', $payload, $this->mutation_name, $input, $context, $info );
 			}
@@ -235,8 +241,8 @@ class WPMutationType {
 			 * @param array $payload The Payload returned from the mutation.
 			 * @param array $input The mutation input args, after being filtered by 'graphql_mutation_input'.
 			 * @param array $unfiltered_input The unfiltered input args of the mutation
-			 * @param AppContext $context The AppContext object.
-			 * @param ResolveInfo $info The ResolveInfo object.
+			 * @param \WPGraphQL\AppContext $context The AppContext object.
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object.
 			 * @param string $mutation_name The name of the mutation field.
 			 */
 			do_action( 'graphql_mutation_response', $payload, $input, $unfiltered_input, $context, $info, $this->mutation_name );
@@ -263,6 +269,7 @@ class WPMutationType {
 		$this->type_registry->register_input_type(
 			$input_name,
 			[
+				// translators: %s is the name of the mutation.
 				'description'       => sprintf( __( 'Input for the %1$s mutation.', 'wp-graphql' ), $this->mutation_name ),
 				'fields'            => $this->input_fields,
 				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
@@ -280,6 +287,7 @@ class WPMutationType {
 		$this->type_registry->register_object_type(
 			$object_name,
 			[
+				// translators: %s is the name of the mutation.
 				'description'       => sprintf( __( 'The payload for the %s mutation.', 'wp-graphql' ), $this->mutation_name ),
 				'fields'            => $this->output_fields,
 				'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
@@ -289,34 +297,42 @@ class WPMutationType {
 
 	/**
 	 * Registers the mutation in the Graph.
+	 *
+	 * @throws \Exception
 	 */
 	protected function register_mutation_field() : void {
-		$this->type_registry->register_field(
-			'rootMutation',
-			$this->mutation_name,
-			array_merge( $this->config,
-				[
-					'args'        => [
-						'input' => [
-							'type'              => [ 'non_null' => $this->mutation_name . 'Input' ],
-							'description'       => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $this->mutation_name ),
-							'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-						],
+		$field_config = array_merge(
+			$this->config,
+			[
+				'args'        => [
+					'input' => [
+						'type'              => [ 'non_null' => $this->mutation_name . 'Input' ],
+						// translators: %s is the name of the mutation.
+						'description'       => sprintf( __( 'Input for the %s mutation', 'wp-graphql' ), $this->mutation_name ),
+						'deprecationReason' => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 					],
-					'auth'        => $this->auth,
-					'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'The %s mutation', 'wp-graphql' ), $this->mutation_name ),
-					'isPrivate'   => $this->is_private,
-					'type'        => $this->mutation_name . 'Payload',
-					'resolve'     => $this->resolve_mutation,
-				]
-			)
+				],
+				'auth'        => $this->auth,
+				// translators: %s is the name of the mutation.
+				'description' => ! empty( $this->config['description'] ) ? $this->config['description'] : sprintf( __( 'The %s mutation', 'wp-graphql' ), $this->mutation_name ),
+				'isPrivate'   => $this->is_private,
+				'type'        => $this->mutation_name . 'Payload',
+				'resolve'     => $this->resolve_mutation,
+				'name'        => lcfirst( $this->mutation_name ),
+			]
+		);
+
+		$this->type_registry->register_field(
+			'RootMutation',
+			lcfirst( $this->mutation_name ),
+			$field_config
 		);
 	}
 
 	/**
 	 * Registers the Mutation Types and field to the Schema.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function register_mutation() :void {
 		$this->register_mutation_payload();
@@ -324,4 +340,16 @@ class WPMutationType {
 		$this->register_mutation_field();
 	}
 
+	/**
+	 * Checks whether the mutation should be registered to the schema.
+	 */
+	protected function should_register() : bool {
+		// Dont register mutations if they have been excluded from the schema.
+		$excluded_mutations = $this->type_registry->get_excluded_mutations();
+		if ( in_array( strtolower( $this->mutation_name ), $excluded_mutations, true ) ) {
+			return false;
+		}
+
+		return true;
+	}
 }

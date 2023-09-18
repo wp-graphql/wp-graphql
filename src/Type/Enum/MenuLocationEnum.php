@@ -20,7 +20,11 @@ class MenuLocationEnum {
 			foreach ( $locations as $location ) {
 				$values[ WPEnumType::get_safe_name( $location ) ] = [
 					'value'       => $location,
-					'description' => sprintf( __( 'Put the menu in the %s location', 'wp-graphql' ), $location ),
+					'description' => sprintf(
+						// translators: %s is the menu location name.
+						__( 'Put the menu in the %s location', 'wp-graphql' ),
+						$location
+					),
 				];
 			}
 		}

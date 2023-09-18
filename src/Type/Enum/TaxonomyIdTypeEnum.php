@@ -10,7 +10,6 @@ class TaxonomyIdTypeEnum {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_enum_type(
 			'TaxonomyIdTypeEnum',
 			[
@@ -29,6 +28,5 @@ class TaxonomyIdTypeEnum {
 				],
 			]
 		);
-
 	}
 }

@@ -31,11 +31,12 @@ class QueryDepth extends QuerySecurityRule {
 	 */
 	public function __construct() {
 		$max_query_depth = get_graphql_setting( 'query_depth_max', 10 );
+		$max_query_depth = absint( $max_query_depth ) ?? 10;
 		$this->setMaxQueryDepth( $max_query_depth );
 	}
 
 	/**
-	 * @param ValidationContext $context
+	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
 	 * @return callable[]|mixed[]
 	 */
@@ -83,7 +84,7 @@ class QueryDepth extends QuerySecurityRule {
 	/**
 	 * Determine node depth
 	 *
-	 * @param Node $node The node being analyzed in the operation
+	 * @param \GraphQL\Language\AST\Node $node The node being analyzed in the operation
 	 * @param int  $depth The depth of the operation
 	 * @param int  $maxDepth The Max Depth of the operation
 	 *
@@ -159,7 +160,6 @@ class QueryDepth extends QuerySecurityRule {
 	 * @return bool
 	 */
 	protected function isEnabled() {
-
 		$is_enabled = false;
 
 		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );
@@ -169,6 +169,5 @@ class QueryDepth extends QuerySecurityRule {
 		}
 
 		return $is_enabled;
-
 	}
 }

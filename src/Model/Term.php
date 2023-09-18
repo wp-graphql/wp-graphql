@@ -2,9 +2,7 @@
 
 namespace WPGraphQL\Model;
 
-use Exception;
 use GraphQLRelay\Relay;
-use WP_Post;
 use WP_Taxonomy;
 use WP_Term;
 
@@ -33,31 +31,31 @@ class Term extends Model {
 	/**
 	 * Stores the incoming WP_Term object
 	 *
-	 * @var WP_Term $data
+	 * @var \WP_Term $data
 	 */
 	protected $data;
 
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
-	 * @var null|WP_Taxonomy $taxonomy_object
+	 * @var null|\WP_Taxonomy $taxonomy_object
 	 */
 	protected $taxonomy_object;
 
 	/**
 	 * The global Post instance
 	 *
-	 * @var WP_Post
+	 * @var \WP_Post
 	 */
 	protected $global_post;
 
 	/**
 	 * Term constructor.
 	 *
-	 * @param WP_Term $term The incoming WP_Term object that needs modeling
+	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( WP_Term $term ) {
 		$this->data            = $term;
@@ -72,7 +70,6 @@ class Term extends Model {
 	 * @return void
 	 */
 	public function setup() {
-
 		global $wp_query, $post;
 
 		/**
@@ -127,9 +124,7 @@ class Term extends Model {
 	 * @return void
 	 */
 	protected function init() {
-
 		if ( empty( $this->fields ) ) {
-
 			$this->fields = [
 				'id'                       => function () {
 					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
@@ -172,7 +167,7 @@ class Term extends Model {
 				'parentDatabaseId'         => function () {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
-				'enqueuedScriptsQueue'     => function () {
+				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
 					$wp_scripts->reset();
 					do_action( 'wp_enqueue_scripts' );
@@ -182,7 +177,7 @@ class Term extends Model {
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue' => function () {
+				'enqueuedStylesheetsQueue' => static function () {
 					global $wp_styles;
 					do_action( 'wp_enqueue_scripts' );
 					$queue = $wp_styles->queue;
@@ -212,7 +207,6 @@ class Term extends Model {
 				$this->fields[ $type_id ] = absint( $this->data->term_id );
 			}
 		}
-
 	}
 
 }

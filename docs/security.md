@@ -5,6 +5,10 @@ title: "Security"
 
 WPGraphQL has been developed with security in mind. Below, are details on some of the ways WPGraphQL works to allow you to use the benefits of GraphQL while keeping your data secure.
 
+## Reporting a Vulnerability
+
+If you believe you've discovered a security vulnerability, please email info@wpgraphql.com with details and steps to reproduce.
+
 ## Introspection Disabled by Default
 
 One feature of GraphQL is Schema Introspection, which means the GraphQL Schema itself can be queried. This is a feature used by tools such as GraphiQL and others.

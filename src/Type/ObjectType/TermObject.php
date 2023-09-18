@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use Exception;
 use WP_Taxonomy;
 
 /**
@@ -16,10 +15,10 @@ class TermObject {
 	/**
 	 * Register the Type for each kind of Taxonomy
 	 *
-	 * @param WP_Taxonomy $tax_object The taxonomy being registered
+	 * @param \WP_Taxonomy $tax_object The taxonomy being registered
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 * @deprecated 1.12.0
 	 */
 	public static function register_taxonomy_object_type( WP_Taxonomy $tax_object ) {

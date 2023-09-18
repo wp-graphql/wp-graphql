@@ -86,7 +86,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 
 		// Loop through the plugins, add additional data, and store them in $plugins_by_status.
 		foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
-
 			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
 				unset( $all_plugins[ $plugin_file ] );
 				continue;
@@ -192,7 +191,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		 * */
 		$filtered_plugins = ! empty( $active_stati ) ? array_values( array_intersect_key( $plugins_by_status, $active_stati ) ) : [];
 		// If plugins exist for the filter, flatten and return them. Otherwise, return the full list.
-		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( ...$filtered_plugins ) : $plugins_by_status['all'];
+		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( [], ...$filtered_plugins ) : $plugins_by_status['all'];
 
 		if ( ! empty( $this->args['where']['search'] ) ) {
 			// Filter by search args.
@@ -200,7 +199,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			$matches = array_keys(
 				array_filter(
 					$all_plugins,
-					function ( $plugin ) use ( $s ) {
+					static function ( $plugin ) use ( $s ) {
 						foreach ( $plugin as $value ) {
 							if ( is_string( $value ) && false !== stripos( wp_strip_all_tags( $value ), $s ) ) {
 								return true;

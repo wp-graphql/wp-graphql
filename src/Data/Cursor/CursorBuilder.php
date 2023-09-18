@@ -52,7 +52,7 @@ class CursorBuilder {
 		 * Filters the field used for ordering when cursors are used for pagination
 		 *
 		 * @param array         $field          The field key, value, type and order
-		 * @param CursorBuilder $cursor_builder The CursorBuilder class
+		 * @param \WPGraphQL\Data\Cursor\CursorBuilder $cursor_builder The CursorBuilder class
 		 * @param ?object        $object_cursor  The Cursor class
 		 */
 		$field = apply_filters(
@@ -85,7 +85,6 @@ class CursorBuilder {
 		}
 
 		$this->fields[] = $escaped_field;
-
 	}
 
 	/**
@@ -105,7 +104,6 @@ class CursorBuilder {
 	 * @return string
 	 */
 	public function to_sql( $fields = null ) {
-
 		if ( null === $fields ) {
 			$fields = $this->fields;
 		}
@@ -138,7 +136,7 @@ class CursorBuilder {
 		}
 
 		if ( count( $fields ) === 1 ) {
-			return " {$key} {$compare} {$value}";
+			return " {$key} {$compare} {$value} ";
 		}
 
 		$nest = $this->to_sql( \array_slice( $fields, 1 ) );

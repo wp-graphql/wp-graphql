@@ -14,7 +14,7 @@ jobs:
     name: Lint WPGraphQL Schema
     services:
       mariadb:
-        image: mariadb
+        image: mariadb:10.8.2
         ports:
           - 3306:3306
         env:
@@ -22,8 +22,14 @@ jobs:
         # Ensure docker waits for mariadb to start
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
+      - name: Cancel previous runs of this workflow (pull requests only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP w/ Composer & WP-CLI
         uses: shivammathur/setup-php@v2
@@ -34,7 +40,7 @@ jobs:
           tools: composer, wp-cli
 
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
@@ -53,7 +59,7 @@ jobs:
 
       - name: Lint the Static Schema
         run: |
-          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","PostObjectUnion","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
+          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
 
       - name: Display ignored linting errors
         run: |

@@ -130,13 +130,14 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		// Set the variables to use in the WP query.
 		$query_args = [
-			'taxonomy'   => 'category',
-			'number'     => 2,
-			'offset'     => 0,
-			'order'      => 'ASC',
-			'orderby'    => 'name',
-			'parent'     => 0,
-			'hide_empty' => false,
+			'graphql_cursor_compare' => '>',
+			'taxonomy'               => 'category',
+			'number'                 => 2,
+			'offset'                 => 0,
+			'order'                  => 'ASC',
+			'orderby'                => 'name',
+			'parent'                 => 0,
+			'hide_empty'             => false,
 		];
 
 		// Run the GraphQL Query
@@ -221,13 +222,14 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		// Set the variables to use in the WP query.
 		$query_args = [
-			'taxonomy'   => 'category',
-			'number'     => 2,
-			'offset'     => 0,
-			'order'      => 'DESC',
-			'orderby'    => 'name',
-			'parent'     => 0,
-			'hide_empty' => false,
+			'graphql_cursor_compare' => '>',
+			'taxonomy'               => 'category',
+			'number'                 => 2,
+			'offset'                 => 0,
+			'order'                  => 'DESC',
+			'orderby'                => 'name',
+			'parent'                 => 0,
+			'hide_empty'             => false,
 		];
 
 		// Run the GraphQL Query
@@ -677,6 +679,81 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][1]['cursor'] );
 		$this->assertEquals( $start_cursor, $actual['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['categories']['pageInfo']['endCursor'] );
+	}
+
+	public function testQueryForAncestorsIsInCorrectOrder() {
+
+		$parent = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'A Parent' // name starts with A to trip up default ordering
+		]);
+
+		$child = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Child',
+			'parent' => $parent,
+		]);
+
+		$grandchild = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Grandchild',
+			'parent' => $child,
+		]);
+
+		codecept_debug( [
+			'parent' => $parent,
+			'child' => $child,
+			'grandchild' => $grandchild,
+		]);
+
+		// update the parent post. the default ordering (by date) might
+
+		$query = '
+		query GetCategoryAncestors($id:ID!){
+		  category(id:$id idType:DATABASE_ID) {
+		    databaseId
+		    name
+		    ancestors {
+		      nodes {
+		        databaseId
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'id' => $grandchild,
+			]
+		]);
+
+		codecept_debug( $actual );
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedNode( 'category.ancestors.nodes', [
+				'databaseId' => $parent
+			] ),
+			$this->expectedNode( 'category.ancestors.nodes', [
+				'databaseId' => $child
+			] )
+		] );
+
+		$actual_ancestor_ids = [];
+
+		foreach ( $actual['data']['category']['ancestors']['nodes'] as $ancestor ) {
+			$actual_ancestor_ids[] = $ancestor['databaseId'];
+		}
+
+		$expected_ancestor_ids = get_ancestors( $grandchild, 'category', 'taxonomy' );
+
+		$this->assertSame( $actual_ancestor_ids, $expected_ancestor_ids );
+
+		wp_delete_term( $parent, 'category' );
+		wp_delete_term( $child, 'category' );
+		wp_delete_term( $grandchild, 'category' );
+
 	}
 
 }

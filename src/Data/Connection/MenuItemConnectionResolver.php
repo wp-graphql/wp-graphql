@@ -1,8 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
-use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
@@ -19,10 +17,10 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 *
 	 * @param mixed       $source     source passed down from the resolve tree
 	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param AppContext  $context    Object containing app context that gets passed down the resolve tree
-	 * @param ResolveInfo $info       Info about fields passed down the resolve tree
+	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
@@ -63,7 +61,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		// If the location argument is set, set the argument to the input argument
 		if ( isset( $this->args['where']['location'], $menu_locations[ $this->args['where']['location'] ] ) ) {
-
 			$locations = [ $menu_locations[ $this->args['where']['location'] ] ];
 
 			// if the $locations are NOT set and the user has proper capabilities, let the user query
@@ -118,11 +115,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array $args The GraphQL args passed to the resolver.
+		 * @param array $args            The GraphQL args passed to the resolver.
+		 * @param array $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_menu_item_connection_args', $args );
+		return apply_filters( 'graphql_menu_item_connection_args', $args, $this->args );
 	}
 
 }

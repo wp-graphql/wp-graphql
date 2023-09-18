@@ -35,7 +35,7 @@ class DebugLog {
 		 * Filters whether GraphQL Debug is enabled enabled. Serves as the default state for enabling debug logs.
 		 *
 		 * @param bool $enabled Whether logs are enabled or not
-		 * @param DebugLog $debug_log The DebugLog class instance
+		 * @param \WPGraphQL\Utils\DebugLog $debug_log The DebugLog class instance
 		 */
 		$this->logs_enabled = apply_filters( 'graphql_debug_logs_enabled', $enabled, $this );
 	}
@@ -49,7 +49,6 @@ class DebugLog {
 	 * @return array
 	 */
 	public function add_log_entry( $message, $config = [] ) {
-
 		if ( empty( $message ) ) {
 			return [];
 		}
@@ -75,10 +74,13 @@ class DebugLog {
 		}
 
 		if ( ! isset( $this->logs[ wp_json_encode( $message ) ] ) ) {
-			$log_entry = array_merge( [
-				'type'    => $type,
-				'message' => $message,
-			], $config );
+			$log_entry = array_merge(
+				[
+					'type'    => $type,
+					'message' => $message,
+				],
+				$config 
+			);
 
 			$this->logs[ wp_json_encode( $message ) ] = $log_entry;
 
@@ -92,7 +94,6 @@ class DebugLog {
 		}
 
 		return [];
-
 	}
 
 	/**
@@ -105,7 +106,7 @@ class DebugLog {
 		/**
 		 * Init the debug logger
 		 *
-		 * @param DebugLog $instance The DebugLog instance
+		 * @param \WPGraphQL\Utils\DebugLog $instance The DebugLog instance
 		 */
 		do_action( 'graphql_get_debug_log', $this );
 
@@ -123,7 +124,7 @@ class DebugLog {
 		 * Return the filtered debug log
 		 *
 		 * @param array    $logs     The logs to be output with the request
-		 * @param DebugLog $instance The Debug Log class
+		 * @param \WPGraphQL\Utils\DebugLog $instance The Debug Log class
 		 */
 		return apply_filters( 'graphql_debug_log', array_values( $this->logs ), $this );
 	}

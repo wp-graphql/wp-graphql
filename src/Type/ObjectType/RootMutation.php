@@ -10,7 +10,6 @@ class RootMutation {
 	 * @return void
 	 */
 	public static function register_type() {
-
 		register_graphql_object_type(
 			'RootMutation',
 			[
@@ -25,13 +24,12 @@ class RootMutation {
 								'description' => __( 'The count to increase', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => function ( $root, $args ) {
+						'resolve'     => static function ( $root, $args ) {
 							return isset( $args['count'] ) ? absint( $args['count'] ) + 1 : null;
 						},
 					],
 				],
 			]
 		);
-
 	}
 }
