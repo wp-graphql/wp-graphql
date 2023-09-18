@@ -32,6 +32,13 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 	require_once __DIR__ . '/c3.php';
 }
 
+// Whether to autoload the files or not.
+// This must be defined here and not within the WPGraphQL.php because this constant
+// determines whether to autoload classes or not
+if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+	define( 'WPGRAPHQL_AUTOLOAD', true );
+}
+
 // Run this function when WPGraphQL is de-activated
 register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
 register_activation_hook( __FILE__, 'graphql_activation_callback' );
@@ -41,6 +48,67 @@ if ( ! class_exists( 'WPGraphQL' ) ) {
 	require_once __DIR__ . '/src/WPGraphQL.php';
 }
 
+/**
+ * @return bool
+ */
+function graphql_can_load_plugin(): bool {
+
+	/**
+	 * WPGRAPHQL_AUTOLOAD can be set to "false" to prevent the autoloader from running.
+	 * In most cases, this is not something that should be disabled, but some environments
+	 * may bootstrap their dependencies in a global autoloader that will autoload files
+	 * before we get to this point, and requiring the autoloader again can trigger fatal errors.
+	 *
+	 * The codeception tests are an example of an environment where adding the autoloader again causes issues
+	 * so this is set to false for tests.
+	 */
+	if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
+
+		// If the autoload file exists, load it
+		if ( file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
+			// Autoload Required Classes.
+			require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+
+			// if the autoload file does not exist,
+			//
+		} else {
+			$composer         = file_get_contents( plugin_dir_path( __FILE__ ) . 'composer.json' );
+			$decoded_composer = ! empty( $composer ) ? json_decode( $composer, false ) : null;
+			$autoload_files   = $decoded_composer->autoload->files ?? [];
+
+			if ( ! empty( $autoload_files ) ) {
+				foreach ( $autoload_files as $autoload_file ) {
+					require_once plugin_dir_path( __FILE__ ) . $autoload_file;
+				}
+			}
+
+			if ( function_exists( 'graphql_setup_constants' ) ) {
+				graphql_setup_constants();
+			}
+
+			add_action(
+				'admin_notices',
+				static function () {
+					if ( ! current_user_can( 'manage_options' ) ) {
+						return;
+					}
+
+					echo sprintf(
+						'<div class="notice notice-error">' .
+						'<p>%s</p>' .
+						'</div>',
+						esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
+					);
+				}
+			);
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
 if ( ! function_exists( 'graphql_init' ) ) {
 	/**
 	 * Function that instantiates the plugins main class
@@ -48,6 +116,10 @@ if ( ! function_exists( 'graphql_init' ) ) {
 	 * @return object
 	 */
 	function graphql_init() {
+		if ( ! graphql_can_load_plugin() ) {
+			return;
+		}
+
 		/**
 		 * Return an instance of the action
 		 */

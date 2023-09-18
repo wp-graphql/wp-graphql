@@ -62,6 +62,7 @@
 	"autoload": {
 		"files": [
 			"access-functions.php",
+			"constants.php",
 			"activation.php",
 			"deactivation.php"
 		],
