@@ -169,7 +169,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $source, array $args, AppContext $context, $info ) {
+						'resolve'     => static function ( $_source, array $args, AppContext $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							switch ( $id_type ) {
@@ -212,7 +212,7 @@ class RootQuery {
 								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requestor doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => static function ( $_root, $args, AppContext $context ) {
 							$idType = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
@@ -280,7 +280,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a content type by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, $context, $info ) {
+						'resolve'     => static function ( $_root, $args, $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							$id = null;
@@ -312,7 +312,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a taxonomy by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, $context, $info ) {
+						'resolve'     => static function ( $_root, $args, $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							$id = null;
@@ -922,7 +922,7 @@ class RootQuery {
 							'description' => __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => static function ( $source, array $args, $context, $info ) use ( $tax_object ) {
+					'resolve'     => static function ( $_source, array $args, $context ) use ( $tax_object ) {
 						$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 						$term_id = null;
 

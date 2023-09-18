@@ -89,8 +89,6 @@
 
 		<!-- This would be a breaking change to fix-->
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
-
-		<!-- Maybe should be added back -->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	</rule>
 

@@ -315,12 +315,12 @@ class TermObject {
 				'type'              => 'Int',
 				'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => static function ( Term $term, $args, $context, $info ) {
+				'resolve'           => static function ( Term $term ) {
 					return absint( $term->term_id );
 				},
 			],
 			'uri'               => [
-				'resolve' => static function ( $term, $args, $context, $info ) {
+				'resolve' => static function ( $term ) {
 					$url = $term->link;
 					if ( ! empty( $url ) ) {
 						$parsed = wp_parse_url( $url );

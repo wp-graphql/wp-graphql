@@ -92,7 +92,7 @@ class TermObjectCreate {
 				'type'        => $taxonomy->graphql_single_name,
 				// translators: Placeholder is the name of the taxonomy
 				'description' => sprintf( __( 'The created %s', 'wp-graphql' ), $taxonomy->name ),
-				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload, $_args, AppContext $context ) {
 					$id = isset( $payload['termId'] ) ? absint( $payload['termId'] ) : null;
 
 					return $context->get_loader( 'term' )->load_deferred( $id );
