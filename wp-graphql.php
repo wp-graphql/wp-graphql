@@ -69,10 +69,14 @@ function graphql_can_load_plugin(): bool {
 			// Autoload Required Classes.
 			require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-			// if the autoload file does not exist,
-			//
+			// If the autoload file doesn't exist
+			// manually load the individual files defined
+			// in the composer.json
 		} else {
-			$composer         = file_get_contents( plugin_dir_path( __FILE__ ) . 'composer.json' );
+			$file_path = plugin_dir_path( __FILE__ ) . 'composer.json';
+
+			// @phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+			$composer         = file_exists( $file_path ) ? file_get_contents( $file_path ) : null;
 			$decoded_composer = ! empty( $composer ) ? json_decode( $composer, false ) : null;
 			$autoload_files   = $decoded_composer->autoload->files ?? [];
 
@@ -113,11 +117,13 @@ if ( ! function_exists( 'graphql_init' ) ) {
 	/**
 	 * Function that instantiates the plugins main class
 	 *
-	 * @return object
+	 * @return object|null
 	 */
 	function graphql_init() {
-		if ( ! graphql_can_load_plugin() ) {
-			return;
+
+		// if the plugin can't be loaded, bail
+		if ( false === graphql_can_load_plugin() ) {
+			return null;
 		}
 
 		/**
