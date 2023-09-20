@@ -73,17 +73,8 @@ function graphql_can_load_plugin(): bool {
 			// manually load the individual files defined
 			// in the composer.json
 		} else {
-			$file_path = plugin_dir_path( __FILE__ ) . 'composer.json';
-
-			// @phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
-			$composer         = file_exists( $file_path ) ? file_get_contents( $file_path ) : null;
-			$decoded_composer = ! empty( $composer ) ? json_decode( $composer, false ) : null;
-			$autoload_files   = $decoded_composer->autoload->files ?? [];
-
-			if ( ! empty( $autoload_files ) ) {
-				foreach ( $autoload_files as $autoload_file ) {
-					require_once plugin_dir_path( __FILE__ ) . $autoload_file;
-				}
+			if ( file_exists( plugin_dir_path( __FILE__ ) . 'constants.php' ) ) {
+				require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 			}
 
 			if ( function_exists( 'graphql_setup_constants' ) ) {
