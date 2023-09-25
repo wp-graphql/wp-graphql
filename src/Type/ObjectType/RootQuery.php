@@ -731,7 +731,7 @@ class RootQuery {
 						}
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-							$post_id = NodeResolver::resolve_node_preview($post_id);
+							$post_id = NodeResolver::get_post_preview_id($post_id);
 						}
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
