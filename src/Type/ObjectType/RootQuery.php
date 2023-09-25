@@ -16,6 +16,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\PostObjects;
+use WPGraphQL\Data\NodeResolver;
 
 /**
  * Class RootQuery
@@ -237,15 +238,7 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$revisions = wp_get_post_revisions(
-									$post_id,
-									[
-										'posts_per_page' => 1,
-										'fields'         => 'ids',
-										'check_enabled'  => false,
-									]
-								);
-								$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+								$post_id = NodeResolver::resolve_node_preview($post_id);
 							}
 
 							$allowed_post_types   = \WPGraphQL::get_allowed_post_types();
@@ -736,15 +729,7 @@ class RootQuery {
 						}
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-							$revisions = wp_get_post_revisions(
-								$post_id,
-								[
-									'posts_per_page' => 1,
-									'fields'         => 'ids',
-									'check_enabled'  => false,
-								]
-							);
-							$post_id   = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+							$post_id = NodeResolver::resolve_node_preview($post_id);
 						}
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(

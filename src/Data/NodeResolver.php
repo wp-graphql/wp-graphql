@@ -6,7 +6,6 @@ use GraphQL\Deferred;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
-use WPGraphQL\Model\Post;
 use WPGraphQL\Router;
 
 class NodeResolver {
@@ -236,16 +235,7 @@ class NodeResolver {
 			$post_id = $queried_object->ID;
 
 			if ( isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ) {
-				$revisions = wp_get_post_revisions(
-					$post_id,
-					[
-						'posts_per_page' => 1,
-						'fields'         => 'ids',
-						'check_enabled'  => false,
-					]
-				);
-
-				$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+				$post_id = $this->resolve_node_preview($post_id);
 			}
 
 			return ! empty( $post_id ) ? $this->context->get_loader( 'post' )->load_deferred( $post_id ) : null;
@@ -596,6 +586,30 @@ class NodeResolver {
 		do_action_ref_array( 'parse_request', [ &$this->wp ] );
 
 		return $uri;
+	}
+
+	/**
+	 * Given a WP Post or post ID, this method attempts to resolve a preview post ID.
+	 * 
+	 * @param Int|WP_Post $post The WP Post object or Post ID
+	 * 
+	 * @return Int A preview post ID if one exists, the current post ID if one doesn't exist.
+	 */
+	public static function resolve_node_preview( int | WP_Post $post ) {
+		$post_id = is_object($post) ? $post->ID : $post;
+
+		$revisions = wp_get_post_revisions(
+			$post_id,
+			[
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'check_enabled'  => false,
+			]
+		);
+
+		$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+
+		return $post_id;
 	}
 
 	/**
