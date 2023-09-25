@@ -153,7 +153,7 @@ final class WPGraphQL {
 	 *
 	 * @return void
 	 */
-	private function actions() : void {
+	private function actions(): void {
 		/**
 		 * Init WPGraphQL after themes have been setup,
 		 * allowing for both plugins and themes to register
@@ -287,7 +287,7 @@ final class WPGraphQL {
 	 *
 	 * @return void
 	 */
-	private function filters() : void {
+	private function filters(): void {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
 		$this->setup_types();
 

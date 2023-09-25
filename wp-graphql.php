@@ -62,7 +62,12 @@ function graphql_can_load_plugin(): bool {
 	 * The codeception tests are an example of an environment where adding the autoloader again causes issues
 	 * so this is set to false for tests.
 	 */
-	if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) || true !== WPGRAPHQL_AUTOLOAD ) {
+	// @phpstan-ignore-next-line: this is ignored as the constant could be defined in wp-config, prior to being defined above
+	if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && false === WPGRAPHQL_AUTOLOAD ) {
+
+		// IF WPGRAPHQL_AUTOLOAD is defined as false,
+		// but the WPGraphQL Class exists, we can assume the dependencies
+		// are loaded from the parent project.
 		if ( class_exists( '\WPGraphQL' ) ) {
 			return true;
 		}
@@ -85,7 +90,7 @@ function graphql_can_load_plugin(): bool {
 				return;
 			}
 
-			echo sprintf(
+			printf(
 				'<div class="notice notice-error">' .
 				'<p>%s</p>' .
 				'</div>',
