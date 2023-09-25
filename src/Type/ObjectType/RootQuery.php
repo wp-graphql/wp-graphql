@@ -220,6 +220,7 @@ class RootQuery {
 										$args['id'],
 										[
 											'nodeType' => 'ContentNode',
+											'asPreview' => $args['asPreview']
 										]
 									);
 								case 'database_id':

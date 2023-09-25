@@ -6,6 +6,7 @@ use GraphQL\Deferred;
 use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
+use WPGraphQL\Model\Post;
 use WPGraphQL\Router;
 
 class NodeResolver {
@@ -232,7 +233,22 @@ class NodeResolver {
 				return null;
 			}
 
-			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $queried_object->ID ) : null;
+			$post_id = $queried_object->ID;
+
+			if ( isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ) {
+				$revisions = wp_get_post_revisions(
+					$post_id,
+					[
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+						'check_enabled'  => false,
+					]
+				);
+
+				$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+			}
+
+			return ! empty( $post_id ) ? $this->context->get_loader( 'post' )->load_deferred( $post_id ) : null;
 		}
 
 		// Resolve Terms.
