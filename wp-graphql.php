@@ -62,39 +62,39 @@ function graphql_can_load_plugin(): bool {
 	 * The codeception tests are an example of an environment where adding the autoloader again causes issues
 	 * so this is set to false for tests.
 	 */
-	if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
-
-		// If the autoload file exists, load it
-		if ( file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
-			// Autoload Required Classes.
-			require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
-
-			// If the autoload file doesn't exist
-			// manually load the individual files defined
-			// in the composer.json
-		} else {
-
-			add_action(
-				'admin_notices',
-				static function () {
-					if ( ! current_user_can( 'manage_options' ) ) {
-						return;
-					}
-
-					echo sprintf(
-						'<div class="notice notice-error">' .
-						'<p>%s</p>' .
-						'</div>',
-						esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
-					);
-				}
-			);
-
-			return false;
+	if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) || true !== WPGRAPHQL_AUTOLOAD ) {
+		if ( class_exists( '\WPGraphQL' ) ) {
+			return true;
 		}
 	}
 
-	return true;
+	// If the autoload file exists, load it
+	if ( file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
+		// Autoload Required Classes.
+		require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+		return true;
+		// If the autoload file doesn't exist
+		// manually load the individual files defined
+		// in the composer.json
+	}
+
+	add_action(
+		'admin_notices',
+		static function () {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			echo sprintf(
+				'<div class="notice notice-error">' .
+				'<p>%s</p>' .
+				'</div>',
+				esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
+			);
+		}
+	);
+
+	return false;
 }
 
 if ( ! function_exists( 'graphql_init' ) ) {
