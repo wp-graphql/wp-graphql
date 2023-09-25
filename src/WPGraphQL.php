@@ -234,11 +234,13 @@ final class WPGraphQL {
 	public function min_php_version_check() {
 		if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
 			throw new \Exception(
-				sprintf(
-					// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
-					__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
-					PHP_VERSION,
-					GRAPHQL_MIN_PHP_VERSION
+				esc_html(
+					sprintf(
+						// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
+						__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
+						PHP_VERSION,
+						GRAPHQL_MIN_PHP_VERSION
+					)
 				)
 			);
 		}
@@ -793,8 +795,8 @@ final class WPGraphQL {
 	 */
 	public static function get_static_schema() {
 		$schema = null;
-		if (file_exists(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql') && !empty(file_get_contents(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql'))) { // phpcs:ignore
-			$schema = file_get_contents(WPGRAPHQL_PLUGIN_DIR . 'schema.graphql'); // phpcs:ignore
+		if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) && ! empty( file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) ) ) {
+			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
 		}
 
 		return $schema;
@@ -814,7 +816,7 @@ final class WPGraphQL {
 		$app_context           = new AppContext();
 		$app_context->viewer   = wp_get_current_user();
 		$app_context->root_url = get_bloginfo( 'url' );
-		$app_context->request = !empty($_REQUEST) ? $_REQUEST : null; // phpcs:ignore
+		$app_context->request  = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		return $app_context;
 	}

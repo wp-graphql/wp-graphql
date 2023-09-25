@@ -205,5 +205,4 @@ class Term extends Model {
 			}
 		}
 	}
-
 }

@@ -44,12 +44,12 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
 
 		if ( isset( $this->args['where']['parentDatabaseId'] ) ) {
-			$query_args['meta_key']   = '_menu_item_menu_item_parent'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$query_args['meta_key']   = '_menu_item_menu_item_parent';
 			$query_args['meta_value'] = (int) $this->args['where']['parentDatabaseId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
 		if ( ! empty( $this->args['where']['parentId'] ) || ( isset( $this->args['where']['parentId'] ) && 0 === (int) $this->args['where']['parentId'] ) ) {
-			$query_args['meta_key']   = '_menu_item_menu_item_parent'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$query_args['meta_key']   = '_menu_item_menu_item_parent';
 			$query_args['meta_value'] = $this->args['where']['parentId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
@@ -122,5 +122,4 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 */
 		return apply_filters( 'graphql_menu_item_connection_args', $args, $this->args );
 	}
-
 }

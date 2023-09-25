@@ -28,7 +28,7 @@
 		"appsero/client": "1.2.1"
 	},
 	"require-dev": {
-		"automattic/vipwpcs": "^2.2",
+		"automattic/vipwpcs": "^3.0",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-cli": "^1.0",
 		"codeception/module-db": "^1.0",
@@ -95,19 +95,15 @@
 		],
 		"phpstan": [
 			"phpstan analyze --ansi --memory-limit=2G"
-		]
-	},
-	"archive": {
-		"exclude": [
-			"*.yml",
-			"!vendor/",
-			"plugin-build/",
-			"node_modules/",
-			"!.wordpress-org/",
-			"docs/",
-			"wp-graphql.zip",
-			"!build",
-			"packages"
+		],
+		"build-plugin": [
+			"composer install --no-dev && composer run-script zip && composer install"
+		],
+		"zip": [
+			"mkdir -p plugin-build/wp-graphql",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
+			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
+			"rm -rf plugin-build/wp-graphql/"
 		]
 	}
 }

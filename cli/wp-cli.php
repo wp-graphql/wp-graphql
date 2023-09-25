@@ -52,7 +52,7 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 */
 		WP_CLI::line( 'Saving the Schema...' );
 
-		file_put_contents( $file_path, $printed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		file_put_contents( $file_path, $printed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 		/**
 		 * All done!

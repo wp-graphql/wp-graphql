@@ -88,7 +88,7 @@ class TermObjectUpdate {
 			 */
 			if ( empty( $term_id ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being edited
-				throw new UserError( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) );
+				throw new UserError( esc_html( sprintf( __( 'The ID passed is not for a %1$s object', 'wp-graphql' ), $taxonomy->graphql_single_name ) ) );
 			}
 
 			/**
@@ -106,17 +106,17 @@ class TermObjectUpdate {
 						throw new UserError( esc_html( $error_message ) );
 					} else {
 						// Translators: The placeholder is the name of the taxonomy for the term being deleted
-						throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
+						throw new UserError( esc_html( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) ) );
 					}
 				}
 
 				// Translators: The placeholder is the name of the taxonomy for the term being deleted
-				throw new UserError( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) );
+				throw new UserError( esc_html( sprintf( __( 'The %1$s node failed to update', 'wp-graphql' ), $taxonomy->name ) ) );
 			}
 
 			if ( $taxonomy->name !== $existing_term->taxonomy ) {
 				// translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
-				throw new UserError( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $term_id, $taxonomy->name ) );
+				throw new UserError( esc_html( sprintf( __( 'The id %1$d is not of the type "%2$s"', 'wp-graphql' ), $term_id, $taxonomy->name ) ) );
 			}
 
 			/**
@@ -124,7 +124,7 @@ class TermObjectUpdate {
 			 */
 			if ( ! current_user_can( 'edit_term', $existing_term->term_id ) ) {
 				// Translators: The placeholder is the name of the taxonomy for the term being deleted
-				throw new UserError( sprintf( __( 'You do not have permission to update %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) );
+				throw new UserError( esc_html( sprintf( __( 'You do not have permission to update %1$s', 'wp-graphql' ), $taxonomy->graphql_plural_name ) ) );
 			}
 
 			/**
@@ -144,7 +144,7 @@ class TermObjectUpdate {
 				 */
 				if ( is_wp_error( $update ) ) {
 					// Translators: the placeholder is the name of the taxonomy
-					throw new UserError( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) );
+					throw new UserError( esc_html( sprintf( __( 'The %1$s failed to update', 'wp-graphql' ), $taxonomy->name ) ) );
 				}
 			}
 

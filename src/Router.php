@@ -164,29 +164,26 @@ class Router {
 		if ( isset( $_GET[ self::$route ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 
 			$is_graphql_http_request = true;
-		} else {
-
+		} elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			// Check the server to determine if the GraphQL endpoint is being requested
-			if ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-				$host = wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$host = wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$uri  = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-				if ( ! is_string( $host ) ) {
-					return false;
-				}
-
-				if ( ! is_string( $uri ) ) {
-					return false;
-				}
-
-				$parsed_site_url    = wp_parse_url( site_url( self::$route ), PHP_URL_PATH );
-				$graphql_url        = ! empty( $parsed_site_url ) ? wp_unslash( $parsed_site_url ) : self::$route;
-				$parsed_request_url = wp_parse_url( $uri, PHP_URL_PATH );
-				$request_url        = ! empty( $parsed_request_url ) ? wp_unslash( $parsed_request_url ) : '';
-
-				// Determine if the route is indeed a graphql request
-				$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
+			if ( ! is_string( $host ) ) {
+				return false;
 			}
+
+			if ( ! is_string( $uri ) ) {
+				return false;
+			}
+
+			$parsed_site_url    = wp_parse_url( site_url( self::$route ), PHP_URL_PATH );
+			$graphql_url        = ! empty( $parsed_site_url ) ? wp_unslash( $parsed_site_url ) : self::$route;
+			$parsed_request_url = wp_parse_url( $uri, PHP_URL_PATH );
+			$request_url        = ! empty( $parsed_request_url ) ? wp_unslash( $parsed_request_url ) : '';
+
+			// Determine if the route is indeed a graphql request
+			$is_graphql_http_request = str_replace( '/', '', $request_url ) === str_replace( '/', '', $graphql_url );
 		}
 
 		/**
@@ -215,7 +212,7 @@ class Router {
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' );
 		return self::is_graphql_http_request();
 	}
 

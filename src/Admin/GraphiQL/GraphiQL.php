@@ -246,5 +246,4 @@ class GraphiQL {
 			$fullscreen_toggle_asset_file['version']
 		);
 	}
-
 }

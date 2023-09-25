@@ -46,33 +46,38 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			categories(first: 1) {
 				nodes {
-				  taxonomy {
-				    node {
-						connectedContentTypes {
-							nodes {
-								name
+					taxonomy {
+						node {
+							connectedContentTypes {
+								nodes {
+									name
+								}
 							}
+							connectedTerms(first:1) {
+								nodes {
+									name
+								}
+							}
+							description
+							graphqlPluralName
+							graphqlSingleName
+							hierarchical
+							id
+							label
+							name
+							public
+							restBase
+							restControllerClass
+							showCloud
+							showInAdminColumn
+							showInGraphql
+							showInMenu
+							showInNavMenus
+							showInQuickEdit
+							showInRest
+							showUi
 						}
-						description
-						graphqlPluralName
-						graphqlSingleName
-						hierarchical
-						id
-						label
-						name
-						public
-						restBase
-						restControllerClass
-						showCloud
-						showInAdminColumn
-						showInGraphql
-						showInMenu
-						showInNavMenus
-						showInQuickEdit
-						showInRest
-						showUi
-				     }
-				   }
+					}
 				}
 			}
 		}';
@@ -107,6 +112,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'nodes' => [
 										[
 											'name' => 'post',
+										],
+									],
+								],
+								'connectedTerms'        => [
+									'nodes' => [
+										[
+											'name' => 'test',
 										],
 									],
 								],
@@ -182,33 +194,38 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			tags(first:1) {
 				nodes {
-				 taxonomy {
-				   node {
-					connectedContentTypes {
-						nodes {
-							name
+					taxonomy {
+					node {
+						connectedContentTypes {
+							nodes {
+								name
+							}
+						}
+						connectedTerms(first:1) {
+							nodes {
+								name
+							}
+						}
+						description
+						graphqlPluralName
+						graphqlSingleName
+						hierarchical
+						id
+						label
+						name
+						public
+						restBase
+						restControllerClass
+						showCloud
+						showInAdminColumn
+						showInGraphql
+						showInMenu
+						showInNavMenus
+						showInQuickEdit
+						showInRest
+						showUi
 						}
 					}
-					description
-					graphqlPluralName
-					graphqlSingleName
-					hierarchical
-					id
-					label
-					name
-					public
-					restBase
-					restControllerClass
-					showCloud
-					showInAdminColumn
-					showInGraphql
-					showInMenu
-					showInNavMenus
-					showInQuickEdit
-					showInRest
-					showUi
-					}
-				  }
 				}
 			}
 		}';
@@ -243,6 +260,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 									'nodes' => [
 										[
 											'name' => 'post',
+										],
+									],
+								],
+								'connectedTerms'        => [
+									'nodes' => [
+										[
+											'name' => 'test',
 										],
 									],
 								],
@@ -313,12 +337,12 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			categories(first:1) {
 				nodes {
-				  taxonomy {
-				    node {
-					  name
+					taxonomy {
+						node {
+							name
+						}
 					}
-			      }
-			    }
+				}
 			}
 		}';
 
@@ -367,14 +391,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$query = '
 		query {
-			tags(first:1)
-			 {
-			  nodes {
-			     taxonomy {
-			         node {
-					   name
-				     }
-				   }
+			tags(first:1) {
+				nodes {
+					taxonomy {
+						node {
+							name
+						}
+					}
 				}
 			}
 		}';
@@ -432,7 +455,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 							databaseId
 						}
 					}
-			  }
+				}
 			}
 		}';
 

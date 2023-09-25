@@ -28,7 +28,7 @@ class Edge {
 						'description' => __( 'The connected node', 'wp-graphql' ),
 					],
 				],
-			] 
+			]
 		);
 	}
 }

@@ -104,7 +104,7 @@ class Config {
 						[
 							$query->query_where,
 							&$query,
-						] 
+						]
 					);
 
 					/**
@@ -118,7 +118,7 @@ class Config {
 						[
 							$query->query_orderby,
 							&$query,
-						] 
+						]
 					);
 				}
 
@@ -174,11 +174,11 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
-		 * 
+		 *
 		 * @param null|string $pre_orderby The pre-filtered ORDER BY clause of the query.
 		 * @param string      $orderby     The ORDER BY clause of the query.
 		 * @param \WP_Query   $query       The WP_Query instance (passed by reference).
-		 * 
+		 *
 		 * @return null|string
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
@@ -225,11 +225,11 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_where.
-		 * 
+		 *
 		 * @param null|string $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string     $where     The WHERE clause of the query.
 		 * @param \WP_Query  $query     The WP_Query instance (passed by reference).
-		 * 
+		 *
 		 * @return null|string
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_query_cursor_pagination_support', null, $where, $query );
@@ -276,11 +276,11 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
-		 * 
+		 *
 		 * @param null|string     $pre_orderby The pre-filtered ORDER BY clause of the query.
 		 * @param string          $orderby     The ORDER BY clause of the query.
 		 * @param \WP_User_Query  $query       The WP_User_Query instance (passed by reference).
-		 * 
+		 *
 		 * @return null|string
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
@@ -327,11 +327,11 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_where.
-		 * 
+		 *
 		 * @param null|string    $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string         $where     The WHERE clause of the query.
 		 * @param \WP_User_Query $query     The WP_Query instance (passed by reference).
-		 * 
+		 *
 		 * @return null|string
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
@@ -380,12 +380,12 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
-		 * 
+		 *
 		 * @param null|array $pre_pieces The pre-filtered term query SQL clauses.
 		 * @param array      $pieces     Terms query SQL clauses.
 		 * @param array      $taxonomies An array of taxonomies.
 		 * @param array      $args       An array of terms query arguments.
-		 * 
+		 *
 		 * @return null|array
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
@@ -442,11 +442,11 @@ class Config {
 
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
-		 * 
+		 *
 		 * @param null|array        $pre_pieces The pre-filtered comment query clauses.
 		 * @param array             $pieces     A compacted array of comment query clauses.
 		 * @param \WP_Comment_Query $query      Current instance of WP_Comment_Query, passed by reference.
-		 * 
+		 *
 		 * @return null|array
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
@@ -474,5 +474,4 @@ class Config {
 
 		return $pieces;
 	}
-
 }

@@ -3,9 +3,7 @@
 namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
-use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
-use WPGraphQL\AppContext;
 use WPGraphQL\Model\Comment;
 use WPGraphQL\Utils\Utils;
 
@@ -66,7 +64,7 @@ class CommentDelete {
 			'comment'   => [
 				'type'        => 'Comment',
 				'description' => __( 'The deleted comment object', 'wp-graphql' ),
-				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload ) {
 					return $payload['commentObject'] ? $payload['commentObject'] : null;
 				},
 			],
@@ -87,7 +85,7 @@ class CommentDelete {
 			$comment_before_delete = ! empty( $comment_id ) ? get_comment( $comment_id ) : false;
 
 			if ( empty( $comment_before_delete ) ) {
-				throw new UserError( __( 'The Comment could not be deleted', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The Comment could not be deleted', 'wp-graphql' ) );
 			}
 
 			/**
@@ -115,7 +113,7 @@ class CommentDelete {
 			 * If the mutation has been prevented
 			 */
 			if ( true === $not_allowed ) {
-				throw new UserError( __( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete this comment.', 'wp-graphql' ) );
 			}
 
 			/**

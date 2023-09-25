@@ -104,7 +104,7 @@ class Tracing {
 				'add_tracing_to_response_extensions',
 			],
 			10,
-			1 
+			1
 		);
 		add_action( 'graphql_before_resolve_field', [ $this, 'init_field_resolver_trace' ], 10, 4 );
 		add_action( 'graphql_after_resolve_field', [ $this, 'end_field_resolver_trace' ], 10 );
@@ -201,7 +201,7 @@ class Tracing {
 				$this,
 				'sanitize_trace_resolver_path',
 			],
-			$trace['path'] 
+			$trace['path']
 		) : [];
 		$sanitized_trace['parentType']  = ! empty( $trace['parentType'] ) ? esc_html( $trace['parentType'] ) : '';
 		$sanitized_trace['fieldName']   = ! empty( $trace['fieldName'] ) ? esc_html( $trace['fieldName'] ) : '';
@@ -310,19 +310,16 @@ class Tracing {
 		// If logs are disabled, user cannot see logs
 		if ( ! $this->tracing_enabled ) {
 			$can_see = false;
-		} else {
+		} elseif ( 'any' === $this->tracing_user_role ) {
 			// If "any" is the selected role, anyone can see the logs
-			if ( 'any' === $this->tracing_user_role ) {
-				$can_see = true;
-			} else {
-				// Get the current users roles
-				$user = wp_get_current_user();
+			$can_see = true;
+		} else {
+			// Get the current users roles
+			$user = wp_get_current_user();
 
-				// If the user doesn't have roles or the selected role isn't one the user has, the
-				// user cannot see roles;
-				if ( in_array( $this->tracing_user_role, $user->roles, true ) ) {
-					$can_see = true;
-				}
+			// If the user doesn't have roles or the selected role isn't one the user has, the user cannot see roles.
+			if ( in_array( $this->tracing_user_role, $user->roles, true ) ) {
+				$can_see = true;
 			}
 		}
 

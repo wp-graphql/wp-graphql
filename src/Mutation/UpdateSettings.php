@@ -160,7 +160,7 @@ class UpdateSettings {
 		 * Check that the user can manage setting options
 		 */
 		if ( ! current_user_can( 'manage_options' ) ) {
-			throw new UserError( __( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Sorry, you are not allowed to edit settings as this user.', 'wp-graphql' ) );
 		}
 
 		/**
@@ -204,7 +204,7 @@ class UpdateSettings {
 			 * the things
 			 */
 			if ( 'generalSettingsUrl' === $key ) {
-				throw new UserError( __( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, that is not allowed, speak with your site administrator to change the site URL.', 'wp-graphql' ) );
 			}
 
 			/**

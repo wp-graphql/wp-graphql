@@ -68,8 +68,7 @@ class Commenter {
 						'description' => __( 'Whether the author information is considered restricted. (not fully public)', 'wp-graphql' ),
 					],
 				],
-			] 
+			]
 		);
 	}
-
 }

@@ -94,5 +94,4 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 
 		return false;
 	}
-
 }

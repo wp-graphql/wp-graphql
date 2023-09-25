@@ -147,4 +147,3 @@ function graphql_init_appsero_telemetry() {
 }
 
 graphql_init_appsero_telemetry();
-
