@@ -696,6 +696,7 @@ class RootQuery {
 										'name'      => $args['id'],
 										'post_type' => $post_type_object->name,
 										'nodeType'  => 'ContentNode',
+										'asPreview' => $args['asPreview'],
 									]
 								);
 							case 'uri':
@@ -705,6 +706,7 @@ class RootQuery {
 										'post_type' => $post_type_object->name,
 										'archive'   => false,
 										'nodeType'  => 'ContentNode',
+										'asPreview' => $args['asPreview'],
 									]
 								);
 							case 'database_id':
