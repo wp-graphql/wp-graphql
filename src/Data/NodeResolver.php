@@ -595,7 +595,7 @@ class NodeResolver {
 	 * 
 	 * @return Int A preview post ID if one exists, the current post ID if one doesn't exist.
 	 */
-	public static function resolve_node_preview( int | WP_Post $post ) {
+	public static function resolve_node_preview( $post ) {
 		$post_id = is_object($post) ? $post->ID : $post;
 
 		$revisions = wp_get_post_revisions(
