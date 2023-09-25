@@ -238,7 +238,7 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$post_id = NodeResolver::resolve_node_preview($post_id);
+								$post_id = NodeResolver::get_post_preview_id($post_id);
 							}
 
 							$allowed_post_types   = \WPGraphQL::get_allowed_post_types();
