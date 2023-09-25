@@ -74,10 +74,9 @@ final class WPGraphQL {
 		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof self ) ) {
 			self::$instance = new self();
 			self::$instance->setup_constants();
-			if ( self::$instance->includes() ) {
-				self::$instance->actions();
-				self::$instance->filters();
-			}
+			self::$instance->includes();
+			self::$instance->actions();
+			self::$instance->filters();
 		}
 
 		/**
@@ -117,83 +116,17 @@ final class WPGraphQL {
 	 * @since  0.0.1
 	 */
 	private function setup_constants() {
-		// Set main file path.
-		$main_file_path = dirname( __DIR__ ) . '/wp-graphql.php';
-
-		// Plugin version.
-		if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-			define( 'WPGRAPHQL_VERSION', '1.16.0' );
-		}
-
-		// Plugin Folder Path.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_DIR' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( $main_file_path ) );
-		}
-
-		// Plugin Root File.
-		if ( ! defined( 'WPGRAPHQL_PLUGIN_FILE' ) ) {
-			define( 'WPGRAPHQL_PLUGIN_FILE', $main_file_path );
-		}
-
-		// Whether to autoload the files or not.
-		if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
-			define( 'WPGRAPHQL_AUTOLOAD', true );
-		}
-
-		// The minimum version of PHP this plugin requires to work properly
-		if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
-			define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
-		}
+		graphql_setup_constants();
 	}
 
 	/**
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
-	 * @return bool
+	 * @return void
 	 * @since  0.0.1
 	 */
-	private function includes() {
-		/**
-		 * WPGRAPHQL_AUTOLOAD can be set to "false" to prevent the autoloader from running.
-		 * In most cases, this is not something that should be disabled, but some environments
-		 * may bootstrap their dependencies in a global autoloader that will autoload files
-		 * before we get to this point, and requiring the autoloader again can trigger fatal errors.
-		 *
-		 * The codeception tests are an example of an environment where adding the autoloader again causes issues
-		 * so this is set to false for tests.
-		 */
-		if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && true === WPGRAPHQL_AUTOLOAD ) {
-			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
-				// Autoload Required Classes.
-				require_once WPGRAPHQL_PLUGIN_DIR . 'vendor/autoload.php';
-			}
-
-			// If GraphQL class doesn't exist, then dependencies cannot be
-			// detected. This likely means the user cloned the repo from Github
-			// but did not run `composer install`
-			if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
-				add_action(
-					'admin_notices',
-					static function () {
-						if ( ! current_user_can( 'manage_options' ) ) {
-							return;
-						}
-
-						printf(
-							'<div class="notice notice-error">' .
-							'<p>%s</p>' .
-							'</div>',
-							esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
-						);
-					}
-				);
-
-				return false;
-			}
-		}
-
-		return true;
+	private function includes(): void {
 	}
 
 	/**
@@ -220,7 +153,7 @@ final class WPGraphQL {
 	 *
 	 * @return void
 	 */
-	private function actions() {
+	private function actions(): void {
 		/**
 		 * Init WPGraphQL after themes have been setup,
 		 * allowing for both plugins and themes to register
@@ -354,7 +287,7 @@ final class WPGraphQL {
 	 *
 	 * @return void
 	 */
-	private function filters() {
+	private function filters(): void {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
 		$this->setup_types();
 
