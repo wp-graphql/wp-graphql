@@ -73,13 +73,6 @@ function graphql_can_load_plugin(): bool {
 			// manually load the individual files defined
 			// in the composer.json
 		} else {
-			if ( file_exists( plugin_dir_path( __FILE__ ) . 'constants.php' ) ) {
-				require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
-			}
-
-			if ( function_exists( 'graphql_setup_constants' ) ) {
-				graphql_setup_constants();
-			}
 
 			add_action(
 				'admin_notices',

@@ -8,8 +8,6 @@
  * @return void
  */
 function graphql_setup_constants() {
-	// Set main file path.
-	$main_file_path = dirname( __DIR__ ) . '/wp-graphql.php';
 
 	// Plugin version.
 	if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
@@ -18,12 +16,12 @@ function graphql_setup_constants() {
 
 	// Plugin Folder Path.
 	if ( ! defined( 'WPGRAPHQL_PLUGIN_DIR' ) ) {
-		define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( $main_file_path ) );
+		define( 'WPGRAPHQL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	}
 
 	// Plugin Root File.
 	if ( ! defined( 'WPGRAPHQL_PLUGIN_FILE' ) ) {
-		define( 'WPGRAPHQL_PLUGIN_FILE', $main_file_path );
+		define( 'WPGRAPHQL_PLUGIN_FILE', WPGRAPHQL_PLUGIN_DIR . '/wp-graphql.php' );
 	}
 
 	// The minimum version of PHP this plugin requires to work properly
