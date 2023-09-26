@@ -16,7 +16,7 @@ use WPGraphQL\Data\Connection\UserRoleConnectionResolver;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\PostObjects;
-use WPGraphQL\Data\NodeResolver;
+use WPGraphQL\Utils\Utils;
 
 /**
  * Class RootQuery
@@ -238,7 +238,7 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$post_id = NodeResolver::get_post_preview_id($post_id);
+								$post_id = Utils::get_post_preview_id($post_id);
 							}
 
 							$allowed_post_types   = \WPGraphQL::get_allowed_post_types();
@@ -731,7 +731,7 @@ class RootQuery {
 						}
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-							$post_id = NodeResolver::get_post_preview_id($post_id);
+							$post_id = Utils::get_post_preview_id($post_id);
 						}
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
