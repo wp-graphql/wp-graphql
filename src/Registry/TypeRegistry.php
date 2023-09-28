@@ -661,6 +661,12 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ): void {
+
+		/**
+		* Decodes the type name, so it works with different languages (e.g. Chinese, Hebrew, etc.)
+		*/
+		$type_name = urldecode( $type_name );
+
 		/**
 		 * If the type should be excluded from the schema, skip it.
 		 */
