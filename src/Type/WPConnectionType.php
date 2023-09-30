@@ -158,6 +158,8 @@ class WPConnectionType {
 		 * Filter the connection field name.
 		 *
 		 * @internal This filter is internal and used by rename_graphql_field(). It is not intended for use by external code.
+		 *
+		 * @param string $from_field_name The name of the field the connection will be exposed as.
 		 */
 		$this->from_field_name = apply_filters( "graphql_wp_connection_{$this->from_type}_from_field_name", $config['fromFieldName'] );
 
