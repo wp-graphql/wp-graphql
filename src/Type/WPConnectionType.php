@@ -150,10 +150,17 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
-		$this->config          = $config;
-		$this->from_type       = $config['fromType'];
-		$this->to_type         = $config['toType'];
-		$this->from_field_name = $config['fromFieldName'];
+		$this->config    = $config;
+		$this->from_type = $config['fromType'];
+		$this->to_type   = $config['toType'];
+
+		/**
+		 * Filter the connection field name.
+		 *
+		 * @internal This filter is internal and used by rename_graphql_field(). It is not intended for use by external code.
+		 */
+		$this->from_field_name = apply_filters( "graphql_wp_connection_{$this->from_type}_from_field_name", $config['fromFieldName'] );
+
 		$this->connection_name = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $this->from_type, $this->to_type, $this->from_field_name );
 
 		/**
