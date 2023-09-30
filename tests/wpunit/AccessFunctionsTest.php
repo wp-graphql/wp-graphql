@@ -636,6 +636,23 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 	}
 
+	public function testRenameGraphQLConnectionFieldName() {
+		rename_graphql_field( 'RootQuery', 'users', 'wpUsers' );
+
+		$query    = '{ __type(name: "RootQuery") { fields { name } } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		$this->assertQuerySuccessful(
+			$response,
+			[
+				$this->not()->expectedNode( '__type.fields', [ 'name' => 'users' ] ),
+				$this->expectedNode( '__type.fields', [ 'name' => 'wpUsers' ] ),
+			]
+		);
+	}
+
 	public function testRenameGraphQLType() {
 
 		register_graphql_union_type( 'PostObjectUnion', [
