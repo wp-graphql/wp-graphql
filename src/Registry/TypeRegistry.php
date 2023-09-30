@@ -661,7 +661,6 @@ class TypeRegistry {
 	 * @return void
 	 */
 	public function register_type( string $type_name, $config ): void {
-
 		/**
 		 * If the type should be excluded from the schema, skip it.
 		 */
