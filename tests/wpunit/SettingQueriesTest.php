@@ -1,6 +1,6 @@
 <?php
 
-class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
+class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $editor;
@@ -9,13 +9,17 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->editor = $this->factory->user->create( [
-			'role' => 'editor',
-		] );
+		$this->editor = $this->factory->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
 
 		WPGraphQL::clear_schema();
 	}
@@ -30,7 +34,7 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * if they don't have the 'manage_options' capability
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testSettingQueryAsEditor() {
 		/**
@@ -40,17 +44,18 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Validate the request has errors
 		 */
 		wp_set_current_user( $this->editor );
-		$query  = '
+
+		$query = '
 			query {
 				generalSettings {
-				    email
-			    }
-		    }
-	    ';
-		$actual = do_graphql_request( $query );
+						email
+					}
+				}
+			';
+
+		$actual = graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -91,13 +96,13 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$query = '
 				query {
 					generalSettings {
-					    dateFormat
-					    description
-					    language
-					    startOfWeek
-					    timeFormat
-					    timezone
-					    title
+							dateFormat
+							description
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
 					}
 				}
 			';
@@ -105,21 +110,21 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 			$query = '
 				query {
 					generalSettings {
-					    dateFormat
-					    description
-					    email
-					    language
-					    startOfWeek
-					    timeFormat
-					    timezone
-					    title
-					    url
+							dateFormat
+							description
+							email
+							language
+							startOfWeek
+							timeFormat
+							timezone
+							title
+							url
 					}
 				}
 			';
 		}
 
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$generalSettings = $actual['data']['generalSettings'];
 
@@ -151,18 +156,17 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * Validate the request
 		 */
 		wp_set_current_user( $this->admin );
-		$query  = '
+		$query = '
 			query {
 				writingSettings {
-				    defaultCategory
-				    defaultPostFormat
-				    useSmilies
+					defaultCategory
+					defaultPostFormat
+					useSmilies
 				}
 			}
 		';
-		$actual = do_graphql_request( $query );
 
-		codecept_debug( $actual );
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$writingSettings = $actual['data']['writingSettings'];
 
@@ -170,7 +174,6 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( is_int( $writingSettings['defaultCategory'] ) );
 		$this->assertTrue( is_string( $writingSettings['defaultPostFormat'] ) );
 		$this->assertTrue( is_bool( $writingSettings['useSmilies'] ) );
-
 	}
 
 	/**
@@ -189,20 +192,20 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		update_option( 'posts_per_page', 12 );
 
-		$query  = '
+		$query = '
 			query {
 				readingSettings {
-				    postsPerPage
+					postsPerPage
 				}
 			}
 		';
-		$actual = do_graphql_request( $query );
+
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$readingSettings = $actual['data']['readingSettings'];
 
 		$this->assertNotEmpty( $readingSettings );
 		$this->assertEquals( 12, $readingSettings['postsPerPage'] );
-
 	}
 
 	/**
@@ -222,22 +225,22 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'default_comment_status', 'test_value' );
 		update_option( 'default_ping_status', 'test_value' );
 
-		$query  = '
+		$query = '
 			query {
 				discussionSettings {
-				    defaultCommentStatus
-				    defaultPingStatus
+					defaultCommentStatus
+					defaultPingStatus
 				}
 			}
 		';
-		$actual = do_graphql_request( $query );
+
+		$actual = $this->graphql( compact( 'query' ) );
 
 		$discussionSettings = $actual['data']['discussionSettings'];
 
 		$this->assertNotEmpty( $discussionSettings );
 		$this->assertEquals( 'test_value', $discussionSettings['defaultCommentStatus'] );
 		$this->assertEquals( 'test_value', $discussionSettings['defaultPingStatus'] );
-
 	}
 
 	/**
@@ -262,36 +265,39 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * This registers a setting as a number to see if it gets the correct type
 		 * associated with it and returned through WPGraphQL
 		 */
-		register_setting( 'zool', 'points', [
-			'type'            => 'number',
-			'description'     => __( 'Test how many points we have in Zool.' ),
-			'show_in_graphql' => true,
-			'default'         => 4.5,
-		] );
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test how many points we have in Zool.' ),
+				'show_in_graphql' => true,
+				'default'         => 4.5,
+			]
+		);
 
 		$query = '
 		query GetType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'ZoolSettings',
-			],
-		]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'ZoolSettings',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'ZoolSettings', $actual['data']['__type']['name'] );
-
 	}
 
 	/**
@@ -316,30 +322,36 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		 * This registers a setting as a number to see if it gets the correct type
 		 * associated with it and returned through WPGraphQL
 		 */
-		register_setting( 'zool', 'points', [
-			'type'            => 'number',
-			'description'     => __( 'Test how many points we have in Zool.' ),
-			'show_in_graphql' => true,
-			'default'         => 4.5,
-		] );
+		register_setting(
+			'zool',
+			'points',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test how many points we have in Zool.' ),
+				'show_in_graphql' => true,
+				'default'         => 4.5,
+			]
+		);
 
 		$query = '
 		query getType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'ZoolSettings',
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'ZoolSettings',
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -356,41 +368,45 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'points', $names );
 
 		unregister_setting( 'zool', 'points' );
-
 	}
 
 	public function testUnregisteringSettingPreventsItFromBeingInTheSchema() {
 
-		register_setting( 'zool', 'test', [
-			'show_in_rest' => true,
-			'type'         => 'string',
-		]);
+		register_setting(
+			'zool',
+			'test',
+			[
+				'show_in_rest' => true,
+				'type'         => 'string',
+			]
+		);
 
 		unregister_setting( 'zool', 'test' );
 
 		$query = '
 		query getType( $typeName: String! ){
-		  __type(name: $typeName) {
-		    name
-		    fields {
-		      name
-		    }
-		  }
+			__type(name: $typeName) {
+				name
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'ZoolSettings',
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'ZoolSettings',
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
 		// There should be no type found
 		$this->assertNull( $actual['data']['__type'] );
-
 	}
 
 	/**
@@ -401,21 +417,26 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testRegisteredSettingInCamelcaseQuery() {
 		wp_set_current_user( $this->admin );
 
-		register_setting( 'fooBar', 'biz', [
-			'type'            => 'string',
-			'description'     => __( 'Test register setting in camelcase.' ),
-			'show_in_graphql' => true,
-			'default'         => 1.1,
-		] );
+		register_setting(
+			'fooBar',
+			'biz',
+			[
+				'type'            => 'string',
+				'description'     => __( 'Test register setting in camelcase.' ),
+				'show_in_graphql' => true,
+				'default'         => 1.1,
+			]
+		);
 
 		$query  = '
 			{
 				fooBarSettings {
-				    biz
+					biz
 				}
 			}
 		';
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
+
 		$this->assertArrayHasKey( 'fooBarSettings', $actual['data'] );
 		$this->assertEquals( '1.1', $actual['data']['fooBarSettings']['biz'] );
 	}
@@ -428,21 +449,26 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function testRegisteredSettingWithUnderscoresQuery() {
 		wp_set_current_user( $this->admin );
 
-		register_setting( 'zoo_bar', 'biz', [
-			'type'            => 'string',
-			'description'     => __( 'Test register setting with underscore.' ),
-			'show_in_graphql' => true,
-			'default'         => 2.2,
-		] );
+		register_setting(
+			'zoo_bar',
+			'biz',
+			[
+				'type'            => 'string',
+				'description'     => __( 'Test register setting with underscore.' ),
+				'show_in_graphql' => true,
+				'default'         => 2.2,
+			]
+		);
 
 		$query  = '
 			{
 				zooBarSettings {
-				    biz
+					biz
 				}
 			}
 		';
-		$actual = do_graphql_request( $query );
+		$actual = $this->graphql( compact( 'query' ) );
+
 		$this->assertArrayHasKey( 'zooBarSettings', $actual['data'] );
 		$this->assertEquals( '2.2', $actual['data']['zooBarSettings']['biz'] );
 	}
@@ -451,84 +477,98 @@ class SettingQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected = 'my custom field value';
 
-		$this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-		]);
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
 
-		add_action( 'graphql_register_types', function () use ( $expected ) {
-			register_graphql_field( 'GeneralSettings', 'myCustomField', [
-				'type'    => 'String',
-				'resolve' => function () use ( $expected ) {
-					return $expected;
-				},
-			]);
-			register_graphql_field( 'RootQuery', 'rootCustomField', [
-				'type'    => 'String',
-				'resolve' => function () use ( $expected ) {
-					return $expected;
-				},
-			]);
-			register_graphql_field( 'Post', 'customPostField', [
-				'type'    => 'String',
-				'resolve' => function () use ( $expected ) {
-					return $expected;
-				},
-			]);
-		});
+		add_action(
+			'graphql_register_types',
+			static function () use ( $expected ) {
+				register_graphql_field(
+					'GeneralSettings',
+					'myCustomField',
+					[
+						'type'    => 'String',
+						'resolve' => static function () use ( $expected ) {
+							return $expected;
+						},
+					]
+				);
+				register_graphql_field(
+					'RootQuery',
+					'rootCustomField',
+					[
+						'type'    => 'String',
+						'resolve' => static function () use ( $expected ) {
+							return $expected;
+						},
+					]
+				);
+				register_graphql_field(
+					'Post',
+					'customPostField',
+					[
+						'type'    => 'String',
+						'resolve' => static function () use ( $expected ) {
+							return $expected;
+						},
+					]
+				);
+			}
+		);
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		      customPostField
-		    }
-		  }
+			posts {
+				nodes {
+					id
+					customPostField
+				}
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['posts']['nodes'][0]['customPostField'] );
 
 		$query = '
 		{
-		  rootCustomField
+			rootCustomField
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
-
-		codecept_debug( $actual );
-
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['rootCustomField'] );
 
 		$query = '
 		{
-		  generalSettings {
-		    myCustomField
-		  }
+			generalSettings {
+				myCustomField
+			}
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
-
-		codecept_debug( $actual );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['generalSettings']['myCustomField'] );
-
 	}
-
 }
