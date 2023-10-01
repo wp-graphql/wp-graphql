@@ -149,7 +149,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Convert meta_value_num to seperate meta_value value field which our
+		 * Convert meta_value_num to separate meta_value value field which our
 		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {

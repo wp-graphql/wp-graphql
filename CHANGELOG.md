@@ -132,7 +132,7 @@ queries you have using pagination arguments (`first`, `last`, `after`, `before`)
 - [#2777](https://github.com/wp-graphql/wp-graphql/pull/2777): chore: update composer dev-deps (not PHPStan). Thanks @justlevine!
 - [#2778](https://github.com/wp-graphql/wp-graphql/pull/2778): fix: Update PHPStan and fix smells. Thanks @justlevine!
 - [#2779](https://github.com/wp-graphql/wp-graphql/pull/2779): ci: test against WordPress 6.2. Thanks @justlevine!
-- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostOjectUnion and TermObjectUnion. Thanks @justlevine!
+- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostObjectUnion and TermObjectUnion. Thanks @justlevine!
 - [#2782](https://github.com/wp-graphql/wp-graphql/pull/2782): ci: fix deprecation warnings in Github workflows. Thanks @justlevine!
 - [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests. 
 
@@ -193,7 +193,7 @@ queries you have using pagination arguments (`first`, `last`, `after`, `before`)
 - ([#2665](https://github.com/wp-graphql/wp-graphql/pull/2665)): chore(deps): bump decode-uri-component from 0.2.0 to 0.2.2
 - ([#2668](https://github.com/wp-graphql/wp-graphql/pull/2668)): test: Multiple domain tests. Thanks @markkelnar!
 - ([#2669](https://github.com/wp-graphql/wp-graphql/pull/2669)): ci: Use last working version of xdebug for php7. Thanks @markkelnar!
-- ([#2671](https://github.com/wp-graphql/wp-graphql/pull/2671)): fix: correct regressions to field formatting forcing snake_cace and UcFirst fields to be lcfirst/camelCase
+- ([#2671](https://github.com/wp-graphql/wp-graphql/pull/2671)): fix: correct regressions to field formatting forcing snake_cache and UcFirst fields to be lcfirst/camelCase
 - ([#2672](https://github.com/wp-graphql/wp-graphql/pull/2672)): chore: update lint-pr workflow
 
 ## 1.13.6
@@ -858,8 +858,8 @@ This might cause behavior you don't want in your application because you had cod
 ### Chores / Bugfixes
 
 - ([#1987](https://github.com/wp-graphql/wp-graphql/pull/1987)): Fixes Relay Spec link in documentation Thanks @ramyareye!
-- ([#1988](https://github.com/wp-graphql/wp-graphql/pull/1988)): Fixes docblock and paramater Type in preview filter callback. Thanks @zolon4!
-- ([#1986](https://github.com/wp-graphql/wp-graphql/pull/1986)): Update WP environment variables for tesing with PHP8. Thanks @markkelnar!
+- ([#1988](https://github.com/wp-graphql/wp-graphql/pull/1988)): Fixes docblock and parameter Type in preview filter callback. Thanks @zolon4!
+- ([#1986](https://github.com/wp-graphql/wp-graphql/pull/1986)): Update WP environment variables for testing with PHP8. Thanks @markkelnar!
 
 ### New Features
 
@@ -1015,7 +1015,7 @@ This might cause behavior you don't want in your application because you had cod
 
 ## 1.3.0
 
-### Noteable changes
+### Notable changes
 
 Between this release and the prior release ([v1.2.6](https://github.com/wp-graphql/wp-graphql/releases/tag/v1.2.6)) includes changes to pagination under the hood.
 
@@ -1116,7 +1116,7 @@ It's recommended to test your applications against this release, _specifically_ 
 - ([#1718](https://github.com/wp-graphql/wp-graphql/pull/1718)) Simplify the main plugin file to adhere to more modern WP plugin standards. Move the WPGraphQL class to it's own file under the src directory. Thanks @szepeviktor!
 - ([#1704](https://github.com/wp-graphql/wp-graphql/pull/1704)) Fix end tags for inputs on the WPGraphQL Settings page to adhere to the w3 spec for inputs. Thanks @therealgilles!
 - ([#1706](https://github.com/wp-graphql/wp-graphql/pull/1706)) Show all content types in the ContentTypeEnum, not just public ones. Thanks @ljanecek!
-- ([#1699](https://github.com/wp-graphql/wp-graphql/pull/1699)) Set default value for 2nd paramater on `Tracker->get_info()` method. Thanks @SpartakusMd!
+- ([#1699](https://github.com/wp-graphql/wp-graphql/pull/1699)) Set default value for 2nd parameter on `Tracker->get_info()` method. Thanks @SpartakusMd!
 
 ## 1.1.4
 

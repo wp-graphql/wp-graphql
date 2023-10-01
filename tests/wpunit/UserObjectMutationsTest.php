@@ -974,7 +974,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// Run the mutation, passing in an invalid username.
 		$actual = $this->sendPasswordResetEmailMutation( $username );
 
-		// This should return succesful with a notice in the log.
+		// This should return successful with a notice in the log.
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
 		$this->assertEquals( "Invalid username.", $actual['extensions']['debug'][0]['message'] );

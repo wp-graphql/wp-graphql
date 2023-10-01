@@ -116,7 +116,7 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
-	 * Tests a query for non existant theme.
+	 * Tests a query for non existent theme.
 	 *
 	 * @since 0.0.5
 	 */

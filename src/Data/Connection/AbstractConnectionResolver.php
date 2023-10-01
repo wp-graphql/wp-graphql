@@ -354,7 +354,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine whether or not the query should execute.
 	 *
-	 * Return true to exeucte, return false to prevent execution.
+	 * Return true to execute, return false to prevent execution.
 	 *
 	 * Various criteria can be used to determine whether a Connection Query should
 	 * be executed.
@@ -431,7 +431,7 @@ abstract class AbstractConnectionResolver {
 	public function get_query_amount() {
 
 		/**
-		 * Filter the maximum number of posts per page that should be quried. The default is 100 to prevent queries from
+		 * Filter the maximum number of posts per page that should be queried. The default is 100 to prevent queries from
 		 * being exceedingly resource intensive, however individual systems can override this for their specific needs.
 		 *
 		 * This filter is intentionally applied AFTER the query_args filter, as
@@ -644,7 +644,7 @@ abstract class AbstractConnectionResolver {
 
 		/**
 		 * We assume a numeric $offset is an integer ID.
-		 * If it isn't this method should be overriden by the child class.
+		 * If it isn't this method should be overridden by the child class.
 		 */
 		return is_numeric( $offset ) ? absint( $offset ) : $offset;
 	}
@@ -865,7 +865,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * This filter allows for additional fields to be filtered into the pageInfo
 		 * of a connection, such as "totalCount", etc, because the filter has enough
-		 * context of the query, args, request, etc to be able to calcuate and return
+		 * context of the query, args, request, etc to be able to calculate and return
 		 * that information.
 		 *
 		 * example:

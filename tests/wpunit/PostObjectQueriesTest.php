@@ -283,7 +283,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	/**
 	 * testPostQueryWherePostDoesNotExist
 	 *
-	 * Tests a query for non existant post.
+	 * Tests a query for non existent post.
 	 *
 	 * @since 0.0.34
 	 */
@@ -317,7 +317,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	/**
 	 * testPostQueryWithoutFeaturedImage
 	 *
-	 * This tests querying featuredImage on a post wihtout one.
+	 * This tests querying featuredImage on a post without one.
 	 *
 	 * @since 0.0.34
 	 */

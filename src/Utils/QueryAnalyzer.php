@@ -187,8 +187,7 @@ class QueryAnalyzer {
 	 * @param ?string         $operation The name of the operation
 	 * @param ?array          $variables Variables to be passed to your GraphQL request
 	 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params, such
- * as extenions or any other modifications to the request
- * body
+	 *                                                as extensions or any other modifications to the request body
 	 *
 	 * @return void
 	 * @throws \Exception
