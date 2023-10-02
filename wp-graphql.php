@@ -106,7 +106,7 @@ function graphql_can_load_plugin(): bool {
 	}
 
 	// Bootstrap the plugin
-	if ( ! class_exists( '\WPGraphQL' ) ) {
+	if ( ! class_exists( 'WPGraphQL' ) ) {
 		return false;
 	}
 
