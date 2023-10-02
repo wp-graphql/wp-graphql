@@ -82,20 +82,20 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  * @param string $query          The GraphQL query to run
  * @param string $operation_name The name of the operation
  * @param array  $variables      Variables to be passed to your GraphQL request
- * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
+ * @param bool   $return_request If true, return the Request object, else return the results of the request execution
  *
  * @return array|\WPGraphQL\Request
  * @throws \Exception
  * @since  0.0.2
  */
-function do_graphql_request( $query, $operation_name = '', $variables = [], $return_requst = false ) {
+function do_graphql_request( $query, $operation_name = '', $variables = [], $return_request = false ) {
 	return graphql(
 		[
 			'query'          => $query,
 			'variables'      => $variables,
 			'operation_name' => $operation_name,
 		],
-		$return_requst
+		$return_request
 	);
 }
 
