@@ -8,6 +8,10 @@
  */
 function graphql_deactivation_callback() {
 
+	if ( ! graphql_can_load_plugin() ) {
+		return;
+	}
+
 	// Fire an action when WPGraphQL is de-activating
 	do_action( 'graphql_deactivate' );
 
@@ -21,6 +25,10 @@ function graphql_deactivation_callback() {
  * @return void
  */
 function delete_graphql_data() {
+
+	if ( ! class_exists( 'WPGraphQL' ) ) {
+		return;
+	}
 
 	// Check if the plugin is set to delete data or not
 	$delete_data = get_graphql_setting( 'delete_data_on_deactivate' );
