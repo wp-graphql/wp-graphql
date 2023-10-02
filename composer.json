@@ -60,7 +60,13 @@
 		}
 	},
 	"autoload": {
-		"files": [],
+		"files": [
+			"src/WPGraphQL.php",
+			"access-functions.php",
+			"constants.php",
+			"activation.php",
+			"deactivation.php"
+		],
 		"psr-4": {
 			"WPGraphQL\\": "src/"
 		}

@@ -32,23 +32,31 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 	require_once __DIR__ . '/c3.php';
 }
 
-// Bootstrap files that are neded before autoloader is bootstrapped
-if ( file_exists( __DIR__ . '/access-functions.php' ) ) {
-	require_once __DIR__ . '/access-functions.php';
-}
-if ( file_exists( __DIR__ . '/constants.php' ) ) {
-	require_once __DIR__ . '/constants.php';
-}
-if ( file_exists( __DIR__ . '/activation.php' ) ) {
-	require_once __DIR__ . '/activation.php';
-}
-if ( file_exists( __DIR__ . '/deactivation.php' ) ) {
-	require_once __DIR__ . '/deactivation.php';
+/**
+ * Load files that are required even if the composer autoloader isn't installed
+ * @return void
+ */
+function graphql_require_bootstrap_files() : void {
+
+	$composer_file = __DIR__ . '/composer.json';
+	$composer_config = null;
+
+	if ( file_exists( $composer_file ) ) {
+		$contents = file_get_contents( $composer_file );
+		$composer_config = ! empty( $contents ) ? json_decode( $contents ) : null;
+	}
+
+	if ( isset( $composer_config->autoload->files ) ) {
+		foreach ( $composer_config->autoload->files as $file ) {
+			$file_path = __DIR__ . '/' . $file;
+			if ( file_exists( $file_path ) ) {
+				require_once( $file_path );
+			}
+		}
+	}
+
 }
 
-// Run this function when WPGraphQL is de-activated
-register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
-register_activation_hook( __FILE__, 'graphql_activation_callback' );
 
 /**
  * test env:
@@ -68,11 +76,12 @@ register_activation_hook( __FILE__, 'graphql_activation_callback' );
  */
 function graphql_can_load_plugin(): bool {
 
-
 	$can_load      = false;
 	$autoload_file = plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-	if ( class_exists( 'WPGraphQL' ) ) {
+	// If GraphQL\GraphQL and WPGraphQL are both already loaded,
+	// We can assume that WPGraphQL has been installed as a composer dependency of a parent project
+	if ( class_exists( 'GraphQL\GraphQL' ) && class_exists( 'WPGraphQL' ) ) {
 		return true;
 	}
 
@@ -99,14 +108,15 @@ function graphql_can_load_plugin(): bool {
 		// Autoload Required Classes.
 		require_once( $autoload_file );
 		// Bootstrap the plugin
-		if ( ! class_exists( 'WPGraphQL' ) ) {
-			require_once __DIR__ . '/src/WPGraphQL.php';
+		if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
+			return false;
 		}
 		return true;
 	}
 
 	// Bootstrap the plugin
-	if ( ! class_exists( 'WPGraphQL' ) ) {
+	if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
+		graphql_require_bootstrap_files();
 		return false;
 	}
 
@@ -136,6 +146,11 @@ if ( ! function_exists( 'graphql_init' ) ) {
 	}
 }
 graphql_init();
+
+// Run this function when WPGraphQL is de-activated
+register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
+register_activation_hook( __FILE__, 'graphql_activation_callback' );
+
 
 function graphql_cannot_load_admin_notice_callback() {
 	if ( ! current_user_can( 'manage_options' ) ) {
