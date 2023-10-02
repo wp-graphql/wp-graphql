@@ -480,7 +480,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	/**
 	 * testUserQueryWhereUserDoesNotExist
 	 *
-	 * Tests a query for non existant user.
+	 * Tests a query for non existent user.
 	 *
 	 * @since 0.0.5
 	 */

@@ -363,7 +363,7 @@ class DataSource {
 	 * @param array       $source  The Query results
 	 * @param array       $args    The query arguments
 	 * @param \WPGraphQL\AppContext $context The AppContext passed down to the query
-	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResloveInfo object
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
 	 * @return array
 	 * @throws \Exception

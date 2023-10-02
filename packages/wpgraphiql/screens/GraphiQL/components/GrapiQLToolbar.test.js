@@ -45,7 +45,7 @@ describe("Filter before the GraphiQL Toolbar Buttons", () => {
     hooks.removeAllFilters("graphiql_toolbar_before_buttons");
   });
 
-  // @todo: figure out how to test that this filter comes _before_ the buttons, as right now it tests the fitler renders something, but not that it renders _before_ the buttons
+  // @todo: figure out how to test that this filter comes _before_ the buttons, as right now it tests the filter renders something, but not that it renders _before_ the buttons
   test("button should render before the other buttons", () => {
     // await act(async () => {
     //   const { container, getByTestId, debug } = render(<GraphiQLToolbar />);
@@ -82,7 +82,7 @@ describe("Filter after the GraphiQL Toolbar Buttons", () => {
     hooks.removeAllFilters("graphiql_toolbar_after_buttons");
   });
 
-  // @todo: figure out how to test that this filter comes _after_ the buttons, as right now it tests the fitler renders something, but not that it renders _after_ the buttons
+  // @todo: figure out how to test that this filter comes _after_ the buttons, as right now it tests the filter renders something, but not that it renders _after_ the buttons
   test("button should be after the other buttons", () => {
     const { getByTestId } = render(<GraphiQLToolbar />);
 

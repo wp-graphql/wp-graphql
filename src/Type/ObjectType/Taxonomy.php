@@ -105,7 +105,7 @@ class Taxonomy {
 					],
 					'restBase'            => [
 						'type'        => 'String',
-						'description' => __( 'Name of content type to diplay in REST API "wp/v2" namespace.', 'wp-graphql' ),
+						'description' => __( 'Name of content type to display in REST API "wp/v2" namespace.', 'wp-graphql' ),
 					],
 					'restControllerClass' => [
 						'type'        => 'String',

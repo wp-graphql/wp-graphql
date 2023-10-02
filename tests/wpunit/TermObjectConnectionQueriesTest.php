@@ -435,7 +435,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertCount( 6, $actual['data']['categories']['nodes'] );
 		$this->assertEquals( $child_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
 
-		// test excludeTree wth global + db id
+		// test excludeTree with global + db id
 		$variables = [
 			'where' => [
 				'excludeTree' => [ $this->created_term_ids[1], $parent_global_id ],
