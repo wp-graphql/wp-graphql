@@ -44,7 +44,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 * @return array
 	 */
 	public function create_menus() {
-		// Create 6 menues
+		// Create 6 menus
 		$created_menus = [];
 		for ( $i = 1; $i <= 6; $i ++ ) {
 			// Set the date 1 minute apart for each post
@@ -82,7 +82,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	/**
-	 * Tests querying for menues with id where arg.
+	 * Tests querying for menus with id where arg.
 	 */
 	public function testMenusQueryById() {
 		$menu_id = $this->created_menus[2];

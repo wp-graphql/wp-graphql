@@ -590,7 +590,8 @@ class Request {
 		 * @param ?string          $query     The GraphQL query
 		 * @param ?string          $operation The name of the operation
 		 * @param ?array          $variables Variables to be passed to your GraphQL request
-		 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params, such as extenions or any other modifications to the request body
+		 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params,
+		 * such as extenions or any other modifications to the request body
 		 */
 		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 	}

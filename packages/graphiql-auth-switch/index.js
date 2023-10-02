@@ -54,7 +54,7 @@ hooks.addFilter("graphiql_app", "graphiql-auth", (app) => {
 });
 
 /**
- * Hook into the Toolbar to add tha AuthSwitch button, which allows users to toggle
+ * Hook into the Toolbar to add the AuthSwitch button, which allows users to toggle
  * between executing GraphQL queries as a public and authenticated user.
  */
 hooks.addFilter(

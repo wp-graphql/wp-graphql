@@ -387,7 +387,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		remove_filter( 'term_id_filter', '__return_false' );
 
 		/**
-		 * Now let's filter to mimick the response returning a WP_Error to make sure we also respond with an error
+		 * Now let's filter to mimic the response returning a WP_Error to make sure we also respond with an error
 		 */
 		add_filter( 'get_post_tag', function () {
 			return new \WP_Error( 'this is a test error' );

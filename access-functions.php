@@ -806,7 +806,7 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
  */
 function graphql_get_endpoint() {
 
-	// get the endpoint from the setttings. default to 'graphql'
+	// get the endpoint from the settings. default to 'graphql'
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
 	/**

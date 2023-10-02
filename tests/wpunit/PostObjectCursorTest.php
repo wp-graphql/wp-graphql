@@ -1231,7 +1231,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						$type = 'NUMBER';
 					}
 
-					// Add the claus
+					// Add the clause
 					$meta_query[ $orderby['field'] ] = [
 						'key' => $orderby['field'],
 						'compare' => 'EXISTS',

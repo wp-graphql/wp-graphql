@@ -55,7 +55,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Additional enviornment details
+      label: Additional environment details
       description: Frontend framework, additional WGraphQL extensions (and their versions), etc.
   - type: checkboxes
     attributes:
