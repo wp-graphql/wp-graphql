@@ -54,7 +54,7 @@ class CommentMutation {
 
 		if ( empty( $input['author'] ) ) {
 			if ( ! $update ) {
-				throw new UserError( __( 'Comment must include an authorName.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Comment must include an authorName.', 'wp-graphql' ) );
 			}
 		} else {
 			$output_args['comment_author'] = $input['author'];
@@ -62,7 +62,7 @@ class CommentMutation {
 
 		if ( ! empty( $input['authorEmail'] ) ) {
 			if ( false === is_email( apply_filters( 'pre_user_email', $input['authorEmail'] ) ) ) {
-				throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
 			$output_args['comment_author_email'] = $input['authorEmail'];
 		}

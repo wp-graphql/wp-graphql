@@ -849,8 +849,7 @@ class Post extends Model {
 				$this->fields[ $type_id ] = function () {
 					return absint( $this->data->ID );
 				};
-			};
+			}
 		}
 	}
-
 }

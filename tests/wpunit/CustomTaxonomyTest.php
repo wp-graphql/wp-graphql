@@ -820,7 +820,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -859,7 +859,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -898,7 +898,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1017,7 +1017,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"GraphqlExcludeField") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }

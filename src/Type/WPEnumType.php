@@ -96,5 +96,4 @@ class WPEnumType extends EnumType {
 		 */
 		return $values;
 	}
-
 }

@@ -165,7 +165,7 @@ class UserMutation {
 		 */
 		if ( ! empty( $input['email'] ) ) {
 			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
-				throw new UserError( __( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
 			$insert_user_args['user_email'] = $input['email'];
 		}
@@ -255,11 +255,10 @@ class UserMutation {
 				if ( true === $verified ) {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
-					$message = $verified->get_error_message();
-					throw new Exception( $message );
+					throw new Exception( esc_html( $verified->get_error_message() ) );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new Exception( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) );
+					throw new Exception( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
 				}
 			}
 		}
@@ -312,5 +311,4 @@ class UserMutation {
 			return true;
 		}
 	}
-
 }

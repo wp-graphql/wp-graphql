@@ -84,7 +84,7 @@ abstract class Model {
 	protected function __construct( $restricted_cap = '', $allowed_restricted_fields = [], $owner = null ) {
 		if ( empty( $this->data ) ) {
 			// translators: %s is the name of the model.
-			throw new Exception( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) );
+			throw new Exception( esc_html( sprintf( __( 'An empty data set was used to initialize the modeling of this %s object', 'wp-graphql' ), $this->get_model_name() ) ) );
 		}
 
 		$this->restricted_cap            = $restricted_cap;
@@ -499,29 +499,29 @@ abstract class Model {
 	 * Given a string, and optional context, this decodes html entities if html_entity_decode is
 	 * enabled.
 	 *
-	 * @param string $string     The string to decode
+	 * @param string $str        The string to decode
 	 * @param string $field_name The name of the field being encoded
 	 * @param bool   $enabled    Whether decoding is enabled by default for the string passed in
 	 *
 	 * @return string
 	 */
-	public function html_entity_decode( $string, $field_name, $enabled = false ) {
+	public function html_entity_decode( $str, $field_name, $enabled = false ) {
 
 		/**
 		 * Determine whether html_entity_decode should be applied to the string
 		 *
 		 * @param bool                   $enabled    Whether decoding is enabled by default for the string passed in
-		 * @param string                 $string     The string to decode
+		 * @param string                 $str        The string to decode
 		 * @param string                 $field_name The name of the field being encoded
 		 * @param \WPGraphQL\Model\Model $model      The Model the field is being decoded on
 		 */
-		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $string, $field_name, $this );
+		$decoding_enabled = apply_filters( 'graphql_html_entity_decoding_enabled', $enabled, $str, $field_name, $this );
 
 		if ( false === $decoding_enabled ) {
-			return $string;
+			return $str;
 		}
 
-		return html_entity_decode( $string );
+		return html_entity_decode( $str );
 	}
 
 	/**
@@ -549,5 +549,4 @@ abstract class Model {
 	 * @return mixed
 	 */
 	abstract protected function init();
-
 }

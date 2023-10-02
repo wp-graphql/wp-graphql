@@ -316,7 +316,7 @@ class TermObject {
 				'type'              => 'Int',
 				'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => static function ( Term $term, $args, $context, $info ) {
+				'resolve'           => static function ( Term $term ) {
 					return absint( $term->term_id );
 				},
 			],

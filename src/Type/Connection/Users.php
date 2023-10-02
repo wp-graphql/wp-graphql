@@ -48,7 +48,7 @@ class Users {
 					'lockTimestamp' => [
 						'type'        => 'String',
 						'description' => __( 'The timestamp for when the node was last edited', 'wp-graphql' ),
-						'resolve'     => static function ( $edge, $args, $context, $info ) {
+						'resolve'     => static function ( $edge ) {
 							if ( isset( $edge['source'] ) && ( $edge['source'] instanceof Post ) ) {
 								$edit_lock = $edge['source']->editLock;
 								$time      = ( is_array( $edit_lock ) && ! empty( $edit_lock[0] ) ) ? $edit_lock[0] : null;
@@ -204,5 +204,4 @@ class Users {
 			],
 		];
 	}
-
 }

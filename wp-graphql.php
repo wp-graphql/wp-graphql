@@ -32,6 +32,13 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 	require_once __DIR__ . '/c3.php';
 }
 
+// Whether to autoload the files or not.
+// This must be defined here and not within the WPGraphQL.php because this constant
+// determines whether to autoload classes or not
+if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+	define( 'WPGRAPHQL_AUTOLOAD', true );
+}
+
 // Run this function when WPGraphQL is de-activated
 register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
 register_activation_hook( __FILE__, 'graphql_activation_callback' );
@@ -41,13 +48,73 @@ if ( ! class_exists( 'WPGraphQL' ) ) {
 	require_once __DIR__ . '/src/WPGraphQL.php';
 }
 
+/**
+ * @return bool
+ */
+function graphql_can_load_plugin(): bool {
+
+	/**
+	 * WPGRAPHQL_AUTOLOAD can be set to "false" to prevent the autoloader from running.
+	 * In most cases, this is not something that should be disabled, but some environments
+	 * may bootstrap their dependencies in a global autoloader that will autoload files
+	 * before we get to this point, and requiring the autoloader again can trigger fatal errors.
+	 *
+	 * The codeception tests are an example of an environment where adding the autoloader again causes issues
+	 * so this is set to false for tests.
+	 */
+	// @phpstan-ignore-next-line: this is ignored as the constant could be defined in wp-config, prior to being defined above
+	if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && false === WPGRAPHQL_AUTOLOAD ) {
+
+		// IF WPGRAPHQL_AUTOLOAD is defined as false,
+		// but the WPGraphQL Class exists, we can assume the dependencies
+		// are loaded from the parent project.
+		if ( class_exists( '\WPGraphQL' ) ) {
+			return true;
+		}
+	}
+
+	// If the autoload file exists, load it
+	if ( file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
+		// Autoload Required Classes.
+		require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+		return true;
+		// If the autoload file doesn't exist
+		// manually load the individual files defined
+		// in the composer.json
+	}
+
+	add_action(
+		'admin_notices',
+		static function () {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			printf(
+				'<div class="notice notice-error">' .
+				'<p>%s</p>' .
+				'</div>',
+				esc_html__( 'WPGraphQL appears to have been installed without it\'s dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`.', 'wp-graphql' )
+			);
+		}
+	);
+
+	return false;
+}
+
 if ( ! function_exists( 'graphql_init' ) ) {
 	/**
 	 * Function that instantiates the plugins main class
 	 *
-	 * @return object
+	 * @return object|null
 	 */
 	function graphql_init() {
+
+		// if the plugin can't be loaded, bail
+		if ( false === graphql_can_load_plugin() ) {
+			return null;
+		}
+
 		/**
 		 * Return an instance of the action
 		 */
@@ -85,4 +152,3 @@ function graphql_init_appsero_telemetry() {
 }
 
 graphql_init_appsero_telemetry();
-

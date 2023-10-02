@@ -85,7 +85,7 @@ class SettingGroup {
 						'type'        => $type_registry->get_type( $setting_field['type'] ),
 						// translators: %s is the name of the setting group.
 						'description' => isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
-						'resolve'     => static function ( $root, array $args, $context, $info ) use ( $setting_field ) {
+						'resolve'     => static function () use ( $setting_field ) {
 
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
@@ -93,7 +93,7 @@ class SettingGroup {
 							 */
 							if ( 'admin_email' === $setting_field['key'] ) {
 								if ( ! current_user_can( 'manage_options' ) ) {
-									throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 								}
 							}
 
@@ -122,5 +122,4 @@ class SettingGroup {
 
 		return $fields;
 	}
-
 }
