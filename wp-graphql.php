@@ -34,15 +34,17 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
 
 /**
  * Load files that are required even if the composer autoloader isn't installed
+ *
  * @return void
  */
-function graphql_require_bootstrap_files() : void {
+function graphql_require_bootstrap_files(): void {
 
-	$composer_file = __DIR__ . '/composer.json';
+	$composer_file   = __DIR__ . '/composer.json';
 	$composer_config = null;
 
 	if ( file_exists( $composer_file ) ) {
-		$contents = file_get_contents( $composer_file );
+		// @phpcs:ignore
+		$contents        = file_get_contents( $composer_file );
 		$composer_config = ! empty( $contents ) ? json_decode( $contents ) : null;
 	}
 
@@ -50,16 +52,18 @@ function graphql_require_bootstrap_files() : void {
 		foreach ( $composer_config->autoload->files as $file ) {
 			$file_path = __DIR__ . '/' . $file;
 			if ( file_exists( $file_path ) ) {
-				require_once( $file_path );
+				// @phpcs:ignore
+				require_once $file_path;
 			}
 		}
 	}
-
 }
 
 
 /**
- * test env:
+ * Determines if the plugin can load.
+ *
+ * Test env:
  *  - WPGRAPHQL_AUTOLOAD: false
  *  - autoload installed and manually added in test env
  *
@@ -71,13 +75,9 @@ function graphql_require_bootstrap_files() : void {
  * - WPGRAPHQL_AUTOLOAD: not defined
  * - composer deps installed INSIDE the plugin
  *
- *
  * @return bool
  */
 function graphql_can_load_plugin(): bool {
-
-	$can_load      = false;
-	$autoload_file = plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 	// If GraphQL\GraphQL and WPGraphQL are both already loaded,
 	// We can assume that WPGraphQL has been installed as a composer dependency of a parent project
@@ -101,12 +101,12 @@ function graphql_can_load_plugin(): bool {
 		// but the WPGraphQL Class exists, we can assume the dependencies
 		// are loaded from the parent project.
 		return true;
-
 	}
 
-	if ( ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) || true === WPGRAPHQL_AUTOLOAD ) && file_exists( $autoload_file ) ) {
+	// @phpstan-ignore-next-line: this is ignored as the constant could be defined in wp-config, prior to being defined above
+	if ( ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) || true === WPGRAPHQL_AUTOLOAD ) && file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
 		// Autoload Required Classes.
-		require_once( $autoload_file );
+		require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 		// Bootstrap the plugin
 		if ( ! class_exists( 'GraphQL\GraphQL' ) ) {
 			return false;
@@ -121,7 +121,6 @@ function graphql_can_load_plugin(): bool {
 	}
 
 	return true;
-
 }
 
 if ( ! function_exists( 'graphql_init' ) ) {
@@ -151,8 +150,12 @@ graphql_init();
 register_deactivation_hook( __FILE__, 'graphql_deactivation_callback' );
 register_activation_hook( __FILE__, 'graphql_activation_callback' );
 
-
-function graphql_cannot_load_admin_notice_callback() {
+/**
+ * Render an admin notice if the plugin cannot load
+ *
+ * @return void
+ */
+function graphql_cannot_load_admin_notice_callback() : void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
