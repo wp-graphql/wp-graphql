@@ -531,7 +531,7 @@ class SettingsRegistry {
 		$selected = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
 		if ( empty( $selected ) ) {
-			$selected = isset( $args['defualt'] ) ? $args['defualt'] : null;
+			$selected = isset( $args['default'] ) ? $args['default'] : null;
 		}
 
 		$name = $args['section'] . '[' . $args['id'] . ']';
