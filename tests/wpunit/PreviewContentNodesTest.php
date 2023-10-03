@@ -63,11 +63,51 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
-	public function getPreviewQuery() {
+	public function getPreviewQueryByDatabaseId() {
 
 		return '
 		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
 			node: contentNode(id:$id idType:DATABASE_ID asPreview:$asPreview) {
+				__typename
+				id
+				databaseId
+				isPreview
+				status
+			previewRevisionDatabaseId
+				...on NodeWithTitle {
+					title
+				}
+			}
+		}
+		';
+
+	}
+
+	public function getPreviewQueryByUri() {
+
+		return '
+		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
+			node: contentNode(id:$id idType:URI asPreview:$asPreview) {
+				__typename
+				id
+				databaseId
+				isPreview
+				status
+			previewRevisionDatabaseId
+				...on NodeWithTitle {
+					title
+				}
+			}
+		}
+		';
+
+	}
+
+	public function getPreviewQueryBySlug() {
+
+		return '
+		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
+			node: contentNode(id:$id idType:SLUG asPreview:$asPreview) {
 				__typename
 				id
 				databaseId
@@ -107,6 +147,8 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'post_author' => $this->admin,
 		]);
 
+		$draft_post = get_post($draft_id);
+
 		$revision_id = $this->factory()->post->create([
 			'post_type'   => 'revision',
 			'post_status' => 'inherit',
@@ -115,41 +157,97 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'post_parent' => $draft_id,
 		]);
 
-		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+		$database_id_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
 			],
 		]);
 
-		$this->assertArrayNotHasKey( 'errors', $preview );
+		$uri_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryByUri(),
+			'variables' => [
+				'id'        => $draft_post->uri,
+				'asPreview' => true,
+			],
+		]);
+
+		$slug_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryBySlug(),
+			'variables' => [
+				'id'        => $draft_post->slug,
+				'asPreview' => true,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $database_id_preview );
+		$this->assertArrayNotHasKey( 'errors', $uri_preview );
+		$this->assertArrayNotHasKey( 'errors', $slug_preview );
 
 		// the revision id should be the id of the preview since the post_type supports revisions
-		$this->assertSame( 'WithRevisionSupport', $preview['data']['node']['__typename'] );
-		$this->assertSame( $revision_id, $preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $preview['data']['node']['title'] );
+		$this->assertSame( 'WithRevisionSupport', $database_id_preview['data']['node']['__typename'] );
+		$this->assertSame( $revision_id, $database_id_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $database_id_preview['data']['node']['title'] );
 
-		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+		$this->assertSame( 'WithRevisionSupport', $uri_preview['data']['node']['__typename'] );
+		$this->assertSame( $revision_id, $uri_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $uri_preview['data']['node']['title'] );
+
+		$this->assertSame( 'WithRevisionSupport', $slug_preview['data']['node']['__typename'] );
+		$this->assertSame( $revision_id, $slug_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $slug_preview['data']['node']['title'] );
+
+		$not_database_id_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
 			],
 		]);
 
-		$this->assertArrayNotHasKey( 'errors', $preview );
+		$not_uri_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryByUri(),
+			'variables' => [
+				'id'        => $draft_post->uri,
+				'asPreview' => false,
+			],
+		]);
+
+		$not_slug_preview = $this->graphql([
+			'query'     => $this->getPreviewQueryBySlug(),
+			'variables' => [
+				'id'        => $draft_post->slug,
+				'asPreview' => false,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $not_database_id_preview );
+		$this->assertArrayNotHasKey( 'errors', $not_uri_preview );
+		$this->assertArrayNotHasKey( 'errors', $not_slug_preview );
 
 		// the draft_id should be the id because we're not trying to preview the thing
-		$this->assertSame( 'WithRevisionSupport', $not_preview['data']['node']['__typename'] );
-		$this->assertSame( $draft_id, $not_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $not_preview['data']['node']['title'] );
+		$this->assertSame( 'WithRevisionSupport', $not_database_id_preview['data']['node']['__typename'] );
+		$this->assertSame( $draft_id, $not_database_id_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $not_database_id_preview['data']['node']['title'] );
+
+		$this->assertSame( 'WithRevisionSupport', $not_uri_preview['data']['node']['__typename'] );
+		$this->assertSame( $draft_id, $not_uri_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $not_uri_preview['data']['node']['title'] );
+
+		$this->assertSame( 'WithRevisionSupport', $not_slug_preview['data']['node']['__typename'] );
+		$this->assertSame( $draft_id, $not_slug_preview['data']['node']['databaseId'] );
+		$this->assertSame( $draft_title, $not_slug_preview['data']['node']['title'] );
 
 		// The preview and the not_preview nodes should not be the same. They're different entities.
-		$this->assertNotSame( $preview['data']['node'], $not_preview['data']['node'] );
+		$this->assertNotSame( $database_id_preview['data']['node'], $not_database_id_preview['data']['node'] );
+		$this->assertNotSame( $uri_preview['data']['node'], $not_uri_preview['data']['node'] );
+		$this->assertNotSame( $slug_preview['data']['node'], $not_slug_preview['data']['node'] );
 
 		// but the titles should be the same, because that's the change we're previewing
-		$this->assertSame( $preview['data']['node']['title'], $not_preview['data']['node']['title'] );
+		$this->assertSame( $database_id_preview['data']['node']['title'], $not_database_id_preview['data']['node']['title'] );
+		$this->assertSame( $uri_preview['data']['node']['title'], $not_uri_preview['data']['node']['title'] );
+		$this->assertSame( $slug_preview['data']['node']['title'], $not_slug_preview['data']['node']['title'] );
 
 	}
 
@@ -168,7 +266,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
@@ -181,7 +279,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $draft_title, $preview['data']['node']['title'] );
 
 		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
@@ -228,7 +326,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
@@ -245,7 +343,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
@@ -294,7 +392,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// since the post type does not support revisions, a revision is not created
 
 		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => false,
@@ -311,7 +409,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertNull( $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $draft_id,
 				'asPreview' => true,
@@ -367,7 +465,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => false,
@@ -383,7 +481,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => true,
@@ -443,7 +541,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => false,
@@ -459,7 +557,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$preview = $this->graphql([
-			'query'     => $this->getPreviewQuery(),
+			'query'     => $this->getPreviewQueryByDatabaseId(),
 			'variables' => [
 				'id'        => $published_id,
 				'asPreview' => true,
