@@ -63,31 +63,11 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
-	public function getPreviewQueryByDatabaseId() {
+	public function getPreviewQuery() {
 
 		return '
-		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
-			node: contentNode(id:$id idType:DATABASE_ID asPreview:$asPreview) {
-				__typename
-				id
-				databaseId
-				isPreview
-				status
-			previewRevisionDatabaseId
-				...on NodeWithTitle {
-					title
-				}
-			}
-		}
-		';
-
-	}
-
-	public function getPreviewQueryByUri() {
-
-		return '
-		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
-			node: contentNode(id:$id idType:URI asPreview:$asPreview) {
+		query PreviewContentNode( $id:ID! $asPreview: Boolean $idType: ContentNodeIdTypeEnum) {
+			node: contentNode(id:$id idType:$idType asPreview:$asPreview) {
 				__typename
 				id
 				databaseId
@@ -138,17 +118,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_post),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
@@ -168,17 +150,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $draft_title, $uri_preview['data']['node']['title'] );
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_post),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -221,17 +205,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
@@ -247,17 +233,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $draft_title, $uri_preview['data']['node']['title'] );
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -308,17 +296,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -341,17 +331,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_uri_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
@@ -405,17 +397,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// since the post type does not support revisions, a revision is not created
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -439,17 +433,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertNull( $not_uri_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $draft_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($draft_id),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
@@ -510,17 +506,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($published_id),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -545,17 +543,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_uri_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($published_id),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
@@ -621,17 +621,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		]);
 
 		$not_database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => false,
 			],
 		]);
 
 		$not_uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($published_id),
+				'idType'    => 'URI',
 				'asPreview' => false,
 			],
 		]);
@@ -656,17 +658,19 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $revision_id, $not_uri_preview['data']['node']['previewRevisionDatabaseId'] );
 
 		$database_id_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByDatabaseId(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => $published_id,
+				'idType'    => 'DATABASE_ID',
 				'asPreview' => true,
 			],
 		]);
 
 		$uri_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryByUri(),
+			'query'     => $this->getPreviewQuery(),
 			'variables' => [
 				'id'        => get_permalink($published_id),
+				'idType'    => 'URI',
 				'asPreview' => true,
 			],
 		]);
