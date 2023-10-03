@@ -108,7 +108,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
-	public function testQueryNonPublicPostTypeThatIsPublicyQueryable() {
+	public function testQueryNonPublicPostTypeThatIsPubliclyQueryable() {
 
 		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
@@ -121,7 +121,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$database_id = $this->factory()->post->create([
 			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPublicyQueryable',
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPubliclyQueryable',
 		]);
 
 		$query = '
@@ -174,7 +174,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
-	public function testQueryPublicPostTypeThatIsNotPublicyQueryable() {
+	public function testQueryPublicPostTypeThatIsNotPubliclyQueryable() {
 
 		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
@@ -187,7 +187,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$database_id = $this->factory()->post->create([
 			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPublicyQueryable',
+			'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPubliclyQueryable',
 		]);
 
 		$query = '
@@ -226,7 +226,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		unregister_post_type( 'cpt_test_private_cpt' );
 	}
 
-	public function testQueryNonPublicPostTypeThatIsNotPublicyQueryable() {
+	public function testQueryNonPublicPostTypeThatIsNotPubliclyQueryable() {
 
 		register_post_type( 'cpt_test_private_cpt', [
 			'show_in_graphql'     => true,
@@ -239,7 +239,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$database_id = $this->factory()->post->create([
 			'post_type'   => 'cpt_test_private_cpt',
 			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPublicyQueryable',
+			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPubliclyQueryable',
 		]);
 
 		$query = '
@@ -640,7 +640,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			customInterface( id: $id idType:DATABASE_ID ) {
 				__typename
 				databaseId
-				# We can succesfully query for the testField, which is part of the interface and
+				# We can successfully query for the testField, which is part of the interface and
 				# was added to the post type via the registry utils
 				testField
 			}

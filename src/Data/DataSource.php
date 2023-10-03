@@ -363,7 +363,7 @@ class DataSource {
 	 * @param array       $source  The Query results
 	 * @param array       $args    The query arguments
 	 * @param \WPGraphQL\AppContext $context The AppContext passed down to the query
-	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResloveInfo object
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
 	 * @return array
 	 * @throws \Exception
@@ -434,6 +434,11 @@ class DataSource {
 		 */
 		$allowed_settings_by_group = [];
 		foreach ( $registered_settings as $key => $setting ) {
+			// Bail if the setting doesn't have a group.
+			if ( empty( $setting['group'] ) ) {
+				continue;
+			}
+
 			$group = self::format_group_name( $setting['group'] );
 
 			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {

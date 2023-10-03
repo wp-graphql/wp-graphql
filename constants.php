@@ -9,6 +9,13 @@
  */
 function graphql_setup_constants() {
 
+	// Whether to autoload the files or not.
+	// This must be defined here and not within the WPGraphQL.php because this constant
+	// determines whether to autoload classes or not
+	if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+		define( 'WPGRAPHQL_AUTOLOAD', true );
+	}
+
 	// Plugin version.
 	if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
 		define( 'WPGRAPHQL_VERSION', '1.16.0' );

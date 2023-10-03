@@ -382,7 +382,7 @@ class PostObjects {
 				'type'        => [
 					'list_of' => 'PostObjectsConnectionOrderbyInput',
 				],
-				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
+				'description' => __( 'What parameter to use to order the objects by.', 'wp-graphql' ),
 			],
 
 			/**
