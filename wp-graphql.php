@@ -39,19 +39,19 @@ if ( file_exists( __DIR__ . '/c3.php' ) ) {
  */
 function graphql_require_bootstrap_files(): void {
 	if ( file_exists( __DIR__ . '/constants.php' ) ) {
-		require_once( __DIR__ . '/constants.php' );
+		require_once __DIR__ . '/constants.php';
 	}
-	if ( file_exists( __DIR__ . '/constants.php' ) ) {
-		require_once( __DIR__ . '/activation.php' );
+	if ( file_exists( __DIR__ . '/activation.php' ) ) {
+		require_once __DIR__ . '/activation.php';
 	}
-	if ( file_exists( __DIR__ . '/constants.php' ) ) {
-		require_once( __DIR__ . '/deactivation.php' );
+	if ( file_exists( __DIR__ . '/deactivation.php' ) ) {
+		require_once __DIR__ . '/deactivation.php';
 	}
-	if ( file_exists( __DIR__ . '/constants.php' ) ) {
-		require_once( __DIR__ . '/access-functions.php' );
+	if ( file_exists( __DIR__ . '/access-functions.php' ) ) {
+		require_once __DIR__ . '/access-functions.php';
 	}
-	if ( file_exists( __DIR__ . '/constants.php' ) ) {
-		require_once( __DIR__ . '/src/WPGraphQL.php' );
+	if ( file_exists( __DIR__ . '/src/WPGraphQL.php' ) ) {
+		require_once __DIR__ . '/src/WPGraphQL.php';
 	}
 }
 
