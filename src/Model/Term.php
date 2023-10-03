@@ -189,6 +189,15 @@ class Term extends Model {
 				'uri'                      => function () {
 					$link = $this->link;
 
+					$maybe_url = wp_parse_url( $link );
+
+					// If this isn't a URL, we can assume it's been filtered and just return the link value.
+					if ( false === $maybe_url ) {
+						return $link;
+					}
+
+					// Replace the home_url in the link in order to return a relative uri.
+					// For subdirectory multisites, this replaces the home_url which includes the subdirectory.
 					return ! empty( $link ) ? str_ireplace( home_url(), '', $link ) : null;
 				},
 			];

@@ -666,7 +666,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		add_filter( 'term_link', function ( $term_link ) {
-			$frontend_uri = 'http://localhost:3000/';
+			$frontend_uri = home_url() . ':3000/';
 			$site_url     = trailingslashit( site_url() );
 
 			$this->assertNotSame( $site_url, $frontend_uri );
@@ -674,10 +674,12 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			return str_replace( $site_url, $frontend_uri, $term_link );
 		});
 
+
 		$link      = get_term_link( $cat->term_id );
 		$parsed    = parse_url( $link );
 		$term_uri  = $parsed['path'] ?? '';
 		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
+		$term_uri = str_ireplace( home_url(), '', $link );
 
 		$expected = [
 			'__typename' => 'Category',

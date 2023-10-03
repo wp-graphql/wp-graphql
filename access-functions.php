@@ -402,13 +402,32 @@ function register_graphql_connection_where_args( string $from_type, string $to_t
  * @since 1.3.4
  */
 function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
+	// Rename fields on the type.
 	add_filter(
 		"graphql_{$type_name}_fields",
 		static function ( $fields ) use ( $field_name, $new_field_name ) {
+			// Bail if the field doesn't exist.
+			if ( ! isset( $fields[ $field_name ] ) ) {
+				return $fields;
+			}
+
 			$fields[ $new_field_name ] = $fields[ $field_name ];
 			unset( $fields[ $field_name ] );
 
 			return $fields;
+		}
+	);
+
+	// Rename fields registered to the type by connections.
+	add_filter(
+		"graphql_wp_connection_{$type_name}_from_field_name",
+		static function ( $old_field_name ) use ( $field_name, $new_field_name ) {
+			// Bail if the field name doesn't match.
+			if ( $old_field_name !== $field_name ) {
+				return $old_field_name;
+			}
+
+			return $new_field_name;
 		}
 	);
 }

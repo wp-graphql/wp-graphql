@@ -636,6 +636,23 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 	}
 
+	public function testRenameGraphQLConnectionFieldName() {
+		rename_graphql_field( 'RootQuery', 'users', 'wpUsers' );
+
+		$query    = '{ __type(name: "RootQuery") { fields { name } } }';
+		$response = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+
+		$this->assertQuerySuccessful(
+			$response,
+			[
+				$this->not()->expectedNode( '__type.fields', [ 'name' => 'users' ] ),
+				$this->expectedNode( '__type.fields', [ 'name' => 'wpUsers' ] ),
+			]
+		);
+	}
+
 	public function testRenameGraphQLType() {
 
 		register_graphql_union_type( 'PostObjectUnion', [
@@ -1813,6 +1830,121 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		self::assertQueryError( $actual, []);
 
+	}
+
+	public function testRegisterInputType(): void {
+		register_graphql_input_type( 'TestInput', [
+			'fields' => [
+				'test' => [
+					'type' => 'String',
+				],
+			],
+		] );
+
+		register_graphql_mutation( 'testMutationForInputField', [
+			'inputFields'         => [
+				'testInput' => [
+					'type' => 'TestInput',
+				],
+			],
+			'outputFields'        => [
+				'testValue' => [
+					'type' => 'String',
+				],
+			],
+			'mutateAndGetPayload' => function( $input ) {
+				return [
+					'testValue' => $input['testInput']['test'],
+				];
+			},
+		] );
+
+		// Test that the input type is registered.
+		$query = '
+		{
+			__type(name: "TestInput") {
+				name
+				kind
+				inputFields {
+					name
+					type {
+						name
+						kind
+					}
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertIsValidQueryResponse( $actual );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$this->assertSame( 'TestInput', $actual['data']['__type']['name'] );
+		$this->assertSame( 'test', $actual['data']['__type']['inputFields'][0]['name'] );
+
+		// Test that the input type can be used in a mutation.
+		$query = '
+			mutation TestMutationForInputField($testInput: TestInput!) {
+				testMutationForInputField(input: {testInput: $testInput} ) {
+					testValue
+				}
+			}
+		';
+
+		$variables = [
+			'testInput' => [
+				'test' => 'test',
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'testMutationForInputField.testValue', 'test' ),
+		] );
+	}
+
+	public function testRegisterUnionType() {
+		register_graphql_union_type( 'TestUnion', [
+			'typeNames' => [ 'Post', 'Page' ],
+			'resolveType' => function( $value ) {
+				if ( $value instanceof WP_Post ) {
+					return 'Post';
+				}
+
+				if ( $value instanceof WP_Post_Type ) {
+					return 'Page';
+				}
+
+				return null;
+			}
+		]);
+
+		$query = '
+		{
+			__type(name: "TestUnion") {
+				name
+				kind
+				possibleTypes {
+					name
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( '__type.name', 'TestUnion' ),
+			$this->expectedField( '__type.kind', 'UNION' ),
+			$this->expectedField( '__type.possibleTypes.0.name', 'Post' ),
+			$this->expectedField( '__type.possibleTypes.1.name', 'Page' ),
+		]);
 
 	}
 
