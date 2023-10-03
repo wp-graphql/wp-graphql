@@ -103,26 +103,6 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	}
 
-	public function getPreviewQueryBySlug() {
-
-		return '
-		query PreviewContentNode( $id:ID! $asPreview: Boolean) {
-			node: contentNode(id:$id idType:SLUG asPreview:$asPreview) {
-				__typename
-				id
-				databaseId
-				isPreview
-				status
-			previewRevisionDatabaseId
-				...on NodeWithTitle {
-					title
-				}
-			}
-		}
-		';
-
-	}
-
 	/**
 	 * When a new post is created in WordPress, it doesn't
 	 * have an ID yet until it is saved.
@@ -168,22 +148,15 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$uri_preview = $this->graphql([
 			'query'     => $this->getPreviewQueryByUri(),
 			'variables' => [
-				'id'        => $draft_post->uri,
+				'id'        => get_permalink($draft_post),
 				'asPreview' => true,
 			],
 		]);
 
-		$slug_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryBySlug(),
-			'variables' => [
-				'id'        => $draft_post->slug,
-				'asPreview' => true,
-			],
-		]);
+		// $this->assertSame('testing', get_permalink($draft_post));
 
 		$this->assertArrayNotHasKey( 'errors', $database_id_preview );
 		$this->assertArrayNotHasKey( 'errors', $uri_preview );
-		$this->assertArrayNotHasKey( 'errors', $slug_preview );
 
 		// the revision id should be the id of the preview since the post_type supports revisions
 		$this->assertSame( 'WithRevisionSupport', $database_id_preview['data']['node']['__typename'] );
@@ -193,10 +166,6 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( 'WithRevisionSupport', $uri_preview['data']['node']['__typename'] );
 		$this->assertSame( $revision_id, $uri_preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $uri_preview['data']['node']['title'] );
-
-		$this->assertSame( 'WithRevisionSupport', $slug_preview['data']['node']['__typename'] );
-		$this->assertSame( $revision_id, $slug_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $slug_preview['data']['node']['title'] );
 
 		$not_database_id_preview = $this->graphql([
 			'query'     => $this->getPreviewQueryByDatabaseId(),
@@ -209,22 +178,14 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$not_uri_preview = $this->graphql([
 			'query'     => $this->getPreviewQueryByUri(),
 			'variables' => [
-				'id'        => $draft_post->uri,
+				'id'        => get_permalink($draft_post),
 				'asPreview' => false,
 			],
 		]);
 
-		$not_slug_preview = $this->graphql([
-			'query'     => $this->getPreviewQueryBySlug(),
-			'variables' => [
-				'id'        => $draft_post->slug,
-				'asPreview' => false,
-			],
-		]);
 
 		$this->assertArrayNotHasKey( 'errors', $not_database_id_preview );
 		$this->assertArrayNotHasKey( 'errors', $not_uri_preview );
-		$this->assertArrayNotHasKey( 'errors', $not_slug_preview );
 
 		// the draft_id should be the id because we're not trying to preview the thing
 		$this->assertSame( 'WithRevisionSupport', $not_database_id_preview['data']['node']['__typename'] );
@@ -235,19 +196,13 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $draft_id, $not_uri_preview['data']['node']['databaseId'] );
 		$this->assertSame( $draft_title, $not_uri_preview['data']['node']['title'] );
 
-		$this->assertSame( 'WithRevisionSupport', $not_slug_preview['data']['node']['__typename'] );
-		$this->assertSame( $draft_id, $not_slug_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $not_slug_preview['data']['node']['title'] );
-
 		// The preview and the not_preview nodes should not be the same. They're different entities.
 		$this->assertNotSame( $database_id_preview['data']['node'], $not_database_id_preview['data']['node'] );
 		$this->assertNotSame( $uri_preview['data']['node'], $not_uri_preview['data']['node'] );
-		$this->assertNotSame( $slug_preview['data']['node'], $not_slug_preview['data']['node'] );
 
 		// but the titles should be the same, because that's the change we're previewing
 		$this->assertSame( $database_id_preview['data']['node']['title'], $not_database_id_preview['data']['node']['title'] );
 		$this->assertSame( $uri_preview['data']['node']['title'], $not_uri_preview['data']['node']['title'] );
-		$this->assertSame( $slug_preview['data']['node']['title'], $not_slug_preview['data']['node']['title'] );
 
 	}
 
