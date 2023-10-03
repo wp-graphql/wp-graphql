@@ -142,7 +142,7 @@ class Utils {
 			$name = trim( sanitize_text_field( $pre_format_name ) );
 		} else {
 			// Throw a warning if someone is using the filter incorrectly.
-			if ( ! is_string( $pre_format_name ) ) {
+			if ( null !== $pre_format_name ) {
 				graphql_debug(
 					esc_html__( 'The `graphql_pre_format_name` filter must return a string or null.', 'wp-graphql' ),
 					[
