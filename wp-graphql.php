@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // If the codeception remote coverage file exists, require it.
 // This file should only exist locally or when CI bootstraps the environment for testing
 if ( file_exists( __DIR__ . '/c3.php' ) ) {
-	require_once( __DIR__ . '/c3.php' );
+	require_once __DIR__ . '/c3.php';
 }
 
 /**
@@ -148,7 +148,7 @@ register_activation_hook( __FILE__, 'graphql_activation_callback' );
  *
  * @return void
  */
-function graphql_cannot_load_admin_notice_callback() : void {
+function graphql_cannot_load_admin_notice_callback(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
