@@ -140,7 +140,7 @@ class SettingsRegistry {
 	}
 
 	/**
-	 * Initialize and registers the settings sections and fileds to WordPress
+	 * Initialize and registers the settings sections and fields to WordPress
 	 *
 	 * Usually this should be called at `admin_init` hook.
 	 *

@@ -210,7 +210,7 @@ class RootQuery {
 							],
 							'asPreview'   => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requestor doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => static function ( $_root, $args, AppContext $context ) {
@@ -682,7 +682,7 @@ class RootQuery {
 						],
 						'asPreview' => [
 							'type'        => 'Boolean',
-							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requestor doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
 						],
 					],
 					'resolve'     => static function ( $source, array $args, AppContext $context ) use ( $post_type_object ) {

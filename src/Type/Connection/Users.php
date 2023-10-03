@@ -200,7 +200,7 @@ class Users {
 				'type'        => [
 					'list_of' => 'UsersConnectionOrderbyInput',
 				],
-				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
+				'description' => __( 'What parameter to use to order the objects by.', 'wp-graphql' ),
 			],
 		];
 	}

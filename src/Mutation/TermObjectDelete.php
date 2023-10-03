@@ -73,7 +73,7 @@ class TermObjectDelete {
 			],
 			$taxonomy->graphql_single_name => [
 				'type'        => $taxonomy->graphql_single_name,
-				'description' => __( 'The deteted term object', 'wp-graphql' ),
+				'description' => __( 'The deleted term object', 'wp-graphql' ),
 				'resolve'     => static function ( $payload ) {
 					return new Term( $payload['termObject'] );
 				},

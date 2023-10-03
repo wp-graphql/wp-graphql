@@ -255,7 +255,7 @@ class NodeResolver {
 		// Resolve Post Types.
 		if ( $queried_object instanceof \WP_Post_Type ) {
 
-			// Bail if we're explictly requesting a different GraphQL type.
+			// Bail if we're explicitly requesting a different GraphQL type.
 			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
 				return null;
 			}
@@ -267,7 +267,7 @@ class NodeResolver {
 
 		// Resolve Users
 		if ( $queried_object instanceof \WP_User ) {
-			// Bail if we're explictly requesting a different GraphQL type.
+			// Bail if we're explicitly requesting a different GraphQL type.
 			if ( ! $this->is_valid_node_type( 'User' ) ) {
 				return null;
 			}

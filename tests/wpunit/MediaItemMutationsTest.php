@@ -539,7 +539,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * post_mime_type
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemMutation.php:171
 	 *
-	 * @returnn void
+	 * @return void
 	 */
 	public function testCreateMediaItemDefaultValues() {
 		/**
@@ -817,7 +817,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	/**
 	 * Test whether the mediaItem we're updating is actually a mediaItem
 	 *
-	 * @souce wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:67
+	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemUpdate.php:67
 	 * @return void
 	 */
 	public function testUpdateMediaItemUpdatePost() {
@@ -954,7 +954,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
-	 * This function tests the deletMediaItem mutation
+	 * This function tests the deleteMediaItem mutation
 	 * and is reused throughout the deleteMediaItem tests
 	 *
 	 * @return array $actual
@@ -1095,7 +1095,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	}
 
 	/**
-	 * This funtion tests the deleteMediaItem mutation by trying to delete a post
+	 * This function tests the deleteMediaItem mutation by trying to delete a post
 	 * instead of an attachment
 	 *
 	 * @source wp-content/plugins/wp-graphql/src/Type/MediaItem/Mutation/MediaItemDelete.php:103

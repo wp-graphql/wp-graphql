@@ -128,7 +128,7 @@ describe("router filters", () => {
 
       expect(getByText("Test Screen Menu Item")).toBeInTheDocument();
 
-      // GraphiQL is the defualt screen we should see
+      // GraphiQL is the default screen we should see
       expect(queryByTestId("router-screen-graphiql")).toBeInTheDocument();
 
       // testScreen should not be present until we navigate to it
@@ -172,7 +172,7 @@ describe("router filters", () => {
       ).toBeInTheDocument();
   });
 
-  test("screens still show if filter reutrns null", async () => {
+  test("screens still show if filter returns null", async () => {
 
       const { hooks } = wpGraphiQL;
 
