@@ -75,7 +75,7 @@ class UpdateSettings {
 					$individual_setting_key = lcfirst( $setting['group'] . 'Settings' . str_replace( '_', '', ucwords( $key, '_' ) ) );
 				}
 
-				$replaced_setting_key = preg_replace( '[^a-zA-Z0-9 -]', ' ', $individual_setting_key );
+				$replaced_setting_key = graphql_format_name( $individual_setting_key, ' ', '/[^a-zA-Z0-9 -]/' );
 
 				if ( ! empty( $replaced_setting_key ) ) {
 					$individual_setting_key = $replaced_setting_key;
