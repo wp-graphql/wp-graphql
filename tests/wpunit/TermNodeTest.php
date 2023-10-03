@@ -664,11 +664,22 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$cat = $this->factory()->term->create_and_get([
 			'taxonomy' => 'category',
 		]);
-		
+
+		add_filter( 'term_link', function ( $term_link ) {
+			$frontend_uri = home_url() . ':3000/';
+			$site_url     = trailingslashit( site_url() );
+
+			$this->assertNotSame( $site_url, $frontend_uri );
+
+			return str_replace( $site_url, $frontend_uri, $term_link );
+		});
+
+
 		$link      = get_term_link( $cat->term_id );
 		$parsed    = parse_url( $link );
 		$term_uri  = $parsed['path'] ?? '';
 		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
+		$term_uri = str_ireplace( home_url(), '', $link );
 
 		$expected = [
 			'__typename' => 'Category',
@@ -689,17 +700,6 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
-		]);
-
-		codecept_debug( [
-			'query' => [
-				'query'     => $query,
-				'variables' => [
-					'id' => get_term_link( $cat->term_id ),
-				],
-			],
-			'actual' => $actual['data']['termNode'],
-			'expected' => $expected,
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
