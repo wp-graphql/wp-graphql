@@ -221,7 +221,7 @@ class RootQuery {
 										$args['id'],
 										[
 											'nodeType' => 'ContentNode',
-											'asPreview' => $args['asPreview']
+											'asPreview' => $args['asPreview'] ?? false,
 										]
 									);
 								case 'database_id':
@@ -696,7 +696,7 @@ class RootQuery {
 										'name'      => $args['id'],
 										'post_type' => $post_type_object->name,
 										'nodeType'  => 'ContentNode',
-										'asPreview' => $args['asPreview'],
+										'asPreview' => $args['asPreview'] ?? false,
 									]
 								);
 							case 'uri':
@@ -706,7 +706,7 @@ class RootQuery {
 										'post_type' => $post_type_object->name,
 										'archive'   => false,
 										'nodeType'  => 'ContentNode',
-										'asPreview' => $args['asPreview'],
+										'asPreview' => $args['asPreview'] ?? false,
 									]
 								);
 							case 'database_id':
