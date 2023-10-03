@@ -64,11 +64,11 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		WPGraphQL::clear_schema();
 	}
 
-	public function get_query_by_database_id() {
+	public function get_query() {
 
 		return '
-		query GetPostAndPreview( $id: ID! ) {
-		  post( id: $id idType: DATABASE_ID ) {
+		query GetPostAndPreview( $id: ID! $idType: PostIdType ) {
+		  post( id: $id idType: $idType ) {
 		    ...PostFields
 		    preview {
 		      node {
@@ -110,120 +110,32 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function get_query_by_uri() {
-
-		return '
-		query GetPostAndPreview( $id: ID! ) {
-		  post( id: $id idType: URI ) {
-		    ...PostFields
-		    preview {
-		      node {
-		        ...PostFields
-		      }
-		    }
-		  }
-		  preview:post( id: $id idType: URI asPreview: true ) {
-		    ...PostFields
-		  }
-		}
-		fragment PostFields on Post {
-		  __typename
-		  id
-		  title
-		  content
-		  author {
-		    node {
-		      databaseId
-		    }
-		  }
-		  categories {
-		    nodes {
-		      databaseId
-		    }
-		  }
-		  tags {
-		    nodes {
-		      databaseId
-		    }
-		  }
-		  featuredImage {
-		    node {
-		      databaseId
-		    }
-		  }
-		}
-		';
-
-	}
-
-	public function get_query_by_slug() {
-
-		return '
-		query GetPostAndPreview( $id: ID! ) {
-		  post( id: $id idType: SLUG ) {
-		    ...PostFields
-		    preview {
-		      node {
-		        ...PostFields
-		      }
-		    }
-		  }
-		  preview:post( id: $id idType: SLUG asPreview: true ) {
-		    ...PostFields
-		  }
-		}
-		fragment PostFields on Post {
-		  __typename
-		  id
-		  title
-		  content
-		  author {
-		    node {
-		      databaseId
-		    }
-		  }
-		  categories {
-		    nodes {
-		      databaseId
-		    }
-		  }
-		  tags {
-		    nodes {
-		      databaseId
-		    }
-		  }
-		  featuredImage {
-		    node {
-		      databaseId
-		    }
-		  }
-		}
-		';
-
-	}
 
 	public function testPreviewReturnsNullForPublicRequest() {
 		$the_post = get_post($this->post);
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -244,23 +156,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -281,23 +196,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		} );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -324,23 +242,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -361,23 +282,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		} );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -408,23 +332,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -445,23 +372,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		} );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -493,23 +423,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -540,23 +473,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -592,23 +528,26 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $this->admin );
 
 		$actual_by_database_id = graphql([
-			'query'     => $this->get_query_by_database_id(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
 		$actual_by_uri = graphql([
-			'query'     => $this->get_query_by_uri(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => get_permalink($this->post),
+				'idType' => 'URI'
 			],
 		]);
 
 		$actual_by_slug = graphql([
-			'query'     => $this->get_query_by_slug(),
+			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
