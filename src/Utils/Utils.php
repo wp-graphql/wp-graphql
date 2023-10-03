@@ -265,7 +265,7 @@ class Utils {
 	/**
 	 * Given a WP Post or post ID, this method attempts to resolve a preview post ID.
 	 * 
-	 * @param Int|\WPGraphQL\Utils\WP_Post $post The WP Post object or Post ID
+	 * @param int|\WPGraphQL\Utils\WP_Post $post The WP Post object or Post ID
 	 * 
 	 * @return Int A preview post ID if one exists, the current post ID if one doesn't exist.
 	 */
