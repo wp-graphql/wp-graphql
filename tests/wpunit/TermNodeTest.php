@@ -666,7 +666,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		add_filter( 'term_link', function ( $term_link ) {
-			$frontend_uri = 'http://localhost:3000/';
+			$frontend_uri = home_url();
 			$site_url     = trailingslashit( site_url() );
 
 			$this->assertNotSame( $site_url, $frontend_uri );
@@ -698,6 +698,11 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'variables' => [
 				'id' => get_term_link( $cat->term_id ),
 			],
+		]);
+
+		codecept_debug( [
+			'actual' => $actual['data']['termNode'],
+			'expected' => $expected,
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
