@@ -21,6 +21,7 @@ use WPGraphQL\Type\Connection\TermObjects;
  */
 class TermObject {
 
+
 	/**
 	 * Registers a taxonomy type to the schema as either a GraphQL object, interface, or union.
 	 *
