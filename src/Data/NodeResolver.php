@@ -236,7 +236,7 @@ class NodeResolver {
 			$post_id = $queried_object->ID;
 
 			if ( isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ) {
-				$post_id = Utils::get_post_preview_id($post_id);
+				$post_id = Utils::get_post_preview_id( $post_id );
 			}
 
 			return ! empty( $post_id ) ? $this->context->get_loader( 'post' )->load_deferred( $post_id ) : null;

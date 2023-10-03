@@ -220,7 +220,7 @@ class RootQuery {
 									return $context->node_resolver->resolve_uri(
 										$args['id'],
 										[
-											'nodeType' => 'ContentNode',
+											'nodeType'  => 'ContentNode',
 											'asPreview' => $args['asPreview'] ?? false,
 										]
 									);
@@ -238,7 +238,7 @@ class RootQuery {
 							}
 
 							if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-								$post_id = Utils::get_post_preview_id($post_id);
+								$post_id = Utils::get_post_preview_id( $post_id );
 							}
 
 							$allowed_post_types   = \WPGraphQL::get_allowed_post_types();
@@ -731,7 +731,7 @@ class RootQuery {
 						}
 
 						if ( isset( $args['asPreview'] ) && true === $args['asPreview'] ) {
-							$post_id = Utils::get_post_preview_id($post_id);
+							$post_id = Utils::get_post_preview_id( $post_id );
 						}
 
 						return absint( $post_id ) ? $context->get_loader( 'post' )->load_deferred( $post_id )->then(
