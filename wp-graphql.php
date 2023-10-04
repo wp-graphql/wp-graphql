@@ -93,7 +93,6 @@ function graphql_can_load_plugin(): bool {
 	 * The codeception tests are an example of an environment where adding the autoloader again causes issues
 	 * so this is set to false for tests.
 	 */
-	// @phpstan-ignore-next-line: this is ignored as the constant could be defined in wp-config, prior to being defined above
 	if ( defined( 'WPGRAPHQL_AUTOLOAD' ) && false === WPGRAPHQL_AUTOLOAD ) {
 
 		// IF WPGRAPHQL_AUTOLOAD is defined as false,
@@ -102,8 +101,7 @@ function graphql_can_load_plugin(): bool {
 		return true;
 	}
 
-	// @phpstan-ignore-next-line: this is ignored as the constant could be defined in wp-config, prior to being defined above
-	if ( ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) || true === WPGRAPHQL_AUTOLOAD ) && file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
+	if ( file_exists( plugin_dir_path( __FILE__ ) . 'vendor/autoload.php' ) ) {
 		// Autoload Required Classes.
 		require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 	}
