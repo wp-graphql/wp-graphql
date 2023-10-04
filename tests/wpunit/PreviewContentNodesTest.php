@@ -49,13 +49,13 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 */
 	public function testValidSchema() {
 
-		$actual = graphql([
+		$actual = $this->graphql([
 			'query' => '{allWithoutRevisionSupport{nodes{id}}}',
 		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$actual = graphql([
+		$actual =  $this->graphql([
 			'query' => '{allWithRevisionSupport{nodes{id}}}',
 		]);
 
@@ -73,7 +73,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				databaseId
 				isPreview
 				status
-			previewRevisionDatabaseId
+				previewRevisionDatabaseId
 				...on NodeWithTitle {
 					title
 				}
@@ -141,13 +141,23 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $uri_preview );
 
 		// the revision id should be the id of the preview since the post_type supports revisions
-		$this->assertSame( 'WithRevisionSupport', $database_id_preview['data']['node']['__typename'] );
-		$this->assertSame( $revision_id, $database_id_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $database_id_preview['data']['node']['title'] );
+		self::assertQuerySuccessful( $database_id_preview, [
+			$this->expectedNode( 'node', [
+				$this->expectedField( '__typename', 'WithRevisionSupport' ),
+				$this->expectedField( 'databaseId', $revision_id ),
+				$this->expectedField( 'title', $draft_title ),
+				]
+			)
+		]);
 
-		$this->assertSame( 'WithRevisionSupport', $uri_preview['data']['node']['__typename'] );
-		$this->assertSame( $revision_id, $uri_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $uri_preview['data']['node']['title'] );
+		self::assertQuerySuccessful( $uri_preview, [
+			$this->expectedNode( 'node', [
+					$this->expectedField( '__typename', 'WithRevisionSupport' ),
+					$this->expectedField( 'databaseId', $revision_id ),
+					$this->expectedField( 'title', $draft_title ),
+				]
+			)
+		]);
 
 		$not_database_id_preview = $this->graphql([
 			'query'     => $this->getPreviewQuery(),
@@ -172,13 +182,23 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $not_uri_preview );
 
 		// the draft_id should be the id because we're not trying to preview the thing
-		$this->assertSame( 'WithRevisionSupport', $not_database_id_preview['data']['node']['__typename'] );
-		$this->assertSame( $draft_id, $not_database_id_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $not_database_id_preview['data']['node']['title'] );
+		self::assertQuerySuccessful( $not_database_id_preview, [
+			$this->expectedNode( 'node', [
+					$this->expectedField( '__typename', 'WithRevisionSupport' ),
+					$this->expectedField( 'databaseId', $draft_id ),
+					$this->expectedField( 'title', $draft_title ),
+				]
+			)
+		]);
 
-		$this->assertSame( 'WithRevisionSupport', $not_uri_preview['data']['node']['__typename'] );
-		$this->assertSame( $draft_id, $not_uri_preview['data']['node']['databaseId'] );
-		$this->assertSame( $draft_title, $not_uri_preview['data']['node']['title'] );
+		self::assertQuerySuccessful( $not_uri_preview, [
+			$this->expectedNode( 'node', [
+					$this->expectedField( '__typename', 'WithRevisionSupport' ),
+					$this->expectedField( 'databaseId', $draft_id ),
+					$this->expectedField( 'title', $draft_title ),
+				]
+			)
+		]);
 
 		// The preview and the not_preview nodes should not be the same. They're different entities.
 		$this->assertNotSame( $database_id_preview['data']['node'], $not_database_id_preview['data']['node'] );
@@ -566,7 +586,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// The published node and preview node should be different nodes
 		$this->assertNotSame( $database_id_preview, $not_database_id_preview );
 		$this->assertNotSame( $uri_preview, $not_uri_preview );
-		
+
 		$this->assertSame( 'WithRevisionSupport', $database_id_preview['data']['node']['__typename'] );
 		$this->assertSame( 'WithRevisionSupport', $uri_preview['data']['node']['__typename'] );
 

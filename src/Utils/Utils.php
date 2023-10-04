@@ -264,9 +264,9 @@ class Utils {
 
 	/**
 	 * Given a WP Post or post ID, this method attempts to resolve a preview post ID.
-	 * 
-	 * @param int|\WPGraphQL\Utils\WP_Post $post The WP Post object or Post ID
-	 * 
+	 *
+	 * @param int|\WP_Post $post The WP Post object or Post ID
+	 *
 	 * @return int A preview post ID if one exists, the current post ID if one doesn't exist.
 	 * @since @todo
 	 */
@@ -282,8 +282,6 @@ class Utils {
 			]
 		);
 
-		$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
-
-		return $post_id;
+		return ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
 	}
 }
