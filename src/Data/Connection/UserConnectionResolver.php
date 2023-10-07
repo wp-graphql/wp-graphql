@@ -105,7 +105,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * If the request is not authenticated, limit the query to users that have
 		 * published posts, as they're considered publicly facing users.
 		 */
-		if ( ! is_user_logged_in() ) {
+		if ( ! is_user_logged_in() && empty( $query_args['has_published_posts'] ) ) {
 			$query_args['has_published_posts'] = true;
 		}
 
