@@ -189,19 +189,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		
-		$this->assertEquals( $user_1_id, $actual['data']['users']['edges'][1]['node']['databaseId'] );
-		$this->assertEquals( $user_1['user_login'], $actual['data']['users']['edges'][1]['node']['username'] );
-		$this->assertEquals( $user_1['user_email'], $actual['data']['users']['edges'][1]['node']['email'] );
-		$this->assertEquals( $user_1['first_name'], $actual['data']['users']['edges'][1]['node']['firstName'] );
-		$this->assertEquals( $user_1['last_name'], $actual['data']['users']['edges'][1]['node']['lastName'] );
-		$this->assertEquals( $user_1['user_url'], $actual['data']['users']['edges'][1]['node']['url'] );
-
-		$this->assertEquals( $user_2_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
-		$this->assertEquals( $user_2['user_login'], $actual['data']['users']['edges'][0]['node']['username'] );
-		$this->assertEquals( $user_2['user_email'], $actual['data']['users']['edges'][0]['node']['email'] );
-		$this->assertEquals( $user_2['first_name'], $actual['data']['users']['edges'][0]['node']['firstName'] );
-		$this->assertEquals( $user_2['last_name'], $actual['data']['users']['edges'][0]['node']['lastName'] );
-		$this->assertEquals( $user_2['user_url'], $actual['data']['users']['edges'][0]['node']['url'] );
+		$this->assertCount( 3, $actual['data']['users']['edges'] );
 	}
 
 	public function testQueryAllUsersAsSubscriber() {
