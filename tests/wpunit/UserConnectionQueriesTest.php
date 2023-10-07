@@ -828,4 +828,136 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		$this->delete_users();
 	}
+
+	public function testWithHasPublishedPostsFilter() {
+		$user_id = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$query = '
+			query UsersWithPublishedPosts( $hasPublishedPosts: [ContentTypeEnum] ){
+				users(first:1 where: { hasPublishedPosts: $hasPublishedPosts } ) {
+					edges{
+						node{
+							databaseId
+						}
+					}
+				}
+			}
+		';
+
+		/**
+		 * Test page.
+		 */
+		$page_id = $this->factory()->post->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'page',
+			]
+		);
+
+		// Test we get a user when filtered by page.
+		$variables = [
+			'hasPublishedPosts' => [ 'PAGE' ],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $user_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		// Test we dont get a user when filtered by post.
+		$variables = [
+			'hasPublishedPosts' => [ 'POST' ],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		// Test we still dont get the user when logged in.
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		/**
+		 * Posts.
+		 */
+
+		wp_set_current_user( 0 );
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'post',
+			]
+		);
+
+		// Test we get a user when filtered by post.
+		$variables = [
+			'hasPublishedPosts' => [ 'POST' ],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $user_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		// Test we still get a user when there is no page.
+		wp_delete_post( $page_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $user_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		/**
+		 * Attachments
+		 */
+		$attachment_id = $this->factory()->attachment->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+				'post_title'  => 'Test attachment for PostTypeQueryForMedia',
+				'post_parent' => $post_id,
+			]
+		);
+
+		// Filter by attachment
+		$variables = [
+			'hasPublishedPosts' => [ 'ATTACHMENT' ],
+		];
+
+		// An attachment should not return a user.
+		wp_set_current_user( $user_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		// Delete the post and ensure the the attachment still doesnt return a user.
+		wp_delete_post( $post_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		$variables = [
+			'hasPublishedPosts' => [ 'POST' ],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+	}
 }
