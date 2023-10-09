@@ -1,0 +1,31 @@
+version: '3.8'
+
+services: 
+  development:
+    build:
+      context: .
+      dockerfile: Dockerfile
+  app:
+    depends_on:
+      - app_db
+    image: ghcr.io/wp-graphql/wp-graphql:1.16.0-wp6.3-php8.2
+    volumes:
+      - '..:/var/www/html/wp-content/plugins/wp-graphql'
+      - '../.log/app:/var/log/apache2'
+    env_file:
+      - ../.env.dist
+    environment:
+      WP_URL: http://localhost:8080/
+      USING_XDEBUG: ${USING_XDEBUG:-}
+    ports:
+      - 8080:80
+
+  app_db:
+    image: mariadb:10.2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE:      wordpress
+      MYSQL_USER:          wordpress
+      MYSQL_PASSWORD:      wordpress
+    ports:
+      - 3306
