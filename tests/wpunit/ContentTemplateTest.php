@@ -4,7 +4,8 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $template_slugs = [ // These are the slugs of the files in tests/_data/templates
 		'custom',
-		'custom-i18n'
+		'custom-i18n',
+		'תבנית-שלי',
 	];
 
 	public function setUp(): void {
@@ -61,6 +62,30 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $expected_template_name, $actual['data']['contentNode']['template']['templateName'] );
 	}
 
+	public function testRegisteredContentTemplateType(): void {
+		// Introspect the types implementing the ContentTemplate interface.
+		$query = '
+			query GetContentTemplateTypes {
+				__type(name:"ContentTemplate"){
+					possibleTypes{
+						name
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$possible_types = wp_list_pluck( $actual['data']['__type']['possibleTypes'], 'name' );
+
+		$this->assertContains( 'DefaultTemplate', $possible_types );
+		$this->assertContains( 'MyCustomTemplate', $possible_types );
+		$this->assertContains( 'Template_CustomI18n', $possible_types );
+	}
+
+
 	public function testDefaultTemplate(): void {
 		$post_id = $this->factory()->post->create( [
 			'post_type' => 'page',
@@ -114,7 +139,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$post_id = $this->factory()->post->create( [
 			'post_type' => 'page',
-			'post_title' => 'Custom Template',
+			'post_title' => 'Custom i18n Template',
 			'post_content' => 'This is a custom template',
 			'post_status' => 'publish',
 			'meta_input' => [
@@ -131,5 +156,33 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$expected_template_name = $registered_templates[ $template_key ];
 
 		$this->runContentTemplateTest( $post_id, $expected_type_name, $expected_template_name );
+	}
+
+	public function testI18nTemplateFileName(): void {
+		$template_slug = 'תבנית-שלי';
+
+		$post_id = $this->factory()->post->create( [
+			'post_type' => 'page',
+			'post_title' => 'Custom i18n Template and File',
+			'post_content' => 'This is a custom template',
+			'post_status' => 'publish',
+			'meta_input' => [
+				'_wp_page_template' => "$template_slug.php",
+			],
+		] );
+		
+		$query = $this->getQuery();
+
+		$variables = [
+			'id' => $post_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Unable to register the תבנית-שלי.php template file as a GraphQL Type.', $actual['extensions']['debug'][0]['message']);
+
+		$this->assertEquals( 'DefaultTemplate', $actual['data']['contentNode']['template']['__typename'] );
+		$this->assertEquals( 'תבנית שלי', $actual['data']['contentNode']['template']['templateName'] );
 	}
 }
