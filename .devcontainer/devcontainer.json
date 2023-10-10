@@ -14,6 +14,10 @@
 			"nodeGypDependencies": true,
 			"version": "stable",
 			"nvmVersion": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"installDirectlyFromGitHubRelease": true,
+			"version": "latest"
 		}
 	},
 	// Use 'postCreateCommand' to run commands after the container is created.
@@ -27,11 +31,87 @@
 				"neilbrayfield.php-docblocker",
 				"valeryanm.vscode-phpsab",
 				"SanderRonde.phpstan-vscode"
-			]
+			],
+			// see: https://code.visualstudio.com/docs/devcontainers/containers#_container-specific-settings
+			"settings": {
+				"intelephense.stubs": [
+					"apache",
+					"bcmath",
+					"bz2",
+					"calendar",
+					"com_dotnet",
+					"Core",
+					"ctype",
+					"curl",
+					"date",
+					"dba",
+					"dom",
+					"enchant",
+					"exif",
+					"FFI",
+					"fileinfo",
+					"filter",
+					"fpm",
+					"ftp",
+					"gd",
+					"gettext",
+					"gmp",
+					"hash",
+					"iconv",
+					"imap",
+					"intl",
+					"json",
+					"ldap",
+					"libxml",
+					"mbstring",
+					"meta",
+					"mysqli",
+					"oci8",
+					"odbc",
+					"openssl",
+					"pcntl",
+					"pcre",
+					"PDO",
+					"pdo_ibm",
+					"pdo_mysql",
+					"pdo_pgsql",
+					"pdo_sqlite",
+					"pgsql",
+					"Phar",
+					"posix",
+					"pspell",
+					"random",
+					"readline",
+					"Reflection",
+					"session",
+					"shmop",
+					"SimpleXML",
+					"snmp",
+					"soap",
+					"sockets",
+					"sodium",
+					"SPL",
+					"sqlite3",
+					"standard",
+					"superglobals",
+					"sysvmsg",
+					"sysvsem",
+					"sysvshm",
+					"tidy",
+					"tokenizer",
+					"xml",
+					"xmlreader",
+					"xmlrpc",
+					"xmlwriter",
+					"xsl",
+					"Zend OPcache",
+					"zip",
+					"zlib",
+					"wordpress"
+				  ]
+			}
 		}
 	}
-	// Configure tool-specific properties.
-	// "customizations": {},
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 }
