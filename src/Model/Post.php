@@ -557,20 +557,11 @@ class Post extends Model {
 					}
 
 					if ( ! empty( $registered_templates[ $set_template ] ) ) {
-						$name          = ucwords( $registered_templates[ $set_template ] );
-						$replaced_name = preg_replace( '/[^\w]/', '', $name );
+						$name = Utils::format_type_name_for_wp_template( $registered_templates[ $set_template ], $set_template );
 
-						if ( ! empty( $replaced_name ) ) {
-							$name = $replaced_name;
-						} else {
-							// If replaced_name is empty, use the `_wp_page_template` meta value.
-							$file_parts = explode( '.', $set_template );
-							$file_name  = ! empty( $file_parts[0] ) ? Utils::format_type_name( $file_parts[0] ) : '';
-							$name       = ! empty( $file_name ) ? $file_name : $name;
-						}
-
-						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
-							$name = 'Template_' . $name;
+						// If the name is empty, fallback to DefaultTemplate
+						if ( empty( $name ) ) {
+							$name = 'DefaultTemplate';
 						}
 
 						$template = [

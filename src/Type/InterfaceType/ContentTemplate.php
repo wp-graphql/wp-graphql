@@ -50,22 +50,20 @@ class ContentTemplate {
 
 		// Register each template to the schema
 		foreach ( $page_templates as $file => $name ) {
-			$name          = ucwords( $name );
-			$replaced_name = preg_replace( '/[^\w]/', '', $name );
+			$template_type_name = Utils::format_type_name_for_wp_template( $name, $file );
 
-			if ( ! empty( $replaced_name ) ) {
-				$name = $replaced_name;
-			} else {
-				// If replaced_name is empty, use the file name
-				$file_parts = explode( '.', $file );
-				$file_name  = ! empty( $file_parts[0] ) ? Utils::format_type_name( $file_parts[0] ) : '';
-				$name       = ! empty( $file_name ) ? $file_name : $name;
-			}
+			// If the type name is empty, log an error and continue.
+			if ( empty( $template_type_name ) ) {
+				graphql_debug(
+					sprintf(
+						// Translators: %s is the file name.
+						__( 'Unable to register the %1s template file as a GraphQL Type. Either the template name or the file name must only use ASCII characters. "DefaultTemplate" will be used instead.', 'wp-graphql' ),
+						(string) $file
+					)
+				);
 
-			if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
-				$name = 'Template_' . $name;
+				continue;
 			}
-			$template_type_name = $name;
 
 			register_graphql_object_type(
 				$template_type_name,

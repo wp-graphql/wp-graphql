@@ -150,6 +150,42 @@ class Utils {
 	}
 
 	/**
+	 * Returns a GraphQL type name for a given WordPress template name.
+	 *
+	 * If the template name has no ASCII characters, the file name will be used instead.
+	 *
+	 * @param string $name The template name.
+	 * @param string $file The file name.
+	 * @return string The formatted type name. If the name is empty, an empty string will be returned.
+	 */
+	public static function format_type_name_for_wp_template( string $name, string $file ): string {
+		$name = ucwords( $name );
+		// Strip out not ASCII characters.
+		$name = preg_replace( '/[^\w]/', '', $name );
+
+		// If replaced_name is empty, use the file name.
+		if ( empty( $name ) ) {
+			$file_parts    = explode( '.', $file );
+			$file_name     = ! empty( $file_parts[0] ) ? self::format_type_name( $file_parts[0] ) : '';
+			$replaced_name = ! empty( $file_name ) ? preg_replace( '/[^\w]/', '', $file_name ) : $name;
+
+			$name = $replaced_name;
+		}
+
+		// If the name is still empty, we don't have a valid type.
+		if ( empty( $name ) ) {
+			return '';
+		}
+
+		// Maybe prefix the name with "Template_".
+		if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
+			$name = 'Template_' . $name;
+		}
+
+		return $name;
+	}
+
+	/**
 	 * Helper function that defines the allowed HTML to use on the Settings pages
 	 *
 	 * @return array
