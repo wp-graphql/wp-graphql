@@ -38,12 +38,12 @@ class CommentCreate {
 				'deprecationReason' => __( 'Deprecated in favor of the status field', 'wp-graphql' ),
 			],
 			'author'      => [
-				'type'        => boolval( get_option( 'require_name_email' ) ) ? [ 'non_null' => 'String' ] : 'String',
-				'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),
+				'type'        => 'String',
+				'description' => __( 'The name of the comment\'s author. This may be required based on the setting in [Settings] -> [Discussion]. ', 'wp-graphql' ),
 			],
 			'authorEmail' => [
-				'type'        => boolval( get_option( 'require_name_email' ) ) ? [ 'non_null' => 'String' ] : 'String',
-				'description' => __( 'The email of the comment\'s author.', 'wp-graphql' ),
+				'type'        => 'String',
+				'description' => __( 'The email of the comment\'s author. This may be required based on the setting in [Settings] -> [Discussion].', 'wp-graphql' ),
 			],
 			'authorUrl'   => [
 				'type'        => 'String',
