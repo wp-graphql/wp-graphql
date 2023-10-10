@@ -39,11 +39,11 @@ class CommentCreate {
 			],
 			'author'      => [
 				'type'        => 'String',
-				'description' => __( 'The name of the comment\'s author.', 'wp-graphql' ),
+				'description' => __( 'The name of the comment\'s author. This may be required based on the setting in [Settings] -> [Discussion]. ', 'wp-graphql' ),
 			],
 			'authorEmail' => [
 				'type'        => 'String',
-				'description' => __( 'The email of the comment\'s author.', 'wp-graphql' ),
+				'description' => __( 'The email of the comment\'s author. This may be required based on the setting in [Settings] -> [Discussion].', 'wp-graphql' ),
 			],
 			'authorUrl'   => [
 				'type'        => 'String',
@@ -142,8 +142,17 @@ class CommentCreate {
 				throw new UserError( esc_html__( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
 			}
 
-			if ( '1' === get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-				throw new UserError( esc_html__( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
+			// If the user is not log in, the behavior can vary depending on the site settings.
+			if ( ! is_user_logged_in() ) {
+				// Throw if the site requires a logged in user to comment.
+				if ( '1' === get_option( 'comment_registration' ) ) {
+					throw new UserError( esc_html__( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
+				}
+
+				// Throw is the site requires a name and email to comment.
+				if ( '1' === get_option( 'require_name_email' ) && ( empty( $input['author'] ) || empty( $input['authorEmail'] ) ) ) {
+					throw new UserError( esc_html__( 'This site requires you to provide a name and email address leave a comment', 'wp-graphql' ) );
+				}
 			}
 
 			/**

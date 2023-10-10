@@ -43,6 +43,8 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
+		$old_user_id = get_current_user_id();
+
 		wp_set_current_user( $postCreator );
 		$post_args = [
 			'post_type'    => 'post',
@@ -70,6 +72,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Create a comment to test against
 		 */
 		$comment_id = $this->factory()->comment->create( $comment_args );
+
+		// Restore the user
+		wp_set_current_user( $old_user_id );
 	}
 
 	public function trashComment( &$comment_id ) {
@@ -130,16 +135,26 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$expected_content = apply_filters( 'comment_text', $this->content );
 
-		// test with logged in user
+		// Test with logged out user and registration required.
+		update_option( "comment_registration", "1" );
+		
 		$variables = [
 			'commentOn' => $post_id,
 			'content'   => $this->content,
 			'author'    => null,
 			'email'     => null,
 		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'This site requires you to be logged in to leave a comment', $actual['errors'][0]['message'] );
+
+		// test with logged in user
 		wp_set_current_user( $this->admin );
+
+		$expected_content = apply_filters( 'comment_text', $this->content );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -185,8 +200,91 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
+
+		// Cleanup option.
+		delete_option( "comment_registration" );
 	}
 
+	public function testCreateCommentAsUnauthenticated(): void {
+		add_filter( 'duplicate_comment_id', '__return_false' );
+		add_filter( 'comment_flood_filter', '__return_false' );
+
+		$args = [
+			'post_type'    => 'post',
+			'post_status'  => 'publish',
+			'post_title'   => 'Original Title for testCreateCommentAsUnauthenticated',
+			'post_content' => 'Original Content',
+		];
+
+		/**
+		 * Create a page to test against
+		 */
+		$post_id = $this->factory()->post->create( $args );
+
+		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+
+		$query = '
+		mutation createUnauthenticatedCommentTest( $commentOn:Int!, $author:String, $email: String, $content:String! ){
+			createComment(
+				input: {
+					commentOn: $commentOn
+					content: $content
+					author: $author
+					authorEmail: $email
+				}
+			)
+			{
+				success
+				comment {
+					databaseId
+					status
+				}
+			}
+		}
+		';
+
+		// Test with no author or email.
+		$variables = [
+			'commentOn' => $post_id,
+			'content'   => $this->content,
+			'author'    => null,
+			'email'     => null,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'This site requires you to provide a name and email address leave a comment', $actual['errors'][0]['message'] );
+
+		// Test with just an email.
+		$variables['email'] = 'sometest@forCommentMutations.test';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'This site requires you to provide a name and email address leave a comment', $actual['errors'][0]['message'] );
+
+		// Test with both author and email.
+		$variables['author'] = 'Comment Author';
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+
+		// Comment is null because it hasn't been 'approved'.
+		$this->assertNull( $actual['data']['createComment']['comment'] );
+
+		// Test when email and author arent required.
+		update_option( 'require_name_email', '0' );
+
+		$variables['email']  = null;
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertTrue( $actual['data']['createComment']['success'] );
+	}
 
 	public function testCreateChildComment() {
 		// Create parent comment.
@@ -253,7 +351,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
 
-		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
+		$this->assertEquals( $new_comment->user_id, $this->subscriber );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
 		$this->assertEquals( $new_comment->comment_content, 'Comment Content' );
 
@@ -293,7 +391,17 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'content' => $content,
 		];
 
+		// Test without permissions.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'Sorry, you are not allowed to update this comment.', $actual['errors'][0]['message'] );
+
+		// Test with permissions
+		wp_set_current_user( $this->subscriber );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 
@@ -381,7 +489,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
 		$content     = 'Comment Content';
-		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
+		$this->assertEquals( $new_comment->user_id, $this->subscriber );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
 		$this->assertEquals( $new_comment->comment_content, $content );
 
@@ -407,6 +515,15 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$variables = [
 			'id' => $comment_id,
 		];
+
+		// Test unauthenticated.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'Sorry, you are not allowed to delete this comment.', $actual['errors'][0]['message'] );
+
+		// Test as authenticated.
+		wp_set_current_user( $this->subscriber );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -437,6 +554,8 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 		];
 
+		wp_set_current_user( $this->subscriber );
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		codecept_debug( $actual );
 		$this->assertEquals( $expected, $actual['data'] );
@@ -453,7 +572,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
 		$content     = 'Comment Content';
-		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
+		$this->assertEquals( $new_comment->user_id, $this->subscriber );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
 		$this->assertEquals( $new_comment->comment_content, $content );
 
@@ -494,8 +613,13 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 
 		// Test without permissions
-		wp_set_current_user( 0 );
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Test as subscriber
+		wp_set_current_user( $this->subscriber );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Test with permissions
