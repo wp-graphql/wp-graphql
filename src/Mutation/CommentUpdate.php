@@ -108,7 +108,7 @@ class CommentUpdate {
 
 			// If there are no changes between the existing comment and the incoming comment
 			if ( $comment_args === $raw_comment_args ) {
-				throw new UserError( __( 'No changes have been provided to the comment.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'No changes have been provided to the comment.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -121,8 +121,7 @@ class CommentUpdate {
 			 * Throw an exception if the comment failed to be created
 			 */
 			if ( is_wp_error( $success ) ) {
-				throw new UserError( $success->get_error_message() );
-
+				throw new UserError( esc_html( $success->get_error_message() ) );
 			}
 
 			/**
