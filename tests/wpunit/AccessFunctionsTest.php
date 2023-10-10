@@ -99,6 +99,89 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	}
 
+	public function testFormatName(): void {
+		// Test empty.
+		$actual   = graphql_format_name( '' );
+		$expected = '';
+		$this->assertEquals( $expected, $actual );
+
+		// Test default regex.
+		$actual   = graphql_format_name( '^&This Is-some name123%$!' );
+		$expected = '_This_Is_some_name123___';
+		$this->assertEquals( $expected, $actual );
+
+		// Test custom replacement chars.
+		$actual   = graphql_format_name( '^&This Is-some name123%$!', '' );
+		$expected = 'ThisIssomename123';
+		$this->assertEquals( $expected, $actual );
+
+		// Test custom regex. only letters.
+		$actual   = graphql_format_name( '^&This Is-some name123%$!', '', '/[^a-zA-Z]/' );
+		$expected = 'ThisIssomename';
+		$this->assertEquals( $expected, $actual );
+
+		// Test with filter.
+		add_filter( 'graphql_pre_format_name', function ( $name, string $original_name, string $replacement_chars, string $regex ) {
+			// Transliteration example.
+			$mapped_chars = [
+				'ä' => 'ae',
+				'ö' => 'oe',
+				'ü' => 'ue',
+				'ß' => 'ss',
+			];
+
+			$transliterated_name = str_replace( array_keys( $mapped_chars ), array_values( $mapped_chars ), $original_name );
+
+			return preg_replace( $regex, $replacement_chars, $transliterated_name );
+		}, 10, 4 );
+
+		// Use a name with those special chars.
+		$actual         = graphql_format_name( '_#ä_ö ü-ß', '' );
+		$expected       = '_ae_oeuess';
+		$this->assertEquals( $expected, $actual );
+
+		// Cleanup
+		remove_all_filters( 'graphql_pre_format_name' );
+	}
+
+	public function testFormatNameWithBadFilter() {
+		add_filter( 'graphql_pre_format_name', function ( $name, string $original_name, string $replacement_chars, string $regex ) {
+			return 123;
+		}, 10, 4 );
+
+		$original_name = '^*This Is-some name123%$!';
+
+		// Test filter falls back to default.
+		$actual   = graphql_format_name( $original_name, '' );
+		$expected = 'ThisIssomename123';
+
+		$this->assertEquals( $expected, $actual );
+
+		// Test a schema query to make sure a warning was logged.
+		$query    = '{
+			__schema {
+				queryType {
+					fields {
+						name
+						type {
+							name
+							kind
+						}
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( 'The `graphql_pre_format_name` filter must return a string or null.', $actual['extensions']['debug']['0']['message'] );
+		$this->assertEquals( $original_name, $actual['extensions']['debug']['0']['original_name'] );
+
+		// Cleanup filter
+		remove_all_filters( 'graphql_pre_format_name' );
+	}
+
 	// tests
 	public function testFormatFieldName() {
 		$actual   = graphql_format_field_name( 'This is some field name' );

@@ -382,7 +382,7 @@ class DataSource {
 	 * @return string $group
 	 */
 	public static function format_group_name( string $group ) {
-		$replaced_group = preg_replace( '[^a-zA-Z0-9 -]', ' ', $group );
+		$replaced_group = graphql_format_name( $group, ' ', '/[^a-zA-Z0-9 -]/' );
 
 		if ( ! empty( $replaced_group ) ) {
 			$group = $replaced_group;

@@ -9,7 +9,25 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Request;
 use WPGraphQL\Router;
+use WPGraphQL\Utils\Utils;
 
+/**
+ * Formats a string for use as a GraphQL name.
+ *
+ * Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores.
+ *
+ * @see http://spec.graphql.org/draft/#sec-Names
+ * @uses graphql_pre_format_name filter.
+ *
+ * @param string $name The name to format.
+ * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
+ * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+ *
+ * @since @todo
+ */
+function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
+	return Utils::format_graphql_name( $name, $replacement, $regex );
+}
 /**
  * Formats the name of a field so that it plays nice with GraphiQL
  *
@@ -17,19 +35,25 @@ use WPGraphQL\Router;
  *
  * @return string Name of the field
  * @since  0.0.2
+ *
+ * @todo refactor to use Utils::format_field_name()
  */
 function graphql_format_field_name( $field_name ) {
-	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $field_name );
-	if ( ! empty( $replace_field_name ) ) {
-		$field_name = $replace_field_name;
+	// Bail if empty.
+	if ( empty( $field_name ) ) {
+		return '';
 	}
-	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $field_name ) );
-	if ( ! empty( $replace_field_name ) ) {
-		$field_name = $replace_field_name;
-	}
-	$field_name = lcfirst( $field_name );
 
-	return $field_name;
+	// First strip out the non-alphanumeric characters.
+	$formatted_field_name = graphql_format_name( $field_name, ' ', '/[^A-Za-z0-9]/i' );
+
+	// If the field name is empty, return the original field name for the error.
+	if ( empty( $formatted_field_name ) ) {
+		return $field_name;
+	}
+
+	// Then convert string to camelCase.
+	return str_replace( ' ', '', lcfirst( ucwords( $formatted_field_name ) ) );
 }
 
 /**
@@ -41,15 +65,20 @@ function graphql_format_field_name( $field_name ) {
  * @since  0.0.2
  */
 function graphql_format_type_name( $type_name ) {
-	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $type_name );
-	if ( ! empty( $replace_type_name ) ) {
-		$type_name = $replace_type_name;
+	// Bail if empty.
+	if ( empty( $type_name ) ) {
+		return '';
 	}
-	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $type_name ) );
-	if ( ! empty( $replace_type_name ) ) {
-		$type_name = $replace_type_name;
+
+	$formatted_type_name = graphql_format_name( $type_name, ' ', '/[^A-Za-z0-9]/i' );
+
+	// If the field name is empty, return the original field name for the error.
+	if ( empty( $formatted_type_name ) ) {
+		return $type_name;
 	}
-	return ucfirst( $type_name );
+
+	// Then convert the string to PascalCase.
+	return str_replace( ' ', '', ucfirst( ucwords( $formatted_type_name ) ) );
 }
 
 
