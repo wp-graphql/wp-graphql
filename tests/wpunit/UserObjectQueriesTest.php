@@ -11,6 +11,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
+		$this->delete_users();
 	}
 
 	public function tearDown(): void {
@@ -30,11 +31,12 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function delete_users() {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
-			[ 0 ]
-		) );
-		$this->created_user_ids = [ 1 ];
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->prefix}users WHERE ID <> %d",
+				[ 0 ]
+			)
+		);
 	}
 
 	public function createUserObject( $args = [] ) {
@@ -61,7 +63,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Return the $id of the post_object that was created
 		 */
 		return $user_id;
-
 	}
 
 	/**
@@ -82,7 +83,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 		$user    = get_user_by( 'id', $user_id );
-		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -150,9 +150,16 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		}";
 
+		// Run the query publicly should return null.
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
 		/**
-		 * Run the GraphQL query
+		 * Run the GraphQL query as an authenticated user.
 		 */
+		wp_set_current_user( $user_id );
 		$actual = $this->graphql( compact( 'query' ) );
 
 		/**
@@ -206,36 +213,45 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	/**
-	 * testUserQueryWithComments
-	 *
 	 * This tests a single user with comments connection.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testUserQueryWithComments() {
+	public function testWithComments() {
+		/**
+		 * Create an admin user.
+		 */
+		$admin_id = $this->createUserObject(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		/**
 		 * Create a user
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Post for UserQueryWithComments',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post for UserQueryWithComments',
+				'post_author' => $admin_id,
+			]
+		);
 
-		$comment_id = $this->factory()->comment->create( [
-			'user_id'         => $user_id,
-			'comment_post_ID' => $post_id,
-		] );
+		$comment_id = $this->factory()->comment->create(
+			[
+				'user_id'         => $user_id,
+				'comment_post_ID' => $post_id,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -253,14 +269,15 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		}";
 
-		/**
-		 * Run the GraphQL query
-		 */
+		// Test that a logged out query still returns null.
 		$actual = $this->graphql( compact( 'query' ) );
 
-		/**
-		 * Establish the expectation for the output of the query
-		 */
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Test that the user can see their own comments.
+		wp_set_current_user( $user_id );
+
 		$expected = [
 			'user' => [
 				'comments' => [
@@ -275,18 +292,18 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			],
 		];
 
+		$actual = $this->graphql( compact( 'query' ) );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
-	 * testUserQueryWithPosts
-	 *
 	 * This tests a single user with posts connection.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testUserQueryWithPosts() {
+	public function testWithPosts() {
 
 		/**
 		 * Create a user
@@ -299,7 +316,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -317,14 +333,9 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		}";
 
-		/**
-		 * Run the GraphQL query
-		 */
+		/// Run the graphql query as a logged out user.
 		$actual = $this->graphql( compact( 'query' ) );
 
-		/**
-		 * Establish the expectation for the output of the query
-		 */
 		$expected = [
 			'user' => [
 				'posts' => [
@@ -341,32 +352,39 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Run the graphql query after the post is deleted.
+		wp_delete_post( $post_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['user'] );
 	}
 
 	/**
-	 * testUserQueryWithPages
-	 *
 	 * This tests a single user with pages connection.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testUserQueryWithPages() {
+	public function testWithPages() {
 
 		/**
 		 * Create a user
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory()->post->create( [
-			'post_author' => $user_id,
-			'post_type'   => 'page',
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'page',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -408,32 +426,39 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
+
+		// Test when the page is deleted.
+		wp_delete_post( $post_id );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['user'] );
 	}
 
 	/**
-	 * testUserQueryWithMedia
-	 *
 	 * This tests a single user with mediaItems connection.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testUserQueryWithMedia() {
+	public function testWithMedia() {
 
 		/**
 		 * Create a user
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory->post->create( [
-			'post_author' => $user_id,
-			'post_type'   => 'attachment',
-		] );
+		$post_id = $this->factory->post->create(
+			[
+				'post_author' => $user_id,
+				'post_type'   => 'attachment',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
 
 		/**
 		 * Create the query string to pass to the $query
@@ -452,9 +477,15 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}";
 
 		/**
-		 * Run the GraphQL query
+		 * Run the GraphQL query unauthenticated.
 		 */
 		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['user'] );
+
+		// Try again as an authenticated user.
+		wp_set_current_user( $user_id );
 
 		/**
 		 * Establish the expectation for the output of the query
@@ -473,18 +504,18 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			],
 		];
 
+		$actual = $this->graphql( compact( 'query' ) );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
 	/**
-	 * testUserQueryWhereUserDoesNotExist
-	 *
 	 * Tests a query for non existent user.
 	 *
 	 * @since 0.0.5
 	 */
-	public function testUserQueryWhereUserDoesNotExist() {
+	public function testWhereUserDoesNotExist() {
 		/**
 		 * Create the global ID based on the user_type and the created $id
 		 */
@@ -516,409 +547,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertEquals( $expected, $actual['data'] );
 	}
 
-	public function testUsersQueryWithNoPublishedPosts() {
-
-		/**
-		 * Set the current user to nobody (unauthenticated)
-		 */
-		wp_set_current_user( 0 );
-
-		/**
-		 * Create the query string to pass to the $query
-		 */
-		$query = '
-		query {
-			users(first:1) {
-				edges{
-					node{
-						id
-						userId
-						email
-					}
-				}
-			}
-		}';
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = $this->graphql( compact( 'query' ) );
-
-		/**
-		 * The user has no published posts, so there should be no results publicly
-		 * returned to an unauthenticated user
-		 */
-		$this->assertEmpty( $actual['data']['users']['edges'] );
-
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function testUserQueryWithPublishedPosts() {
-
-		$this->delete_users();
-
-		/**
-		 * Create a user
-		 */
-		$email   = 'test@test.com';
-		$user_id = $this->createUserObject(
-			[
-				'user_email' => $email,
-				'role'       => 'administrator',
-			]
-		);
-
-		$post_id = $this->factory()->post->create( [
-			'post_author' => $user_id,
-			'post_type'   => 'attachment',
-		] );
-
-		/**
-		 * Create the global ID based on the user_type and the created $id
-		 */
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-		wp_set_current_user( $user_id );
-
-		/**
-		 * Establish the expectation for the output of the query
-		 */
-		$expected = [
-			'users' => [
-				'edges' => [
-					[
-						'node' => [
-							'id'     => $global_id,
-							'userId' => $user_id,
-							'email'  => $email,
-						],
-					],
-				],
-			],
-		];
-
-		/**
-		 * Set the current user to the created user we're querying and
-		 * try the query again
-		 */
-		wp_set_current_user( $user_id );
-
-		$query = '
-		query {
-			users(first:1) {
-				edges{
-					node{
-						id
-						userId
-						email
-					}
-				}
-			}
-		}';
-
-		/**
-		 * Run the GraphQL query
-		 */
-		$actual = $this->graphql( compact( 'query' ) );
-
-		/**
-		 * The authenticated user should see their own user in the result
-		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 1, count( $actual['data']['users']['edges'] ) );
-
-	}
-
-	public function testQueryAllUsersAsAdmin() {
-
-		$user_1 = [
-			'user_email' => 'user1@email.com',
-			'user_login' => 'user1',
-			'user_url'   => 'https://test1.com',
-			'first_name' => 'User1',
-			'last_name'  => 'Test',
-		];
-
-		$user_2 = [
-			'user_email' => 'user2@email.com',
-			'user_login' => 'user2',
-			'user_url'   => 'https://test2.com',
-			'first_name' => 'User2',
-			'last_name'  => 'Test',
-		];
-
-		$user_1_id = $this->createUserObject( $user_1 );
-		$user_2_id = $this->createUserObject( $user_2 );
-		$admin     = $this->createUserObject( [ 'role' => 'administrator' ] );
-
-		wp_set_current_user( $admin );
-
-		$query = '
-		query {
-			users(first:2) {
-				edges{
-					node{
-						userId
-						username
-						email
-						firstName
-						lastName
-						url
-					}
-				}
-			}
-		}';
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		$expected = [
-			'users' => [
-				'edges' => [
-					[
-						'node' => [
-							'userId'    => $user_2_id,
-							'username'  => $user_2['user_login'],
-							'email'     => $user_2['user_email'],
-							'firstName' => $user_2['first_name'],
-							'lastName'  => $user_2['last_name'],
-							'url'       => $user_2['user_url'],
-						],
-					],
-					[
-						'node' => [
-							'userId'    => $user_1_id,
-							'username'  => $user_1['user_login'],
-							'email'     => $user_1['user_email'],
-							'firstName' => $user_1['first_name'],
-							'lastName'  => $user_1['last_name'],
-							'url'       => $user_1['user_url'],
-						],
-					],
-				],
-			],
-		];
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 2, count( $actual['data']['users']['edges'] ) );
-
-	}
-
-	public function testQueryAllUsersAsSubscriber() {
-
-		$user_1 = [
-			'user_email'  => 'user1@email.com',
-			'user_login'  => 'aaaa_subscriber',
-			'user_url'    => 'https://test1.com',
-			'first_name'  => 'User1',
-			'last_name'   => 'Test',
-			'role'        => 'subscriber',
-			'description' => 'User 1 Test',
-		];
-
-		$user_2 = [
-			'user_email'  => 'user2@email.com',
-			'user_login'  => 'aaaa_subscriber2',
-			'user_url'    => 'https://test2.com',
-			'first_name'  => 'User2',
-			'last_name'   => 'Test',
-			'role'        => 'subscriber',
-			'description' => 'User 2 test',
-		];
-
-		$user_1_id = $this->createUserObject( $user_1 );
-		$user_2_id = $this->createUserObject( $user_2 );
-
-		/**
-		 * Create posts for users so they are only restricted instead of private
-		 */
-		$this->factory()->post->create( [
-			'post_author' => $user_1_id,
-		] );
-		$this->factory()->post->create( [
-			'post_author' => $user_2_id,
-		] );
-
-		wp_set_current_user( $user_2_id );
-
-		$query = '
-		query {
-			users(first:2) {
-				edges{
-					node{
-						userId
-						username
-						email
-						firstName
-						lastName
-						url
-						description
-						isRestricted
-					}
-				}
-			}
-		}';
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$this->assertEquals( 2, count( $actual['data']['users']['edges'] ) );
-
-	}
-
-	public function testPageInfoQueryAsSubscriber() {
-
-		/**
-		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
-		 */
-		$this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$subscriber = $this->factory->user->create( [
-			'role' => 'subscriber',
-		] );
-
-		$query = '
-		query{
-			users(first:2 where: {role:ADMINISTRATOR}){
-				pageInfo{
-					hasNextPage
-				}
-				edges{
-					node{
-						id
-					}
-				}
-			}
-		}
-		';
-
-		wp_set_current_user( $subscriber );
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		/**
-		 * Results should be empty for a non-authenticated request because the
-		 * users have no published posts and are not considered public
-		 */
-		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertEmpty( $actual['data']['users'] );
-
-	}
-
-	public function testPageInfoQueryAsAdmin() {
-
-		/**
-		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
-		 */
-		$this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$subscriber = $this->factory->user->create( [
-			'role' => 'subscriber',
-		] );
-
-		$query = '
-		query{
-			users(first:2 where: {role:ADMINISTRATOR}){
-				pageInfo{
-					hasNextPage
-				}
-				edges{
-					node{
-						id
-					}
-				}
-			}
-		}
-		';
-
-		wp_set_current_user( $admin );
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		$this->assertArrayHasKey( 'hasNextPage', $actual['data']['users']['pageInfo'] );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-		$this->assertCount( 2, $actual['data']['users']['edges'] );
-
-	}
-
-
-	public function testPageInfoQueryFilterBySubscriberAsAdmin() {
-
-		$this->delete_users();
-
-		/**
-		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
-		 */
-		$this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
-
-		$subscriber = $this->factory->user->create( [
-			'role' => 'subscriber',
-		] );
-
-		$query = '
-		query{
-			users(first:2 where: {role:SUBSCRIBER}){
-				pageInfo{
-					hasNextPage
-				}
-				edges{
-					node{
-						id
-					}
-				}
-			}
-		}
-		';
-
-		wp_set_current_user( $admin );
-
-		$actual = $this->graphql( compact( 'query' ) );
-
-		/**
-		 * Now let's make sure the subscriber role query worked
-		 */
-		$this->assertNotEmpty( $actual['data']['users']['pageInfo'] );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-		$this->assertCount( 1, $actual['data']['users']['edges'] );
-
-	}
-
-	public function dataProviderUserHasPosts() {
+	public function dataProviderHasPosts() {
 		return [
 			[
 				'has_posts' => true,
@@ -930,266 +559,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testFilterUsersByRole() {
-
-		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
-
-		wp_set_current_user( $subscriber );
-
-		$query = '
-		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-			users(where:$where){
-				edges{
-					node{
-						userId
-						name
-					}
-				}
-			}
-		}
-		';
-
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'role' => 'ADMINISTRATOR',
-				],
-			],
-		] );
-
-		/**
-		 * The query should return errors because the user is a subscriber and cannot filter by role
-		 */
-		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['users'] );
-
-	}
-
-	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testFilterUsersByRoleIn() {
-
-		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
-
-		wp_set_current_user( $subscriber );
-
-		$query = '
-		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-			users(where:$where){
-				edges{
-					node{
-						userId
-						name
-					}
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'roleIn' => [ 'ADMINISTRATOR', 'SUBSCRIBER' ],
-				],
-			],
-		] );
-
-		/**
-		 * The query should return errors because the user is a subscriber and cannot filter by role
-		 */
-		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['users'] );
-
-	}
-
-	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testFilterUsersByRoleNotIn() {
-
-		$subscriber = $this->createUserObject( [ 'role' => 'subscriber' ] );
-
-		wp_set_current_user( $subscriber );
-
-		$query = '
-		query getUsers($where:RootQueryToUserConnectionWhereArgs){
-			users(where:$where){
-				edges{
-					node{
-						userId
-						name
-					}
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'roleNotIn' => [ 'ADMINISTRATOR' ],
-				],
-			],
-		] );
-
-		/**
-		 * The query should return errors because the user is a subscriber and cannot filter by role
-		 */
-		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['users'] );
-
-	}
-
-	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testAdminFilterUsersByRole() {
-
-		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
-
-		wp_set_current_user( $admin );
-
-		$query = '
-		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-			users(where: $where) {
-				edges {
-					node {
-						userId
-						name
-					}
-				}
-			}
-		}
-
-		';
-
-		codecept_debug( get_user_by( 'id', get_current_user_id() ) );
-
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'role' => 'ADMINISTRATOR',
-				],
-			],
-		] );
-
-		/**
-		 * The query should not have any errors because admins have "list_users" cap and can
-		 * filter users by role
-		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-
-	}
-
-	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testAdminFilterUsersByRoleIn() {
-
-		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
-
-		wp_set_current_user( $admin );
-
-		$query = '
-		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-			users(where: $where) {
-				edges {
-					node {
-						userId
-						name
-					}
-				}
-			}
-		}
-
-		';
-
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'roleIn' => [ 'ADMINISTRATOR' ],
-				],
-			],
-		] );
-
-		/**
-		 * The query should not have any errors because admins have "list_users" cap and can
-		 * filter users by role
-		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-
-	}
-
-	/**
-	 * Test to make sure only users with list_users capability can filter users by role
-	 * using GraphQL user connections
-	 *
-	 * @throws Exception
-	 */
-	public function testAdminFilterUsersByRoleNotIn() {
-
-		$admin = $this->createUserObject( [ 'role' => 'administrator' ] );
-
-		wp_set_current_user( $admin );
-
-		$query = '
-		query getUsers($where: RootQueryToUserConnectionWhereArgs) {
-			users(where: $where) {
-				edges {
-					node {
-						userId
-						name
-					}
-				}
-			}
-		}
-		';
-
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'where' => [
-					'roleNotIn' => [ 'SUBSCRIBER' ],
-				],
-			],
-		] );
-
-		/**
-		 * The query should not have any errors because admins have "list_users" cap and can
-		 * filter users by role
-		 */
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotEmpty( $actual['data']['users']['edges'] );
-
-	}
-
-	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testGetUserByIdTypesAsAdmin() {
 
@@ -1208,11 +578,13 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_author' => $admin->ID,
-			'post_status' => 'publish',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_author' => $admin->ID,
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_current_user( $admin->ID );
 
@@ -1266,12 +638,14 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'email'    => $admin->user_email,
 		];
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $user_data['user_email'],
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $user_data['user_email'],
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected_user, $actual['data']['userByDatabaseIdString'] );
@@ -1285,12 +659,14 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		wp_set_current_user( 0 );
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $user_data['user_email'],
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $user_data['user_email'],
+				],
+			]
+		);
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
@@ -1314,11 +690,10 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// Cannot query user by username as a non-authed user
 		$this->assertNull( $actual['data']['userByUsername'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testGetUserByIdTypesAsPublicUser() {
 
@@ -1337,11 +712,13 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_author' => $admin->ID,
-			'post_status' => 'publish',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_author' => $admin->ID,
+				'post_status' => 'publish',
+			]
+		);
 
 		$uri = str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) );
 		codecept_debug( $uri );
@@ -1395,9 +772,11 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		wp_set_current_user( 0 );
 
-		$actual = $this->graphql( [
-			'query' => $query,
-		] );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
@@ -1421,11 +800,10 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// Cannot query user by username as a non-authed user
 		$this->assertNull( $actual['data']['userByUsername'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testGetUserByIdTypesAsSubscriber() {
 
@@ -1444,11 +822,13 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_author' => $subscriber->ID,
-			'post_status' => 'publish',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_author' => $subscriber->ID,
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_current_user( $subscriber->ID );
 
@@ -1493,9 +873,11 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql( [
-			'query' => $query,
-		] );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$expected_user = [
 			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
@@ -1519,149 +901,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected_user, $actual['data']['userByUri'] );
 		$this->assertSame( $expected_user, $actual['data']['userByEmail'] );
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
-
-	}
-
-	public function testQueryUsersAsPublicUserShouldReturnOnlyPublishedAuthors() {
-
-		$this->delete_users();
-
-		$alphabet          = range( 'A', 'Z' );
-		$published_users   = [];
-		$unpublished_users = [];
-		foreach ( $alphabet as $letter ) {
-			$unpublished_users[] = $this->factory()->user->create([
-				'user_login' => 'unpublished_' . $letter,
-				'user_email' => $letter . '_unpublishded@example.com',
-			]);
-			$author_id           = $this->factory()->user->create([
-				'user_login' => 'published_' . $letter,
-				'user_email' => $letter . '_published@example.com',
-				'role'       => 'administrator',
-			]);
-
-			$published_users[] = $author_id;
-			$this->factory()->post->create([
-				'post_status' => 'publish',
-				'post_title'  => $letter . '_Post for UserQueryWithComments',
-				'post_author' => $author_id,
-				'role'        => 'administrator',
-			]);
-		}
-
-		$query = '
-		{
-			users(first:100) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
-
-		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-
-		// There should be 26 users. One published user for each letter of the alphabet.
-		$this->assertEquals( 26, count( $ids ) );
-
-		foreach ( $ids as $id ) {
-			$this->assertTrue( in_array( $id, $published_users, true ) );
-			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
-		}
-
-		$query = '
-		{
-			users(last:100) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
-
-		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-
-		// There should be 26 users. One published user for each letter of the alphabet.
-		$this->assertEquals( 26, count( $ids ) );
-		foreach ( $ids as $id ) {
-			$this->assertTrue( in_array( $id, $published_users, true ) );
-			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
-		}
-
-		$query = '
-		{
-			users(last:10) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
-
-		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-
-		// There should be 10 users.
-		$this->assertEquals( 10, count( $ids ) );
-		foreach ( $ids as $id ) {
-			$this->assertTrue( in_array( $id, $published_users, true ) );
-			$this->assertTrue( ! in_array( $id, $unpublished_users, true ) );
-		}
-
-		codecept_debug( $published_users );
-
-		// Query as an admin
-		wp_set_current_user( absint( $published_users[0] ) );
-
-		$query = '
-		{
-			users(first:100) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
-
-		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
-		$this->assertEquals( 52, count( $ids ) );
-
-		$query = '
-		{
-			users(last:100) {
-				nodes {
-					databaseId
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
-
-		$ids = wp_list_pluck( $actual['data']['users']['nodes'], 'databaseId' );
-		// There should be 52 users. One published and one unpublished user for each letter of the alphabet.
-		$this->assertEquals( 52, count( $ids ) );
-
-		$this->delete_users();
-
 	}
 
 	
@@ -1679,37 +918,45 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		wp_set_current_user( $this->admin );
 
 		// Test page.
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
 
 		// Test term.
-		$term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-		]);
+		$term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$uri = wp_make_link_relative( get_term_link( $term_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
@@ -1720,15 +967,16 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test post type archive
 		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
 	}
-
 }
