@@ -79,7 +79,8 @@ class CommentUpdate {
 			/**
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
-			$user_id = isset( $comment_args['user_id'] ) ? $comment_args['user_id'] : null;
+			$user_id          = $comment_args['user_id'] ?? null;
+			$raw_comment_args = $comment_args;
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
 			// Prevent comment deletions by default
@@ -105,17 +106,22 @@ class CommentUpdate {
 				throw new UserError( esc_html__( 'Sorry, you are not allowed to update this comment.', 'wp-graphql' ) );
 			}
 
+			// If there are no changes between the existing comment and the incoming comment
+			if ( $comment_args === $raw_comment_args ) {
+				throw new UserError( esc_html__( 'No changes have been provided to the comment.', 'wp-graphql' ) );
+			}
+
 			/**
 			 * Update comment
 			 * $success   int   1 on success and 0 on fail
 			 */
-			$success = wp_update_comment( $comment_args );
+			$success = wp_update_comment( $comment_args, true );
 
 			/**
 			 * Throw an exception if the comment failed to be created
 			 */
-			if ( ! $success ) {
-				throw new UserError( esc_html__( 'The comment failed to update', 'wp-graphql' ) );
+			if ( is_wp_error( $success ) ) {
+				throw new UserError( esc_html( $success->get_error_message() ) );
 			}
 
 			/**
@@ -130,7 +136,8 @@ class CommentUpdate {
 			 * Return the comment object
 			 */
 			return [
-				'id' => $comment_id,
+				'id'      => $comment_id,
+				'success' => (bool) $success,
 			];
 		};
 	}
