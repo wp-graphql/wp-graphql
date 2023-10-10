@@ -109,6 +109,24 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 			$query_args['has_published_posts'] = true;
 		}
 
+		/**
+		 * If `has_published_posts` is set to `attachment`, throw a warning.
+		 *
+		 * @todo Remove this when the `hasPublishedPosts` enum type changes.
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/2963
+		 */
+		if ( ! empty( $query_args['has_published_posts'] ) && 'attachment' === $query_args['has_published_posts'] ) {
+			graphql_debug(
+				__( 'The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value, and will be removed from the possible enum values in a future release.', 'wp-graphql' ),
+				[
+					'operationName' => $this->context->operationName ?? '',
+					'query'         => $this->context->query ?? '',
+					'variables'     => $this->context->variables ?? '',
+				]
+			);
+		}
+
 		if ( ! empty( $query_args['search'] ) ) {
 			$query_args['search']  = '*' . $query_args['search'] . '*';
 			$query_args['orderby'] = 'user_login';
