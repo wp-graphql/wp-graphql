@@ -176,7 +176,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( 'The `graphql_pre_format_name` filter must return a string or null.', $actual['extensions']['debug']['0']['message'] );
-		$this->assertEquals( $original_name, $actual['extensions']['debug']['0']['originalName'] );
+		$this->assertEquals( $original_name, $actual['extensions']['debug']['0']['original_name'] );
 
 		// Cleanup filter
 		remove_all_filters( 'graphql_pre_format_name' );

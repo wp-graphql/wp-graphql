@@ -146,7 +146,8 @@ class Utils {
 				graphql_debug(
 					esc_html__( 'The `graphql_pre_format_name` filter must return a string or null.', 'wp-graphql' ),
 					[
-						'originalName' => esc_html( $name ),
+						'type'          => 'INVALID_GRAPHQL_NAME',
+						'original_name' => esc_html( $name ),
 					]
 				);
 			}
@@ -227,13 +228,13 @@ class Utils {
 	public static function format_type_name_for_wp_template( string $name, string $file ): string {
 		$name = ucwords( $name );
 		// Strip out not ASCII characters.
-		$name = format_graphql_name( $name, '', '/[^\w]/' );
+		$name = graphql_format_name( $name, '', '/[^\w]/' );
 
 		// If replaced_name is empty, use the file name.
 		if ( empty( $name ) ) {
 			$file_parts    = explode( '.', $file );
 			$file_name     = ! empty( $file_parts[0] ) ? self::format_type_name( $file_parts[0] ) : '';
-			$replaced_name = ! empty( $file_name ) ? format_graphql_name( $file_name, '', '/[^\w]/' ) : '';
+			$replaced_name = ! empty( $file_name ) ? graphql_format_name( $file_name, '', '/[^\w]/' ) : '';
 
 			$name = ! empty( $replaced_name ) ? $replaced_name : $name;
 		}
