@@ -145,7 +145,7 @@ class Term extends Model {
 					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
 				},
 				'slug'                     => function () {
-					return ! empty( $this->data->slug ) ? $this->data->slug : null;
+					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
 				},
 				'termGroupId'              => function () {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;

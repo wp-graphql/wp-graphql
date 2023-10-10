@@ -42,6 +42,26 @@ class MenuQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
+	public function get_query() {
+		return '
+			query menu( $id: ID!, $idType: MenuNodeIdTypeEnum ) {
+				menu( id: $id, idType: $idType ) {
+					count
+					databaseId
+					id
+					locations
+					name
+					slug
+					menuItems {
+						nodes {
+							databaseId
+						}
+					}
+				}
+			}
+		';
+	}
+
 	public function testMenuQuery() {
 		$query = $this->get_query();
 
@@ -129,24 +149,33 @@ class MenuQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( WPEnumType::get_safe_name( array_search( $this->menu_id, $locations, true ) ), $actual['data']['menu']['locations'][0] );
 	}
 
-	public function get_query() {
-		return '
-			query menu( $id: ID!, $idType: MenuNodeIdTypeEnum ) {
-				menu( id: $id, idType: $idType ) {
-					count
-					databaseId
-					id
-					locations
-					name
-					slug
-					menuItems {
-						nodes {
-							databaseId
-						}
-					}
-				}
-			}
-		';
-	}
+	public function testUnicodeSlugsAreDecoded() {
+		$unicode_slug = 'חדשות';
+		$menu_id      = wp_create_nav_menu( $unicode_slug );
 
+		$menu_item_args = [
+			'menu-item-title'     => 'Parent Item',
+			'menu-item-parent-id' => 0,
+			'menu-item-url'       => 'http://example.com/',
+			'menu-item-status'    => 'publish',
+			'menu-item-type'      => 'custom',
+		];
+
+		$menu_item_id = wp_update_nav_menu_item( $menu_id, 0, $menu_item_args );
+
+		set_theme_mod( 'nav_menu_locations', [ $this->location_name => $menu_id ] );
+
+		$query = $this->get_query();
+
+		$variables = [
+			'id'     => $unicode_slug,
+			'idType' => 'SLUG',
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $menu_id, $actual['data']['menu']['databaseId'] );
+		$this->assertEquals( $unicode_slug, $actual['data']['menu']['slug'] );
+	}
 }
