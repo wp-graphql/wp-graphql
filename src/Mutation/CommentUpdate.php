@@ -79,7 +79,7 @@ class CommentUpdate {
 			/**
 			 * Map all of the args from GraphQL to WordPress friendly args array
 			 */
-			$user_id = $comment_args['user_id'] ?? null;
+			$user_id          = $comment_args['user_id'] ?? null;
 			$raw_comment_args = $comment_args;
 			CommentMutation::prepare_comment_object( $input, $comment_args, 'update', true );
 
@@ -136,7 +136,7 @@ class CommentUpdate {
 			 * Return the comment object
 			 */
 			return [
-				'id' => $comment_id,
+				'id'      => $comment_id,
 				'success' => (bool) $success,
 			];
 		};
