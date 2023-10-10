@@ -20,7 +20,7 @@ class PageInfo {
 				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				'interfaces'  => [ 'PageInfo' ],
 				'fields'      => self::get_fields(),
-			] 
+			]
 		);
 
 		register_graphql_interface_type(
@@ -28,7 +28,7 @@ class PageInfo {
 			[
 				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				'fields'      => self::get_fields(),
-			] 
+			]
 		);
 	}
 

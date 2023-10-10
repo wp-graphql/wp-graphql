@@ -55,5 +55,4 @@ class Preview {
 
 		return $default_value;
 	}
-
 }

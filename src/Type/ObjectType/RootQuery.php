@@ -169,7 +169,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $source, array $args, AppContext $context, $info ) {
+						'resolve'     => static function ( $_source, array $args, AppContext $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							switch ( $id_type ) {
@@ -179,7 +179,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -209,10 +209,10 @@ class RootQuery {
 							],
 							'asPreview'   => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requestor doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, AppContext $context, ResolveInfo $info ) {
+						'resolve'     => static function ( $_root, $args, AppContext $context ) {
 							$idType = $args['idType'] ?? 'global_id';
 							switch ( $idType ) {
 								case 'uri':
@@ -229,7 +229,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 									}
 									$post_id = absint( $id_components['id'] );
 									break;
@@ -280,7 +280,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a content type by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, $context, $info ) {
+						'resolve'     => static function ( $_root, $args, $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							$id = null;
@@ -312,7 +312,7 @@ class RootQuery {
 								'description' => __( 'Type of unique identifier to fetch a taxonomy by. Default is Global ID', 'wp-graphql' ),
 							],
 						],
-						'resolve'     => static function ( $root, $args, $context, $info ) {
+						'resolve'     => static function ( $_root, $args, $context ) {
 							$id_type = isset( $args['idType'] ) ? $args['idType'] : 'id';
 
 							$id = null;
@@ -383,7 +383,7 @@ class RootQuery {
 									$locations = get_nav_menu_locations();
 
 									if ( ! isset( $locations[ $args['id'] ] ) || ! absint( $locations[ $args['id'] ] ) ) {
-										throw new UserError( __( 'No menu set for the provided location', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'No menu set for the provided location', 'wp-graphql' ) );
 									}
 
 									$id = absint( $locations[ $args['id'] ] );
@@ -415,7 +415,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -450,7 +450,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$id = absint( $id_components['id'] );
 
@@ -513,7 +513,7 @@ class RootQuery {
 										],
 										true
 									) ) {
-										throw new UserError( __( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'When fetching a Term Node by "slug" or "name", the "taxonomy" also needs to be set as an input.', 'wp-graphql' ) );
 									}
 									if ( 'database_id' === $idType ) {
 										$term = get_term( absint( $args['id'] ) );
@@ -534,7 +534,7 @@ class RootQuery {
 								default:
 									$id_components = Relay::fromGlobalId( $args['id'] );
 									if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-										throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+										throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 									}
 									$term_id = absint( $id_components['id'] );
 									break;
@@ -593,7 +593,7 @@ class RootQuery {
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_login !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
-											throw new UserError( __( 'You do not have permission to request a User by Username', 'wp-graphql' ) );
+											throw new UserError( esc_html__( 'You do not have permission to request a User by Username', 'wp-graphql' ) );
 										}
 									}
 
@@ -604,7 +604,7 @@ class RootQuery {
 									$current_user = wp_get_current_user();
 									if ( $current_user->user_email !== $args['id'] ) {
 										if ( ! current_user_can( 'list_users' ) ) {
-											throw new UserError( __( 'You do not have permission to request a User by Email', 'wp-graphql' ) );
+											throw new UserError( esc_html__( 'You do not have permission to request a User by Email', 'wp-graphql' ) );
 										}
 									}
 
@@ -688,7 +688,7 @@ class RootQuery {
 						],
 						'asPreview' => [
 							'type'        => 'Boolean',
-							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requestor doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
 						],
 					],
 					'resolve'     => static function ( $source, array $args, AppContext $context ) use ( $post_type_object ) {
@@ -728,7 +728,7 @@ class RootQuery {
 							default:
 								$id_components = Relay::fromGlobalId( $args['id'] );
 								if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-									throw new UserError( __( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'The ID input is invalid. Make sure you set the proper idType for your input.', 'wp-graphql' ) );
 								}
 								$post_id = absint( $id_components['id'] );
 								break;
@@ -829,7 +829,7 @@ class RootQuery {
 						if ( ! empty( $args['id'] ) ) {
 							$id_components = Relay::fromGlobalId( $args['id'] );
 							if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
-								throw new UserError( __( 'The "id" is invalid', 'wp-graphql' ) );
+								throw new UserError( esc_html__( 'The "id" is invalid', 'wp-graphql' ) );
 							}
 							$post_id = absint( $id_components['id'] );
 						} elseif ( ! empty( $args[ lcfirst( $post_type_object->graphql_single_name . 'Id' ) ] ) ) {
@@ -922,7 +922,7 @@ class RootQuery {
 							'description' => __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => static function ( $source, array $args, $context, $info ) use ( $tax_object ) {
+					'resolve'     => static function ( $_source, array $args, $context ) use ( $tax_object ) {
 						$idType  = isset( $args['idType'] ) ? $args['idType'] : 'global_id';
 						$term_id = null;
 
@@ -948,7 +948,7 @@ class RootQuery {
 							default:
 								$id_components = Relay::fromGlobalId( $args['id'] );
 								if ( ! isset( $id_components['id'] ) || ! absint( $id_components['id'] ) ) {
-									throw new UserError( __( 'The ID input is invalid', 'wp-graphql' ) );
+									throw new UserError( esc_html__( 'The ID input is invalid', 'wp-graphql' ) );
 								}
 								$term_id = absint( $id_components['id'] );
 								break;

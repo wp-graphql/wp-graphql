@@ -86,7 +86,7 @@ abstract class AbstractCursor {
 			$offset = $this->get_query_var( 'graphql_cursor_offset' );
 
 			if ( ! empty( $offset ) ) {
-				_doing_it_wrong( self::class . "::get_query_var('graphql_cursor_offset')", "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead.", '1.9.0' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				_doing_it_wrong( self::class . "::get_query_var('graphql_cursor_offset')", "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead.", '1.9.0' );
 			}
 		}
 
@@ -159,11 +159,13 @@ abstract class AbstractCursor {
 		// Throw if an array not provided.
 		if ( ! is_array( $field ) ) {
 			throw new InvariantViolation(
-				sprintf(
-					/* translators: %1$s: Cursor class name. %2$s: value type. */
-					__( 'Invalid value provided for %1$s cursor compare field. Expected Array, %2$s given.', 'wp-graphql' ),
-					static::class,
-					gettype( $field )
+				esc_html(
+					sprintf(
+						/* translators: %1$s: Cursor class name. %2$s: value type. */
+						__( 'Invalid value provided for %1$s cursor compare field. Expected Array, %2$s given.', 'wp-graphql' ),
+						static::class,
+						gettype( $field )
+					)
 				)
 			);
 		}
@@ -171,10 +173,12 @@ abstract class AbstractCursor {
 		// Guard against missing or invalid "table column".
 		if ( empty( $field['key'] ) || ! is_string( $field['key'] ) ) {
 			throw new InvariantViolation(
-				sprintf(
-					/* translators: %s: Cursor class name. */
-					__( 'Expected "key" value to be provided for %s cursor compare field. A string value must be given.', 'wp-graphql' ),
-					static::class
+				esc_html(
+					sprintf(
+						/* translators: %s: Cursor class name. */
+						__( 'Expected "key" value to be provided for %s cursor compare field. A string value must be given.', 'wp-graphql' ),
+						static::class
+					)
 				)
 			);
 		}
@@ -182,10 +186,12 @@ abstract class AbstractCursor {
 		// Guard against missing or invalid "by".
 		if ( ! isset( $field['value'] ) ) {
 			throw new InvariantViolation(
-				sprintf(
-					/* translators: %s: Cursor class name. */
-					__( 'Expected "value" value to be provided for %s cursor compare field. A scalar value must be given.', 'wp-graphql' ),
-					static::class
+				esc_html(
+					sprintf(
+						/* translators: %s: Cursor class name. */
+						__( 'Expected "value" value to be provided for %s cursor compare field. A scalar value must be given.', 'wp-graphql' ),
+						static::class
+					)
 				)
 			);
 		}
@@ -193,10 +199,12 @@ abstract class AbstractCursor {
 		// Guard against invalid "type".
 		if ( ! empty( $field['type'] ) && ! is_string( $field['type'] ) ) {
 			throw new InvariantViolation(
-				sprintf(
+				esc_html(
+					sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Invalid value provided for "type" value to be provided for type of %s cursor compare field. A string value must be given.', 'wp-graphql' ),
-					static::class
+						__( 'Invalid value provided for "type" value to be provided for type of %s cursor compare field. A string value must be given.', 'wp-graphql' ),
+						static::class
+					)
 				)
 			);
 		}
@@ -204,10 +212,12 @@ abstract class AbstractCursor {
 		// Guard against invalid "order".
 		if ( ! empty( $field['order'] ) && ! in_array( strtoupper( $field['order'] ), [ 'ASC', 'DESC' ], true ) ) {
 			throw new InvariantViolation(
-				sprintf(
+				esc_html(
+					sprintf(
 					/* translators: %s: Cursor class name. */
-					__( 'Invalid value provided for "order" value to be provided for type of %s cursor compare field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
-					static::class
+						__( 'Invalid value provided for "order" value to be provided for type of %s cursor compare field. Either "ASC" or "DESC" must be given.', 'wp-graphql' ),
+						static::class
+					)
 				)
 			);
 		}
@@ -251,10 +261,12 @@ abstract class AbstractCursor {
 
 		if ( ! is_array( $cursor_compare_fields ) ) {
 			throw new InvariantViolation(
-				sprintf(
-					/* translators: %s: value type. */
-					__( 'Invalid value provided for graphql_cursor_compare_fields. Expected Array, %s given.', 'wp-graphql' ),
-					gettype( $cursor_compare_fields )
+				esc_html(
+					sprintf(
+						/* translators: %s: value type. */
+						__( 'Invalid value provided for graphql_cursor_compare_fields. Expected Array, %s given.', 'wp-graphql' ),
+						gettype( $cursor_compare_fields )
+					)
 				)
 			);
 		}
@@ -314,5 +326,4 @@ abstract class AbstractCursor {
 	 * @return string
 	 */
 	abstract public function to_sql();
-
 }

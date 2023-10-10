@@ -46,7 +46,7 @@ class QueryDepth extends QuerySecurityRule {
 			// @phpstan-ignore-next-line
 			[
 				NodeKind::OPERATION_DEFINITION => [
-					'leave' => function ( OperationDefinitionNode $operationDefinition ) use ( $context ) : void {
+					'leave' => function ( OperationDefinitionNode $operationDefinition ) use ( $context ): void {
 						$maxDepth = $this->fieldDepth( $operationDefinition );
 
 						if ( $maxDepth <= $this->getMaxQueryDepth() ) {

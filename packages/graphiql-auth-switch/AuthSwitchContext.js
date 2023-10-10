@@ -7,7 +7,7 @@ export const useAuthSwitchContext = () => {
   return useContext(AuthSwitchContext);
 };
 
-export const AuthSwitchProvder = ({ children }) => {
+export const AuthSwitchProvider = ({ children }) => {
   const getDefaultState = () => {
     const localValue = window?.localStorage.getItem(
       "graphiql:usePublicFetcher"

@@ -417,7 +417,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		register_nav_menu( $menu_location, 'My MenuItems' );
 		WPGraphQL::clear_schema();
 
-		$created = $this->create_menu_items( 'menu-for-locaion-test', $menu_location, 1 );
+		$created = $this->create_menu_items( 'menu-for-location-test', $menu_location, 1 );
 
 		$query = $this->getQuery();
 

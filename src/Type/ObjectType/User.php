@@ -124,7 +124,7 @@ class User {
 					],
 					'name'                   => [
 						'type'        => 'String',
-						'description' => __( 'Display name of the user. This is equivalent to the WP_User->dispaly_name property.', 'wp-graphql' ),
+						'description' => __( 'Display name of the user. This is equivalent to the WP_User->display_name property.', 'wp-graphql' ),
 					],
 					'registeredDate'         => [
 						'type'        => 'String',
@@ -180,7 +180,7 @@ class User {
 							],
 
 						],
-						'resolve' => static function ( $user, $args, $context, $info ) {
+						'resolve' => static function ( $user, $args ) {
 							$avatar_args = [];
 							if ( is_numeric( $args['size'] ) ) {
 								$avatar_args['size'] = absint( $args['size'] );

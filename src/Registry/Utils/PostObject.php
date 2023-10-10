@@ -356,7 +356,7 @@ class PostObject {
 				],
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
-				'resolve'           => static function ( Post $post, $args, $context, $info ) {
+				'resolve'           => static function ( Post $post ) {
 					return absint( $post->ID );
 				},
 			],
@@ -495,7 +495,7 @@ class PostObject {
 								],
 								$src,
 								null,
-								$source->ID 
+								$source->ID
 							);
 
 							return ! empty( $sizes ) ? $sizes : null;
@@ -540,7 +540,7 @@ class PostObject {
 							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => static function ( $image, $args, $context, $info ) {
+					'resolve'     => static function ( $image, $args ) {
 						// @codingStandardsIgnoreLine.
 						$size = null;
 						if ( isset( $args['size'] ) ) {
@@ -559,7 +559,7 @@ class PostObject {
 							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
 						],
 					],
-					'resolve'     => static function ( $image, $args, $context, $info ) {
+					'resolve'     => static function ( $image, $args ) {
 
 						// @codingStandardsIgnoreLine.
 						$size = null;
@@ -586,5 +586,4 @@ class PostObject {
 			]
 		);
 	}
-
 }

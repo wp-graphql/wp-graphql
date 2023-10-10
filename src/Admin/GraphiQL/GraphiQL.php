@@ -69,7 +69,7 @@ class GraphiQL {
     background-image:url(\'%s\'); float:left; width:22px !important; height:22px !important;
     margin-left: 5px !important; margin-top: 5px !important; margin-right: 5px !important;
     "></span>',
-			$icon_url 
+			$icon_url
 		);
 
 		$admin_bar->add_menu(
@@ -77,7 +77,7 @@ class GraphiQL {
 				'id'    => 'graphiql-ide',
 				'title' => $icon . __( 'GraphiQL IDE', 'wp-graphql' ),
 				'href'  => trailingslashit( admin_url() ) . 'admin.php?page=graphiql-ide',
-			] 
+			]
 		);
 	}
 
@@ -246,5 +246,4 @@ class GraphiQL {
 			$fullscreen_toggle_asset_file['version']
 		);
 	}
-
 }

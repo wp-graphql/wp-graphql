@@ -23,10 +23,10 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  posts { 
-		    nodes { 
-		      id 
-		    } 
+		  posts {
+		    nodes {
+		      id
+		    }
 		  }
 		}
 		';
@@ -52,10 +52,10 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  posts { 
-		    nodes { 
-		      id 
-		    } 
+		  posts {
+		    nodes {
+		      id
+		    }
 		  }
 		}
 		';

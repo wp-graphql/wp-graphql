@@ -83,5 +83,4 @@ class UserRole extends Model {
 			];
 		}
 	}
-
 }

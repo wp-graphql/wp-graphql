@@ -285,7 +285,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 								static function ( $id ) {
 									return Utils::get_database_id_from_id( $id );
 								},
-								$input_value 
+								$input_value
 							);
 							break;
 						}

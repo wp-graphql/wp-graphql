@@ -186,7 +186,7 @@ class PostType extends Model {
 					$link = get_post_type_archive_link( $this->name );
 					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
 				},
-				// If the homepage settings are ot set to
+				// If the homepage settings are to set to
 				'isPostsPage'         => function () {
 					if (
 						'post' === $this->name &&

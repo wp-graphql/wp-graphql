@@ -49,7 +49,7 @@ class Admin {
 				'admin_menu',
 				static function () {
 					remove_menu_page( 'wp-graphiql/wp-graphiql.php' );
-				} 
+				}
 			);
 		}
 
@@ -67,5 +67,4 @@ class Admin {
 			$graphiql->init();
 		}
 	}
-
 }

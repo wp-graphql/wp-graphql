@@ -688,4 +688,59 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['category'] );
 	}
 
+	public function testUnicodeSlugsAreDecoded() {
+		$term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'חדשות',
+		]);
+		$child_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'parent'   => $term_id,
+			'name' => 'גרף קיו אל',
+		]);
+
+		$query = '
+			query CategoryByUri($id: ID!) {
+				category(id: $id, idType: URI ) {
+					databaseId
+					name
+					slug
+					uri
+				}
+			}
+		';
+
+		// Test query by i18n url.
+		$uri = wp_make_link_relative( get_term_link( $term_id ) );
+		$uri = urldecode( $uri ); // We want to pass it with i18n chars.
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => $uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayHasKey( 'category', $actual['data'] );
+		$this->assertArrayHasKey( 'slug', $actual['data']['category'] );
+		$this->assertSame( 'חדשות', $actual['data']['category']['slug'] );
+
+		// Test child term.
+		$child_term_uri = wp_make_link_relative( get_term_link( $child_term_id ) );
+		$child_term_uri = urldecode( $child_term_uri ); // We want to pass it with i18n chars.
+
+		$actual = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => $child_term_uri,
+			],
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayHasKey( 'category', $actual['data'] );
+		$this->assertArrayHasKey( 'slug', $actual['data']['category'] );
+		$this->assertSame( 'גרף-קיו-אל', $actual['data']['category']['slug'] );
+	}
+
 }

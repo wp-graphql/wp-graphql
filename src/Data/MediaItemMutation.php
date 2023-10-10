@@ -141,5 +141,4 @@ class MediaItemMutation {
 		 */
 		do_action( 'graphql_media_item_mutation_update_additional_data', $media_item_id, $input, $post_type_object, $mutation_name, $context, $info );
 	}
-
 }

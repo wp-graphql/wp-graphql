@@ -79,7 +79,7 @@ class DebugLog {
 					'type'    => $type,
 					'message' => $message,
 				],
-				$config 
+				$config
 			);
 
 			$this->logs[ wp_json_encode( $message ) ] = $log_entry;
@@ -128,5 +128,4 @@ class DebugLog {
 		 */
 		return apply_filters( 'graphql_debug_log', array_values( $this->logs ), $this );
 	}
-
 }

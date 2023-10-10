@@ -72,5 +72,4 @@ class CommentLoader extends AbstractDataLoader {
 		}
 		return $loaded;
 	}
-
 }
