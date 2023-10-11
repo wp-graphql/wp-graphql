@@ -84,7 +84,7 @@ class MenuItem extends Model {
 
 		if ( is_wp_error( $menus ) ) {
 			// translators: %s is the menu item ID.
-			throw new Exception( sprintf( __( 'No menus could be found for menu item %s', 'wp-graphql' ), $this->data->ID ) );
+			throw new Exception( esc_html( sprintf( __( 'No menus could be found for menu item %s', 'wp-graphql' ), $this->data->ID ) ) );
 		}
 
 		$menu_id = $menus[0];
@@ -175,7 +175,7 @@ class MenuItem extends Model {
 				'menuDatabaseId'   => function () {
 					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
 					if ( is_wp_error( $menus ) ) {
-						throw new UserError( $menus->get_error_message() );
+						throw new UserError( esc_html( $menus->get_error_message() ) );
 					}
 
 					return ! empty( $menus[0]->term_id ) ? $menus[0]->term_id : null;
@@ -203,5 +203,4 @@ class MenuItem extends Model {
 			];
 		}
 	}
-
 }

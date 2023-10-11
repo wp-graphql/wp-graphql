@@ -42,7 +42,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
+
 	public function createComment( &$post_id, &$comment_id, $postCreator, $commentCreator ) {
+
 		wp_set_current_user( $postCreator );
 		$post_args = [
 			'post_type'    => 'post',
@@ -59,17 +61,19 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_set_current_user( $commentCreator );
 		$user         = wp_get_current_user();
 		$comment_args = [
-			'user_id'            => $user->ID,
-			'comment_author'     => $user->display_name,
-			'comment_author_url' => $user->user_url,
-			'comment_post_ID'    => $post_id,
-			'comment_content'    => 'Comment Content',
+			'user_id'              => $user->ID,
+			'comment_author'       => $user->display_name,
+			'comment_author_url'   => $user->user_url,
+			'comment_author_email' => $user->user_email,
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => 'Comment Content',
 		];
 
 		/**
 		 * Create a comment to test against
 		 */
 		$comment_id = $this->factory()->comment->create( $comment_args );
+		return $comment_id;
 	}
 
 	public function trashComment( &$comment_id ) {
@@ -102,7 +106,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation createCommentTest( $commentOn:Int!, $author:String, $email: String, $content:String! ){
-			createComment( 
+			createComment(
 				input: {
 					commentOn: $commentOn
 					content: $content
@@ -261,7 +265,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation updateCommentTest( $id: ID!, $content: String! ) {
-			updateComment( 
+			updateComment(
 				input: {
 					id: $id
 					content: $content
@@ -317,7 +321,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation updateCommentStatus( $id: ID!, $status: CommentStatusEnum ) {
-			updateComment( 
+			updateComment(
 				input: {
 					id: $id
 					status: $status
@@ -352,7 +356,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( 'HOLD', $actual['data']['updateComment']['comment']['status'] );
-		
+
 		// Test with SPAM status.
 		$variables['status'] = 'SPAM';
 
@@ -387,7 +391,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation deleteCommentTest( $id: ID! ) {
-			deleteComment( 
+			deleteComment(
 				input: {
 					id: $id
 				}
@@ -461,7 +465,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		mutation restoreCommentTest( $id: ID! ) {
-			restoreComment( 
+			restoreComment(
 				input: {
 					id: $id
 				}
@@ -641,6 +645,57 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
+
+	}
+
+	public function testUpdateCommentWithoutChangesDoesNotErrorButReturnsFalseSuccess() {
+
+		update_option( 'comment_registration', '1' );
+		update_option( 'moderation_notify', '1' );
+
+		// create a comment
+		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
+
+		$comment = get_comment( $comment_id, 'ARRAY_A' );
+
+		$mutation = '
+		mutation UpdateComment( $input: UpdateCommentInput! ) {
+		  updateComment(input: $input) {
+		    success
+		    comment {
+		      id
+		      databaseId
+		      content
+		      status
+		      author {
+		        __typename
+		        node {
+		          databaseId
+		          name
+		          email
+		        }
+		      }
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $mutation,
+			'variables' => [
+				'input' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+					'content' => 'Comment Content',
+				]
+			]
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'updateComment.success', self::IS_FALSY ),
+			$this->expectedField( 'updateComment.comment.databaseId', (int) $comment['comment_ID'] ),
+			$this->expectedField( 'updateComment.comment.content', apply_filters( 'comment_text', $comment['comment_content'] ) ),
+		] );
+
 
 	}
 }

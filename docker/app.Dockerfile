@@ -25,7 +25,7 @@ SHELL [ "/bin/bash", "-c" ]
 # Install system packages
 RUN apt-get update && \
     apt-get -y install \
-    # CircleCI depedencies
+    # CircleCI dependencies
     git \
     ssh \
     tar \

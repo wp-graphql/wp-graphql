@@ -35,5 +35,4 @@ class PostObjects extends \WPGraphQL\Type\Connection\PostObjects {
 		_deprecated_function( __METHOD__, '1.13.0', '\WPGraphQL\Type\Connection\PostObjects::get_connection_args' );
 		return parent::get_connection_args( $args, $post_type_object );
 	}
-
 }

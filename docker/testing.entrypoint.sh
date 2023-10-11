@@ -52,7 +52,7 @@ workdir="$PWD"
 echo "Moving to WordPress root directory ${WP_ROOT_FOLDER}."
 cd ${WP_ROOT_FOLDER}
 
-# Because we are starting apache independetly of the docker image,
+# Because we are starting apache independently of the docker image,
 # we set WORDPRESS environment variables so apache see them and used in the wp-config.php
 echo "export WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}" >> /etc/apache2/envvars
 echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars

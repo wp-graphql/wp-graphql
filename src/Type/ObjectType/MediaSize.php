@@ -34,14 +34,14 @@ class MediaSize {
 					'mimeType'  => [
 						'type'        => 'String',
 						'description' => __( 'The mime type of the referenced size', 'wp-graphql' ),
-						'resolve'     => static function ( $image, $args, $context, $info ) {
+						'resolve'     => static function ( $image ) {
 							return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
 						},
 					],
 					'fileSize'  => [
 						'type'        => 'Int',
 						'description' => __( 'The filesize of the resource', 'wp-graphql' ),
-						'resolve'     => static function ( $image, $args, $context, $info ) {
+						'resolve'     => static function ( $image ) {
 							if ( ! empty( $image['ID'] ) && ! empty( $image['file'] ) ) {
 								$original_file = get_attached_file( absint( $image['ID'] ) );
 								$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $image['file'] ) : null;
@@ -55,7 +55,7 @@ class MediaSize {
 					'sourceUrl' => [
 						'type'        => 'String',
 						'description' => __( 'The url of the referenced size', 'wp-graphql' ),
-						'resolve'     => static function ( $image, $args, $context, $info ) {
+						'resolve'     => static function ( $image ) {
 							$src_url = null;
 
 							if ( ! empty( $image['ID'] ) ) {

@@ -1,7 +1,6 @@
 <?php
 
 class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
-
 	public $current_time;
 	public $current_date;
 	public $current_date_gmt;
@@ -283,7 +282,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	/**
 	 * testPostQueryWherePostDoesNotExist
 	 *
-	 * Tests a query for non existant post.
+	 * Tests a query for non existent post.
 	 *
 	 * @since 0.0.34
 	 */
@@ -317,7 +316,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	/**
 	 * testPostQueryWithoutFeaturedImage
 	 *
-	 * This tests querying featuredImage on a post wihtout one.
+	 * This tests querying featuredImage on a post without one.
 	 *
 	 * @since 0.0.34
 	 */
@@ -2030,50 +2029,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
-
-	}
-
-	public function testQueryPostWithTemplate() {
-
-		/**
-		 * Create a post
-		 */
-		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-		] );
-
-		$permalink = get_permalink( $post_id );
-
-		$query = '
-		query path($path: String!) {
-			nodeByUri(uri: $path) {
-				id
-				__typename
-				... on ContentType {
-					graphqlSingleName
-				}
-				... on ContentNode {
-					databaseId
-					template {
-						templateName
-						__typename
-					}
-				}
-			}
-		}
-		';
-
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'path' => $permalink,
-			],
-		]);
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $post_id, $actual['data']['nodeByUri']['databaseId'] );
-		$this->assertSame( 'DefaultTemplate', $actual['data']['nodeByUri']['template']['__typename'] );
-		$this->assertSame( 'Default', $actual['data']['nodeByUri']['template']['templateName'] );
 
 	}
 

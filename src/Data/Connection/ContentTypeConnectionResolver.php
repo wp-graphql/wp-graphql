@@ -87,5 +87,4 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	public function should_execute() {
 		return true;
 	}
-
 }

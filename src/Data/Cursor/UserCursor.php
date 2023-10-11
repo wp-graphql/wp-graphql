@@ -95,7 +95,7 @@ class UserCursor extends AbstractCursor {
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_user() {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' );
 
 		return $this->cursor_node;
 	}
@@ -223,7 +223,7 @@ class UserCursor extends AbstractCursor {
 			$key = "mt{$this->meta_join_alias}.meta_value";
 		}
 
-		$this->meta_join_alias ++;
+		++$this->meta_join_alias;
 
 		$this->builder->add_field( $key, $meta_value, $meta_type, $order );
 	}
@@ -252,5 +252,4 @@ class UserCursor extends AbstractCursor {
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
 	}
-
 }

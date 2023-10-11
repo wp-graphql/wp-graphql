@@ -98,7 +98,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$query = new $queryClass( $this->query_args );
 
 		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
-			throw new InvariantViolation( __( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
+			throw new InvariantViolation( esc_html__( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
 		}
 
 		return $query;
@@ -149,10 +149,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				 * If the connection is from the RootQuery, check if the user
 				 * has the 'edit_posts' capability
 				 */
-			} else {
-				if ( ! current_user_can( 'edit_posts' ) ) {
+			} elseif ( ! current_user_can( 'edit_posts' ) ) {
 					$this->should_execute = false;
-				}
 			}
 		}
 
@@ -347,7 +345,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Convert meta_value_num to seperate meta_value value field which our
+		 * Convert meta_value_num to separate meta_value value field which our
 		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
@@ -410,7 +408,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			'in'            => 'post__in',
 			'mimeType'      => 'post_mime_type',
 			'nameIn'        => 'post_name__in',
-			'notIn'         => 'post__not_in', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+			'notIn'         => 'post__not_in',
 			'parent'        => 'post_parent',
 			'parentIn'      => 'post_parent__in',
 			'parentNotIn'   => 'post_parent__not_in',
@@ -621,5 +619,4 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return (bool) get_post( absint( $offset ) );
 	}
-
 }

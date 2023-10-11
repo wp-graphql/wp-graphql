@@ -289,7 +289,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			customInterface( id: $id idType:DATABASE_ID ) {
 				__typename
 				databaseId
-				# We can succesfully query for the testField, which is part of the interface and
+				# We can successfully query for the testField, which is part of the interface and
 				# was added to the post type via the registry utils
 				testField
 			}
@@ -820,7 +820,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -859,7 +859,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -898,7 +898,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"RootMutation") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }
@@ -1017,7 +1017,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query {
 		  __type(name:"GraphqlExcludeField") {
-		    fields { 
+		    fields {
 		      name
 		    }
 		  }

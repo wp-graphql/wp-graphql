@@ -150,10 +150,19 @@ class WPConnectionType {
 
 		$this->validate_config( $config );
 
-		$this->config          = $config;
-		$this->from_type       = $config['fromType'];
-		$this->to_type         = $config['toType'];
-		$this->from_field_name = $config['fromFieldName'];
+		$this->config    = $config;
+		$this->from_type = $config['fromType'];
+		$this->to_type   = $config['toType'];
+
+		/**
+		 * Filter the connection field name.
+		 *
+		 * @internal This filter is internal and used by rename_graphql_field(). It is not intended for use by external code.
+		 *
+		 * @param string $from_field_name The name of the field the connection will be exposed as.
+		 */
+		$this->from_field_name = apply_filters( "graphql_wp_connection_{$this->from_type}_from_field_name", $config['fromFieldName'] );
+
 		$this->connection_name = ! empty( $config['connectionTypeName'] ) ? $config['connectionTypeName'] : $this->get_connection_name( $this->from_type, $this->to_type, $this->from_field_name );
 
 		/**
@@ -199,15 +208,15 @@ class WPConnectionType {
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
-			throw new InvalidArgument( __( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
+			throw new InvalidArgument( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 	}
 
@@ -362,7 +371,7 @@ class WPConnectionType {
 					$this->connection_name
 				),
 				'fields'      => PageInfo::get_fields(),
-			] 
+			]
 		);
 	}
 
@@ -519,7 +528,7 @@ class WPConnectionType {
 				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
 				'auth'                  => $this->auth,
 				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
-				'description'           => ! empty( $this->config['description'] ) 
+				'description'           => ! empty( $this->config['description'] )
 					? $this->config['description']
 					: sprintf(
 						// translators: the placeholders are the name of the Types the connection is between.
@@ -537,7 +546,7 @@ class WPConnectionType {
 					return $resolve_connection( $root, $args, $context, $info );
 				},
 				'allowFieldUnderscores' => isset( $this->config['allowFieldUnderscores'] ) && true === $this->config['allowFieldUnderscores'],
-			] 
+			]
 		);
 
 		$this->type_registry->register_field(
@@ -562,7 +571,7 @@ class WPConnectionType {
 					// translators: %s is the name of the connection edge.
 					'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
 					'fields'      => PageInfo::get_fields(),
-				] 
+				]
 			);
 		}
 
@@ -581,7 +590,7 @@ class WPConnectionType {
 							'description' => sprintf( __( 'The connected %s Node', 'wp-graphql' ), $this->to_type ),
 						],
 					],
-				] 
+				]
 			);
 		}
 
@@ -611,7 +620,7 @@ class WPConnectionType {
 							'description' => sprintf( __( 'A list of connected %s Nodes', 'wp-graphql' ), $this->to_type ),
 						],
 					],
-				] 
+				]
 			);
 		}
 	}
@@ -646,7 +655,7 @@ class WPConnectionType {
 	/**
 	 * Checks whether the connection should be registered to the Schema.
 	 */
-	protected function should_register() : bool {
+	protected function should_register(): bool {
 
 		// Don't register if the connection has been excluded from the schema.
 		$excluded_connections = $this->type_registry->get_excluded_connections();
@@ -662,5 +671,4 @@ class WPConnectionType {
 
 		return true;
 	}
-
 }

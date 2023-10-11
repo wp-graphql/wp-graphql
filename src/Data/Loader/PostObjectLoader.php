@@ -87,7 +87,7 @@ class PostObjectLoader extends AbstractDataLoader {
 		$args       = [
 			'post_type'           => $post_types,
 			'post_status'         => 'any',
-			'posts_per_page'      => count( $keys ), // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			'posts_per_page'      => count( $keys ),
 			'post__in'            => $keys,
 			'orderby'             => 'post__in',
 			'no_found_rows'       => true,
@@ -133,5 +133,4 @@ class PostObjectLoader extends AbstractDataLoader {
 		}
 		return $loaded_posts;
 	}
-
 }

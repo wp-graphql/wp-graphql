@@ -84,7 +84,7 @@ class MediaItemUpdate {
 			 * If there's no existing mediaItem, throw an exception
 			 */
 			if ( null === $existing_media_item ) {
-				throw new UserError( __( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'No mediaItem with that ID could be found to update', 'wp-graphql' ) );
 			}
 
 			/**
@@ -92,14 +92,14 @@ class MediaItemUpdate {
 			 */
 			if ( $post_type_object->name !== $existing_media_item->post_type ) {
 				// translators: The placeholder is the ID of the mediaItem being edited
-				throw new UserError( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $input['id'] ) );
+				throw new UserError( esc_html( sprintf( __( 'The id %1$d is not of the type mediaItem', 'wp-graphql' ), $input['id'] ) ) );
 			}
 
 			/**
 			 * Stop now if a user isn't allowed to edit mediaItems
 			 */
 			if ( ! isset( $post_type_object->cap->edit_posts ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems', 'wp-graphql' ) );
 			}
 
 			$author_id = absint( $existing_media_item->post_author );
@@ -120,7 +120,7 @@ class MediaItemUpdate {
 			 * if not they need to be able to edit others posts to proceed
 			 */
 			if ( get_current_user_id() !== $author_id && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to update mediaItems as this user.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -132,7 +132,7 @@ class MediaItemUpdate {
 			$clean_args = wp_slash( (array) $post_args );
 
 			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
-				throw new UserError( __( 'The media item failed to update', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The media item failed to update', 'wp-graphql' ) );
 			}
 
 			/**
@@ -149,7 +149,7 @@ class MediaItemUpdate {
 					throw new UserError( esc_html( $error_message ) );
 				}
 
-				throw new UserError( __( 'The media item failed to update but no error was provided', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The media item failed to update but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**

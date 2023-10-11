@@ -90,7 +90,7 @@ class Menu extends Model {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
 				'slug'       => function () {
-					return ! empty( $this->data->slug ) ? $this->data->slug : null;
+					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
 				},
 				'locations'  => function () {
 					$menu_locations = get_theme_mod( 'nav_menu_locations' );
@@ -111,5 +111,4 @@ class Menu extends Model {
 			];
 		}
 	}
-
 }

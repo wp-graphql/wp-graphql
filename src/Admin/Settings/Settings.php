@@ -88,7 +88,7 @@ class Settings {
 			'graphql_general_settings',
 			[
 				'title' => __( 'WPGraphQL General Settings', 'wp-graphql' ),
-			] 
+			]
 		);
 
 		$custom_endpoint = apply_filters( 'graphql_endpoint', null );
@@ -237,7 +237,7 @@ class Settings {
 					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'public_introspection_enabled', 'off' ),
 					'disabled' => true === \WPGraphQL::debug(),
 				],
-			] 
+			]
 		);
 
 		// Action to hook into to register settings
@@ -258,7 +258,7 @@ class Settings {
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */
-	public function initialize_settings_page_scripts( string $hook_suffix ) : void {
+	public function initialize_settings_page_scripts( string $hook_suffix ): void {
 		$this->settings_api->admin_enqueue_scripts( $hook_suffix );
 	}
 
@@ -278,5 +278,4 @@ class Settings {
 		</div>
 		<?php
 	}
-
 }

@@ -24,5 +24,4 @@ class WPScalar extends CustomScalarType {
 
 		parent::__construct( $config );
 	}
-
 }

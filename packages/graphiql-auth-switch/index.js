@@ -1,5 +1,5 @@
 import {
-  AuthSwitchProvder,
+  AuthSwitchProvider,
   useAuthSwitchContext,
 } from "./AuthSwitchContext";
 import AuthSwitch from "./AuthSwitch";
@@ -50,11 +50,11 @@ hooks.addFilter("graphiql_fetcher", "graphiql-auth-switch", (res, props) => {
  * Wrap the App with the AuthSwitchProvider
  */
 hooks.addFilter("graphiql_app", "graphiql-auth", (app) => {
-  return <AuthSwitchProvder>{app}</AuthSwitchProvder>;
+  return <AuthSwitchProvider>{app}</AuthSwitchProvider>;
 });
 
 /**
- * Hook into the Toolbar to add tha AuthSwitch button, which allows users to toggle
+ * Hook into the Toolbar to add the AuthSwitch button, which allows users to toggle
  * between executing GraphQL queries as a public and authenticated user.
  */
 hooks.addFilter(

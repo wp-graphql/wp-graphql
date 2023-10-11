@@ -44,8 +44,8 @@ class Comments {
 						return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
 					},
 
-				] 
-			) 
+				]
+			)
 		);
 
 		register_graphql_connection(
@@ -61,8 +61,8 @@ class Comments {
 
 						return ! empty( $comment->comment_parent_id ) ? $resolver->one_to_one()->set_query_arg( 'comment__in', [ $comment->comment_parent_id ] )->get_connection() : null;
 					},
-				] 
-			) 
+				]
+			)
 		);
 
 		/**

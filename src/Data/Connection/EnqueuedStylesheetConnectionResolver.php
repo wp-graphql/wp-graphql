@@ -41,7 +41,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 				return $max;
 			},
 			10,
-			5 
+			5
 		);
 
 		parent::__construct( $source, $args, $context, $info );
@@ -125,5 +125,4 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	public function should_execute() {
 		return true;
 	}
-
 }

@@ -103,5 +103,4 @@ trait WPInterfaceTrait {
 
 		return array_unique( $new_interfaces );
 	}
-
 }

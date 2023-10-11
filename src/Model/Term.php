@@ -145,7 +145,7 @@ class Term extends Model {
 					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
 				},
 				'slug'                     => function () {
-					return ! empty( $this->data->slug ) ? $this->data->slug : null;
+					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
 				},
 				'termGroupId'              => function () {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
@@ -187,15 +187,18 @@ class Term extends Model {
 					return $queue;
 				},
 				'uri'                      => function () {
-					$link = get_term_link( $this->name );
+					$link = $this->link;
 
-					if ( is_wp_error( $link ) ) {
-						return null;
+					$maybe_url = wp_parse_url( $link );
+
+					// If this isn't a URL, we can assume it's been filtered and just return the link value.
+					if ( false === $maybe_url ) {
+						return $link;
 					}
 
-					$stripped_link = str_ireplace( home_url(), '', $link );
-
-					return trailingslashit( $stripped_link );
+					// Replace the home_url in the link in order to return a relative uri.
+					// For subdirectory multisites, this replaces the home_url which includes the subdirectory.
+					return ! empty( $link ) ? str_ireplace( home_url(), '', $link ) : null;
 				},
 			];
 
@@ -205,5 +208,4 @@ class Term extends Model {
 			}
 		}
 	}
-
 }
