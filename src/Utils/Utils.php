@@ -282,6 +282,8 @@ class Utils {
 			]
 		);
 
-		return ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+		$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+
+		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
 	}
 }

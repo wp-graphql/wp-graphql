@@ -176,7 +176,7 @@ class NodeResolver {
 			);
 		}
 
-		$query_vars =  $this->wp->query_vars;
+		$query_vars = $this->wp->query_vars;
 
 		/** @var \WP_Query $query */
 		$query = new $query_class( $query_vars );
