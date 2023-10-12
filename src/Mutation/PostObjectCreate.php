@@ -128,7 +128,7 @@ class PostObjectCreate {
 				'attachment',
 				'revision',
 			],
-			true 
+			true
 		) ) {
 			$fields['parentId'] = [
 				'type'        => 'ID',
@@ -176,7 +176,7 @@ class PostObjectCreate {
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
 				'description' => __( 'The Post object mutation type.', 'wp-graphql' ),
-				'resolve'     => static function ( $payload, $args, AppContext $context, ResolveInfo $info ) {
+				'resolve'     => static function ( $payload, $_args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
 					}
@@ -202,7 +202,7 @@ class PostObjectCreate {
 			 * Throw an exception if there's no input
 			 */
 			if ( ( empty( $post_type_object->name ) ) || ( empty( $input ) || ! is_array( $input ) ) ) {
-				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Mutation not processed. There was no input for the mutation or the post_type_object was invalid', 'wp-graphql' ) );
 			}
 
 			/**
@@ -210,7 +210,7 @@ class PostObjectCreate {
 			 */
 			if ( ! isset( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->create_posts ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-				throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to create %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) ) );
 			}
 
 			/**
@@ -224,12 +224,12 @@ class PostObjectCreate {
 				$author = ! empty( $input['authorId'] ) ? get_user_by( 'ID', $input['authorId'] ) : false;
 
 				if ( false === $author ) {
-					throw new UserError( __( 'The provided `authorId` is not a valid user', 'wp-graphql' ) );
+					throw new UserError( esc_html__( 'The provided `authorId` is not a valid user', 'wp-graphql' ) );
 				}
 
 				if ( get_current_user_id() !== $input['authorId'] && ( ! isset( $post_type_object->cap->edit_others_posts ) || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
 					// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-					throw new UserError( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+					throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to create %1$s as this user', 'wp-graphql' ), $post_type_object->graphql_plural_name ) ) );
 				}
 			}
 
@@ -273,7 +273,7 @@ class PostObjectCreate {
 					'draft',
 					'pending',
 				],
-				true 
+				true
 			) ) {
 				$intended_post_status = 'pending';
 			}
@@ -287,7 +287,7 @@ class PostObjectCreate {
 			$clean_args = wp_slash( (array) $post_args );
 
 			if ( ! is_array( $clean_args ) || empty( $clean_args ) ) {
-				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The object failed to create', 'wp-graphql' ) );
 			}
 
 			/**
@@ -304,7 +304,7 @@ class PostObjectCreate {
 					throw new UserError( esc_html( $error_message ) );
 				}
 
-				throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 			}
 
 			/**
@@ -348,7 +348,7 @@ class PostObjectCreate {
 				 */
 				$new_post = get_post( $post_id );
 				if ( empty( $new_post ) ) {
-					throw new UserError( __( 'The status of the post could not be set', 'wp-graphql' ) );
+					throw new UserError( esc_html__( 'The status of the post could not be set', 'wp-graphql' ) );
 				}
 
 				/**

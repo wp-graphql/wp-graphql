@@ -477,7 +477,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$query = '
 		mutation updateSettings( $input: UpdateSettingsInput! ) {
-			updateSettings( input: $input ) { 
+			updateSettings( input: $input ) {
 				allSettings {
 					mySettingGroupSettingsMySettingField
 				}

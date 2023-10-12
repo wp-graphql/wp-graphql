@@ -103,5 +103,4 @@ class RequireAuthentication extends QuerySecurityRule {
 			]
 		);
 	}
-
 }

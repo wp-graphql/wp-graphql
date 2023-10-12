@@ -140,7 +140,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			if ( $can_update && isset( $upgradable_list->response[ $plugin_file ] ) ) {
 				// An update is available.
 				$plugin_data['update'] = true;
-				// Exra info if known.
+				// Extra info if known.
 				$plugin_data = array_merge( (array) $upgradable_list->response[ $plugin_file ], [ 'update-supported' => true ], $plugin_data );
 
 				// Populate upgradable list.

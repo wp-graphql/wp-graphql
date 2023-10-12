@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Taxonomy as TaxonomyModel;
 
 class Taxonomy {
@@ -29,6 +30,18 @@ class Taxonomy {
 							$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 							$resolver             = new ContentTypeConnectionResolver( $taxonomy, $args, $context, $info );
 							$resolver->set_query_arg( 'contentTypeNames', $connected_post_types );
+							return $resolver->get_connection();
+						},
+					],
+					'connectedTerms'        => [
+						'toType'               => 'TermNode',
+						'connectionInterfaces' => [ 'TermNodeConnection' ],
+						'description'          => __( 'List of Term Nodes associated with the Taxonomy', 'wp-graphql' ),
+						'resolve'              => static function ( TaxonomyModel $source, $args, AppContext $context, ResolveInfo $info ) {
+							$taxonomies = [ $source->name ];
+
+							$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, $taxonomies );
+
 							return $resolver->get_connection();
 						},
 					],
@@ -92,7 +105,7 @@ class Taxonomy {
 					],
 					'restBase'            => [
 						'type'        => 'String',
-						'description' => __( 'Name of content type to diplay in REST API "wp/v2" namespace.', 'wp-graphql' ),
+						'description' => __( 'Name of content type to display in REST API "wp/v2" namespace.', 'wp-graphql' ),
 					],
 					'restControllerClass' => [
 						'type'        => 'String',

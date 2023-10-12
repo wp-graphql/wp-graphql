@@ -19,7 +19,7 @@ class HierarchicalNode {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ):void {
+	public static function register_type( TypeRegistry $type_registry ): void {
 		register_graphql_interface_type(
 			'HierarchicalNode',
 			[
@@ -41,5 +41,4 @@ class HierarchicalNode {
 			]
 		);
 	}
-
 }

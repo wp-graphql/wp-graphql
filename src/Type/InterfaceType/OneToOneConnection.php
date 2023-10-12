@@ -25,7 +25,7 @@ class OneToOneConnection {
 						'description' => __( 'The connected node', 'wp-graphql' ),
 					],
 				],
-			] 
+			]
 		);
 	}
 }

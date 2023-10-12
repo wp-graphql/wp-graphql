@@ -49,7 +49,7 @@ describe('Graphiql', function () {
     it ( 'renders errors when errors are expected', async () => {
 
         await loadGraphiQL();
-        await setQuery('{nonExistantFieldThatShouldError}');
+        await setQuery('{nonExistentFieldThatShouldError}');
         await setVariables({ first: 10 });
         await wait( 1000 );
         await executeQuery();

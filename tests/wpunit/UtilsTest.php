@@ -9,13 +9,13 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query_without_spaces = '{posts{nodes{id,title}}}';
 		$query_with_spaces = '{ posts { nodes { id, title } } }';
 		$query_with_line_breaks = '
-		{ 
-			posts { 
-				nodes { 
+		{
+			posts {
+				nodes {
 					id
-					title 
-				} 
-			} 
+					title
+				}
+			}
 		}';
 
 		$id1 = \WPGraphQL\Utils\Utils::get_query_id( $query_without_spaces );

@@ -137,7 +137,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * testPluginQueryWherePluginDoesNotExist
 	 *
-	 * Tests a query for non existant plugin.
+	 * Tests a query for non existent plugin.
 	 *
 	 * @since 0.0.5
 	 */

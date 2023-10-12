@@ -9,7 +9,25 @@ use GraphQL\Type\Definition\Type;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Request;
 use WPGraphQL\Router;
+use WPGraphQL\Utils\Utils;
 
+/**
+ * Formats a string for use as a GraphQL name.
+ *
+ * Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores.
+ *
+ * @see http://spec.graphql.org/draft/#sec-Names
+ * @uses graphql_pre_format_name filter.
+ *
+ * @param string $name The name to format.
+ * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
+ * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
+ *
+ * @since v1.17.0
+ */
+function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
+	return Utils::format_graphql_name( $name, $replacement, $regex );
+}
 /**
  * Formats the name of a field so that it plays nice with GraphiQL
  *
@@ -17,19 +35,25 @@ use WPGraphQL\Router;
  *
  * @return string Name of the field
  * @since  0.0.2
+ *
+ * @todo refactor to use Utils::format_field_name()
  */
 function graphql_format_field_name( $field_name ) {
-	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $field_name );
-	if ( ! empty( $replace_field_name ) ) {
-		$field_name = $replace_field_name;
+	// Bail if empty.
+	if ( empty( $field_name ) ) {
+		return '';
 	}
-	$replace_field_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $field_name ) );
-	if ( ! empty( $replace_field_name ) ) {
-		$field_name = $replace_field_name;
-	}
-	$field_name = lcfirst( $field_name );
 
-	return $field_name;
+	// First strip out the non-alphanumeric characters.
+	$formatted_field_name = graphql_format_name( $field_name, ' ', '/[^A-Za-z0-9]/i' );
+
+	// If the field name is empty, return the original field name for the error.
+	if ( empty( $formatted_field_name ) ) {
+		return $field_name;
+	}
+
+	// Then convert string to camelCase.
+	return str_replace( ' ', '', lcfirst( ucwords( $formatted_field_name ) ) );
 }
 
 /**
@@ -41,15 +65,20 @@ function graphql_format_field_name( $field_name ) {
  * @since  0.0.2
  */
 function graphql_format_type_name( $type_name ) {
-	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', ' ', $type_name );
-	if ( ! empty( $replace_type_name ) ) {
-		$type_name = $replace_type_name;
+	// Bail if empty.
+	if ( empty( $type_name ) ) {
+		return '';
 	}
-	$replace_type_name = preg_replace( '/[^A-Za-z0-9]/i', '', ucwords( $type_name ) );
-	if ( ! empty( $replace_type_name ) ) {
-		$type_name = $replace_type_name;
+
+	$formatted_type_name = graphql_format_name( $type_name, ' ', '/[^A-Za-z0-9]/i' );
+
+	// If the field name is empty, return the original field name for the error.
+	if ( empty( $formatted_type_name ) ) {
+		return $type_name;
 	}
-	return ucfirst( $type_name );
+
+	// Then convert the string to PascalCase.
+	return str_replace( ' ', '', ucfirst( ucwords( $formatted_type_name ) ) );
 }
 
 
@@ -82,20 +111,20 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  * @param string $query          The GraphQL query to run
  * @param string $operation_name The name of the operation
  * @param array  $variables      Variables to be passed to your GraphQL request
- * @param bool   $return_requst If true, return the Request object, else return the results of the request execution
+ * @param bool   $return_request If true, return the Request object, else return the results of the request execution
  *
  * @return array|\WPGraphQL\Request
  * @throws \Exception
  * @since  0.0.2
  */
-function do_graphql_request( $query, $operation_name = '', $variables = [], $return_requst = false ) {
+function do_graphql_request( $query, $operation_name = '', $variables = [], $return_request = false ) {
 	return graphql(
 		[
 			'query'          => $query,
 			'variables'      => $variables,
 			'operation_name' => $operation_name,
 		],
-		$return_requst
+		$return_request
 	);
 }
 
@@ -315,7 +344,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
  *
  * @since 1.13.0
  */
-function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_edge_field( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -336,7 +365,7 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
  *
  * @since 1.13.0
  */
-function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_edge_fields( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionEdge';
 
 	add_action(
@@ -358,7 +387,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ) : void {
+function register_graphql_connection_where_arg( string $from_type, string $to_type, string $field_name, array $config ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -379,7 +408,7 @@ function register_graphql_connection_where_arg( string $from_type, string $to_ty
  *
  * @since 1.13.0
  */
-function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ) : void {
+function register_graphql_connection_where_args( string $from_type, string $to_type, array $fields ): void {
 	$connection_name = ucfirst( $from_type ) . 'To' . ucfirst( $to_type ) . 'ConnectionWhereArgs';
 
 	add_action(
@@ -402,13 +431,32 @@ function register_graphql_connection_where_args( string $from_type, string $to_t
  * @since 1.3.4
  */
 function rename_graphql_field( string $type_name, string $field_name, string $new_field_name ) {
+	// Rename fields on the type.
 	add_filter(
 		"graphql_{$type_name}_fields",
 		static function ( $fields ) use ( $field_name, $new_field_name ) {
+			// Bail if the field doesn't exist.
+			if ( ! isset( $fields[ $field_name ] ) ) {
+				return $fields;
+			}
+
 			$fields[ $new_field_name ] = $fields[ $field_name ];
 			unset( $fields[ $field_name ] );
 
 			return $fields;
+		}
+	);
+
+	// Rename fields registered to the type by connections.
+	add_filter(
+		"graphql_wp_connection_{$type_name}_from_field_name",
+		static function ( $old_field_name ) use ( $field_name, $new_field_name ) {
+			// Bail if the field name doesn't match.
+			if ( $old_field_name !== $field_name ) {
+				return $old_field_name;
+			}
+
+			return $new_field_name;
 		}
 	);
 }
@@ -520,11 +568,11 @@ function register_graphql_scalar( string $type_name, array $config ) {
  *
  * @since 1.13.0
  */
-function deregister_graphql_type( string $type_name ) : void {
+function deregister_graphql_type( string $type_name ): void {
 	// Prevent the type from being registered to the scheme directly.
 	add_filter(
 		'graphql_excluded_types',
-		static function ( $excluded_types ) use ( $type_name ) : array {
+		static function ( $excluded_types ) use ( $type_name ): array {
 			// Normalize the types to prevent case sensitivity issues.
 			$type_name = strtolower( $type_name );
 			// If the type isn't already excluded, add it to the array.
@@ -540,7 +588,7 @@ function deregister_graphql_type( string $type_name ) : void {
 	// Prevent the type from being inherited as an interface.
 	add_filter(
 		'graphql_type_interfaces',
-		static function ( $interfaces ) use ( $type_name ) : array {
+		static function ( $interfaces ) use ( $type_name ): array {
 			// Normalize the needle and haystack to prevent case sensitivity issues.
 			$key = array_search(
 				strtolower( $type_name ),
@@ -586,7 +634,7 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
  *
  * @since 1.14.0
  */
-function deregister_graphql_connection( string $connection_name ) : void {
+function deregister_graphql_connection( string $connection_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $connection_name ) {
@@ -603,7 +651,7 @@ function deregister_graphql_connection( string $connection_name ) : void {
  *
  * @since 1.14.0
  */
-function deregister_graphql_mutation( string $mutation_name ) : void {
+function deregister_graphql_mutation( string $mutation_name ): void {
 	add_action(
 		get_graphql_register_action(),
 		static function ( TypeRegistry $type_registry ) use ( $mutation_name ) {
@@ -762,14 +810,14 @@ function register_graphql_settings_fields( string $group, array $fields ) {
 /**
  * Get an option value from GraphQL settings
  *
- * @param string $option_name  The key of the option to return
- * @param mixed  $default      The default value the setting should return if no value is set
- * @param string $section_name The settings group section that the option belongs to
+ * @param string $option_name   The key of the option to return
+ * @param mixed  $default_value The default value the setting should return if no value is set
+ * @param string $section_name  The settings group section that the option belongs to
  *
  * @return mixed|string|int|boolean
  * @since 0.13.0
  */
-function get_graphql_setting( string $option_name, $default = '', $section_name = 'graphql_general_settings' ) {
+function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {
 	$section_fields = get_option( $section_name );
 
 	/**
@@ -777,25 +825,25 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
 	 *
 	 * @param array  $section_fields The values of the fields stored for the section
 	 * @param string $section_name   The name of the section
-	 * @param mixed  $default        The default value for the option being retrieved
+	 * @param mixed  $default_value  The default value for the option being retrieved
 	 */
-	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default );
+	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
 	/**
 	 * Get the value from the stored data, or return the default
 	 */
-	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default;
+	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default_value;
 
 	/**
 	 * Filter the value before returning it
 	 *
 	 * @param mixed  $value          The value of the field
-	 * @param mixed  $default        The default value if there is no value set
+	 * @param mixed  $default_value  The default value if there is no value set
 	 * @param string $option_name    The name of the option
 	 * @param array  $section_fields The setting values within the section
 	 * @param string $section_name   The name of the section the setting belongs to
 	 */
-	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default, $option_name, $section_fields, $section_name );
+	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
 
 /**
@@ -806,7 +854,7 @@ function get_graphql_setting( string $option_name, $default = '', $section_name 
  */
 function graphql_get_endpoint() {
 
-	// get the endpoint from the setttings. default to 'graphql'
+	// get the endpoint from the settings. default to 'graphql'
 	$endpoint = get_graphql_setting( 'graphql_endpoint', 'graphql' );
 
 	/**
@@ -838,12 +886,12 @@ function graphql_get_endpoint_url() {
 if ( ! function_exists( 'array_key_first' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_first( array $array ) {
-		foreach ( $array as $key => $value ) {
+	function array_key_first( array $arr ) {
+		foreach ( $arr as $key => $value ) {
 			return $key;
 		}
 		return null;
@@ -860,13 +908,13 @@ if ( ! function_exists( 'array_key_first' ) ) {
 if ( ! function_exists( 'array_key_last' ) ) {
 
 	/**
-	 * @param array $array
+	 * @param array $arr
 	 *
 	 * @return int|string|null
 	 */
-	function array_key_last( array $array ) {
-		end( $array );
+	function array_key_last( array $arr ) {
+		end( $arr );
 
-		return key( $array );
+		return key( $arr );
 	}
 }

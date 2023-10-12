@@ -43,7 +43,7 @@ class PostObjects {
 
 					return $resolver->get_connection();
 				},
-			] 
+			]
 		);
 
 		register_graphql_connection(
@@ -62,7 +62,7 @@ class PostObjects {
 
 					return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
 				},
-			] 
+			]
 		);
 
 		register_graphql_connection(
@@ -82,7 +82,7 @@ class PostObjects {
 
 					return $resolver->one_to_one()->get_connection();
 				},
-			] 
+			]
 		);
 
 		register_graphql_connection(
@@ -118,7 +118,7 @@ class PostObjects {
 
 					return $resolver->one_to_one()->get_connection();
 				},
-			] 
+			]
 		);
 
 		register_graphql_connection(
@@ -141,7 +141,7 @@ class PostObjects {
 
 					return $resolver->get_connection();
 				},
-			] 
+			]
 		);
 
 		register_graphql_connection(
@@ -164,7 +164,7 @@ class PostObjects {
 
 					return $resolver->get_connection();
 				},
-			] 
+			]
 		);
 
 		/**
@@ -382,7 +382,7 @@ class PostObjects {
 				'type'        => [
 					'list_of' => 'PostObjectsConnectionOrderbyInput',
 				],
-				'description' => __( 'What paramater to use to order the objects by.', 'wp-graphql' ),
+				'description' => __( 'What parameter to use to order the objects by.', 'wp-graphql' ),
 			],
 
 			/**

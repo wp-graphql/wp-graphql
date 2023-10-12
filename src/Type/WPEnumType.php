@@ -25,22 +25,23 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
-	 * Generate a safe / sanitized name from a menu location slug.
+	 * Generate a safe / sanitized Enum value from a string.
 	 *
 	 * @param  string $value Enum value.
 	 * @return string
 	 */
 	public static function get_safe_name( string $value ) {
-		$replaced = preg_replace( '#[^A-z0-9]#', '_', $value );
+		$sanitized_enum_name = graphql_format_name( $value, '_' );
 
-		if ( ! empty( $replaced ) ) {
-			$value = $replaced;
+		// If the sanitized name is empty, we want to return the original value so it displays in the error.
+		if ( ! empty( $sanitized_enum_name ) ) {
+			$value = $sanitized_enum_name;
 		}
 
 		$safe_name = strtoupper( $value );
 
 		// Enum names must start with a letter or underscore.
-		if ( ! preg_match( '#^[_a-zA-Z]#', $value ) ) {
+		if ( ! preg_match( '#^[_a-zA-Z]#', $safe_name ) ) {
 			return '_' . $safe_name;
 		}
 
@@ -96,5 +97,4 @@ class WPEnumType extends EnumType {
 		 */
 		return $values;
 	}
-
 }

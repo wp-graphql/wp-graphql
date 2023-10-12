@@ -103,5 +103,4 @@ class TermObjectLoader extends AbstractDataLoader {
 
 		return $loaded;
 	}
-
 }

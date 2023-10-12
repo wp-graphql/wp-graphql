@@ -165,11 +165,13 @@ class NodeResolver {
 
 		if ( ! class_exists( $query_class ) ) {
 			throw new UserError(
-				sprintf(
-				/* translators: %s: The query class used to resolve the URI */
-					__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
-					$query_class
-				)
+				esc_html(
+					sprintf(
+					/* translators: %s: The query class used to resolve the URI */
+						__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
+						$query_class
+					)
+				) 
 			);
 		}
 
@@ -246,7 +248,7 @@ class NodeResolver {
 		// Resolve Post Types.
 		if ( $queried_object instanceof \WP_Post_Type ) {
 
-			// Bail if we're explictly requesting a different GraphQL type.
+			// Bail if we're explicitly requesting a different GraphQL type.
 			if ( ! $this->is_valid_node_type( 'ContentType' ) ) {
 				return null;
 			}
@@ -258,7 +260,7 @@ class NodeResolver {
 
 		// Resolve Users
 		if ( $queried_object instanceof \WP_User ) {
-			// Bail if we're explictly requesting a different GraphQL type.
+			// Bail if we're explicitly requesting a different GraphQL type.
 			if ( ! $this->is_valid_node_type( 'User' ) ) {
 				return null;
 			}
@@ -471,7 +473,7 @@ class NodeResolver {
 
 				// If we're processing a 404 request, clear the error var since we found something.
 				// @phpstan-ignore-next-line
-				if ( '404' == $error ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+				if ( '404' == $error ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					unset( $error );
 				}
 			}
@@ -583,7 +585,7 @@ class NodeResolver {
 	/**
 	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
 	 */
-	protected function is_valid_node_type( string $node_type ) : bool {
+	protected function is_valid_node_type( string $node_type ): bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;
 	}
 
@@ -594,7 +596,7 @@ class NodeResolver {
 	 *
 	 * @todo Replace `ContentType` with an `Archive` type.
 	 */
-	protected function resolve_home_page() : ?Deferred {
+	protected function resolve_home_page(): ?Deferred {
 		$page_id       = get_option( 'page_on_front', 0 );
 		$show_on_front = get_option( 'show_on_front', 'posts' );
 

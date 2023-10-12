@@ -105,8 +105,26 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * If the request is not authenticated, limit the query to users that have
 		 * published posts, as they're considered publicly facing users.
 		 */
-		if ( ! is_user_logged_in() ) {
+		if ( ! is_user_logged_in() && empty( $query_args['has_published_posts'] ) ) {
 			$query_args['has_published_posts'] = true;
+		}
+
+		/**
+		 * If `has_published_posts` is set to `attachment`, throw a warning.
+		 *
+		 * @todo Remove this when the `hasPublishedPosts` enum type changes.
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/2963
+		 */
+		if ( ! empty( $query_args['has_published_posts'] ) && 'attachment' === $query_args['has_published_posts'] ) {
+			graphql_debug(
+				__( 'The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value, and will be removed from the possible enum values in a future release.', 'wp-graphql' ),
+				[
+					'operationName' => $this->context->operationName ?? '',
+					'query'         => $this->context->query ?? '',
+					'variables'     => $this->context->variables ?? '',
+				]
+			);
 		}
 
 		if ( ! empty( $query_args['search'] ) ) {
@@ -149,7 +167,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Convert meta_value_num to seperate meta_value value field which our
+		 * Convert meta_value_num to separate meta_value value field which our
 		 * graphql_wp_term_query_cursor_pagination_support knowns how to handle
 		 */
 		if ( isset( $query_args['orderby'] ) && 'meta_value_num' === $query_args['orderby'] ) {
@@ -226,7 +244,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 			) &&
 			! current_user_can( 'list_users' )
 		) {
-			throw new UserError( __( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Sorry, you are not allowed to filter users by role.', 'wp-graphql' ) );
 		}
 
 		$arg_mapping = [

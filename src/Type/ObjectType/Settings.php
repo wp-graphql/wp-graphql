@@ -73,7 +73,7 @@ class Settings {
 
 				$group = DataSource::format_group_name( $setting_field['group'] );
 
-				$field_key = lcfirst( preg_replace( '[^a-zA-Z0-9 -]', ' ', $field_key ) );
+				$field_key = lcfirst( graphql_format_name( $field_key, ' ', '/[^a-zA-Z0-9 -]/' ) );
 				$field_key = lcfirst( str_replace( '_', ' ', ucwords( $field_key, '_' ) ) );
 				$field_key = lcfirst( str_replace( '-', ' ', ucwords( $field_key, '_' ) ) );
 				$field_key = lcfirst( str_replace( ' ', '', ucwords( $field_key, ' ' ) ) );
@@ -90,13 +90,13 @@ class Settings {
 						'type'        => $setting_field['type'],
 						// translators: %s is the name of the setting group.
 						'description' => sprintf( __( 'Settings of the the %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
-						'resolve'     => static function ( $root, $args, $context, $info ) use ( $setting_field, $key ) {
+						'resolve'     => static function () use ( $setting_field, $key ) {
 							/**
 							 * Check to see if the user querying the email field has the 'manage_options' capability
 							 * All other options should be public by default
 							 */
 							if ( 'admin_email' === $key && ! current_user_can( 'manage_options' ) ) {
-								throw new UserError( __( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+								throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 							}
 
 							$option = get_option( (string) $key );
@@ -126,7 +126,3 @@ class Settings {
 		return $fields;
 	}
 }
-
-
-
-

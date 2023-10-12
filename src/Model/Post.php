@@ -557,14 +557,11 @@ class Post extends Model {
 					}
 
 					if ( ! empty( $registered_templates[ $set_template ] ) ) {
-						$name          = ucwords( $registered_templates[ $set_template ] );
-						$replaced_name = preg_replace( '/[^\w]/', '', $name );
+						$name = Utils::format_type_name_for_wp_template( $registered_templates[ $set_template ], $set_template );
 
-						if ( ! empty( $replaced_name ) ) {
-							$name = $replaced_name;
-						}
-						if ( preg_match( '/^\d/', $name ) || false === strpos( strtolower( $name ), 'template' ) ) {
-							$name = 'Template_' . $name;
+						// If the name is empty, fallback to DefaultTemplate
+						if ( empty( $name ) ) {
+							$name = 'DefaultTemplate';
 						}
 
 						$template = [
@@ -849,8 +846,7 @@ class Post extends Model {
 				$this->fields[ $type_id ] = function () {
 					return absint( $this->data->ID );
 				};
-			};
+			}
 		}
 	}
-
 }
