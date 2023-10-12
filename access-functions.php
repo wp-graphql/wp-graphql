@@ -23,7 +23,7 @@ use WPGraphQL\Utils\Utils;
  * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
  * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
  *
- * @since @todo
+ * @since v1.17.0
  */
 function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
 	return Utils::format_graphql_name( $name, $replacement, $regex );

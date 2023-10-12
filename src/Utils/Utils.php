@@ -106,14 +106,14 @@ class Utils {
 	 * Format a GraphQL name according to the GraphQL spec.
 	 *
 	 * Per the GraphQL spec, characters in names are limited to Latin ASCII letter, digits, or underscores.
-	 * 
+	 *
 	 * @see http://spec.graphql.org/draft/#sec-Names
 	 *
 	 * @param string $name The name to format.
 	 * @param string $replacement The replacement character for invalid characters. Defaults to '_'.
 	 * @param string $regex The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
 	 *
-	 * @since @todo
+	 * @since v1.17.0
 	 */
 	public static function format_graphql_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
 		if ( empty( $name ) ) {
