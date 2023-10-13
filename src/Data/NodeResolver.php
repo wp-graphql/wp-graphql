@@ -236,7 +236,18 @@ class NodeResolver {
 
 			$post_id = $queried_object->ID;
 
-			if ( isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ) {
+			$as_preview = false;
+
+			// if asPreview isn't passed explicitly as an argument on a node,
+			// attempt to fill the value from the $query_vars passed on the URI as a query param
+			if ( is_array( $extra_query_vars ) && array_key_exists( 'asPreview', $extra_query_vars ) && null === $extra_query_vars['asPreview'] && isset( $query_vars['preview'] ) ) {
+				// note, the "preview" arg comes through as a string, not a boolean so we need to check 'true' as a string
+				$as_preview = 'true' === $query_vars['preview'];
+			}
+
+			$as_preview = isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ? true : $as_preview;
+
+			if ( true === $as_preview ) {
 				$post_id = Utils::get_post_preview_id( $post_id );
 			}
 

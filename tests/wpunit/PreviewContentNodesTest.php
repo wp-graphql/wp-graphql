@@ -133,7 +133,6 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'variables' => [
 				'id'        => get_preview_post_link( $draft_post ),
 				'idType'    => 'URI',
-				'asPreview' => true,
 			],
 		]);
 
@@ -175,6 +174,8 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'variables' => [
 				'id'        => get_preview_post_link( $draft_post ),
 				'idType'    => 'URI',
+				// setting asPreview to false overrides the
+				// ?preview=true query arg in the "uri" passed to the ID
 				'asPreview' => false,
 			],
 		]);

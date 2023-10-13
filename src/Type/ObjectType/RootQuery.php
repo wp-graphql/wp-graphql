@@ -210,7 +210,7 @@ class RootQuery {
 							],
 							'asPreview'   => [
 								'type'        => 'Boolean',
-								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+								'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' ),
 							],
 						],
 						'resolve'     => static function ( $_root, $args, AppContext $context ) {
@@ -221,7 +221,7 @@ class RootQuery {
 										$args['id'],
 										[
 											'nodeType'  => 'ContentNode',
-											'asPreview' => $args['asPreview'] ?? false,
+											'asPreview' => $args['asPreview'] ?? null,
 										]
 									);
 								case 'database_id':
@@ -682,7 +682,7 @@ class RootQuery {
 						],
 						'asPreview' => [
 							'type'        => 'Boolean',
-							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned.', 'wp-graphql' ),
+							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' ),
 						],
 					],
 					'resolve'     => static function ( $source, array $args, AppContext $context ) use ( $post_type_object ) {
@@ -696,7 +696,7 @@ class RootQuery {
 										'name'      => $args['id'],
 										'post_type' => $post_type_object->name,
 										'nodeType'  => 'ContentNode',
-										'asPreview' => $args['asPreview'] ?? false,
+										'asPreview' => $args['asPreview'] ?? null,
 									]
 								);
 							case 'uri':
@@ -706,7 +706,7 @@ class RootQuery {
 										'post_type' => $post_type_object->name,
 										'archive'   => false,
 										'nodeType'  => 'ContentNode',
-										'asPreview' => $args['asPreview'] ?? false,
+										'asPreview' => $args['asPreview'] ?? null,
 									]
 								);
 							case 'database_id':
@@ -748,7 +748,7 @@ class RootQuery {
 										'revision',
 										$post_type_object->name,
 									],
-									true 
+									true
 								) ) {
 									return null;
 								}
@@ -864,7 +864,7 @@ class RootQuery {
 										'revision',
 										$post_type_object->name,
 									],
-									true 
+									true
 								) ) {
 									return null;
 								}
