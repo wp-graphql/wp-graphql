@@ -7,6 +7,7 @@ use WP_Post;
 use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
 use WPGraphQL\Router;
+use WPGraphQL\Utils\Utils;
 
 class NodeResolver {
 
@@ -104,7 +105,7 @@ class NodeResolver {
 	 *
 	 * @param string       $uri              The path to be used as an identifier for the
 	 *                                             resource.
-	 * @param mixed|array|string $extra_query_vars Any extra query vars to consider
+	 * @param array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
 	 * @throws \Exception
@@ -171,12 +172,14 @@ class NodeResolver {
 						__( 'The query class %s used to resolve the URI does not exist.', 'wp-graphql' ),
 						$query_class
 					)
-				) 
+				)
 			);
 		}
 
+		$query_vars = $this->wp->query_vars;
+
 		/** @var \WP_Query $query */
-		$query = new $query_class( $this->wp->query_vars );
+		$query = new $query_class( $query_vars );
 
 		// is the query is an archive
 		if ( isset( $query->posts[0] ) && $query->posts[0] instanceof WP_Post && ! $query->is_archive() ) {
@@ -208,7 +211,6 @@ class NodeResolver {
 			return $node;
 		}
 
-
 		// Resolve Post Objects.
 		if ( $queried_object instanceof WP_Post ) {
 			// If Page for Posts is set, we need to return the Page archive, not the page.
@@ -232,7 +234,24 @@ class NodeResolver {
 				return null;
 			}
 
-			return ! empty( $queried_object->ID ) ? $this->context->get_loader( 'post' )->load_deferred( $queried_object->ID ) : null;
+			$post_id = $queried_object->ID;
+
+			$as_preview = false;
+
+			// if asPreview isn't passed explicitly as an argument on a node,
+			// attempt to fill the value from the $query_vars passed on the URI as a query param
+			if ( is_array( $extra_query_vars ) && array_key_exists( 'asPreview', $extra_query_vars ) && null === $extra_query_vars['asPreview'] && isset( $query_vars['preview'] ) ) {
+				// note, the "preview" arg comes through as a string, not a boolean so we need to check 'true' as a string
+				$as_preview = 'true' === $query_vars['preview'];
+			}
+
+			$as_preview = isset( $extra_query_vars['asPreview'] ) && true === $extra_query_vars['asPreview'] ? true : $as_preview;
+
+			if ( true === $as_preview ) {
+				$post_id = Utils::get_post_preview_id( $post_id );
+			}
+
+			return ! empty( $post_id ) ? $this->context->get_loader( 'post' )->load_deferred( $post_id ) : null;
 		}
 
 		// Resolve Terms.
@@ -303,7 +322,7 @@ class NodeResolver {
 				__( 'Cannot parse provided URI', 'wp-graphql' ),
 				[
 					'uri' => $uri,
-				] 
+				]
 			);
 			return null;
 		}
@@ -329,7 +348,7 @@ class NodeResolver {
 					__( 'Cannot return a resource for an external URI', 'wp-graphql' ),
 					[
 						'uri' => $uri,
-					] 
+					]
 				);
 				return null;
 			}
@@ -361,6 +380,7 @@ class NodeResolver {
 		$this->wp->query_vars['uri'] = $uri;
 
 		// Process PATH_INFO, REQUEST_URI, and 404 for permalinks.
+
 
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
@@ -563,6 +583,12 @@ class NodeResolver {
 
 		if ( isset( $error ) ) {
 			$this->wp->query_vars['error'] = $error;
+		}
+
+
+		// if the parsed url is ONLY a query, unset the pagename query var
+		if ( isset( $this->wp->query_vars['pagename'], $parsed_url['query'] ) && ( $parsed_url['query'] === $this->wp->query_vars['pagename'] ) ) {
+			unset( $this->wp->query_vars['pagename'] );
 		}
 
 		/**

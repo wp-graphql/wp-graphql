@@ -364,4 +364,29 @@ class Utils {
 		$id_parts = Relay::fromGlobalId( $id );
 		return $id_parts['type'] ?: null;
 	}
+
+	/**
+	 * Given a WP Post or post ID, this method attempts to resolve a preview post ID.
+	 *
+	 * @param int|\WP_Post $post The WP Post object or Post ID
+	 *
+	 * @return int A preview post ID if one exists, the current post ID if one doesn't exist.
+	 * @since @todo
+	 */
+	public static function get_post_preview_id( $post ): int {
+		$post_id = is_object( $post ) ? $post->ID : $post;
+
+		$revisions = wp_get_post_revisions(
+			$post_id,
+			[
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'check_enabled'  => false,
+			]
+		);
+
+		$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+
+		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
+	}
 }
