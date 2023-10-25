@@ -9,7 +9,7 @@ export const AppContext = createContext();
 export const useAppContext = () => useContext(AppContext);
 
 /**
- * Get the enpoint from the localized settings provided by WordPress when it enqueues the app
+ * Get the endpoint from the localized settings provided by WordPress when it enqueues the app
  * @returns
  */
 export const getEndpoint = () => {

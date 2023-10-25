@@ -41,7 +41,7 @@ class MenuItemLinkable {
 
 					return $type;
 				},
-			] 
+			]
 		);
 	}
 }

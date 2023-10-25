@@ -140,7 +140,7 @@ class SettingsRegistry {
 	}
 
 	/**
-	 * Initialize and registers the settings sections and fileds to WordPress
+	 * Initialize and registers the settings sections and fields to WordPress
 	 *
 	 * Usually this should be called at `admin_init` hook.
 	 *
@@ -531,7 +531,7 @@ class SettingsRegistry {
 		$selected = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
 		if ( empty( $selected ) ) {
-			$selected = isset( $args['defualt'] ) ? $args['defualt'] : null;
+			$selected = isset( $args['default'] ) ? $args['default'] : null;
 		}
 
 		$name = $args['section'] . '[' . $args['id'] . ']';
@@ -601,18 +601,18 @@ class SettingsRegistry {
 	 *
 	 * @param string $option  settings field name
 	 * @param string $section the section name this field belongs to
-	 * @param string $default default text if it's not found
+	 * @param string $default_value default text if it's not found
 	 *
 	 * @return string
 	 */
-	public function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $default_value = '' ) {
 		$options = get_option( $section );
 
 		if ( isset( $options[ $option ] ) ) {
 			return $options[ $option ];
 		}
 
-		return $default;
+		return $default_value;
 	}
 
 	/**

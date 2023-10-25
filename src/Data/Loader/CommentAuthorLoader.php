@@ -55,5 +55,4 @@ class CommentAuthorLoader extends AbstractDataLoader {
 		}
 		return $loaded;
 	}
-
 }

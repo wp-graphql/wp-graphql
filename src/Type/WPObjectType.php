@@ -223,5 +223,4 @@ class WPObjectType extends ObjectType {
 
 		return $fields;
 	}
-
 }

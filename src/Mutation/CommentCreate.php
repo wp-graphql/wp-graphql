@@ -126,24 +126,24 @@ class CommentCreate {
 			 * Throw an exception if there's no input
 			 */
 			if ( ( empty( $input ) || ! is_array( $input ) ) ) {
-				throw new UserError( __( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Mutation not processed. There was no input for the mutation or the comment_object was invalid', 'wp-graphql' ) );
 			}
 
 			$commented_on = get_post( absint( $input['commentOn'] ) );
 
 			if ( empty( $commented_on ) ) {
-				throw new UserError( __( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The ID of the node to comment on is invalid', 'wp-graphql' ) );
 			}
 
 			/**
 			 * Stop if post not open to comments
 			 */
 			if ( empty( $input['commentOn'] ) || 'closed' === $commented_on->comment_status ) {
-				throw new UserError( __( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, this post is closed to comments at the moment', 'wp-graphql' ) );
 			}
 
 			if ( '1' === get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-				throw new UserError( __( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'This site requires you to be logged in to leave a comment', 'wp-graphql' ) );
 			}
 
 			/**
@@ -172,7 +172,7 @@ class CommentCreate {
 				if ( ! empty( $error_message ) ) {
 					throw new UserError( esc_html( $error_message ) );
 				} else {
-					throw new UserError( __( 'The object failed to create but no error was provided', 'wp-graphql' ) );
+					throw new UserError( esc_html__( 'The object failed to create but no error was provided', 'wp-graphql' ) );
 				}
 			}
 
@@ -180,7 +180,7 @@ class CommentCreate {
 			 * If the $comment_id is empty, we should throw an exception
 			 */
 			if ( empty( $comment_id ) ) {
-				throw new UserError( __( 'The object failed to create', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The object failed to create', 'wp-graphql' ) );
 			}
 
 			/**

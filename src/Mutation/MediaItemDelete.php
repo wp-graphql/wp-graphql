@@ -90,13 +90,13 @@ class MediaItemDelete {
 
 			// If there's no existing mediaItem, throw an exception.
 			if ( null === $existing_media_item ) {
-				throw new UserError( __( 'No mediaItem with that ID could be found to delete', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'No mediaItem with that ID could be found to delete', 'wp-graphql' ) );
 			}
 
 			// Stop now if the post isn't a mediaItem.
 			if ( 'attachment' !== $existing_media_item->post_type ) {
 				// Translators: the placeholder is the post_type of the object being deleted
-				throw new UserError( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $existing_media_item->post_type ) );
+				throw new UserError( esc_html( sprintf( __( 'Sorry, the item you are trying to delete is a %1%s, not a mediaItem', 'wp-graphql' ), $existing_media_item->post_type ) ) );
 			}
 
 			/**
@@ -105,7 +105,7 @@ class MediaItemDelete {
 			$post_type_object = get_post_type_object( 'attachment' );
 
 			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, $media_item_id ) ) {
-				throw new UserError( __( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'Sorry, you are not allowed to delete mediaItems', 'wp-graphql' ) );
 			}
 
 			/**
@@ -119,7 +119,7 @@ class MediaItemDelete {
 			 */
 			if ( 'trash' === $existing_media_item->post_status && true !== $force_delete ) {
 				// translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-				throw new UserError( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) );
+				throw new UserError( esc_html( sprintf( __( 'The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $input['id'] ) ) );
 			}
 
 			/**

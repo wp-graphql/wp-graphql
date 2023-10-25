@@ -216,7 +216,7 @@ abstract class AbstractConnectionResolver {
 	protected function getLoader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
-			throw new Exception( __( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+			throw new Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 		}
 
 		return $this->context->get_loader( $name );
@@ -230,7 +230,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
-		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' );
 		return $this->get_args();
 	}
 
@@ -283,7 +283,7 @@ abstract class AbstractConnectionResolver {
 	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
-		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' );
 
 		return $this->set_query_arg( $key, $value );
 	}
@@ -354,7 +354,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Determine whether or not the query should execute.
 	 *
-	 * Return true to exeucte, return false to prevent execution.
+	 * Return true to execute, return false to prevent execution.
 	 *
 	 * Various criteria can be used to determine whether a Connection Query should
 	 * be executed.
@@ -400,7 +400,7 @@ abstract class AbstractConnectionResolver {
 		throw new Exception(
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
-				__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
+				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
 				static::class
 			)
 		);
@@ -431,7 +431,7 @@ abstract class AbstractConnectionResolver {
 	public function get_query_amount() {
 
 		/**
-		 * Filter the maximum number of posts per page that should be quried. The default is 100 to prevent queries from
+		 * Filter the maximum number of posts per page that should be queried. The default is 100 to prevent queries from
 		 * being exceedingly resource intensive, however individual systems can override this for their specific needs.
 		 *
 		 * This filter is intentionally applied AFTER the query_args filter, as
@@ -618,7 +618,7 @@ abstract class AbstractConnectionResolver {
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' );
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
@@ -639,12 +639,12 @@ abstract class AbstractConnectionResolver {
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
 		if ( ! empty( $cursor ) ) {
-			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$offset = substr( base64_decode( $cursor ), strlen( 'arrayconnection:' ) );
 		}
 
 		/**
 		 * We assume a numeric $offset is an integer ID.
-		 * If it isn't this method should be overriden by the child class.
+		 * If it isn't this method should be overridden by the child class.
 		 */
 		return is_numeric( $offset ) ? absint( $offset ) : $offset;
 	}
@@ -795,7 +795,7 @@ abstract class AbstractConnectionResolver {
 	 * @return string
 	 */
 	protected function get_cursor_for_node( $id ) {
-		return base64_encode( 'arrayconnection:' . $id ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		return base64_encode( 'arrayconnection:' . $id );
 	}
 
 	/**
@@ -865,7 +865,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * This filter allows for additional fields to be filtered into the pageInfo
 		 * of a connection, such as "totalCount", etc, because the filter has enough
-		 * context of the query, args, request, etc to be able to calcuate and return
+		 * context of the query, args, request, etc to be able to calculate and return
 		 * that information.
 		 *
 		 * example:
@@ -1027,5 +1027,4 @@ abstract class AbstractConnectionResolver {
 			}
 		);
 	}
-
 }

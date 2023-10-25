@@ -109,7 +109,7 @@ class PostObjectDelete {
 			 */
 			if ( ! isset( $post_type_object->cap->delete_post ) || ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
 				// translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
-				throw new UserError( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) );
+				throw new UserError( esc_html( sprintf( __( 'Sorry, you are not allowed to delete %1$s', 'wp-graphql' ), $post_type_object->graphql_plural_name ) ) );
 			}
 
 			/**
@@ -123,7 +123,7 @@ class PostObjectDelete {
 			$post_before_delete = ! empty( $post_id ) ? get_post( $post_id ) : null;
 
 			if ( empty( $post_before_delete ) ) {
-				throw new UserError( __( 'The post could not be deleted', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The post could not be deleted', 'wp-graphql' ) );
 			}
 
 			$post_before_delete = new Post( $post_before_delete );
@@ -134,7 +134,7 @@ class PostObjectDelete {
 			 */
 			if ( 'trash' === $post_before_delete->post_status && true !== $force_delete ) {
 				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
-				throw new UserError( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_id ) );
+				throw new UserError( esc_html( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_id ) ) );
 			}
 
 			// If post is locked and the override is not specified, do not allow the edit
@@ -143,7 +143,7 @@ class PostObjectDelete {
 				$user         = get_userdata( (int) $locked_user_id );
 				$display_name = isset( $user->display_name ) ? $user->display_name : 'unknown';
 				/* translators: %s: User's display name. */
-				throw new UserError( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), esc_html( $display_name ) ) );
+				throw new UserError( esc_html( sprintf( __( 'You cannot delete this item. %s is currently editing.', 'wp-graphql' ), $display_name ) ) );
 			}
 
 			/**

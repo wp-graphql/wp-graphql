@@ -28,7 +28,7 @@
 		"appsero/client": "1.2.1"
 	},
 	"require-dev": {
-		"automattic/vipwpcs": "^2.2",
+		"automattic/vipwpcs": "^3.0",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-cli": "^1.0",
 		"codeception/module-db": "^1.0",
@@ -60,11 +60,7 @@
 		}
 	},
 	"autoload": {
-		"files": [
-			"access-functions.php",
-			"activation.php",
-			"deactivation.php"
-		],
+		"files": [],
 		"psr-4": {
 			"WPGraphQL\\": "src/"
 		}

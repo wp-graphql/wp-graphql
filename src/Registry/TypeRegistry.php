@@ -225,7 +225,7 @@ class TypeRegistry {
 				function ( $type_name ) {
 					return $this->get_type( $type_name );
 				},
-				$this->eager_type_map 
+				$this->eager_type_map
 			);
 		}
 
@@ -560,7 +560,7 @@ class TypeRegistry {
 					'resolve'     => static function () {
 						return get_site_url();
 					},
-				] 
+				]
 			);
 		}
 
@@ -1087,7 +1087,7 @@ class TypeRegistry {
 						]
 					);
 					return $fields;
-				};
+				}
 
 				if ( isset( $fields[ $field_name ] ) ) {
 					graphql_debug(
@@ -1186,11 +1186,11 @@ class TypeRegistry {
 	 *
 	 * @since 1.14.0
 	 */
-	public function deregister_mutation( string $mutation_name ) : void {
+	public function deregister_mutation( string $mutation_name ): void {
 		// Prevent the mutation from being registered to the scheme directly.
 		add_filter(
 			'graphql_excluded_mutations',
-			static function ( $excluded_mutations ) use ( $mutation_name ) : array {
+			static function ( $excluded_mutations ) use ( $mutation_name ): array {
 				// Normalize the types to prevent case sensitivity issues.
 				$mutation_name = strtolower( $mutation_name );
 				// If the type isn't already excluded, add it to the array.
@@ -1213,7 +1213,7 @@ class TypeRegistry {
 	 *
 	 * @param string $connection_name The GraphQL connection name.
 	 */
-	public function deregister_connection( string $connection_name ) : void {
+	public function deregister_connection( string $connection_name ): void {
 		add_filter(
 			'graphql_excluded_connections',
 			static function ( $excluded_connections ) use ( $connection_name ) {
@@ -1273,7 +1273,7 @@ class TypeRegistry {
 	 *
 	 * @since 1.13.0
 	 */
-	public function get_excluded_types() : array {
+	public function get_excluded_types(): array {
 		if ( null === $this->excluded_types ) {
 			/**
 			 * Filter the list of GraphQL types to exclude from the schema.
@@ -1301,7 +1301,7 @@ class TypeRegistry {
 	 *
 	 * @since 1.14.0
 	 */
-	public function get_excluded_connections() : array {
+	public function get_excluded_connections(): array {
 		if ( null === $this->excluded_connections ) {
 			/**
 			 * Filter the list of GraphQL connections to excluded from the registry.
@@ -1326,7 +1326,7 @@ class TypeRegistry {
 	 *
 	 * @since 1.14.0
 	 */
-	public function get_excluded_mutations() : array {
+	public function get_excluded_mutations(): array {
 		if ( null === $this->excluded_mutations ) {
 			/**
 			 * Filter the list of GraphQL mutations to excluded from the registry.
@@ -1351,7 +1351,7 @@ class TypeRegistry {
 	 *
 	 * @param string|array $type The (possibly-wrapped) type name.
 	 */
-	protected function get_unmodified_type_name( $type ) : string {
+	protected function get_unmodified_type_name( $type ): string {
 		if ( ! is_array( $type ) ) {
 			return $type;
 		}
@@ -1360,5 +1360,4 @@ class TypeRegistry {
 
 		return $this->get_unmodified_type_name( $type );
 	}
-
 }

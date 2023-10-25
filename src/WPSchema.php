@@ -51,5 +51,4 @@ class WPSchema extends Schema {
 		$this->filterable_config = apply_filters( 'graphql_schema_config', $config, $type_registry );
 		parent::__construct( $this->filterable_config );
 	}
-
 }

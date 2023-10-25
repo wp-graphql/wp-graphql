@@ -72,15 +72,15 @@ class UserRegister {
 	public static function mutate_and_get_payload() {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			if ( ! get_option( 'users_can_register' ) ) {
-				throw new UserError( __( 'User registration is currently not allowed.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'User registration is currently not allowed.', 'wp-graphql' ) );
 			}
 
 			if ( empty( $input['username'] ) ) {
-				throw new UserError( __( 'A username was not provided.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'A username was not provided.', 'wp-graphql' ) );
 			}
 
 			if ( empty( $input['email'] ) ) {
-				throw new UserError( __( 'An email address was not provided.', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'An email address was not provided.', 'wp-graphql' ) );
 			}
 
 			/**
@@ -101,7 +101,7 @@ class UserRegister {
 				if ( ! empty( $error_message ) ) {
 					throw new UserError( esc_html( $error_message ) );
 				} else {
-					throw new UserError( __( 'The user failed to register but no error was provided', 'wp-graphql' ) );
+					throw new UserError( esc_html__( 'The user failed to register but no error was provided', 'wp-graphql' ) );
 				}
 			}
 
@@ -109,7 +109,7 @@ class UserRegister {
 			 * If the $user_id is empty, we should throw an exception
 			 */
 			if ( empty( $user_id ) ) {
-				throw new UserError( __( 'The user failed to create', 'wp-graphql' ) );
+				throw new UserError( esc_html__( 'The user failed to create', 'wp-graphql' ) );
 			}
 
 			/**
@@ -165,7 +165,7 @@ class UserRegister {
 	/**
 	 * @return bool False.
 	 */
-	public static function return_false() : bool {
+	public static function return_false(): bool {
 		return false;
 	}
 }

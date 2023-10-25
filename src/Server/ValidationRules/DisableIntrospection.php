@@ -21,5 +21,4 @@ class DisableIntrospection extends \GraphQL\Validator\Rules\DisableIntrospection
 
 		return $enabled;
 	}
-
 }
