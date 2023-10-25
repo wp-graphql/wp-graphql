@@ -103,6 +103,16 @@ class TermObjectCursor extends AbstractCursor {
 		$orderby = $this->get_query_var( 'orderby' );
 		$order   = $this->get_query_var( 'order' );
 
+		if ( 'name' === $orderby ) {
+			if ( '>' === $this->compare ) {
+				$order         = 'DESC';
+				$this->compare = '<';
+			} elseif ( '<' === $this->compare ) {
+				$this->compare = '>';
+				$order         = 'ASC';
+			}
+		}
+
 		/**
 		 * If $orderby is just a string just compare with it directly as DESC
 		 */
@@ -121,7 +131,6 @@ class TermObjectCursor extends AbstractCursor {
 		 * Stabilize cursor by consistently comparing with the ID.
 		 */
 		$this->compare_with_id_field();
-
 
 		return $this->to_sql();
 	}
