@@ -336,23 +336,11 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 	public function testPluginsQueryWithWhereArgs() {
 		$query = $this->getQuery();
 
-		$active_plugin   = 'WPGraphQL';
+		$active_plugin_name = 'WPGraphQL';
+		$active_plugin   = 'wp-graphql/wp-graphql.php';
 		global $wp_version;
 
-		$inactive_plugin = 'Akismet Anti-Spam: Spam Protection';
-
-		if ( version_compare( $wp_version, '6.2', '>') ) {
-			$inactive_plugin = 'Akismet Anti-spam: Spam Protection';
-		}
-
-		if ( version_compare( $wp_version, '6.2', '=') ) {
-			$inactive_plugin = 'Akismet Anti-Spam: Spam Protection';
-		}
-
-		// previous versions of WordPress have a different name of the plugin shipped with the docker images
-		if ( version_compare( $wp_version, '6.2', '<') ) {
-			$inactive_plugin = 'Akismet Anti-Spam';
-		}
+		$inactive_plugin = 'akismet/akismet.php';
 
 		wp_set_current_user( $this->admin );
 
@@ -360,14 +348,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$variables = [
 			'where' => [
-				'search' => $active_plugin,
+				'search' => $active_plugin_name,
 			],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertIsValidQueryResponse( $actual );
 
-		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $active_plugin, $actual_plugins );
 		$this->assertNotContains( $inactive_plugin, $actual_plugins );
 
@@ -383,7 +371,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertIsValidQueryResponse( $actual );
 
-		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $active_plugin, $actual_plugins );
 		$this->assertNotContains( $inactive_plugin, $actual_plugins );
 
@@ -393,7 +381,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertIsValidQueryResponse( $actual );
 
-		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $inactive_plugin, $actual_plugins );
 		$this->assertNotContains( $active_plugin, $actual_plugins );
 
@@ -407,7 +395,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertIsValidQueryResponse( $actual );
 
-		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'name' );
+		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $inactive_plugin, $actual_plugins );
 		$this->assertNotContains( $active_plugin, $actual_plugins );
 	}
