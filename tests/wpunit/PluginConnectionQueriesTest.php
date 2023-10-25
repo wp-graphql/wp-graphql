@@ -341,6 +341,10 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$inactive_plugin = 'Akismet Anti-Spam: Spam Protection';
 
+		if ( version_compare( $wp_version, '6.2', '>') ) {
+			$inactive_plugin = 'Akismet Anti-spam: Spam Protection';
+		}
+
 		// previous versions of WordPress have a different name of the plugin shipped with the docker images
 		if ( version_compare( $wp_version, '6.2', '<') ) {
 			$inactive_plugin = 'Akismet Anti-Spam';
