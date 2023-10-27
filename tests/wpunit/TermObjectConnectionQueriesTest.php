@@ -15,7 +15,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -49,7 +49,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		/**
 		 * Create the page
 		 */
-		$term_id = $this->factory()->term->create( $args );
+		$term_id = self::factory()->term->create( $args );
 
 		/**
 		 * Return the $id of the post_object that was created
@@ -75,8 +75,9 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$term_id             = $this->createTermObject(
 				[
 					'taxonomy'    => 'category',
-					'description' => $alphabet[ $i ],
-					'name'        => 'term-' . $alphabet[ $i ],
+					'description' => 'term description',
+					'name'        => 'Term-' . $alphabet[ $i ],
+					'slug'        => 'term-' . $alphabet[ $i ]
 				]
 			);
 			$created_terms[ $i ] = $term_id;
@@ -237,8 +238,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$expected = array_reverse( $expected );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
 		$this->assertEquals( true, $actual['data']['categories']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['categories']['pageInfo']['hasNextPage'] );
 
@@ -355,19 +354,19 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 
-		$parent_id = $this->factory->term->create( [
+		$parent_id = self::factory()->term->create( [
 			'taxonomy' => 'category',
 			'name'     => 'Parent Category',
 			'description' => 'parent category term_description'
 		] );
 
-		$child_id = $this->factory->term->create( [
+		$child_id = self::factory()->term->create( [
 			'taxonomy' => 'category',
 			'name'     => 'Child Category',
 			'parent'   => $parent_id,
 		] );
 
-		$post_id = $this->factory->post->create( [
+		$post_id = self::factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 		] );
@@ -564,20 +563,20 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	public function testObjectIdsWhereArgs() {
 		$query = $this->getQuery();
 
-		$term_one_id = $this->factory->term->create( [
+		$term_one_id = self::factory()->term->create( [
 			'taxonomy' => 'category',
 			'name'     => 'ObjectIdOne Category',
 		] );
-		$term_two_id = $this->factory->term->create( [
+		$term_two_id = self::factory()->term->create( [
 			'taxonomy' => 'category',
 			'name'     => 'ObjectIdTwo Category',
 		] );
 
-		$post_one_id = $this->factory->post->create( [
+		$post_one_id = self::factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 		] );
-		$post_two_id = $this->factory->post->create( [
+		$post_two_id = self::factory()->post->create( [
 			'post_type'   => 'post',
 			'post_status' => 'publish',
 		] );
@@ -602,13 +601,13 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testOrderWhereArgs() {
 
-		$category_id = $this->factory()->term->create([
+		$category_id = self::factory()->term->create([
 			'taxonomy' => 'category',
 			'name'     => 'high count',
 		]);
 
 		for ( $x = 0; $x <= 10; $x++ ) {
-			$post_id = $this->factory()->post->create([
+			$post_id = self::factory()->post->create([
 				'post_type'   => 'post',
 				'post_status' => 'publish',
 			]);
@@ -662,39 +661,42 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
-		$this->assertEquals( 2, count( $actual['data']['categories']['edges'] ) );
+		$expected_count = count( $expected ) ?? 2;
+		$this->assertEquals( $expected_count, count( $actual['data']['categories']['edges'] ) );
 		$expected = array_values( $expected );
 
 		$first  = $expected[0];
 		$second = $expected[1];
+		$last = end( $expected );
+
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first->term_id );
-		$end_cursor   = $this->toRelayId( 'arrayconnection', $second->term_id );
+		$end_cursor   = $this->toRelayId( 'arrayconnection', $last->term_id );
 
 		$this->assertEquals( $first->term_id, $actual['data']['categories']['edges'][0]['node']['databaseId'] );
 		$this->assertEquals( $first->term_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
 		$this->assertEquals( $start_cursor, $actual['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $second->term_id, $actual['data']['categories']['edges'][1]['node']['databaseId'] );
 		$this->assertEquals( $second->term_id, $actual['data']['categories']['nodes'][1]['databaseId'] );
-		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][1]['cursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][$expected_count - 1]['cursor'] );
 		$this->assertEquals( $start_cursor, $actual['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['categories']['pageInfo']['endCursor'] );
 	}
 
 	public function testQueryForAncestorsIsInCorrectOrder() {
 
-		$parent = $this->factory()->term->create([
+		$parent = self::factory()->term->create([
 			'taxonomy' => 'category',
 			'name' => 'A Parent' // name starts with A to trip up default ordering
 		]);
 
-		$child = $this->factory()->term->create([
+		$child = self::factory()->term->create([
 			'taxonomy' => 'category',
 			'name' => 'Child',
 			'parent' => $parent,
 		]);
 
-		$grandchild = $this->factory()->term->create([
+		$grandchild = self::factory()->term->create([
 			'taxonomy' => 'category',
 			'name' => 'Grandchild',
 			'parent' => $child,
@@ -754,6 +756,147 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		wp_delete_term( $child, 'category' );
 		wp_delete_term( $grandchild, 'category' );
 
+	}
+
+	public function testPaginateTermsWithDuplicateNamesAndOrderbyName() {
+
+		$parent_category = self::factory()->term->create([
+			'taxonomy' => 'category',
+			'name' => 'Parent Category',
+		]);
+
+		$child_categories = [];
+
+		for ( $x = 0; $x <= 10; $x++ ) {
+			$child_categories[] = self::factory()->term->create_and_get([
+				'taxonomy' => 'category',
+				'slug' => 'child-term-' . $x,
+				'name' => 'Child Term',
+				'parent' => $parent_category,
+			]);
+		}
+
+		$child_categories = array_reverse( $child_categories );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'first' => 3,
+				'after' => null,
+				'where' => [
+					'parent' => $parent_category,
+					'order' => 'ASC',
+					'orderby' => 'NAME'
+				]
+			]
+		]);
+
+
+
+		$expected = [
+			$child_categories[0],
+			$child_categories[1],
+			$child_categories[2],
+		];
+
+		codecept_debug( [
+			'$actual' => $actual,
+			'$expected' => $expected,
+		]);
+
+		$this->assertValidPagination( $expected, $actual );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'first' => 3,
+				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
+				'where' => [
+					'parent' => $parent_category,
+					'order' => 'ASC',
+					'orderby' => 'NAME'
+				]
+			]
+		]);
+
+		$expected = [
+			$child_categories[3],
+			$child_categories[4],
+			$child_categories[5],
+		];
+
+		$this->assertValidPagination( $expected, $actual );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'first' => 3,
+				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
+				'where' => [
+					'parent' => $parent_category,
+					'order' => 'ASC',
+					'orderby' => 'NAME'
+				]
+			]
+		]);
+
+		$expected = [
+			$child_categories[6],
+			$child_categories[7],
+			$child_categories[8],
+		];
+
+		$this->assertValidPagination( $expected, $actual );
+
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'last' => 3,
+				'before' => null,
+				'where' => [
+					'parent' => $parent_category,
+					'order' => 'ASC',
+					'orderby' => 'NAME'
+				]
+			]
+		]);
+
+		$expected = [
+			$child_categories[8],
+			$child_categories[9],
+			$child_categories[10]
+		];
+
+
+		$this->assertValidPagination( $expected, $actual );
+
+		$actual = $this->graphql([
+			'query' => $this->getQuery(),
+			'variables' => [
+				'last' => 3,
+				'before' => $actual['data']['categories']['pageInfo']['startCursor'],
+				'where' => [
+					'parent' => $parent_category,
+					'order' => 'ASC',
+					'orderby' => 'NAME'
+				]
+			]
+		]);
+
+		$expected = [
+			$child_categories[5],
+			$child_categories[6],
+			$child_categories[7]
+		];
+
+		$this->assertValidPagination( $expected, $actual );
+
+		foreach ( $child_categories as $child_category ) {
+			wp_delete_term( $child_category->term_id, 'category' );
+		}
+
+		wp_delete_term( $parent_category, 'category' );
 	}
 
 }

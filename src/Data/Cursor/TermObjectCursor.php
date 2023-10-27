@@ -128,12 +128,9 @@ class TermObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * If there's no cursor_compare fields applied then compare by the ID field.
+		 * Stabilize cursor by consistently comparing with the ID.
 		 */
-		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_id_field();
-		}
-
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}
