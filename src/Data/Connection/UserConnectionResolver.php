@@ -21,6 +21,11 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	protected $query;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected $query_class = '\WP_User_Query';
+
+	/**
 	 * Determines whether the query should execute at all. It's possible that in some
 	 * situations we may want to prevent the underlying query from executing at all.
 	 *
@@ -189,17 +194,22 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of the WP_User_Query with the args for the connection being executed
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
+	}
+
+	/**
+	 * Returns an instance of the query class with the args for the connection being executed.
+	 * Defaults to the WP_User_Query class.
 	 *
-	 * @return object|\WP_User_Query
-	 * @throws \Exception
+	 * @return mixed
 	 */
 	public function get_query() {
 		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_User_Query';
-
+		$queryClass = $this->query_class;
 		return new $queryClass( $this->query_args );
 	}
 

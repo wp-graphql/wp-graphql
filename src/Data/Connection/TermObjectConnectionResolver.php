@@ -21,6 +21,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	protected $query;
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected $query_class = '\WP_Term_Query';
+
+	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
 	 * @var string
@@ -154,13 +159,23 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of WP_Term_Query with the args mapped to the query
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
+	}
+
+	/**
+	 * Returns an instance of query class with the args mapped to the query.
+	 * Defaults to the WP_Term_Query class.
 	 *
-	 * @return \WP_Term_Query
-	 * @throws \Exception
+	 * @return mixed
 	 */
 	public function get_query() {
-		return new \WP_Term_Query( $this->query_args );
+		// Get query class.
+		$queryClass = $this->query_class;
+		return new $queryClass( $this->query_args );
 	}
 
 	/**

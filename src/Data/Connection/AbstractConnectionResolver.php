@@ -4,6 +4,7 @@ namespace WPGraphQL\Data\Connection;
 
 use Exception;
 use GraphQL\Deferred;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -115,6 +116,13 @@ abstract class AbstractConnectionResolver {
 	 * @var int
 	 */
 	protected $query_amount;
+
+	/**
+	 * The query class used to fetch the nodes.
+	 *
+	 * @var ?string
+	 */
+	protected $query_class;
 
 	/**
 	 * ConnectionResolver constructor.
@@ -301,6 +309,44 @@ abstract class AbstractConnectionResolver {
 		$this->query_args[ $key ] = $value;
 
 		return $this;
+	}
+
+	/**
+	 * Validates provided query class.
+	 *
+	 * @param string $class  Query class name.
+	 *
+	 * @throws \GraphQL\Error\InvariantViolation Query class not found.
+	 * 
+	 * @return void
+	 */
+	public function is_valid_query_class( $class ) {
+		// Validate query class. It will simply throw if class not found.
+		if ( ! class_exists( $class ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					/* translators: %1$s: Query class name, %2$s: Resolver class name, %3$s: connection field name. */
+					__( 'Class "%1$s" assigned to "%2$s" from the "%3$s" field could not be found', 'wp-graphql' ),
+					$class,
+					get_called_class(),
+					$this->info->fieldName
+				)
+			);
+		}
+	}
+
+	/**
+	 * Sets the connection Query class.
+	 *
+	 * @param string $class  Query class name.
+	 * 
+	 * @return void
+	 */
+	public function set_query_class( $class ) {
+		throw new Exception( sprintf(
+			__( 'Class %s does not implement a valid method `set_query_class()`.', 'wp-graphql' ),
+			get_called_class()
+		) );
 	}
 
 	/**

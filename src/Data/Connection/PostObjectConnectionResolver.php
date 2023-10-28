@@ -28,6 +28,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var \WP_Query|object
 	 */
 	protected $query;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected $query_class = '\WP_Query';
+
 	/**
 	 * PostObjectConnectionResolver constructor.
 	 *
@@ -83,19 +89,25 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns the query being executed
+	 * {@inheritDoc}
+	 */
+	public function set_query_class( $class ) {
+		$this->is_valid_query_class( $class );
+		$this->query_class = $class;
+	}
+
+	/**
+	 * Returns an instance of query class with the args mapped to the query.
+	 * Defaults to the WP_Query class.
 	 *
-	 * @return \WP_Query|object
+	 * @throws \InvariantViolation  Suppress Query filters.
 	 *
-	 * @throws \Exception
+	 * @return mixed
 	 */
 	public function get_query() {
 		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_Query';
-
-		$query = new $queryClass( $this->query_args );
+		$queryClass = $this->query_class;
+		$query      = new $queryClass( $this->query_args );
 
 		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
 			throw new InvariantViolation( esc_html__( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
