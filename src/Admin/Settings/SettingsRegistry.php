@@ -179,7 +179,7 @@ class SettingsRegistry {
 			add_settings_section( $id, $section['title'], $callback, $id );
 		}
 
-		//register settings fields
+		// register settings fields
 		foreach ( $this->settings_fields as $section => $field ) {
 			foreach ( $field as $option ) {
 				$name     = $option['name'];
