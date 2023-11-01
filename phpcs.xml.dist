@@ -96,20 +96,31 @@
 	<rule ref="WordPress-Docs">
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 
-		<!-- Should be re-enabled -->
-		<exclude name="Squiz.Commenting"/>
+		<!-- Should probably be added back -->
+		<exclude name="Squiz.Commenting.BlockComment"/>
+		<exclude name="Squiz.Commenting.ClassComment" />
+		<exclude name="Squiz.Commenting.DocCommentAlignment" />
+		<exclude name="Squiz.Commenting.FileComment" />
+		<exclude name="Squiz.Commenting.VariableComment" />
+		<exclude name="Squiz.Commenting.FunctionCommentThrowTag" />
+		<exclude name="Squiz.Commenting.InlineComment" />
 	</rule>
 
-		<!-- Additional commenting sniffs are in WPGraphQL-Docs -->
 	<rule ref="Squiz.Commenting.FunctionComment">
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
-
 		<!-- Should probably be added back -->
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
+		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch" />
+		<exclude name="Squiz.Commenting.FunctionComment.ThrowsNotCapital" />
+		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
 		<properties>
-				<property name="skipIfInheritdoc" value="true" />
+			<property name="skipIfInheritdoc" value="true" />
 		</properties>
 	</rule>
 
