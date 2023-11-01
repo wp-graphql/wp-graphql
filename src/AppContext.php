@@ -197,14 +197,14 @@ class AppContext {
 	/**
 	 * Returns the current connection
 	 *
-	 * @return mixed|null|string
+	 * @return mixed|string|null
 	 */
 	public function get_current_connection() {
 		return isset( $this->currentConnection ) ? $this->currentConnection : null;
 	}
 
 	/**
-	 * @return mixed|null|string
+	 * @return mixed|string|null
 	 * @deprecated use get_current_connection instead.
 	 */
 	public function getCurrentConnection() {

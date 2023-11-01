@@ -217,7 +217,7 @@ class Tracing {
 	 *
 	 * @param mixed $input The input to sanitize
 	 *
-	 * @return int|null|string
+	 * @return int|string|null
 	 */
 	public static function sanitize_trace_resolver_path( $input ) {
 		$sanitized_input = null;

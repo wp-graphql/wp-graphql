@@ -33,14 +33,14 @@ final class WPGraphQL {
 	/**
 	 * Holds the Schema def
 	 *
-	 * @var mixed|null|\WPGraphQL\WPSchema $schema The Schema used for the GraphQL API
+	 * @var mixed|\WPGraphQL\WPSchema|null $schema The Schema used for the GraphQL API
 	 */
 	protected static $schema;
 
 	/**
 	 * Holds the TypeRegistry instance
 	 *
-	 * @var mixed|null|\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
+	 * @var mixed|\WPGraphQL\Registry\TypeRegistry|null $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
 
@@ -787,7 +787,7 @@ final class WPGraphQL {
 	/**
 	 * Return the static schema if there is one
 	 *
-	 * @return null|string
+	 * @return string|null
 	 */
 	public static function get_static_schema() {
 		$schema = null;

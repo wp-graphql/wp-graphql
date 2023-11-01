@@ -70,11 +70,11 @@ class UserCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 *
-		 * @param null|\WP_User                        $pre_user The pre-filtered user node.
+		 * @param \WP_User|null                        $pre_user The pre-filtered user node.
 		 * @param int                                  $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
 		 *
-		 * @return null|\WP_User
+		 * @return \WP_User|null
 		 */
 		$pre_user = apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_user ) {

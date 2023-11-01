@@ -127,7 +127,7 @@ class Utils {
 		 *
 		 * Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 		 *
-		 * @param null|string $formatted_name The name to format. If not null, the result will be returned as the formatted name.
+		 * @param string|null $formatted_name The name to format. If not null, the result will be returned as the formatted name.
 		 * @param string $original_name       The name to format.
 		 * @param string $replacement         The replacement character for invalid characters. Defaults to '_'.
 		 * @param string $regex               The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.

@@ -372,7 +372,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The entry loaded from the dataloader to be used to generate a Model
 	 * @param mixed $key   The Key used to identify the loaded entry
 	 *
-	 * @return null|\WPGraphQL\Model\Model
+	 * @return \WPGraphQL\Model\Model|null
 	 */
 	protected function normalize_entry( $entry, $key ) {
 

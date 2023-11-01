@@ -653,7 +653,7 @@ class DataSource {
 	 * @param \WPGraphQL\AppContext                $context The Context of the GraphQL Request
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo for the GraphQL Request
 	 *
-	 * @return null|string
+	 * @return string|null
 	 * @throws \GraphQL\Error\UserError If no ID is passed.
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {

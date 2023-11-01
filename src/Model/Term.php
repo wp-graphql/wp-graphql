@@ -38,7 +38,7 @@ class Term extends Model {
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
-	 * @var null|\WP_Taxonomy $taxonomy_object
+	 * @var \WP_Taxonomy|null $taxonomy_object
 	 */
 	protected $taxonomy_object;
 

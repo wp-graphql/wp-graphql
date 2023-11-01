@@ -91,7 +91,7 @@ class Post extends Model {
 	/**
 	 * Stores the incoming post type object for the post being modeled
 	 *
-	 * @var null|\WP_Post_Type $post_type_object
+	 * @var \WP_Post_Type|null $post_type_object
 	 */
 	protected $post_type_object;
 
