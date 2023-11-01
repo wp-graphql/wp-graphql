@@ -113,6 +113,7 @@ class UserMutation {
 	 * @param string $mutation_name Name of the mutation being performed
 	 *
 	 * @return array
+	 * @throws \GraphQL\Error\UserError If the passed email address is invalid.
 	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
 		$insert_user_args = [];

@@ -85,7 +85,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return \WP_Query|object
 	 *
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\InvariantViolation If the query has been modified to suppress_filters.
 	 */
 	public function get_query() {
 		// Get query class.

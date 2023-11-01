@@ -205,6 +205,7 @@ class WPConnectionType {
 	 * @param array $config
 	 *
 	 * @return void
+	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {

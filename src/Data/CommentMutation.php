@@ -22,8 +22,8 @@ class CommentMutation {
 	 * @param string $mutation_name The name of the mutation being performed
 	 * @param bool   $update        Whether it's an update action
 	 *
-	 * @return array $output_args
-	 * @throws \Exception
+	 * @return array
+	 * @throws \GraphQL\Error\UserError If the comment author is not provided.
 	 */
 	public static function prepare_comment_object( array $input, array &$output_args, string $mutation_name, $update = false ) {
 		/**

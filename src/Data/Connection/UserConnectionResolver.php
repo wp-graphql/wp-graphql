@@ -232,6 +232,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * @param array $args The query "where" args
 	 *
 	 * @return array
+	 * @throws \GraphQL\Error\UserError If the user does not have the "list_users" capability.
 	 * @since  0.0.5
 	 */
 	protected function sanitize_input_fields( array $args ) {

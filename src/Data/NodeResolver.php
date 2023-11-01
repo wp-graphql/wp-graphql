@@ -108,7 +108,7 @@ class NodeResolver {
 	 * @param array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If the query class does not exist.
 	 */
 	public function resolve_uri( string $uri, $extra_query_vars = '' ) {
 

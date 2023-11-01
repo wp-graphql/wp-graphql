@@ -177,7 +177,7 @@ class DataSource {
 	 * @param string $taxonomy Name of the taxonomy you want to retrieve the taxonomy object for
 	 *
 	 * @return \WPGraphQL\Model\Taxonomy object
-	 * @throws \GraphQL\Error\UserError|\Exception
+	 * @throws \GraphQL\Error\UserError If no taxonomy is found with the name passed.
 	 * @since  0.0.5
 	 */
 	public static function resolve_taxonomy( $taxonomy ) {
@@ -317,7 +317,7 @@ class DataSource {
 	 * @param string $name Name of the user role you want info for
 	 *
 	 * @return \WPGraphQL\Model\UserRole
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If no user role is found with the name passed.
 	 * @since  0.0.30
 	 */
 	public static function resolve_user_role( $name ) {
@@ -561,6 +561,7 @@ class DataSource {
 	 * @param mixed $node The node to resolve the type of
 	 *
 	 * @return string
+	 * @throws \GraphQL\Error\UserError If no type is found for the node.
 	 */
 	public static function resolve_node_type( $node ) {
 		$type = null;
@@ -656,7 +657,7 @@ class DataSource {
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo for the GraphQL Request
 	 *
 	 * @return null|string
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If no ID is passed.
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
 		if ( empty( $global_id ) ) {

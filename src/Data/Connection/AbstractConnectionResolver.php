@@ -453,7 +453,7 @@ abstract class AbstractConnectionResolver {
 	 * This checks the $args to determine the amount requested, and if
 	 *
 	 * @return int|null
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If there is an issue with the pagination $args.
 	 */
 	public function get_amount_requested() {
 
