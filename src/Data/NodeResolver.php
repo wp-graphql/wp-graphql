@@ -103,9 +103,8 @@ class NodeResolver {
 	 * Given the URI of a resource, this method attempts to resolve it and return the
 	 * appropriate related object
 	 *
-	 * @param string       $uri              The path to be used as an identifier for the
-	 *                                             resource.
-	 * @param array|string $extra_query_vars Any extra query vars to consider
+	 * @param string                     $uri              The path to be used as an identifier for the resource.
+	 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
 	 * @throws \GraphQL\Error\UserError If the query class does not exist.
@@ -123,7 +122,7 @@ class NodeResolver {
 		 * @param string $uri The uri being searched.
 		 * @param \WPGraphQL\AppContext $content The app context.
 		 * @param \WP $wp WP object.
-		 * @param mixed|array|string $extra_query_vars Any extra query vars to consider.
+		 * @param mixed|array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
 		 */
 		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -308,8 +307,8 @@ class NodeResolver {
 	 *
 	 * Mimics WP::parse_request()
 	 *
-	 * @param string       $uri
-	 * @param array|string $extra_query_vars
+	 * @param string                     $uri
+	 * @param array<string,mixed>|string $extra_query_vars
 	 *
 	 * @return string|null The parsed uri.
 	 */
@@ -333,8 +332,8 @@ class NodeResolver {
 			$home_url = wp_parse_url( home_url() );
 
 			/**
-			 * @var array $home_url
-			 * @var array $site_url
+			 * @var array<string,mixed> $home_url
+			 * @var array<string,mixed> $site_url
 			 */
 			if ( ! in_array(
 				$parsed_url['host'],

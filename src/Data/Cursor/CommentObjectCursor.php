@@ -19,10 +19,9 @@ class CommentObjectCursor extends AbstractCursor {
 	public $cursor_node;
 
 	/**
-	 * @param array|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null             $cursor Whether to generate the before or after cursor. Default "after"
+	 * {@inheritDoc}
 	 *
-	 * @return void
+	 * @param array<string,mixed>|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.

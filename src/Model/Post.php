@@ -108,7 +108,6 @@ class Post extends Model {
 	 * @param \WP_Post $post The incoming WP_Post object that needs modeling.
 	 *
 	 * @return void
-	 * @throws \Exception
 	 */
 	public function __construct( WP_Post $post ) {
 
@@ -165,9 +164,7 @@ class Post extends Model {
 	}
 
 	/**
-	 * Setup the global data for the model to have proper context when resolving
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	public function setup() {
 		global $wp_query, $post;
@@ -274,9 +271,7 @@ class Post extends Model {
 	}
 
 	/**
-	 * Determine if the model is private
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function is_private() {
 
@@ -396,9 +391,7 @@ class Post extends Model {
 	}
 
 	/**
-	 * Initialize the Post object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

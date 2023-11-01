@@ -37,7 +37,7 @@ class Request {
 	/**
 	 * Request data.
 	 *
-	 * @var mixed|array|\GraphQL\Server\OperationParams
+	 * @var mixed|array<string,mixed>|\GraphQL\Server\OperationParams
 	 */
 	public $data;
 
@@ -87,7 +87,7 @@ class Request {
 	/**
 	 * Validation rules for execution.
 	 *
-	 * @var array
+	 * @var array<int|string,\GraphQL\Validator\Rules\ValidationRule>
 	 */
 	protected $validation_rules;
 
@@ -113,7 +113,7 @@ class Request {
 	/**
 	 * Constructor
 	 *
-	 * @param array $data The request data (for non-HTTP requests).
+	 * @param array<string,mixed> $data The request data.
 	 *
 	 * @return void
 	 *
@@ -199,7 +199,7 @@ class Request {
 	/**
 	 * Return the validation rules to use in the request
 	 *
-	 * @return array
+	 * @return array<int|string,\GraphQL\Validator\Rules\ValidationRule>
 	 */
 	protected function get_validation_rules(): array {
 		$validation_rules = GraphQL::getStandardValidationRules();
@@ -211,8 +211,8 @@ class Request {
 		/**
 		 * Return the validation rules to use in the request
 		 *
-		 * @param array   $validation_rules The validation rules to use in the request
-		 * @param \WPGraphQL\Request $request The Request instance
+		 * @param array<int|string,\GraphQL\Validator\Rules\ValidationRule> $validation_rules The validation rules to use in the request
+		 * @param \WPGraphQL\Request                                        $request          The Request instance
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
 	}
@@ -404,10 +404,10 @@ class Request {
 	/**
 	 * Performs actions and runs filters after execution completes
 	 *
-	 * @param mixed|array|object $response The response from execution. Array for batch requests,
+	 * @param mixed|array<string,mixed>|object $response The response from execution. Array for batch requests,
 	 *                                     single object for individual requests
 	 *
-	 * @return array
+	 * @return mixed[]
 	 *
 	 * @throws \Exception
 	 */
@@ -459,8 +459,8 @@ class Request {
 		/**
 		 * Run an action after GraphQL Execution
 		 *
-		 * @param array   $filtered_response The response of the entire operation. Could be a single operation or a batch operation
-		 * @param \WPGraphQL\Request $request Instance of the Request being executed
+		 * @param mixed[] $filtered_response The response of the entire operation. Could be a single operation or a batch operation
+		 * @param \WPGraphQL\Request  $request Instance of the Request being executed
 		 */
 		do_action( 'graphql_after_execute', $filtered_response, $this );
 
@@ -473,10 +473,10 @@ class Request {
 	/**
 	 * Apply filters and do actions after GraphQL execution
 	 *
-	 * @param mixed|array|object $response The response for your GraphQL request
-	 * @param mixed|int|null     $key      The array key of the params for batch requests
+	 * @param mixed|array<string,mixed>|object $response The response for your GraphQL request
+	 * @param mixed|int|null                   $key      The array key of the params for batch requests
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function after_execute_actions( $response, $key = null ) {
 
@@ -598,7 +598,7 @@ class Request {
 	/**
 	 * Execute an internal request (graphql() function call).
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function execute() {
@@ -677,7 +677,7 @@ class Request {
 	/**
 	 * Execute an HTTP request.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function execute_http() {

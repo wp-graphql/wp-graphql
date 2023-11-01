@@ -13,10 +13,11 @@ use WPGraphQL\Model\Term;
 class TermObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key The Key to identify the user role by
+	 * {@inheritDoc}
 	 *
-	 * @return mixed|\WPGraphQL\Model\Term
+	 * @param mixed|\WP_Term $entry The Term Object
+	 *
+	 * @return \WPGraphQL\Model\Term|\WPGraphQL\Model\Menu|null
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -45,19 +46,11 @@ class TermObjectLoader extends AbstractDataLoader {
 	}
 
 	/**
-	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
-	 * posts as the values
-	 *
-	 * Note that order of returned values must match exactly the order of keys.
-	 * If some entry is not available for given key - it must include null for the missing key.
-	 *
-	 * For example:
-	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
+	 * {@inheritDoc}
 	 *
 	 * @param int[] $keys
 	 *
-	 * @return array
-	 * @throws \Exception
+	 * @return array<int, mixed>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

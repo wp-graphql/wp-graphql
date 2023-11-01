@@ -40,7 +40,7 @@ class PostObjectCreate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		$fields = [
@@ -169,7 +169,7 @@ class PostObjectCreate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [

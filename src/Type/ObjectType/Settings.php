@@ -42,7 +42,7 @@ class Settings {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_fields( TypeRegistry $type_registry ) {
 		$registered_settings = DataSource::get_allowed_settings( $type_registry );

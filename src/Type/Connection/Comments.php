@@ -87,9 +87,9 @@ class Comments {
 	 * Given an array of $args, this returns the connection config, merging the provided args
 	 * with the defaults
 	 *
-	 * @param array $args
+	 * @param array<string,mixed> $args
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public static function get_connection_config( $args = [] ) {
 		$defaults = [
@@ -108,7 +108,7 @@ class Comments {
 	/**
 	 * This returns the connection args for the Comment connection
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_connection_args() {
 		return [

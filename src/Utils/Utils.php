@@ -34,11 +34,11 @@ class Utils {
 	/**
 	 * Maps new input query args and sanitizes the input
 	 *
-	 * @param mixed|array|string $args The raw query args from the GraphQL query
-	 * @param mixed|array|string $map  The mapping of where each of the args should go
-	 * @param string[]           $skip Fields to skipped and not be added to the output array.
+	 * @param mixed|mixed[]|string $args The raw query args from the GraphQL query
+	 * @param mixed|mixed[]|string $map  The mapping of where each of the args should go
+	 * @param string[]             $skip Fields to skipped and not be added to the output array.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map, $skip = [] ) {
@@ -253,7 +253,7 @@ class Utils {
 	/**
 	 * Helper function that defines the allowed HTML to use on the Settings pages
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_allowed_wp_kses_html() {
 		$allowed_atts = [
@@ -352,7 +352,7 @@ class Utils {
 	 *
 	 * @param int|string $id The encoded Node ID.
 	 *
-	 * @return bool|null
+	 * @return ?string
 	 */
 	public static function get_node_type_from_id( $id ) {
 		if ( is_numeric( $id ) ) {

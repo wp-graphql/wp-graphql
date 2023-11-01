@@ -26,12 +26,9 @@ class UserCursor extends AbstractCursor {
 	public $meta_join_alias = 0;
 
 	/**
-	 * UserCursor constructor.
+	 * {@inheritDoc}
 	 *
-	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null          $cursor     Whether to generate the before or after cursor
-	 *
-	 * @return void
+	 * @param array<string,mixed>|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
@@ -91,6 +88,8 @@ class UserCursor extends AbstractCursor {
 	}
 
 	/**
+	 * Deprecated in favor of get_cursor_node().
+	 *
 	 * @return ?\WP_User
 	 * @deprecated 1.9.0
 	 */

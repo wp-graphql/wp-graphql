@@ -97,9 +97,9 @@ class QueryLog {
 	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
 	 * @param string              $operation_name The operation name being executed
 	 * @param string              $request        The GraphQL Request being made
-	 * @param array               $variables      The variables sent with the request
+	 * @param array<string,mixed> $variables      The variables sent with the request
 	 *
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function show_results( $response, $schema, $operation_name, $request, $variables ) {
 		$query_log = $this->get_query_log();
@@ -124,7 +124,7 @@ class QueryLog {
 	/**
 	 * Return the query log produced from the logs stored by WPDB.
 	 *
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function get_query_log() {
 		global $wpdb;

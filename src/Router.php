@@ -115,9 +115,9 @@ class Router {
 	/**
 	 * Adds the query_var for the route
 	 *
-	 * @param array $query_vars The array of whitelisted query variables.
+	 * @param string[] $query_vars The array of whitelisted query variables.
 	 *
-	 * @return array
+	 * @return string[]
 	 * @since  0.0.1
 	 */
 	public static function add_query_var( $query_vars ) {
@@ -292,7 +292,7 @@ class Router {
 	/**
 	 * Returns an array of headers to send with the HTTP response
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	protected static function get_response_headers() {
 
@@ -528,12 +528,12 @@ class Router {
 	/**
 	 * Prepare headers for response
 	 *
-	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $response The response of the GraphQL Request.
-	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
-	 * @param string                                        $query           The GraphQL query.
-	 * @param string                                        $operation_name  The operation name of the GraphQL Request.
-	 * @param mixed|array|null                              $variables       The variables applied to the GraphQL Request.
-	 * @param mixed|\WP_User|null                           $user The current user object.
+	 * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $response        The response of the GraphQL Request.
+	 * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
+	 * @param string                                                      $query           The GraphQL query.
+	 * @param string                                                      $operation_name  The operation name of the GraphQL Request.
+	 * @param mixed|array<string,mixed>|null                              $variables       The variables applied to the GraphQL Request.
+	 * @param mixed|\WP_User|null                                         $user            The current user object.
 	 *
 	 * @return void
 	 */

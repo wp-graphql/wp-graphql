@@ -44,7 +44,7 @@ class DataSource {
 	/**
 	 * Stores an array of node definitions
 	 *
-	 * @var array $node_definition
+	 * @var mixed[] $node_definition
 	 * @since  0.0.4
 	 */
 	protected static $node_definition;
@@ -87,7 +87,7 @@ class DataSource {
 	 * Wrapper for the CommentsConnectionResolver class
 	 *
 	 * @param mixed                                $source  The object the connection is coming from
-	 * @param array                                $args    Query args to pass to the connection resolver
+	 * @param array<string,mixed>                  $args    Query args to pass to the connection resolver
 	 * @param \WPGraphQL\AppContext                $context The context of the query to pass along
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
@@ -105,11 +105,11 @@ class DataSource {
 	 * Wrapper for PluginsConnectionResolver::resolve
 	 *
 	 * @param mixed                                $source  The object the connection is coming from
-	 * @param array                                $args    Array of arguments to pass to resolve method
+	 * @param array<string,mixed>                  $args    Array of arguments to pass to resolve method
 	 * @param \WPGraphQL\AppContext                $context AppContext object passed down
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
-	 * @return array
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since  0.0.5
 	 */
@@ -155,10 +155,10 @@ class DataSource {
 	 * Wrapper for PostObjectsConnectionResolver
 	 *
 	 * @param mixed                                $source    The object the connection is coming from
-	 * @param array                                $args      Arguments to pass to the resolve method
+	 * @param array<string,mixed>                  $args      Arguments to pass to the resolve method
 	 * @param \WPGraphQL\AppContext                $context AppContext object to pass down
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
-	 * @param mixed|string|array                   $post_type Post type of the post we are trying to resolve
+	 * @param mixed|string|string[]                $post_type Post type of the post we are trying to resolve
 	 *
 	 * @return mixed
 	 * @throws \Exception
@@ -224,12 +224,12 @@ class DataSource {
 	 * Wrapper for TermObjectConnectionResolver::resolve
 	 *
 	 * @param mixed                                $source   The object the connection is coming from
-	 * @param array                                $args     Array of args to be passed to the resolve method
+	 * @param array<string,mixed>                  $args     Array of args to be passed to the resolve method
 	 * @param \WPGraphQL\AppContext                $context The AppContext object to be passed down
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 * @param string                               $taxonomy The name of the taxonomy the term belongs to
 	 *
-	 * @return array
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since  0.0.5
 	 */
@@ -262,11 +262,11 @@ class DataSource {
 	 * Wrapper for the ThemesConnectionResolver::resolve method
 	 *
 	 * @param mixed                                $source  The object the connection is coming from
-	 * @param array                                $args    Passes an array of arguments to the resolve method
+	 * @param array<string,mixed>                  $args    Passes an array of arguments to the resolve method
 	 * @param \WPGraphQL\AppContext                $context The AppContext object to be passed down
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
-	 * @return array
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since  0.0.5
 	 */
@@ -296,11 +296,11 @@ class DataSource {
 	 * Wrapper for the UsersConnectionResolver::resolve method
 	 *
 	 * @param mixed                                $source  The object the connection is coming from
-	 * @param array                                $args    Array of args to be passed down to the resolve method
+	 * @param array<string,mixed>                  $args    Array of args to be passed down to the resolve method
 	 * @param \WPGraphQL\AppContext                $context The AppContext object to be passed down
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
-	 * @return array
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since  0.0.5
 	 */
@@ -338,8 +338,8 @@ class DataSource {
 	/**
 	 * Resolve the avatar for a user
 	 *
-	 * @param int   $user_id ID of the user to get the avatar data for
-	 * @param array $args    The args to pass to the get_avatar_data function
+	 * @param int                 $user_id ID of the user to get the avatar data for
+	 * @param array<string,mixed> $args    The args to pass to the get_avatar_data function
 	 *
 	 * @return \WPGraphQL\Model\Avatar|null
 	 * @throws \Exception
@@ -358,12 +358,12 @@ class DataSource {
 	/**
 	 * Resolve the connection data for user roles
 	 *
-	 * @param array                                $source  The Query results
-	 * @param array                                $args    The query arguments
+	 * @param mixed[]                              $source  The Query results
+	 * @param array<string,mixed>                  $args    The query arguments
 	 * @param \WPGraphQL\AppContext                $context The AppContext passed down to the query
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
-	 * @return array
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 */
 	public static function resolve_user_role_connection( $source, array $args, AppContext $context, ResolveInfo $info ) {
@@ -400,7 +400,7 @@ class DataSource {
 	 * @param string                           $group
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array $settings_groups[ $group ]
+	 * @return array<string,mixed>
 	 */
 	public static function get_setting_group_fields( string $group, TypeRegistry $type_registry ) {
 
@@ -417,7 +417,7 @@ class DataSource {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array $allowed_settings_by_group
+	 * @return array<string,array<string,mixed>> $allowed_settings_by_group
 	 */
 	public static function get_allowed_settings_by_group( TypeRegistry $type_registry ) {
 
@@ -473,7 +473,7 @@ class DataSource {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array $allowed_settings
+	 * @return array<string,array<string,mixed>> $allowed_settings
 	 */
 	public static function get_allowed_settings( TypeRegistry $type_registry ) {
 
@@ -519,9 +519,7 @@ class DataSource {
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
 		 * the GraphQL Schema.
 		 *
-		 * @param array $allowed_settings
-		 *
-		 * @return array
+		 * @param array<string,array<string,mixed>> $allowed_settings
 		 */
 		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
 	}
@@ -532,7 +530,7 @@ class DataSource {
 	 * The first method is the way we resolve an ID to its object. The second is the way we resolve
 	 * an object that implements node to its type.
 	 *
-	 * @return array
+	 * @return mixed[]
 	 * @throws \GraphQL\Error\UserError
 	 */
 	public static function get_node_definition() {
@@ -699,7 +697,7 @@ class DataSource {
 	/**
 	 * Returns array of nav menu location names
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function get_registered_nav_menu_locations() {
 		global $_wp_registered_nav_menus;

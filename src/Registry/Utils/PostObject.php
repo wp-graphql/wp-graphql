@@ -105,7 +105,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected static function get_connections( WP_Post_Type $post_type_object ) {
 		$connections = [];
@@ -254,7 +254,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected static function get_interfaces( WP_Post_Type $post_type_object ) {
 		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier', 'NodeWithTemplate' ];
@@ -337,7 +337,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
 	 */
 	public static function get_fields( WP_Post_Type $post_type_object ) {

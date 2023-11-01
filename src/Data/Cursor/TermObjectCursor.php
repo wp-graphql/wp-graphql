@@ -25,6 +25,8 @@ class TermObjectCursor extends AbstractCursor {
 	protected $id_key = 't.term_id';
 
 	/**
+	 * Deprecated in favor of get_query_var()
+	 *
 	 * @param string $name The name of the query var to get
 	 *
 	 * @deprecated 1.9.0
@@ -69,7 +71,9 @@ class TermObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @return ?\WP_Term ;
+	 * Deprecated in favor of get_cursor_node().
+	 *
+	 * @return ?\WP_Term
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_term() {
@@ -79,11 +83,9 @@ class TermObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * Build and return the SQL statement to add to the Query
+	 * {@inheritDoc}
 	 *
-	 * @param array|null $fields The fields from the CursorBuilder to convert to SQL
-	 *
-	 * @return string
+	 * @param array<array<string,mixed>>[]|null $fields The fields from the CursorBuilder to convert to SQL.
 	 */
 	public function to_sql( $fields = null ) {
 		$sql = $this->builder->to_sql( $fields );

@@ -45,7 +45,7 @@ class TermObjectUnion {
 	/**
 	 * Returns a list of possible types for the union
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public static function get_possible_types() {
 		$possible_types = [];

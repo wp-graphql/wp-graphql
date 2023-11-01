@@ -10,7 +10,7 @@ class CursorBuilder {
 	/**
 	 * The field by which the cursor should order the results
 	 *
-	 * @var array
+	 * @var array<string,mixed>[]
 	 */
 	public $fields;
 
@@ -99,7 +99,7 @@ class CursorBuilder {
 	/**
 	 * Generate the final SQL string to be appended to WHERE clause
 	 *
-	 * @param mixed|array|null $fields
+	 * @param mixed|array<string,mixed>[]|null $fields
 	 *
 	 * @return string
 	 */

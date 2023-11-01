@@ -14,14 +14,14 @@ class WPMutationType {
 	/**
 	 * Configuration for how auth should be handled on the connection field
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $auth;
 
 	/**
 	 * The config for the connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $config;
 
@@ -42,14 +42,14 @@ class WPMutationType {
 	/**
 	 * The mutation input field config.
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $input_fields;
 
 	/**
 	 * The mutation output field config.
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $output_fields;
 
@@ -70,7 +70,7 @@ class WPMutationType {
 	/**
 	 * WPMutationType constructor.
 	 *
-	 * @param array                            $config        The config array for the mutation
+	 * @param array<string,mixed>              $config        The config array for the mutation
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
 	 * @throws \Exception
@@ -122,7 +122,7 @@ class WPMutationType {
 	/**
 	 * Validates that essential key/value pairs are passed to the connection config.
 	 *
-	 * @param array $config
+	 * @param array<string,mixed> $config The config array for the mutation
 	 */
 	protected function is_config_valid( array $config ): bool {
 		$is_valid = true;
@@ -152,6 +152,8 @@ class WPMutationType {
 
 	/**
 	 * Gets the mutation input fields.
+	 *
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_input_fields(): array {
 		$input_fields = [
@@ -170,6 +172,8 @@ class WPMutationType {
 
 	/**
 	 * Gets the mutation output fields.
+	 *
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_output_fields(): array {
 		$output_fields = [

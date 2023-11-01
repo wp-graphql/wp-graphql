@@ -11,7 +11,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $query;
 
@@ -49,7 +49,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public function get_query() {
 		// File has not loaded.
@@ -243,7 +243,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function should_execute() {
 		if ( is_multisite() ) {

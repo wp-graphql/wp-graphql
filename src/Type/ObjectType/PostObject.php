@@ -38,7 +38,7 @@ class PostObject {
 	 *
 	 * @deprecated 1.12.0
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_fields( $post_type_object, $type_registry ) {
 		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::get_fields()' );

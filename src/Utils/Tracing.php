@@ -24,7 +24,7 @@ class Tracing {
 	/**
 	 * Stores the logs for the trace
 	 *
-	 * @var array
+	 * @var array<string,mixed>[]
 	 */
 	public $trace_logs = [];
 
@@ -59,7 +59,7 @@ class Tracing {
 	/**
 	 * The trace for the current field being resolved
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	public $field_trace = [];
 
@@ -136,7 +136,7 @@ class Tracing {
 	 * Initialize tracing for an individual field
 	 *
 	 * @param mixed                                $source         The source passed down the Resolve Tree
-	 * @param array                                $args           The args for the field
+	 * @param array<string,mixed>                  $args           The args for the field
 	 * @param \WPGraphQL\AppContext                $context The AppContext passed down the ResolveTree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
 	 *
@@ -190,9 +190,9 @@ class Tracing {
 	/**
 	 * Given a trace, sanitizes the values and returns the sanitized_trace
 	 *
-	 * @param array $trace
+	 * @param array<string,mixed> $trace
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 */
 	public function sanitize_resolver_trace( array $trace ) {
 		$sanitized_trace                = [];
@@ -250,22 +250,22 @@ class Tracing {
 	 * Filter the headers that WPGraphQL returns to include headers that indicate the WPGraphQL
 	 * server supports Apollo Tracing and Credentials
 	 *
-	 * @param array $headers The headers to return
+	 * @param string[] $headers The headers to return
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function return_tracing_headers( array $headers ) {
 		$headers[] = 'X-Insights-Include-Tracing';
 		$headers[] = 'X-Apollo-Tracing';
 		$headers[] = 'Credentials';
 
-		return (array) $headers;
+		return $headers;
 	}
 
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed|array|object $response       The response of the GraphQL Request
+	 * @param mixed|array<string,mixed>|object $response       The response of the GraphQL Request
 	 *
 	 * @return mixed $response
 	 */
@@ -332,7 +332,7 @@ class Tracing {
 	/**
 	 * Get the trace to add to the response
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_trace(): array {
 
@@ -350,9 +350,9 @@ class Tracing {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array   $trace     The trace to return
+		 * @param array<string,mixed>      $trace     The trace to return
 		 * @param \WPGraphQL\Utils\Tracing $instance The Tracing class instance
 		 */
-		return apply_filters( 'graphql_tracing_response', (array) $trace, $this );
+		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}
 }

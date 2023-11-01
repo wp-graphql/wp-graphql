@@ -34,7 +34,7 @@ class PageInfo {
 	/**
 	 * Get the fields for the PageInfo Type
 	 *
-	 * @return array[]
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_fields(): array {
 		return [

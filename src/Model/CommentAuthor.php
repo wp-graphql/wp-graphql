@@ -29,8 +29,6 @@ class CommentAuthor extends Model {
 	 * CommentAuthor constructor.
 	 *
 	 * @param \WP_Comment $comment_author The incoming comment author array to be modeled
-	 *
-	 * @throws \Exception
 	 */
 	public function __construct( WP_Comment $comment_author ) {
 		$this->data = $comment_author;
@@ -38,9 +36,7 @@ class CommentAuthor extends Model {
 	}
 
 	/**
-	 * Initializes the object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

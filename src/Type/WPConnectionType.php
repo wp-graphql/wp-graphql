@@ -16,33 +16,33 @@ class WPConnectionType {
 	/**
 	 * Configuration for how auth should be handled on the connection field
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $auth;
 
 	/**
 	 * The config for the connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $config;
 
 	/**
 	 * The args configured for the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $connection_args;
 
 	/**
 	 * The fields to show on the connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $connection_fields;
 
 	/**
-	 * @var array|null
+	 * @var string[]|null
 	 */
 	protected $connection_interfaces;
 
@@ -56,7 +56,7 @@ class WPConnectionType {
 	/**
 	 * The fields to expose on the edge of the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $edge_fields;
 
@@ -124,16 +124,15 @@ class WPConnectionType {
 	/**
 	 * The where args for the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $where_args;
 
 	/**
 	 * WPConnectionType constructor.
 	 *
-	 * @param array                            $config        The config array for the connection
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type
-	 *                                                        Registry
+	 * @param array<string,mixed>              $config        The config array for the connection
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
 	 * @throws \Exception
 	 */
@@ -202,7 +201,7 @@ class WPConnectionType {
 	/**
 	 * Validates that essential key/value pairs are passed to the connection config.
 	 *
-	 * @param array $config
+	 * @param array<string,mixed> $config The config array for the connection.
 	 *
 	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
 	 */
@@ -223,9 +222,9 @@ class WPConnectionType {
 	/**
 	 * Get edge interfaces
 	 *
-	 * @param array $interfaces
+	 * @param string[] $interfaces Array of interfaces to add to the edge.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected function get_edge_interfaces( array $interfaces = [] ): array {
 
@@ -446,7 +445,7 @@ class WPConnectionType {
 	/**
 	 * Returns fields to be used on the connection
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_connection_fields(): array {
 		return array_merge(
@@ -472,7 +471,7 @@ class WPConnectionType {
 	/**
 	 * Get the args used for pagination on connections
 	 *
-	 * @return array|array[]
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_pagination_args(): array {
 		if ( true === $this->one_to_one ) {

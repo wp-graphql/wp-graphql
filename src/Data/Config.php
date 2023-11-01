@@ -366,11 +366,11 @@ class Config {
 	 * we can move forward or backward from a particular record, instead of typical offset
 	 * pagination which can be much more expensive and less accurate.
 	 *
-	 * @param array $pieces     Terms query SQL clauses.
-	 * @param array $taxonomies An array of taxonomies.
-	 * @param array $args       An array of terms query arguments.
+	 * @param array<string,mixed> $pieces     Terms query SQL clauses.
+	 * @param string[]            $taxonomies An array of taxonomies.
+	 * @param array<string,mixed> $args       An array of terms query arguments.
 	 *
-	 * @return array $pieces
+	 * @return array<string,mixed> $pieces
 	 */
 	public function graphql_wp_term_query_cursor_pagination_support( array $pieces, array $taxonomies, array $args ) {
 
@@ -382,10 +382,10 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param null|array $pre_pieces The pre-filtered term query SQL clauses.
-		 * @param array      $pieces     Terms query SQL clauses.
-		 * @param array      $taxonomies An array of taxonomies.
-		 * @param array      $args       An array of terms query arguments.
+		 * @param null|array<string,mixed> $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param array<string,mixed>      $pieces     Terms query SQL clauses.
+		 * @param string[]                 $taxonomies An array of taxonomies.
+		 * @param array<string,mixed>      $args       An array of terms query arguments.
 		 *
 		 * @return null|array
 		 */
@@ -440,10 +440,10 @@ class Config {
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
 	 * is a GraphQL Request and before or after cursors are passed to the query
 	 *
-	 * @param array             $pieces A compacted array of comment query clauses.
-	 * @param \WP_Comment_Query $query Current instance of WP_Comment_Query, passed by reference.
+	 * @param array<string,mixed> $pieces A compacted array of comment query clauses.
+	 * @param \WP_Comment_Query   $query Current instance of WP_Comment_Query, passed by reference.
 	 *
-	 * @return array $pieces
+	 * @return array<string,mixed> $pieces
 	 */
 	public function graphql_wp_comments_query_cursor_pagination_support( array $pieces, WP_Comment_Query $query ) {
 

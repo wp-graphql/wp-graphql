@@ -23,10 +23,7 @@ class PostObjectCursor extends AbstractCursor {
 	public $meta_join_alias = 0;
 
 	/**
-	 * PostCursor constructor.
-	 *
-	 * @param array|\WP_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null     $cursor Whether to generate the before or after cursor. Default "after"
+	 * {@inheritDoc}
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.

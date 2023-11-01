@@ -116,7 +116,7 @@ class Users {
 	/**
 	 * Returns the connection args for use in the connection
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_connection_args() {
 		return [
