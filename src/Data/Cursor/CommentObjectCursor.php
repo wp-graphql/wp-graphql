@@ -139,7 +139,7 @@ class CommentObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public function to_sql() {
 		$sql = $this->builder->to_sql();

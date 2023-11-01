@@ -20,7 +20,7 @@ class PostObjectMutation {
 	 *
 	 * @param array        $input             The input for the mutation
 	 * @param \WP_Post_Type $post_type_object The post_type_object for the type of post being
- * mutated
+	 * mutated
 	 * @param string       $mutation_name     The name of the mutation being performed
 	 *
 	 * @return array $insert_post_args
@@ -126,7 +126,7 @@ class PostObjectMutation {
 	 *                                            mutated
 	 * @param array        $input                 The input for the mutation
 	 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being
- * mutated
+	 * mutated
 	 * @param string       $mutation_name         The name of the mutation (ex: create, update,
 	 *                                            delete)
 	 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
@@ -230,7 +230,7 @@ class PostObjectMutation {
 	 * @param int          $post_id           The ID of the postObject being mutated
 	 * @param array        $input             The input for the mutation
 	 * @param \WP_Post_Type $post_type_object The Post Type Object for the type of post being
- * mutated
+	 * mutated
 	 * @param string       $mutation_name     The name of the mutation (ex: create, update, delete)
 	 *
 	 * @return void
