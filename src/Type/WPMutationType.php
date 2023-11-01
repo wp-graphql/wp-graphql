@@ -70,7 +70,7 @@ class WPMutationType {
 	/**
 	 * WPMutationType constructor.
 	 *
-	 * @param array        $config        The config array for the mutation
+	 * @param array                            $config        The config array for the mutation
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
 	 * @throws \Exception

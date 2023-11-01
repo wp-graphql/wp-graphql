@@ -44,7 +44,7 @@ class DebugLog {
 	 * Given a message and a config, a log entry is added to the log
 	 *
 	 * @param mixed|string|array $message The debug log message
-	 * @param array  $config Config for the debug log. Set type and any additional information to log
+	 * @param array              $config Config for the debug log. Set type and any additional information to log
 	 *
 	 * @return array
 	 */

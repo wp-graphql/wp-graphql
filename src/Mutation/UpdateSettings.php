@@ -148,7 +148,7 @@ class UpdateSettings {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param array $input The mutation input
+	 * @param array                            $input The mutation input
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array

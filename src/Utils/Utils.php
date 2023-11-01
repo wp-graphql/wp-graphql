@@ -82,7 +82,7 @@ class Utils {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
-	 * @param string $date_gmt GMT publication time.
+	 * @param string            $date_gmt GMT publication time.
 	 * @param mixed|string|null $date Optional. Local publication time. Default null.
 	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.

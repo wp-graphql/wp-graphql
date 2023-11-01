@@ -653,7 +653,7 @@ class TypeRegistry {
 	/**
 	 * Add a Type to the Registry
 	 *
-	 * @param string $type_name The name of the type to register
+	 * @param string                                    $type_name The name of the type to register
 	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The config for the type
 	 *
 	 * @throws \Exception
@@ -724,7 +724,7 @@ class TypeRegistry {
 	 * Add an Object Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param array $config The configuration of the type
+	 * @param array  $config The configuration of the type
 	 *
 	 * @throws \Exception
 	 * @return void
@@ -752,7 +752,7 @@ class TypeRegistry {
 	 * Add an Enum Type to the registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param array  $config he configuration of the type
 	 *
 	 * @return void
 	 * @throws \Exception
@@ -766,7 +766,7 @@ class TypeRegistry {
 	 * Add an Input Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param array  $config he configuration of the type
 	 *
 	 * @return void
 	 * @throws \Exception
@@ -780,7 +780,7 @@ class TypeRegistry {
 	 * Add a Union Type to the Registry
 	 *
 	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param array  $config he configuration of the type
 	 *
 	 * @return void
 	 *
@@ -792,7 +792,7 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param string $type_name The name of the type to register
+	 * @param string                                    $type_name The name of the type to register
 	 * @param mixed|array|\GraphQL\Type\Definition\Type $config he configuration of the type
 	 *
 	 * @return mixed|array|\GraphQL\Type\Definition\Type|null

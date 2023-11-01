@@ -308,7 +308,7 @@ class NodeResolver {
 	 *
 	 * Mimics WP::parse_request()
 	 *
-	 * @param string $uri
+	 * @param string       $uri
 	 * @param array|string $extra_query_vars
 	 *
 	 * @return string|null The parsed uri.

@@ -205,10 +205,10 @@ class UserMutation {
 	 * This updates additional data related to the user object after the initial mutation has
 	 * happened
 	 *
-	 * @param int         $user_id       The ID of the user being mutated
-	 * @param array       $input         The input data from the GraphQL query
-	 * @param string      $mutation_name Name of the mutation currently being run
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+	 * @param int                                  $user_id       The ID of the user being mutated
+	 * @param array                                $input         The input data from the GraphQL query
+	 * @param string                               $mutation_name Name of the mutation currently being run
+	 * @param \WPGraphQL\AppContext                $context The AppContext passed down the resolve tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 	 *
 	 * @return void

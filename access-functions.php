@@ -215,8 +215,8 @@ function register_graphql_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string                                     $type_name The name of the Type to register
- * @param mixed|array|\GraphQL\Type\Definition\Type  $config    The Type config
+ * @param string                                    $type_name The name of the Type to register
+ * @param mixed|array|\GraphQL\Type\Definition\Type $config    The Type config
  *
  * @throws \Exception
  * @return void
@@ -340,7 +340,7 @@ function register_graphql_fields( string $type_name, array $fields ) {
  * @param string $from_type  The name of the Type the connection is coming from.
  * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param string $field_name The name of the field to add to the connection edge.
- * @param array $config      The field config.
+ * @param array  $config      The field config.
  *
  * @since 1.13.0
  */
@@ -383,7 +383,7 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
  * @param string $from_type  The name of the Type the connection is coming from.
  * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
  * @param string $field_name The name of the field to add to the connection edge.
- * @param array $config      The field config.
+ * @param array  $config      The field config.
  *
  * @since 1.13.0
  */

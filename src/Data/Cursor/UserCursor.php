@@ -29,7 +29,7 @@ class UserCursor extends AbstractCursor {
 	 * UserCursor constructor.
 	 *
 	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null         $cursor     Whether to generate the before or after cursor
+	 * @param string|null          $cursor     Whether to generate the before or after cursor
 	 *
 	 * @return void
 	 */

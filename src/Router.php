@@ -532,12 +532,10 @@ class Router {
 	 *
 	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $response The response of the GraphQL Request.
 	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
-	 * @param string                      $query           The GraphQL query.
-	 * @param string                      $operation_name  The operation name of the GraphQL
-	 *                                                     Request.
-	 * @param mixed|array|null            $variables       The variables applied to the GraphQL
-	 *                                                     Request.
-	 * @param mixed|\WP_User|null $user The current user object.
+	 * @param string                                        $query           The GraphQL query.
+	 * @param string                                        $operation_name  The operation name of the GraphQL Request.
+	 * @param mixed|array|null                              $variables       The variables applied to the GraphQL Request.
+	 * @param mixed|\WP_User|null                           $user The current user object.
 	 *
 	 * @return void
 	 */

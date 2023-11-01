@@ -18,7 +18,7 @@ class InstrumentSchema {
 
 	/**
 	 * @param \GraphQL\Type\Definition\Type $type Instance of the Schema.
-	 * @param string $type_name Name of the Type
+	 * @param string                        $type_name Name of the Type
 	 *
 	 * @return \GraphQL\Type\Definition\Type
 	 */
@@ -193,13 +193,13 @@ class InstrumentSchema {
 	 *
 	 * This takes into account auth params defined in the Schema
 	 *
-	 * @param mixed                 $source         The source passed down the Resolve Tree
-	 * @param array                 $args           The args for the field
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-	 * @param mixed|callable|string $field_resolver The Resolve function for the field
-	 * @param string                $type_name      The name of the type the fields belong to
-	 * @param string                $field_key      The name of the field
+	 * @param mixed                                    $source         The source passed down the Resolve Tree
+	 * @param array                                    $args           The args for the field
+	 * @param \WPGraphQL\AppContext                    $context The AppContext passed down the ResolveTree
+	 * @param \GraphQL\Type\Definition\ResolveInfo     $info The ResolveInfo passed down the ResolveTree
+	 * @param mixed|callable|string                    $field_resolver The Resolve function for the field
+	 * @param string                                   $type_name      The name of the type the fields belong to
+	 * @param string                                   $field_key      The name of the field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
 	 *
 	 * @return void

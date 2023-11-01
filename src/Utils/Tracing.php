@@ -135,9 +135,9 @@ class Tracing {
 	/**
 	 * Initialize tracing for an individual field
 	 *
-	 * @param mixed               $source         The source passed down the Resolve Tree
-	 * @param array               $args           The args for the field
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
+	 * @param mixed                                $source         The source passed down the Resolve Tree
+	 * @param array                                $args           The args for the field
+	 * @param \WPGraphQL\AppContext                $context The AppContext passed down the ResolveTree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
 	 *
 	 * @return void

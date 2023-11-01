@@ -119,11 +119,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * ConnectionResolver constructor.
 	 *
-	 * @param mixed       $source  source passed down from the resolve tree
-	 * @param array       $args    array of arguments input in the field as part of the GraphQL
-	 *                             query
-	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve
-	 * tree
+	 * @param mixed                                $source  source passed down from the resolve tree
+	 * @param array                                $args    array of arguments input in the field as part of the GraphQL query
+	 * @param \WPGraphQL\AppContext                $context Object containing app context that gets passed down the resolve tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 *
 	 * @throws \Exception
@@ -535,7 +533,7 @@ abstract class AbstractConnectionResolver {
 	 * Gets the array index for the given offset.
 	 *
 	 * @param int|string|false $offset The cursor pagination offset.
-	 * @param array      $ids    The array of ids from the query.
+	 * @param array            $ids    The array of ids from the query.
 	 *
 	 * @return int|false $index The array index of the offset.
 	 */

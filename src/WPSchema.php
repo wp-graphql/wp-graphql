@@ -32,7 +32,7 @@ class WPSchema extends Schema {
 	/**
 	 * WPSchema constructor.
 	 *
-	 * @param \GraphQL\Type\SchemaConfig $config The config for the Schema.
+	 * @param \GraphQL\Type\SchemaConfig       $config The config for the Schema.
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @since 0.0.9
