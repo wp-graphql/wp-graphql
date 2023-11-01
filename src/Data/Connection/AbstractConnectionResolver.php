@@ -630,6 +630,8 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Connections that use a string-based offset should override this method.
 	 *
+	 * @param ?string $cursor The cursor to convert to an offset.
+	 *
 	 * @return int|mixed
 	 */
 	public function get_offset_for_cursor( string $cursor = null ) {

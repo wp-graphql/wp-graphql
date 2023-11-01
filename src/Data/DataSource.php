@@ -399,7 +399,8 @@ class DataSource {
 	 * Get all of the allowed settings by group and return the
 	 * settings group that matches the group param
 	 *
-	 * @param string $group
+	 * @param string                           $group
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array $settings_groups[ $group ]
 	 */

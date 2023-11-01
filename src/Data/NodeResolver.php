@@ -610,6 +610,8 @@ class NodeResolver {
 
 	/**
 	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
+	 *
+	 * @param string $node_type The node type to check.
 	 */
 	protected function is_valid_node_type( string $node_type ): bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;

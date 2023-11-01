@@ -263,7 +263,8 @@ class Config {
 	 * the meta values have same values multiple times. This filter adds a
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
-	 * @param string $orderby The ORDER BY clause of the query.
+	 * @param string         $orderby The ORDER BY clause of the query.
+	 * @param \WP_User_Query $query The WP_User_Query instance (passed by reference).
 	 *
 	 * @return string
 	 */
