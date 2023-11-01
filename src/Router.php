@@ -79,8 +79,6 @@ class Router {
 
 	/**
 	 * Returns the GraphQL Request being executed
-	 *
-	 * @return \WPGraphQL\Request | null
 	 */
 	public static function get_request(): ?Request {
 		return self::$request;

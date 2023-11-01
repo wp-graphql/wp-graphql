@@ -245,8 +245,6 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * Returns the AppContext of the connection
-	 *
-	 * @return \WPGraphQL\AppContext
 	 */
 	public function getContext(): AppContext {
 		return $this->context;
@@ -254,8 +252,6 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * Returns the ResolveInfo of the connection
-	 *
-	 * @return \GraphQL\Type\Definition\ResolveInfo
 	 */
 	public function getInfo(): ResolveInfo {
 		return $this->info;
@@ -263,8 +259,6 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * Returns whether the connection should execute
-	 *
-	 * @return bool
 	 */
 	public function getShouldExecute(): bool {
 		return $this->should_execute;

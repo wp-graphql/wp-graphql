@@ -183,7 +183,7 @@ class Request {
 	}
 
 	/**
-	 * @return \WPGraphQL\Utils\QueryAnalyzer
+	 * Get the instance of the Query Analyzer
 	 */
 	public function get_query_analyzer(): QueryAnalyzer {
 		return $this->query_analyzer;
@@ -240,7 +240,6 @@ class Request {
 	/**
 	 * Apply filters and do actions before GraphQL execution
 	 *
-	 * @return void
 	 * @throws \GraphQL\Error\Error
 	 */
 	private function before_execute(): void {

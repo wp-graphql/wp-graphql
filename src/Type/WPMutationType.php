@@ -123,8 +123,6 @@ class WPMutationType {
 	 * Validates that essential key/value pairs are passed to the connection config.
 	 *
 	 * @param array $config
-	 *
-	 * @return bool
 	 */
 	protected function is_config_valid( array $config ): bool {
 		$is_valid = true;

@@ -19,8 +19,6 @@ class InstrumentSchema {
 	/**
 	 * @param \GraphQL\Type\Definition\Type $type Instance of the Schema.
 	 * @param string                        $type_name Name of the Type
-	 *
-	 * @return \GraphQL\Type\Definition\Type
 	 */
 	public static function instrument_resolvers( Type $type, string $type_name ): Type {
 		if ( ! method_exists( $type, 'getFields' ) ) {

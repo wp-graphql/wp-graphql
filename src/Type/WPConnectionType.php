@@ -204,7 +204,6 @@ class WPConnectionType {
 	 *
 	 * @param array $config
 	 *
-	 * @return void
 	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
 	 */
 	protected function validate_config( array $config ): void {
@@ -250,8 +249,6 @@ class WPConnectionType {
 	 * @param string $from_type        Name of the Type the connection is coming from
 	 * @param string $to_type          Name of the Type the connection is going to
 	 * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
-	 *
-	 * @return string
 	 */
 	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ): string {
 
@@ -310,8 +307,6 @@ class WPConnectionType {
 	/**
 	 * Registers the One to One Connection Edge type to the Schema
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
 	protected function register_one_to_one_connection_edge_type(): void {
@@ -353,8 +348,6 @@ class WPConnectionType {
 	/**
 	 * Registers the PageInfo type for the connection
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
 	public function register_connection_page_info_type(): void {
@@ -378,8 +371,6 @@ class WPConnectionType {
 
 	/**
 	 * Registers the Connection Edge type to the Schema
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */
@@ -420,8 +411,6 @@ class WPConnectionType {
 
 	/**
 	 * Registers the Connection Type to the Schema
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */
@@ -515,7 +504,6 @@ class WPConnectionType {
 	/**
 	 * Registers the connection in the Graph
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_connection_field(): void {
@@ -558,7 +546,6 @@ class WPConnectionType {
 	}
 
 	/**
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_connection_interfaces(): void {
@@ -630,8 +617,6 @@ class WPConnectionType {
 	 * Registers the connection Types and field to the Schema.
 	 *
 	 * @todo change to 'Protected'. This is public for now to allow for backwards compatibility.
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */

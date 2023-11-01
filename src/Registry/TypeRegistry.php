@@ -657,8 +657,6 @@ class TypeRegistry {
 	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The config for the type
 	 *
 	 * @throws \Exception
-	 *
-	 * @return void
 	 */
 	public function register_type( string $type_name, $config ): void {
 		/**
@@ -727,7 +725,6 @@ class TypeRegistry {
 	 * @param array  $config The configuration of the type
 	 *
 	 * @throws \Exception
-	 * @return void
 	 */
 	public function register_object_type( string $type_name, array $config ): void {
 		$config['kind'] = 'object';
@@ -741,7 +738,6 @@ class TypeRegistry {
 	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The configuration of the type
 	 *
 	 * @throws \Exception
-	 * @return void
 	 */
 	public function register_interface_type( string $type_name, $config ): void {
 		$config['kind'] = 'interface';
@@ -754,7 +750,6 @@ class TypeRegistry {
 	 * @param string $type_name The name of the type to register
 	 * @param array  $config he configuration of the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_enum_type( string $type_name, array $config ): void {
@@ -768,7 +763,6 @@ class TypeRegistry {
 	 * @param string $type_name The name of the type to register
 	 * @param array  $config he configuration of the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_input_type( string $type_name, array $config ): void {
@@ -781,8 +775,6 @@ class TypeRegistry {
 	 *
 	 * @param string $type_name The name of the type to register
 	 * @param array  $config he configuration of the type
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */
@@ -864,8 +856,6 @@ class TypeRegistry {
 	 * Given a type name, determines if the type is already present in the Type Loader
 	 *
 	 * @param string $type_name The name of the type to check the registry for
-	 *
-	 * @return bool
 	 */
 	public function has_type( string $type_name ): bool {
 		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
@@ -1038,7 +1028,6 @@ class TypeRegistry {
 	 * @param string $type_name Name of the type in the Type Registry to add the fields to
 	 * @param array  $fields    Fields to register
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_fields( string $type_name, array $fields = [] ): void {
@@ -1059,7 +1048,6 @@ class TypeRegistry {
 	 * @param string $field_name                      Name of the field to add to the type
 	 * @param array  $config                          Info about the field to register to the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ): void {
@@ -1148,7 +1136,6 @@ class TypeRegistry {
 	 *
 	 * @param array $config The info about the connection being registered
 	 *
-	 * @return void
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
 	 */
@@ -1162,7 +1149,6 @@ class TypeRegistry {
 	 * @param string $mutation_name Name of the mutation being registered
 	 * @param array  $config        Info about the mutation being registered
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ): void {

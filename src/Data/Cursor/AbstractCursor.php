@@ -152,8 +152,6 @@ abstract class AbstractCursor {
 	 * @param array|mixed $field  Threshold configuration.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
-	 *
-	 * @return void
 	 */
 	protected function validate_cursor_compare_field( $field ): void {
 		// Throw if an array not provided.

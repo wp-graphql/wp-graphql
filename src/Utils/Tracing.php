@@ -301,8 +301,6 @@ class Tracing {
 
 	/**
 	 * Determine if the requesting user can see trace data
-	 *
-	 * @return boolean
 	 */
 	public function user_can_see_trace_data(): bool {
 		$can_see = false;

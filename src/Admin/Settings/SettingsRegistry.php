@@ -224,8 +224,6 @@ class SettingsRegistry {
 	 * Get field description for display
 	 *
 	 * @param array $args settings field args
-	 *
-	 * @return string
 	 */
 	public function get_field_description( array $args ): string {
 		if ( ! empty( $args['desc'] ) ) {

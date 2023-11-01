@@ -114,14 +114,14 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * @return \WPGraphQL\Request
+	 * Gets the request object.
 	 */
 	public function get_request(): Request {
 		return $this->request;
 	}
 
 	/**
-	 * @return void
+	 * Initialize the QueryAnalyzer.
 	 */
 	public function init(): void {
 
@@ -189,7 +189,6 @@ class QueryAnalyzer {
 	 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params,
 	 * such as extensions or any other modifications to the request body
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function determine_graphql_keys( ?string $query, ?string $operation, ?array $variables, OperationParams $params ): void {
@@ -255,7 +254,7 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * @return string
+	 * Get the root operation of the query.
 	 */
 	public function get_root_operation(): string {
 		return $this->root_operation;
@@ -263,8 +262,6 @@ class QueryAnalyzer {
 
 	/**
 	 * Returns the operation name of the query, if there is one
-	 *
-	 * @return string|null
 	 */
 	public function get_operation_name(): ?string {
 		$operation_name = ! empty( $this->request->params->operation ) ? $this->request->params->operation : null;
@@ -288,7 +285,7 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * @return string|null
+	 * Get the query id.
 	 */
 	public function get_query_id(): ?string {
 		return $this->query_id;

@@ -171,8 +171,6 @@ class Utils {
 	 *
 	 * @param string $field_name         The field name to format
 	 * @param bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
-	 *
-	 * @return string
 	 */
 	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
 		// Bail if empty.

@@ -124,7 +124,6 @@ final class WPGraphQL {
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
-	 * @return void
 	 * @since  0.0.1
 	 */
 	private function includes(): void {
@@ -151,8 +150,6 @@ final class WPGraphQL {
 	/**
 	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution
 	 * cycle
-	 *
-	 * @return void
 	 */
 	private function actions(): void {
 		/**
@@ -285,8 +282,6 @@ final class WPGraphQL {
 
 	/**
 	 * Setup filters
-	 *
-	 * @return void
 	 */
 	private function filters(): void {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
@@ -737,8 +732,6 @@ final class WPGraphQL {
 
 	/**
 	 * Whether WPGraphQL is operating in Debug mode
-	 *
-	 * @return bool
 	 */
 	public static function debug(): bool {
 		if ( defined( 'GRAPHQL_DEBUG' ) ) {
