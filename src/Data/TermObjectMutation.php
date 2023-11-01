@@ -3,8 +3,8 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
-use WP_Taxonomy;
 use WPGraphQL\Utils\Utils;
+use WP_Taxonomy;
 
 class TermObjectMutation {
 

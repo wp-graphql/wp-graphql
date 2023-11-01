@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use WP_Post_Type;
 use WPGraphQL\Registry\TypeRegistry;
+use WP_Post_Type;
 
 /**
  * WPObject - PostObject

@@ -3,9 +3,9 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
+use WP_Post_Type;
 
 /**
  * Class MediaItemMutation

@@ -3,11 +3,11 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Deferred;
-use WP_Post;
-use WPGraphQL\AppContext;
 use GraphQL\Error\UserError;
+use WPGraphQL\AppContext;
 use WPGraphQL\Router;
 use WPGraphQL\Utils\Utils;
+use WP_Post;
 
 class NodeResolver {
 

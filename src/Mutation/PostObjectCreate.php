@@ -4,10 +4,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\PostObjectMutation;
 use WPGraphQL\Utils\Utils;
+use WP_Post_Type;
 
 /**
  * Class PostObjectCreate

@@ -3,8 +3,8 @@
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
-use WP_Comment_Query;
 use WPGraphQL\Utils\Utils;
+use WP_Comment_Query;
 
 /**
  * Class CommentConnectionResolver

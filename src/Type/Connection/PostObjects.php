@@ -3,8 +3,6 @@
 namespace WPGraphQL\Type\Connection;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
 use WPGraphQL\Data\DataSource;
@@ -13,6 +11,8 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\User;
 use WPGraphQL\Utils\Utils;
+use WP_Post_Type;
+use WP_Taxonomy;
 
 /**
  * Class PostObjects

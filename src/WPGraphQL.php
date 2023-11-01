@@ -2,14 +2,14 @@
 
 // Global. - namespace WPGraphQL;
 
-use WPGraphQL\Utils\Preview;
-use WPGraphQL\Utils\InstrumentSchema;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Utils\InstrumentSchema;
+use WPGraphQL\Utils\Preview;
 
 /**
  * Class WPGraphQL

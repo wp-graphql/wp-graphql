@@ -4,10 +4,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WP_Post_Type;
+use WPGraphQL\Data\PostObjectMutation;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
-use WPGraphQL\Data\PostObjectMutation;
+use WP_Post_Type;
 
 
 class PostObjectDelete {
