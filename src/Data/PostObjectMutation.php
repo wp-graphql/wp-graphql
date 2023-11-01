@@ -4,9 +4,9 @@ namespace WPGraphQL\Data;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQLRelay\Relay;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Utils\Utils;
+use WP_Post_Type;
 
 /**
  * Class PostObjectMutation

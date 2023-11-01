@@ -3,7 +3,6 @@
 namespace WPGraphQL\Registry\Utils;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
 use WPGraphQL;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
@@ -13,6 +12,7 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\Comments;
 use WPGraphQL\Type\Connection\PostObjects;
 use WPGraphQL\Type\Connection\TermObjects;
+use WP_Post_Type;
 
 /**
  * Class PostObject

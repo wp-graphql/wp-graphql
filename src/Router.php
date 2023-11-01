@@ -3,8 +3,8 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
-use WP_User;
 use WPGraphQL\Utils\QueryAnalyzer;
+use WP_User;
 
 /**
  * Class Router

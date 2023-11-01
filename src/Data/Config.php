@@ -2,12 +2,12 @@
 
 namespace WPGraphQL\Data;
 
-use WP_Comment_Query;
-use WP_Query;
 use WPGraphQL\Data\Cursor\CommentObjectCursor;
 use WPGraphQL\Data\Cursor\PostObjectCursor;
 use WPGraphQL\Data\Cursor\TermObjectCursor;
 use WPGraphQL\Data\Cursor\UserCursor;
+use WP_Comment_Query;
+use WP_Query;
 
 /**
  * Class Config

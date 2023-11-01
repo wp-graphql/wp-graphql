@@ -3,10 +3,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
 use WPGraphQL\Utils\Utils;
+use WP_Taxonomy;
 
 /**
  * Class TermObjectUpdate

@@ -8,8 +8,8 @@
 namespace WPGraphQL\Model;
 
 use GraphQLRelay\Relay;
-use WP_Post;
 use WPGraphQL\Utils\Utils;
+use WP_Post;
 
 /**
  * Class Post - Models data for the Post object type
