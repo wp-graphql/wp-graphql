@@ -99,7 +99,6 @@
 		<!-- Should probably be added back -->
 		<exclude name="Squiz.Commenting.ClassComment" />
 		<exclude name="Squiz.Commenting.FileComment" />
-		<exclude name="Squiz.Commenting.VariableComment" />
 		<exclude name="Squiz.Commenting.FunctionCommentThrowTag" />
 		<exclude name="Squiz.Commenting.InlineComment" />
 	</rule>
