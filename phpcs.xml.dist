@@ -97,13 +97,13 @@
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
-		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 		<!-- Conflicts with FQCN -->
 		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
 
 		<!-- Should probably be added back -->
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
 		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
