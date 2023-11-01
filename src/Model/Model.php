@@ -529,8 +529,7 @@ abstract class Model {
 	 * @param string|mixed[]|null $fields The field or fields to build in the modeled object. You can
 	 *                                  pass null to build all of the fields, a string to only
 	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective
-	 *                                  values.
+	 *                                  to build an object with those keys and their respective values.
 	 *
 	 * @return void
 	 */

@@ -19,8 +19,7 @@ class PostObjectMutation {
 	 * This handles inserting the post object
 	 *
 	 * @param array<string,mixed> $input            The input for the mutation
-	 * @param \WP_Post_Type       $post_type_object The post_type_object for the type of post being
-	 *       mutated
+	 * @param \WP_Post_Type       $post_type_object The post_type_object for the type of post being mutated
 	 * @param string              $mutation_name    The name of the mutation being performed
 	 *
 	 * @return array<string,mixed>
@@ -224,8 +223,7 @@ class PostObjectMutation {
 	 *
 	 * @param int                 $post_id           The ID of the postObject being mutated
 	 * @param array<string,mixed> $input             The input for the mutation
-	 * @param \WP_Post_Type       $post_type_object The Post Type Object for the type of post being
-	 *       mutated
+	 * @param \WP_Post_Type       $post_type_object The Post Type Object for the type of post being mutated
 	 * @param string              $mutation_name     The name of the mutation (ex: create, update, delete)
 	 *
 	 * @return void

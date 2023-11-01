@@ -80,8 +80,7 @@ class TermObjects {
 	 * Given the Taxonomy Object and an array of args, this returns an array of args for use in
 	 * registering a connection.
 	 *
-	 * @param \WP_Taxonomy        $tax_object        The taxonomy object for the taxonomy having a
-	 *                                               connection registered to it
+	 * @param \WP_Taxonomy        $tax_object        The taxonomy object for the taxonomy having a connection registered to it
 	 * @param array<string,mixed> $args              The custom args to modify the connection registration
 	 *
 	 * @return array<string,mixed>

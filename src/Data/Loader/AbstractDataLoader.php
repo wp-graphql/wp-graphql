@@ -58,8 +58,7 @@ abstract class AbstractDataLoader {
 	/**
 	 * Given a Database ID, the particular loader will buffer it and resolve it deferred.
 	 *
-	 * @param mixed|int|string $database_id The database ID for a particular loader to load an
-	 *                                      object
+	 * @param mixed|int|string $database_id The database ID for a particular loader to load an object
 	 *
 	 * @return \GraphQL\Deferred|null
 	 * @throws \Exception

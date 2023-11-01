@@ -1043,8 +1043,7 @@ class TypeRegistry {
 	/**
 	 * Add a field to a Type in the Type Registry
 	 *
-	 * @param string              $type_name  Name of the type in the Type Registry to add
-	 *                                        the fields to
+	 * @param string              $type_name  Name of the type in the Type Registry to add the fields to
 	 * @param string              $field_name Name of the field to add to the type
 	 * @param array<string,mixed> $config     Info about the field to register to the type
 	 *

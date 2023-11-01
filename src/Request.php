@@ -384,8 +384,7 @@ class Request {
 	 * Filter Authentication errors. Allows plugins that authenticate to hook in and prevent
 	 * execution if Authentication errors exist.
 	 *
-	 * @param bool $authentication_errors Whether there are authentication errors with the
-	 *                                       request
+	 * @param bool $authentication_errors Whether there are authentication errors with the request.
 	 *
 	 * @return bool
 	 */
@@ -404,8 +403,7 @@ class Request {
 	/**
 	 * Performs actions and runs filters after execution completes
 	 *
-	 * @param mixed|array<string,mixed>|object $response The response from execution. Array for batch requests,
-	 *                                     single object for individual requests
+	 * @param mixed|array<string,mixed>|object $response The response from execution. Array for batch requests, single object for individual requests.
 	 *
 	 * @return mixed[]
 	 *

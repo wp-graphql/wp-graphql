@@ -510,8 +510,7 @@ final class WPGraphQL {
 	 * This gets all post_types that are set to show_in_graphql, but allows for external code
 	 * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
 	 *
-	 * @param string|mixed[]      $output Optional. The type of output to return. Accepts post type
-	 *                                  'names' or 'objects'. Default 'names'.
+	 * @param string|mixed[]      $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
 	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed post types
 	 *
 	 * @return array<string,mixed>

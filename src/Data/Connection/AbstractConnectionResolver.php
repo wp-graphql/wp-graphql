@@ -403,8 +403,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Given an ID, return the model for the entity or null
 	 *
-	 * @param mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID
-	 *                  (like post_type name)
+	 * @param mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID (like post_type name)
 	 *
 	 * @return mixed|\WPGraphQL\Model\Model|null
 	 * @throws \Exception
