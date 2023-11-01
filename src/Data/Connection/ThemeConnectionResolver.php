@@ -37,11 +37,9 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-		$query_args = [
+		return [
 			'allowed' => null,
 		];
-
-		return $query_args;
 	}
 
 

@@ -57,9 +57,8 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function get_query() {
 		$wp_roles = wp_roles();
-		$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
-
-		return $roles;
+		
+		return ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
 	}
 
 	/**

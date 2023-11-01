@@ -161,4 +161,5 @@
 			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true" />
 		</properties>
 	</rule>
+	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
 </ruleset>
