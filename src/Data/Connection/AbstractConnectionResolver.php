@@ -390,7 +390,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @throws \Exception if child class forgot to implement this.
+	 * @throws \Exception If child class forgot to implement this.
 	 *
 	 * @return array the array of IDs.
 	 */

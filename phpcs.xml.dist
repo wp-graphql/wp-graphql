@@ -112,7 +112,6 @@
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
-		<exclude name="Squiz.Commenting.FunctionComment.ThrowsNotCapital" />
 		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
 		<properties>
 			<property name="skipIfInheritdoc" value="true" />
