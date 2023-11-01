@@ -247,7 +247,6 @@ class DataSource {
 	 *
 	 * @return \WPGraphQL\Model\Theme object
 	 * @throws \GraphQL\Error\UserError
-	 * @throws \Exception
 	 * @since  0.0.5
 	 */
 	public static function resolve_theme( $stylesheet ) {
