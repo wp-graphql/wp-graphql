@@ -97,7 +97,6 @@
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 
 		<!-- Should probably be added back -->
-		<exclude name="Squiz.Commenting.BlockComment"/>
 		<exclude name="Squiz.Commenting.ClassComment" />
 		<exclude name="Squiz.Commenting.DocCommentAlignment" />
 		<exclude name="Squiz.Commenting.FileComment" />

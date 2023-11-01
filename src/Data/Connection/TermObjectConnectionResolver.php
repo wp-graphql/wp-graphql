@@ -167,7 +167,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		/** @var string[] $ids **/
+		/** @var string[] $ids */
 		$ids = ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
 
 		// If we're going backwards, we need to reverse the array.
