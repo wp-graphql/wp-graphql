@@ -813,7 +813,7 @@ function register_graphql_settings_fields( string $group, array $fields ) {
  * @param mixed  $default_value The default value the setting should return if no value is set
  * @param string $section_name  The settings group section that the option belongs to
  *
- * @return mixed|string|int|boolean
+ * @return mixed|string|int|bool
  * @since 0.13.0
  */
 function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {

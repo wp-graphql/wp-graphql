@@ -12,7 +12,7 @@ class QueryLog {
 	/**
 	 * Whether Query Logs are enabled
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $query_logs_enabled;
 
@@ -60,7 +60,7 @@ class QueryLog {
 	/**
 	 * Determine if the requesting user can see logs
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function user_can_see_logs() {
 		$can_see = false;
@@ -85,7 +85,7 @@ class QueryLog {
 		/**
 		 * Filter whether the logs can be seen in the request results or not
 		 *
-		 * @param boolean $can_see Whether the requester can see the logs or not
+		 * @param bool $can_see Whether the requester can see the logs or not
 		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
 	}

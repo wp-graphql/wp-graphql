@@ -133,7 +133,7 @@ class Router {
 	 * need to affect _all_ GraphQL requests, including internal requests using the `graphql()`
 	 * function, so be careful how you use this to check your conditions.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function is_graphql_http_request() {
 
@@ -194,7 +194,7 @@ class Router {
 		 * Different servers _might_ have different needs to determine whether a request
 		 * is a GraphQL request.
 		 *
-		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 * @param bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
 		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 	}
@@ -206,7 +206,7 @@ class Router {
 	 * won't be able to use this to properly determine if the request is a GraphQL request
 	 * or not.
 	 *
-	 * @return boolean
+	 * @return bool
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {

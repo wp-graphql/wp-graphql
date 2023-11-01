@@ -654,7 +654,7 @@ abstract class AbstractConnectionResolver {
 	 * ore if there are more "items" after the "before" argument, has_next_page()
 	 * will be set to true
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
@@ -679,7 +679,7 @@ abstract class AbstractConnectionResolver {
 	 * or if there are more "items" before the "after" argument, has_previous_page()
 	 * will be set to true.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {

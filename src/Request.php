@@ -310,7 +310,7 @@ class Request {
 	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
 	 * request.
 	 *
-	 * @return boolean
+	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function has_authentication_errors() {
@@ -384,10 +384,10 @@ class Request {
 	 * Filter Authentication errors. Allows plugins that authenticate to hook in and prevent
 	 * execution if Authentication errors exist.
 	 *
-	 * @param boolean $authentication_errors Whether there are authentication errors with the
+	 * @param bool $authentication_errors Whether there are authentication errors with the
 	 *                                       request
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function filtered_authentication_errors( $authentication_errors = false ) {
 
@@ -395,7 +395,7 @@ class Request {
 		 * If false, there are no authentication errors. If true, execution of the
 		 * GraphQL request will be prevented and an error will be thrown.
 		 *
-		 * @param boolean $authentication_errors Whether there are authentication errors with the request
+		 * @param bool $authentication_errors Whether there are authentication errors with the request
 		 * @param \WPGraphQL\Request $request Instance of the Request
 		 */
 		return apply_filters( 'graphql_authentication_errors', $authentication_errors, $this );
@@ -750,7 +750,7 @@ class Request {
 		/**
 		 * Filter whether batch queries are supported or not
 		 *
-		 * @param boolean         $batch_queries_enabled Whether Batch Queries should be enabled
+		 * @param bool         $batch_queries_enabled Whether Batch Queries should be enabled
 		 * @param \GraphQL\Server\OperationParams $params Request operation params
 		 */
 		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );

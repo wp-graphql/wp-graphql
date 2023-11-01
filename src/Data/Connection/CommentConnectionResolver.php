@@ -186,7 +186,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * in the Schema for post types that don't have comment support, so we don't need to worry
 	 * about that, but there may be other situations where we'd need to prevent it.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function should_execute() {
 		return true;

@@ -21,7 +21,7 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * Counter for meta value joins
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	public $meta_join_alias = 0;
 

@@ -90,7 +90,7 @@ class CursorBuilder {
 	/**
 	 * Returns true at least one ordering field has been added
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function has_fields() {
 		return count( $this->fields ) > 0;

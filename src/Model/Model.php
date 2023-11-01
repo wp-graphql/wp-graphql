@@ -242,7 +242,7 @@ abstract class Model {
 			/**
 			 * Filter to determine if the data should be considered private or not
 			 *
-			 * @param boolean     $is_private   Whether the model is private
+			 * @param bool     $is_private   Whether the model is private
 			 * @param string      $model_name   Name of the model the filter is currently being executed in
 			 * @param mixed       $data         The un-modeled incoming data
 			 * @param string|null $visibility   The visibility that has currently been set for the data at this point

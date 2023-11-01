@@ -18,7 +18,7 @@ class DebugLog {
 	/**
 	 * Whether logs are enabled
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $logs_enabled;
 

@@ -61,7 +61,7 @@ final class WPGraphQL {
 	protected static $allowed_taxonomies;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected static $is_graphql_request;
 

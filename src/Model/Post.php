@@ -35,12 +35,12 @@ use WP_Post;
  * @property string  $pingStatus
  * @property string  $slug
  * @property array   $template
- * @property boolean $isFrontPage
- * @property boolean $isPrivacyPage
- * @property boolean $isPostsPage
- * @property boolean $isPreview
- * @property boolean $isRevision
- * @property boolean $isSticky
+ * @property bool $isFrontPage
+ * @property bool $isPrivacyPage
+ * @property bool $isPostsPage
+ * @property bool $isPreview
+ * @property bool $isRevision
+ * @property bool $isSticky
  * @property string  $toPing
  * @property string  $pinged
  * @property string  $modified
