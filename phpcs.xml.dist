@@ -106,11 +106,12 @@
 	<rule ref="Squiz.Commenting.FunctionComment">
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+		<!-- Conflicts with FQCN -->
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<!-- Should probably be added back -->
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
-		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch" />
 		<exclude name="Squiz.Commenting.FunctionComment.ThrowsNotCapital" />
 		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
