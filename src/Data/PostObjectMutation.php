@@ -122,7 +122,7 @@ class PostObjectMutation {
 	 * This updates additional data related to a post object, such as postmeta, term relationships,
 	 * etc.
 	 *
-	 * @param int                                  $post_id               $post_id      The ID of the postObject being
+	 * @param int                                  $post_id               The ID of the postObject being
 	 *                                                                    mutated
 	 * @param array                                $input                 The input for the mutation
 	 * @param \WP_Post_Type                        $post_type_object The Post Type Object for the type of post being
