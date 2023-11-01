@@ -2,6 +2,7 @@
 /**
  * This file contains access functions for various class methods
  *
+ * @package WPGraphQL
  * @since 0.0.2
  */
 
