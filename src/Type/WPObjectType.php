@@ -45,7 +45,7 @@ class WPObjectType extends ObjectType {
 	/**
 	 * WPObjectType constructor.
 	 *
-	 * @param array        $config
+	 * @param array                            $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @throws \Exception

@@ -191,7 +191,7 @@ class PostObjectCreate {
 	 * Defines the mutation data modification closure.
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
-	 * @param string       $mutation_name    The mutation name.
+	 * @param string        $mutation_name    The mutation name.
 	 *
 	 * @return callable
 	 */

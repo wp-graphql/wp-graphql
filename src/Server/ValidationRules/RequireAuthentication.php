@@ -94,7 +94,7 @@ class RequireAuthentication extends QuerySecurityRule {
 									__( 'The field "%s" cannot be accessed without authentication.', 'wp-graphql' ),
 									$context->getParentType() . '.' . $node->name->value
 								),
-								//@phpstan-ignore-next-line
+								// @phpstan-ignore-next-line
 								[ $node ]
 							)
 						);

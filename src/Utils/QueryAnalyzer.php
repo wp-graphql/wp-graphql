@@ -183,9 +183,9 @@ class QueryAnalyzer {
 	/**
 	 * Determine the keys associated with the GraphQL document being executed
 	 *
-	 * @param ?string         $query     The GraphQL query
-	 * @param ?string         $operation The name of the operation
-	 * @param ?array          $variables Variables to be passed to your GraphQL request
+	 * @param ?string                         $query     The GraphQL query
+	 * @param ?string                         $operation The name of the operation
+	 * @param ?array                          $variables Variables to be passed to your GraphQL request
 	 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params,
 	 * such as extensions or any other modifications to the request body
 	 *
@@ -296,10 +296,10 @@ class QueryAnalyzer {
 
 
 	/**
-	 * @param \GraphQL\Type\Definition\Type $type The Type of field
+	 * @param \GraphQL\Type\Definition\Type            $type The Type of field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field_def The field definition the type is for
-	 * @param mixed $parent_type The Parent Type
-	 * @param bool $is_list_type Whether the field is a list type field
+	 * @param mixed                                    $parent_type The Parent Type
+	 * @param bool                                     $is_list_type Whether the field is a list type field
 	 *
 	 * @return  \GraphQL\Type\Definition\Type|String|null
 	 */
@@ -354,7 +354,7 @@ class QueryAnalyzer {
 	 * by the query.
 	 *
 	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
-	 * @param ?string $query  The query string
+	 * @param ?string               $query  The query string
 	 *
 	 * @return array
 	 * @throws \GraphQL\Error\SyntaxError|\Exception
@@ -453,7 +453,7 @@ class QueryAnalyzer {
 	 * by the query.
 	 *
 	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
-	 * @param ?string $query  The query string
+	 * @param ?string               $query  The query string
 	 *
 	 * @return array
 	 * @throws \Exception
@@ -531,7 +531,7 @@ class QueryAnalyzer {
 	 * asked for by the query.
 	 *
 	 * @param ?\GraphQL\Type\Schema $schema The WPGraphQL Schema
-	 * @param ?string $query  The query string
+	 * @param ?string               $query  The query string
 	 *
 	 * @return array
 	 * @throws \GraphQL\Error\SyntaxError|\Exception
@@ -757,11 +757,11 @@ class QueryAnalyzer {
 	/**
 	 * Outputs Query Analyzer data in the extensions response
 	 *
-	 * @param mixed       $response
+	 * @param mixed               $response
 	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
-	 * @param string|null $operation_name The operation name being executed
-	 * @param string|null $request        The GraphQL Request being made
-	 * @param array|null  $variables      The variables sent with the request
+	 * @param string|null         $operation_name The operation name being executed
+	 * @param string|null         $request        The GraphQL Request being made
+	 * @param array|null          $variables      The variables sent with the request
 	 *
 	 * @return array|object|null
 	 */

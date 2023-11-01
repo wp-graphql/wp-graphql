@@ -1,6 +1,9 @@
 <?php
-
-// Global. - namespace WPGraphQL;
+/**
+ * The global WPGraphQL class.
+ *
+ * @package WPGraphQL
+ */
 
 use WPGraphQL\Utils\Preview;
 use WPGraphQL\Utils\InstrumentSchema;
@@ -15,8 +18,6 @@ use WPGraphQL\Type\WPObjectType;
  * Class WPGraphQL
  *
  * This is the one true WPGraphQL class
- *
- * @package WPGraphQL
  */
 final class WPGraphQL {
 

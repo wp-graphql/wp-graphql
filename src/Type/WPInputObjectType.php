@@ -18,7 +18,8 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array        $config
+	 * @param array<string,mixed>              $config
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 		$name           = $config['name'];
@@ -47,9 +48,9 @@ class WPInputObjectType extends InputObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array        $fields
-	 * @param string       $type_name
-	 * @param array        $config
+	 * @param array                            $fields
+	 * @param string                           $type_name
+	 * @param array                            $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 * @return mixed
 	 * @since 0.0.5

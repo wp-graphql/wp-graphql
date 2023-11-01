@@ -108,7 +108,7 @@ class NodeResolver {
 	 * @param array|string $extra_query_vars Any extra query vars to consider
 	 *
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If the query class does not exist.
 	 */
 	public function resolve_uri( string $uri, $extra_query_vars = '' ) {
 
@@ -308,7 +308,7 @@ class NodeResolver {
 	 *
 	 * Mimics WP::parse_request()
 	 *
-	 * @param string $uri
+	 * @param string       $uri
 	 * @param array|string $extra_query_vars
 	 *
 	 * @return string|null The parsed uri.
@@ -610,6 +610,8 @@ class NodeResolver {
 
 	/**
 	 * Checks if the node type is set in the query vars and, if so, whether it matches the node type.
+	 *
+	 * @param string $node_type The node type to check.
 	 */
 	protected function is_valid_node_type( string $node_type ): bool {
 		return ! isset( $this->wp->query_vars['nodeType'] ) || $this->wp->query_vars['nodeType'] === $node_type;

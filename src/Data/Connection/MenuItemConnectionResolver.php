@@ -15,9 +15,9 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * MenuItemConnectionResolver constructor.
 	 *
-	 * @param mixed       $source     source passed down from the resolve tree
-	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
+	 * @param mixed                                $source     source passed down from the resolve tree
+	 * @param array                                $args       array of arguments input in the field as part of the GraphQL query
+	 * @param \WPGraphQL\AppContext                $context Object containing app context that gets passed down the resolve tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 *
 	 * @throws \Exception

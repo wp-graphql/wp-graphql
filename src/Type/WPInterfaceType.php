@@ -24,7 +24,7 @@ class WPInterfaceType extends InterfaceType {
 	/**
 	 * WPInterfaceType constructor.
 	 *
-	 * @param array        $config
+	 * @param array                            $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @throws \Exception

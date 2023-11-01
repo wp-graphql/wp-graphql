@@ -20,7 +20,7 @@ class CommentObjectCursor extends AbstractCursor {
 
 	/**
 	 * @param array|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null            $cursor Whether to generate the before or after cursor. Default "after"
+	 * @param string|null             $cursor Whether to generate the before or after cursor. Default "after"
 	 *
 	 * @return void
 	 */
@@ -139,7 +139,7 @@ class CommentObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public function to_sql() {
 		$sql = $this->builder->to_sql();

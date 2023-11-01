@@ -11,8 +11,8 @@ class SettingGroup {
 	/**
 	 * Register each settings group to the GraphQL Schema
 	 *
-	 * @param string       $group_name    The name of the setting group
-	 * @param string       $group         The settings group config
+	 * @param string                           $group_name    The name of the setting group
+	 * @param string                           $group         The settings group config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return string|null
@@ -43,8 +43,8 @@ class SettingGroup {
 	/**
 	 * Given the name of a registered settings group, retrieve GraphQL fields for the group
 	 *
-	 * @param string $group_name Name of the settings group to retrieve fields for
-	 * @param string $group      The settings group config
+	 * @param string                           $group_name Name of the settings group to retrieve fields for
+	 * @param string                           $group      The settings group config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
 	 * @return array

@@ -22,6 +22,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws \GraphQL\Error\UserError If there is a problem with the $args.
 	 */
 	public function get_query_args() {
 

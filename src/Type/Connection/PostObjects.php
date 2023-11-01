@@ -228,8 +228,8 @@ class PostObjects {
 	 * registering a connection.
 	 *
 	 * @param mixed|\WP_Post_Type|\WP_Taxonomy $graphql_object The post type object for the post_type having a
- * connection registered to it
-	 * @param array                          $args           The custom args to modify the connection registration
+	 * connection registered to it
+	 * @param array                            $args           The custom args to modify the connection registration
 	 *
 	 * @return array
 	 */
@@ -259,7 +259,7 @@ class PostObjects {
 	/**
 	 * Given an optional array of args, this returns the args to be used in the connection
 	 *
-	 * @param array         $args             The args to modify the defaults
+	 * @param array                            $args             The args to modify the defaults
 	 * @param mixed|\WP_Post_Type|\WP_Taxonomy $post_type_object The post type the connection is going to
 	 *
 	 * @return array

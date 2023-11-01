@@ -119,11 +119,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * ConnectionResolver constructor.
 	 *
-	 * @param mixed       $source  source passed down from the resolve tree
-	 * @param array       $args    array of arguments input in the field as part of the GraphQL
-	 *                             query
-	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve
- * tree
+	 * @param mixed                                $source  source passed down from the resolve tree
+	 * @param array                                $args    array of arguments input in the field as part of the GraphQL query
+	 * @param \WPGraphQL\AppContext                $context Object containing app context that gets passed down the resolve tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
 	 *
 	 * @throws \Exception
@@ -392,7 +390,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @throws \Exception if child class forgot to implement this.
+	 * @throws \Exception If child class forgot to implement this.
 	 *
 	 * @return array the array of IDs.
 	 */
@@ -455,7 +453,7 @@ abstract class AbstractConnectionResolver {
 	 * This checks the $args to determine the amount requested, and if
 	 *
 	 * @return int|null
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError If there is an issue with the pagination $args.
 	 */
 	public function get_amount_requested() {
 
@@ -535,7 +533,7 @@ abstract class AbstractConnectionResolver {
 	 * Gets the array index for the given offset.
 	 *
 	 * @param int|string|false $offset The cursor pagination offset.
-	 * @param array      $ids    The array of ids from the query.
+	 * @param array            $ids    The array of ids from the query.
 	 *
 	 * @return int|false $index The array index of the offset.
 	 */
@@ -631,6 +629,8 @@ abstract class AbstractConnectionResolver {
 	 * Returns the offset for a given cursor.
 	 *
 	 * Connections that use a string-based offset should override this method.
+	 *
+	 * @param ?string $cursor The cursor to convert to an offset.
 	 *
 	 * @return int|mixed
 	 */

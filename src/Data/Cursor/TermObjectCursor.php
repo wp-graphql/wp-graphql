@@ -19,6 +19,8 @@ class TermObjectCursor extends AbstractCursor {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @var string
 	 */
 	protected $id_key = 't.term_id';
 

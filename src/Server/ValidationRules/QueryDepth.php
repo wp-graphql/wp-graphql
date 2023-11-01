@@ -66,8 +66,8 @@ class QueryDepth extends QuerySecurityRule {
 	 * Determine field depth
 	 *
 	 * @param mixed $node The node being analyzed
-	 * @param int $depth The depth of the field
-	 * @param int $maxDepth The max depth allowed
+	 * @param int   $depth The depth of the field
+	 * @param int   $maxDepth The max depth allowed
 	 *
 	 * @return int|mixed
 	 */
@@ -85,8 +85,8 @@ class QueryDepth extends QuerySecurityRule {
 	 * Determine node depth
 	 *
 	 * @param \GraphQL\Language\AST\Node $node The node being analyzed in the operation
-	 * @param int  $depth The depth of the operation
-	 * @param int  $maxDepth The Max Depth of the operation
+	 * @param int                        $depth The depth of the operation
+	 * @param int                        $maxDepth The Max Depth of the operation
 	 *
 	 * @return int|mixed
 	 */

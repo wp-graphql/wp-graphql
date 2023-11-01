@@ -212,7 +212,7 @@ class Config {
 	 * This filters the WPQuery 'where' $args, enforcing the query to return results before or
 	 * after the referenced cursor
 	 *
-	 * @param string   $where The WHERE clause of the query.
+	 * @param string    $where The WHERE clause of the query.
 	 * @param \WP_Query $query The WP_Query instance (passed by reference).
 	 *
 	 * @return string
@@ -263,7 +263,8 @@ class Config {
 	 * the meta values have same values multiple times. This filter adds a
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
-	 * @param string $orderby The ORDER BY clause of the query.
+	 * @param string         $orderby The ORDER BY clause of the query.
+	 * @param \WP_User_Query $query The WP_User_Query instance (passed by reference).
 	 *
 	 * @return string
 	 */
@@ -439,7 +440,7 @@ class Config {
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
 	 * is a GraphQL Request and before or after cursors are passed to the query
 	 *
-	 * @param array            $pieces A compacted array of comment query clauses.
+	 * @param array             $pieces A compacted array of comment query clauses.
 	 * @param \WP_Comment_Query $query Current instance of WP_Comment_Query, passed by reference.
 	 *
 	 * @return array $pieces

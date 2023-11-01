@@ -163,6 +163,7 @@ class AppContext {
 	 * @param string $key The name of the loader to get
 	 *
 	 * @return mixed
+	 * @throws \GraphQL\Error\UserError If the loader is not found.
 	 */
 	public function get_loader( $key ) {
 		if ( ! array_key_exists( $key, $this->loaders ) ) {
