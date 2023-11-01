@@ -32,6 +32,9 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function get_loader_name() {
 		return 'user';
 	}

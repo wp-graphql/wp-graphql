@@ -54,7 +54,7 @@ class WPMutationType {
 	protected $output_fields;
 
 	/**
-	 * The resolver function to resole the connection
+	 * The resolver function to resolve the mutation
 	 *
 	 * @var callable|\Closure
 	 */
@@ -188,6 +188,9 @@ class WPMutationType {
 		return $output_fields;
 	}
 
+	/**
+	 * Gets the resolver callable for the mutation.
+	 */
 	protected function get_resolver(): callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {
 			$unfiltered_input = $args['input'];
@@ -277,6 +280,9 @@ class WPMutationType {
 		);
 	}
 
+	/**
+	 * Registers the payload type to the Schema.
+	 */
 	protected function register_mutation_payload(): void {
 		$object_name = $this->mutation_name . 'Payload';
 
