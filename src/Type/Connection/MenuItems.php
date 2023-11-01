@@ -116,10 +116,9 @@ class MenuItems {
 					],
 				],
 				'resolve'        => static function ( $source, $args, $context, $info ) {
-					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
-					$connection = $resolver->get_connection();
+					$resolver = new MenuItemConnectionResolver( $source, $args, $context, $info );
 
-					return $connection;
+					return $resolver->get_connection();
 				},
 			],
 			$args
