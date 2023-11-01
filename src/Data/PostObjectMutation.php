@@ -131,10 +131,10 @@ class PostObjectMutation {
 	 *                                                                    delete)
 	 * @param \WPGraphQL\AppContext                $context The AppContext passed down to all resolvers
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
-	 * @param string                               $intended_post_status  The intended post_status the post should have
-	 *                                                                    according to the mutation input
 	 * @param string                               $default_post_status   The default status posts should use if an
 	 *                                                                    intended status wasn't set
+	 * @param string                               $intended_post_status  The intended post_status the post should have
+	 *                                                                    according to the mutation input
 	 *
 	 * @return void
 	 */
