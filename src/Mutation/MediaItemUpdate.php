@@ -29,7 +29,7 @@ class MediaItemUpdate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields() {
 		/** @var \WP_Post_Type $post_type_object */
@@ -51,7 +51,7 @@ class MediaItemUpdate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields() {
 		return MediaItemCreate::get_output_fields();

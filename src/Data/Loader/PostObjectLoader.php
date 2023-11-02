@@ -13,11 +13,11 @@ use WPGraphQL\Model\Post;
 class PostObjectLoader extends AbstractDataLoader {
 
 	/**
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key The Key to identify the user role by
+	 * {@inheritDoc}
 	 *
-	 * @return mixed|\WPGraphQL\Model\Post
-	 * @throws \Exception
+	 * @param mixed|\WP_Post $entry The Post Object
+	 *
+	 * @return \WPGraphQL\Model\Post|\WPGraphQL\Model\MenuItem|null
 	 */
 	protected function get_model( $entry, $key ) {
 		if ( ! $entry instanceof \WP_Post ) {
@@ -55,19 +55,9 @@ class PostObjectLoader extends AbstractDataLoader {
 	}
 
 	/**
-	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
-	 * posts as the values
+	 * {@inheritDoc}
 	 *
-	 * Note that order of returned values must match exactly the order of keys.
-	 * If some entry is not available for given key - it must include null for the missing key.
-	 *
-	 * For example:
-	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
-	 *
-	 * @param array $keys
-	 *
-	 * @return array
-	 * @throws \Exception
+	 * @return array<string|int, \WP_Post|null>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

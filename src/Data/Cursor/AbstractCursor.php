@@ -52,7 +52,7 @@ abstract class AbstractCursor {
 	/**
 	 * Copy of query vars so we can modify them safely
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	public $query_vars = [];
 
@@ -66,8 +66,8 @@ abstract class AbstractCursor {
 	/**
 	 * The constructor
 	 *
-	 * @param array       $query_vars         Query variable for the query to be executed.
-	 * @param string|null $cursor             Cursor type. Either 'after' or 'before'.
+	 * @param array<string,mixed> $query_vars         Query variable for the query to be executed.
+	 * @param string|null         $cursor             Cursor type. Either 'after' or 'before'.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		global $wpdb;
@@ -149,11 +149,9 @@ abstract class AbstractCursor {
 	 * Validates cursor compare field configuration. Validation failure results in a fatal
 	 * error because query execution is guaranteed to fail.
 	 *
-	 * @param array|mixed $field  Threshold configuration.
+	 * @param array<string,mixed>|mixed $field  Threshold configuration.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
-	 *
-	 * @return void
 	 */
 	protected function validate_cursor_compare_field( $field ): void {
 		// Throw if an array not provided.
@@ -240,7 +238,7 @@ abstract class AbstractCursor {
 	/**
 	 * Applies cursor compare fields to the cursor cutoff.
 	 *
-	 * @param array $fallback  Fallback cursor compare fields.
+	 * @param array<string,mixed>[] $fallback Fallback cursor compare fields.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 */
@@ -248,7 +246,7 @@ abstract class AbstractCursor {
 		/**
 		 * Get cursor compare fields from query vars.
 		 *
-		 * @var array|null $cursor_compare_fields
+		 * @var array<string,mixed>[]|null $cursor_compare_fields
 		 */
 		$cursor_compare_fields = $this->get_query_var( 'graphql_cursor_compare_fields' );
 		if ( null === $cursor_compare_fields ) {

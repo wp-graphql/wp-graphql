@@ -87,9 +87,9 @@ class MenuItems {
 	/**
 	 * Given an array of $args, returns the args for the connection with the provided args merged
 	 *
-	 * @param array $args
+	 * @param array<string,mixed> $args
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public static function get_connection_config( $args = [] ) {
 		return array_merge(

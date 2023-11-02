@@ -40,7 +40,7 @@ class PostObjectCreate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		$fields = [
@@ -169,7 +169,7 @@ class PostObjectCreate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
@@ -326,7 +326,7 @@ class PostObjectCreate {
 			 * be deferred (cron or whatever), and when those actions complete they could come back and set
 			 * the $intended_status.
 			 *
-			 * @param boolean      $should_set_intended_status Whether to set the intended post_status or not. Default true.
+			 * @param bool      $should_set_intended_status Whether to set the intended post_status or not. Default true.
 			 * @param \WP_Post_Type $post_type_object The Post Type Object for the post being mutated
 			 * @param string       $mutation_name              The name of the mutation currently in progress
 			 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers

@@ -18,15 +18,12 @@ class PostObjectCursor extends AbstractCursor {
 	/**
 	 * Counter for meta value joins
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	public $meta_join_alias = 0;
 
 	/**
-	 * PostCursor constructor.
-	 *
-	 * @param array|\WP_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null     $cursor Whether to generate the before or after cursor. Default "after"
+	 * {@inheritDoc}
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
@@ -56,11 +53,11 @@ class PostObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 *
-		 * @param null|\WP_Post                           $pre_post The pre-filtered post node.
+		 * @param \WP_Post|null                           $pre_post The pre-filtered post node.
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\PostObjectCursor $node     The cursor instance.
 		 *
-		 * @return null|\WP_Post
+		 * @return \WP_Post|null
 		 */
 		$pre_post = apply_filters( 'graphql_pre_post_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_post ) {

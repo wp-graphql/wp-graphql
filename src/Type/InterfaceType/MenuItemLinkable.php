@@ -13,7 +13,6 @@ class MenuItemLinkable {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {

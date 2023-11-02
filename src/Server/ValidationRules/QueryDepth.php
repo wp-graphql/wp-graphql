@@ -22,6 +22,8 @@ use function sprintf;
 class QueryDepth extends QuerySecurityRule {
 
 	/**
+	 * The max query depth allowed.
+	 *
 	 * @var int
 	 */
 	private $maxQueryDepth;
@@ -36,9 +38,11 @@ class QueryDepth extends QuerySecurityRule {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
-	 * @return callable[]|mixed[]
+	 * @return callable[]
 	 */
 	public function getVisitor( ValidationContext $context ) {
 		return $this->invokeIfNeeded(

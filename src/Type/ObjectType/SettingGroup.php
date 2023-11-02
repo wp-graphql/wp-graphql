@@ -47,7 +47,7 @@ class SettingGroup {
 	 * @param string                           $group      The settings group config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>|null
 	 */
 	public static function get_settings_group_fields( string $group_name, string $group, TypeRegistry $type_registry ) {
 		$setting_fields = DataSource::get_setting_group_fields( $group, $type_registry );

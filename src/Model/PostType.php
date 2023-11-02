@@ -48,9 +48,7 @@ class PostType extends Model {
 	/**
 	 * PostType constructor.
 	 *
-	 * @param \WP_Post_Type $post_type The incoming post type to model
-	 *
-	 * @throws \Exception
+	 * @param \WP_Post_Type $post_type The incoming post type to model.
 	 */
 	public function __construct( \WP_Post_Type $post_type ) {
 		$this->data = $post_type;
@@ -80,9 +78,7 @@ class PostType extends Model {
 	}
 
 	/**
-	 * Method for determining if the data should be considered private or not
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	protected function is_private() {
 		if ( false === $this->data->public && ( ! isset( $this->data->cap->edit_posts ) || ! current_user_can( $this->data->cap->edit_posts ) ) ) {
@@ -93,9 +89,7 @@ class PostType extends Model {
 	}
 
 	/**
-	 * Initializes the object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

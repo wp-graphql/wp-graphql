@@ -34,11 +34,11 @@ class Utils {
 	/**
 	 * Maps new input query args and sanitizes the input
 	 *
-	 * @param mixed|array|string $args The raw query args from the GraphQL query
-	 * @param mixed|array|string $map  The mapping of where each of the args should go
-	 * @param string[]           $skip Fields to skipped and not be added to the output array.
+	 * @param mixed|mixed[]|string $args The raw query args from the GraphQL query
+	 * @param mixed|mixed[]|string $map  The mapping of where each of the args should go
+	 * @param string[]             $skip Fields to skipped and not be added to the output array.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map, $skip = [] ) {
@@ -127,7 +127,7 @@ class Utils {
 		 *
 		 * Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 		 *
-		 * @param null|string $formatted_name The name to format. If not null, the result will be returned as the formatted name.
+		 * @param string|null $formatted_name The name to format. If not null, the result will be returned as the formatted name.
 		 * @param string $original_name       The name to format.
 		 * @param string $replacement         The replacement character for invalid characters. Defaults to '_'.
 		 * @param string $regex               The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
@@ -171,8 +171,6 @@ class Utils {
 	 *
 	 * @param string $field_name         The field name to format
 	 * @param bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
-	 *
-	 * @return string
 	 */
 	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
 		// Bail if empty.
@@ -255,7 +253,7 @@ class Utils {
 	/**
 	 * Helper function that defines the allowed HTML to use on the Settings pages
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_allowed_wp_kses_html() {
 		$allowed_atts = [
@@ -354,7 +352,7 @@ class Utils {
 	 *
 	 * @param int|string $id The encoded Node ID.
 	 *
-	 * @return bool|null
+	 * @return ?string
 	 */
 	public static function get_node_type_from_id( $id ) {
 		if ( is_numeric( $id ) ) {

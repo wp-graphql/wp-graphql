@@ -28,14 +28,14 @@ abstract class AbstractDataLoader {
 	/**
 	 * This stores an array of items that have already been loaded
 	 *
-	 * @var array
+	 * @var array<int|string,mixed>
 	 */
 	private $cached = [];
 
 	/**
 	 * This stores an array of IDs that need to be loaded
 	 *
-	 * @var array
+	 * @var array<int|string,int|string>
 	 */
 	private $buffer = [];
 
@@ -58,8 +58,7 @@ abstract class AbstractDataLoader {
 	/**
 	 * Given a Database ID, the particular loader will buffer it and resolve it deferred.
 	 *
-	 * @param mixed|int|string $database_id The database ID for a particular loader to load an
-	 *                                      object
+	 * @param mixed|int|string $database_id The database ID for a particular loader to load an object
 	 *
 	 * @return \GraphQL\Deferred|null
 	 * @throws \Exception
@@ -83,7 +82,7 @@ abstract class AbstractDataLoader {
 	/**
 	 * Add keys to buffer to be loaded in single batch later.
 	 *
-	 * @param array $keys The keys of the objects to buffer
+	 * @param int[]|string[] $keys The keys of the objects to buffer
 	 *
 	 * @return $this
 	 * @throws \Exception
@@ -181,7 +180,7 @@ abstract class AbstractDataLoader {
 	 * Clears the value at `key` from the cache, if it exists. Returns itself for
 	 * method chaining.
 	 *
-	 * @param array $keys
+	 * @param int[]|string[] $keys
 	 *
 	 * @return $this
 	 */
@@ -226,10 +225,10 @@ abstract class AbstractDataLoader {
 	 * Loads multiple keys. Returns generator where each entry directly corresponds to entry in
 	 * $keys. If second argument $asArray is set to true, returns array instead of generator
 	 *
-	 * @param array $keys
-	 * @param bool  $asArray
+	 * @param int[]|string[] $keys
+	 * @param bool           $asArray
 	 *
-	 * @return array|\Generator
+	 * @return \Generator|array<int|string,mixed>
 	 * @throws \Exception
 	 *
 	 * @deprecated Use load_many instead
@@ -243,10 +242,10 @@ abstract class AbstractDataLoader {
 	 * Loads multiple keys. Returns generator where each entry directly corresponds to entry in
 	 * $keys. If second argument $asArray is set to true, returns array instead of generator
 	 *
-	 * @param array $keys
-	 * @param bool  $asArray
+	 * @param int[]|string[] $keys
+	 * @param bool           $asArray
 	 *
-	 * @return array|\Generator
+	 * @return \Generator|array<int|string,mixed>
 	 * @throws \Exception
 	 */
 	public function load_many( array $keys, $asArray = false ) {
@@ -265,8 +264,8 @@ abstract class AbstractDataLoader {
 	/**
 	 * Given an array of keys, this yields the object from the cached results
 	 *
-	 * @param array $keys   The keys to generate results for
-	 * @param array $result The results for all keys
+	 * @param int[]|string[]          $keys   The keys to generate results for
+	 * @param array<int|string,mixed> $result The results for all keys
 	 *
 	 * @return \Generator
 	 */
@@ -282,7 +281,7 @@ abstract class AbstractDataLoader {
 	 * executes the loaders `loadKeys` method to load the items and adds them
 	 * to the cache if necessary
 	 *
-	 * @return array
+	 * @return array<int|string,mixed>
 	 * @throws \Exception
 	 */
 	private function load_buffered() {
@@ -349,18 +348,18 @@ abstract class AbstractDataLoader {
 	 * to the loader, we could have the loader centrally decode the keys into their
 	 * integer values in the PostObjectLoader by overriding this method.
 	 *
-	 * @param mixed $key
+	 * @param int|string|mixed $key
 	 *
-	 * @return mixed
+	 * @return int|string
 	 */
 	protected function key_to_scalar( $key ) {
 		return $key;
 	}
 
 	/**
-	 * @param mixed $key
+	 * @param int|string|mixed $key
 	 *
-	 * @return mixed
+	 * @return int|string
 	 * @deprecated Use key_to_scalar instead
 	 */
 	protected function keyToScalar( $key ) {
@@ -372,7 +371,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The entry loaded from the dataloader to be used to generate a Model
 	 * @param mixed $key   The Key used to identify the loaded entry
 	 *
-	 * @return null|\WPGraphQL\Model\Model
+	 * @return \WPGraphQL\Model\Model|null
 	 */
 	protected function normalize_entry( $entry, $key ) {
 
@@ -455,10 +454,10 @@ abstract class AbstractDataLoader {
 	/**
 	 * Caches a data object by key.
 	 *
-	 * @param mixed $key    Key.
-	 * @param mixed $value  Data object.
+	 * @param int|string $key    Key.
+	 * @param mixed      $value  Data object.
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	protected function set_cached( $key, $value ) {
 		/**
@@ -482,10 +481,10 @@ abstract class AbstractDataLoader {
 	 * If the loader needs to do any tweaks between getting raw data from the DB and caching,
 	 * this can be overridden by the specific loader and used for transformations, etc.
 	 *
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key   The Key to identify the user role by
+	 * @param mixed $entry The entry data to be used to generate a Model.
+	 * @param mixed $key   The Key to identify the entry by.
 	 *
-	 * @return \WPGraphQL\Model\Model
+	 * @return ?\WPGraphQL\Model\Model
 	 */
 	protected function get_model( $entry, $key ) {
 		return $entry;
@@ -501,9 +500,9 @@ abstract class AbstractDataLoader {
 	 * For example:
 	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
 	 *
-	 * @param array $keys
+	 * @param int[]|string[] $keys
 	 *
-	 * @return array
+	 * @return array<int|string,mixed>
 	 */
 	abstract protected function loadKeys( array $keys );
 }

@@ -10,7 +10,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	protected $query;
 
@@ -42,9 +42,9 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 
 
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function get_query() {
 		if ( isset( $this->query_args['contentTypeNames'] ) && is_array( $this->query_args['contentTypeNames'] ) ) {
@@ -60,29 +60,23 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * The name of the loader to load the data
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'post_type';
 	}
 
 	/**
-	 * Determine if the offset used for pagination is valid
+	 * {@inheritDoc}
 	 *
-	 * @param mixed $offset
-	 *
-	 * @return bool
+	 * @param string $offset The offset (post type name) to check.
 	 */
 	public function is_valid_offset( $offset ) {
 		return (bool) get_post_type_object( $offset );
 	}
 
 	/**
-	 * Determine if the query should execute
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function should_execute() {
 		return true;

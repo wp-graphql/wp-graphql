@@ -14,10 +14,9 @@ use GraphQL\Type\Definition\InterfaceType;
 trait WPInterfaceTrait {
 
 	/**
-	 * Given an array of interfaces, this gets the Interfaces the Type should implement including
-	 * inherited interfaces.
+	 * Given an array of interfaces, this gets the Interfaces the Type should implement including inherited interfaces.
 	 *
-	 * @return array
+	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	protected function get_implemented_interfaces(): array {
 		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
@@ -29,8 +28,8 @@ trait WPInterfaceTrait {
 		/**
 		 * Filters the interfaces applied to an object type
 		 *
-		 * @param array        $interfaces     List of interfaces applied to the Object Type
-		 * @param array        $config         The config for the Object Type
+		 * @param string[]                   $interfaces     List of interfaces applied to the Object Type
+		 * @param array<string,mixed>        $config         The config for the Object Type
 		 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
 		 */
 		$interfaces = apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );

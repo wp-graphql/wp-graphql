@@ -10,7 +10,6 @@ class PageInfo {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public static function register_type( TypeRegistry $type_registry ): void {
@@ -35,7 +34,7 @@ class PageInfo {
 	/**
 	 * Get the fields for the PageInfo Type
 	 *
-	 * @return array[]
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_fields(): array {
 		return [

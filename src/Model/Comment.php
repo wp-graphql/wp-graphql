@@ -43,8 +43,6 @@ class Comment extends Model {
 	 * Comment constructor.
 	 *
 	 * @param \WP_Comment $comment The incoming WP_Comment to be modeled
-	 *
-	 * @throws \Exception
 	 */
 	public function __construct( WP_Comment $comment ) {
 		$allowed_restricted_fields = [
@@ -74,10 +72,7 @@ class Comment extends Model {
 	}
 
 	/**
-	 * Method for determining if the data should be considered private or not
-	 *
-	 * @return bool
-	 * @throws \Exception
+	 * {@inheritDoc}
 	 */
 	protected function is_private() {
 		if ( empty( $this->data->comment_post_ID ) ) {
@@ -108,9 +103,7 @@ class Comment extends Model {
 	}
 
 	/**
-	 * Initializes the object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

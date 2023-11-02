@@ -11,21 +11,20 @@ use WPGraphQL\Model\Theme;
 class ThemeLoader extends AbstractDataLoader {
 
 	/**
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key The Key to identify the user role by
+	 * {@inheritDoc}
 	 *
-	 * @return \WPGraphQL\Model\Model|\WPGraphQL\Model\Theme
-	 * @throws \Exception
+	 * @param mixed|\WP_Theme $entry The User Role object
+	 *
+	 * @return \WPGraphQL\Model\Theme
 	 */
 	protected function get_model( $entry, $key ) {
 		return new Theme( $entry );
 	}
 
 	/**
-	 * @param array $keys
+	 * {@inheritDoc}
 	 *
-	 * @return array
-	 * @throws \Exception
+	 * @return array<int|string,?\WP_Theme>
 	 */
 	public function loadKeys( array $keys ) {
 		$themes = wp_get_themes();

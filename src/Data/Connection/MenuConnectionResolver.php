@@ -10,9 +10,8 @@ namespace WPGraphQL\Data\Connection;
 class MenuConnectionResolver extends TermObjectConnectionResolver {
 
 	/**
-	 * Get the connection args for use in WP_Term_Query to query the menus
+	 * {@inheritDoc}
 	 *
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function get_query_args() {
