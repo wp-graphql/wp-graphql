@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.18.0
+
+### New Features
+
+- [#2937](https://github.com/wp-graphql/wp-graphql/pull/2937): fix: Support asPreview by URI/SLUG Id Type (this is technically a bugfix, but introduces new functionality)
+
+### Chores / Bugfixes
+
+- [#2972](https://github.com/wp-graphql/wp-graphql/pull/2972): chore(deps): bump @babel/traverse from 7.17.3 to 7.23.2
+- [#2930](https://github.com/wp-graphql/wp-graphql/pull/2930): fix: unstable term cursor identical names
+- [#2976](https://github.com/wp-graphql/wp-graphql/pull/2976): chore: restore commenting sniffs to PHPCS ruleset
+- [#2973](https://github.com/wp-graphql/wp-graphql/pull/2973): chore: update composer deps to latest
+- [#2975](https://github.com/wp-graphql/wp-graphql/pull/2975): chore: lint and remove useless variables [phpcs]
+- [#2977](https://github.com/wp-graphql/wp-graphql/pull/2977): chore: sort use statements alphabetically with SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses (autofix)
+- [#2978](https://github.com/wp-graphql/wp-graphql/pull/2978]): chore: implement stricter type hinting with SlevomatCodingStandard.TypeHints [phpcs]
+
+
 ## 1.17.0
 
 ### New Features
