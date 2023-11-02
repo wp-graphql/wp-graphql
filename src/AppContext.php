@@ -73,14 +73,14 @@ class AppContext {
 	/**
 	 * Passes context about the current connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	public $connectionArgs = [];
 
 	/**
 	 * Stores the loaders for the class
 	 *
-	 * @var array
+	 * @var array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>
 	 */
 	public $loaders = [];
 
@@ -162,7 +162,8 @@ class AppContext {
 	 *
 	 * @param string $key The name of the loader to get
 	 *
-	 * @return mixed
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+	 * @throws \GraphQL\Error\UserError If the loader is not found.
 	 */
 	public function get_loader( $key ) {
 		if ( ! array_key_exists( $key, $this->loaders ) ) {
@@ -177,7 +178,7 @@ class AppContext {
 	 * Returns the $args for the connection the field is a part of
 	 *
 	 * @deprecated use get_connection_args() instead
-	 * @return array|mixed
+	 * @return mixed[]|mixed
 	 */
 	public function getConnectionArgs() {
 		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_connection_args()' );
@@ -187,7 +188,7 @@ class AppContext {
 	/**
 	 * Returns the $args for the connection the field is a part of
 	 *
-	 * @return array|mixed
+	 * @return mixed[]|mixed
 	 */
 	public function get_connection_args() {
 		return isset( $this->currentConnection ) && isset( $this->connectionArgs[ $this->currentConnection ] ) ? $this->connectionArgs[ $this->currentConnection ] : [];
@@ -196,14 +197,14 @@ class AppContext {
 	/**
 	 * Returns the current connection
 	 *
-	 * @return mixed|null|String
+	 * @return mixed|string|null
 	 */
 	public function get_current_connection() {
 		return isset( $this->currentConnection ) ? $this->currentConnection : null;
 	}
 
 	/**
-	 * @return mixed|null|String
+	 * @return mixed|string|null
 	 * @deprecated use get_current_connection instead.
 	 */
 	public function getCurrentConnection() {

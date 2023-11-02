@@ -4,9 +4,9 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WP_Taxonomy;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Utils\Utils;
+use WP_Taxonomy;
 
 /**
  * Class TermObjectDelete
@@ -39,7 +39,7 @@ class TermObjectDelete {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		return [
@@ -58,7 +58,7 @@ class TermObjectDelete {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return [
@@ -85,7 +85,7 @@ class TermObjectDelete {
 	 * Defines the mutation data modification closure.
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
-	 * @param string      $mutation_name The name of the mutation.
+	 * @param string       $mutation_name The name of the mutation.
 	 *
 	 * @return callable
 	 */

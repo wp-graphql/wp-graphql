@@ -11,10 +11,11 @@ use WPGraphQL\Model\User;
 class UserLoader extends AbstractDataLoader {
 
 	/**
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key The Key to identify the user role by
+	 * {@inheritDoc}
 	 *
-	 * @return mixed|\WPGraphQL\Model\User
+	 * @param mixed|\WP_User $entry The User object
+	 *
+	 * @return ?\WPGraphQL\Model\User
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -40,9 +41,9 @@ class UserLoader extends AbstractDataLoader {
 	 * In this example, user 1 is not public (has no published posts) and is
 	 * omitted from the returned array.
 	 *
-	 * @param array $keys Array of author IDs (int).
+	 * @param int[] $keys Array of author IDs (int).
 	 *
-	 * @return array
+	 * @return array<int, bool> Associative array of author IDs (int) to boolean.
 	 */
 	public function get_public_users( array $keys ) {
 
@@ -104,19 +105,11 @@ class UserLoader extends AbstractDataLoader {
 	}
 
 	/**
-	 * Given array of keys, loads and returns a map consisting of keys from `keys` array and loaded
-	 * values
+	 * {@inheritDoc}
 	 *
-	 * Note that order of returned values must match exactly the order of keys.
-	 * If some entry is not available for given key - it must include null for the missing key.
+	 * @param int[] $keys
 	 *
-	 * For example:
-	 * loadKeys(['a', 'b', 'c']) -> ['a' => 'value1, 'b' => null, 'c' => 'value3']
-	 *
-	 * @param array $keys
-	 *
-	 * @return array
-	 * @throws \Exception
+	 * @return array<int, \WP_User|null>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

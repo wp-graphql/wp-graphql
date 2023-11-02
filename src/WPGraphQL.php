@@ -1,22 +1,23 @@
 <?php
+/**
+ * The global WPGraphQL class.
+ *
+ * @package WPGraphQL
+ */
 
-// Global. - namespace WPGraphQL;
-
-use WPGraphQL\Utils\Preview;
-use WPGraphQL\Utils\InstrumentSchema;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
 use WPGraphQL\Type\WPObjectType;
+use WPGraphQL\Utils\InstrumentSchema;
+use WPGraphQL\Utils\Preview;
 
 /**
  * Class WPGraphQL
  *
  * This is the one true WPGraphQL class
- *
- * @package WPGraphQL
  */
 final class WPGraphQL {
 
@@ -32,14 +33,14 @@ final class WPGraphQL {
 	/**
 	 * Holds the Schema def
 	 *
-	 * @var mixed|null|\WPGraphQL\WPSchema $schema The Schema used for the GraphQL API
+	 * @var mixed|\WPGraphQL\WPSchema|null $schema The Schema used for the GraphQL API
 	 */
 	protected static $schema;
 
 	/**
 	 * Holds the TypeRegistry instance
 	 *
-	 * @var mixed|null|\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
+	 * @var mixed|\WPGraphQL\Registry\TypeRegistry|null $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
 
@@ -60,7 +61,7 @@ final class WPGraphQL {
 	protected static $allowed_taxonomies;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected static $is_graphql_request;
 
@@ -123,7 +124,6 @@ final class WPGraphQL {
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
-	 * @return void
 	 * @since  0.0.1
 	 */
 	private function includes(): void {
@@ -150,8 +150,6 @@ final class WPGraphQL {
 	/**
 	 * Sets up actions to run at certain spots throughout WordPress and the WPGraphQL execution
 	 * cycle
-	 *
-	 * @return void
 	 */
 	private function actions(): void {
 		/**
@@ -284,8 +282,6 @@ final class WPGraphQL {
 
 	/**
 	 * Setup filters
-	 *
-	 * @return void
 	 */
 	private function filters(): void {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
@@ -370,10 +366,10 @@ final class WPGraphQL {
 	/**
 	 * Sets up the default post types to show_in_graphql.
 	 *
-	 * @param array  $args      Array of arguments for registering a post type.
-	 * @param string $post_type Post type key.
+	 * @param array<string,mixed> $args      Array of arguments for registering a post type.
+	 * @param string              $post_type Post type key.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public static function setup_default_post_types( $args, $post_type ) {
 		// Adds GraphQL support for attachments.
@@ -397,10 +393,10 @@ final class WPGraphQL {
 	/**
 	 * Sets up the default taxonomies to show_in_graphql.
 	 *
-	 * @param array  $args     Array of arguments for registering a taxonomy.
-	 * @param string $taxonomy Taxonomy key.
+	 * @param array<string,mixed> $args     Array of arguments for registering a taxonomy.
+	 * @param string              $taxonomy Taxonomy key.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since 1.12.0
 	 */
 	public static function setup_default_taxonomies( $args, $taxonomy ) {
@@ -425,10 +421,10 @@ final class WPGraphQL {
 	/**
 	 * Set the GraphQL Post Type Args and pass them through a filter.
 	 *
-	 * @param array  $args           The graphql specific args for the post type
-	 * @param string $post_type_name The name of the post type being registered
+	 * @param array<string,mixed> $args           The graphql specific args for the post type
+	 * @param string              $post_type_name The name of the post type being registered
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 * @since 1.12.0
 	 */
@@ -454,10 +450,10 @@ final class WPGraphQL {
 	/**
 	 * Set the GraphQL Taxonomy Args and pass them through a filter.
 	 *
-	 * @param array  $args          The graphql specific args for the taxonomy
-	 * @param string $taxonomy_name The name of the taxonomy being registered
+	 * @param array<string,mixed> $args          The graphql specific args for the taxonomy
+	 * @param string              $taxonomy_name The name of the taxonomy being registered
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 * @since 1.12.0
 	 */
@@ -484,6 +480,8 @@ final class WPGraphQL {
 	 * This sets the post type /taxonomy GraphQL properties.
 	 *
 	 * @since 1.12.0
+	 *
+	 * @return array<string,mixed>
 	 */
 	public static function get_default_graphql_type_args(): array {
 		return [
@@ -512,11 +510,10 @@ final class WPGraphQL {
 	 * This gets all post_types that are set to show_in_graphql, but allows for external code
 	 * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
 	 *
-	 * @param string|array $output Optional. The type of output to return. Accepts post type
-	 *                             'names' or 'objects'. Default 'names'.
-	 * @param array        $args   Optional. Arguments to filter allowed post types
+	 * @param string|mixed[]      $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
+	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed post types
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since  0.0.4
 	 * @since  1.8.1 adds $output as first param, and stores post type objects in class property.
 	 */
@@ -606,10 +603,10 @@ final class WPGraphQL {
 	 * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
 	 * taxonomies
 	 *
-	 * @param string $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
-	 * @param array  $args   Optional. Arguments to filter allowed taxonomies.
+	 * @param string              $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
+	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed taxonomies.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since  0.0.4
 	 */
 	public static function get_allowed_taxonomies( $output = 'names', $args = [] ) {
@@ -736,8 +733,6 @@ final class WPGraphQL {
 
 	/**
 	 * Whether WPGraphQL is operating in Debug mode
-	 *
-	 * @return bool
 	 */
 	public static function debug(): bool {
 		if ( defined( 'GRAPHQL_DEBUG' ) ) {
@@ -791,7 +786,7 @@ final class WPGraphQL {
 	/**
 	 * Return the static schema if there is one
 	 *
-	 * @return null|string
+	 * @return string|null
 	 */
 	public static function get_static_schema() {
 		$schema = null;

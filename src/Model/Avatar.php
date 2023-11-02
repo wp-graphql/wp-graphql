@@ -23,16 +23,14 @@ class Avatar extends Model {
 	/**
 	 * Stores the incoming avatar to be modeled
 	 *
-	 * @var array $data
+	 * @var array<string,mixed>
 	 */
 	protected $data;
 
 	/**
 	 * Avatar constructor.
 	 *
-	 * @param array $avatar The incoming avatar to be modeled
-	 *
-	 * @throws \Exception Throws Exception.
+	 * @param array<string,mixed> $avatar The incoming avatar to be modeled.
 	 */
 	public function __construct( array $avatar ) {
 		$this->data = $avatar;
@@ -40,9 +38,7 @@ class Avatar extends Model {
 	}
 
 	/**
-	 * Initializes the object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

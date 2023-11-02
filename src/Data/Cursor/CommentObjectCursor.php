@@ -19,10 +19,9 @@ class CommentObjectCursor extends AbstractCursor {
 	public $cursor_node;
 
 	/**
-	 * @param array|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null            $cursor Whether to generate the before or after cursor. Default "after"
+	 * {@inheritDoc}
 	 *
-	 * @return void
+	 * @param array<string,mixed>|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
@@ -52,11 +51,11 @@ class CommentObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 *
-		 * @param null|\WP_Comment                           $pre_comment The pre-filtered comment node.
+		 * @param \WP_Comment|null                           $pre_comment The pre-filtered comment node.
 		 * @param int                                        $offset      The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\CommentObjectCursor $node        The cursor instance.
 		 *
-		 * @return null|\WP_Comment
+		 * @return \WP_Comment|null
 		 */
 		$pre_comment = apply_filters( 'graphql_pre_comment_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_comment ) {
@@ -139,7 +138,7 @@ class CommentObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public function to_sql() {
 		$sql = $this->builder->to_sql();

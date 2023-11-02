@@ -17,10 +17,10 @@ class Types {
 	/**
 	 * @deprecated since v0.6.0. Use Utils:map_input instead
 	 *
-	 * @param array $args The raw query args from the GraphQL query.
-	 * @param array $map  The mapping of where each of the args should go.
+	 * @param mixed[] $args The raw query args from the GraphQL query.
+	 * @param mixed[] $map  The mapping of where each of the args should go.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public static function map_input( $args, $map ) {
 		_deprecated_function( __METHOD__, '0.6.0', 'WPGraphQL\Utils\Utils::map_input()' );

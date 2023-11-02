@@ -12,10 +12,11 @@ use WPGraphQL\Model\Plugin;
 class PluginLoader extends AbstractDataLoader {
 
 	/**
-	 * @param mixed $entry The User Role object
-	 * @param mixed $key The Key to identify the user role by
+	 * {@inheritDoc}
 	 *
-	 * @return \WPGraphQL\Model\Model|\WPGraphQL\Model\Plugin
+	 * @param array<string,mixed> $entry The plugin data
+	 *
+	 * @return \WPGraphQL\Model\Plugin
 	 * @throws \Exception
 	 */
 	protected function get_model( $entry, $key ) {
@@ -23,11 +24,11 @@ class PluginLoader extends AbstractDataLoader {
 	}
 
 	/**
-	 * Given an array of plugin names, load the associated plugins from the plugin registry.
+	 * {@inheritDoc}
 	 *
-	 * @param array $keys
+	 * @param string[] $keys Array of plugin names to load
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>|null>
 	 * @throws \Exception
 	 */
 	public function loadKeys( array $keys ) {

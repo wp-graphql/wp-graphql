@@ -13,23 +13,14 @@ use WPGraphQL\Utils\Utils;
 class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 	/**
-	 * MenuItemConnectionResolver constructor.
-	 *
-	 * @param mixed       $source     source passed down from the resolve tree
-	 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-	 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
-	 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
-	 *
-	 * @throws \Exception
+	 * {@inheritDoc}
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		parent::__construct( $source, $args, $context, $info, 'nav_menu_item' );
 	}
 
 	/**
-	 * Returns the query args for the connection to resolve with
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
 		/**
@@ -89,9 +80,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	}
 
 	/**
-	 * Filters the GraphQL args before they are used in get_query_args().
-	 *
-	 * @return array
+	 * {@inheritDoc}
 	 */
 	public function get_args(): array {
 		$args = $this->args;

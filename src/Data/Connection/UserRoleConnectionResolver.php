@@ -14,7 +14,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	protected $query;
 
@@ -53,13 +53,12 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function get_query() {
 		$wp_roles = wp_roles();
-		$roles    = ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
-
-		return $roles;
+		
+		return ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
 	}
 
 	/**
@@ -70,16 +69,14 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * @param mixed $offset Whether the provided offset is valid for the connection
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function is_valid_offset( $offset ) {
 		return (bool) get_role( $offset );
 	}
 
 	/**
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function should_execute() {
 		if (

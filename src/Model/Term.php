@@ -38,7 +38,7 @@ class Term extends Model {
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *
-	 * @var null|\WP_Taxonomy $taxonomy_object
+	 * @var \WP_Taxonomy|null $taxonomy_object
 	 */
 	protected $taxonomy_object;
 
@@ -55,7 +55,6 @@ class Term extends Model {
 	 * @param \WP_Term $term The incoming WP_Term object that needs modeling
 	 *
 	 * @return void
-	 * @throws \Exception
 	 */
 	public function __construct( WP_Term $term ) {
 		$this->data            = $term;
@@ -65,9 +64,7 @@ class Term extends Model {
 	}
 
 	/**
-	 * Setup the global state for the model to have proper context when resolving
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	public function setup() {
 		global $wp_query, $post;
@@ -108,10 +105,7 @@ class Term extends Model {
 	}
 
 	/**
-	 * Reset global state after the model fields
-	 * have been generated
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	public function tear_down() {
 		$GLOBALS['post'] = $this->global_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
@@ -119,9 +113,7 @@ class Term extends Model {
 	}
 
 	/**
-	 * Initializes the Term object
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
 	protected function init() {
 		if ( empty( $this->fields ) ) {

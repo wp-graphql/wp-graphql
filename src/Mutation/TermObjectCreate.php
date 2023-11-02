@@ -4,9 +4,9 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
+use WP_Taxonomy;
 
 class TermObjectCreate {
 	/**
@@ -45,7 +45,7 @@ class TermObjectCreate {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		$fields = [
@@ -84,7 +84,7 @@ class TermObjectCreate {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return [
@@ -105,7 +105,7 @@ class TermObjectCreate {
 	 * Defines the mutation data modification closure.
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
-	 * @param string      $mutation_name The name of the mutation.
+	 * @param string       $mutation_name The name of the mutation.
 	 *
 	 * @return callable
 	 */

@@ -3,10 +3,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Taxonomy;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\TermObjectMutation;
 use WPGraphQL\Utils\Utils;
+use WP_Taxonomy;
 
 /**
  * Class TermObjectUpdate
@@ -38,7 +38,7 @@ class TermObjectUpdate {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( WP_Taxonomy $taxonomy ) {
 		return array_merge(
@@ -65,7 +65,7 @@ class TermObjectUpdate {
 	 *
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Taxonomy $taxonomy ) {
 		return TermObjectCreate::get_output_fields( $taxonomy );

@@ -2,6 +2,7 @@
 /**
  * This file contains access functions for various class methods
  *
+ * @package WPGraphQL
  * @since 0.0.2
  */
 
@@ -85,10 +86,10 @@ function graphql_format_type_name( $type_name ) {
 /**
  * Provides a simple way to run a GraphQL query without posting a request to the endpoint.
  *
- * @param array $request_data   The GraphQL request data (query, variables, operation_name).
- * @param bool  $return_request If true, return the Request object, else return the results of the request execution
+ * @param array<string,mixed> $request_data   The GraphQL request data (query, variables, operation_name).
+ * @param bool                $return_request If true, return the Request object, else return the results of the request execution
  *
- * @return array|\WPGraphQL\Request
+ * @return array<string,mixed>|\WPGraphQL\Request
  * @throws \Exception
  * @since  0.2.0
  */
@@ -108,12 +109,12 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  * Previous access function for running GraphQL queries directly. This function will
  * eventually be deprecated in favor of `graphql`.
  *
- * @param string $query          The GraphQL query to run
- * @param string $operation_name The name of the operation
- * @param array  $variables      Variables to be passed to your GraphQL request
- * @param bool   $return_request If true, return the Request object, else return the results of the request execution
+ * @param string              $query          The GraphQL query to run
+ * @param string              $operation_name The name of the operation
+ * @param array<string,mixed> $variables      Variables to be passed to your GraphQL request
+ * @param bool                $return_request If true, return the Request object, else return the results of the request execution
  *
- * @return array|\WPGraphQL\Request
+ * @return array<string,mixed>|\WPGraphQL\Request
  * @throws \Exception
  * @since  0.0.2
  */
@@ -149,12 +150,10 @@ function get_graphql_register_action() {
  *
  * Should be used at the `graphql_register_types` hook.
  *
- * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL
- *                                                    Interfaces to apply to the GraphQL Types
- * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL
- *                                                    Types to apply the interfaces to
+ * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
+ * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
  *
- * example:
+ * Example:
  * The following would register the "MyNewInterface" interface to the Post and Page type in the
  * Schema.
  *
@@ -196,8 +195,8 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ) {
 /**
  * Given a Type Name and a $config array, this adds a Type to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  *
  * @throws \Exception
  * @return void
@@ -215,8 +214,8 @@ function register_graphql_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string                                     $type_name The name of the Type to register
- * @param mixed|array|\GraphQL\Type\Definition\Type  $config    The Type config
+ * @param string                                                  $type_name The name of the Type to register
+ * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The Type config
  *
  * @throws \Exception
  * @return void
@@ -234,8 +233,8 @@ function register_graphql_interface_type( string $type_name, $config ) {
 /**
  * Given a Type Name and a $config array, this adds an ObjectType to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  *
  * @return void
  */
@@ -247,8 +246,8 @@ function register_graphql_object_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an InputType to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  *
  * @return void
  */
@@ -260,8 +259,8 @@ function register_graphql_input_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an UnionType to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  *
  * @throws \Exception
  *
@@ -281,8 +280,8 @@ function register_graphql_union_type( string $type_name, array $config ) {
 /**
  * Given a Type Name and a $config array, this adds an EnumType to the TypeRegistry
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  *
  * @return void
  */
@@ -295,9 +294,9 @@ function register_graphql_enum_type( string $type_name, array $config ) {
  * Given a Type Name, Field Name, and a $config array, this adds a Field to a registered Type in
  * the TypeRegistry
  *
- * @param string $type_name                       The name of the Type to add the field to
- * @param string $field_name                      The name of the Field to add to the Type
- * @param array  $config                          The Type config
+ * @param string              $type_name  The name of the Type to add the field to
+ * @param string              $field_name The name of the Field to add to the Type
+ * @param array<string,mixed> $config     The Type config
  *
  * @return void
  * @throws \Exception
@@ -317,8 +316,8 @@ function register_graphql_field( string $type_name, string $field_name, array $c
  * Given a Type Name and an array of field configs, this adds the fields to the registered type in
  * the TypeRegistry
  *
- * @param string $type_name The name of the Type to add the fields to
- * @param array  $fields    An array of field configs
+ * @param string                            $type_name The name of the Type to add the fields to
+ * @param array<string,array<string,mixed>> $fields    An array of field configs
  *
  * @return void
  * @throws \Exception
@@ -337,10 +336,10 @@ function register_graphql_fields( string $type_name, array $fields ) {
 /**
  * Adds a field to the Connection Edge between the provided 'From' Type Name and 'To' Type Name.
  *
- * @param string $from_type  The name of the Type the connection is coming from.
- * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
- * @param string $field_name The name of the field to add to the connection edge.
- * @param array $config      The field config.
+ * @param string              $from_type  The name of the Type the connection is coming from.
+ * @param string              $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param string              $field_name The name of the field to add to the connection edge.
+ * @param array<string,mixed> $config     The field config.
  *
  * @since 1.13.0
  */
@@ -359,9 +358,9 @@ function register_graphql_edge_field( string $from_type, string $to_type, string
 /**
  * Adds several fields to the Connection Edge between the provided 'From' Type Name and 'To' Type Name.
  *
- * @param string $from_type The name of the Type the connection is coming from.
- * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
- * @param array  $fields    An array of field configs.
+ * @param string                            $from_type The name of the Type the connection is coming from.
+ * @param string                            $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param array<string,array<string,mixed>> $fields    An array of field configs.
  *
  * @since 1.13.0
  */
@@ -380,10 +379,10 @@ function register_graphql_edge_fields( string $from_type, string $to_type, array
 /**
  * Adds an input field to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name.
  *
- * @param string $from_type  The name of the Type the connection is coming from.
- * @param string $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
- * @param string $field_name The name of the field to add to the connection edge.
- * @param array $config      The field config.
+ * @param string              $from_type  The name of the Type the connection is coming from.
+ * @param string              $to_type    The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param string              $field_name The name of the field to add to the connection edge.
+ * @param array<string,mixed> $config      The field config.
  *
  * @since 1.13.0
  */
@@ -402,9 +401,9 @@ function register_graphql_connection_where_arg( string $from_type, string $to_ty
 /**
  * Adds several input fields to the Connection Where Args between the provided 'From' Type Name and 'To' Type Name.
  *
- * @param string $from_type The name of the Type the connection is coming from.
- * @param string $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
- * @param array  $fields    An array of field configs.
+ * @param string                            $from_type The name of the Type the connection is coming from.
+ * @param string                            $to_type   The name of the Type or Alias (the connection config's `FromFieldName`) the connection is going to.
+ * @param array<string,array<string,mixed>> $fields    An array of field configs.
  *
  * @since 1.13.0
  */
@@ -502,7 +501,7 @@ function rename_graphql_type( string $type_name, string $new_type_name ) {
  * Given a config array for a connection, this registers a connection by creating all appropriate
  * fields and types for the connection
  *
- * @param array $config Array to configure the connection
+ * @param array<string,mixed> $config Array to configure the connection
  *
  * @throws \Exception
  * @return void
@@ -522,8 +521,8 @@ function register_graphql_connection( array $config ) {
 /**
  * Given a Mutation Name and Config array, this adds a Mutation to the Schema
  *
- * @param string $mutation_name The name of the Mutation to register
- * @param array  $config        The config for the mutation
+ * @param string              $mutation_name The name of the Mutation to register
+ * @param array<string,mixed> $config        The config for the mutation
  *
  * @throws \Exception
  *
@@ -543,8 +542,8 @@ function register_graphql_mutation( string $mutation_name, array $config ) {
 /**
  * Given a config array for a custom Scalar, this registers a Scalar for use in the Schema
  *
- * @param string $type_name The name of the Type to register
- * @param array  $config    The config for the scalar type to register
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The config for the scalar type to register
  *
  * @throws \Exception
  * @return void
@@ -698,8 +697,8 @@ function is_graphql_http_request() {
 /**
  * Registers a GraphQL Settings Section
  *
- * @param string $slug   The slug of the group being registered
- * @param array  $config Array configuring the section. Should include: title
+ * @param string              $slug   The slug of the group being registered
+ * @param array<string,mixed> $config Array configuring the section. Should include: title
  *
  * @return void
  * @since 0.13.0
@@ -716,8 +715,8 @@ function register_graphql_settings_section( string $slug, array $config ) {
 /**
  * Registers a GraphQL Settings Field
  *
- * @param string $group  The name of the group to register a setting field to
- * @param array  $config The config for the settings field being registered
+ * @param string              $group  The name of the group to register a setting field to
+ * @param array<string,mixed> $config The config for the settings field being registered
  *
  * @return void
  * @since 0.13.0
@@ -734,12 +733,10 @@ function register_graphql_settings_field( string $group, array $config ) {
 /**
  * Given a message and an optional config array
  *
- * @param mixed|string|array $message The debug message
- * @param array              $config  The debug config. Should be an associative array of keys and
- *                                    values.
- *                                    $config['type'] will set the "type" of the log, default type
- *                                    is GRAPHQL_DEBUG. Other fields added to $config will be
- *                                    merged into the debug entry.
+ * @param mixed|string|mixed[] $message The debug message
+ * @param array<string,mixed>  $config  The debug config. Should be an associative array of keys and values.
+ *                                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG. 
+ *                                      Other fields added to $config will be merged into the debug entry.
  *
  * @return void
  * @since 0.14.0
@@ -792,8 +789,8 @@ function is_valid_graphql_name( string $type_name ) {
 /**
  * Registers a series of GraphQL Settings Fields
  *
- * @param string $group  The name of the settings group to register fields to
- * @param array  $fields Array of field configs to register to the group
+ * @param string                $group  The name of the settings group to register fields to
+ * @param array<string,mixed>[] $fields Array of field configs to register to the group
  *
  * @return void
  * @since 0.13.0
@@ -814,7 +811,7 @@ function register_graphql_settings_fields( string $group, array $fields ) {
  * @param mixed  $default_value The default value the setting should return if no value is set
  * @param string $section_name  The settings group section that the option belongs to
  *
- * @return mixed|string|int|boolean
+ * @return mixed|string|int|bool
  * @since 0.13.0
  */
 function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {
@@ -886,7 +883,7 @@ function graphql_get_endpoint_url() {
 if ( ! function_exists( 'array_key_first' ) ) {
 
 	/**
-	 * @param array $arr
+	 * @param mixed[] $arr
 	 *
 	 * @return int|string|null
 	 */
@@ -908,7 +905,7 @@ if ( ! function_exists( 'array_key_first' ) ) {
 if ( ! function_exists( 'array_key_last' ) ) {
 
 	/**
-	 * @param array $arr
+	 * @param mixed[] $arr
 	 *
 	 * @return int|string|null
 	 */

@@ -13,16 +13,20 @@ class TermObjectCursor extends AbstractCursor {
 	/**
 	 * Counter for meta value joins
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	public $meta_join_alias = 0;
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @var string
 	 */
 	protected $id_key = 't.term_id';
 
 	/**
+	 * Deprecated in favor of get_query_var()
+	 *
 	 * @param string $name The name of the query var to get
 	 *
 	 * @deprecated 1.9.0
@@ -49,11 +53,11 @@ class TermObjectCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 *
-		 * @param null|\WP_Term                           $pre_term The pre-filtered term node.
+		 * @param \WP_Term|null                           $pre_term The pre-filtered term node.
 		 * @param int                                     $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\TermObjectCursor $node     The cursor instance.
 		 *
-		 * @return null|\WP_Term
+		 * @return \WP_Term|null
 		 */
 		$pre_term = apply_filters( 'graphql_pre_term_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_term ) {
@@ -67,7 +71,9 @@ class TermObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * @return ?\WP_Term ;
+	 * Deprecated in favor of get_cursor_node().
+	 *
+	 * @return ?\WP_Term
 	 * @deprecated 1.9.0
 	 */
 	public function get_cursor_term() {
@@ -77,11 +83,9 @@ class TermObjectCursor extends AbstractCursor {
 	}
 
 	/**
-	 * Build and return the SQL statement to add to the Query
+	 * {@inheritDoc}
 	 *
-	 * @param array|null $fields The fields from the CursorBuilder to convert to SQL
-	 *
-	 * @return string
+	 * @param array<array<string,mixed>>[]|null $fields The fields from the CursorBuilder to convert to SQL.
 	 */
 	public function to_sql( $fields = null ) {
 		$sql = $this->builder->to_sql( $fields );
@@ -128,12 +132,9 @@ class TermObjectCursor extends AbstractCursor {
 		}
 
 		/**
-		 * If there's no cursor_compare fields applied then compare by the ID field.
+		 * Stabilize cursor by consistently comparing with the ID.
 		 */
-		if ( ! $this->builder->has_fields() ) {
-			$this->compare_with_id_field();
-		}
-
+		$this->compare_with_id_field();
 
 		return $this->to_sql();
 	}

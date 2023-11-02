@@ -17,13 +17,13 @@ class CommentMutation {
 	/**
 	 * This handles inserting the comment and creating
 	 *
-	 * @param array  $input         The input for the mutation
-	 * @param array  $output_args   The output args
-	 * @param string $mutation_name The name of the mutation being performed
-	 * @param bool   $update        Whether it's an update action
+	 * @param array<string,mixed> $input         The input for the mutation
+	 * @param array<string,mixed> $output_args   The output args
+	 * @param string              $mutation_name The name of the mutation being performed
+	 * @param bool                $update        Whether it's an update action
 	 *
-	 * @return array $output_args
-	 * @throws \Exception
+	 * @return array<string,mixed>
+	 * @throws \GraphQL\Error\UserError If the comment author is not provided.
 	 */
 	public static function prepare_comment_object( array $input, array &$output_args, string $mutation_name, $update = false ) {
 		/**
@@ -115,10 +115,10 @@ class CommentMutation {
 	/**
 	 * This updates commentmeta.
 	 *
-	 * @param int         $comment_id    The ID of the postObject the comment is connected to
-	 * @param array       $input         The input for the mutation
-	 * @param string      $mutation_name The name of the mutation ( ex: create, update, delete )
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down to all resolvers
+	 * @param int                                  $comment_id    The ID of the postObject the comment is connected to
+	 * @param array<string,mixed>                  $input         The input for the mutation
+	 * @param string                               $mutation_name The name of the mutation ( ex: create, update, delete )
+	 * @param \WPGraphQL\AppContext                $context The AppContext passed down to all resolvers
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down to all resolvers
 	 *
 	 * @return void

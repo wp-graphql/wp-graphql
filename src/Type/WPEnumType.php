@@ -15,7 +15,7 @@ class WPEnumType extends EnumType {
 	/**
 	 * WPEnumType constructor.
 	 *
-	 * @param array $config
+	 * @param array<string,mixed> $config
 	 */
 	public function __construct( $config ) {
 		$name             = ucfirst( $config['name'] );
@@ -52,9 +52,9 @@ class WPEnumType extends EnumType {
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
-	 * @param array  $values
-	 * @param string $type_name
-	 * @return mixed
+	 * @param array<string,mixed> $values
+	 * @param string              $type_name
+	 * @return array<string,mixed>
 	 * @since 0.0.5
 	 */
 	private static function prepare_values( $values, $type_name ) {

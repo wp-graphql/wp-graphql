@@ -3,8 +3,8 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
-use WP_User;
 use WPGraphQL\Utils\QueryAnalyzer;
+use WP_User;
 
 /**
  * Class Router
@@ -79,8 +79,6 @@ class Router {
 
 	/**
 	 * Returns the GraphQL Request being executed
-	 *
-	 * @return \WPGraphQL\Request | null
 	 */
 	public static function get_request(): ?Request {
 		return self::$request;
@@ -117,9 +115,9 @@ class Router {
 	/**
 	 * Adds the query_var for the route
 	 *
-	 * @param array $query_vars The array of whitelisted query variables.
+	 * @param string[] $query_vars The array of whitelisted query variables.
 	 *
-	 * @return array
+	 * @return string[]
 	 * @since  0.0.1
 	 */
 	public static function add_query_var( $query_vars ) {
@@ -135,7 +133,7 @@ class Router {
 	 * need to affect _all_ GraphQL requests, including internal requests using the `graphql()`
 	 * function, so be careful how you use this to check your conditions.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function is_graphql_http_request() {
 
@@ -196,7 +194,7 @@ class Router {
 		 * Different servers _might_ have different needs to determine whether a request
 		 * is a GraphQL request.
 		 *
-		 * @param boolean $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
+		 * @param bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
 		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
 	}
@@ -208,7 +206,7 @@ class Router {
 	 * won't be able to use this to properly determine if the request is a GraphQL request
 	 * or not.
 	 *
-	 * @return boolean
+	 * @return bool
 	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
 	 */
 	public static function is_graphql_request() {
@@ -294,7 +292,7 @@ class Router {
 	/**
 	 * Returns an array of headers to send with the HTTP response
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	protected static function get_response_headers() {
 
@@ -530,14 +528,12 @@ class Router {
 	/**
 	 * Prepare headers for response
 	 *
-	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $response The response of the GraphQL Request.
-	 * @param mixed|array|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
-	 * @param string                      $query           The GraphQL query.
-	 * @param string                      $operation_name  The operation name of the GraphQL
-	 *                                                     Request.
-	 * @param mixed|array|null            $variables       The variables applied to the GraphQL
-	 *                                                     Request.
-	 * @param mixed|\WP_User|null $user The current user object.
+	 * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $response        The response of the GraphQL Request.
+	 * @param mixed|array<string,mixed>|\GraphQL\Executor\ExecutionResult $graphql_results The results of the GraphQL execution.
+	 * @param string                                                      $query           The GraphQL query.
+	 * @param string                                                      $operation_name  The operation name of the GraphQL Request.
+	 * @param mixed|array<string,mixed>|null                              $variables       The variables applied to the GraphQL Request.
+	 * @param mixed|\WP_User|null                                         $user            The current user object.
 	 *
 	 * @return void
 	 */

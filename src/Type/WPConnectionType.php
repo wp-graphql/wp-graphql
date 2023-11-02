@@ -16,33 +16,33 @@ class WPConnectionType {
 	/**
 	 * Configuration for how auth should be handled on the connection field
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $auth;
 
 	/**
 	 * The config for the connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $config;
 
 	/**
 	 * The args configured for the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $connection_args;
 
 	/**
 	 * The fields to show on the connection
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $connection_fields;
 
 	/**
-	 * @var array|null
+	 * @var string[]|null
 	 */
 	protected $connection_interfaces;
 
@@ -56,7 +56,7 @@ class WPConnectionType {
 	/**
 	 * The fields to expose on the edge of the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $edge_fields;
 
@@ -124,16 +124,15 @@ class WPConnectionType {
 	/**
 	 * The where args for the connection
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $where_args;
 
 	/**
 	 * WPConnectionType constructor.
 	 *
-	 * @param array                            $config        The config array for the connection
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type
-	 *                                                        Registry
+	 * @param array<string,mixed>              $config        The config array for the connection
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry Instance of the WPGraphQL Type Registry
 	 *
 	 * @throws \Exception
 	 */
@@ -202,9 +201,9 @@ class WPConnectionType {
 	/**
 	 * Validates that essential key/value pairs are passed to the connection config.
 	 *
-	 * @param array $config
+	 * @param array<string,mixed> $config The config array for the connection.
 	 *
-	 * @return void
+	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {
@@ -223,9 +222,9 @@ class WPConnectionType {
 	/**
 	 * Get edge interfaces
 	 *
-	 * @param array $interfaces
+	 * @param string[] $interfaces Array of interfaces to add to the edge.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected function get_edge_interfaces( array $interfaces = [] ): array {
 
@@ -249,8 +248,6 @@ class WPConnectionType {
 	 * @param string $from_type        Name of the Type the connection is coming from
 	 * @param string $to_type          Name of the Type the connection is going to
 	 * @param string $from_field_name  Acts as an alternative "toType" if connection type already defined using $to_type.
-	 *
-	 * @return string
 	 */
 	public function get_connection_name( string $from_type, string $to_type, string $from_field_name ): string {
 
@@ -309,8 +306,6 @@ class WPConnectionType {
 	/**
 	 * Registers the One to One Connection Edge type to the Schema
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
 	protected function register_one_to_one_connection_edge_type(): void {
@@ -352,8 +347,6 @@ class WPConnectionType {
 	/**
 	 * Registers the PageInfo type for the connection
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
 	public function register_connection_page_info_type(): void {
@@ -377,8 +370,6 @@ class WPConnectionType {
 
 	/**
 	 * Registers the Connection Edge type to the Schema
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */
@@ -420,8 +411,6 @@ class WPConnectionType {
 	/**
 	 * Registers the Connection Type to the Schema
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
 	protected function register_connection_type(): void {
@@ -456,7 +445,7 @@ class WPConnectionType {
 	/**
 	 * Returns fields to be used on the connection
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_connection_fields(): array {
 		return array_merge(
@@ -482,7 +471,7 @@ class WPConnectionType {
 	/**
 	 * Get the args used for pagination on connections
 	 *
-	 * @return array|array[]
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected function get_pagination_args(): array {
 		if ( true === $this->one_to_one ) {
@@ -514,7 +503,6 @@ class WPConnectionType {
 	/**
 	 * Registers the connection in the Graph
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_connection_field(): void {
@@ -557,7 +545,6 @@ class WPConnectionType {
 	}
 
 	/**
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_connection_interfaces(): void {
@@ -629,8 +616,6 @@ class WPConnectionType {
 	 * Registers the connection Types and field to the Schema.
 	 *
 	 * @todo change to 'Protected'. This is public for now to allow for backwards compatibility.
-	 *
-	 * @return void
 	 *
 	 * @throws \Exception
 	 */

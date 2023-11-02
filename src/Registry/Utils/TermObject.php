@@ -3,7 +3,6 @@
 namespace WPGraphQL\Registry\Utils;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Taxonomy;
 use WPGraphQL;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
@@ -12,6 +11,7 @@ use WPGraphQL\Data\Connection\TermObjectConnectionResolver;
 use WPGraphQL\Model\Term;
 use WPGraphQL\Type\Connection\PostObjects;
 use WPGraphQL\Type\Connection\TermObjects;
+use WP_Taxonomy;
 
 /**
  * Class TermObjectType
@@ -102,7 +102,7 @@ class TermObject {
 	 *
 	 * @param \WP_Taxonomy $tax_object
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected static function get_connections( WP_Taxonomy $tax_object ) {
 		$connections = [];
@@ -272,7 +272,7 @@ class TermObject {
 	 *
 	 * @param \WP_Taxonomy $tax_object Taxonomy.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected static function get_interfaces( WP_Taxonomy $tax_object ) {
 		$interfaces = [ 'Node', 'TermNode', 'DatabaseIdentifier' ];
@@ -307,7 +307,7 @@ class TermObject {
 	 *
 	 * @param \WP_Taxonomy $tax_object Taxonomy.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>[]
 	 */
 	protected static function get_fields( WP_Taxonomy $tax_object ) {
 		$single_name = $tax_object->graphql_single_name;

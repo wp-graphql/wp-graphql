@@ -20,26 +20,30 @@ class SettingsRegistry {
 	/**
 	 * Settings sections array
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $settings_sections = [];
 
 	/**
 	 * Settings fields array
 	 *
-	 * @var array
+	 * @var array<string,array<string,mixed>[]>
 	 */
 	protected $settings_fields = [];
 
 	/**
-	 * @return array
+	 * Returns the settings sections.
+	 *
+	 * @return array<string,array<string,mixed>>
 	 */
 	public function get_settings_sections() {
 		return $this->settings_sections;
 	}
 
 	/**
-	 * @return array
+	 * Returns the settings fields.
+	 *
+	 * @return array<string,array<string,mixed>[]>
 	 */
 	public function get_settings_fields() {
 		return $this->settings_fields;
@@ -69,8 +73,8 @@ class SettingsRegistry {
 	/**
 	 * Set settings sections
 	 *
-	 * @param string $slug    Setting Section Slug
-	 * @param array  $section setting section config
+	 * @param string              $slug    Setting Section Slug
+	 * @param array<string,mixed> $section setting section config.
 	 *
 	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
@@ -84,8 +88,8 @@ class SettingsRegistry {
 	/**
 	 * Register fields to a section
 	 *
-	 * @param string $section The slug of the section to register a field to
-	 * @param array  $fields  settings fields array
+	 * @param string                $section The slug of the section to register a field to
+	 * @param array<string,mixed>[] $fields  settings fields array
 	 *
 	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
@@ -100,8 +104,8 @@ class SettingsRegistry {
 	/**
 	 * Register a field to a section
 	 *
-	 * @param string $section The slug of the section to register a field to
-	 * @param array  $field   The config for the field being registered
+	 * @param string              $section The slug of the section to register a field to
+	 * @param array<string,mixed> $field   The config for the field being registered
 	 *
 	 * @return \WPGraphQL\Admin\Settings\SettingsRegistry
 	 */
@@ -179,7 +183,7 @@ class SettingsRegistry {
 			add_settings_section( $id, $section['title'], $callback, $id );
 		}
 
-		//register settings fields
+		// register settings fields
 		foreach ( $this->settings_fields as $section => $field ) {
 			foreach ( $field as $option ) {
 				$name     = $option['name'];
@@ -223,9 +227,7 @@ class SettingsRegistry {
 	/**
 	 * Get field description for display
 	 *
-	 * @param array $args settings field args
-	 *
-	 * @return string
+	 * @param array<string,string> $args settings field args
 	 */
 	public function get_field_description( array $args ): string {
 		if ( ! empty( $args['desc'] ) ) {
@@ -240,7 +242,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a text field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -259,7 +261,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a url field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -270,7 +272,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a number field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -292,7 +294,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a checkbox for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -313,7 +315,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a multicheckbox for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -337,7 +339,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a radio button for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -360,7 +362,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a selectbox for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -382,7 +384,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a textarea for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -400,7 +402,7 @@ class SettingsRegistry {
 	/**
 	 * Displays the html for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -411,7 +413,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a rich text textarea for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -441,7 +443,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a file upload field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -460,7 +462,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a password field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -477,7 +479,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a color picker field for a settings field
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -495,7 +497,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a select box for creating the pages select box
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -523,7 +525,7 @@ class SettingsRegistry {
 	/**
 	 * Displays a select box for user roles
 	 *
-	 * @param array $args settings field args
+	 * @param array<string,mixed> $args settings field args
 	 *
 	 * @return void
 	 */
@@ -547,7 +549,7 @@ class SettingsRegistry {
 	/**
 	 * Sanitize callback for Settings API
 	 *
-	 * @param array $options
+	 * @param array<string,mixed> $options settings field args
 	 *
 	 * @return mixed
 	 */

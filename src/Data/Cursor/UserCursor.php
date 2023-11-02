@@ -21,17 +21,14 @@ class UserCursor extends AbstractCursor {
 	/**
 	 * Counter for meta value joins
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	public $meta_join_alias = 0;
 
 	/**
-	 * UserCursor constructor.
+	 * {@inheritDoc}
 	 *
-	 * @param array|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
-	 * @param string|null         $cursor     Whether to generate the before or after cursor
-	 *
-	 * @return void
+	 * @param array<string,mixed>|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
 		// Handle deprecated use of $query.
@@ -73,11 +70,11 @@ class UserCursor extends AbstractCursor {
 		/**
 		 * If pre-hooked, return filtered node.
 		 *
-		 * @param null|\WP_User                        $pre_user The pre-filtered user node.
+		 * @param \WP_User|null                        $pre_user The pre-filtered user node.
 		 * @param int                                  $offset   The cursor offset.
 		 * @param \WPGraphQL\Data\Cursor\UserCursor    $node     The cursor instance.
 		 *
-		 * @return null|\WP_User
+		 * @return \WP_User|null
 		 */
 		$pre_user = apply_filters( 'graphql_pre_user_cursor_node', null, $this->cursor_offset, $this );
 		if ( null !== $pre_user ) {
@@ -91,6 +88,8 @@ class UserCursor extends AbstractCursor {
 	}
 
 	/**
+	 * Deprecated in favor of get_cursor_node().
+	 *
 	 * @return ?\WP_User
 	 * @deprecated 1.9.0
 	 */

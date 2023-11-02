@@ -17,14 +17,14 @@ class UserMutation {
 	/**
 	 * Stores the input fields static definition
 	 *
-	 * @var array $input_fields
+	 * @var array<string,array<string,mixed>>
 	 */
 	private static $input_fields = [];
 
 	/**
 	 * Defines the accepted input arguments
 	 *
-	 * @return array|null
+	 * @return array<string,array<string,mixed>>|null
 	 */
 	public static function input_fields() {
 		if ( empty( self::$input_fields ) ) {
@@ -98,7 +98,7 @@ class UserMutation {
 			/**
 			 * Filters all of the fields available for input
 			 *
-			 * @var array $input_fields
+			 * @var array<string,array<string,mixed>> $input_fields
 			 */
 			self::$input_fields = apply_filters( 'graphql_user_mutation_input_fields', $input_fields );
 		}
@@ -109,10 +109,11 @@ class UserMutation {
 	/**
 	 * Maps the GraphQL input to a format that the WordPress functions can use
 	 *
-	 * @param array  $input         Data coming from the GraphQL mutation query input
-	 * @param string $mutation_name Name of the mutation being performed
+	 * @param array<string,mixed> $input         Data coming from the GraphQL mutation query input
+	 * @param string              $mutation_name Name of the mutation being performed
 	 *
-	 * @return array
+	 * @return array<string,mixed>
+	 * @throws \GraphQL\Error\UserError If the passed email address is invalid.
 	 */
 	public static function prepare_user_object( $input, $mutation_name ) {
 		$insert_user_args = [];
@@ -205,10 +206,10 @@ class UserMutation {
 	 * This updates additional data related to the user object after the initial mutation has
 	 * happened
 	 *
-	 * @param int         $user_id       The ID of the user being mutated
-	 * @param array       $input         The input data from the GraphQL query
-	 * @param string      $mutation_name Name of the mutation currently being run
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
+	 * @param int                                  $user_id       The ID of the user being mutated
+	 * @param array<string,mixed>                  $input         The input data from the GraphQL query
+	 * @param string                               $mutation_name Name of the mutation currently being run
+	 * @param \WPGraphQL\AppContext                $context The AppContext passed down the resolve tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the Resolve Tree
 	 *
 	 * @return void
@@ -235,8 +236,8 @@ class UserMutation {
 	/**
 	 * Method to add user roles to a user object
 	 *
-	 * @param int   $user_id The ID of the user
-	 * @param array $roles   List of roles that need to get added to the user
+	 * @param int      $user_id The ID of the user
+	 * @param string[] $roles   List of roles that need to get added to the user
 	 *
 	 * @return void
 	 * @throws \Exception

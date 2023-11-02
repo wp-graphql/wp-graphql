@@ -4,10 +4,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQLRelay\Relay;
-use WP_Post_Type;
+use WPGraphQL\Data\PostObjectMutation;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
-use WPGraphQL\Data\PostObjectMutation;
+use WP_Post_Type;
 
 
 class PostObjectDelete {
@@ -37,7 +37,7 @@ class PostObjectDelete {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		return [
@@ -64,7 +64,7 @@ class PostObjectDelete {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( WP_Post_Type $post_type_object ) {
 		return [
@@ -95,7 +95,7 @@ class PostObjectDelete {
 	 * Defines the mutation data modification closure.
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
-	 * @param string       $mutation_name    The mutation name.
+	 * @param string        $mutation_name    The mutation name.
 	 *
 	 * @return callable
 	 */
