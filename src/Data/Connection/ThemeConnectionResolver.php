@@ -11,7 +11,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	protected $query;
 
@@ -37,18 +37,16 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-		$query_args = [
+		return [
 			'allowed' => null,
 		];
-
-		return $query_args;
 	}
 
 
 	/**
 	 * Get the items from the source
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function get_query() {
 		$query_args = $this->query_args;
@@ -57,20 +55,14 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * The name of the loader to load the data
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'theme';
 	}
 
 	/**
-	 * Determine if the offset used for pagination is valid
-	 *
-	 * @param mixed $offset
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function is_valid_offset( $offset ) {
 		$theme = wp_get_theme( $offset );
@@ -78,9 +70,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Determine if the query should execute
-	 *
-	 * @return bool
+	 * {@inheritDoc}
 	 */
 	public function should_execute() {
 		return true;

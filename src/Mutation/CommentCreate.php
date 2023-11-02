@@ -28,7 +28,7 @@ class CommentCreate {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields() {
 		return [
@@ -79,7 +79,7 @@ class CommentCreate {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields() {
 		return [

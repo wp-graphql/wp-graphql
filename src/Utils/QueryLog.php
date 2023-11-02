@@ -12,7 +12,7 @@ class QueryLog {
 	/**
 	 * Whether Query Logs are enabled
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $query_logs_enabled;
 
@@ -60,7 +60,7 @@ class QueryLog {
 	/**
 	 * Determine if the requesting user can see logs
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function user_can_see_logs() {
 		$can_see = false;
@@ -85,7 +85,7 @@ class QueryLog {
 		/**
 		 * Filter whether the logs can be seen in the request results or not
 		 *
-		 * @param boolean $can_see Whether the requester can see the logs or not
+		 * @param bool $can_see Whether the requester can see the logs or not
 		 */
 		return apply_filters( 'graphql_user_can_see_query_logs', $can_see );
 	}
@@ -93,13 +93,13 @@ class QueryLog {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed    $response
+	 * @param mixed               $response
 	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
-	 * @param string   $operation_name The operation name being executed
-	 * @param string   $request        The GraphQL Request being made
-	 * @param array    $variables      The variables sent with the request
+	 * @param string              $operation_name The operation name being executed
+	 * @param string              $request        The GraphQL Request being made
+	 * @param array<string,mixed> $variables      The variables sent with the request
 	 *
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function show_results( $response, $schema, $operation_name, $request, $variables ) {
 		$query_log = $this->get_query_log();
@@ -124,7 +124,7 @@ class QueryLog {
 	/**
 	 * Return the query log produced from the logs stored by WPDB.
 	 *
-	 * @return array
+	 * @return mixed[]
 	 */
 	public function get_query_log() {
 		global $wpdb;

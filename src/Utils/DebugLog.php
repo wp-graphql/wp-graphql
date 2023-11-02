@@ -9,14 +9,16 @@ namespace WPGraphQL\Utils;
 class DebugLog {
 
 	/**
-	 * @var array
+	 * The log items.
+	 *
+	 * @var array<string,mixed>[]
 	 */
 	protected $logs;
 
 	/**
 	 * Whether logs are enabled
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $logs_enabled;
 
@@ -43,10 +45,10 @@ class DebugLog {
 	/**
 	 * Given a message and a config, a log entry is added to the log
 	 *
-	 * @param mixed|string|array $message The debug log message
-	 * @param array  $config Config for the debug log. Set type and any additional information to log
+	 * @param mixed|string|mixed[] $message The debug log message
+	 * @param array<string,mixed>  $config Config for the debug log. Set type and any additional information to log
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function add_log_entry( $message, $config = [] ) {
 		if ( empty( $message ) ) {
@@ -99,7 +101,7 @@ class DebugLog {
 	/**
 	 * Returns the debug log
 	 *
-	 * @return array
+	 * @return array<string,mixed>[]
 	 */
 	public function get_logs() {
 

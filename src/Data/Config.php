@@ -2,12 +2,12 @@
 
 namespace WPGraphQL\Data;
 
-use WP_Comment_Query;
-use WP_Query;
 use WPGraphQL\Data\Cursor\CommentObjectCursor;
 use WPGraphQL\Data\Cursor\PostObjectCursor;
 use WPGraphQL\Data\Cursor\TermObjectCursor;
 use WPGraphQL\Data\Cursor\UserCursor;
+use WP_Comment_Query;
+use WP_Query;
 
 /**
  * Class Config
@@ -175,11 +175,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
 		 *
-		 * @param null|string $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param string|null $pre_orderby The pre-filtered ORDER BY clause of the query.
 		 * @param string      $orderby     The ORDER BY clause of the query.
 		 * @param \WP_Query   $query       The WP_Query instance (passed by reference).
 		 *
-		 * @return null|string
+		 * @return string|null
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -212,7 +212,7 @@ class Config {
 	 * This filters the WPQuery 'where' $args, enforcing the query to return results before or
 	 * after the referenced cursor
 	 *
-	 * @param string   $where The WHERE clause of the query.
+	 * @param string    $where The WHERE clause of the query.
 	 * @param \WP_Query $query The WP_Query instance (passed by reference).
 	 *
 	 * @return string
@@ -226,11 +226,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 *
-		 * @param null|string $pre_where The pre-filtered WHERE clause of the query.
+		 * @param string|null $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string     $where     The WHERE clause of the query.
 		 * @param \WP_Query  $query     The WP_Query instance (passed by reference).
 		 *
-		 * @return null|string
+		 * @return string|null
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -263,7 +263,8 @@ class Config {
 	 * the meta values have same values multiple times. This filter adds a
 	 * secondary ordering by the post ID which forces stable order in such cases.
 	 *
-	 * @param string $orderby The ORDER BY clause of the query.
+	 * @param string         $orderby The ORDER BY clause of the query.
+	 * @param \WP_User_Query $query The WP_User_Query instance (passed by reference).
 	 *
 	 * @return string
 	 */
@@ -277,11 +278,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_orderby.
 		 *
-		 * @param null|string     $pre_orderby The pre-filtered ORDER BY clause of the query.
+		 * @param string|null     $pre_orderby The pre-filtered ORDER BY clause of the query.
 		 * @param string          $orderby     The ORDER BY clause of the query.
 		 * @param \WP_User_Query  $query       The WP_User_Query instance (passed by reference).
 		 *
-		 * @return null|string
+		 * @return string|null
 		 */
 		$pre_orderby = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_stability', null, $orderby, $query );
 		if ( null !== $pre_orderby ) {
@@ -328,11 +329,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_where.
 		 *
-		 * @param null|string    $pre_where The pre-filtered WHERE clause of the query.
+		 * @param string|null    $pre_where The pre-filtered WHERE clause of the query.
 		 * @param string         $where     The WHERE clause of the query.
 		 * @param \WP_User_Query $query     The WP_Query instance (passed by reference).
 		 *
-		 * @return null|string
+		 * @return string|null
 		 */
 		$pre_where = apply_filters( 'graphql_pre_wp_user_query_cursor_pagination_support', null, $where, $query );
 		if ( null !== $pre_where ) {
@@ -365,11 +366,11 @@ class Config {
 	 * we can move forward or backward from a particular record, instead of typical offset
 	 * pagination which can be much more expensive and less accurate.
 	 *
-	 * @param array $pieces     Terms query SQL clauses.
-	 * @param array $taxonomies An array of taxonomies.
-	 * @param array $args       An array of terms query arguments.
+	 * @param array<string,mixed> $pieces     Terms query SQL clauses.
+	 * @param string[]            $taxonomies An array of taxonomies.
+	 * @param array<string,mixed> $args       An array of terms query arguments.
 	 *
-	 * @return array $pieces
+	 * @return array<string,mixed> $pieces
 	 */
 	public function graphql_wp_term_query_cursor_pagination_support( array $pieces, array $taxonomies, array $args ) {
 
@@ -381,12 +382,12 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param null|array $pre_pieces The pre-filtered term query SQL clauses.
-		 * @param array      $pieces     Terms query SQL clauses.
-		 * @param array      $taxonomies An array of taxonomies.
-		 * @param array      $args       An array of terms query arguments.
+		 * @param array<string, mixed>|null $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param array<string,mixed>      $pieces     Terms query SQL clauses.
+		 * @param string[]                 $taxonomies An array of taxonomies.
+		 * @param array<string,mixed>      $args       An array of terms query arguments.
 		 *
-		 * @return null|array
+		 * @return array|null
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
 		if ( null !== $pre_pieces ) {
@@ -421,6 +422,17 @@ class Config {
 			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
 		}
 
+		// Check the cursor compare order
+		$order = '>' === $args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
+
+		// Get Cursor ID key.
+		$cursor = new TermObjectCursor( $args );
+		$key    = $cursor->get_cursor_id_key();
+
+		// If there is a cursor compare in the arguments, use it as the stabilizer for cursors.
+		$pieces['orderby'] = "{$pieces['orderby']} {$pieces['order']}, {$key} {$order}";
+		$pieces['order']   = '';
+
 		return $pieces;
 	}
 
@@ -428,10 +440,10 @@ class Config {
 	 * This returns a modified version of the $pieces of the comment query clauses if the request
 	 * is a GraphQL Request and before or after cursors are passed to the query
 	 *
-	 * @param array            $pieces A compacted array of comment query clauses.
-	 * @param \WP_Comment_Query $query Current instance of WP_Comment_Query, passed by reference.
+	 * @param array<string,mixed> $pieces A compacted array of comment query clauses.
+	 * @param \WP_Comment_Query   $query Current instance of WP_Comment_Query, passed by reference.
 	 *
-	 * @return array $pieces
+	 * @return array<string,mixed> $pieces
 	 */
 	public function graphql_wp_comments_query_cursor_pagination_support( array $pieces, WP_Comment_Query $query ) {
 
@@ -443,11 +455,11 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param null|array        $pre_pieces The pre-filtered comment query clauses.
+		 * @param array|null        $pre_pieces The pre-filtered comment query clauses.
 		 * @param array             $pieces     A compacted array of comment query clauses.
 		 * @param \WP_Comment_Query $query      Current instance of WP_Comment_Query, passed by reference.
 		 *
-		 * @return null|array
+		 * @return array|null
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
 		if ( null !== $pre_pieces ) {

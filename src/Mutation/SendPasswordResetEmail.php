@@ -28,7 +28,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Defines the mutation input field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields(): array {
 		return [
@@ -44,7 +44,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Defines the mutation output field configuration.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields(): array {
 		return [
@@ -65,8 +65,6 @@ class SendPasswordResetEmail {
 
 	/**
 	 * Defines the mutation data modification closure.
-	 *
-	 * @return callable
 	 */
 	public static function mutate_and_get_payload(): callable {
 		return static function ( $input ) {
@@ -128,7 +126,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Was a username or email address provided?
 	 *
-	 * @param array $input The input args.
+	 * @param array<string,mixed> $input The input args.
 	 *
 	 * @return bool
 	 */
@@ -139,7 +137,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Get WP_User object representing this user
 	 *
-	 * @param  string $username The user's username or email address.
+	 * @param string $username The user's username or email address.
 	 *
 	 * @return \WP_User|false WP_User object on success, false on failure.
 	 */
@@ -160,7 +158,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Get the error message indicating why the user wasn't found
 	 *
-	 * @param  string $username The user's username or email address.
+	 * @param string $username The user's username or email address.
 	 *
 	 * @return string
 	 */
@@ -175,7 +173,7 @@ class SendPasswordResetEmail {
 	/**
 	 * Is the provided username arg an email address?
 	 *
-	 * @param  string $username The user's username or email address.
+	 * @param string $username The user's username or email address.
 	 *
 	 * @return bool
 	 */

@@ -3,8 +3,8 @@
 namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
-use WP_Comment_Query;
 use WPGraphQL\Utils\Utils;
+use WP_Comment_Query;
 
 /**
  * Class CommentConnectionResolver
@@ -22,6 +22,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws \GraphQL\Error\UserError If there is a problem with the $args.
 	 */
 	public function get_query_args() {
 
@@ -145,9 +147,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get_query
-	 *
-	 * Return the instance of the WP_Comment_Query
+	 * {@inheritDoc}
 	 *
 	 * @return \WP_Comment_Query
 	 * @throws \Exception
@@ -157,9 +157,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return the name of the loader
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'comment';
@@ -169,7 +167,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		/** @var array $ids */
+		/** @var int[]|string[] $ids */
 		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
 
 		// If we're going backwards, we need to reverse the array.
@@ -181,14 +179,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * This can be used to determine whether the connection query should even execute.
+	 * {@inheritDoc}
 	 *
 	 * For example, if the $source were a post_type that didn't support comments, we could prevent
 	 * the connection query from even executing. In our case, we prevent comments from even showing
 	 * in the Schema for post types that don't have comment support, so we don't need to worry
 	 * about that, but there may be other situations where we'd need to prevent it.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function should_execute() {
 		return true;
@@ -198,7 +196,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * Filters the GraphQL args before they are used in get_query_args().
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_args(): array {
 		$args = $this->args;
@@ -273,10 +271,10 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be
 	 * down to explore more dynamic ways to map this, but for now this gets the job done.
 	 *
-	 * @param array $args The array of query arguments
+	 * @param array<string,mixed> $args The array of query arguments
 	 *
 	 * @since  0.0.5
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function sanitize_input_fields( array $args ) {
 		$arg_mapping = [
@@ -324,13 +322,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Determine whether or not the the offset is valid, i.e the comment corresponding to the
-	 * offset exists. Offset is equivalent to comment_id. So this function is equivalent to
-	 * checking if the comment with the given ID exists.
+	 * {@inheritDoc}
 	 *
-	 * @param int $offset The ID of the node used for the cursor offset
-	 *
-	 * @return bool
+	 * @param int $offset The ID of the node used for the cursor offset.
 	 */
 	public function is_valid_offset( $offset ) {
 		return ! empty( get_comment( $offset ) );

@@ -67,6 +67,11 @@
 			<property name="blank_line_check" value="true"/>
 		</properties>
 	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+	</rule>
 
 	<!-- Rules -->
 
@@ -75,8 +80,6 @@
 
 	<!-- Load WordPress VIP Go standards - for use with projects on the (newer) VIP Go platform. -->
 	<rule ref="WordPress-VIP-Go" />
-
-	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
 
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
@@ -94,23 +97,19 @@
 
 	<!-- Tests for inline documentation of code -->
 	<rule ref="WordPress-Docs">
-		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
-
-		<!-- Should be re-enabled -->
-		<exclude name="Squiz.Commenting"/>
-	</rule>
-
-		<!-- Additional commenting sniffs are in WPGraphQL-Docs -->
-	<rule ref="Squiz.Commenting.FunctionComment">
+		<!-- Conflicts with FQCN -->
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
 
 		<!-- Should probably be added back -->
-		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing" />
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
-		<properties>
-				<property name="skipIfInheritdoc" value="true" />
-		</properties>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 	</rule>
 
 	<!-- Enforce short array syntax -->
@@ -149,6 +148,11 @@
 	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
 	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
 
+	<rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+		<properties>
+			<property name="caseSensitive" value="true"/>
+		</properties>
+	</rule>
 	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
 	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
@@ -156,10 +160,27 @@
 	<rule ref="SlevomatCodingStandard.PHP.OptimizedFunctionsWithoutUnpacking" />
 	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
 
+	<rule ref="SlevomatCodingStandard.TypeHints">
+		<!-- Array syntax is preferred -->
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
+		<!-- WP dependencies are too loosely typed to implement these safely. Breaking change. -->
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
+		<!-- Depends on Squiz.Commenting.FunctionComment.MissingParamComment -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation" />
+
+		<!-- Should probably be added back. -->
+		<exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing" />
+		<exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
+	</rule>
+
 	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
 	<rule ref="SlevomatCodingStandard.Variables.UnusedVariable" >
 		<properties>
 			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true" />
 		</properties>
 	</rule>
+	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
 </ruleset>

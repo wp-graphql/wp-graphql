@@ -3,8 +3,8 @@
 namespace WPGraphQL\Data;
 
 use GraphQL\Error\UserError;
-use WP_Taxonomy;
 use WPGraphQL\Utils\Utils;
+use WP_Taxonomy;
 
 class TermObjectMutation {
 
@@ -14,11 +14,11 @@ class TermObjectMutation {
 	 *
 	 * @throws \GraphQL\Error\UserError User error for invalid term.
 	 *
-	 * @param array        $input         The input from the GraphQL Request
-	 * @param \WP_Taxonomy $taxonomy The Taxonomy object for the type of term being mutated
-	 * @param string       $mutation_name The name of the mutation (create, update, etc)
+	 * @param array<string,mixed> $input         The input from the GraphQL Request
+	 * @param \WP_Taxonomy        $taxonomy The Taxonomy object for the type of term being mutated
+	 * @param string              $mutation_name The name of the mutation (create, update, etc)
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 */
 	public static function prepare_object( array $input, WP_Taxonomy $taxonomy, string $mutation_name ) {
 		$insert_args = [];

@@ -15,14 +15,14 @@ class Admin {
 	/**
 	 * Whether Admin Pages are enabled or not
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $admin_enabled;
 
 	/**
 	 * Whether GraphiQL is enabled or not
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $graphiql_enabled;
 

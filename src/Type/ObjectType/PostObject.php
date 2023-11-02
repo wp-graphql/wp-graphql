@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Type\ObjectType;
 
-use WP_Post_Type;
 use WPGraphQL\Registry\TypeRegistry;
+use WP_Post_Type;
 
 /**
  * WPObject - PostObject
@@ -16,7 +16,7 @@ class PostObject {
 	/**
 	 * Registers a post_type WPObject type to the schema.
 	 *
-	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param \WP_Post_Type                    $post_type_object Post type.
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 	 *
 	 * @return void
@@ -33,12 +33,12 @@ class PostObject {
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *
-	 * @param \WP_Post_Type $post_type_object Post type.
+	 * @param \WP_Post_Type                    $post_type_object Post type.
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
 	 *
 	 * @deprecated 1.12.0
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_fields( $post_type_object, $type_registry ) {
 		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\PostObject::class ) . '::get_fields()' );

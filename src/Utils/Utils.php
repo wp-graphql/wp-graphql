@@ -34,11 +34,11 @@ class Utils {
 	/**
 	 * Maps new input query args and sanitizes the input
 	 *
-	 * @param mixed|array|string $args The raw query args from the GraphQL query
-	 * @param mixed|array|string $map  The mapping of where each of the args should go
-	 * @param string[]           $skip Fields to skipped and not be added to the output array.
+	 * @param mixed|mixed[]|string $args The raw query args from the GraphQL query
+	 * @param mixed|mixed[]|string $map  The mapping of where each of the args should go
+	 * @param string[]             $skip Fields to skipped and not be added to the output array.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 * @since  0.5.0
 	 */
 	public static function map_input( $args, $map, $skip = [] ) {
@@ -82,7 +82,7 @@ class Utils {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
-	 * @param string $date_gmt GMT publication time.
+	 * @param string            $date_gmt GMT publication time.
 	 * @param mixed|string|null $date Optional. Local publication time. Default null.
 	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
@@ -127,7 +127,7 @@ class Utils {
 		 *
 		 * Useful for providing custom transliteration rules that will convert non ASCII characters to ASCII.
 		 *
-		 * @param null|string $formatted_name The name to format. If not null, the result will be returned as the formatted name.
+		 * @param string|null $formatted_name The name to format. If not null, the result will be returned as the formatted name.
 		 * @param string $original_name       The name to format.
 		 * @param string $replacement         The replacement character for invalid characters. Defaults to '_'.
 		 * @param string $regex               The regex to use to match invalid characters. Defaults to '/[^A-Za-z0-9_]/i'.
@@ -171,8 +171,6 @@ class Utils {
 	 *
 	 * @param string $field_name         The field name to format
 	 * @param bool   $allow_underscores  Whether the field should be formatted with underscores allowed. Default false.
-	 *
-	 * @return string
 	 */
 	public static function format_field_name( string $field_name, bool $allow_underscores = false ): string {
 		// Bail if empty.
@@ -255,7 +253,7 @@ class Utils {
 	/**
 	 * Helper function that defines the allowed HTML to use on the Settings pages
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_allowed_wp_kses_html() {
 		$allowed_atts = [
@@ -354,7 +352,7 @@ class Utils {
 	 *
 	 * @param int|string $id The encoded Node ID.
 	 *
-	 * @return bool|null
+	 * @return ?string
 	 */
 	public static function get_node_type_from_id( $id ) {
 		if ( is_numeric( $id ) ) {
@@ -363,5 +361,30 @@ class Utils {
 
 		$id_parts = Relay::fromGlobalId( $id );
 		return $id_parts['type'] ?: null;
+	}
+
+	/**
+	 * Given a WP Post or post ID, this method attempts to resolve a preview post ID.
+	 *
+	 * @param int|\WP_Post $post The WP Post object or Post ID
+	 *
+	 * @return int A preview post ID if one exists, the current post ID if one doesn't exist.
+	 * @since 1.18.0
+	 */
+	public static function get_post_preview_id( $post ): int {
+		$post_id = is_object( $post ) ? $post->ID : $post;
+
+		$revisions = wp_get_post_revisions(
+			$post_id,
+			[
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'check_enabled'  => false,
+			]
+		);
+
+		$post_id = ! empty( $revisions ) ? array_values( $revisions )[0] : $post_id;
+
+		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
 	}
 }

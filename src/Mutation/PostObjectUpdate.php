@@ -3,10 +3,10 @@ namespace WPGraphQL\Mutation;
 
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\PostObjectMutation;
 use WPGraphQL\Utils\Utils;
+use WP_Post_Type;
 
 class PostObjectUpdate {
 	/**
@@ -35,7 +35,7 @@ class PostObjectUpdate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( $post_type_object ) {
 		return array_merge(
@@ -61,7 +61,7 @@ class PostObjectUpdate {
 	 *
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( $post_type_object ) {
 		return PostObjectCreate::get_output_fields( $post_type_object );

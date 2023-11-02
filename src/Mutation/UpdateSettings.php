@@ -46,7 +46,7 @@ class UpdateSettings {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_input_fields( TypeRegistry $type_registry ) {
 		$allowed_settings = DataSource::get_allowed_settings( $type_registry );
@@ -105,7 +105,7 @@ class UpdateSettings {
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	public static function get_output_fields( TypeRegistry $type_registry ) {
 
@@ -148,10 +148,10 @@ class UpdateSettings {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @param array $input The mutation input
+	 * @param array<string,mixed>              $input The mutation input
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The WPGraphQL TypeRegistry
 	 *
-	 * @return array
+	 * @return array<string,array<string,string>>
 	 *
 	 * @throws \GraphQL\Error\UserError
 	 */

@@ -55,7 +55,7 @@ class MenuItemObjectUnion {
 	/**
 	 * Returns a list of possible types for the union
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function get_possible_types() {
 

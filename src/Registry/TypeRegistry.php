@@ -34,8 +34,8 @@ use WPGraphQL\Type\Connection\TermObjects;
 use WPGraphQL\Type\Connection\Users;
 use WPGraphQL\Type\Enum\AvatarRatingEnum;
 use WPGraphQL\Type\Enum\CommentNodeIdTypeEnum;
-use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\CommentStatusEnum;
+use WPGraphQL\Type\Enum\CommentsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\ContentNodeIdTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeEnum;
 use WPGraphQL\Type\Enum\ContentTypeIdTypeEnum;
@@ -87,9 +87,9 @@ use WPGraphQL\Type\InterfaceType\NodeWithRevisions;
 use WPGraphQL\Type\InterfaceType\NodeWithTemplate;
 use WPGraphQL\Type\InterfaceType\NodeWithTitle;
 use WPGraphQL\Type\InterfaceType\NodeWithTrackbacks;
+use WPGraphQL\Type\InterfaceType\OneToOneConnection;
 use WPGraphQL\Type\InterfaceType\PageInfo;
 use WPGraphQL\Type\InterfaceType\Previewable;
-use WPGraphQL\Type\InterfaceType\OneToOneConnection;
 use WPGraphQL\Type\InterfaceType\TermNode;
 use WPGraphQL\Type\InterfaceType\UniformResourceIdentifiable;
 use WPGraphQL\Type\ObjectType\Avatar;
@@ -138,7 +138,7 @@ class TypeRegistry {
 	/**
 	 * The registered Types
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	protected $types;
 
@@ -146,7 +146,7 @@ class TypeRegistry {
 	/**
 	 * The loaders needed to register types
 	 *
-	 * @var array
+	 * @var array<string,Callable>
 	 */
 	protected $type_loaders;
 
@@ -156,7 +156,7 @@ class TypeRegistry {
 	 * Types that exist in the Schema but are only part of a Union/Interface ResolveType but not
 	 * referenced directly need to be eagerly loaded.
 	 *
-	 * @var array
+	 * @var array<string,string>
 	 */
 	protected $eager_type_map;
 
@@ -165,7 +165,7 @@ class TypeRegistry {
 	 *
 	 * Type names are filtered by `graphql_excluded_types` and normalized using strtolower(), to avoid case sensitivity issues.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	protected $excluded_types = null;
 
@@ -217,7 +217,7 @@ class TypeRegistry {
 	 * Types can add "eagerlyLoadType => true" when being registered to be included
 	 * in the eager_type_map.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	protected function get_eager_type_map() {
 		if ( ! empty( $this->eager_type_map ) ) {
@@ -611,8 +611,8 @@ class TypeRegistry {
 	/**
 	 * Given a config for a custom Scalar, this adds the Scalar for use in the Schema.
 	 *
-	 * @param string $type_name The name of the Type to register
-	 * @param array  $config    The config for the scalar type to register
+	 * @param string              $type_name The name of the Type to register
+	 * @param array<string,mixed> $config    The config for the scalar type to register
 	 *
 	 * @throws \Exception
 	 *
@@ -626,7 +626,7 @@ class TypeRegistry {
 	/**
 	 * Registers connections that were passed through the Type registration config
 	 *
-	 * @param array $config Type config
+	 * @param array<string,mixed> $config Type config
 	 *
 	 * @return void
 	 *
@@ -653,12 +653,10 @@ class TypeRegistry {
 	/**
 	 * Add a Type to the Registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The config for the type
+	 * @param string                                                  $type_name The name of the type to register
+	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The config for the type
 	 *
 	 * @throws \Exception
-	 *
-	 * @return void
 	 */
 	public function register_type( string $type_name, $config ): void {
 		/**
@@ -723,11 +721,10 @@ class TypeRegistry {
 	/**
 	 * Add an Object Type to the Registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config The configuration of the type
+	 * @param string              $type_name The name of the type to register
+	 * @param array<string,mixed> $config The configuration of the type
 	 *
 	 * @throws \Exception
-	 * @return void
 	 */
 	public function register_object_type( string $type_name, array $config ): void {
 		$config['kind'] = 'object';
@@ -737,11 +734,10 @@ class TypeRegistry {
 	/**
 	 * Add an Interface Type to the registry
 	 *
-	 * @param string                                    $type_name The name of the type to register
-	 * @param mixed|array|\GraphQL\Type\Definition\Type $config The configuration of the type
+	 * @param string                                                  $type_name The name of the type to register
+	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The configuration of the type
 	 *
 	 * @throws \Exception
-	 * @return void
 	 */
 	public function register_interface_type( string $type_name, $config ): void {
 		$config['kind'] = 'interface';
@@ -751,10 +747,9 @@ class TypeRegistry {
 	/**
 	 * Add an Enum Type to the registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param string              $type_name The name of the type to register
+	 * @param array<string,mixed> $config he configuration of the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_enum_type( string $type_name, array $config ): void {
@@ -765,10 +760,9 @@ class TypeRegistry {
 	/**
 	 * Add an Input Type to the Registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
+	 * @param string              $type_name The name of the type to register
+	 * @param array<string,mixed> $config he configuration of the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_input_type( string $type_name, array $config ): void {
@@ -779,10 +773,8 @@ class TypeRegistry {
 	/**
 	 * Add a Union Type to the Registry
 	 *
-	 * @param string $type_name The name of the type to register
-	 * @param array $config he configuration of the type
-	 *
-	 * @return void
+	 * @param string              $type_name The name of the type to register
+	 * @param array<string,mixed> $config he configuration of the type
 	 *
 	 * @throws \Exception
 	 */
@@ -792,10 +784,10 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param string $type_name The name of the type to register
-	 * @param mixed|array|\GraphQL\Type\Definition\Type $config he configuration of the type
+	 * @param string                                                  $type_name The name of the type to register
+	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config he configuration of the type
 	 *
-	 * @return mixed|array|\GraphQL\Type\Definition\Type|null
+	 * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
 	 * @throws \Exception
 	 */
 	public function prepare_type( string $type_name, $config ) {
@@ -864,8 +856,6 @@ class TypeRegistry {
 	 * Given a type name, determines if the type is already present in the Type Loader
 	 *
 	 * @param string $type_name The name of the type to check the registry for
-	 *
-	 * @return bool
 	 */
 	public function has_type( string $type_name ): bool {
 		return isset( $this->type_loaders[ $this->format_key( $type_name ) ] );
@@ -874,7 +864,7 @@ class TypeRegistry {
 	/**
 	 * Return the Types in the registry
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_types(): array {
 
@@ -889,10 +879,10 @@ class TypeRegistry {
 	/**
 	 * Wrapper for prepare_field to prepare multiple fields for registration at once
 	 *
-	 * @param array  $fields    Array of fields and their settings to register on a Type
-	 * @param string $type_name Name of the Type to register the fields to
+	 * @param array<string,mixed> $fields    Array of fields and their settings to register on a Type
+	 * @param string              $type_name Name of the Type to register the fields to
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 * @throws \Exception
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
@@ -914,11 +904,11 @@ class TypeRegistry {
 	/**
 	 * Prepare the field to be registered on the type
 	 *
-	 * @param string $field_name   Friendly name of the field
-	 * @param array  $field_config Config data about the field to prepare
-	 * @param string $type_name    Name of the type to prepare the field for
+	 * @param string              $field_name   Friendly name of the field
+	 * @param array<string,mixed> $field_config Config data about the field to prepare
+	 * @param string              $type_name    Name of the type to prepare the field for
 	 *
-	 * @return array|null
+	 * @return ?array<string,mixed>
 	 * @throws \Exception
 	 */
 	protected function prepare_field( string $field_name, array $field_config, string $type_name ): ?array {
@@ -1007,7 +997,7 @@ class TypeRegistry {
 	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
 	 * not call before types are ready to be loaded.
 	 *
-	 * @param mixed|string|array $type The type definition
+	 * @param mixed|string|array<string,mixed> $type The type definition to process.
 	 *
 	 * @return mixed
 	 * @throws \Exception
@@ -1035,10 +1025,9 @@ class TypeRegistry {
 	/**
 	 * Wrapper for the register_field method to register multiple fields at once
 	 *
-	 * @param string $type_name Name of the type in the Type Registry to add the fields to
-	 * @param array  $fields    Fields to register
+	 * @param string                            $type_name Name of the type in the Type Registry to add the fields to
+	 * @param array<string,array<string,mixed>> $fields    Fields to register
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_fields( string $type_name, array $fields = [] ): void {
@@ -1054,12 +1043,10 @@ class TypeRegistry {
 	/**
 	 * Add a field to a Type in the Type Registry
 	 *
-	 * @param string $type_name                       Name of the type in the Type Registry to add
-	 *                                                the fields to
-	 * @param string $field_name                      Name of the field to add to the type
-	 * @param array  $config                          Info about the field to register to the type
+	 * @param string              $type_name  Name of the type in the Type Registry to add the fields to
+	 * @param string              $field_name Name of the field to add to the type
+	 * @param array<string,mixed> $config     Info about the field to register to the type
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_field( string $type_name, string $field_name, array $config ): void {
@@ -1146,9 +1133,8 @@ class TypeRegistry {
 	/**
 	 * Method to register a new connection in the Type registry
 	 *
-	 * @param array $config The info about the connection being registered
+	 * @param array<string,mixed> $config The info about the connection being registered
 	 *
-	 * @return void
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
 	 */
@@ -1159,10 +1145,9 @@ class TypeRegistry {
 	/**
 	 * Handles registration of a mutation to the Type registry
 	 *
-	 * @param string $mutation_name Name of the mutation being registered
-	 * @param array  $config        Info about the mutation being registered
+	 * @param string              $mutation_name Name of the mutation being registered
+	 * @param array<string,mixed> $config        Info about the mutation being registered
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ): void {
@@ -1272,6 +1257,8 @@ class TypeRegistry {
 	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
 	 *
 	 * @since 1.13.0
+	 *
+	 * @return string[]
 	 */
 	public function get_excluded_types(): array {
 		if ( null === $this->excluded_types ) {
@@ -1299,6 +1286,8 @@ class TypeRegistry {
 	 *
 	 * Type names are normalized using `strtolower()`, to avoid case sensitivity issues.
 	 *
+	 * @return string[]
+	 *
 	 * @since 1.14.0
 	 */
 	public function get_excluded_connections(): array {
@@ -1324,6 +1313,7 @@ class TypeRegistry {
 	 *
 	 * Mutation names are normalized using `strtolower()`, to avoid case sensitivity issues.
 	 *
+	 * @return string[]
 	 * @since 1.14.0
 	 */
 	public function get_excluded_mutations(): array {
@@ -1349,7 +1339,7 @@ class TypeRegistry {
 	 *
 	 * Returns an empty string if the type modifiers are malformed.
 	 *
-	 * @param string|array $type The (possibly-wrapped) type name.
+	 * @param string|array<string|int,mixed> $type The (possibly-wrapped) type name.
 	 */
 	protected function get_unmodified_type_name( $type ): string {
 		if ( ! is_array( $type ) ) {

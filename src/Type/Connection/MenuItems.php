@@ -87,9 +87,9 @@ class MenuItems {
 	/**
 	 * Given an array of $args, returns the args for the connection with the provided args merged
 	 *
-	 * @param array $args
+	 * @param array<string,mixed> $args
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public static function get_connection_config( $args = [] ) {
 		return array_merge(
@@ -116,10 +116,9 @@ class MenuItems {
 					],
 				],
 				'resolve'        => static function ( $source, $args, $context, $info ) {
-					$resolver   = new MenuItemConnectionResolver( $source, $args, $context, $info );
-					$connection = $resolver->get_connection();
+					$resolver = new MenuItemConnectionResolver( $source, $args, $context, $info );
 
-					return $connection;
+					return $resolver->get_connection();
 				},
 			],
 			$args

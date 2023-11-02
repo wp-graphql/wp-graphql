@@ -1,6 +1,6 @@
 <?php
 
-class PreviewTest extends \Codeception\TestCase\WPTestCase {
+class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post;
 	public $preview;
@@ -67,8 +67,8 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 	public function get_query() {
 
 		return '
-		query GetPostAndPreview( $id: ID! ) {
-		  post( id: $id idType: DATABASE_ID ) {
+		query GetPostAndPreview( $id: ID! $idType: PostIdType ) {
+		  post( id: $id idType: $idType ) {
 		    ...PostFields
 		    preview {
 		      node {
@@ -110,84 +110,201 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function testPreviewReturnsNullForPublicRequest() {
 
-		$actual = graphql([
+	public function testPreviewReturnsNullForPublicRequest() {
+		$the_post = get_post( $this->post );
+
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['post']['preview'] );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
+
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::IS_NULL )
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::IS_NULL )
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::IS_NULL )
+		]);
 
 	}
 
 	public function testReturnsPreviewNodeForAdminRequest() {
-
+		$the_post = get_post( $this->post );
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
+
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 
 		add_filter( 'wp_revisions_to_keep', function () {
 			return 0;
 		} );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
+
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
 
 		add_filter( 'wp_revisions_to_keep', function ( $default ) {
 			return $default;
 		} );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 
 	}
 
 	public function testGetPostMetaWithNullAsSingleDoesNotBreakPreview() {
-
+		$the_post = get_post( $this->post );
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 
 		add_filter( 'wp_revisions_to_keep', function () {
 			return 0;
 		} );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
+			],
+		]);
+
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
+
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -196,40 +313,88 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		// Previously this would cause errors
 		get_post_meta( $this->post, null, null );
 
-		codecept_debug( $actual );
-
 		add_filter( 'wp_revisions_to_keep', function ( $default ) {
 			return $default;
 		} );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 	}
 
 	public function testGetPostMetaWithNullMetaKeyDoesNotBreakPreviews() {
-
+		$the_post = get_post($this->post);
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 
 		add_filter( 'wp_revisions_to_keep', function () {
 			return 0;
 		} );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
+			],
+		]);
+
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
+
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
 			],
 		]);
 
@@ -238,78 +403,190 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		// Previously this would cause errors
 		get_post_meta( $this->post, null, true );
 
-		codecept_debug( $actual );
-
 		add_filter( 'wp_revisions_to_keep', function ( $default ) {
 			return $default;
 		} );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNotNull( $actual['data']['post']['preview'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+		]);
 
 	}
 
 	public function testPreviewAuthorMatchesPublishedAuthor() {
-
+		$the_post = get_post($this->post);
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $this->admin, $actual['data']['post']['preview']['node']['author']['node']['databaseId'] );
-		$this->assertSame( $this->admin, $actual['data']['post']['author']['node']['databaseId'] );
-		$this->assertSame( $this->admin, $actual['data']['post']['preview']['node']['author']['node']['databaseId'] );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
+			$this->expectedField( 'post.author.node.databaseId', $this->admin )
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
+			$this->expectedField( 'post.author.node.databaseId', $this->admin )
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
+			$this->expectedField( 'post.author.node.databaseId', $this->admin )
+		]);
 
 	}
 
 	public function testPreviewTermsMatchPublishedTerms() {
-
+		$the_post = get_post($this->post);
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		codecept_debug( $this->category );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $this->category, $actual['data']['post']['preview']['node']['categories']['nodes'][0]['databaseId'] );
-		$this->assertSame( $this->category, $actual['data']['post']['categories']['nodes'][0]['databaseId'] );
-		$this->assertSame( $actual['data']['post']['categories'], $actual['data']['post']['preview']['node']['categories'] );
-		$this->assertSame( $actual['data']['post']['tags'], $actual['data']['post']['preview']['node']['tags'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+			$this->expectedNode( 'post.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+			$this->expectedNode( 'post.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+			$this->expectedNode( 'post.categories.nodes', [
+				$this->expectedField( 'databaseId', $this->category )
+			] ),
+		]);
+
 	}
 
 	public function testPreviewFeaturedImageMatchesPublishedFeaturedImage() {
-
+		$the_post = get_post($this->post);
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
+		$actual_by_database_id = $this->graphql([
 			'query'     => $this->get_query(),
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID'
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI'
+			],
+		]);
 
-		codecept_debug( $this->category );
+		$actual_by_slug = $this->graphql([
+			'query'     => $this->get_query(),
+			'variables' => [
+				'id' => $the_post->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $this->featured_image, $actual['data']['post']['preview']['node']['featuredImage']['node']['databaseId'] );
-		$this->assertSame( $this->featured_image, $actual['data']['post']['featuredImage']['node']['databaseId'] );
-		$this->assertSame( $actual['data']['post']['featuredImage'], $actual['data']['post']['preview']['node']['featuredImage'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+			$this->expectedNode( 'post.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+			$this->expectedNode( 'post.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview', self::NOT_NULL ),
+			$this->expectedNode( 'post.preview.node.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+			$this->expectedNode( 'post.featuredImage.node', [
+				$this->expectedField( 'databaseId', $this->featured_image )
+			] ),
+		]);
+
 	}
 
 	public function testMetaOnPreview() {
@@ -328,15 +605,12 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		codecept_debug( get_post_meta( $this->preview, $meta_key, true ) );
-
 		$this->assertSame( $meta_value, get_post_meta( $this->post, $meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $meta_key, true ) );
 
-		$actual = graphql([
-			'query'     => '
-		query GET_POST( $id:ID! ) {
-		 post(id:$id idType: DATABASE_ID) {
+		$query = '
+		query GET_POST( $id:ID! $idType: PostIdType ) {
+		 post(id:$id idType: $idType ) {
 		   databaseId
 		   metaKey
 		   title
@@ -361,18 +635,46 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   }
 		 }
 		}
-		',
+		';
+
+		$actual_by_database_id = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID',
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_permalink($this->post),
+				'idType' => 'URI',
+			],
+		]);
 
-		codecept_debug( get_post_meta( $this->preview, $meta_key, true ) );
+		$actual_by_slug = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_post($this->post)->post_name,
+				'idType' => 'SLUG',
+			],
+		]);
 
-		$this->assertSame( $meta_value, $actual['data']['post']['metaKey'] );
-		$this->assertSame( $meta_value, $actual['data']['post']['preview']['node']['metaKey'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.metaKey', $meta_value ),
+			$this->expectedField( 'post.preview.node.metaKey', $meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.metaKey', $meta_value ),
+			$this->expectedField( 'post.preview.node.metaKey', $meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.metaKey', $meta_value ),
+			$this->expectedField( 'post.preview.node.metaKey', $meta_value ),
+		]);
 
 		$this->assertSame( $meta_value, get_post_meta( $this->post, $meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $meta_key, true ) );
@@ -444,10 +746,9 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $published_meta_value, get_post_meta( $this->post, $published_meta_key, true ) );
 		$this->assertSame( $revised_meta_value, get_post_meta( $this->preview, $revised_meta_key, true ) );
 
-		$actual = graphql([
-			'query'     => '
-		query GET_POST( $id:ID! ) {
-		 post(id:$id idType: DATABASE_ID) {
+		$query = '
+		query GET_POST( $id:ID! $idType: PostIdType ) {
+		 post(id:$id idType: $idType) {
 		   databaseId
 		   revisedMetaKey
 		   publishedMetaKey
@@ -465,7 +766,7 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		       revisedMetaKey
 		       title
 		       content
-		      author {
+		       author {
 		         node {
 		           id
 		         }
@@ -474,23 +775,53 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		   }
 		 }
 		}
-		',
+		';
+
+		$actual_by_database_id = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID',
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_permalink( $this->post ),
+				'idType' => 'URI',
+			],
+		]);
 
-		codecept_debug( get_post_meta( $this->preview, $revised_meta_key, true ) );
+		$actual_by_slug = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_post( $this->post )->post_name,
+				'idType' => 'SLUG'
+			],
+		]);
 
-		$this->assertSame( $published_meta_value, $actual['data']['post']['publishedMetaKey'] );
-		$this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.revisedMetaKey', $revised_meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.revisedMetaKey', $revised_meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'post.preview.node.revisedMetaKey', $revised_meta_value ),
+		]);
 
 		$this->assertSame( $published_meta_value, get_post_meta( $this->post, $published_meta_key, true ) );
 		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 
-		$this->assertSame( $revised_meta_value, $actual['data']['post']['preview']['node']['revisedMetaKey'] );
 		$this->assertSame( $revised_meta_value, get_post_meta( $this->preview, $revised_meta_key, true ) );
 
 		WPGraphQL::clear_schema();
@@ -508,7 +839,6 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 
 		// Store meta on the published post
 		update_post_meta( $this->post, $published_meta_key, $published_meta_value );
-		codecept_debug( get_post_meta( $this->post, $published_meta_key, $published_meta_value ) );
 
 		// Register field for the published meta
 		register_graphql_field( 'Post', $published_meta_key, [
@@ -525,39 +855,68 @@ class PreviewTest extends \Codeception\TestCase\WPTestCase {
 		// value
 		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 
-		$actual = graphql([
-			'query'     => '
-				query GET_POST( $id:ID! ) {
-				 post(id:$id idType: DATABASE_ID) {
-				   databaseId
-				   enclosure
-				   publishedMetaKey
-				   title
-				   content
-				   preview {
-				     node {
-				       databaseId
-				       enclosure
-				       publishedMetaKey
-				       title
-				       content
-				     }
-				   }
-				 }
-				 preview:post(id:$id idType: DATABASE_ID asPreview:true) {
-				   publishedMetaKey
-				 }
-				}
-			',
+		$query = '
+			query GET_POST( $id:ID! $idType: PostIdType ) {
+			 post(id:$id idType: $idType) {
+			   databaseId
+			   enclosure
+			   publishedMetaKey
+			   title
+			   content
+			   preview {
+			     node {
+			       databaseId
+			       enclosure
+			       publishedMetaKey
+			       title
+			       content
+			     }
+			   }
+			 }
+			 preview:post(id:$id idType: $idType asPreview:true) {
+			   publishedMetaKey
+			 }
+			}
+		';
+
+		$actual_by_database_id = $this->graphql([
+			'query'     => $query,
 			'variables' => [
 				'id' => $this->post,
+				'idType' => 'DATABASE_ID',
 			],
 		]);
 
-		codecept_debug( $actual );
+		$actual_by_uri = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_permalink( $this->post ),
+				'idType' => 'URI',
+			],
+		]);
 
-		$this->assertSame( $published_meta_value, $actual['data']['post']['preview']['node']['publishedMetaKey'] );
-		$this->assertSame( $published_meta_value, $actual['data']['preview']['publishedMetaKey'] );
+		$actual_by_slug = $this->graphql([
+			'query'     => $query,
+			'variables' => [
+				'id' => get_post( $this->post )->post_name,
+				'idType' => 'SLUG',
+			],
+		]);
+
+		self::assertQuerySuccessful( $actual_by_database_id, [
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'preview.publishedMetaKey', $published_meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_uri, [
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'preview.publishedMetaKey', $published_meta_value ),
+		]);
+
+		self::assertQuerySuccessful( $actual_by_slug, [
+			$this->expectedField( 'post.preview.node.publishedMetaKey', $published_meta_value ),
+			$this->expectedField( 'preview.publishedMetaKey', $published_meta_value ),
+		]);
 
 		// Asking for the meta of a revision directly using the get_post_meta function should
 		// get the meta from the revision ID, which should be empty since we didn't set any

@@ -17,6 +17,8 @@ use GraphQL\Validator\ValidationContext;
 class RequireAuthentication extends QuerySecurityRule {
 
 	/**
+	 * Whether the rule is enabled or not.
+	 *
 	 * @return bool
 	 */
 	protected function isEnabled() {
@@ -57,9 +59,11 @@ class RequireAuthentication extends QuerySecurityRule {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * @param \GraphQL\Validator\ValidationContext $context
 	 *
-	 * @return callable[]|mixed[]
+	 * @return callable[]
 	 */
 	public function getVisitor( ValidationContext $context ) {
 		$allowed_root_fields = [];
@@ -94,7 +98,7 @@ class RequireAuthentication extends QuerySecurityRule {
 									__( 'The field "%s" cannot be accessed without authentication.', 'wp-graphql' ),
 									$context->getParentType() . '.' . $node->name->value
 								),
-								//@phpstan-ignore-next-line
+								// @phpstan-ignore-next-line
 								[ $node ]
 							)
 						);

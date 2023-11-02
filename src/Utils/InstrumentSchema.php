@@ -18,9 +18,7 @@ class InstrumentSchema {
 
 	/**
 	 * @param \GraphQL\Type\Definition\Type $type Instance of the Schema.
-	 * @param string $type_name Name of the Type
-	 *
-	 * @return \GraphQL\Type\Definition\Type
+	 * @param string                        $type_name Name of the Type
 	 */
 	public static function instrument_resolvers( Type $type, string $type_name ): Type {
 		if ( ! method_exists( $type, 'getFields' ) ) {
@@ -43,8 +41,8 @@ class InstrumentSchema {
 	 * This wraps fields to provide sanitization on fields output by introspection queries
 	 * (description/deprecation reason) and provides hooks to resolvers.
 	 *
-	 * @param array  $fields    The fields configured for a Type
-	 * @param string $type_name The Type name
+	 * @param mixed[] $fields    The fields configured for a Type
+	 * @param string  $type_name The Type name
 	 *
 	 * @return mixed
 	 */
@@ -193,14 +191,14 @@ class InstrumentSchema {
 	 *
 	 * This takes into account auth params defined in the Schema
 	 *
-	 * @param mixed                 $source         The source passed down the Resolve Tree
-	 * @param array                 $args           The args for the field
-	 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-	 * @param mixed|callable|string $field_resolver The Resolve function for the field
-	 * @param string                $type_name      The name of the type the fields belong to
-	 * @param string                $field_key      The name of the field
-	 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
+	 * @param mixed                                    $source         The source passed down the Resolve Tree
+	 * @param array<string,mixed>                      $args           The args for the field
+	 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
+	 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+	 * @param mixed|callable|string                    $field_resolver The Resolve function for the field
+	 * @param string                                   $type_name      The name of the type the fields belong to
+	 * @param string                                   $field_key      The name of the field
+	 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
 	 *
 	 * @return void
 	 *

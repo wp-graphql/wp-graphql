@@ -3,7 +3,6 @@
 namespace WPGraphQL\Registry\Utils;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use WP_Post_Type;
 use WPGraphQL;
 use WPGraphQL\AppContext;
 use WPGraphQL\Data\Connection\CommentConnectionResolver;
@@ -13,6 +12,7 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Type\Connection\Comments;
 use WPGraphQL\Type\Connection\PostObjects;
 use WPGraphQL\Type\Connection\TermObjects;
+use WP_Post_Type;
 
 /**
  * Class PostObject
@@ -105,7 +105,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 */
 	protected static function get_connections( WP_Post_Type $post_type_object ) {
 		$connections = [];
@@ -254,7 +254,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected static function get_interfaces( WP_Post_Type $post_type_object ) {
 		$interfaces = [ 'Node', 'ContentNode', 'DatabaseIdentifier', 'NodeWithTemplate' ];
@@ -337,7 +337,7 @@ class PostObject {
 	 *
 	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
-	 * @return array
+	 * @return array<string,array<string,mixed>>
 	 * @todo make protected after \Type\ObjectType\PostObject::get_fields() is removed.
 	 */
 	public static function get_fields( WP_Post_Type $post_type_object ) {
@@ -417,6 +417,8 @@ class PostObject {
 
 	/**
 	 * Register fields to the Type used for attachments (MediaItem).
+	 *
+	 * @param \WP_Post_Type $post_type_object Post type.
 	 *
 	 * @return void
 	 */

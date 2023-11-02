@@ -1,7 +1,7 @@
 parameters:
     level: 8
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     treatPhpDocTypesAsCertain: false
     stubFiles:
         # Simulate added properties
