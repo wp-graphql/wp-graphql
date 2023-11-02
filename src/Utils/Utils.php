@@ -369,7 +369,7 @@ class Utils {
 	 * @param int|\WP_Post $post The WP Post object or Post ID
 	 *
 	 * @return int A preview post ID if one exists, the current post ID if one doesn't exist.
-	 * @since @todo
+	 * @since 1.18.0
 	 */
 	public static function get_post_preview_id( $post ): int {
 		$post_id = is_object( $post ) ? $post->ID : $post;
