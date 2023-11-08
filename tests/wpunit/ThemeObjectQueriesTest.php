@@ -86,7 +86,7 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$expected = [
 			'theme' => [
 				'author'      => $theme->author,
-				'authorUri'   => 'https://wordpress.org/',
+				'authorUri'   => $theme->get( 'AuthorURI' ),
 				'description' => $theme->description,
 				'id'          => $active_global_id,
 				'name'        => $theme->get( 'Name' ),
