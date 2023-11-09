@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.2
+
+### Chores / Bugfixes
+
+- ci: update tests to run against WordPress 6.4.1. Update Docker Deploy to include WP 6.4.1. Update README, plugin file's "tested up to" to reflect.
+
+
 ## 1.18.1
 
 ### Chores / Bugfixes

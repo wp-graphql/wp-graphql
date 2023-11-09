@@ -2,9 +2,9 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nextjs, Vue, Apollo, REST, JSON, HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.4.1
 Requires PHP: 7.1
-Stable tag: 1.18.1
+Stable tag: 1.18.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -251,6 +251,12 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.18.2 =
+
+**Chores / Bugfixes**
+
+- ci: update tests to run against WordPress 6.4.1. Update Docker Deploy to include WP 6.4.1. Update README, plugin file's "tested up to" to reflect.
 
 = 1.18.1 =
 
