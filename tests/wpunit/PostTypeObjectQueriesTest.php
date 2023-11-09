@@ -163,8 +163,8 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 								'labels'              => [
 									'name'                => 'Posts',
 									'singularName'        => 'Post',
-									'addNew'              => 'Add New',
-									'addNewItem'          => 'Add New Post',
+									'addNew'              => $post_type_object->labels->add_new,
+									'addNewItem'          => $post_type_object->labels->add_new_item,
 									'editItem'            => 'Edit Post',
 									'newItem'             => 'New Post',
 									'viewItem'            => 'View Post',

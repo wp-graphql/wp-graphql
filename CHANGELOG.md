@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.18.1
+
+### Chores / Bugfixes
+
+- [#2984](https://github.com/wp-graphql/wp-graphql/pull/2984): ci: update tests to run against WordPress 6.4. Update README, plugin file's "tested up to" to reflect.
+
 ## 1.18.0
 
 ### New Features
