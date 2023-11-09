@@ -2,7 +2,7 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89
 Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nextjs, Vue, Apollo, REST, JSON, HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 6.2
+Tested up to: 6.4
 Requires PHP: 7.1
 Stable tag: 1.18.1
 License: GPL-3
