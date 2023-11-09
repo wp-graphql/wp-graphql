@@ -28,7 +28,7 @@ jobs:
             wordpress: '6.2'
             multisite: true
           - php: '8.2'
-            wordpress: '6.4.1'
+            wordpress: '6.4.0'
             coverage: 1
           - php: '8.1'
             wordpress: '6.0'
