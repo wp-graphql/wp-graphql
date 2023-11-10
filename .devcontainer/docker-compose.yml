@@ -12,11 +12,13 @@ services:
     volumes:
       - '..:/var/www/html/wp-content/plugins/wp-graphql'
       - '../.log/app:/var/log/apache2'
+      - './mu-plugins:/var/www/html/wp-content/mu-plugins'
     env_file:
       - ../.env.dist
     environment:
-      WP_URL: http://localhost:8080/
+      WP_URL: 'https://glowing-garbanzo-ppp696r94c7v47-8080.app.github.dev/'
       USING_XDEBUG: ${USING_XDEBUG:-}
+      WP_DEBUG: 'true'
     ports:
       - 8080:80
 
