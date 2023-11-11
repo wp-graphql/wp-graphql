@@ -47,5 +47,4 @@ class IsGraphqlHttpRequestTest extends \Codeception\TestCase\WPTestCase {
 		$_SERVER['REQUEST_URI'] = '/other/graphql';
 		$this->assertEquals( false, is_graphql_http_request() );
 	}
-
 }

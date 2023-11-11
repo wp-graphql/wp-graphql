@@ -5,12 +5,12 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public $admin;
 
 	/**
-	 * @var WP_Theme
+	 * @var \WP_Theme
 	 */
 	public $active_theme;
 
 	/**
-	 * @var WP_Theme
+	 * @var \WP_Theme
 	 */
 	public $inactive_theme;
 
@@ -25,9 +25,11 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'template', $this->active_theme );
 		update_option( 'stylesheet', $this->active_theme );
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->clearSchema();
 	}
 
@@ -168,5 +170,4 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		$this->assertEquals( $expected_errors, $actual['errors'] );
 	}
-
 }

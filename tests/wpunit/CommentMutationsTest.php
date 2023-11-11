@@ -18,20 +18,25 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->author = $this->factory()->user->create( [
-			'role' => 'author',
-		] );
+		$this->author = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->subscriber = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		] );
+		$this->subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
 		WPGraphQL::clear_schema();
-
 	}
 
 
@@ -583,7 +588,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotEmpty( $actual['errors'] );
 		$this->assertEmpty( $actual['data']['createComment'] );
-
 	}
 
 	/**
@@ -645,7 +649,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['createComment']['success'] );
-
 	}
 
 	public function testUpdateCommentWithoutChangesDoesNotErrorButReturnsFalseSuccess() {
@@ -660,42 +663,45 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$mutation = '
 		mutation UpdateComment( $input: UpdateCommentInput! ) {
-		  updateComment(input: $input) {
-		    success
-		    comment {
-		      id
-		      databaseId
-		      content
-		      status
-		      author {
-		        __typename
-		        node {
-		          databaseId
-		          name
-		          email
-		        }
-		      }
-		    }
-		  }
+			updateComment(input: $input) {
+				success
+				comment {
+					id
+					databaseId
+					content
+					status
+					author {
+						__typename
+						node {
+							databaseId
+							name
+							email
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $mutation,
-			'variables' => [
-				'input' => [
-					'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
-					'content' => 'Comment Content',
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [
+					'input' => [
+						'id'      => \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id ),
+						'content' => 'Comment Content',
+					],
+				],
 			]
-		]);
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'updateComment.success', self::IS_FALSY ),
-			$this->expectedField( 'updateComment.comment.databaseId', (int) $comment['comment_ID'] ),
-			$this->expectedField( 'updateComment.comment.content', apply_filters( 'comment_text', $comment['comment_content'] ) ),
-		] );
-
-
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'updateComment.success', self::IS_FALSY ),
+				$this->expectedField( 'updateComment.comment.databaseId', (int) $comment['comment_ID'] ),
+				$this->expectedField( 'updateComment.comment.content', apply_filters( 'comment_text', $comment['comment_content'] ) ),
+			]
+		);
 	}
 }

@@ -14,21 +14,23 @@ class ShouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testViewerQuery() {
 
-		$user_id = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		$query = '
 		{
-		  viewer{
-		    userId
-		    roles {
-		        nodes {
-		          name
-		        }
-		    }
+			viewer{
+				userId
+				roles {
+						nodes {
+							name
+						}
+				}
         shouldShowAdminToolbar
-		  }
+			}
 		}
 		';
 
@@ -46,7 +48,7 @@ class ShouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( true, $actual['data']['viewer']['shouldShowAdminToolbar'] );
 
 		// Update the user's preference to not show admin bar.
-		update_user_meta( $user_id, 'show_admin_bar_front', "false" );
+		update_user_meta( $user_id, 'show_admin_bar_front', 'false' );
 
 		$actual = graphql( [ 'query' => $query ] );
 
@@ -56,5 +58,4 @@ class ShouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
 		$this->assertSame( false, $actual['data']['viewer']['shouldShowAdminToolbar'] );
 	}
-
 }

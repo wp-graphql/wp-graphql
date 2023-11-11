@@ -14,9 +14,11 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		WPGraphQL::clear_schema();
 	}
 
@@ -37,11 +39,13 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPosts() {
 
-		$this->factory()->post->create( [
-			'post_type'   => 'Post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for PostTypeQueryForPosts',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'Post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for PostTypeQueryForPosts',
+			]
+		);
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
@@ -55,7 +59,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			posts(first:1) {
 				nodes {
 					contentType {
-					  node {
+						node {
 						canExport
 						connectedTaxonomies {
 							nodes {
@@ -112,7 +116,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						showInRest
 						showUi
 					}
-				  }
+					}
 				}
 			}
 		}';
@@ -221,12 +225,14 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPages() {
 
-		$this->factory()->post->create( [
-			'post_type'    => 'Page',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test for PostTypeQueryForPages',
-			'post_content' => 'Test post type query for pages',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'    => 'Page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test for PostTypeQueryForPages',
+				'post_content' => 'Test post type query for pages',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -242,12 +248,12 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		query {
 			pages(first:1) {
 				nodes {
-				  contentType {
-				    node {
+					contentType {
+						node {
 						canExport
 						connectedTaxonomies {
 							nodes {
-							  name
+								name
 							}
 						}
 						deleteWithUser
@@ -273,7 +279,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						showInRest
 						showUi
 					}
-				  }
+					}
 				}
 			}
 		}';
@@ -336,19 +342,23 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForMedia() {
 
-		$post_id = $this->factory()->post->create( [
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test PostTypeQueryForMedia',
-			'post_content' => __FUNCTION__,
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test PostTypeQueryForMedia',
+				'post_content' => __FUNCTION__,
+			]
+		);
 
-		$this->factory()->post->create( [
-			'post_type'   => 'attachment',
-			'post_status' => 'inherit',
-			'post_title'  => 'Test attachment for PostTypeQueryForMedia',
-			'post_parent' => $post_id,
-		] );
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+				'post_title'  => 'Test attachment for PostTypeQueryForMedia',
+				'post_parent' => $post_id,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -363,13 +373,13 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		query {
 			mediaItems(first:1) {
-			    nodes {
-			        contentType {
-			          node {
+					nodes {
+							contentType {
+								node {
 						canExport
 						connectedTaxonomies {
 							nodes {
-							  name
+								name
 							}
 						}
 						deleteWithUser
@@ -395,7 +405,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 						showInRest
 						showUi
 					 }
-				  }
+					}
 				}
 			}
 		}';
@@ -451,5 +461,4 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual['data'] );
 	}
-
 }

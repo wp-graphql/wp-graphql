@@ -13,13 +13,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
 		}
-
 	}
 
 	public function tearDown(): void {
@@ -61,12 +62,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$query = $this->getQuery();
 
 		// The list of plugins might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -170,12 +173,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$query = $this->getQuery();
 
 		// The list of plugins might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'last' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'last' => 100,
+				],
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -285,12 +290,14 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$query = $this->getQuery();
 
 		// The list of plugins might change, so we'll reuse this to check late.
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		$after_cursor  = $actual['data']['plugins']['edges'][0]['cursor'];
 		$before_cursor = $actual['data']['plugins']['edges'][2]['cursor'];
@@ -327,7 +334,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
-
 	}
 
 	/**
@@ -337,7 +343,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$query = $this->getQuery();
 
 		$active_plugin_name = 'WPGraphQL';
-		$active_plugin   = 'wp-graphql/wp-graphql.php';
+		$active_plugin      = 'wp-graphql/wp-graphql.php';
 		global $wp_version;
 
 		$inactive_plugin = 'akismet/akismet.php';
@@ -411,7 +417,6 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$this->assertEmpty( $actual['data']['plugins']['edges'] );
 		$this->assertEmpty( $actual['data']['plugins']['nodes'] );
-
 	}
 
 	/**

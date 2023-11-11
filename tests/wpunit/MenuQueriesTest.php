@@ -13,9 +13,11 @@ class MenuQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin         = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin         = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->location_name = 'test-location';
 		register_nav_menu( $this->location_name, 'test menu...' );
 

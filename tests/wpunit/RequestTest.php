@@ -17,7 +17,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Create Request instance using example request data.
 	 *
-	 * @return Request
+	 * @return \WPGraphQL\Request
 	 */
 	private function create_example_request() {
 		$request_data = [
@@ -75,9 +75,12 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory->post->create();
 		$request = $this->create_example_request();
 
-		add_filter( 'graphql_request_results', function () {
-			return 'filtered response';
-		} );
+		add_filter(
+			'graphql_request_results',
+			static function () {
+				return 'filtered response';
+			}
+		);
 
 		$results = $request->execute();
 
@@ -126,5 +129,4 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$operation_params = $request->get_params();
 		$this->assertEquals( 'GraphQL\Server\OperationParams', get_class( $operation_params ) );
 	}
-
 }

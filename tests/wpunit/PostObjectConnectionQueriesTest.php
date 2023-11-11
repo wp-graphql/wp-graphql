@@ -31,7 +31,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->created_post_ids = $this->create_posts();
 
 		$this->app_context = new \WPGraphQL\AppContext();
-
 	}
 
 	public function tearDown(): void {
@@ -80,7 +79,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 * Return the $id of the post_object that was created
 		 */
 		return $post_id;
-
 	}
 
 	/**
@@ -94,7 +92,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		// Create posts
 		$created_posts = [];
-		for ( $i = 1; $i <= $count; $i ++ ) {
+		for ( $i = 1; $i <= $count; $i++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
 			$created_posts[ $i ] = $this->createPostObject(
@@ -108,7 +106,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 
 		return $created_posts;
-
 	}
 
 	public function getQuery() {
@@ -152,7 +149,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 
 		return $data;
-
 	}
 
 	public function testMaxQueryAmount() {
@@ -179,7 +175,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 */
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function () {
+			static function () {
 				return 20;
 			}
 		);
@@ -192,7 +188,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		add_filter(
 			'graphql_connection_max_query_amount',
-			function () {
+			static function () {
 				return 100;
 			}
 		);
@@ -223,8 +219,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$variables = [
 			'where' => [
-				'in' => [ $post_1_id, $post_2_id ]
-			]
+				'in' => [ $post_1_id, $post_2_id ],
+			],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -237,7 +233,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertNotEquals( $edges[0]['node']['excerpt'], $edges[1]['node']['excerpt'] );
 		$this->assertNotEquals( $edges[0]['node']['content'], $edges[1]['node']['content'] );
-
 	}
 
 	public function testPrivatePostsWithoutProperCaps() {
@@ -257,9 +252,9 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$variables = [
 			'where' => [
-				'in' => [ $private_post, $public_post ],
+				'in'    => [ $private_post, $public_post ],
 				'stati' => [ 'PUBLISH', 'PRIVATE' ],
-			]
+			],
 		];
 
 		wp_set_current_user( $this->subscriber );
@@ -284,9 +279,9 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$variables = [
 			'where' => [
-				'in' => [ $post_id ],
+				'in'    => [ $post_id ],
 				'stati' => [ 'PUBLISH', 'PRIVATE' ],
-			]
+			],
 		];
 
 		wp_set_current_user( $this->admin );
@@ -298,7 +293,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$variables = [
 			'where' => [
 				'status' => 'PRIVATE',
-			]
+			],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -322,9 +317,9 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$variables = [
 			'where' => [
-				'in' => [ $post_id ],
+				'in'    => [ $post_id ],
 				'stati' => [ 'PUBLISH', 'PRIVATE' ],
-			]
+			],
 		];
 
 		wp_set_current_user( $this->subscriber );
@@ -348,7 +343,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 */
 		$this->assertEmpty( $actual['data']['posts']['edges'] );
 		$this->assertEmpty( $actual['data']['posts']['nodes'] );
-
 	}
 
 	/**
@@ -402,7 +396,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		} else {
 			$this->assertEmpty( $actual['data']['posts']['edges'][0]['node']['revisions']['edges'] );
 		}
-
 	}
 
 	/**
@@ -432,7 +425,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		if ( 'admin' === $role ) {
-
 			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 
 			/**
@@ -458,7 +450,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
-
 	}
 
 	/**
@@ -511,7 +502,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$this->assertNotEmpty( $actual['data']['posts']['edges'] );
 			$this->assertCount( 1, $actual['data']['posts']['edges'] );
 		}
-
 	}
 
 	public function dataProviderUserVariance() {
@@ -528,21 +518,25 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
 
-		$public_post_id = $this->factory()->post->create( [
-			'post_type'   => 'Post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for PrivatePostsNotReturnedToPublicUserInConnection',
-		] );
+		$public_post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'Post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for PrivatePostsNotReturnedToPublicUserInConnection',
+			]
+		);
 
-		$private_post_id = $this->factory()->post->create( [
-			'post_type'   => 'Post',
-			'post_status' => 'publish',
-			'post_title'  => 'Private Post for PrivatePostsNotReturnedToPublicUserInConnection',
-		] );
+		$private_post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'Post',
+				'post_status' => 'publish',
+				'post_title'  => 'Private Post for PrivatePostsNotReturnedToPublicUserInConnection',
+			]
+		);
 
 		update_post_meta( $private_post_id, '_private_key', true );
 
@@ -558,9 +552,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$nodes = $actual['data']['posts']['nodes'];
@@ -577,19 +573,26 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 * should NOT be returned as nodes at all. They should be stripped before
 		 * nodes array is returned.
 		 */
-		add_filter( 'graphql_data_is_private', function ( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
-			if ( 'PostObject' === $model_name ) {
-				$is_private_meta = get_post_meta( $data->ID, '_private_key' );
-				if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
-					$is_private = true;
+		add_filter(
+			'graphql_data_is_private',
+			static function ( $is_private, $model_name, $data, $visibility, $owner, $current_user ) {
+				if ( 'PostObject' === $model_name ) {
+					$is_private_meta = get_post_meta( $data->ID, '_private_key' );
+					if ( isset( $is_private_meta ) && true === (bool) $is_private_meta ) {
+						$is_private = true;
+					}
 				}
-			}
-			return $is_private;
-		}, 10, 6 );
+				return $is_private;
+			},
+			10,
+			6
+		);
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -603,20 +606,23 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 
 		$this->assertArrayNotHasKey( $private_post_id, $ids );
-
 	}
 
 	public function testSuppressFiltersThrowsException() {
 
 		$this->clearSchema();
 
-		add_filter( 'graphql_post_object_connection_query_args', function ( $args ) {
-			$args['suppress_filters'] = true;
-			return $args;
-		} );
+		add_filter(
+			'graphql_post_object_connection_query_args',
+			static function ( $args ) {
+				$args['suppress_filters'] = true;
+				return $args;
+			}
+		);
 
-		$actual = graphql([
-			'query' => '
+		$actual = graphql(
+			[
+				'query' => '
 			{
 				posts {
 					nodes {
@@ -626,12 +632,12 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 				}
 			}
 			',
-		]);
+			]
+		);
 
 		codecept_debug( $actual );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -639,29 +645,37 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 */
 	public function testPostInArgumentWorksWithCursors() {
 
-		$post_1 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
-		] );
+		$post_1 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
+			]
+		);
 
-		$post_2 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
-		] );
+		$post_2 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
+			]
+		);
 
-		$post_3 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
-		] );
+		$post_3 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
+			]
+		);
 
-		$post_4 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
-		] );
+		$post_4 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for PostInArgumentWorksWithCursors',
+			]
+		);
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
@@ -678,13 +692,15 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'post_ids' => $post_ids,
-				'after'    => null,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'post_ids' => $post_ids,
+					'after'    => null,
+				],
+			]
+		);
 
 		$actual_ids = [];
 
@@ -700,13 +716,15 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$cursor = $actual['data']['posts']['edges'][1]['cursor'];
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'post_ids' => $post_ids,
-				'after'    => $cursor,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'post_ids' => $post_ids,
+					'after'    => $cursor,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$actual_ids = [];
@@ -722,22 +740,26 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		codecept_debug( base64_decode( $cursor ) );
 		codecept_debug( 'line 932...' );
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'post_ids' => $post_ids,
-				'before'   => $cursor,
-				'last'     => 1,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'post_ids' => $post_ids,
+					'before'   => $cursor,
+					'last'     => 1,
+				],
+			]
+		);
 
-		codecept_debug( [
-			'variables' => [
-				'post_ids' => $post_ids,
-				'before'   => $cursor,
-				'last'     => 1,
-			],
-		]);
+		codecept_debug(
+			[
+				'variables' => [
+					'post_ids' => $post_ids,
+					'before'   => $cursor,
+					'last'     => 1,
+				],
+			]
+		);
 		codecept_debug( $actual );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -747,7 +769,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 
 		$this->assertSame( [ $post_ids[1] ], $actual_ids );
-
 	}
 
 	/**
@@ -755,44 +776,54 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 */
 	public function testCustomPostConnectionWithSetIdsWorksWithCursors() {
 
-		$post_1 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
-		] );
+		$post_1 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
+			]
+		);
 
-		$post_2 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
-		] );
+		$post_2 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
+			]
+		);
 
-		$post_3 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
-		] );
+		$post_3 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
+			]
+		);
 
-		$post_4 = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
-		] );
+		$post_4 = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Public Post for CustomPostConnectionWithSetIdsWorksWithCursors',
+			]
+		);
 
 		$post_ids = [ $post_3, $post_2, $post_4, $post_1 ];
 
-		register_graphql_connection([
-			'connectionTypeName' => 'OrderbyDebug',
-			'description'        => __( 'debugging', 'wp-graphql' ),
-			'fromType'           => 'RootQuery',
-			'toType'             => 'MediaItem',
-			'fromFieldName'      => 'postOrderbyDebug',
-			'resolve'            => function ( $root, $args, $context, $info ) use ( $post_ids ) {
-				$args['where']['in'] = $post_ids;
-				$resolver            = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
-				return $resolver->get_connection();
-			},
-		]);
+		register_graphql_connection(
+			[
+				'connectionTypeName' => 'OrderbyDebug',
+				'description'        => __( 'debugging', 'wp-graphql' ),
+				'fromType'           => 'RootQuery',
+				'toType'             => 'MediaItem',
+				'fromFieldName'      => 'postOrderbyDebug',
+				'resolve'            => static function ( $root, $args, $context, $info ) use ( $post_ids ) {
+					$args['where']['in'] = $post_ids;
+					$resolver            = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $root, $args, $context, $info, 'post' );
+					return $resolver->get_connection();
+				},
+			]
+		);
 
 		$query = '
 		query GetPostsWithSpecificIdsInResolver($after:String $before:String) {
@@ -807,13 +838,15 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'after'  => null,
-				'before' => null,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'after'  => null,
+					'before' => null,
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -827,12 +860,14 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$cursor_from_first_query = $actual['data']['posts']['edges'][1]['cursor'];
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'after' => $cursor_from_first_query,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'after' => $cursor_from_first_query,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$actual_ids = [];
@@ -842,12 +877,14 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertSame( [ $post_ids[2], $post_ids[3] ], $actual_ids );
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'before' => $cursor_from_first_query,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'before' => $cursor_from_first_query,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$actual_ids = [];
@@ -856,7 +893,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 
 		$this->assertSame( [ $post_ids[0] ], $actual_ids );
-
 	}
 
 	/**
@@ -872,12 +908,14 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$nonexistent_user_id = $highest_user_id + 1;
 
 		// Create a new post assigned to a nonexistent user ID.
-		$post_id = wp_insert_post( [
-			'post_title'   => 'Post assigned to a non-existent user',
-			'post_content' => 'Post assigned to a non-existent user',
-			'post_status'  => 'publish',
-			'post_author'  => $nonexistent_user_id,
-		] );
+		$post_id = wp_insert_post(
+			[
+				'post_title'   => 'Post assigned to a non-existent user',
+				'post_content' => 'Post assigned to a non-existent user',
+				'post_status'  => 'publish',
+				'post_author'  => $nonexistent_user_id,
+			]
+		);
 
 		$query = '
 		{
@@ -907,11 +945,10 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertEquals( null, $actual['data']['posts']['nodes'][0]['author'] );
 
 		wp_delete_post( $post_id, true );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUriFieldAvailableForPublicQueries() {
 
@@ -922,14 +959,16 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 *
 		 * @see: https://github.com/wp-graphql/wp-graphql/issues/1338
 		 */
-		$post_id = $this->factory()->post->create([
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_password' => 'test',
-			'post_title'    => 'Post with password',
-			'post_content'  => 'Protected content',
-			'post_author'   => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'test',
+				'post_title'    => 'Post with password',
+				'post_content'  => 'Protected content',
+				'post_author'   => $this->admin,
+			]
+		);
 
 		$query = '
 		query {
@@ -943,15 +982,16 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['uri'], 'Ensure the uri is not empty for public requests' );
 		$this->assertNotEmpty( $post_id, $actual['data']['posts']['nodes'][0]['link'], 'Ensure the link field is not empty for public requests' );
-
 	}
 
 	public function testQueryPasswordProtectedPost() {
@@ -959,13 +999,15 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$title   = 'Test Title for QueryPasswordProtectedPost' . uniqid();
 		$content = 'Test Content for QueryPasswordProtectedPost' . uniqid();
 
-		$this->factory()->post->create([
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_password' => 'publish',
-			'post_content'  => $content,
-			'post_title'    => $title,
-		]);
+		$this->factory()->post->create(
+			[
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'publish',
+				'post_content'  => $content,
+				'post_title'    => $title,
+			]
+		);
 
 		$query = '
 		{
@@ -981,9 +1023,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_set_current_user( 0 );
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['posts']['nodes'][0]['content'] );
@@ -992,9 +1036,11 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		// The content should be public for an admin
@@ -1004,21 +1050,25 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testIsStickyFieldOnPost() {
 
-		$sticky_post_id = $this->factory()->post->create([
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'Sticky Post',
-			'post_content' => 'Sticky post content',
-			'post_author'  => $this->admin,
-		]);
+		$sticky_post_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Sticky Post',
+				'post_content' => 'Sticky post content',
+				'post_author'  => $this->admin,
+			]
+		);
 
-		$nonsticky_post_id = $this->factory()->post->create([
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'Non-sticky Post',
-			'post_content' => 'Non-sticky post content',
-			'post_author'  => $this->admin,
-		]);
+		$nonsticky_post_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Non-sticky Post',
+				'post_content' => 'Non-sticky post content',
+				'post_author'  => $this->admin,
+			]
+		);
 
 		update_option( 'sticky_posts', [ $sticky_post_id ] );
 
@@ -1035,15 +1085,17 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'ids' => [
-					$sticky_post_id,
-					$nonsticky_post_id,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'ids' => [
+						$sticky_post_id,
+						$nonsticky_post_id,
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['posts']['nodes'][0]['isSticky'] );
@@ -1063,7 +1115,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test in with global + db id
@@ -1078,7 +1130,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test notIn with global + db id
 		$variables = [
@@ -1090,7 +1142,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(4, $actual['data']['posts']['nodes']);
+		$this->assertCount( 4, $actual['data']['posts']['nodes'] );
 
 		// test name
 		$post_one_name = get_post_field( 'post_name', $this->created_post_ids[1] );
@@ -1104,7 +1156,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test nameIn
@@ -1119,7 +1171,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test title
 		$title = get_post_field( 'post_title', $this->created_post_ids[1] );
@@ -1133,28 +1185,36 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 	}
 
 	public function testAuthorWhereArgs() {
-		$author_one_id = $this->factory()->user->create( [
-			'role' => 'author',
-			'user_nicename' => 'author-one',
-		] );
-		$author_two_id = $this->factory()->user->create( [
-			'role' => 'author',
-			'user_nicename' => 'author-two',
-		] );
+		$author_one_id = $this->factory()->user->create(
+			[
+				'role'          => 'author',
+				'user_nicename' => 'author-one',
+			]
+		);
+		$author_two_id = $this->factory()->user->create(
+			[
+				'role'          => 'author',
+				'user_nicename' => 'author-two',
+			]
+		);
 
-		$post_one_id = $this->factory()->post->create( [
-			'post_author' => $author_one_id,
-			'post_status' => 'publish',
-		] );
-		$post_two_id = $this->factory()->post->create( [
-			'post_author' => $author_two_id,
-			'post_status' => 'publish',
-		] );
+		$post_one_id = $this->factory()->post->create(
+			[
+				'post_author' => $author_one_id,
+				'post_status' => 'publish',
+			]
+		);
+		$post_two_id = $this->factory()->post->create(
+			[
+				'post_author' => $author_two_id,
+				'post_status' => 'publish',
+			]
+		);
 
 		$query = $this->getQuery();
 
@@ -1168,7 +1228,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $post_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test authorName
@@ -1181,7 +1241,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $post_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test authorIn with global + db id
@@ -1196,7 +1256,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test authorNotIn with global + db id
 		$variables = [
@@ -1208,18 +1268,22 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(6, $actual['data']['posts']['nodes']);
+		$this->assertCount( 6, $actual['data']['posts']['nodes'] );
 	}
 
 	public function testCategoryWhereArgs() {
-		$term_one_id = $this->factory()->term->create( [
-			'taxonomy' => 'category',
-			'name' => 'term-one',
-		] );
-		$term_two_id = $this->factory()->term->create( [
-			'taxonomy' => 'category',
-			'name' => 'term-two',
-		] );
+		$term_one_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'term-one',
+			]
+		);
+		$term_two_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'term-two',
+			]
+		);
 
 		wp_set_object_terms( $this->created_post_ids[1], [ $term_one_id ], 'category' );
 		wp_set_object_terms( $this->created_post_ids[2], [ $term_two_id ], 'category' );
@@ -1236,7 +1300,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test categoryName
@@ -1249,7 +1313,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test categoryIn with global + db id
@@ -1264,7 +1328,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test categoryNotIn with global + db id
 		$variables = [
@@ -1276,16 +1340,18 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(4, $actual['data']['posts']['nodes']);
+		$this->assertCount( 4, $actual['data']['posts']['nodes'] );
 	}
 
 	public function testContentTypesWhereArgs() {
-		$page_id = $this->factory()->post->create( [
-			'post_type' => 'page',
-			'post_status' => 'publish',
-		] );
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+			]
+		);
 
-		$query ='
+		$query = '
 		query contentNodesQuery($first:Int $last:Int $after:String $before:String $where:RootQueryToContentNodeConnectionWhereArgs ){
 			contentNodes( first:$first last:$last after:$after before:$before where:$where ) {
 				nodes {
@@ -1306,7 +1372,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['contentNodes']['nodes']);
+		$this->assertCount( 1, $actual['data']['contentNodes']['nodes'] );
 		$this->assertEquals( $page_id, $actual['data']['contentNodes']['nodes'][0]['databaseId'] );
 
 		// test contentTypes with post + page
@@ -1319,7 +1385,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(7, $actual['data']['contentNodes']['nodes']);
+		$this->assertCount( 7, $actual['data']['contentNodes']['nodes'] );
 	}
 
 	public function testParentWhereArgs() {
@@ -1328,23 +1394,27 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$parent_one_id = $this->created_post_ids[1];
 		$parent_two_id = $this->created_post_ids[2];
 
-		$child_one_id = $this->factory()->post->create([
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'Child Post',
-			'post_content' => 'Child post content',
-			'post_author'  => $this->admin,
-			'post_parent'  => $parent_one_id,
-		]);
+		$child_one_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Child Post',
+				'post_content' => 'Child post content',
+				'post_author'  => $this->admin,
+				'post_parent'  => $parent_one_id,
+			]
+		);
 
-		$child_two_id = $this->factory()->post->create([
-			'post_type'    => 'post',
-			'post_status'  => 'publish',
-			'post_title'   => 'Child Post',
-			'post_content' => 'Child post content',
-			'post_author'  => $this->admin,
-			'post_parent'  => $parent_two_id,
-		]);
+		$child_two_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_title'   => 'Child Post',
+				'post_content' => 'Child post content',
+				'post_author'  => $this->admin,
+				'post_parent'  => $parent_two_id,
+			]
+		);
 
 		// test Parent with for top-level posts
 		$variables = [
@@ -1356,7 +1426,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(6, $actual['data']['posts']['nodes']);
+		$this->assertCount( 6, $actual['data']['posts']['nodes'] );
 
 		// test parent with database Id
 		$variables = [
@@ -1368,7 +1438,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $child_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test parent with global Id
@@ -1383,7 +1453,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $child_one_id, $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test parentIn with global + db ID
@@ -1396,7 +1466,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test parentNotIn with global + db ID
 		$variables = [
@@ -1408,7 +1478,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(6, $actual['data']['posts']['nodes']);
+		$this->assertCount( 6, $actual['data']['posts']['nodes'] );
 	}
 
 	public function testPasswordWhereArgs() {
@@ -1463,7 +1533,6 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			 */
 			$password = get_post( $edge['node']['databaseId'] )->post_password;
 			$this->assertNotEmpty( $password );
-
 		}
 
 		// Test with specific password
@@ -1492,18 +1561,21 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$password = get_post( $edge['node']['databaseId'] )->post_password;
 			$this->assertEquals( $password, 'password' );
 		}
-
 	}
 
 	public function testTagWhereArgs() {
 		$query = $this->getQuery();
 
-		$tag_one_id = $this->factory()->tag->create([
-			'name' => 'test',
-		]);
-		$tag_two_id = $this->factory()->tag->create([
-			'name' => 'test2',
-		]);
+		$tag_one_id = $this->factory()->tag->create(
+			[
+				'name' => 'test',
+			]
+		);
+		$tag_two_id = $this->factory()->tag->create(
+			[
+				'name' => 'test2',
+			]
+		);
 
 		wp_set_object_terms( $this->created_post_ids[1], [ $tag_one_id ], 'post_tag' );
 		wp_set_object_terms( $this->created_post_ids[2], [ $tag_two_id ], 'post_tag' );
@@ -1518,7 +1590,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test tagId with database Id
@@ -1531,7 +1603,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test tagId with global Id
@@ -1546,7 +1618,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test tagIn with global + db id
@@ -1560,19 +1632,19 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 
 		// test tagNotIn with global + db id
 		$variables = [
 			'where' => [
-				'tagNotIn' => [ $tag_one_global_id,  $tag_two_id ],
+				'tagNotIn' => [ $tag_one_global_id, $tag_two_id ],
 			],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(4, $actual['data']['posts']['nodes']);
+		$this->assertCount( 4, $actual['data']['posts']['nodes'] );
 
 		// test tagSlugAnd
 		$variables = [
@@ -1584,7 +1656,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(0, $actual['data']['posts']['nodes']);
+		$this->assertCount( 0, $actual['data']['posts']['nodes'] );
 
 		// add second tag to first post
 		wp_set_object_terms( $this->created_post_ids[1], [ $tag_one_id, $tag_two_id ], 'post_tag' );
@@ -1593,7 +1665,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(1, $actual['data']['posts']['nodes']);
+		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 		$this->assertEquals( $this->created_post_ids[1], $actual['data']['posts']['nodes'][0]['databaseId'] );
 
 		// test tagSlugIn
@@ -1606,81 +1678,102 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertCount(2, $actual['data']['posts']['nodes']);
+		$this->assertCount( 2, $actual['data']['posts']['nodes'] );
 	}
 
 	public function testQueryForAncestorsIsInCorrectOrder() {
 
-		$grandchild = $this->factory()->post->create([
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_parent' => 0,
-			'post_author' => $this->admin,
-			'post_title' => 'Grandchild'
-		]);
+		$grandchild = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_parent' => 0,
+				'post_author' => $this->admin,
+				'post_title'  => 'Grandchild',
+			]
+		);
 
-		$parent = $this->factory()->post->create([
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_parent' => 0,
-			'post_author' => $this->admin,
-			'post_title' => 'Parent',
-		]);
+		$parent = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_parent' => 0,
+				'post_author' => $this->admin,
+				'post_title'  => 'Parent',
+			]
+		);
 
-		$child = $this->factory()->post->create([
-			'post_type' => 'page',
-			'post_status' => 'publish',
-			'post_parent' => $parent,
-			'post_author' => $this->admin,
-			'post_title' => 'Child',
-			// make sure the child was published in the past
-			'post_date' => date( 'Y-m-d H:i:s', strtotime( "-1 day +10 minutes" ) )
-		]);
+		$child = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_parent' => $parent,
+				'post_author' => $this->admin,
+				'post_title'  => 'Child',
+				// make sure the child was published in the past
+				'post_date'   => date( 'Y-m-d H:i:s', strtotime( '-1 day +10 minutes' ) ),
+			]
+		);
 
-		wp_update_post([
-			'ID' => $grandchild,
-			'post_parent' => $child,
-		]);
+		wp_update_post(
+			[
+				'ID'          => $grandchild,
+				'post_parent' => $child,
+			]
+		);
 
-		codecept_debug( [
-			'parent' => $parent,
-			'child' => $child,
-			'grandchild' => $grandchild,
-		]);
+		codecept_debug(
+			[
+				'parent'     => $parent,
+				'child'      => $child,
+				'grandchild' => $grandchild,
+			]
+		);
 
 		// update the parent post. the default ordering (by date) might
 
 		$query = '
 		query GetPageAncestors($id:ID!){
-		  page(id:$id idType:DATABASE_ID) {
-		    id
-		    databaseId
-		    ancestors {
-		      nodes {
-		        databaseId
-		      }
-		    }
-		  }
+			page(id:$id idType:DATABASE_ID) {
+				id
+				databaseId
+				ancestors {
+					nodes {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => $grandchild,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $grandchild,
+				],
 			]
-		]);
+		);
 
 		codecept_debug( $actual );
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'page.ancestors.nodes', [
-				'databaseId' => $parent
-			] ),
-			$this->expectedNode( 'page.ancestors.nodes', [
-				'databaseId' => $child
-			] )
-		] );
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'page.ancestors.nodes',
+					[
+						'databaseId' => $parent,
+					]
+				),
+				$this->expectedNode(
+					'page.ancestors.nodes',
+					[
+						'databaseId' => $child,
+					]
+				),
+			]
+		);
 
 		$actual_ancestor_ids = [];
 
@@ -1695,7 +1788,5 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		wp_delete_post( $parent );
 		wp_delete_post( $child );
 		wp_delete_post( $grandchild );
-
 	}
-
 }

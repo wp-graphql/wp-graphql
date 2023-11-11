@@ -61,12 +61,11 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	/**
 	 * Test that a user with no role returns no roles in the query.
 	 */
-	public function testUserWithNoRole()
-	{
+	public function testUserWithNoRole() {
 		wp_set_current_user( $this->admin );
 
 		// Create a user with no role
-		$user_with_no_role = $this->factory()->user->create(['role' => false]);
+		$user_with_no_role = $this->factory()->user->create( [ 'role' => false ] );
 
 		// Set the test query
 		$query = '
@@ -84,21 +83,28 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
         ';
 
 		// Execute the GraphQL Query
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => (int) $user_with_no_role,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => (int) $user_with_no_role,
+				],
 			]
-		]);
+		);
 
-		codecept_debug( [
-			'$actual' => $actual,
-		]);
+		codecept_debug(
+			[
+				'$actual' => $actual,
+			]
+		);
 
 		// Assert that the user with no role returns no roles in the query
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'user.roles', self::IS_NULL ),
-		]);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'user.roles', self::IS_NULL ),
+			]
+		);
 
 		// cleanup the user that was created
 		wp_delete_user( (int) $user_with_no_role );
@@ -107,7 +113,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	/**
 	 * Test that the user role query works as expected
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserRoleConnectionQuery() {
 
@@ -131,7 +137,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$nodes = [];
 		$roles = wp_roles();
 		foreach ( $roles->roles as $role_name => $data ) {
-
 			$clean_node = [];
 
 			$data['slug']               = $role_name;
@@ -145,7 +150,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			$clean_node['capabilities'] = $node->capabilities;
 
 			$nodes[]['node'] = $clean_node;
-
 		}
 
 		$expected = [
@@ -158,7 +162,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testForwardPagination() {
@@ -166,9 +169,11 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$query = $this->getQuery();
 
 		// The list of userRoles might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query' => $query,
-		] );
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -258,12 +263,14 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$query = $this->getQuery();
 
 		// The list of userRoles might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'last' => 6,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'last' => 6,
+				],
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -354,12 +361,14 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$query = $this->getQuery();
 
 		// The list of userRoles might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		$after_cursor  = $actual['data']['userRoles']['edges'][0]['cursor'];
 		$before_cursor = $actual['data']['userRoles']['edges'][2]['cursor'];
@@ -397,7 +406,6 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['userRoles']['nodes'][0] );
-
 	}
 
 	/**

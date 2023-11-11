@@ -4,22 +4,27 @@ $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Test restricting the API prevents unauthorized queries' );
 
 $options = [
-	'restrict_endpoint_to_logged_in_users' => 'on'
+	'restrict_endpoint_to_logged_in_users' => 'on',
 ];
 
-$I->haveOptionInDatabase( 'graphql_general_settings', $options  );
+$I->haveOptionInDatabase( 'graphql_general_settings', $options );
 
-$I->havePostInDatabase( [
-	'post_type'    => 'post',
-	'post_status'  => 'publish',
-	'post_title'   => "test post",
-	'post_content' => "test content"
-] );
+$I->havePostInDatabase(
+	[
+		'post_type'    => 'post',
+		'post_status'  => 'publish',
+		'post_title'   => 'test post',
+		'post_content' => 'test content',
+	]
+);
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => '
 	{
 		posts{
 			edges {
@@ -29,8 +34,10 @@ $I->sendPOST( 'http://localhost/graphql', json_encode( [
 				}
 			}
 		}
-	}'
-] ) );
+	}',
+		]
+	)
+);
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
@@ -47,15 +54,18 @@ $I->assertArrayHasKey( 'errors', $response_array, 'The API is restricted and sho
 $I->assertArrayNotHasKey( 'data', $response_array, 'The API is restricted and should not return data' );
 
 $options = [
-	'restrict_endpoint_to_logged_in_users' => 'off'
+	'restrict_endpoint_to_logged_in_users' => 'off',
 ];
 
-$I->haveOptionInDatabase( 'graphql_general_settings', $options  );
+$I->haveOptionInDatabase( 'graphql_general_settings', $options );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => '
 	{
 		posts{
 			edges {
@@ -65,8 +75,10 @@ $I->sendPOST( 'http://localhost/graphql', json_encode( [
 				}
 			}
 		}
-	}'
-] ) );
+	}',
+		]
+	)
+);
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();

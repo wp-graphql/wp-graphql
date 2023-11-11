@@ -21,12 +21,17 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testFilterGraphqlRequestResults() {
 
-		add_filter( 'graphql_request_results', function ( $response, $schema, $operation, $query, $variables, $request ) {
-			$this->filter_values = [
-				'query'     => $query,
-				'variables' => $variables,
-			];
-		}, 10, 6 );
+		add_filter(
+			'graphql_request_results',
+			function ( $response, $schema, $operation, $query, $variables, $request ) {
+				$this->filter_values = [
+					'query'     => $query,
+					'variables' => $variables,
+				];
+			},
+			10,
+			6
+		);
 
 		$request = [
 			'query'     => 'query GetPosts($first:Int){posts(first:$first){nodes{id,title}}}',
@@ -38,21 +43,24 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $this->filter_values, $request );
 
 		$this->assertSame( $this->filter_values, $request );
-
 	}
 
 	public function testFilterGraphqlRequestResultsForBatchQuery() {
 
-		add_filter( 'graphql_request_results', function ( $response, $schema, $operation, $query, $variables, $request ) {
+		add_filter(
+			'graphql_request_results',
+			function ( $response, $schema, $operation, $query, $variables, $request ) {
 
-			$this->filter_values[] = [
-				'query'     => $query,
-				'variables' => $variables,
-			];
+				$this->filter_values[] = [
+					'query'     => $query,
+					'variables' => $variables,
+				];
 
-			return $response;
-
-		}, 10, 6 );
+				return $response;
+			},
+			10,
+			6
+		);
 
 		$request = [
 			[
@@ -78,19 +86,25 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testFilterConnectionQueryArgsForUserRoleQueriesDoesntReturnError() {
 
-		$admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->factory()->user->create([
-			'role' => 'subscriber',
-		]);
+		$this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
-		$this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_author' => $admin,
-			'post_title'  => 'Test Filters',
-		]);
+		$this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_author' => $admin,
+				'post_title'  => 'Test Filters',
+			]
+		);
 
 		set_current_user( $admin );
 
@@ -116,29 +130,36 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			return $query_args;
 		}
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'users.nodes', self::NOT_NULL ),
-		]);
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'users.nodes', self::NOT_NULL ),
+			]
+		);
 	}
 
 	public function testFilterWPConnectionTypeConfigDoesntReturnError() {
 		// Add a filter to the connection type config
 		// This should not throw an error because it's returning the $config untouched
 		add_filter(
-			'graphql_wp_connection_type_config', function ( $config, $wp_connection_type ) {
+			'graphql_wp_connection_type_config',
+			function ( $config, $wp_connection_type ) {
 				// Ensure the connection instance is passed correctly.
 				$this->assertInstanceOf( '\WPGraphQL\Type\WPConnectionType', $wp_connection_type );
 
 				return $config;
 			},
-		10, 2);
+			10,
+			2
+		);
 
 		$query = '
 		{
@@ -151,15 +172,19 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql( [
-			'query' => $query,
-		] );
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'posts.nodes', self::NOT_NULL ),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'posts.nodes', self::NOT_NULL ),
+			]
+		);
 	}
-
 }
