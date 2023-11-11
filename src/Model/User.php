@@ -80,6 +80,7 @@ class User extends Model {
 			'description',
 			'slug',
 			'uri',
+			'url',
 			'enqueuedScriptsQueue',
 			'enqueuedStylesheetsQueue',
 		];
