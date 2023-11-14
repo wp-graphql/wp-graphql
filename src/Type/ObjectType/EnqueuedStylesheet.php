@@ -30,6 +30,10 @@ class EnqueuedStylesheet {
 							return ! empty( $asset->handle ) ? Relay::toGlobalId( 'enqueued_stylesheet', $asset->handle ) : null;
 						},
 					],
+					'dependencies' => [
+						'type'        => [ 'list_of' => 'EnqueuedStylesheet' ],
+						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+					],
 					'isRtl'   => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the enqueued style is RTL or not', 'wp-graphql' ),

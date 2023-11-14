@@ -30,6 +30,10 @@ class EnqueuedScript {
 							return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 						},
 					],
+					'dependencies' => [
+						'type'        => [ 'list_of' => 'EnqueuedScript' ],
+						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+					],
 					'extraData' => [
 						'type'        => 'String',
 						'description' => __( 'Extra data supplied to the enqueued script', 'wp-graphql' ),
