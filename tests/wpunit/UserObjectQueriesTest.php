@@ -55,7 +55,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$args = array_merge( $defaults, $args );
 
 		/**
-		 * Create the page
+		 * Create the user.
 		 */
 		return $this->factory()->user->create( $args );
 	}
@@ -299,11 +299,19 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 * @since 0.0.5
 	 */
 	public function testWithPosts() {
+		$user_args = [
+			'description' => 'This is a test user.',
+			'first_name'  => 'Test',
+			'nickname'    => 'test', // private
+			'user_url'    => 'https://example.com',
+		];
 
 		/**
 		 * Create a user
 		 */
-		$user_id = $this->createUserObject();
+		$user_id = $this->createUserObject( $user_args );
+		$user    = get_user_by( 'id', $user_id );
+
 
 		$post_id = $this->factory->post->create( [ 'post_author' => $user_id ] );
 
@@ -318,13 +326,35 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$query = "
 		query {
 			user(id: \"{$global_id}\") {
+				avatar {
+					size
+				}
+				capKey
+				capabilities
+				description
+				email
+				extraCapabilities
+				firstName
+				id
+				locale
+				name
+				nickname
 				posts {
 					edges {
 						node {
-							postId
+							databaseId
 						}
 					}
 				}
+				registeredDate
+				roles {
+					nodes {
+						name
+					}
+				}
+				slug
+				url
+				username
 			}
 		}";
 
@@ -333,15 +363,33 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$expected = [
 			'user' => [
-				'posts' => [
+				'avatar'            => [
+					'size' => 96,
+				],
+				'capKey'            => null,
+				'capabilities'      => null,
+				'description'       => $user_args['description'],
+				'email'             => null,
+				'extraCapabilities' => null,
+				'firstName'         => $user_args['first_name'],
+				'id'                => $global_id,
+				'locale'            => null,
+				'name'              => $user->data->display_name,
+				'nickname'          => null,
+				'posts'             => [
 					'edges' => [
 						[
 							'node' => [
-								'postId' => $post_id,
+								'databaseId' => $post_id,
 							],
 						],
 					],
 				],
+				'registeredDate'    => null,
+				'roles'             => null,
+				'slug'              => $user->data->user_nicename,
+				'url'               => $user_args['user_url'],
+				'username'          => null,
 			],
 		];
 
