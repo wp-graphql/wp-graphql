@@ -23,7 +23,7 @@ class EnqueuedStylesheet {
 				'description' => __( 'Stylesheet enqueued by the CMS', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 				'fields'      => [
-					'id'      => [
+					'id'           => [
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The global ID of the enqueued stylesheet', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
@@ -34,49 +34,49 @@ class EnqueuedStylesheet {
 						'type'        => [ 'list_of' => 'EnqueuedStylesheet' ],
 						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 					],
-					'isRtl'   => [
+					'isRtl'        => [
 						'type'        => 'Boolean',
 						'description' => __( 'Whether the enqueued style is RTL or not', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->extra['rtl'] );
 						},
 					],
-					'media'   => [
+					'media'        => [
 						'type'        => 'String',
 						'description' => __( 'The media attribute to use for the link', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->args ) && is_string( $stylesheet->args ) ? esc_attr( $stylesheet->args ) : 'all';
 						},
 					],
-					'path'    => [
+					'path'         => [
 						'type'        => 'String',
 						'description' => __( 'The absolute path to the enqueued style. Set when the stylesheet is meant to load inline.', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->extra['path'] ) && is_string( $stylesheet->extra['path'] ) ? $stylesheet->extra['path'] : null;
 						},
 					],
-					'rel'     => [
+					'rel'          => [
 						'type'        => 'String',
 						'description' => __( 'The `rel` attribute to use for the link', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->extra['alt'] ) ? 'alternate stylesheet' : 'stylesheet';
 						},
 					],
-					'suffix'  => [
+					'suffix'       => [
 						'type'        => 'String',
 						'description' => __( 'Optional suffix, used in combination with RTL', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->extra['suffix'] ) && is_string( $stylesheet->extra['suffix'] ) ? $stylesheet->extra['suffix'] : null;
 						},
 					],
-					'title'   => [
+					'title'        => [
 						'type'        => 'String',
 						'description' => __( 'The title of the enqueued style. Used for preferred/alternate stylesheets.', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 							return ! empty( $stylesheet->extra['title'] ) && is_string( $stylesheet->extra['title'] ) ? $stylesheet->extra['title'] : null;
 						},
 					],
-					'version' => [
+					'version'      => [
 						'type'        => 'String',
 						'description' => __( 'The version of the enqueued style', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $stylesheet ) {

@@ -23,7 +23,7 @@ class EnqueuedScript {
 				'description' => __( 'Script enqueued by the CMS', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 				'fields'      => [
-					'id'        => [
+					'id'           => [
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The global ID of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
@@ -34,7 +34,7 @@ class EnqueuedScript {
 						'type'        => [ 'list_of' => 'EnqueuedScript' ],
 						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 					],
-					'extraData' => [
+					'extraData'    => [
 						'type'        => 'String',
 						'description' => __( 'Extra data supplied to the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
@@ -45,7 +45,7 @@ class EnqueuedScript {
 							return $script->extra['data'];
 						},
 					],
-					'strategy'  => [
+					'strategy'     => [
 						'type'        => 'ScriptLoadingStrategyEnum',
 						'description' => __( 'The loading strategy to use on the script tag', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
@@ -56,7 +56,7 @@ class EnqueuedScript {
 							return $script->extra['strategy'];
 						},
 					],
-					'version'   => [
+					'version'      => [
 						'description' => __( 'The version of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
 							global $wp_scripts;
