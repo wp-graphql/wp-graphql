@@ -1,5 +1,7 @@
 <?php
 
+use WPGraphQL\Type\WPEnumType;
+
 class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	private $admin;
@@ -31,10 +33,17 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 						}
 					}
 					nodes {
-						extra
+						after
+						before
+						conditional
+						dependencies {
+							handle
+						}
+						extraData
 						handle
 						id
 						src
+						strategy
 						version
 					}
 				}
@@ -64,9 +73,16 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		global $wp_scripts;
 		$expected = $wp_scripts->registered[ $actual['data']['registeredScripts']['nodes'][0]['handle'] ];
 
-		$this->assertEquals( $expected->extra['data'], $actual['data']['registeredScripts']['nodes'][0]['extra'] );
+		$expected_after  = ! empty( $expected->extra['after'] ) ? ( array_filter( $expected->extra['after'], 'is_string' ) ?: null ) : null;
+		$expected_before = ! empty( $expected->extra['before'] ) ? ( array_filter( $expected->extra['before'], 'is_string' ) ?: null ) : null;
+
+		$this->assertEquals( $expected_after, $actual['data']['registeredScripts']['nodes'][0]['after'] );
+		$this->assertEquals( $expected_before, $actual['data']['registeredScripts']['nodes'][0]['before'] );
+		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredScripts']['nodes'][0]['conditional'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
+		$this->assertEquals( ! empty( $expected->extra['data'] ) ? $expected->extra['data'] : null, $actual['data']['registeredScripts']['nodes'][0]['extraData'] );
 		$this->assertEquals( $expected->src, $actual['data']['registeredScripts']['nodes'][0]['src'] );
+		$this->assertEquals( ! empty( $expected->extra['strategy'] ) ? WPEnumType::get_safe_name( $expected->extra['strategy'] ) : null, $actual['data']['registeredScripts']['nodes'][0]['strategy'] );
 		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $actual['data']['registeredScripts']['nodes'][0]['version'] );
 
 		// Store for use by $expected.

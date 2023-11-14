@@ -32,10 +32,18 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 						}
 					}
 					nodes {
-						extra
+						conditional
+						dependencies {
+							handle
+						}
 						handle
-						id
+						isRtl
+						media
+						path
+						rel
 						src
+						suffix
+						title
 						version
 					}
 				}
@@ -67,9 +75,15 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$expected = $wp_styles->registered[ $actual['data']['registeredStylesheets']['nodes'][0]['handle'] ];
 
-		$this->assertEquals( $expected->extra['data'] ?? null, $actual['data']['registeredStylesheets']['nodes'][0]['extra'] );
+		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['conditional'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredStylesheets']['nodes'][0]['handle'] );
+		$this->assertEquals( ! empty( $expected->extra['rtl'] ), $actual['data']['registeredStylesheets']['nodes'][0]['isRtl'] );
+		$this->assertEquals( $expected->args ?: 'all', $actual['data']['registeredStylesheets']['nodes'][0]['media'] );
+		$this->assertEquals( ! empty( $expected->extra['path'] ) ? $expected->extra['path'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['path'] );
+		$this->assertEquals( ! empty( $expected->extra['alt'] ) ? 'alternate stylesheet' : 'stylesheet', $actual['data']['registeredStylesheets']['nodes'][0]['rel'] );
 		$this->assertEquals( is_string( $expected->src ) ? $expected->src : null, $actual['data']['registeredStylesheets']['nodes'][0]['src'] );
+		$this->assertEquals( ! empty( $expected->extra['suffix'] ) ? $expected->extra['suffix'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['suffix'] );
+		$this->assertEquals( ! empty( $expected->extra['title'] ) ? $expected->extra['title'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['title'] );
 		$this->assertEquals( $expected->ver ?: $wp_styles->default_version, $actual['data']['registeredStylesheets']['nodes'][0]['version'] );
 
 		// Store for use by $expected.
