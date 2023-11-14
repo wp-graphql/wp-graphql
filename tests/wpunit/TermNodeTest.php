@@ -16,17 +16,21 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodes() {
 
-		$this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
-		$this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$query = '
 		{
@@ -59,16 +63,17 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertEquals( 'Category', $actual['data']['categories']['nodes'][0]['__typename'] );
 		$this->assertEquals( 'Tag', $actual['data']['tags']['nodes'][0]['__typename'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTagByGlobalId() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
@@ -88,25 +93,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTagByDatabaseId() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
@@ -126,25 +134,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => absint( $tag->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => absint( $tag->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTagByName() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
@@ -164,25 +175,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $tag->name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $tag->name,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTagBySlug() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
@@ -202,25 +216,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $tag->slug,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $tag->slug,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTagByUri() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'id'    => \GraphQLRelay\Relay::toGlobalId( 'term', $tag->term_id ),
@@ -240,25 +257,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => get_term_link( $tag->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => get_term_link( $tag->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['tag'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCategoryByGlobalId() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
@@ -278,25 +298,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCategoryByDatabaseId() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
@@ -316,25 +339,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => absint( $cat->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => absint( $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCategoryByName() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
@@ -354,25 +380,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat->name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat->name,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCategoryBySlug() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
@@ -392,25 +421,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat->slug,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat->slug,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCategoryByUri() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'id'         => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
@@ -430,25 +462,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => get_term_link( $cat->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => get_term_link( $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['category'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByGlobalId() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'__typename' => 'Category',
@@ -472,25 +507,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => \GraphQLRelay\Relay::toGlobalId( 'term', $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByDatabaseId() {
-		$tag = $this->factory()->term->create_and_get([
-			'taxonomy' => 'post_tag',
-		]);
+		$tag = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$expected = [
 			'__typename' => 'Tag',
@@ -514,25 +552,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => absint( $tag->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => absint( $tag->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByName() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'__typename' => 'Category',
@@ -556,25 +597,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat->name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat->name,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodeBySlug() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$expected = [
 			'__typename' => 'Category',
@@ -598,25 +642,28 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat->slug,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat->slug,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByUri() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$link     = get_term_link( $cat->term_id );
 		$term_uri = str_ireplace( home_url(), '', $link );
@@ -645,41 +692,47 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => get_term_link( $cat->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => get_term_link( $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryTermLinkCustomHostPortReplacement() {
-		$cat = $this->factory()->term->create_and_get([
-			'taxonomy' => 'category',
-		]);
+		$cat = $this->factory()->term->create_and_get(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
-		add_filter( 'term_link', function ( $term_link ) {
-			$frontend_uri = home_url() . ':3000/';
-			$site_url     = trailingslashit( site_url() );
+		add_filter(
+			'term_link',
+			function ( $term_link ) {
+				$frontend_uri = home_url() . ':3000/';
+				$site_url     = trailingslashit( site_url() );
 
-			$this->assertNotSame( $site_url, $frontend_uri );
+				$this->assertNotSame( $site_url, $frontend_uri );
 
-			return str_replace( $site_url, $frontend_uri, $term_link );
-		});
+				return str_replace( $site_url, $frontend_uri, $term_link );
+			}
+		);
 
 
 		$link      = get_term_link( $cat->term_id );
 		$parsed    = parse_url( $link );
 		$term_uri  = $parsed['path'] ?? '';
 		$term_uri .= isset( $parsed['query'] ) ? ( '?' . $parsed['query'] ) : '';
-		$term_uri = str_ireplace( home_url(), '', $link );
+		$term_uri  = str_ireplace( home_url(), '', $link );
 
 		$expected = [
 			'__typename' => 'Category',
@@ -695,33 +748,42 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => get_term_link( $cat->term_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => get_term_link( $cat->term_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['termNode'] );
-
 	}
 
 	public function testQueryContentNodesOnCustomTaxonomyTest() {
 
-		register_taxonomy( 'no-posts', [], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'NoPost',
-			'graphql_plural_name' => 'NoPosts',
-		]);
+		register_taxonomy(
+			'no-posts',
+			[],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NoPost',
+				'graphql_plural_name' => 'NoPosts',
+			]
+		);
 
-		register_taxonomy( 'with-graphql', [ 'post', 'page' ], [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'TestTax',
-			'graphql_plural_name' => 'AllTestTax',
-			'public'              => true,
-		]);
+		register_taxonomy(
+			'with-graphql',
+			[ 'post', 'page' ],
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'TestTax',
+				'graphql_plural_name' => 'AllTestTax',
+				'public'              => true,
+			]
+		);
 
 		$query = '
 		{
@@ -736,16 +798,16 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// assert that the query was valid
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		unregister_taxonomy( 'no-posts' );
 		unregister_taxonomy( 'with-graphql' );
-
 	}
-
 }

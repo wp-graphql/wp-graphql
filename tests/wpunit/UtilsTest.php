@@ -6,8 +6,8 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testGetQueryId() {
 
 
-		$query_without_spaces = '{posts{nodes{id,title}}}';
-		$query_with_spaces = '{ posts { nodes { id, title } } }';
+		$query_without_spaces   = '{posts{nodes{id,title}}}';
+		$query_with_spaces      = '{ posts { nodes { id, title } } }';
 		$query_with_line_breaks = '
 		{
 			posts {
@@ -22,11 +22,13 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$id2 = \WPGraphQL\Utils\Utils::get_query_id( $query_with_spaces );
 		$id3 = \WPGraphQL\Utils\Utils::get_query_id( $query_with_line_breaks );
 
-		codecept_debug([
-			$id1,
-			$id2,
-			$id3
-		]);
+		codecept_debug(
+			[
+				$id1,
+				$id2,
+				$id3,
+			]
+		);
 
 		// differently formatted versions of the same query should
 		// all produce the same query_id
@@ -38,6 +40,5 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// if an invalid query is passed, we should get a null response
 		$this->assertNull( \WPGraphQL\Utils\Utils::get_query_id( $invalid_query ) );
-
 	}
 }

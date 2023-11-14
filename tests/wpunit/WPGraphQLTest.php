@@ -55,7 +55,6 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		global $wp_filter;
 		graphql_init();
 		$this->assertTrue( isset( $wp_filter['graphql_get_type']->callbacks ) );
-
 	}
 
 	/**
@@ -72,7 +71,6 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFileExists( $file_path );
 		$static_schema = WPGraphQL::get_static_schema();
 		$this->assertEquals( $contents, $static_schema );
-
 	}
 
 	/**
@@ -112,12 +110,17 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		// Test filter.
 		$expected = 'post';
 
-		add_filter( 'graphql_post_entities_allowed_post_types', function ( $names, $objects ) use ( $expected ) {
-			$this->assertContains( $expected, $names );
-			$this->assertInstanceOf( \WP_Post_Type::class, $objects[ $expected ] );
+		add_filter(
+			'graphql_post_entities_allowed_post_types',
+			function ( $names, $objects ) use ( $expected ) {
+				$this->assertContains( $expected, $names );
+				$this->assertInstanceOf( \WP_Post_Type::class, $objects[ $expected ] );
 
-			return [ $expected => $expected ];
-		}, 10, 2 );
+				return [ $expected => $expected ];
+			},
+			10,
+			2
+		);
 
 		// Clear cached types.
 		WPGraphQL::clear_schema();
@@ -182,12 +185,17 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 		// Test filter.
 		$expected = 'category';
 
-		add_filter( 'graphql_term_entities_allowed_taxonomies', function ( $names = null, $objects = null ) use ( $expected ) {
-			$this->assertContains( $expected, $names );
-			$this->assertInstanceOf( \WP_Taxonomy::class, $objects[ $expected ] );
+		add_filter(
+			'graphql_term_entities_allowed_taxonomies',
+			function ( $names = null, $objects = null ) use ( $expected ) {
+				$this->assertContains( $expected, $names );
+				$this->assertInstanceOf( \WP_Taxonomy::class, $objects[ $expected ] );
 
-			return [ $expected => $expected ];
-		}, 10, 2 );
+				return [ $expected => $expected ];
+			},
+			10,
+			2
+		);
 
 		// Clear cached types.
 		WPGraphQL::clear_schema();
@@ -210,5 +218,4 @@ class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( [ $expected ], array_column( $actual['data']['taxonomies']['nodes'], 'name' ) );
 	}
-
 }

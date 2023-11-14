@@ -40,12 +40,14 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Post for commenting...',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post for commenting...',
+				'post_author' => $this->admin,
+			]
+		);
 
 		/**
 		 * Set up the $defaults
@@ -66,12 +68,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Create the page
 		 */
-		$comment_id = $this->factory()->comment->create( $args );
-
-		/**
-		 * Return the $id of the comment_object that was created
-		 */
-		return $comment_id;
+		return $this->factory()->comment->create( $args );
 	}
 
 	/**
@@ -82,7 +79,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function create_comments() {
 		// Create 6 comments
 		$created_comments = [];
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			// Set the date 1 minute apart for each post
 			$date                   = date( 'Y-m-d H:i:s', strtotime( "-1 day +{$i} minutes" ) );
 			$created_comments[ $i ] = $this->createCommentObject(
@@ -132,19 +129,25 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables = array_merge( [
-			'first' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'first' => 2,
+			],
+			$graphql_args
+		);
 
 		// Set the variables to use in the WP query.
-		$query_args = array_merge( [
-			'comment_status' => 'approved',
-			'number'         => 2,
-			'offset'         => 0,
-			'order'          => 'DESC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		], $query_args );
+		$query_args = array_merge(
+			[
+				'comment_status' => 'approved',
+				'number'         => 2,
+				'offset'         => 0,
+				'order'          => 'DESC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			],
+			$query_args
+		);
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
@@ -225,19 +228,25 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables = array_merge( [
-			'last' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'last' => 2,
+			],
+			$graphql_args
+		);
 
 		// Set the variables to use in the WP query.
-		$query_args = array_merge( [
-			'comment_status' => 'approved',
-			'number'         => 2,
-			'offset'         => 0,
-			'order'          => 'ASC',
-			'orderby'        => 'comment_date',
-			'comment_parent' => 0,
-		], $query_args );
+		$query_args = array_merge(
+			[
+				'comment_status' => 'approved',
+				'number'         => 2,
+				'offset'         => 0,
+				'order'          => 'ASC',
+				'orderby'        => 'comment_date',
+				'comment_parent' => 0,
+			],
+			$query_args
+		);
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
@@ -368,7 +377,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['comments']['nodes'][0] );
-
 	}
 
 	public function testAuthorWhereArgs() {
@@ -390,15 +398,19 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$author_four_url    = 'https://myguestsite.test';
 
 		$comment_ids = [
-			$this->createCommentObject( [
-				'user_id'              => $author_one_id,
-				'comment_author_email' => 'subscriber@wpgraphql.test',
-			] ),
-			$this->createCommentObject( [
-				'user_id'              => $author_two_id,
-				'comment_author_email' => 'author@wpgraphql.test',
-				'comment_author_url'   => 'https://myguestsite.test',
-			] ),
+			$this->createCommentObject(
+				[
+					'user_id'              => $author_one_id,
+					'comment_author_email' => 'subscriber@wpgraphql.test',
+				]
+			),
+			$this->createCommentObject(
+				[
+					'user_id'              => $author_two_id,
+					'comment_author_email' => 'author@wpgraphql.test',
+					'comment_author_url'   => 'https://myguestsite.test',
+				]
+			),
 		];
 
 		// test authorEmail.
@@ -552,27 +564,35 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$author_one_id = $this->factory->user->create( [ 'role' => 'author' ] );
 		$author_two_id = $this->factory->user->create( [ 'role' => 'author' ] );
 
-		$post_one_id = $this->factory->post->create( [
-			'post_author' => $author_one_id,
-			'post_type' => 'post',
-		] );
+		$post_one_id = $this->factory->post->create(
+			[
+				'post_author' => $author_one_id,
+				'post_type'   => 'post',
+			]
+		);
 
-		$post_two_id = $this->factory->post->create( [
-			'post_author' => $author_two_id,
-			'post_type' => 'page',
-			'post_title' => 'Page for testing content where args',
-			''
-		] );
+		$post_two_id = $this->factory->post->create(
+			[
+				'post_author' => $author_two_id,
+				'post_type'   => 'page',
+				'post_title'  => 'Page for testing content where args',
+				'',
+			]
+		);
 
-		$comment_one_id = $this->createCommentObject( [
-			'comment_post_ID' => $post_one_id,
-			'comment_approved' => true,
-		] );
+		$comment_one_id = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $post_one_id,
+				'comment_approved' => true,
+			]
+		);
 
-		$comment_two_id = $this->createCommentObject( [
-			'comment_post_ID' => $post_two_id,
-			'comment_approved' => true,
-		] );
+		$comment_two_id = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $post_two_id,
+				'comment_approved' => true,
+			]
+		);
 
 		$author_one_global_id = Relay::toGlobalId( 'user', $author_one_id );
 
@@ -624,7 +644,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$variables = [
 			'where' => [
-				'contentId' => $post_one_global_id
+				'contentId' => $post_one_global_id,
 			],
 		];
 
@@ -662,7 +682,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertCount( 6, $actual['data']['comments']['nodes'] );
 
 		// Test contentName
-		$post_two = get_post( $post_two_id );
+		$post_two  = get_post( $post_two_id );
 		$variables = [
 			'where' => [
 				'contentName' => $post_two->post_name,
@@ -698,10 +718,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 			]
 		);
 
-		$comment_id = $this->createCommentObject( [
-			'comment_post_ID' => $post_id,
-			'comment_approved' => true,
-		] );
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $post_id,
+				'comment_approved' => true,
+			]
+		);
 
 		$variables = [
 			'where' => [
@@ -749,20 +771,24 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 			]
 		);
 
-		$comment_one_id = $this->createCommentObject( [
-			'comment_post_ID' => $child_post_id_one,
-			'comment_approved' => true,
-		] );
+		$comment_one_id = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $child_post_id_one,
+				'comment_approved' => true,
+			]
+		);
 
-		$comment_id_two = $this->createCommentObject( [
-			'comment_post_ID' => $child_post_id_two,
-			'comment_approved' => true,
-		] );
+		$comment_id_two = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $child_post_id_two,
+				'comment_approved' => true,
+			]
+		);
 
 		// Test contentParent with global Id
 		$variables = [
 			'where' => [
-				'contentParent' =>  $parent_post_id
+				'contentParent' => $parent_post_id,
 			],
 		];
 
@@ -776,7 +802,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testIncludeUnapprovedWhereArgs() {
 		$query = $this->getQuery();
 
-		$author_id      = $this->factory()->user->create(
+		$author_id = $this->factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'subscriber@wpgraphql.test',
@@ -784,14 +810,18 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		);
 
 		$comment_ids = [
-			$this->createCommentObject( [
-				'user_id' => $this->admin,
-				'comment_approved' => 0,
-			] ),
-			$this->createCommentObject( [
-				'user_id' => $author_id,
-				'comment_approved' => 0,
-			] ),
+			$this->createCommentObject(
+				[
+					'user_id'          => $this->admin,
+					'comment_approved' => 0,
+				]
+			),
+			$this->createCommentObject(
+				[
+					'user_id'          => $author_id,
+					'comment_approved' => 0,
+				]
+			),
 		];
 
 		// Test unapproved comments are excluded by default.
@@ -806,7 +836,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$variables = [
 			'where' => [
-				'includeUnapproved' => [ $this->admin, $author_global_id ]
+				'includeUnapproved' => [ $this->admin, $author_global_id ],
 			],
 		];
 
@@ -833,9 +863,9 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Test ascending by COMMENT_ID.
 		$variables = [
 			'where' => [
-				'order' => 'ASC',
-				'orderby' => 'COMMENT_ID'
-			]
+				'order'   => 'ASC',
+				'orderby' => 'COMMENT_ID',
+			],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -845,7 +875,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertGreaterThan( $actual['data']['comments']['nodes'][0]['databaseId'], $actual['data']['comments']['nodes'][1]['databaseId'] );
 
 		// Test descending.
-		$expected = array_reverse( $actual['data']['comments']['nodes'] );
+		$expected                    = array_reverse( $actual['data']['comments']['nodes'] );
 		$variables['where']['order'] = 'DESC';
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -858,15 +888,19 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testParentWhereArgs() {
 		$query = $this->getQuery();
 
-		$comment_one_id = $this->createCommentObject( [
-			'comment_post_ID' => $this->post_id,
-			'comment_parent'  => $this->created_comment_ids[1],
-		] );
+		$comment_one_id = $this->createCommentObject(
+			[
+				'comment_post_ID' => $this->post_id,
+				'comment_parent'  => $this->created_comment_ids[1],
+			]
+		);
 
-		$comment_two_id = $this->createCommentObject( [
-			'comment_post_ID' => $this->post_id,
-			'comment_parent'  => $this->created_comment_ids[2],
-		] );
+		$comment_two_id = $this->createCommentObject(
+			[
+				'comment_post_ID' => $this->post_id,
+				'comment_parent'  => $this->created_comment_ids[2],
+			]
+		);
 
 		// Test parent
 		$variables = [
@@ -920,10 +954,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testSearchWhereArgs() {
 		$query = $this->getQuery();
 
-		$comment_one_id = $this->createCommentObject( [
-			'comment_post_ID' => $this->post_id,
-			'comment_content' => 'This is a comment with a search term',
-		] );
+		$comment_one_id = $this->createCommentObject(
+			[
+				'comment_post_ID' => $this->post_id,
+				'comment_content' => 'This is a comment with a search term',
+			]
+		);
 
 		$variables = [
 			'where' => [
@@ -941,10 +977,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testStatusWhereArgs() {
 		$query = $this->getQuery();
 
-		$comment_one_id = $this->createCommentObject( [
-			'comment_post_ID' => $this->post_id,
-			'comment_approved' => 0,
-		] );
+		$comment_one_id = $this->createCommentObject(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_approved' => 0,
+			]
+		);
 
 		$variables = [
 			'where' => [
@@ -965,14 +1003,18 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testUserIdWhereArgs() {
 		$query = $this->getQuery();
 
-		$user_id = $this->factory()->user->create( [
-			'role' => 'author',
-		] );
+		$user_id = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$comment_id = $this->createCommentObject( [
-			'comment_post_ID' => $this->post_id,
-			'user_id' => $user_id,
-		] );
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_post_ID' => $this->post_id,
+				'user_id'         => $user_id,
+			]
+		);
 
 		// Test by database ID
 		$variables = [
@@ -1024,5 +1066,4 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertEquals( $start_cursor, $actual['data']['comments']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['comments']['pageInfo']['endCursor'] );
 	}
-
 }

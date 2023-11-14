@@ -21,7 +21,7 @@ class WPEnumTypeTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Test filter for WP enum type invokes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnumValuesFilterRuns() {
 
@@ -30,7 +30,7 @@ class WPEnumTypeTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		add_filter(
 			'graphql_enum_values',
-			function ( $values ) {
+			static function ( $values ) {
 
 				foreach ( $values as $key => $value ) {
 					$value['name']  = $value['name'] . '-CHANGED';

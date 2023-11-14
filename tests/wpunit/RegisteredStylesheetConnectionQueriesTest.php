@@ -32,10 +32,18 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 						}
 					}
 					nodes {
-						extra
+						conditional
+						dependencies {
+							handle
+						}
 						handle
-						id
+						isRtl
+						media
+						path
+						rel
 						src
+						suffix
+						title
 						version
 					}
 				}
@@ -48,12 +56,14 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$query = $this->getQuery();
 
 		// The list of registeredStylesheets might change, so we'll reuse this to check late.
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 4,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 4,
+				],
+			]
+		);
 
 		// Confirm it's valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -65,9 +75,15 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		$expected = $wp_styles->registered[ $actual['data']['registeredStylesheets']['nodes'][0]['handle'] ];
 
-		$this->assertEquals( $expected->extra['data'] ?? null, $actual['data']['registeredStylesheets']['nodes'][0]['extra'] );
+		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['conditional'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredStylesheets']['nodes'][0]['handle'] );
+		$this->assertEquals( ! empty( $expected->extra['rtl'] ), $actual['data']['registeredStylesheets']['nodes'][0]['isRtl'] );
+		$this->assertEquals( $expected->args ?: 'all', $actual['data']['registeredStylesheets']['nodes'][0]['media'] );
+		$this->assertEquals( ! empty( $expected->extra['path'] ) ? $expected->extra['path'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['path'] );
+		$this->assertEquals( ! empty( $expected->extra['alt'] ) ? 'alternate stylesheet' : 'stylesheet', $actual['data']['registeredStylesheets']['nodes'][0]['rel'] );
 		$this->assertEquals( is_string( $expected->src ) ? $expected->src : null, $actual['data']['registeredStylesheets']['nodes'][0]['src'] );
+		$this->assertEquals( ! empty( $expected->extra['suffix'] ) ? $expected->extra['suffix'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['suffix'] );
+		$this->assertEquals( ! empty( $expected->extra['title'] ) ? $expected->extra['title'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['title'] );
 		$this->assertEquals( $expected->ver ?: $wp_styles->default_version, $actual['data']['registeredStylesheets']['nodes'][0]['version'] );
 
 		// Store for use by $expected.
@@ -123,12 +139,14 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		// Set the variables to use in the GraphQL query.
 		// There are hundreds of stylesheets, so lets get a good end cursor.
-		$actual = $this->graphql( [
-			'query'     => $this->getQuery(),
-			'variables' => [
-				'last' => 3,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'last' => 3,
+				],
+			]
+		);
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 		$variables['after'] = $actual['data']['registeredStylesheets']['pageInfo']['startCursor'];
@@ -143,7 +161,6 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( true, $actual['data']['registeredStylesheets']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( false, $actual['data']['registeredStylesheets']['pageInfo']['hasNextPage'] );
-
 	}
 
 	public function testBackwardPagination() {
@@ -151,12 +168,14 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$query = $this->getQuery();
 
 		// The list of registeredStylesheets might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'last' => 6,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'last' => 6,
+				],
+			]
+		);
 
 		// Confirm it's valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -218,12 +237,14 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 		// Set the variables to use in the GraphQL query.
 		// There are hundreds of scripts, so lets get a good start cursor.
-		$actual = $this->graphql( [
-			'query'     => $this->getQuery(),
-			'variables' => [
-				'first' => 3,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 3,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
@@ -248,12 +269,14 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$query = $this->getQuery();
 
 		// The list of registeredStylesheets might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		$after_cursor  = $actual['data']['registeredStylesheets']['edges'][0]['cursor'];
 		$before_cursor = $actual['data']['registeredStylesheets']['edges'][2]['cursor'];

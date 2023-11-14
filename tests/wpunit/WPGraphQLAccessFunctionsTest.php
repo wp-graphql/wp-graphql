@@ -19,7 +19,5 @@ class WPGraphQLAccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
 		$expected = 'thisIsSomeFieldName';
 
 		$this->assertEquals( $expected, $actual );
-
 	}
-
 }

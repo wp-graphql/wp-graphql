@@ -14,7 +14,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @param $request_data
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function request( $request_data ) {
 		$request = new \WPGraphQL\Request( $request_data );
@@ -28,7 +28,7 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Test for a failure when you try to search for a user role that doesn't exist
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserRoleQueryNonExistent() {
 
@@ -53,13 +53,12 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual['errors'][0]['message'] );
 		$this->assertNull( $actual['data']['userRole'] );
-
 	}
 
 	/**
 	 * Test that a user is properly returned
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserRoleQuery() {
 
@@ -92,9 +91,5 @@ class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
-
-
-
 }

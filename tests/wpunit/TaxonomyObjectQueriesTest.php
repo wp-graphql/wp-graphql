@@ -7,9 +7,11 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
-		$this->admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -23,21 +25,25 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the category taxonomy.
 	 *
 	 * @since 0.0.5
-	 * @param boolean $logged_in Whether the test should be executed as a logged in user
+	 * @param bool $logged_in Whether the test should be executed as a logged in user
 	 * @dataProvider dataProviderUserState
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryForCategories( $logged_in ) {
 
-		$category_id = $this->factory()->category->create([
-			'name' => 'test',
-		]);
+		$category_id = $this->factory()->category->create(
+			[
+				'name' => 'test',
+			]
+		);
 
-		$this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'category'    => $category_id,
-		]);
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'category'    => $category_id,
+			]
+		);
 
 		/**
 		 * Create the query string to pass to the $query
@@ -171,21 +177,25 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the post tags taxonomy.
 	 *
 	 * @since 0.0.5
-	 * @param boolean $logged_in
+	 * @param bool $logged_in
 	 * @dataProvider dataProviderUserState
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryForTags( $logged_in ) {
 
-		$tag_id = $this->factory()->tag->create([
-			'name' => 'test',
-		]);
+		$tag_id = $this->factory()->tag->create(
+			[
+				'name' => 'test',
+			]
+		);
 
-		$this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_tag'    => $tag_id,
-		]);
+		$this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_tag'    => $tag_id,
+			]
+		);
 
 		/**
 		 * Create the query string to pass to the $query
@@ -317,7 +327,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the category taxonomy post object connections.
 	 *
 	 * @since 0.0.5
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryCategoryConnections() {
 		$post_id       = $this->factory()->post->create();
@@ -377,7 +387,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests the tags taxonomy post object connections.
 	 *
 	 * @since 0.0.5
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryTagsConnections() {
 		$post_id = $this->factory()->post->create();
@@ -434,7 +444,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 *  posts registered with the taxonomy.
 	 *
 	 * @since 0.0.10
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryPostConnections() {
 		$post_id           = $this->factory()->post->create();
@@ -501,7 +511,6 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 		$this->assertNotEquals( $unexpected, $actual['data'] );
-
 	}
 
 	public function dataProviderUserState() {
@@ -514,5 +523,4 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			],
 		];
 	}
-
 }

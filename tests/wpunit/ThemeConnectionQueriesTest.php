@@ -8,7 +8,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public $current_time;
 
 	/**
-	 * @var WP_Theme
+	 * @var \WP_Theme
 	 */
 	public $active_theme;
 
@@ -20,9 +20,11 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->current_time     = strtotime( 'now' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$themes                 = wp_get_themes();
 		$this->active_theme     = $themes[ array_key_first( $themes ) ]->get_stylesheet();
 		update_option( 'template', $this->active_theme );
@@ -107,7 +109,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		foreach ( $actual['data']['themes']['edges'] as $key => $edge ) {
 			$this->assertEquals( $actual['data']['themes']['nodes'][ $key ]['id'], $edge['node']['id'] );
 		}
-
 	}
 
 	public function testForwardPagination() {
@@ -118,12 +119,14 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$query = $this->getQuery();
 
 		// The list of themes might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -230,12 +233,14 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$query = $this->getQuery();
 
 		// The list of themes might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'last' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'last' => 100,
+				],
+			]
+		);
 
 		// Confirm its valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -346,12 +351,14 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$query = $this->getQuery();
 
 		// The list of themes might change, so we'll reuse this to check late.
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		$after_cursor  = $actual['data']['themes']['edges'][0]['cursor'];
 		$before_cursor = $actual['data']['themes']['edges'][2]['cursor'];
@@ -389,7 +396,6 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
-
 	}
 
 	public function dataProviderUser() {

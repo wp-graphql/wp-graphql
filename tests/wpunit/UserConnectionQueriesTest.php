@@ -57,12 +57,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Create the page
 		 */
-		$user_id = $this->factory()->user->create( $args );
-
-		/**
-		 * Return the $id of the post_object that was created
-		 */
-		return $user_id;
+		return $this->factory()->user->create( $args );
 	}
 
 

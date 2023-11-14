@@ -98,7 +98,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		// Create posts
 		$created_posts = [];
-		for ( $i = 1; $i <= $count; $i ++ ) {
+		for ( $i = 1; $i <= $count; $i++ ) {
 			// Set the date 1 minute apart for each post
 			$date                = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$created_posts[ $i ] = $this->createPostObject(
@@ -153,15 +153,21 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables = array_merge( [
-			'first' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'first' => 2,
+			],
+			$graphql_args
+		);
 
 		// Set the variables to use in the WP query.
-		$query_args = array_merge( [
-			'posts_per_page' => 2,
-			'offset'         => 0,
-		], $query_args );
+		$query_args = array_merge(
+			[
+				'posts_per_page' => 2,
+				'offset'         => 0,
+			],
+			$query_args
+		);
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
@@ -221,9 +227,12 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Test the last two results are equal to `last:2`.
 		 */
-		$variables = array_merge( [
-			'last' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'last' => 2,
+			],
+			$graphql_args
+		);
 		unset( $variables['first'] );
 
 		$last_page = $this->graphql( compact( 'query', 'variables' ) );
@@ -239,17 +248,23 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		 */
 
 		// Set the variables to use in the GraphQL query.
-		$variables = array_merge( [
-			'last' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'last' => 2,
+			],
+			$graphql_args
+		);
 
 		// Set the variables to use in the WP query.
-		$query_args = array_merge( [
-			'posts_per_page' => 2,
-			'offset'         => 0,
-			'order'          => 'ASC',
-			'orderby'        => 'date',
-		], $query_args );
+		$query_args = array_merge(
+			[
+				'posts_per_page' => 2,
+				'offset'         => 0,
+				'order'          => 'ASC',
+				'orderby'        => 'date',
+			],
+			$query_args
+		);
 
 		// Run the GraphQL Query
 		$expected = $wp_query->query( $query_args );
@@ -312,9 +327,12 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Test the first two results are equal to `first:2`.
 		 */
-		$variables = array_merge( [
-			'first' => 2,
-		], $graphql_args );
+		$variables = array_merge(
+			[
+				'first' => 2,
+			],
+			$graphql_args
+		);
 		unset( $variables['last'] );
 
 		$expected = $actual;
@@ -393,10 +411,10 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$created_posts = [];
 
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$created_posts[]        = $this->factory()->post->create( $args );
+			$created_posts[]   = $this->factory()->post->create( $args );
 		}
 
 		// Set the variables to use in the GraphQL query.
@@ -410,8 +428,8 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Set the variables to use in the WP query.
 		$query_args = [
 			'posts_per_page' => 2,
-			'page' => 1,
-			's'      => $search_string,
+			'page'           => 1,
+			's'              => $search_string,
 		];
 
 		$this->forwardPagination( $graphql_args, $query_args );
@@ -419,7 +437,6 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		foreach ( $created_posts as $id ) {
 			wp_delete_post( $id, true );
 		}
-
 	}
 
 	public function testBackwardPaginationWithSearch() {
@@ -435,10 +452,10 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 		$created_posts = [];
 
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$created_posts[]        = $this->factory()->post->create( $args );
+			$created_posts[]   = $this->factory()->post->create( $args );
 		}
 
 		// Set the variables to use in the GraphQL query.
@@ -520,7 +537,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$date          = date( 'Y-m-d H:i:s', strtotime( 'now' ) );
 		$created_posts = [];
 
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			$created_posts[ $i ] = $this->createPostObject(
 				[
 					'post_type'   => 'post',
@@ -555,7 +572,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$created_posts = [];
 
 		$created_posts = [];
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			$created_posts[ $i ] = $this->createPostObject(
 				[
 					'post_type'   => 'post',
@@ -629,7 +646,6 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['posts']['nodes'][0] );
-
 	}
 
 
@@ -660,5 +676,4 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertEquals( $start_cursor, $actual['data']['posts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['posts']['pageInfo']['endCursor'] );
 	}
-
 }

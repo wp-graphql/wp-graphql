@@ -13,34 +13,43 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testReplaceString() {
-		$pageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test title for ReplaceString',
-		]);
+		$pageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test title for ReplaceString',
+			]
+		);
 
-		add_filter( 'graphql_pre_resolve_field', function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
-			if ( 'title' === $field_key ) {
-				return 'Replaced title';
-			}
+		add_filter(
+			'graphql_pre_resolve_field',
+			static function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
+				if ( 'title' === $field_key ) {
+					return 'Replaced title';
+				}
 
-			return $nil;
-		}, 10, 9);
+				return $nil;
+			},
+			10,
+			9
+		);
 
 		$query = '
 		query Page( $pageId: ID! ) {
-		  page( id: $pageId, idType: DATABASE_ID ) {
+			page( id: $pageId, idType: DATABASE_ID ) {
 			title
-		  }
+			}
  		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $pageId,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $pageId,
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -55,35 +64,44 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	 * Null should be like any other value
 	 */
 	public function testPresolveToNull() {
-		$pageId = $this->factory()->post->create([
-			'post_status'  => 'publish',
-			'post_type'    => 'page',
-			'post_title'   => 'Test title for PresolveToNull',
-			'post_content' => 'Test content',
-		]);
+		$pageId = $this->factory()->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_title'   => 'Test title for PresolveToNull',
+				'post_content' => 'Test content',
+			]
+		);
 
-		add_filter( 'graphql_pre_resolve_field', function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
-			if ( 'page' === $field_key ) {
-				return null;
-			}
+		add_filter(
+			'graphql_pre_resolve_field',
+			static function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
+				if ( 'page' === $field_key ) {
+					return null;
+				}
 
-			return $nil;
-		}, 10, 9);
+				return $nil;
+			},
+			10,
+			9
+		);
 
 		$query = '
 		query Page( $pageId: ID! ) {
-		  page( id: $pageId, idType: DATABASE_ID ) {
+			page( id: $pageId, idType: DATABASE_ID ) {
 			content
-		  }
+			}
  		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $pageId,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $pageId,
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -98,11 +116,13 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	 * False should be like any other value
 	 */
 	public function testPreresolveToFalse() {
-		$pageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test Front Page for PreresolveToFalse',
-		]);
+		$pageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test Front Page for PreresolveToFalse',
+			]
+		);
 
 		/**
 		 * Set the page as the front page
@@ -110,29 +130,36 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $pageId );
 
-		add_filter( 'graphql_pre_resolve_field', function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
-			if ( 'isFrontPage' === $field_key ) {
-				return false;
-			}
+		add_filter(
+			'graphql_pre_resolve_field',
+			static function ( $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver ) {
+				if ( 'isFrontPage' === $field_key ) {
+					return false;
+				}
 
-			return $nil;
-		}, 10, 9);
+				return $nil;
+			},
+			10,
+			9
+		);
 
 		$query = '
 		query Page( $pageId: ID! ) {
-		  page( id: $pageId, idType: DATABASE_ID ) {
+			page( id: $pageId, idType: DATABASE_ID ) {
 			title
 			isFrontPage
-		  }
+			}
  		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $pageId,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $pageId,
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -142,7 +169,5 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 		 * Preresolved correctly to false
 		 */
 		$this->assertFalse( $actual['data']['page']['isFrontPage'] );
-
 	}
-
 }

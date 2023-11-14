@@ -1,23 +1,27 @@
 <?php
 
 $I = new FunctionalTester( $scenario );
-$I->wantTo( 'Test GraphQL Keys returned in headers');
+$I->wantTo( 'Test GraphQL Keys returned in headers' );
 
 $admin_id = $I->haveUserInDatabase( 'admin', 'administrator' );
-$post_id = $I->havePostInDatabase([
-	'post_type' => 'post',
-	'post_status' => 'publish',
-	'post_title' => 'test post',
-	'post_content' => 'test post',
-	'post_author' => $admin_id,
-]);
-$page_id = $I->havePostInDatabase([
-	'post_type' => 'page',
-	'post_status' => 'publish',
-	'post_title' => 'test page',
-	'post_content' => 'test page',
-	'post_author' => $admin_id,
-]);
+$post_id  = $I->havePostInDatabase(
+	[
+		'post_type'    => 'post',
+		'post_status'  => 'publish',
+		'post_title'   => 'test post',
+		'post_content' => 'test post',
+		'post_author'  => $admin_id,
+	]
+);
+$page_id  = $I->havePostInDatabase(
+	[
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'test page',
+		'post_content' => 'test page',
+		'post_author'  => $admin_id,
+	]
+);
 
 $query = 'query GetPosts { posts { nodes { title } } }';
 
@@ -26,7 +30,7 @@ $I->sendGet( 'http://localhost/graphql?query=' . $query );
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
-$x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
+$x_graphql_url  = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
 
@@ -45,7 +49,7 @@ $I->sendGet( 'http://localhost/graphql?query=' . $query );
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
-$x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
+$x_graphql_url  = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 codecept_debug( $x_graphql_keys );
 
@@ -65,7 +69,7 @@ $I->sendGet( 'http://localhost/graphql?query=' . $query );
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
-$x_graphql_url = $I->grabHttpHeader( 'X-GraphQL-URL' );
+$x_graphql_url  = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
 $I->assertNotEmpty( $x_graphql_url );

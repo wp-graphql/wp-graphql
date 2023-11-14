@@ -1,5 +1,7 @@
 <?php
 
+use WPGraphQL\Type\WPEnumType;
+
 class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	private $admin;
@@ -31,10 +33,17 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 						}
 					}
 					nodes {
-						extra
+						after
+						before
+						conditional
+						dependencies {
+							handle
+						}
+						extraData
 						handle
 						id
 						src
+						strategy
 						version
 					}
 				}
@@ -47,12 +56,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$query = $this->getQuery();
 
 		// The list of registeredScripts might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 4,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 4,
+				],
+			]
+		);
 
 		// Confirm it's valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -62,9 +73,16 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		global $wp_scripts;
 		$expected = $wp_scripts->registered[ $actual['data']['registeredScripts']['nodes'][0]['handle'] ];
 
-		$this->assertEquals( $expected->extra['data'], $actual['data']['registeredScripts']['nodes'][0]['extra'] );
+		$expected_after  = ! empty( $expected->extra['after'] ) ? ( array_filter( $expected->extra['after'], 'is_string' ) ?: null ) : null;
+		$expected_before = ! empty( $expected->extra['before'] ) ? ( array_filter( $expected->extra['before'], 'is_string' ) ?: null ) : null;
+
+		$this->assertEquals( $expected_after, $actual['data']['registeredScripts']['nodes'][0]['after'] );
+		$this->assertEquals( $expected_before, $actual['data']['registeredScripts']['nodes'][0]['before'] );
+		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredScripts']['nodes'][0]['conditional'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
+		$this->assertEquals( ! empty( $expected->extra['data'] ) ? $expected->extra['data'] : null, $actual['data']['registeredScripts']['nodes'][0]['extraData'] );
 		$this->assertEquals( $expected->src, $actual['data']['registeredScripts']['nodes'][0]['src'] );
+		$this->assertEquals( ! empty( $expected->extra['strategy'] ) ? WPEnumType::get_safe_name( $expected->extra['strategy'] ) : null, $actual['data']['registeredScripts']['nodes'][0]['strategy'] );
 		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $actual['data']['registeredScripts']['nodes'][0]['version'] );
 
 		// Store for use by $expected.
@@ -120,12 +138,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		// Set the variables to use in the GraphQL query.
 		// There are hundreds of scripts, so lets get a good end cursor.
-		$actual = $this->graphql( [
-			'query'     => $this->getQuery(),
-			'variables' => [
-				'last' => 3,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'last' => 3,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
@@ -150,12 +170,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$query = $this->getQuery();
 
 		// The list of registeredScripts might change, so we'll reuse this to check late.
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'last' => 6,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'last' => 6,
+				],
+			]
+		);
 
 		// Confirm it's valid.
 		$this->assertIsValidQueryResponse( $actual );
@@ -216,12 +238,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 
 		// Set the variables to use in the GraphQL query.
 		// There are hundreds of scripts, so lets get a good start cursor.
-		$actual = $this->graphql( [
-			'query'     => $this->getQuery(),
-			'variables' => [
-				'first' => 3,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 3,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
@@ -246,12 +270,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$query = $this->getQuery();
 
 		// The list of registeredScripts might change, so we'll reuse this to check late.
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'first' => 100,
-			],
-		] );
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'first' => 100,
+				],
+			]
+		);
 
 		$after_cursor  = $actual['data']['registeredScripts']['edges'][0]['cursor'];
 		$before_cursor = $actual['data']['registeredScripts']['edges'][2]['cursor'];
@@ -288,7 +314,6 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
-
 	}
 
 	/**
@@ -318,7 +343,4 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$this->assertEquals( $start_cursor, $actual['data']['registeredScripts']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['registeredScripts']['pageInfo']['endCursor'] );
 	}
-
-
-
 }
