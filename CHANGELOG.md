@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.19.0
+
+### New Features
+
+- [#2988](https://github.com/wp-graphql/wp-graphql/pull/2988): feat: add missing extra fields to `EnqueuedAsset`, `EnqueuedScript` and `EnqueuedStylesheet`
+
+### Chores / Bugfixes
+
+- [#2989](https://github.com/wp-graphql/wp-graphql/pull/2989): fix: make User.url public
+- [#2990](https://github.com/wp-graphql/wp-graphql/pull/2990): chore: autolint tests with phpcbf
+- [#2992](https://github.com/wp-graphql/wp-graphql/pull/2992): fix: add polyfills for `str_starts_with()` and `str_ends_with()` to prevent fatal errors in `PHP < 8.0` 
+
 ## 1.18.2
 
 ### Chores / Bugfixes
