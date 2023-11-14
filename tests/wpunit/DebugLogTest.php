@@ -5,9 +5,11 @@ class DebugLogTest extends \Codeception\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		WPGraphQL::clear_schema();
 	}
 
@@ -26,7 +28,5 @@ class DebugLogTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $messages );
 		$key = array_search( 'TEST', array_column( $messages, 'type' ) );
 		$this->assertEquals( 'TEST', $messages[ $key ]['type'] );
-
 	}
-
 }

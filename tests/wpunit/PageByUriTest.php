@@ -8,17 +8,21 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->user = $this->factory()->user->create([
-			'role'       => 'administrator',
-			'user_login' => 'queryPagebyUriTestUser',
-		]);
+		$this->user = $this->factory()->user->create(
+			[
+				'role'       => 'administrator',
+				'user_login' => 'queryPagebyUriTestUser',
+			]
+		);
 
-		$this->page = self::factory()->post->create( [
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test PageByUriTest',
-			'post_author' => $this->user,
-		] );
+		$this->page = self::factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Test PageByUriTest',
+				'post_author' => $this->user,
+			]
+		);
 
 		update_option( 'permalink_structure', '/posts/%postname%/' );
 		create_initial_taxonomies();
@@ -52,32 +56,41 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		flush_rewrite_rules( true );
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => '/non-existent-page',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => '/non-existent-page',
+				],
+			]
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'page',  self::IS_NULL ),
-		]);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'page', self::IS_NULL ),
+			]
+		);
 
 
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => get_permalink( $this->page ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => get_permalink( $this->page ),
+				],
+			]
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'page.__typename',  ucfirst( get_post_type_object( 'page' )->graphql_single_name ) ),
-			$this->expectedField( 'page.databaseId',   $this->page ),
-			$this->expectedField( 'page.uri',  str_ireplace( home_url(), '', get_permalink( $this->page ) ) ),
-		]);
-
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'page.__typename', ucfirst( get_post_type_object( 'page' )->graphql_single_name ) ),
+				$this->expectedField( 'page.databaseId', $this->page ),
+				$this->expectedField( 'page.uri', str_ireplace( home_url(), '', get_permalink( $this->page ) ) ),
+			]
+		);
 	}
 
 	public function testQueryPageForPostsByUriReturnsNull() {
@@ -91,33 +104,41 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => '/' . get_post( $this->page )->post_name,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => '/' . get_post( $this->page )->post_name,
+				],
 			]
-		]);
+		);
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'page.__typename', 'Page' ),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'page.__typename', 'Page' ),
+			]
+		);
 
 		// set the page as the page_for_posts
 		update_option( 'page_for_posts', $this->page );
 		update_option( 'show_on_front', 'page' );
 
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => '/' . get_post( $this->page )->post_name,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => '/' . get_post( $this->page )->post_name,
+				],
 			]
-		]);
+		);
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'page', self::IS_NULL ),
-		]);
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'page', self::IS_NULL ),
+			]
+		);
 	}
-
 }

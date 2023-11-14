@@ -8,13 +8,17 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->subscriber = $this->factory()->user->create([
-			'role' => 'subscriber',
-		]);
+		$this->subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -24,7 +28,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Test querying revisions as an admin
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryRootRevisionsAsPublicUser() {
 
@@ -33,19 +37,24 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create( [
-			'post_status'  => 'publish',
-			'post_type'    => 'post',
-			'post_content' => 'Test',
-			'post_author'  => $this->admin,
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'post_content' => 'Test',
+				'post_author'  => $this->admin,
+			]
+		);
 
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test',
-		] );
+		$this->factory()->post->update_object(
+			$post_id,
+			[
+				'post_content' => 'Revised Test',
+			]
+		);
 
 		$query = '
 		query RootRevisions {
@@ -71,13 +80,12 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEmpty( $actual['data']['revisions']['nodes'] );
-
 	}
 
 	/**
 	 * Test querying revisions as an admin
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryRootRevisionsAsAdmin() {
 
@@ -86,19 +94,24 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create( [
-			'post_status'  => 'publish',
-			'post_type'    => 'post',
-			'post_content' => 'Test',
-			'post_author'  => $this->admin,
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'post_content' => 'Test',
+				'post_author'  => $this->admin,
+			]
+		);
 
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test',
-		] );
+		$this->factory()->post->update_object(
+			$post_id,
+			[
+				'post_content' => 'Revised Test',
+			]
+		);
 
 		$query = '
 		query RootRevisions {
@@ -145,7 +158,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Query revisions of Posts
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryRevisionsOfPost() {
 
@@ -154,19 +167,24 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create( [
-			'post_status'  => 'publish',
-			'post_type'    => 'post',
-			'post_content' => 'Test',
-			'post_author'  => $this->admin,
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'post_content' => 'Test',
+				'post_author'  => $this->admin,
+			]
+		);
 
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object( $post_id, [
-			'post_content' => 'Revised Test',
-		] );
+		$this->factory()->post->update_object(
+			$post_id,
+			[
+				'post_content' => 'Revised Test',
+			]
+		);
 
 		$query = '
 		query PostBy ($postId: Int) {
@@ -193,12 +211,14 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'postId' => $post_id,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'postId' => $post_id,
+				],
+			]
+		);
 
 		/**
 		 * This query should NOT error, because the user is asking for
@@ -214,8 +234,5 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// postId of parent of the revision should be ID of post we revised
 		$this->assertEquals( $post_id, $actual['data']['postBy']['revisions']['nodes'][0]['revisionOf']['node']['postId'] );
-
 	}
-
-
 }

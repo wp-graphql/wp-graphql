@@ -7,15 +7,19 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create( [
-			'role'       => 'admin',
-			'user_email' => 'test@test.com',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role'       => 'admin',
+				'user_email' => 'test@test.com',
+			]
+		);
 
 		// Create a published post for the author so it is public in the API.
-		$this->factory()->post->create( [
-			'post_author' => $this->admin,
-		]);
+		$this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -172,7 +176,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testAvatarQueryNotFound() {
 		/**
@@ -230,5 +234,4 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		return $args;
 	}
-
 }

@@ -6,50 +6,55 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function setUp(): void {
 		parent::setUp();
 
-		register_graphql_object_type( 'TestObject', [
-			'fields' => [
-				'id' => [
-					'type' => 'Int',
+		register_graphql_object_type(
+			'TestObject',
+			[
+				'fields' => [
+					'id'   => [
+						'type' => 'Int',
+					],
+					'name' => [
+						'type' => 'String',
+					],
 				],
-				'name' => [
-					'type' => 'String',
-				],
-			],
-		] );
+			]
+		);
 
 		$this->connection_config = [
-			'fromType' => 'RootQuery',
-			'toType' => 'TestObject',
+			'fromType'      => 'RootQuery',
+			'toType'        => 'TestObject',
 			'fromFieldName' => 'testConnection',
-			'resolve' => function( $source, $args, $context, $info ) {
+			'resolve'       => static function ( $source, $args, $context, $info ) {
 				$data = [
 					[
-						'id' => 1,
+						'id'   => 1,
 						'name' => 'Test 1',
 					],
 					[
-						'id' => 2,
+						'id'   => 2,
 						'name' => 'Test 2',
 					],
 					[
-						'id' => 3,
+						'id'   => 3,
 						'name' => 'Test 3',
 					],
 				];
 
 				// Mock the data being returned from the connection
 				return [
-					'edges' => array_map( function( $item ) {
-						return [
-							'cursor' => base64_encode( 'arrayconnection:' . $item['id'] ),
-							'node' => $item,
-						];
-					}, $data ),
+					'edges' => array_map(
+						static function ( $item ) {
+								return [
+									'cursor' => base64_encode( 'arrayconnection:' . $item['id'] ),
+									'node'   => $item,
+								];
+						},
+						$data
+					),
 					'nodes' => $data,
 				];
 			},
 		];
-
 	}
 
 	public function tearDown(): void {
@@ -61,28 +66,33 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	public function testRegisteringConnectionsFromTypeRegistrationAddsConnectionsToSchema() {
 
-		register_graphql_object_type( 'TestTypeWithOneToOneConnection', [
-			'fields'      => [
-				'id' => [
-					'type' => 'ID',
+		register_graphql_object_type(
+			'TestTypeWithOneToOneConnection',
+			[
+				'fields'      => [
+					'id' => [
+						'type' => 'ID',
+					],
 				],
-			],
-			'connections' => [
-				'connectedPosts' => [
-					'toType' => 'Post',
+				'connections' => [
+					'connectedPosts' => [
+						'toType' => 'Post',
+					],
+					'connectedPost'  => [
+						'toType'   => 'Post',
+						'oneToOne' => true,
+					],
 				],
-				'connectedPost'  => [
-					'toType'   => 'Post',
-					'oneToOne' => true,
-				],
-			],
-		]);
+			]
+		);
 
-		register_graphql_connection( [
-			'fromType'      => 'RootQuery',
-			'toType'        => 'TestTypeWithOneToOneConnection',
-			'fromFieldName' => 'testTypeConnection',
-		]);
+		register_graphql_connection(
+			[
+				'fromType'      => 'RootQuery',
+				'toType'        => 'TestTypeWithOneToOneConnection',
+				'fromFieldName' => 'testTypeConnection',
+			]
+		);
 
 		$query = '
 		{
@@ -109,10 +119,12 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// Assert that the query above is successful given the registered type and connections
 		// But since there's no data for the connection, we can safely assert the response
 		// should be null, but with no errors
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testTypeConnection', self::IS_NULL ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testTypeConnection', self::IS_NULL ),
+			]
+		);
 	}
 
 	/**
@@ -120,27 +132,34 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 */
 	public function testRegisteringConnectionWithArgsAllowsArgsToBeUsedInQuery() {
 
-		register_graphql_object_type( 'Test', [
-			'fields'      => [
-				'test' => [
-					'type' => 'String',
+		register_graphql_object_type(
+			'Test',
+			[
+				'fields'      => [
+					'test' => [
+						'type' => 'String',
+					],
 				],
-			],
-			'connections' => [
-				'testPostConnection' => [
-					'toType'         => 'Post',
-					'connectionArgs' => [
-						'testInput' => [
-							'type' => 'String',
+				'connections' => [
+					'testPostConnection' => [
+						'toType'         => 'Post',
+						'connectionArgs' => [
+							'testInput' => [
+								'type' => 'String',
+							],
 						],
 					],
 				],
-			],
-		]);
+			]
+		);
 
-		register_graphql_field( 'RootQuery', 'test', [
-			'type' => 'Test',
-		]);
+		register_graphql_field(
+			'RootQuery',
+			'test',
+			[
+				'type' => 'Test',
+			]
+		);
 
 		$query = '
 		query Test($where: TestToPostConnectionWhereArgs) {
@@ -158,65 +177,78 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'testInput' => 'test',
 		];
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => $variables,
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $variables,
+			]
+		);
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'test', self::IS_NULL ),
-		]);
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'test', self::IS_NULL ),
+			]
+		);
 	}
 
 	public function testRegisterCustomConnectionWithAuth() {
-		add_action( 'graphql_register_types', function () {
-			register_graphql_type( 'TestCustomType', [
-				'fields' => [
-					'test' => [
-						'type'    => 'String',
-						'auth'    => [
-							'errorMessage' => 'Blocked on the field-level!!!',
-							'callback'     => function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
-								return ! empty( $source );
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_type(
+					'TestCustomType',
+					[
+						'fields' => [
+							'test' => [
+								'type'    => 'String',
+								'auth'    => [
+									'errorMessage' => 'Blocked on the field-level!!!',
+									'callback'     => static function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+										return ! empty( $source );
+									},
+								],
+								'resolve' => static function ( $source ) {
+									return $source;
+								},
+							],
+						],
+					]
+				);
+
+				register_graphql_connection(
+					[
+						'fromType'      => 'RootQuery',
+						'toType'        => 'TestCustomType',
+						'auth'          => [
+							'errorMessage' => 'Blocked on the type-level!!!',
+							'callback'     => static function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
+								return ! empty( $args['first'] );
 							},
 						],
-						'resolve' => function ( $source ) {
-							return $source;
+						'fromFieldName' => 'secretConnection',
+						'resolve'       => static function () {
+							return [ 'nodes' => [ 'Blah', 'blah', 'blu' ] ];
 						},
-					],
-				],
-			]);
+					]
+				);
 
-			register_graphql_connection([
-				'fromType'      => 'RootQuery',
-				'toType'        => 'TestCustomType',
-				'auth'          => [
-					'errorMessage' => 'Blocked on the type-level!!!',
-					'callback'     => function ( $field, $field_key, $source, $args, $context, $info, $field_resolver ) {
-						return ! empty( $args['first'] );
-					},
-				],
-				'fromFieldName' => 'secretConnection',
-				'resolve'       => function () {
-					return [ 'nodes' => [ 'Blah', 'blah', 'blu' ] ];
-				},
-			]);
-
-			register_graphql_connection([
-				'fromType'      => 'RootQuery',
-				'toType'        => 'TestCustomType',
-				'auth'          => [
-					'errorMessage' => 'Blocked on the field-level!!!',
-					'allowedCaps'  => [ 'administrator' ],
-				],
-				'fromFieldName' => 'failingAuthConnection',
-				'resolve'       => function () {
-					return [ 'nodes' => [ null, false, 0 ] ];
-				},
-			]);
-
-		});
+				register_graphql_connection(
+					[
+						'fromType'      => 'RootQuery',
+						'toType'        => 'TestCustomType',
+						'auth'          => [
+							'errorMessage' => 'Blocked on the field-level!!!',
+							'allowedCaps'  => [ 'administrator' ],
+						],
+						'fromFieldName' => 'failingAuthConnection',
+						'resolve'       => static function () {
+							return [ 'nodes' => [ null, false, 0 ] ];
+						},
+					]
+				);
+			}
+		);
 
 		$query = '
 			query($first: Int) {
@@ -299,7 +331,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertQueryError( $response, $expected );
 	}
 
-	public function testRegistration() : void {
+	public function testRegistration(): void {
 		register_graphql_connection( $this->connection_config );
 
 		$this->clearSchema();
@@ -381,15 +413,15 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertCount( 3, $actual['data']['testConnection']['nodes'] );
 	}
 
-	public function testWithConnectionFields() : void {
+	public function testWithConnectionFields(): void {
 		$config = array_merge(
 			$this->connection_config,
 			[
 				'connectionFields' => [
 					'count' => [
-						'type' => 'Int',
+						'type'        => 'Int',
 						'description' => 'The number of items in the connection',
-						'resolve' => function( $source, $args, $context, $info ) {
+						'resolve'     => static function ( $source, $args, $context, $info ) {
 							return count( $source['nodes'] );
 						},
 					],
@@ -430,17 +462,17 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( 3, $actual['data']['testConnection']['count'] );
 	}
 
-	public function testWithConnectionArgs() : void {
+	public function testWithConnectionArgs(): void {
 		$config = array_merge(
 			$this->connection_config,
 			[
 				'connectionArgs' => [
 					'name' => [
-						'type' => 'String',
+						'type'        => 'String',
 						'description' => 'Filter the connection based on a field',
 					],
 				],
-				'resolve' => function( $source, $args, $context, $info ) {
+				'resolve'        => function ( $source, $args, $context, $info ) {
 					$data = [
 						[
 							'id'   => '1',
@@ -456,26 +488,29 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 						],
 					];
 
-					if( ! isset( $args['where']['name'] ) ) {
+					if ( ! isset( $args['where']['name'] ) ) {
 						$this->fail( 'The connectionArgs should be passed to the resolve function' );
 					}
 
 					if ( ! empty( $args['where']['name'] ) ) {
 						$data = array_filter(
 							$data,
-							function( $item ) use ( $args ) {
+							static function ( $item ) use ( $args ) {
 								return $item['name'] === $args['where']['name'];
 							}
 						);
 					}
 
 					return [
-						'edges' => array_map( function( $item ) {
-							return [
-								'cursor' => base64_encode( 'arrayconnection:' . $item['id'] ),
-								'node' => $item,
-							];
-						}, $data ),
+						'edges' => array_map(
+							static function ( $item ) {
+									return [
+										'cursor' => base64_encode( 'arrayconnection:' . $item['id'] ),
+										'node'   => $item,
+									];
+							},
+							$data
+						),
 						'nodes' => $data,
 					];
 				},
@@ -514,15 +549,15 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertCount( 1, $actual['data']['testConnection']['edges'] );
 	}
 
-	public function testWithEdgeFields() : void {
+	public function testWithEdgeFields(): void {
 		$config = array_merge(
 			$this->connection_config,
 			[
 				'edgeFields' => [
 					'isFirst' => [
-						'type' => 'Boolean',
+						'type'        => 'Boolean',
 						'description' => 'Is this the first item in the connection',
-						'resolve' => function( $source ) {
+						'resolve'     => static function ( $source ) {
 							return 'arrayconnection:1' === base64_decode( $source['cursor'] );
 						},
 					],
@@ -564,7 +599,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertFalse( $actual['data']['testConnection']['edges'][1]['isFirst'] );
 	}
 
-	public function testWithConnectionTypeName() : void {
+	public function testWithConnectionTypeName(): void {
 		$config = array_merge(
 			$this->connection_config,
 			[
@@ -604,11 +639,11 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( 'MyTestConnectionEdge', $actual['data']['testConnection']['edges'][0]['__typename'] );
 	}
 
-	public function testWithConnectionInterfaces() : void {
+	public function testWithConnectionInterfaces(): void {
 		$this->markTestIncomplete();
 	}
 
-	public function testWithIncludeDefaultInterfacesDisabled() : void {
+	public function testWithIncludeDefaultInterfacesDisabled(): void {
 		$config = array_merge(
 			$this->connection_config,
 			[
@@ -666,7 +701,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertValidTypes( $actual );
 	}
 
-	public function testWithQueryClass() : void {
+	public function testWithQueryClass(): void {
 		$this->markTestIncomplete();
 	}
 
@@ -677,62 +712,70 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// Pass the $expected value to the connection.
 		// We will filter the resolver to do something with the value
 		// And assert we have access to it
-		register_graphql_connection([
-			'fromType' => 'RootQuery',
-			'toType' => 'Post',
-			'fromFieldName' => 'connectionWithConfig',
-			'testField' => $expected
-		]);
+		register_graphql_connection(
+			[
+				'fromType'      => 'RootQuery',
+				'toType'        => 'Post',
+				'fromFieldName' => 'connectionWithConfig',
+				'testField'     => $expected,
+			]
+		);
 
 		// Here we filter the resolver and throw an error
 		// if the field definition had a value for testField
-		add_filter( 'graphql_resolve_field', function( $result, $source, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info ) {
+		add_filter(
+			'graphql_resolve_field',
+			static function ( $result, $source, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info ) {
 
-			if ( ! empty( $info->fieldDefinition->config['testField'] ) ) {
-				throw new \GraphQL\Error\UserError( $info->fieldDefinition->config['testField'] );
-			}
+				if ( ! empty( $info->fieldDefinition->config['testField'] ) ) {
+					throw new \GraphQL\Error\UserError( $info->fieldDefinition->config['testField'] );
+				}
 
-			return $result;
-
-		}, 10, 5 );
+				return $result;
+			},
+			10,
+			5
+		);
 
 		$query = '
 		{
 		 connectionWithConfig {
-		   nodes {
-		     __typename
-		   }
+			 nodes {
+				 __typename
+			 }
 		 }
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
-		codecept_debug( [
-			'$actual' => $actual,
-		]);
+		codecept_debug(
+			[
+				'$actual' => $actual,
+			]
+		);
 
 		// Here we're asserting that the $expected value exists in the errors
 		// This ensures that the value passed in to the connection config
 		// Is indeed accessible in the $info of the resolver
-		$this->assertQueryError($actual, [
-			$this->expectedErrorPath( 'connectionWithConfig' ),
-			$this->expectedErrorMessage( $expected, self::MESSAGE_EQUALS ),
-			$this->expectedField( 'connectionWithConfig', self::IS_NULL ),
-		]);
-
-
+		$this->assertQueryError(
+			$actual,
+			[
+				$this->expectedErrorPath( 'connectionWithConfig' ),
+				$this->expectedErrorMessage( $expected, self::MESSAGE_EQUALS ),
+				$this->expectedField( 'connectionWithConfig', self::IS_NULL ),
+			]
+		);
 	}
 
-	protected function assertValidTypes( $actual ) : void {
+	protected function assertValidTypes( $actual ): void {
 		$this->assertEquals( 'RootQueryToTestObjectConnection', $actual['data']['testConnection']['__typename'] );
 		$this->assertEquals( 'RootQueryToTestObjectConnectionEdge', $actual['data']['testConnection']['edges'][0]['__typename'] );
 		$this->assertEquals( 'TestObject', $actual['data']['testConnection']['edges'][0]['node']['__typename'] );
 		$this->assertEquals( 'TestObject', $actual['data']['testConnection']['nodes'][0]['__typename'] );
 	}
-
-
-
 }

@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.4.1
 Requires PHP: 7.1
-Stable tag: 1.18.2
+Stable tag: 1.19.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -251,6 +251,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.19.0=
+
+**New Features**
+
+- [#2988](https://github.com/wp-graphql/wp-graphql/pull/2988): feat: add missing extra fields to `EnqueuedAsset`, `EnqueuedScript` and `EnqueuedStylesheet`
+
+**Chores / Bugfixes**
+
+- [#2989](https://github.com/wp-graphql/wp-graphql/pull/2989): fix: make User.url public
+- [#2990](https://github.com/wp-graphql/wp-graphql/pull/2990): chore: autolint tests with phpcbf
+- [#2992](https://github.com/wp-graphql/wp-graphql/pull/2992): fix: add polyfills for `str_starts_with()` and `str_ends_with()` to prevent fatal errors in `PHP < 8.0`
+
 
 = 1.18.2 =
 

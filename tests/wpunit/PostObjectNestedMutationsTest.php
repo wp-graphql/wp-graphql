@@ -17,18 +17,23 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->author = $this->factory()->user->create( [
-			'role' => 'author',
-		] );
+		$this->author = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->subscriber = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		] );
-
+		$this->subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 
@@ -42,33 +47,33 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$mutation = '
 		mutation CreatePostWithTerms( $input: CreatePostInput! ) {
 			createPost( input: $input ) {
-			  post {
-			    id
-			    postId
-			    title
-			    tags {
-			      edges {
-			        node {
-			          id
-			          tagId
-			          name
-			          description
-			          slug
-			        }
-			      }
-			    }
-			    categories {
-			      edges {
-			         node {
-			           id
-			           categoryId
-			           name
-			           description
-			           slug
-			         }
-			      }
-			    }
-			  }
+				post {
+					id
+					postId
+					title
+					tags {
+						edges {
+							node {
+								id
+								tagId
+								name
+								description
+								slug
+							}
+						}
+					}
+					categories {
+						edges {
+							 node {
+								 id
+								 categoryId
+								 name
+								 description
+								 slug
+							 }
+						}
+					}
+				}
 			}
 		}
 		';
@@ -85,9 +90,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 			'input' => $input,
 		];
 
-		$response = do_graphql_request( $mutation, 'CreatePostWithTerms', $variables );
-		return $response;
-
+		return do_graphql_request( $mutation, 'CreatePostWithTerms', $variables );
 	}
 
 	public function testCreatePostAndAttachCategories() {
@@ -101,25 +104,27 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$expected_category_id = \GraphQLRelay\Relay::toGlobalId( 'term', absint( $category['term_id'] ) );
 
 		wp_set_current_user( $this->admin );
-		$results = $this->createPostMutation([
-			'tags'       => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'slug' => $tag_slug,
+		$results = $this->createPostMutation(
+			[
+				'tags'       => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'slug' => $tag_slug,
+						],
 					],
-				],
 
-			],
-			'categories' => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'slug' => $category_slug,
+				],
+				'categories' => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'slug' => $category_slug,
+						],
 					],
 				],
-			],
-		]);
+			]
+		);
 
 		codecept_debug( $results );
 
@@ -129,31 +134,34 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
 		$this->assertEquals( $expected_tag_id, $createdPost['tags']['edges'][0]['node']['id'] );
 		$this->assertEquals( $expected_category_id, $createdPost['categories']['edges'][0]['node']['id'] );
-
 	}
 
 	public function testCreatePostAndAttachTagByID() {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create([
-			'name'     => 'Test Term',
-			'taxonomy' => 'post_tag',
-		]);
+		$new_term = $this->factory->term->create(
+			[
+				'name'     => 'Test Term',
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
-		$results = $this->createPostMutation([
-			'tags' => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'id' => $new_term_global_id,
+		$results = $this->createPostMutation(
+			[
+				'tags' => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'id' => $new_term_global_id,
+						],
 					],
-				],
 
-			],
-		]);
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 
@@ -161,31 +169,34 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
 		$this->assertEquals( $new_term, $createdPost['tags']['edges'][0]['node']['tagId'] );
 		$this->assertEquals( $new_term_global_id, $createdPost['tags']['edges'][0]['node']['id'] );
-
 	}
 
 	public function testCreatePostAndAttachTagByTagID() {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create([
-			'name'     => 'Test Term',
-			'taxonomy' => 'post_tag',
-		]);
+		$new_term = $this->factory->term->create(
+			[
+				'name'     => 'Test Term',
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
-		$results = $this->createPostMutation([
-			'tags' => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'id' => (int) $new_term,
+		$results = $this->createPostMutation(
+			[
+				'tags' => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'id' => (int) $new_term,
+						],
 					],
-				],
 
-			],
-		]);
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 
@@ -193,30 +204,33 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Test Title', $createdPost['title'] );
 		$this->assertEquals( $new_term, $createdPost['tags']['edges'][0]['node']['tagId'] );
 		$this->assertEquals( $new_term_global_id, $createdPost['tags']['edges'][0]['node']['id'] );
-
 	}
 
 	public function testCreatePostWithInvalidTagId() {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create([
-			'name'     => 'Test Term',
-			'taxonomy' => 'category',
-		]);
+		$new_term = $this->factory->term->create(
+			[
+				'name'     => 'Test Term',
+				'taxonomy' => 'category',
+			]
+		);
 
 		$new_term_global_id = \GraphQLRelay\Relay::toGlobalId( 'term', $new_term );
 
-		$results = $this->createPostMutation([
-			'tags' => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'id' => $new_term_global_id,
+		$results = $this->createPostMutation(
+			[
+				'tags' => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'id' => $new_term_global_id,
+						],
 					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 
@@ -228,34 +242,35 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 * with an invalid id.
 		 */
 		$this->assertEmpty( $createdPost['tags']['edges'] );
-
 	}
 
 	public function testCreatePostAndCreateTerms() {
 
 		wp_set_current_user( $this->admin );
 
-		$results = $this->createPostMutation([
-			'tags'       => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'name'        => 'Test Tag',
-						'slug'        => 'test-tag',
-						'description' => 'Test Tag Description',
+		$results = $this->createPostMutation(
+			[
+				'tags'       => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'name'        => 'Test Tag',
+							'slug'        => 'test-tag',
+							'description' => 'Test Tag Description',
+						],
 					],
 				],
-			],
-			'categories' => [
-				'append' => false,
-				'nodes'  => [
-					[
-						'slug'        => 'test-category',
-						'description' => 'Test Category Description',
+				'categories' => [
+					'append' => false,
+					'nodes'  => [
+						[
+							'slug'        => 'test-category',
+							'description' => 'Test Category Description',
+						],
 					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
 
@@ -268,7 +283,5 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		$this->assertEquals( 'Test Tag Description', $createdPost['tags']['edges'][0]['node']['description'] );
 		$this->assertEquals( 'Test Category Description', $createdPost['categories']['edges'][0]['node']['description'] );
-
 	}
-
 }

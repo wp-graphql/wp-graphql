@@ -915,3 +915,41 @@ if ( ! function_exists( 'array_key_last' ) ) {
 		return key( $arr );
 	}
 }
+
+/**
+ * Polyfill for PHP versions below 8.0
+ */
+if ( ! function_exists( 'str_starts_with' ) ) {
+
+	/**
+	 * @param string $haystack
+	 * @param string $needle
+	 */
+	function str_starts_with( string $haystack, string $needle ): bool {
+		return 0 === strncmp( $haystack, $needle, strlen( $needle ) );
+	}
+}
+
+/**
+ * Polyfill for PHP versions below 8.0
+ */
+if ( ! function_exists( 'str_ends_with' ) ) {
+
+	/**
+	 * @param string $haystack
+	 * @param string $needle
+	 */
+	function str_ends_with( string $haystack, string $needle ): bool {
+		if ( '' === $needle || $needle === $haystack ) {
+			return true;
+		}
+
+		if ( '' === $haystack ) {
+			return false;
+		}
+
+		$needle_length = strlen( $needle );
+
+		return $needle_length <= strlen( $haystack ) && 0 === substr_compare( $haystack, $needle, -$needle_length );
+	}
+}

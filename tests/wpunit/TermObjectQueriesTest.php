@@ -15,7 +15,6 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function tearDown(): void {
 		parent::tearDown();
-
 	}
 
 	public function createTermObject( $args = [] ) {
@@ -24,26 +23,32 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testTermObjectConnectionQuery() {
 
-		$term_id1 = $this->createTermObject( [
-			'name'        => 'AAA1 Term',
-			'taxonomy'    => 'category',
-			'description' => 'just a description',
-			'slug'        => 'aaa1-term'
-		] );
+		$term_id1 = $this->createTermObject(
+			[
+				'name'        => 'AAA1 Term',
+				'taxonomy'    => 'category',
+				'description' => 'just a description',
+				'slug'        => 'aaa1-term',
+			]
+		);
 
-		$term_id2 = $this->createTermObject( [
-			'name'        => 'AAA2 Term',
-			'taxonomy'    => 'category',
-			'description' => 'just a description',
-			'slug'        => 'aaa2-term'
-		] );
+		$term_id2 = $this->createTermObject(
+			[
+				'name'        => 'AAA2 Term',
+				'taxonomy'    => 'category',
+				'description' => 'just a description',
+				'slug'        => 'aaa2-term',
+			]
+		);
 
-		$term_id3 = $this->createTermObject( [
-			'name'        => 'AAA3 Term',
-			'taxonomy'    => 'category',
-			'description' => 'just a description',
-			'slug'        => 'aaa3-term'
-		] );
+		$term_id3 = $this->createTermObject(
+			[
+				'name'        => 'AAA3 Term',
+				'taxonomy'    => 'category',
+				'description' => 'just a description',
+				'slug'        => 'aaa3-term',
+			]
+		);
 
 		$query = '
 		{
@@ -86,9 +91,11 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Use the cursor in our variables
 		 */
-		$variables = wp_json_encode( [
-			'beforeCursor' => $cursor,
-		] );
+		$variables = wp_json_encode(
+			[
+				'beforeCursor' => $cursor,
+			]
+		);
 
 		/**
 		 * Do the request
@@ -123,9 +130,11 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Use the cursor in our variables
 		 */
-		$variables = wp_json_encode( [
-			'afterCursor' => $cursor,
-		] );
+		$variables = wp_json_encode(
+			[
+				'afterCursor' => $cursor,
+			]
+		);
 
 		/**
 		 * Do the request
@@ -137,7 +146,6 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$this->assertCount( 1, $actual['data']['categories']['edges'] );
 		$this->assertEquals( $actual['data']['categories']['edges'][0]['node']['categoryId'], $term_id3 );
-
 	}
 
 	/**
@@ -152,11 +160,13 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a term
 		 */
-		$term_id = $this->createTermObject( [
-			'name'        => 'A Category',
-			'taxonomy'    => 'category',
-			'description' => 'just a description',
-		] );
+		$term_id = $this->createTermObject(
+			[
+				'name'        => 'A Category',
+				'taxonomy'    => 'category',
+				'description' => 'just a description',
+			]
+		);
 
 		$taxonomy = 'category';
 
@@ -228,7 +238,6 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -243,29 +252,37 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a term
 		 */
-		$term_id = $this->createTermObject( [
-			'name'     => uniqid(),
-			'taxonomy' => 'category',
-		] );
+		$term_id = $this->createTermObject(
+			[
+				'name'     => uniqid(),
+				'taxonomy' => 'category',
+			]
+		);
 
 		// Create a comment and assign it to term.
-		$post_id = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
-			'post_status' => 'publish',
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
+				'post_status' => 'publish',
+			]
+		);
 
 		codecept_debug( $post_id );
-		$page_id  = $this->factory()->post->create( [
-			'post_type'   => 'page',
-			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
-			'post_status' => 'publish',
-		] );
-		$media_id = $this->factory()->post->create( [
-			'post_type'   => 'attachment',
-			'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
-			'post_status' => 'publish',
-		] );
+		$page_id  = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
+				'post_status' => 'publish',
+			]
+		);
+		$media_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'attachment',
+				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_object_terms( $post_id, $term_id, 'category', false );
 		wp_set_object_terms( $page_id, $term_id, 'category', false );
@@ -328,16 +345,20 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testTermQueryWithChildTerm() {
 
-		$parent_id = $this->createTermObject( [
-			'name'     => 'Parent Category',
-			'taxonomy' => 'category',
-		] );
+		$parent_id = $this->createTermObject(
+			[
+				'name'     => 'Parent Category',
+				'taxonomy' => 'category',
+			]
+		);
 
-		$child_id = $this->createTermObject( [
-			'name'     => 'Child category',
-			'taxonomy' => 'category',
-			'parent'   => $parent_id,
-		] );
+		$child_id = $this->createTermObject(
+			[
+				'name'     => 'Child category',
+				'taxonomy' => 'category',
+				'parent'   => $parent_id,
+			]
+		);
 
 		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
 		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
@@ -375,7 +396,6 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -385,16 +405,20 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testTermQueryWithParentTerm() {
 
-		$parent_id = $this->createTermObject( [
-			'name'     => 'Parent Category',
-			'taxonomy' => 'category',
-		] );
+		$parent_id = $this->createTermObject(
+			[
+				'name'     => 'Parent Category',
+				'taxonomy' => 'category',
+			]
+		);
 
-		$child_id = $this->createTermObject( [
-			'name'     => 'Child category',
-			'taxonomy' => 'category',
-			'parent'   => $parent_id,
-		] );
+		$child_id = $this->createTermObject(
+			[
+				'name'     => 'Child category',
+				'taxonomy' => 'category',
+				'parent'   => $parent_id,
+			]
+		);
 
 		$global_parent_id = \GraphQLRelay\Relay::toGlobalId( 'term', $parent_id );
 		$global_child_id  = \GraphQLRelay\Relay::toGlobalId( 'term', $child_id );
@@ -442,7 +466,6 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -500,14 +523,18 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testQueryChildCategoryByUri() {
 
-		$parent_id = $this->factory()->category->create([
-			'name' => 'parent',
-		]);
+		$parent_id = $this->factory()->category->create(
+			[
+				'name' => 'parent',
+			]
+		);
 
-		$child_id = $this->factory()->category->create([
-			'name'   => 'child',
-			'parent' => $parent_id,
-		]);
+		$child_id = $this->factory()->category->create(
+			[
+				'name'   => 'child',
+				'parent' => $parent_id,
+			]
+		);
 
 		codecept_debug( get_term_link( $child_id, 'category' ) );
 
@@ -523,50 +550,61 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => get_term_link( $child_id ),
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => get_term_link( $child_id ),
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 'Category', $actual['data']['nodeByUri']['__typename'] );
 		$this->assertEquals( 'child', $actual['data']['nodeByUri']['name'] );
-
 	}
 
 	public function testCustomTaxonomyChildTermQueryByUri() {
 
-		register_taxonomy( 'news', 'post', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'NewsCategory',
-			'graphql_plural_name' => 'NewsCategories',
-			'rewrite'             => true,
-		]);
+		register_taxonomy(
+			'news',
+			'post',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'NewsCategory',
+				'graphql_plural_name' => 'NewsCategories',
+				'rewrite'             => true,
+			]
+		);
 
 		flush_rewrite_rules();
 
 		$this->clearSchema();
 
-		$parent_id = $this->factory()->term->create([
-			'taxonomy' => 'news',
-			'name'     => 'parent',
-		]);
+		$parent_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'news',
+				'name'     => 'parent',
+			]
+		);
 
-		$child_id = $this->factory()->term->create([
-			'taxonomy' => 'news',
-			'name'     => 'child',
-			'parent'   => $parent_id,
-		]);
+		$child_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'news',
+				'name'     => 'child',
+				'parent'   => $parent_id,
+			]
+		);
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'news',
-			'post_status' => 'publish',
-			'post_title'  => 'Test News Post',
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'news',
+				'post_status' => 'publish',
+				'post_title'  => 'Test News Post',
+			]
+		);
 
 		wp_set_object_terms( $post_id, [ $child_id ], 'news' );
 
@@ -598,20 +636,21 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri_string' => $link,
-				'uri_id'     => $link,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri_string' => $link,
+					'uri_id'     => $link,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $link, $actual['data']['nodeByUri']['link'] );
 		$this->assertSame( $link, $actual['data']['newsCategory']['link'] );
 
 		unregister_taxonomy( 'news' );
-
 	}
 
 	
@@ -626,37 +665,45 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 
 		// Test page.
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['category'] );
 
 		// Test different term.
-		$term_id = $this->factory()->term->create([
-			'taxonomy' => 'post_tag',
-		]);
+		$term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'post_tag',
+			]
+		);
 
 		$uri = wp_make_link_relative( get_term_link( $term_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['category'] );
@@ -664,12 +711,14 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test User.
 		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['category'] );
@@ -677,27 +726,33 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test post type archive
 		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['category'] );
 	}
 
 	public function testUnicodeSlugsAreDecoded() {
-		$term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-			'name'     => 'חדשות',
-		]);
-		$child_term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-			'parent'   => $term_id,
-			'name' => 'גרף קיו אל',
-		]);
+		$term_id       = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'חדשות',
+			]
+		);
+		$child_term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'parent'   => $term_id,
+				'name'     => 'גרף קיו אל',
+			]
+		);
 
 		$query = '
 			query CategoryByUri($id: ID!) {
@@ -714,12 +769,14 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$uri = wp_make_link_relative( get_term_link( $term_id ) );
 		$uri = urldecode( $uri ); // We want to pass it with i18n chars.
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'category', $actual['data'] );
@@ -730,17 +787,18 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$child_term_uri = wp_make_link_relative( get_term_link( $child_term_id ) );
 		$child_term_uri = urldecode( $child_term_uri ); // We want to pass it with i18n chars.
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $child_term_uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $child_term_uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'category', $actual['data'] );
 		$this->assertArrayHasKey( 'slug', $actual['data']['category'] );
 		$this->assertSame( 'גרף-קיו-אל', $actual['data']['category']['slug'] );
 	}
-
 }

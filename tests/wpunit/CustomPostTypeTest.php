@@ -33,16 +33,19 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$this->post_id = $this->factory()->post->create([
-			'post_type'   => 'cpt_test_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for CustomPostTypeTest',
-		]);
+		$this->post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'cpt_test_cpt',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for CustomPostTypeTest',
+			]
+		);
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
-
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -54,7 +57,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCustomPostType() {
 
@@ -78,12 +81,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $this->post_id,
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->post_id,
+				],
+			]
+		);
 
 		// Since the post type was registered as not-public, a public user should
 		// not be able to query the content.
@@ -95,34 +100,40 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// An authenticated user should be able to access the content
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $this->post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $this->post_id,
+				],
+			]
+		);
 
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPostBy']['bootstrapPostId'] );
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['nodes'][0]['bootstrapPostId'] );
 		$this->assertEquals( $this->post_id, $actual['data']['bootstrapPosts']['edges'][0]['node']['bootstrapPostId'] );
-
 	}
 
 	public function testQueryNonPublicPostTypeThatIsPubliclyQueryable() {
 
-		register_post_type( 'cpt_test_private_cpt', [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'notPublic',
-			'graphql_plural_name' => 'notPublics',
-			'public'              => false,
-			'publicly_queryable'  => true,
-		]);
+		register_post_type(
+			'cpt_test_private_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'notPublic',
+				'graphql_plural_name' => 'notPublics',
+				'public'              => false,
+				'publicly_queryable'  => true,
+			]
+		);
 
-		$database_id = $this->factory()->post->create([
-			'post_type'   => 'cpt_test_private_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPubliclyQueryable',
-		]);
+		$database_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'cpt_test_private_cpt',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryNonPublicPostTypeThatIsPubliclyQueryable',
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
@@ -145,12 +156,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $database_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $database_id,
+				],
+			]
+		);
 
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
 		$this->assertEquals( $database_id, $actual['data']['notPublics']['nodes'][0]['databaseId'] );
@@ -159,12 +172,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// make sure the query is from a logged in user
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $database_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $database_id,
+				],
+			]
+		);
 
 		// A logged in user should be able to see the data as well!
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -176,19 +191,24 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testQueryPublicPostTypeThatIsNotPubliclyQueryable() {
 
-		register_post_type( 'cpt_test_private_cpt', [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'notPublic',
-			'graphql_plural_name' => 'notPublics',
-			'public'              => true,
-			'publicly_queryable'  => false,
-		]);
+		register_post_type(
+			'cpt_test_private_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'notPublic',
+				'graphql_plural_name' => 'notPublics',
+				'public'              => true,
+				'publicly_queryable'  => false,
+			]
+		);
 
-		$database_id = $this->factory()->post->create([
-			'post_type'   => 'cpt_test_private_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPubliclyQueryable',
-		]);
+		$database_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'cpt_test_private_cpt',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryPublicPostTypeThatIsNotPubliclyQueryable',
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
@@ -211,12 +231,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $database_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $database_id,
+				],
+			]
+		);
 
 		// Since the post_type is public we should see data, even if it's set to publicly_queryable=>false, as public=>true should trump publicly_queryable
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -228,19 +250,24 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testQueryNonPublicPostTypeThatIsNotPubliclyQueryable() {
 
-		register_post_type( 'cpt_test_private_cpt', [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'notPublic',
-			'graphql_plural_name' => 'notPublics',
-			'public'              => false,
-			'publicly_queryable'  => false,
-		]);
+		register_post_type(
+			'cpt_test_private_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'notPublic',
+				'graphql_plural_name' => 'notPublics',
+				'public'              => false,
+				'publicly_queryable'  => false,
+			]
+		);
 
-		$database_id = $this->factory()->post->create([
-			'post_type'   => 'cpt_test_private_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPubliclyQueryable',
-		]);
+		$database_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'cpt_test_private_cpt',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryNonPublicPostTypeThatIsNotPubliclyQueryable',
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
@@ -263,12 +290,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// make sure the query is from a public user
 		wp_set_current_user( 0 );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $database_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $database_id,
+				],
+			]
+		);
 
 		// Since the post_type is public=>false / publicly_queryable=>false, the content should be null for a public user
 		$this->assertEmpty( $actual['data']['contentNode'] );
@@ -278,12 +307,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Log the user in and do the request again
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $database_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $database_id,
+				],
+			]
+		);
 
 		// The admin user should be able to see the content
 		$this->assertEquals( $database_id, $actual['data']['contentNode']['databaseId'] );
@@ -316,19 +347,23 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules();
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt_by_uri',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryCustomPostTypeByUri',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'test_cpt_by_uri',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryCustomPostTypeByUri',
+				'post_author' => $this->admin,
+			]
+		);
 
-		$child_post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt_by_uri',
-			'post_status' => 'publish',
-			'post_title'  => 'Child Post for QueryCustomPostTypeByUri',
-			'post_author' => $this->admin,
-		]);
+		$child_post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'test_cpt_by_uri',
+				'post_status' => 'publish',
+				'post_title'  => 'Child Post for QueryCustomPostTypeByUri',
+				'post_author' => $this->admin,
+			]
+		);
 
 		WPGraphQL::show_in_graphql();
 
@@ -346,12 +381,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $uri );
 
 		// Query a parent (top-level) post by URI
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -361,12 +398,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$child_uri = get_permalink( $child_post_id );
 
 		// Query a child post of CPT by uri
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $child_uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $child_uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -374,7 +413,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $child_post_id, $actual['data']['testCpt']['databaseId'] );
 
 		unregister_post_type( 'test_cpt_by_uri' );
-
 	}
 
 	public function testQueryCustomPostTypeByDatabaseId() {
@@ -400,19 +438,23 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules();
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt_by_uri',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryCustomPostTypeByDatabaseId',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'test_cpt_by_uri',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryCustomPostTypeByDatabaseId',
+				'post_author' => $this->admin,
+			]
+		);
 
-		$child_post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt_by_uri',
-			'post_status' => 'publish',
-			'post_title'  => 'Child Post for QueryCustomPostTypeByDatabaseId',
-			'post_author' => $this->admin,
-		]);
+		$child_post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'test_cpt_by_uri',
+				'post_status' => 'publish',
+				'post_title'  => 'Child Post for QueryCustomPostTypeByDatabaseId',
+				'post_author' => $this->admin,
+			]
+		);
 
 		WPGraphQL::show_in_graphql();
 
@@ -426,12 +468,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		// Query a parent (top-level) post by DatabaseId
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -439,12 +483,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $post_id, $actual['data']['testCpt']['databaseId'] );
 
 		// Query a child post of CPT by ID
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $child_post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $child_post_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -452,7 +498,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame( $child_post_id, $actual['data']['testCpt']['databaseId'] );
 
 		unregister_post_type( 'test_cpt_by_uri' );
-
 	}
 
 	public function testQueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
@@ -468,12 +513,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'test_cpt_by_uri',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'test_cpt_by_uri',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryCustomPostTypeWithSameValueForGraphqlSingleNameAndGraphqlPluralName',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_POSTS( $id: ID! ) {
@@ -494,12 +541,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -513,12 +562,15 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterPostTypeWithoutRootField() {
 
-		register_post_type( 'non_root_field', [
-			'show_in_graphql'             => true,
-			'graphql_single_name'         => 'NonRoot',
-			'graphql_plural_name'         => 'NonRoots',
-			'graphql_register_root_field' => false,
-		]);
+		register_post_type(
+			'non_root_field',
+			[
+				'show_in_graphql'             => true,
+				'graphql_single_name'         => 'NonRoot',
+				'graphql_plural_name'         => 'NonRoots',
+				'graphql_register_root_field' => false,
+			]
+		);
 
 		$query = '
 		query GetType( $typeName: String! ){
@@ -531,12 +583,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'RootQuery',
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'RootQuery',
+				],
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -555,17 +609,19 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'nonRoot', $names );
 
 		unregister_post_type( 'non_root_field' );
-
 	}
 
 	public function testRegisterPostTypeWithoutRootConnection() {
 
-		register_post_type( 'non_root_connection', [
-			'show_in_graphql'                  => true,
-			'graphql_single_name'              => 'NonRoot',
-			'graphql_plural_name'              => 'NonRoots',
-			'graphql_register_root_connection' => false,
-		]);
+		register_post_type(
+			'non_root_connection',
+			[
+				'show_in_graphql'                  => true,
+				'graphql_single_name'              => 'NonRoot',
+				'graphql_plural_name'              => 'NonRoots',
+				'graphql_register_root_connection' => false,
+			]
+		);
 
 		$query = '
 		query GetType( $typeName: String! ){
@@ -578,12 +634,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'RootQuery',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'RootQuery',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
@@ -600,40 +658,47 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'nonRoots', $names );
 
 		unregister_post_type( 'non_root_connection' );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testRegisterCustomPostTypeWithCustomInterfaces() {
 
 		$value = uniqid( 'testField', true );
 
-		register_graphql_interface_type( 'TestInterface', [
-			'fields' => [
-				'testField' => [
-					'type'    => 'String',
-					'resolve' => function () use ( $value ) {
-						return $value;
-					},
+		register_graphql_interface_type(
+			'TestInterface',
+			[
+				'fields' => [
+					'testField' => [
+						'type'    => 'String',
+						'resolve' => static function () use ( $value ) {
+							return $value;
+						},
+					],
 				],
-			],
-		]);
+			]
+		);
 
-		register_post_type( 'custom_interface', [
-			'show_in_graphql'     => true,
-			'public'              => true,
-			'graphql_single_name' => 'CustomInterface',
-			'graphql_plural_name' => 'CustomInterfaces',
-			'graphql_interfaces'  => [ 'TestInterface' ],
-		]);
+		register_post_type(
+			'custom_interface',
+			[
+				'show_in_graphql'     => true,
+				'public'              => true,
+				'graphql_single_name' => 'CustomInterface',
+				'graphql_plural_name' => 'CustomInterfaces',
+				'graphql_interfaces'  => [ 'TestInterface' ],
+			]
+		);
 
-		$custom_interface_post_id = self::factory()->post->create([
-			'post_type'   => 'custom_interface',
-			'post_status' => 'publish',
-			'post_title'  => 'test',
-		]);
+		$custom_interface_post_id = self::factory()->post->create(
+			[
+				'post_type'   => 'custom_interface',
+				'post_status' => 'publish',
+				'post_title'  => 'test',
+			]
+		);
 
 		$query = '
 		query getCustomInterfacePost($id:ID!){
@@ -647,19 +712,24 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $custom_interface_post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $custom_interface_post_id,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'customInterface.__typename', 'CustomInterface' ),
-			$this->expectedField( 'customInterface.databaseId', $custom_interface_post_id ),
-			$this->expectedField( 'customInterface.testField', $value ),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'customInterface.__typename', 'CustomInterface' ),
+				$this->expectedField( 'customInterface.databaseId', $custom_interface_post_id ),
+				$this->expectedField( 'customInterface.testField', $value ),
+			]
+		);
 
 		// now we want to query type from the schema and assert that it
 		// has the interface applied and the field from the interface
@@ -680,65 +750,94 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'CustomInterface',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'CustomInterface',
+				],
+			]
+		);
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedObject( '__type.fields', [
-				'name' => 'testField',
-			]),
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'TestInterface',
-			]),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedObject(
+					'__type.fields',
+					[
+						'name' => 'testField',
+					]
+				),
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'TestInterface',
+					]
+				),
+			]
+		);
 
 		// Now, query for the TestInterface type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'TestInterface',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'TestInterface',
+				],
+			]
+		);
 
 		// assert that it has the testField field, and that the CustomInterface is the
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedObject( '__type.fields', [
-				'name' => 'testField',
-			]),
-			$this->expectedObject( '__type.possibleTypes', [
-				'name' => 'CustomInterface',
-			]),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedObject(
+					'__type.fields',
+					[
+						'name' => 'testField',
+					]
+				),
+				$this->expectedObject(
+					'__type.possibleTypes',
+					[
+						'name' => 'CustomInterface',
+					]
+				),
+			]
+		);
 
 		// assert that the only Type that implements the TestInterface is the CustomInterface type
 		// i.e. it hasn't accidentally leaked into being applied to other post types
-		$this->assertEqualSets( [
-			[ 'name' => 'CustomInterface' ],
-		], $actual['data']['__type']['possibleTypes'] );
+		$this->assertEqualSets(
+			[
+				[ 'name' => 'CustomInterface' ],
+			],
+			$actual['data']['__type']['possibleTypes']
+		);
 
 		unregister_post_type( 'custom_interface' );
-
 	}
 
 	public function testRegisterCustomPostTypeWithExcludedInterfaces() {
-		register_post_type( 'removed_interfaces', [
-			'show_in_graphql'            => true,
-			'public'                     => true,
-			'supports'                   => [ 'title', 'author' ],
-			'graphql_single_name'        => 'CustomInterfaceExcluded',
-			'graphql_plural_name'        => 'CustomInterfacesExcluded',
-			'graphql_exclude_interfaces' => [ 'NodeWithAuthor', 'NodeWithTitle' ],
-		]);
+		register_post_type(
+			'removed_interfaces',
+			[
+				'show_in_graphql'            => true,
+				'public'                     => true,
+				'supports'                   => [ 'title', 'author' ],
+				'graphql_single_name'        => 'CustomInterfaceExcluded',
+				'graphql_plural_name'        => 'CustomInterfacesExcluded',
+				'graphql_exclude_interfaces' => [ 'NodeWithAuthor', 'NodeWithTitle' ],
+			]
+		);
 
-		$post_id = self::factory()->post->create([
-			'post_type'   => 'removed_interfaces',
-			'post_status' => 'publish',
-			'post_title'  => 'test',
-		]);
+		$post_id = self::factory()->post->create(
+			[
+				'post_type'   => 'removed_interfaces',
+				'post_status' => 'publish',
+				'post_title'  => 'test',
+			]
+		);
 
 		$query = '
 		query getCustomInterfaceExcludedPost($id:ID!){
@@ -749,12 +848,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post_id,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -780,68 +881,89 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'CustomInterfaceExcluded',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'CustomInterfaceExcluded',
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertNotContains( $actual['data']['__type']['interfaces'], [
-			[ 'name' => 'NodeWithAuthor' ],
-			[ 'name' => 'NodeWithTitle' ],
-		] );
-		$this->assertNotContains( $actual['data']['__type']['fields'], [
-			[ 'name' => 'authorDatabaseId' ],
-			[ 'name' => 'title' ],
-		]);
+		$this->assertNotContains(
+			$actual['data']['__type']['interfaces'],
+			[
+				[ 'name' => 'NodeWithAuthor' ],
+				[ 'name' => 'NodeWithTitle' ],
+			]
+		);
+		$this->assertNotContains(
+			$actual['data']['__type']['fields'],
+			[
+				[ 'name' => 'authorDatabaseId' ],
+				[ 'name' => 'title' ],
+			]
+		);
 
 		// Now, query for the NodeWithAuthor type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'NodeWithAuthor',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'NodeWithAuthor',
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
-			[ 'name' => 'CustomInterfaceExcluded' ],
-		] );
+		$this->assertNotContains(
+			$actual['data']['__type']['possibleTypes'],
+			[
+				[ 'name' => 'CustomInterfaceExcluded' ],
+			]
+		);
 
 		// Now, query for the NodeWithAuthor type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'NodeWithTitle',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'NodeWithTitle',
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
-			[ 'name' => 'CustomInterfaceExcluded' ],
-		] );
+		$this->assertNotContains(
+			$actual['data']['__type']['possibleTypes'],
+			[
+				[ 'name' => 'CustomInterfaceExcluded' ],
+			]
+		);
 
 		unregister_post_type( 'removed_interfaces' );
 	}
 
 	public function testRegisterCustomPostTypeWithConnections() {
 
-		register_post_type( 'with_connections', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithConnection',
-			'graphql_plural_name' => 'WithConnections',
-			'graphql_connections' => [
-				'connectionFieldName' => [
-					'toType'  => 'Post',
-					'resolve' => function () {
-						return null;
-					},
+		register_post_type(
+			'with_connections',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithConnection',
+				'graphql_plural_name' => 'WithConnections',
+				'graphql_connections' => [
+					'connectionFieldName' => [
+						'toType'  => 'Post',
+						'resolve' => static function () {
+							return null;
+						},
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$query = '
 		{
@@ -859,9 +981,11 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$response = $this->graphql([
-			'query' => $query,
-		]);
+		$response = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// assert that the query is valid
 		$this->assertIsValidQueryResponse( $response );
@@ -879,12 +1003,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		// query the WithConnection type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'WithConnection',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'WithConnection',
+				],
+			]
+		);
 
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 		codecept_debug( [ 'names' => $names ] );
@@ -897,18 +1023,20 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertContains( 'connectionFieldName', $names );
 
 		unregister_post_type( 'with_connections' );
-
 	}
 
 	public function testRegisterCustomPostTypeWithExcludedConnections() {
-		register_post_type( 'missing_connections', [
-			'public'                      => true,
-			'show_in_graphql'             => true,
-			'graphql_single_name'         => 'ExcludedConnection',
-			'graphql_plural_name'         => 'ExcludedConnections',
-			'supports'                    => [ 'comments', 'revisions' ],
-			'graphql_exclude_connections' => [ 'comments', 'revisions' ],
-		]);
+		register_post_type(
+			'missing_connections',
+			[
+				'public'                      => true,
+				'show_in_graphql'             => true,
+				'graphql_single_name'         => 'ExcludedConnection',
+				'graphql_plural_name'         => 'ExcludedConnections',
+				'supports'                    => [ 'comments', 'revisions' ],
+				'graphql_exclude_connections' => [ 'comments', 'revisions' ],
+			]
+		);
 
 		$query = '
 		{
@@ -950,32 +1078,41 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 
 		// Test with interface.
-		register_post_type( 'with_interface_kind', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithInterfaceKind',
-			'graphql_plural_name' => 'WithInterfaceKinds',
-			'graphql_kind'        => 'interface',
-		]);
+		register_post_type(
+			'with_interface_kind',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithInterfaceKind',
+				'graphql_plural_name' => 'WithInterfaceKinds',
+				'graphql_kind'        => 'interface',
+			]
+		);
 
-		register_post_type( 'with_union_kind_one', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithUnionKindOne',
-			'graphql_plural_name' => 'WithUnionKindOnes',
-			'graphql_kind'        => 'union',
-		]);
+		register_post_type(
+			'with_union_kind_one',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithUnionKindOne',
+				'graphql_plural_name' => 'WithUnionKindOnes',
+				'graphql_kind'        => 'union',
+			]
+		);
 
 
 		// Test with union, where a resolve type is set, but no graphql_union_types.
-		register_post_type( 'with_union_kind_two', [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithUnionKindTwo',
-			'graphql_plural_name'  => 'WithUnionKindTwos',
-			'graphql_kind'         => 'union',
-			'graphql_resolve_type' => $this->resolve_type(),
-		]);
+		register_post_type(
+			'with_union_kind_two',
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKindTwo',
+				'graphql_plural_name'  => 'WithUnionKindTwos',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+			]
+		);
 
 		// Don't clutter up the log.
 		$actual = graphql( [ 'query' => $query ] );
@@ -984,7 +1121,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEmpty( $actual['data']['contentTypes']['nodes'] );
 
 		$error_object_names = array_map(
-			function ( $obj ){
+			static function ( $obj ) {
 				return $obj->name;
 			},
 			array_column( $actual['extensions']['debug'], 'registered_post_type_object' )
@@ -1002,58 +1139,71 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterCustomPostTypeWithInterfaceKind() {
-		register_post_type( 'with_interface_kind', [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithInterfaceKind',
-			'graphql_plural_name'  => 'WithInterfaceKinds',
-			'graphql_kind'         => 'interface',
-			'graphql_resolve_type' => $this->resolve_type(),
-		]);
-
-		register_graphql_object_type( 'ChildTypeOne', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'WithInterfaceKind' ],
-			'fields' => [
-				'isTypeOne' => [
-					'type' => 'Boolean',
-					'resolve' => function( $post ) {
-						return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
-					}
-				]
+		register_post_type(
+			'with_interface_kind',
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithInterfaceKind',
+				'graphql_plural_name'  => 'WithInterfaceKinds',
+				'graphql_kind'         => 'interface',
+				'graphql_resolve_type' => $this->resolve_type(),
 			]
-		]);
+		);
 
-		register_graphql_object_type( 'ChildTypeTwo', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'WithInterfaceKind' ],
-			'fields' => [
-				'isTypeTwo' => [
-					'type' => 'Boolean',
-					'resolve' => function( $post ) {
-						return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
-					}
-				]
+		register_graphql_object_type(
+			'ChildTypeOne',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'WithInterfaceKind' ],
+				'fields'          => [
+					'isTypeOne' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $post ) {
+							return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
+						},
+					],
+				],
 			]
-		]);
+		);
 
-		$cpt_one_id = $this->factory()->post->create([
-			'post_type'   => 'with_interface_kind',
-			'post_status' => 'publish',
-			'post_title'  => 'Interface child 1',
-			'meta_input' => [
-				'child_type' => 'ChildTypeOne'
-			],
-		]);
+		register_graphql_object_type(
+			'ChildTypeTwo',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'WithInterfaceKind' ],
+				'fields'          => [
+					'isTypeTwo' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $post ) {
+							return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
+						},
+					],
+				],
+			]
+		);
 
-		$cpt_two_id = $this->factory()->post->create([
-			'post_type'   => 'with_interface_kind',
-			'post_status' => 'publish',
-			'post_title'  => 'Interface child 2',
-			'meta_input' => [
-				'child_type' => 'ChildTypeTwo'
-			],
-		]);
+		$cpt_one_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'with_interface_kind',
+				'post_status' => 'publish',
+				'post_title'  => 'Interface child 1',
+				'meta_input'  => [
+					'child_type' => 'ChildTypeOne',
+				],
+			]
+		);
+
+		$cpt_two_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'with_interface_kind',
+				'post_status' => 'publish',
+				'post_title'  => 'Interface child 2',
+				'meta_input'  => [
+					'child_type' => 'ChildTypeTwo',
+				],
+			]
+		);
 
 		$this->clearSchema();
 
@@ -1088,62 +1238,75 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterCustomPostTypeWithUnionKind() {
-		register_post_type( 'with_union_kind', [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithUnionKind',
-			'graphql_plural_name'  => 'WithUnionKinds',
-			'graphql_kind'         => 'union',
-			'graphql_resolve_type' => $this->resolve_type(),
-			'graphql_union_types'  => [
-				'ChildTypeOne',
-				'ChildTypeTwo',
-			],
-		]);
-
-		register_graphql_object_type( 'ChildTypeOne', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'ContentNode' ],
-			'fields' => [
-				'isTypeOne' => [
-					'type' => 'Boolean',
-					'resolve' => function( $post ) {
-						return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
-					}
-				]
+		register_post_type(
+			'with_union_kind',
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKind',
+				'graphql_plural_name'  => 'WithUnionKinds',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+				'graphql_union_types'  => [
+					'ChildTypeOne',
+					'ChildTypeTwo',
+				],
 			]
-		]);
+		);
 
-		register_graphql_object_type( 'ChildTypeTwo', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'ContentNode' ],
-			'fields' => [
-				'isTypeTwo' => [
-					'type' => 'Boolean',
-					'resolve' => function( $post ) {
-						return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
-					}
-				]
+		register_graphql_object_type(
+			'ChildTypeOne',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'ContentNode' ],
+				'fields'          => [
+					'isTypeOne' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $post ) {
+							return 'ChildTypeOne' === get_post_meta( $post->databaseId, 'child_type', true );
+						},
+					],
+				],
 			]
-		]);
+		);
 
-		$cpt_one_id = $this->factory()->post->create([
-			'post_type'   => 'with_union_kind',
-			'post_status' => 'publish',
-			'post_title'  => 'Union child 1',
-			'meta_input' => [
-				'child_type' => 'ChildTypeOne'
-			],
-		]);
+		register_graphql_object_type(
+			'ChildTypeTwo',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'ContentNode' ],
+				'fields'          => [
+					'isTypeTwo' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $post ) {
+							return 'ChildTypeTwo' === get_post_meta( $post->databaseId, 'child_type', true );
+						},
+					],
+				],
+			]
+		);
 
-		$cpt_two_id = $this->factory()->post->create([
-			'post_type'   => 'with_union_kind',
-			'post_status' => 'publish',
-			'post_title'  => 'Union child 2',
-			'meta_input' => [
-				'child_type' => 'ChildTypeTwo'
-			],
-		]);
+		$cpt_one_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'with_union_kind',
+				'post_status' => 'publish',
+				'post_title'  => 'Union child 1',
+				'meta_input'  => [
+					'child_type' => 'ChildTypeOne',
+				],
+			]
+		);
+
+		$cpt_two_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'with_union_kind',
+				'post_status' => 'publish',
+				'post_title'  => 'Union child 2',
+				'meta_input'  => [
+					'child_type' => 'ChildTypeTwo',
+				],
+			]
+		);
 
 		$this->clearSchema();
 
@@ -1179,7 +1342,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function resolve_type() {
-		return function ( $value ) {
+		return static function ( $value ) {
 			$type_registry = WPGraphQL::get_type_registry();
 
 			$type = null;
@@ -1195,38 +1358,43 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testExcludeCreateMutation() {
 
-		register_post_type( 'without_create', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutCreate',
-			'graphql_plural_name' => 'WithoutCreates',
-			'graphql_exclude_mutations' => [ 'create' ],
-		]);
+		register_post_type(
+			'without_create',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutCreate',
+				'graphql_plural_name'       => 'WithoutCreates',
+				'graphql_exclude_mutations' => [ 'create' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
-		$this->assertContains(  'deleteWithoutCreate', $field_names );
-		$this->assertContains(  'updateWithoutCreate', $field_names );
+		$this->assertContains( 'deleteWithoutCreate', $field_names );
+		$this->assertContains( 'updateWithoutCreate', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'createWithoutCreate', $field_names );
+		$this->assertNotContains( 'createWithoutCreate', $field_names );
 
 		unregister_post_type( 'without_create' );
 	}
@@ -1234,127 +1402,142 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testExcludeDeleteMutation() {
 
 
-		register_post_type( 'without_delete', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutDelete',
-			'graphql_plural_name' => 'WithoutDeletes',
-			'graphql_exclude_mutations' => [ 'delete' ],
-		]);
+		register_post_type(
+			'without_delete',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutDelete',
+				'graphql_plural_name'       => 'WithoutDeletes',
+				'graphql_exclude_mutations' => [ 'delete' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
-		$this->assertContains(  'createWithoutDelete', $field_names );
-		$this->assertContains(  'updateWithoutDelete', $field_names );
+		$this->assertContains( 'createWithoutDelete', $field_names );
+		$this->assertContains( 'updateWithoutDelete', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'deleteWithoutDelete', $field_names );
+		$this->assertNotContains( 'deleteWithoutDelete', $field_names );
 
 		unregister_post_type( 'without_delete' );
-
 	}
 
 	public function testExcludeUpdateMutation() {
 
 
-		register_post_type( 'without_update', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutUpdate',
-			'graphql_plural_name' => 'WithoutUpdates',
-			'graphql_exclude_mutations' => [ 'update' ],
-		]);
+		register_post_type(
+			'without_update',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutUpdate',
+				'graphql_plural_name'       => 'WithoutUpdates',
+				'graphql_exclude_mutations' => [ 'update' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
-		$this->assertContains(  'createWithoutUpdate', $field_names );
-		$this->assertContains(  'deleteWithoutUpdate', $field_names );
+		$this->assertContains( 'createWithoutUpdate', $field_names );
+		$this->assertContains( 'deleteWithoutUpdate', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'updateWithoutUpdate', $field_names );
+		$this->assertNotContains( 'updateWithoutUpdate', $field_names );
 
 		unregister_post_type( 'without_update' );
-
 	}
 
 	public function testRegisterPostTypeWithGraphqlFields() {
 
-		register_post_type( 'graphql_fields', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'GraphqlField',
-			'graphql_plural_name' => 'GraphqlFields',
+		register_post_type(
+			'graphql_fields',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'GraphqlField',
+				'graphql_plural_name' => 'GraphqlFields',
 
-			# we're testing that this field was added to the Schema when
-			# registering a post type
-			'graphql_fields' => [
-				'testField' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-			           return 'test value';
-					}
-				]
+				// we're testing that this field was added to the Schema when
+				// registering a post type
+				'graphql_fields'      => [
+					'testField' => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
+				],
 			]
-		] );
+		);
 
 		$this->clearSchema();
 
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'graphql_fields',
-			'post_status' => 'publish',
-			'post_title' => 'Test GraphQL Fields',
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'graphql_fields',
+				'post_status' => 'publish',
+				'post_title'  => 'Test GraphQL Fields',
+			]
+		);
 
 		$query = '
 		{
-		  graphqlFields {
-		    nodes {
-		      id
-		      databaseId
-		      title
-		      testField
-		    }
-		  }
+			graphqlFields {
+				nodes {
+					id
+					databaseId
+					title
+					testField
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'test value', $actual['data']['graphqlFields']['nodes'][0]['testField'] );
@@ -1362,53 +1545,57 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_post( $post_id );
 		unregister_post_type( 'graphql_fields' );
-
 	}
 
 	public function testRegisterPostTypeWithGraphqlExcludeFields() {
 
-		register_post_type( 'gql_exclude_fields', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'GraphqlExcludeField',
-			'graphql_plural_name' => 'GraphqlExcludeFields',
+		register_post_type(
+			'gql_exclude_fields',
+			[
+				'public'                 => true,
+				'show_in_graphql'        => true,
+				'graphql_single_name'    => 'GraphqlExcludeField',
+				'graphql_plural_name'    => 'GraphqlExcludeFields',
 
-			# we're testing that this field was added to the Schema when
-			# registering a post type
-			'graphql_fields' => [
-				'testField' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-						return 'test value';
-					}
+				// we're testing that this field was added to the Schema when
+				// registering a post type
+				'graphql_fields'         => [
+					'testField'    => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
+					'testFieldTwo' => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
 				],
-				'testFieldTwo' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-						return 'test value';
-					}
-				]
-			],
-			'graphql_exclude_fields' => [ 'testField' ]
-		] );
+				'graphql_exclude_fields' => [ 'testField' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"GraphqlExcludeField") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"GraphqlExcludeField") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
 
@@ -1417,47 +1604,55 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// we included 2 fields, then excluded 1
 
 		// the excluded field should not be present
-		$this->assertNotContains(  'testField', $field_names );
+		$this->assertNotContains( 'testField', $field_names );
 
 		// the included field that was not excluded should still remain
-		$this->assertContains(  'testFieldTwo', $field_names );
+		$this->assertContains( 'testFieldTwo', $field_names );
 
 		unregister_post_type( 'graphql_exclude_fields' );
-
 	}
 
 	public function testGraphqlSingleNameWithUnderscoresIsAllowed() {
 
-		register_post_type( 'indicator', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'indicator',
-			'graphql_plural_name' => 'indicators',
-		] );
+		register_post_type(
+			'indicator',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'indicator',
+				'graphql_plural_name' => 'indicators',
+			]
+		);
 
-		register_taxonomy( 'indicator_category', 'indicator', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'indicator_category',
-			'graphql_plural_name' => 'indicator_categories',
-		] );
+		register_taxonomy(
+			'indicator_category',
+			'indicator',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'indicator_category',
+				'graphql_plural_name' => 'indicator_categories',
+			]
+		);
 
 		$query = '
 		query GetType( $name: String! ){
-		  __type(name:$name) {
-		    fields(includeDeprecated:true) {
-		      name
-		    }
-		  }
+			__type(name:$name) {
+				fields(includeDeprecated:true) {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'name' => 'Indicator_category'
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'name' => 'Indicator_category',
+				],
 			]
-		]);
+		);
 
 		$this->assertNotContains( 'errors', $actual );
 
@@ -1468,11 +1663,10 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $field_names );
 
 		// the included field that was not excluded should still remain
-		$this->assertContains(  'indicator_categoryId', $field_names );
+		$this->assertContains( 'indicator_categoryId', $field_names );
 
 		unregister_post_type( 'indicator' );
 		unregister_taxonomy( 'indicator_category' );
-
 	}
 
 	public function testRegisterCustomPostTypeWithUnderscoresInGraphqlNameHasValidSchema() {
@@ -1490,7 +1684,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'rewrite'             => [ 'slug' => 'casinos' ],
 				'supports'            => [ 'editor', 'thumbnail', 'title' ],
 				'label'               => _( 'With Underscores' ),
-				'map_meta_cap'        => true
+				'map_meta_cap'        => true,
 			];
 
 			// register the post type with underscore in the graphql_single_name / graphql_plural_name
@@ -1505,15 +1699,17 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 			// Assert true upon success.
 			$this->assertTrue( true );
-
 	}
 
 	public function testRegisterPostTypeWithoutGraphqlPluralNameIsValid() {
 
-		register_post_type( 'cpt_no_plural', [
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'noPlural'
-		]);
+		register_post_type(
+			'cpt_no_plural',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'noPlural',
+			]
+		);
 
 		$this->clearSchema();
 
@@ -1527,16 +1723,21 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$request = new \WPGraphQL\Request();
 		$request->schema->assertValid();
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY )
-		]);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY ),
+			]
+		);
 
 		// Cleanup.
 		unregister_post_type( 'cpt_no_plural' );
@@ -1545,11 +1746,14 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterPostTypeWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
-		register_post_type( 'cpt_no_single_plural', [
-			'show_in_graphql' => true,
+		register_post_type(
+			'cpt_no_single_plural',
+			[
+				'show_in_graphql' => true,
 			// no graphql_single_name
 			// no graphql_plural_name
-		]);
+			]
+		);
 
 		// assert that the schema is still valid, even though the tax
 		// didn't provide the single/plural name (it will be left out of the schema)
@@ -1563,34 +1767,40 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {
 
-		register_post_type( 'test_events', [
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'test_event',
-			'graphql_plural_name' => 'test_events'
-		]);
+		register_post_type(
+			'test_events',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'test_event',
+				'graphql_plural_name' => 'test_events',
+			]
+		);
 
 		$query = '
 		{
-		  testEvents {
-		    nodes {
-		      __typename
-		      id
-		    }
-		  }
+			testEvents {
+				nodes {
+					__typename
+					id
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// ensure the query succeeds without error
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testEvents.nodes', [] )
-		]);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'testEvents.nodes', [] ),
+			]
+		);
 
 		unregister_post_type( 'test_events' );
-
 	}
-
 }

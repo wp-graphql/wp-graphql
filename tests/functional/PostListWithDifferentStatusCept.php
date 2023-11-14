@@ -6,17 +6,19 @@ $I->wantTo( 'Get posts with different post_status' );
 /**
  * Clear posts table.
  */
-$I->dontHavePostInDatabase([], true);
+$I->dontHavePostInDatabase( [], true );
 
-$test_posts_statuses = ['publish', 'draft', 'future'];
-foreach ($test_posts_statuses as $post_status) {
+$test_posts_statuses = [ 'publish', 'draft', 'future' ];
+foreach ( $test_posts_statuses as $post_status ) {
 	// Add post for each type.
-	$I->havePostInDatabase( [
-		'post_type'    => 'post',
-		'post_status'  => $post_status,
-		'post_title'   => "test {$post_status} post",
-		'post_content' => "test {$post_status} content"
-	] );
+	$I->havePostInDatabase(
+		[
+			'post_type'    => 'post',
+			'post_status'  => $post_status,
+			'post_title'   => "test {$post_status} post",
+			'post_content' => "test {$post_status} content",
+		]
+	);
 }
 
 /**
@@ -28,19 +30,24 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
  * Query for posts with all 3 statuses. Since it's a public request, we should
  * ONLY get the published post in response.
  */
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => '
 	{
 		posts( where: { stati: [ PUBLISH, DRAFT, FUTURE ] } ){
 			edges {
 				node {
-				    title
+						title
 					status
 				}
 			}
 		}
-	}'
-] ) );
+	}',
+		]
+	)
+);
 
 
 $I->seeResponseCodeIs( 200 );

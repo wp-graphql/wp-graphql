@@ -23,21 +23,42 @@ class EnqueuedScript {
 				'description' => __( 'Script enqueued by the CMS', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 				'fields'      => [
-					'id'      => [
-						'type'    => [
-							'non_null' => 'ID',
-						],
-						'resolve' => static function ( $asset ) {
+					'id'           => [
+						'type'        => [ 'non_null' => 'ID' ],
+						'description' => __( 'The global ID of the enqueued script', 'wp-graphql' ),
+						'resolve'     => static function ( $asset ) {
 							return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 						},
 					],
-					'src'     => [
-						'resolve' => static function ( \_WP_Dependency $script ) {
-							return ! empty( $script->src ) && is_string( $script->src ) ? $script->src : null;
+					'dependencies' => [
+						'type'        => [ 'list_of' => 'EnqueuedScript' ],
+						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+					],
+					'extraData'    => [
+						'type'        => 'String',
+						'description' => __( 'Extra data supplied to the enqueued script', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
+							if ( ! isset( $script->extra['data'] ) || ! is_string( $script->extra['data'] ) ) {
+								return null;
+							}
+
+							return $script->extra['data'];
 						},
 					],
-					'version' => [
-						'resolve' => static function ( \_WP_Dependency $script ) {
+					'strategy'     => [
+						'type'        => 'ScriptLoadingStrategyEnum',
+						'description' => __( 'The loading strategy to use on the script tag', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
+							if ( ! isset( $script->extra['strategy'] ) || ! is_string( $script->extra['strategy'] ) ) {
+								return null;
+							}
+
+							return $script->extra['strategy'];
+						},
+					],
+					'version'      => [
+						'description' => __( 'The version of the enqueued script', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
 							global $wp_scripts;
 
 							return ! empty( $script->ver ) && is_string( $script->ver ) ? (string) $script->ver : $wp_scripts->default_version;

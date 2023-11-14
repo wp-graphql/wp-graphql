@@ -1,6 +1,6 @@
 <?php
 
-class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -14,13 +14,16 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->subscriber       = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		] );
-
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->subscriber       = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -67,7 +70,6 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Return the $id of the post_object that was created
 		 */
 		return $post_id;
-
 	}
 
 	/**
@@ -98,19 +100,23 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post to set as the attachment's parent
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type' => 'post',
+			]
+		);
 
 		/**
 		 * Create an attachment with a post set as it's parent
 		 */
 		$image_description = 'some description';
-		$attachment_id     = $this->createPostObject( [
-			'post_type'    => 'attachment',
-			'post_parent'  => $post_id,
-			'post_content' => $image_description,
-		] );
+		$attachment_id     = $this->createPostObject(
+			[
+				'post_type'    => 'attachment',
+				'post_parent'  => $post_id,
+				'post_content' => $image_description,
+			]
+		);
 
 		$default_image_meta = [
 			'aperture'          => 0,
@@ -327,7 +333,6 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertEquals( 150, $sizes[0]['width'] );
 		$this->assertEquals( 'image/jpeg', $sizes[0]['mimeType'] );
 		$this->assertEquals( wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0], $sizes[0]['sourceUrl'] );
-
 	}
 
 	/**
@@ -361,7 +366,6 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertEquals( $result['data']['mediaItemBy']['mediaItemUrl'], $expected );
 		$this->assertEquals( $expected_filesize, $result['data']['mediaItemBy']['fileSize'] );
-
 	}
 
 	public function testQueryMediaItemsByMimeType() {
@@ -408,11 +412,10 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertEquals( $pdf_attachment_id, $actual['data']['mediaItems']['nodes'][0]['databaseId'] );
 		$this->assertEquals( 'application/pdf', $actual['data']['mediaItems']['nodes'][0]['mimeType'] );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryMediaItemBySourceUrl() {
 
@@ -492,7 +495,7 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$site_url   = wp_parse_url( $dir['url'] );
 		$image_path = wp_parse_url( $path );
 
-		//force the protocols to match if needed
+		// force the protocols to match if needed
 		if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
 			$path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
 		}
@@ -517,16 +520,17 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query_by_source_url,
-			'variables' => [
-				'id' => $source_url,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query_by_source_url,
+				'variables' => [
+					'id' => $source_url,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $source_url, $actual['data']['mediaItem']['sourceUrl'] );
-
 	}
 
 	/**
@@ -658,5 +662,4 @@ class MediaItemQueriesTest  extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertCount( 1, $actual_sizes );
 		$this->assertEquals( 'thumbnail', $actual_sizes[0]['name'] );
 	}
-
 }

@@ -4,7 +4,7 @@ $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Get nav menu with menu items' );
 
 // Clear posts table.
-$I->dontHavePostInDatabase([], true);
+$I->dontHavePostInDatabase( [], true );
 
 // Adding menus requires a theme.
 $I->useTheme( 'twentyseventeen' );
@@ -12,12 +12,12 @@ $I->useTheme( 'twentyseventeen' );
 // Create a menu. Note that haveMenuInDatabase returns an array of the term ID
 // and the term taxonomy ID.
 $menu_ids = $I->haveMenuInDatabase( 'test-menu', 'test-location' );
-$menu_id = intval( $menu_ids[0] );
+$menu_id  = intval( $menu_ids[0] );
 
 // Keep track of created menu items and posts.
 $menu_item_ids = [];
-$post_ids = [];
-$count = 10;
+$post_ids      = [];
+$count         = 10;
 
 // Create some Post menu items.
 for ( $x = 1; $x <= $count; $x++ ) {
@@ -47,8 +47,11 @@ for ( $x = 1; $x <= $count; $x++ ) {
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 // Query for the menu.
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => '
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => '
 	{
 		menus( where: { id: ' . $menu_id . ' } ){
 			edges {
@@ -69,8 +72,10 @@ $I->sendPOST( 'http://localhost/graphql', json_encode( [
 				}
 			}
 		}
-	}'
-] ) );
+	}',
+		]
+	)
+);
 
 // Check response.
 $I->seeResponseCodeIs( 200 );
@@ -92,7 +97,7 @@ $I->assertEquals( $menu_id, $response_array['data']['menus']['edges'][0]['node']
 $I->assertEquals( $count, count( $response_array['data']['menus']['edges'][0]['node']['menuItems']['edges'] ) );
 
 // The returned menu items and connected posts have the expected IDs.
-foreach( $response_array['data']['menus']['edges'][0]['node']['menuItems']['edges'] as $menu_item ) {
+foreach ( $response_array['data']['menus']['edges'][0]['node']['menuItems']['edges'] as $menu_item ) {
 	$I->assertTrue( in_array( $menu_item['node']['menuItemId'], $menu_item_ids, true ) );
 	$I->assertTrue( in_array( $menu_item['node']['connectedObject']['postId'], $post_ids, true ) );
 }

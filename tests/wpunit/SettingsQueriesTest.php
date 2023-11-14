@@ -5,13 +5,17 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->editor = $this->factory->user->create( [
-			'role' => 'editor',
-		] );
+		$this->editor = $this->factory->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
 
 		$this->clearSchema();
 	}
@@ -48,7 +52,6 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -160,7 +163,7 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 
 	/**
 	 * @see: https://github.com/wp-graphql/wp-graphql/pull/2276
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testGeneralSettingsUrlDoesntThrowErrorOnMultisite() {
 
@@ -173,13 +176,13 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 		}
 		';
 
-		$actual = graphql( [
-			'query' => $query,
-		]);
+		$actual = graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotEmpty( $actual['data']['generalSettings']['url'] );
-
 	}
-
 }

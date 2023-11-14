@@ -100,18 +100,22 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		 * Loop through and create the users and update their user data.
 		 */
 		foreach ( $users as $user ) {
-			$this->{ $user['role'] } = $id = (int) $this->factory->user->create([
-				'role' => $user['role'],
-			]);
+			$this->{ $user['role'] } = $id = (int) $this->factory->user->create(
+				[
+					'role' => $user['role'],
+				]
+			);
 
 			/**
 			 * Create a post published by the user
 			 */
-			$this->factory()->post->create([
-				'post_title'  => 'Post by ' . $user['role'],
-				'post_status' => 'publish',
-				'post_author' => $id,
-			]);
+			$this->factory()->post->create(
+				[
+					'post_title'  => 'Post by ' . $user['role'],
+					'post_status' => 'publish',
+					'post_author' => $id,
+				]
+			);
 
 			$this->userIds[]         = $id;
 			$user['user_data']['ID'] = $id;
@@ -129,26 +133,26 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 	 * Query a list of users with some core fields
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function queryUsers() {
 
 		$request = '
 		query GET_USERS( $ids: [Int] ) {
 			users( where: { include: $ids } ) {
-			  nodes {
-			    id
-			    userId
-			    username
-			    firstName
-			    lastName
-			    email
-			    roles {
-			      nodes {
-			        name
-			      }
-			    }
-			  }
+				nodes {
+					id
+					userId
+					username
+					firstName
+					lastName
+					email
+					roles {
+						nodes {
+							name
+						}
+					}
+				}
 			}
 		}
 		';
@@ -180,7 +184,6 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['lastName'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['email'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['roles'] );
-
 	}
 
 	/**
@@ -209,7 +212,6 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['email'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][1]['roles']['nodes'] );
-
 	}
 
 	/**
@@ -233,7 +235,6 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][2]['email'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][2]['roles']['nodes'] );
-
 	}
 
 	/**
@@ -257,7 +258,6 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['email'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][3]['roles']['nodes'] );
-
 	}
 
 	/**
@@ -281,6 +281,5 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		// They should still have access to their own email & role
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['email'] );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][4]['roles']['nodes'] );
-
 	}
 }

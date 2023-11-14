@@ -14,20 +14,22 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testViewerQuery() {
 
-		$user_id = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		$query = '
 		{
-		  viewer{
-		    userId
-		    roles {
-		        nodes {
-		          name
-		        }
-		    }
-		  }
+			viewer{
+				userId
+				roles {
+						nodes {
+							name
+						}
+				}
+			}
 		}
 		';
 
@@ -51,7 +53,5 @@ class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $user_id, $actual['data']['viewer']['userId'] );
 		$this->assertSame( 'administrator', $actual['data']['viewer']['roles']['nodes'][0]['name'] );
-
 	}
-
 }

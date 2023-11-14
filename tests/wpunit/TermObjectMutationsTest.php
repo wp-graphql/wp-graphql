@@ -21,13 +21,17 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->description_update = 'Description Update';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->subscriber = $this->factory()->user->create([
-			'role' => 'subscriber',
-		]);
+		$this->subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -354,7 +358,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertArrayHasKey( 'errors', $actual2 );
 		$this->assertArrayHasKey( 'data', $actual2 );
-
 	}
 
 	public function testTermIdNotReturningAfterCreate() {
@@ -389,17 +392,22 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Now let's filter to mimic the response returning a WP_Error to make sure we also respond with an error
 		 */
-		add_filter( 'get_post_tag', function () {
-			return new \WP_Error( 'this is a test error' );
-		} );
+		add_filter(
+			'get_post_tag',
+			static function () {
+				return new \WP_Error( 'this is a test error' );
+			}
+		);
 
 		/**
 		 * Create a term
 		 */
-		$term = $this->factory()->term->create([
-			'taxonomy' => 'post_tag',
-			'name'     => 'some random name',
-		]);
+		$term = $this->factory()->term->create(
+			[
+				'taxonomy' => 'post_tag',
+				'name'     => 'some random name',
+			]
+		);
 
 		/**
 		 * Now try and delete it.
@@ -411,7 +419,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Assert that we have an error because the response to the deletion responded with a WP_Error
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testCreateTagWithNoName() {
@@ -441,7 +448,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertNotEmpty( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -563,7 +569,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * subscriber
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	/**
@@ -588,7 +593,6 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * subscriber
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	/**
@@ -634,10 +638,12 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		wp_set_current_user( $this->admin );
 
-		$parent_term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-			'name'     => 'Parent Category',
-		]);
+		$parent_term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Parent Category',
+			]
+		);
 
 		$query = '
 		mutation createChildCategory($input: CreateCategoryInput!) {
@@ -698,10 +704,12 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		// Test changing parent ID.
 		$database_id        = $actual['data']['createCategory']['category']['databaseId'];
-		$new_parent_term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-			'name'     => 'Parent Category 2',
-		]);
+		$new_parent_term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Parent Category 2',
+			]
+		);
 
 		$query = '
 		mutation updateChildCategory($input: UpdateCategoryInput!) {
@@ -741,22 +749,22 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	/**
-	   * @see: https://github.com/wp-graphql/wp-graphql/issues/2378
-	   * @return void
-	   * @throws Exception
-	   */
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/2378
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function testCreateTermWithApostropheInNameDoesntStoreSlashInDatabase() {
 
 		$mutation = '
 		mutation ($input: CreateTagInput!) {
-		  createTag(input: $input) {
-		    tag {
-		      databaseId
-		      name
-		      slug
-		      description
-		    }
-		  }
+			createTag(input: $input) {
+				tag {
+					databaseId
+					name
+					slug
+					description
+				}
+			}
 		}
 		';
 
@@ -767,16 +775,18 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		wp_set_current_user( $this->admin );
 
-		$actual = graphql([
-			'query'     => $mutation,
-			'variables' => [
-				'input' => [
-					'name'        => $expected_name,
-					'slug'        => $slug_input,
-					'description' => $expected_description,
+		$actual = graphql(
+			[
+				'query'     => $mutation,
+				'variables' => [
+					'input' => [
+						'name'        => $expected_name,
+						'slug'        => $slug_input,
+						'description' => $expected_description,
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -787,6 +797,5 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $expected_name, get_term( $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->name );
 		$this->assertSame( $expected_slug, get_term( $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->slug );
 		$this->assertSame( $expected_description, get_term( $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->description );
-
 	}
 }
