@@ -94,7 +94,7 @@ class EnqueuedAsset {
 						},
 					],
 					'dependencies' => [
-						'type'        => [ 'list_of' => 'EnqueuedScript' ],
+						'type'        => [ 'list_of' => 'EnqueuedAsset' ],
 						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 					],
 					'id'           => [
