@@ -3,7 +3,7 @@
  * Register the ScriptLoadingStrategy Enum Type to the Schema
  *
  * @package WPGraphQL\Type\Enum
- * @since @todo
+ * @since 1.19.0
  */
 
 namespace WPGraphQL\Type\Enum;
