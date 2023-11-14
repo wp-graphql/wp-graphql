@@ -5,17 +5,19 @@ $I->wantTo( 'Test query depth rules' );
 
 $options = [
 	'query_depth_enabled' => 'off',
-	'query_depth_max' => 10
+	'query_depth_max'     => 10,
 ];
 
-$I->haveOptionInDatabase( 'graphql_general_settings', $options  );
+$I->haveOptionInDatabase( 'graphql_general_settings', $options );
 
-$I->havePostInDatabase( [
-	'post_type'    => 'post',
-	'post_status'  => 'publish',
-	'post_title'   => "test post",
-	'post_content' => "test content"
-] );
+$I->havePostInDatabase(
+	[
+		'post_type'    => 'post',
+		'post_status'  => 'publish',
+		'post_title'   => 'test post',
+		'post_content' => 'test content',
+	]
+);
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
@@ -27,16 +29,16 @@ $query = '
 					id
 					title
 					author {
-					  node {
-					    id
-					    name
-					    posts {
-					      nodes {
-					        id
-					        title
-					      }
-					    }
-					  }
+						node {
+							id
+							name
+							posts {
+								nodes {
+									id
+									title
+								}
+							}
+						}
 					}
 				}
 			}
@@ -44,9 +46,14 @@ $query = '
 	}
 ';
 
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => $query
-] ) );
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => $query,
+		]
+	)
+);
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
@@ -61,16 +68,21 @@ $I->assertArrayHasKey( 'data', $response_array, 'Query depth is disabled and the
 
 $options = [
 	'query_depth_enabled' => 'on',
-	'query_depth_max' => 2
+	'query_depth_max'     => 2,
 ];
 
-$I->haveOptionInDatabase( 'graphql_general_settings', $options  );
+$I->haveOptionInDatabase( 'graphql_general_settings', $options );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
-$I->sendPOST( 'http://localhost/graphql', json_encode( [
-	'query' => $query
-] ) );
+$I->sendPOST(
+	'http://localhost/graphql',
+	json_encode(
+		[
+			'query' => $query,
+		]
+	)
+);
 
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();

@@ -132,9 +132,12 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	public function testRequestPostDataFilter() {
 		$body_params = $this->get_example_params();
 
-		add_filter( 'graphql_request_data', function () {
-			return [ 'query' => 'fake post' ];
-		} );
+		add_filter(
+			'graphql_request_data',
+			static function () {
+				return [ 'query' => 'fake post' ];
+			}
+		);
 
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'POST', $body_params, [] );
@@ -148,9 +151,14 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	public function testRequestContext() {
 		$body_params = $this->get_example_params();
 
-		add_filter( 'graphql_request_data', function ( $params, $context ) {
-			return [ 'query' => $context['query_params']['querything'] ];
-		}, 10, 2 );
+		add_filter(
+			'graphql_request_data',
+			static function ( $params, $context ) {
+				return [ 'query' => $context['query_params']['querything'] ];
+			},
+			10,
+			2
+		);
 
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'POST', $body_params, [ 'querything' => 'queryvalue' ] );
@@ -164,14 +172,16 @@ class WPHelperTest extends \Codeception\TestCase\WPTestCase {
 	public function testRequestGetDataFilter() {
 		$query_params = $this->get_example_params();
 
-		add_filter( 'graphql_request_data', function () {
-			return [ 'query' => 'fake get' ];
-		} );
+		add_filter(
+			'graphql_request_data',
+			static function () {
+				return [ 'query' => 'fake get' ];
+			}
+		);
 
 		$helper = new WPHelper();
 		$params = $helper->parseRequestParams( 'GET', [], $query_params );
 
 		$this->assertEquals( 'fake get', $params->query );
 	}
-
 }

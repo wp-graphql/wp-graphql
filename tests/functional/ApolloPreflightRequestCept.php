@@ -24,6 +24,3 @@ codecept_debug( $headers );
 
 $I->assertContains( 'Content-Type', $headers );
 $I->assertContains( 'Authorization', $headers );
-
-
-

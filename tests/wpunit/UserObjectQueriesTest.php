@@ -57,12 +57,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create the page
 		 */
-		$user_id = $this->factory()->user->create( $args );
-
-		/**
-		 * Return the $id of the post_object that was created
-		 */
-		return $user_id;
+		return $this->factory()->user->create( $args );
 	}
 
 	/**
@@ -333,7 +328,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 		}";
 
-		/// Run the graphql query as a logged out user.
+		// Run the graphql query as a logged out user.
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$expected = [

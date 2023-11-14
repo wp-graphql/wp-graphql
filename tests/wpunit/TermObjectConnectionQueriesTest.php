@@ -49,13 +49,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		/**
 		 * Create the page
 		 */
-		$term_id = self::factory()->term->create( $args );
-
-		/**
-		 * Return the $id of the post_object that was created
-		 */
-		return $term_id;
-
+		return self::factory()->term->create( $args );
 	}
 
 	/**
@@ -71,20 +65,19 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			1 => 1, // id 1 is reserved for 'uncategorized'
 		];
 
-		for ( $i = 2; $i <= 6; $i ++ ) {
+		for ( $i = 2; $i <= 6; $i++ ) {
 			$term_id             = $this->createTermObject(
 				[
 					'taxonomy'    => 'category',
 					'description' => 'term description',
 					'name'        => 'Term-' . $alphabet[ $i ],
-					'slug'        => 'term-' . $alphabet[ $i ]
+					'slug'        => 'term-' . $alphabet[ $i ],
 				]
 			);
 			$created_terms[ $i ] = $term_id;
 		}
 
 		return $created_terms;
-
 	}
 
 	public function getQuery() {
@@ -348,28 +341,33 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['categories']['nodes'][0] );
-
 	}
 
 	public function testWhereArgs() {
 		$query = $this->getQuery();
 
-		$parent_id = self::factory()->term->create( [
-			'taxonomy' => 'category',
-			'name'     => 'Parent Category',
-			'description' => 'parent category term_description'
-		] );
+		$parent_id = self::factory()->term->create(
+			[
+				'taxonomy'    => 'category',
+				'name'        => 'Parent Category',
+				'description' => 'parent category term_description',
+			]
+		);
 
-		$child_id = self::factory()->term->create( [
-			'taxonomy' => 'category',
-			'name'     => 'Child Category',
-			'parent'   => $parent_id,
-		] );
+		$child_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Child Category',
+				'parent'   => $parent_id,
+			]
+		);
 
-		$post_id = self::factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-		] );
+		$post_id = self::factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_object_terms( $post_id, [ $child_id ], 'category' );
 
@@ -413,7 +411,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 				'descriptionLike' => 'term_description',
 			],
 		];
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$actual    = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['categories']['nodes'] );
@@ -563,23 +561,31 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	public function testObjectIdsWhereArgs() {
 		$query = $this->getQuery();
 
-		$term_one_id = self::factory()->term->create( [
-			'taxonomy' => 'category',
-			'name'     => 'ObjectIdOne Category',
-		] );
-		$term_two_id = self::factory()->term->create( [
-			'taxonomy' => 'category',
-			'name'     => 'ObjectIdTwo Category',
-		] );
+		$term_one_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'ObjectIdOne Category',
+			]
+		);
+		$term_two_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'ObjectIdTwo Category',
+			]
+		);
 
-		$post_one_id = self::factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-		] );
-		$post_two_id = self::factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-		] );
+		$post_one_id = self::factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
+		$post_two_id = self::factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_object_terms( $post_one_id, [ $term_one_id ], 'category' );
 		wp_set_object_terms( $post_two_id, [ $term_two_id ], 'category' );
@@ -601,16 +607,20 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testOrderWhereArgs() {
 
-		$category_id = self::factory()->term->create([
-			'taxonomy' => 'category',
-			'name'     => 'high count',
-		]);
+		$category_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'high count',
+			]
+		);
 
 		for ( $x = 0; $x <= 10; $x++ ) {
-			$post_id = self::factory()->post->create([
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-			]);
+			$post_id = self::factory()->post->create(
+				[
+					'post_type'   => 'post',
+					'post_status' => 'publish',
+				]
+			);
 
 			wp_set_object_terms( $post_id, [ $category_id ], 'category' );
 		}
@@ -628,26 +638,29 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'order' => 'DESC',
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'order' => 'DESC',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $category_id, $actual['data']['categories']['nodes'][0]['databaseId'] );
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'order' => 'ASC',
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'order' => 'ASC',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $category_id !== $actual['data']['categories']['nodes'][0]['databaseId'] );
-
 	}
 
 
@@ -667,7 +680,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$first  = $expected[0];
 		$second = $expected[1];
-		$last = end( $expected );
+		$last   = end( $expected );
 
 
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first->term_id );
@@ -678,69 +691,88 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertEquals( $start_cursor, $actual['data']['categories']['edges'][0]['cursor'] );
 		$this->assertEquals( $second->term_id, $actual['data']['categories']['edges'][1]['node']['databaseId'] );
 		$this->assertEquals( $second->term_id, $actual['data']['categories']['nodes'][1]['databaseId'] );
-		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][$expected_count - 1]['cursor'] );
+		$this->assertEquals( $end_cursor, $actual['data']['categories']['edges'][ $expected_count - 1 ]['cursor'] );
 		$this->assertEquals( $start_cursor, $actual['data']['categories']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['categories']['pageInfo']['endCursor'] );
 	}
 
 	public function testQueryForAncestorsIsInCorrectOrder() {
 
-		$parent = self::factory()->term->create([
-			'taxonomy' => 'category',
-			'name' => 'A Parent' // name starts with A to trip up default ordering
-		]);
+		$parent = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'A Parent', // name starts with A to trip up default ordering
+			]
+		);
 
-		$child = self::factory()->term->create([
-			'taxonomy' => 'category',
-			'name' => 'Child',
-			'parent' => $parent,
-		]);
+		$child = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Child',
+				'parent'   => $parent,
+			]
+		);
 
-		$grandchild = self::factory()->term->create([
-			'taxonomy' => 'category',
-			'name' => 'Grandchild',
-			'parent' => $child,
-		]);
+		$grandchild = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Grandchild',
+				'parent'   => $child,
+			]
+		);
 
-		codecept_debug( [
-			'parent' => $parent,
-			'child' => $child,
-			'grandchild' => $grandchild,
-		]);
+		codecept_debug(
+			[
+				'parent'     => $parent,
+				'child'      => $child,
+				'grandchild' => $grandchild,
+			]
+		);
 
 		// update the parent post. the default ordering (by date) might
 
 		$query = '
 		query GetCategoryAncestors($id:ID!){
-		  category(id:$id idType:DATABASE_ID) {
-		    databaseId
-		    name
-		    ancestors {
-		      nodes {
-		        databaseId
-		      }
-		    }
-		  }
+			category(id:$id idType:DATABASE_ID) {
+				databaseId
+				name
+				ancestors {
+					nodes {
+						databaseId
+					}
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => $grandchild,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $grandchild,
+				],
 			]
-		]);
+		);
 
 		codecept_debug( $actual );
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'category.ancestors.nodes', [
-				'databaseId' => $parent
-			] ),
-			$this->expectedNode( 'category.ancestors.nodes', [
-				'databaseId' => $child
-			] )
-		] );
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'category.ancestors.nodes',
+					[
+						'databaseId' => $parent,
+					]
+				),
+				$this->expectedNode(
+					'category.ancestors.nodes',
+					[
+						'databaseId' => $child,
+					]
+				),
+			]
+		);
 
 		$actual_ancestor_ids = [];
 
@@ -755,41 +787,46 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		wp_delete_term( $parent, 'category' );
 		wp_delete_term( $child, 'category' );
 		wp_delete_term( $grandchild, 'category' );
-
 	}
 
 	public function testPaginateTermsWithDuplicateNamesAndOrderbyName() {
 
-		$parent_category = self::factory()->term->create([
-			'taxonomy' => 'category',
-			'name' => 'Parent Category',
-		]);
+		$parent_category = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Parent Category',
+			]
+		);
 
 		$child_categories = [];
 
 		for ( $x = 0; $x <= 10; $x++ ) {
-			$child_categories[] = self::factory()->term->create_and_get([
-				'taxonomy' => 'category',
-				'slug' => 'child-term-' . $x,
-				'name' => 'Child Term',
-				'parent' => $parent_category,
-			]);
+			$child_categories[] = self::factory()->term->create_and_get(
+				[
+					'taxonomy' => 'category',
+					'slug'     => 'child-term-' . $x,
+					'name'     => 'Child Term',
+					'parent'   => $parent_category,
+				]
+			);
 		}
 
 		$child_categories = array_reverse( $child_categories );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'first' => 3,
-				'after' => null,
-				'where' => [
-					'parent' => $parent_category,
-					'order' => 'ASC',
-					'orderby' => 'NAME'
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 3,
+					'after' => null,
+					'where' => [
+						'parent'  => $parent_category,
+						'order'   => 'ASC',
+						'orderby' => 'NAME',
+					],
+				],
 			]
-		]);
+		);
 
 
 
@@ -799,25 +836,29 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$child_categories[2],
 		];
 
-		codecept_debug( [
-			'$actual' => $actual,
-			'$expected' => $expected,
-		]);
+		codecept_debug(
+			[
+				'$actual'   => $actual,
+				'$expected' => $expected,
+			]
+		);
 
 		$this->assertValidPagination( $expected, $actual );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'first' => 3,
-				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
-				'where' => [
-					'parent' => $parent_category,
-					'order' => 'ASC',
-					'orderby' => 'NAME'
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 3,
+					'after' => $actual['data']['categories']['pageInfo']['endCursor'],
+					'where' => [
+						'parent'  => $parent_category,
+						'order'   => 'ASC',
+						'orderby' => 'NAME',
+					],
+				],
 			]
-		]);
+		);
 
 		$expected = [
 			$child_categories[3],
@@ -827,18 +868,20 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertValidPagination( $expected, $actual );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'first' => 3,
-				'after' => $actual['data']['categories']['pageInfo']['endCursor'],
-				'where' => [
-					'parent' => $parent_category,
-					'order' => 'ASC',
-					'orderby' => 'NAME'
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 3,
+					'after' => $actual['data']['categories']['pageInfo']['endCursor'],
+					'where' => [
+						'parent'  => $parent_category,
+						'order'   => 'ASC',
+						'orderby' => 'NAME',
+					],
+				],
 			]
-		]);
+		);
 
 		$expected = [
 			$child_categories[6],
@@ -849,45 +892,49 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertValidPagination( $expected, $actual );
 
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'last' => 3,
-				'before' => null,
-				'where' => [
-					'parent' => $parent_category,
-					'order' => 'ASC',
-					'orderby' => 'NAME'
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'last'   => 3,
+					'before' => null,
+					'where'  => [
+						'parent'  => $parent_category,
+						'order'   => 'ASC',
+						'orderby' => 'NAME',
+					],
+				],
 			]
-		]);
+		);
 
 		$expected = [
 			$child_categories[8],
 			$child_categories[9],
-			$child_categories[10]
+			$child_categories[10],
 		];
 
 
 		$this->assertValidPagination( $expected, $actual );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'last' => 3,
-				'before' => $actual['data']['categories']['pageInfo']['startCursor'],
-				'where' => [
-					'parent' => $parent_category,
-					'order' => 'ASC',
-					'orderby' => 'NAME'
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'last'   => 3,
+					'before' => $actual['data']['categories']['pageInfo']['startCursor'],
+					'where'  => [
+						'parent'  => $parent_category,
+						'order'   => 'ASC',
+						'orderby' => 'NAME',
+					],
+				],
 			]
-		]);
+		);
 
 		$expected = [
 			$child_categories[5],
 			$child_categories[6],
-			$child_categories[7]
+			$child_categories[7],
 		];
 
 		$this->assertValidPagination( $expected, $actual );
@@ -898,5 +945,4 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_delete_term( $parent_category, 'category' );
 	}
-
 }

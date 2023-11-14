@@ -24,22 +24,29 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->first_name = 'Test';
 		$this->last_name  = 'User';
 
-		$this->author = $this->factory->user->create( [
-			'role' => 'author',
-		] );
+		$this->author = $this->factory->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$this->factory()->post->create( [
-			'post_author' => $this->author,
-		] );
+		$this->factory()->post->create(
+			[
+				'post_author' => $this->author,
+			]
+		);
 
-		$this->admin = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->subscriber = $this->factory->user->create( [
-			'role' => 'subscriber',
-		] );
-
+		$this->subscriber = $this->factory->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -65,7 +72,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	function filter_multisite_edit_user_capabilities( $caps, $cap, $user_id, $args ) {
 
 		foreach ( $caps as $key => $capability ) {
-
 			if ( 'do_not_allow' !== $capability ) {
 				continue;
 			}
@@ -134,10 +140,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Run the mutation.
 		 */
-		$actual = $this->createUserMutation( [
-			'username' => 'userDoesNotExist',
-			'email'    => 'emailDoesNotExist@test.com',
-		] );
+		$actual = $this->createUserMutation(
+			[
+				'username' => 'userDoesNotExist',
+				'email'    => 'emailDoesNotExist@test.com',
+			]
+		);
 
 		/**
 		 * We're asserting that this will properly return an error
@@ -145,7 +153,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * subscriber
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testCreateUserObjectWithProperCapabilities() {
@@ -155,10 +162,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$username = 'rusercreatedbyadmin';
 		$email    = 'UserCreatedByAdmin@test.com';
 
-		$actual = $this->createUserMutation( [
-			'username' => $username,
-			'email'    => $email,
-		] );
+		$actual = $this->createUserMutation(
+			[
+				'username' => $username,
+				'email'    => $email,
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -181,7 +190,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testPreventDuplicateUsernames() {
@@ -190,17 +198,20 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$username = 'duplicateUsername';
 
-		$this->factory->user->create( [
-			'user_login' => $username,
-		] );
+		$this->factory->user->create(
+			[
+				'user_login' => $username,
+			]
+		);
 
-		$second_user = $this->createUserMutation( [
-			'username' => $username,
-			'email'    => 'secondUsername@test.com',
-		] );
+		$second_user = $this->createUserMutation(
+			[
+				'username' => $username,
+				'email'    => 'secondUsername@test.com',
+			]
+		);
 
 		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that username already exists!' );
-
 	}
 
 	public function testPreventDuplicateEmails() {
@@ -209,30 +220,34 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$email = 'duplicateEmailAddress@test.com';
 
-		$this->factory->user->create( [
-			'user_email' => $email,
-		] );
+		$this->factory->user->create(
+			[
+				'user_email' => $email,
+			]
+		);
 
-		$second_user = $this->createUserMutation( [
-			'username' => 'testDuplicateEmail2',
-			'email'    => $email,
-		] );
+		$second_user = $this->createUserMutation(
+			[
+				'username' => 'testDuplicateEmail2',
+				'email'    => $email,
+			]
+		);
 
 		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that email address is already used!' );
-
 	}
 
 	public function testInvalidEmailAddress() {
 
 		wp_set_current_user( $this->admin );
 
-		$user = $this->createUserMutation( [
-			'username' => 'testInvalidEmail',
-			'email'    => 'notanemail',
-		] );
+		$user = $this->createUserMutation(
+			[
+				'username' => 'testInvalidEmail',
+				'email'    => 'notanemail',
+			]
+		);
 
 		$this->assertEquals( $user['errors'][0]['message'], 'The email address you are trying to use is invalid' );
-
 	}
 
 	public function testUpdateUser() {
@@ -356,10 +371,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$username = 'user_to_delete_without_capability';
 
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_login' => $username,
+			]
+		);
 
 		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
@@ -391,7 +408,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Make sure the user didn't actually get deleted.
 		 */
 		$this->assertNotEquals( false, $user_obj_after_delete );
-
 	}
 
 	public function testDeleteUserWithCapability() {
@@ -432,10 +448,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Test with databaseId
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_login' => $username,
+			]
+		);
 
 		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
@@ -464,10 +482,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( false, $user_obj_after_delete );
 
 		// Test with global Id
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_login' => $username,
+			]
+		);
 
 		$guid = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
@@ -513,14 +533,18 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		';
 
 		// Test with no Id
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_login' => $username,
+			]
+		);
 
-		$post = $this->factory()->post->create( [
-			'post_author' => $user_id,
-		]);
+		$post = $this->factory()->post->create(
+			[
+				'post_author' => $user_id,
+			]
+		);
 
 		// Test with bad id.
 		$variables = [
@@ -547,14 +571,18 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
 
 		// Test with global Id
-		$user_id = $this->factory->user->create( [
-			'role'       => 'subscriber',
-			'user_login' => $username,
-		] );
-		wp_update_post( [
-			'ID'          => $post,
-			'post_author' => $user_id,
-		] );
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'subscriber',
+				'user_login' => $username,
+			]
+		);
+		wp_update_post(
+			[
+				'ID'          => $post,
+				'post_author' => $user_id,
+			]
+		);
 
 		$this->assertEquals( $user_id, get_post( $post )->post_author );
 
@@ -644,7 +672,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testCreateUserWithoutRoles() {
@@ -684,7 +711,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testUpdateUserWithInvalidRole() {
@@ -714,7 +740,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
-
 	}
 
 	public function registerUserMutation( $args ) {
@@ -753,17 +778,18 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Run the mutation.
 		 */
-		$actual = $this->registerUserMutation( [
-			'username' => 'userDoesNotExist',
-			'email'    => 'emailDoesNotExist@test.com',
-		] );
+		$actual = $this->registerUserMutation(
+			[
+				'username' => 'userDoesNotExist',
+				'email'    => 'emailDoesNotExist@test.com',
+			]
+		);
 
 		/**
 		 * We're asserting that this will properly return an error
 		 * because registration is disabled.
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	public function testRegisterUserWithRegistrationEnabled() {
@@ -785,10 +811,12 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Run the mutation.
 		 */
-		$actual = $this->registerUserMutation( [
-			'username' => $username,
-			'email'    => $email,
-		] );
+		$actual = $this->registerUserMutation(
+			[
+				'username' => $username,
+				'email'    => $email,
+			]
+		);
 
 		$expected = [
 			'registerUser' => [
@@ -800,7 +828,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function resetUserPasswordMutation( $args ) {
@@ -829,7 +856,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		return $this->graphql( compact( 'query', 'variables' ) );
-
 	}
 
 	public function testResetUserPasswordWithInvalidLoginAndKey() {
@@ -847,7 +873,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * because an invalid login and reset key were provided.
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	public function testResetUserPasswordWithInvalidKey() {
@@ -868,7 +893,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * because an invalid reset key was provided.
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	public function testResetUserPasswordResponse() {
@@ -911,7 +935,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testResetUserPassword() {
@@ -945,7 +968,6 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Assert that password was successfully reset.
 		 */
 		$this->assertTrue( $was_reset_successful );
-
 	}
 
 	public function sendPasswordResetEmailMutation( $username ) {
@@ -977,7 +999,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// This should return successful with a notice in the log.
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['sendPasswordResetEmail']['success'] );
-		$this->assertEquals( "Invalid username.", $actual['extensions']['debug'][0]['message'] );
+		$this->assertEquals( 'Invalid username.', $actual['extensions']['debug'][0]['message'] );
 		$this->assertEmpty( $actual['data']['sendPasswordResetEmail']['user'] );
 	}
 
@@ -1089,13 +1111,13 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	public function runSendPasswordResetEmailSentTest( $mutation_arg ) {
-		$email_sent        = true;
+		$email_sent = true;
 
-		$update_email_sent = function ( $error ) use ( &$email_sent ) {
+		$update_email_sent = static function ( $error ) use ( &$email_sent ) {
 			codecept_debug( $error );
 			$email_sent = false;
 		};
-		$update_email_from = function() {
+		$update_email_from = static function () {
 			return 'valid-email@site.test';
 		};
 
@@ -1114,16 +1136,21 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$was_password_change_email_sent = false;
 
 		// If this filter is run, we know the "Password Changed" email is being sent.
-		add_filter( 'password_change_email', function ( $pass_change_email ) use ( &$was_password_change_email_sent ) {
-			$was_password_change_email_sent = true;
-			return $pass_change_email;
-		} );
+		add_filter(
+			'password_change_email',
+			static function ( $pass_change_email ) use ( &$was_password_change_email_sent ) {
+				$was_password_change_email_sent = true;
+				return $pass_change_email;
+			}
+		);
 
-		$this->registerUserMutation( [
-			'username' => 'password-changed-email-test-user',
-			'email'    => 'password-changed-email-test-user@example.com',
-			'password' => 'password-changed-email-test-user-password',
-		] );
+		$this->registerUserMutation(
+			[
+				'username' => 'password-changed-email-test-user',
+				'email'    => 'password-changed-email-test-user@example.com',
+				'password' => 'password-changed-email-test-user-password',
+			]
+		);
 
 		/**
 		 * Assert that the "Password Changed" email was not sent when the user was registered.

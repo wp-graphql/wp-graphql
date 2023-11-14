@@ -22,78 +22,100 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->clearSchema();
 
-		$this->admin_id = $this->factory()->user->create( [
-			'user_login' => uniqid(),
-			'user_email' => uniqid() . '@test.com',
-			'user_role'  => 'administrator',
-		] );
+		$this->admin_id = $this->factory()->user->create(
+			[
+				'user_login' => uniqid(),
+				'user_email' => uniqid() . '@test.com',
+				'user_role'  => 'administrator',
+			]
+		);
 
-		$this->author_id = $this->factory()->user->create( [
-			'user_login' => uniqid(),
-			'user_email' => uniqid() . '@test.com',
-			'user_role'  => 'author',
-		] );
+		$this->author_id = $this->factory()->user->create(
+			[
+				'user_login' => uniqid(),
+				'user_email' => uniqid() . '@test.com',
+				'user_role'  => 'author',
+			]
+		);
 
-		register_post_type( 'test_style_cpt', [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'TestEnqueueCpt',
-			'graphql_plural_name' => 'TestEnqueueCpts',
-		] );
+		register_post_type(
+			'test_style_cpt',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'TestEnqueueCpt',
+				'graphql_plural_name' => 'TestEnqueueCpts',
+			]
+		);
 
-		register_taxonomy( 'test_style_tax', [ 'test_style_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'TestEnqueueTax',
-			'graphql_plural_name' => 'TestEnqueueTaxes',
-		] );
+		register_taxonomy(
+			'test_style_tax',
+			[ 'test_style_cpt' ],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'TestEnqueueTax',
+				'graphql_plural_name' => 'TestEnqueueTaxes',
+			]
+		);
 
-		$this->category_id = $this->factory()->term->create( [
-			'taxonomy' => 'category',
-			'name'     => uniqid(),
-		] );
+		$this->category_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => uniqid(),
+			]
+		);
 
-		$this->tag_id = $this->factory()->term->create( [
-			'taxonomy' => 'post_tag',
-			'name'     => uniqid(),
-		] );
+		$this->tag_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'post_tag',
+				'name'     => uniqid(),
+			]
+		);
 
-		$this->custom_tax_id = $this->factory()->term->create( [
-			'taxonomy' => 'test_style_tax',
-			'name'     => uniqid(),
-		] );
+		$this->custom_tax_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'test_style_tax',
+				'name'     => uniqid(),
+			]
+		);
 
-		$this->page_id = $this->factory()->post->create( [
-			'post_type'    => 'page',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Page for EnqueuedStylesheetsTest',
-			'post_author'  => $this->author_id,
-			'post_excerpt' => '',
-		] );
+		$this->page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test Page for EnqueuedStylesheetsTest',
+				'post_author'  => $this->author_id,
+				'post_excerpt' => '',
+			]
+		);
 
-		$this->post_id = $this->factory()->post->create( [
-			'post_type'     => 'post',
-			'post_status'   => 'publish',
-			'post_title'    => 'Test Post for EnqueuedStylesheetsTest',
-			'post_category' => [ $this->category_id ],
-			'tags_input'    => [ $this->tag_id ],
-			'post_author'   => $this->author_id,
-			'post_excerpt'  => 'Test excerpt',
-		] );
+		$this->post_id = $this->factory()->post->create(
+			[
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_title'    => 'Test Post for EnqueuedStylesheetsTest',
+				'post_category' => [ $this->category_id ],
+				'tags_input'    => [ $this->tag_id ],
+				'post_author'   => $this->author_id,
+				'post_excerpt'  => 'Test excerpt',
+			]
+		);
 
 		$filename       = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
 
-		$this->custom_post_id = $this->factory()->post->create( [
-			'post_type'    => 'test_style_cpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test CPT for EnqueuedStylesheetsTest',
-			'post_excerpt' => 'Test excerpt',
-		] );
+		$this->custom_post_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'test_style_cpt',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test CPT for EnqueuedStylesheetsTest',
+				'post_excerpt' => 'Test excerpt',
+			]
+		);
 
 		$GLOBALS['post']       = null;
 		$GLOBALS['authordata'] = null;
-
 	}
 
 	public function tearDown(): void {
@@ -110,7 +132,6 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$GLOBALS['post']       = null;
 		$GLOBALS['authordata'] = null;
 		parent::tearDown();
-
 	}
 
 	public function get_enqueued_assets_fragment() {
@@ -128,7 +149,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $page_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_page_query( $page_id ) {
 
@@ -147,15 +168,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $page_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $page_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -164,7 +184,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $post_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_post_query( $post_id ) {
 
@@ -183,15 +203,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $post_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -200,7 +219,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $custom_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_custom_post_query( $custom_id ) {
 
@@ -219,15 +238,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $custom_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $custom_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -236,7 +254,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $tag_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_tag_query( $tag_id ) {
 
@@ -255,15 +273,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $tag_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $tag_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -272,7 +289,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $cat_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_category_query( $cat_id ) {
 
@@ -291,15 +308,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -308,7 +324,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $cat_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_custom_tax_query( $cat_id ) {
 
@@ -327,15 +343,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $cat_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $cat_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -344,7 +359,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $user_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_user_query( $user_id ) {
 
@@ -363,15 +378,14 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $user_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $user_id,
+				],
+			]
+		);
 	}
 
 	/**
@@ -380,7 +394,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * @param $media_id
 	 *
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function get_media_query( $media_id ) {
 
@@ -399,22 +413,21 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		$actual = graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $media_id,
-			],
-		] );
-
-		return $actual;
-
+		return graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $media_id,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Test whether assets enqueued to is_front_page are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Front_Page() {
 
@@ -425,13 +438,15 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $this->page_id );
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_front_page() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_front_page() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		$actual = $this->get_page_query( $this->page_id );
 
@@ -447,11 +462,13 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT connected to another page
-		$another_page_id = $this->factory()->post->create( [
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test Style for unique' . uniqid(),
-		] );
+		$another_page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Style for unique' . uniqid(),
+			]
+		);
 
 		$actual = $this->get_page_query( $another_page_id );
 
@@ -492,27 +509,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertFalse( in_array( $src, $sources, true ) );
 
 		wp_delete_post( $another_page_id, true );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_page are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Page() {
 
 		$handle = 'test-is-page';
 		$src    = 'test-is-page.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_page() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_page() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		$actual = $this->get_page_query( $this->page_id );
 
@@ -551,7 +569,6 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 
@@ -559,20 +576,22 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * Test whether assets enqueued to is_single are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Single() {
 
 		$handle = 'test-is-single';
 		$src    = 'test-is-single.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_single() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_single() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -612,27 +631,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_singular are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Singular() {
 
 		$handle = 'test-is-singular';
 		$src    = 'test-is-singular.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_singular( [ 'post', 'test_style_cpt' ] ) ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_singular( [ 'post', 'test_style_cpt' ] ) ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -688,27 +708,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_sticky are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Sticky() {
 
 		$handle = 'test-is-sticky';
 		$src    = 'test-is-sticky.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_sticky() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_sticky() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -751,30 +772,31 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_post_type_hierarchical are properly shown as connections
 	 * to pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Post_Type_Hierarchical() {
 
 		$handle = 'test-is-post-type-hierarchical';
 		$src    = 'test-is-post-type-hierarchical.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			global $post;
-			// codecept_debug( 'GLOBALPOST....' );
-			// codecept_debug( $post );
-			wp_register_style( $handle, $src );
-			if ( isset( $post->post_type ) && is_post_type_hierarchical( $post->post_type ) ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				global $post;
+				// codecept_debug( 'GLOBALPOST....' );
+				// codecept_debug( $post );
+				wp_register_style( $handle, $src );
+				if ( isset( $post->post_type ) && is_post_type_hierarchical( $post->post_type ) ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Make sure the script is NOT enqueued on Tags
 		$actual = $this->get_tag_query( $this->tag_id );
@@ -817,29 +839,30 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$sources = wp_list_pluck( $styles, 'src' );
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to comments_open are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetComments_Open() {
 
 		$handle = 'test-comments-open';
 		$src    = 'test-comments-open.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
 
-			wp_register_style( $handle, $src );
-			// codecept_debug( comments_open() );
-			if ( comments_open() ) {
-				wp_enqueue_style( $handle );
+				wp_register_style( $handle, $src );
+				// codecept_debug( comments_open() );
+				if ( comments_open() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -882,30 +905,31 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to pings_open are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetPings_Open() {
 
 		$handle = 'test-pings-open';
 		$src    = 'test-pings-open.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			global $post;
-			// codecept_debug( 'PING_STATUS' );
-			// codecept_debug( $post );
-			if ( is_a( $post, 'WP_Post' ) && pings_open() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				global $post;
+				// codecept_debug( 'PING_STATUS' );
+				// codecept_debug( $post );
+				if ( is_a( $post, 'WP_Post' ) && pings_open() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -947,14 +971,13 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_page_template are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Page_Template() {
 
@@ -972,17 +995,19 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// codecept_debug( get_page_template_slug( $this->post_id ) );
 		// codecept_debug( get_page_template_slug( $this->page_id ) );
 
-		add_action( 'wp_enqueue_scripts', function () use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
-			wp_register_style( $page_handle, $page_src );
-			wp_register_style( $post_handle, $post_src );
-			if ( is_page_template( $page_template ) ) {
-				wp_enqueue_style( $page_handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $page_handle, $page_src, $post_handle, $post_src, $page_template, $post_template ) {
+				wp_register_style( $page_handle, $page_src );
+				wp_register_style( $post_handle, $post_src );
+				if ( is_page_template( $page_template ) ) {
+					wp_enqueue_style( $page_handle );
+				}
+				if ( is_page_template( $post_template ) ) {
+					wp_enqueue_style( $post_handle );
+				}
 			}
-			if ( is_page_template( $post_template ) ) {
-				wp_enqueue_style( $post_handle );
-			}
-
-		} );
+		);
 
 		// Test that the script is enqueued on the page with the template
 		$actual = $this->get_page_query( $this->page_id );
@@ -1027,26 +1052,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertFalse( in_array( $page_src, $sources, true ) );
 		$this->assertFalse( in_array( $post_handle, $handles, true ) );
 		$this->assertFalse( in_array( $post_src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_category are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Category() {
 
 		$handle = 'test-is-category';
 		$src    = 'test-is-category.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_category() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_category() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1099,26 +1126,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_tag are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Tag() {
 
 		$handle = 'test-is-tag';
 		$src    = 'test-is-tag.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_tag() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_tag() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1171,26 +1200,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_tax are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Tax() {
 
 		$handle = 'test-is-tax';
 		$src    = 'test-is-tax.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_tax( 'post_tag' ) || is_tax( 'category' ) ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_tax( 'post_tag' ) || is_tax( 'category' ) ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1243,26 +1274,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to has_term are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetHas_Term() {
 
 		$handle = 'test-has-term';
 		$src    = 'test-has-term.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( has_term( $this->tag_id, 'post_tag' ) ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( has_term( $this->tag_id, 'post_tag' ) ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1315,27 +1348,29 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertFalse( in_array( $handle, $handles, true ) );
 		$this->assertFalse( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_author are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Author() {
 
 		$handle = 'test-is-author';
 		$src    = 'test-is-author.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_author() ) {
-				// codecept_debug( 'AUTHOR, YO!!' );
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_author() ) {
+					// codecept_debug( 'AUTHOR, YO!!' );
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1398,26 +1433,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_author are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Attachment() {
 
 		$handle = 'test-is-attachment';
 		$src    = 'test-is-attachment.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( is_attachment() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( is_attachment() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Test that the script is NOT enqueued on pages
 		$actual = $this->get_page_query( $this->page_id );
@@ -1492,26 +1529,28 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to wp_attachment_is_image are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetWP_Attachment_Is_Image() {
 
 		$handle = 'test-is-wp-attachment-is-image';
 		$src    = 'test-is-wp-attachment-is-image.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( wp_attachment_is_image() ) {
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( wp_attachment_is_image() ) {
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
@@ -1574,14 +1613,13 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 	}
 
 	/**
 	 * Test whether assets enqueued to is_preview are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetIs_Preview() {
 		// @todo
@@ -1591,22 +1629,25 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 * Test whether assets enqueued to has_excerpt are properly shown as connections to
 	 * pages but not other nodes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testEnqueuedStylesheetsHas_Excerpt() {
 
 		$handle = 'test-has-excerpt';
 		$src    = 'test-has-excerpt.css';
 
-		add_action( 'wp_enqueue_scripts', function () use ( $handle, $src ) {
-			wp_register_style( $handle, $src );
-			if ( has_excerpt() ) {
-				global $post;
-				// codecept_debug( 'HAS_EXCERPT, YO' );
-				// codecept_debug( $post );
-				wp_enqueue_style( $handle );
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				wp_register_style( $handle, $src );
+				if ( has_excerpt() ) {
+					global $post;
+					// codecept_debug( 'HAS_EXCERPT, YO' );
+					// codecept_debug( $post );
+					wp_enqueue_style( $handle );
+				}
 			}
-		} );
+		);
 
 		// Make sure the script is NOT enqueued on posts
 		$actual = $this->get_post_query( $this->post_id );
@@ -1645,7 +1686,5 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
-
 	}
-
 }

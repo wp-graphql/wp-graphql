@@ -13,41 +13,53 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		register_post_type('by_slug_cpt', [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'CustomType',
-			'graphql_plural_name' => 'CustomTypes',
-			'public'              => true,
-		]);
+		register_post_type(
+			'by_slug_cpt',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'CustomType',
+				'graphql_plural_name' => 'CustomTypes',
+				'public'              => true,
+			]
+		);
 
-		register_post_type('faq', [
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'faq',
-			'graphql_plural_name' => 'faqs',
-			'public'              => true,
-		]);
+		register_post_type(
+			'faq',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'faq',
+				'graphql_plural_name' => 'faqs',
+				'public'              => true,
+			]
+		);
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
 		$this->clearSchema();
 
-		$this->user = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->user = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->post = $this->factory()->post->create( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for NodeBySlugTest',
-			'post_author' => $this->user,
-		] );
+		$this->post = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for NodeBySlugTest',
+				'post_author' => $this->user,
+			]
+		);
 
-		$this->custom_type = $this->factory()->post->create( [
-			'post_type'   => 'by_slug_cpt',
-			'post_status' => 'publish',
-			'post_title'  => 'Test Page for NodeBySlugTest',
-			'post_author' => $this->user,
-		] );
+		$this->custom_type = $this->factory()->post->create(
+			[
+				'post_type'   => 'by_slug_cpt',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Page for NodeBySlugTest',
+				'post_author' => $this->user,
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -61,7 +73,6 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::tearDown();
-
 	}
 
 	public function set_permalink_structure( $structure = '' ) {
@@ -74,7 +85,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Get a Post by it's permalink
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testPostBySlug() {
 
@@ -91,12 +102,14 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( get_post( $this->post ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'slug' => $post->post_name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'slug' => $post->post_name,
+				],
+			]
+		);
 		// @TODO what is this supposed to test?
 
 		codecept_debug( $actual );
@@ -126,7 +139,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	/**
 	 * Get a Post by it's permalink
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testCustomPostBySlug() {
 
@@ -143,12 +156,14 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( get_post( $this->custom_type ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'slug' => $post->post_name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'slug' => $post->post_name,
+				],
+			]
+		);
 
 		// TODO: what is this supposed to test?
 
@@ -175,19 +190,23 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	function testPageWithNameOfPostType() {
 
-		$this->custom_type = $this->factory()->post->create( [
-			'post_type'   => 'faq',
-			'post_status' => 'publish',
-			'post_title'  => 'Test FAQ',
-			'post_author' => $this->user,
-		] );
+		$this->custom_type = $this->factory()->post->create(
+			[
+				'post_type'   => 'faq',
+				'post_status' => 'publish',
+				'post_title'  => 'Test FAQ',
+				'post_author' => $this->user,
+			]
+		);
 
-		$this->page = $this->factory()->post->create( [
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'FAQ',
-			'post_author' => $this->user,
-		] );
+		$this->page = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'FAQ',
+				'post_author' => $this->user,
+			]
+		);
 
 		$query = '
 				query GET_POST_BY_SLUG( $slug: ID! ) {
@@ -202,12 +221,14 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$faqPost = get_post( $this->custom_type );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'slug' => $faqPost->post_name,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'slug' => $faqPost->post_name,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->custom_type, $actual['data']['faq']['databaseId'] );
@@ -227,17 +248,17 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$faqPage   = get_post( $this->page );
 		$permalink = get_permalink( $faqPage );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $permalink,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $permalink,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $this->page, $actual['data']['page']['databaseId'] );
 		$this->assertSame( $faqPage->post_title, $actual['data']['page']['title'] );
-
 	}
-
 }

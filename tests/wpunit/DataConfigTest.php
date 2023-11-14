@@ -1,7 +1,7 @@
 <?php
 
 class DataConfigTest extends \Codeception\TestCase\WPTestCase {
-	public static function setUpBeforeClass():void {
+	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
 		if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
@@ -22,22 +22,28 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 		// do not receive a post_status of "future".
 		$timestamp = time() - 1000;
 
-		$posts = array_map( function ( $offset ) use ( $timestamp, $offset_multiplier ) {
-			return $this->factory->post->create_and_get(
-				[
-					'post_date' => date( 'Y-m-d H:i:s', $timestamp + ( $offset * $offset_multiplier ) ),
-				]
-			);
-		}, $iterable );
+		$posts = array_map(
+			function ( $offset ) use ( $timestamp, $offset_multiplier ) {
+				return $this->factory->post->create_and_get(
+					[
+						'post_date' => date( 'Y-m-d H:i:s', $timestamp + ( $offset * $offset_multiplier ) ),
+					]
+				);
+			},
+			$iterable
+		);
 
 		// Sort posts either ASC (">") or DESC ("<") by post_date.
-		usort( $posts, function ( $one, $two ) use ( $operator ) {
-			if ( '<' === $operator ) {
-				return strcmp( $two->post_date, $one->post_date );
-			}
+		usort(
+			$posts,
+			static function ( $one, $two ) use ( $operator ) {
+				if ( '<' === $operator ) {
+					return strcmp( $two->post_date, $one->post_date );
+				}
 
-			return strcmp( $one->post_date, $two->post_date );
-		} );
+				return strcmp( $one->post_date, $two->post_date );
+			}
+		);
 
 		return $posts;
 	}
@@ -68,8 +74,8 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 
 		// Simulate a GraphQL request for:
 		// posts(
-		//   after: '[id of tenth post]',
-		//   first: 10
+		// after: '[id of tenth post]',
+		// first: 10
 		// )
 		$query = new WP_Query(
 			[
@@ -90,8 +96,11 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $posts[ $index + 10 ]->ID, $post->ID );
 		}
 
-		add_filter( 'is_graphql_request', function () use ( $is_graphql_request ) {
-			return $is_graphql_request;
-		} );
+		add_filter(
+			'is_graphql_request',
+			static function () use ( $is_graphql_request ) {
+				return $is_graphql_request;
+			}
+		);
 	}
 }

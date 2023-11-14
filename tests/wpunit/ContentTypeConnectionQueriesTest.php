@@ -8,13 +8,14 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		wp_set_current_user( $this->admin );
 		$this->created_content_type_ids = $this->create_content_types();
 		WPGraphQL::clear_schema();
-
 	}
 
 	public function tearDown(): void {
@@ -27,21 +28,24 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	}
 
 	public function createContentTypeObject( $name, $args = [] ) {
-		register_post_type( $name, array_merge(
-			[
-				'label'               => __( 'Test CPT', 'wp-graphql' ),
-				'labels'              => [
-					'name'          => __( 'Test CPT', 'wp-graphql' ),
-					'singular_name' => __( 'Test CPT', 'wp-graphql' ),
+		register_post_type(
+			$name,
+			array_merge(
+				[
+					'label'               => __( 'Test CPT', 'wp-graphql' ),
+					'labels'              => [
+						'name'          => __( 'Test CPT', 'wp-graphql' ),
+						'singular_name' => __( 'Test CPT', 'wp-graphql' ),
+					],
+					'description'         => __( 'test-post-type', 'wp-graphql' ),
+					'supports'            => [ 'title' ],
+					'show_in_graphql'     => true,
+					'graphql_single_name' => 'TestCpt',
+					'graphql_plural_name' => 'TestCpts',
 				],
-				'description'         => __( 'test-post-type', 'wp-graphql' ),
-				'supports'            => [ 'title' ],
-				'show_in_graphql'     => true,
-				'graphql_single_name' => 'TestCpt',
-				'graphql_plural_name' => 'TestCpts',
-			],
-			$args
-		) );
+				$args
+			)
+		);
 		return $name;
 	}
 
@@ -54,7 +58,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$alphabet = range( 'A', 'Z' );
 
 		$created_content_types = [];
-		for ( $i = 1; $i <= 3; $i ++ ) {
+		for ( $i = 1; $i <= 3; $i++ ) {
 			$created_content_types[ $i ] = $this->createContentTypeObject(
 				"type_connection-$i",
 				[
@@ -296,7 +300,6 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['contentTypes']['nodes'][0] );
-
 	}
 
 	/**

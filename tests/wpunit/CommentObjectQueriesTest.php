@@ -14,12 +14,16 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->subscriber       = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		]);
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->subscriber       = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -28,12 +32,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Post for CommentObjectQueries',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post for CommentObjectQueries',
+				'post_author' => $this->admin,
+			]
+		);
 
 		/**
 		 * Set up the $defaults
@@ -60,13 +66,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		/**
 		 * Create the page
 		 */
-		$comment_id = $this->factory()->comment->create( $args );
-
-		/**
-		 * Return the $id of the comment_object that was created
-		 */
-		return $comment_id;
-
+		return $this->factory()->comment->create( $args );
 	}
 
 
@@ -179,7 +179,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'id'          => $global_id,
 				'karma'       => null,
 				'parent'      => null,
-				'status' => 'APPROVE',
+				'status'      => 'APPROVE',
 			],
 		];
 
@@ -209,12 +209,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		/**
 		 * Create a comment
 		 */
-		$comment_id = $this->createCommentObject( [
-			'comment_author'       => 'Author Name',
-			'comment_author_email' => 'test@test.com',
-			'comment_author_url'   => 'http://example.com',
-			'user_id'              => 0,
-		] );
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_author'       => 'Author Name',
+				'comment_author_email' => 'test@test.com',
+				'comment_author_url'   => 'http://example.com',
+				'user_id'              => 0,
+			]
+		);
 
 		codecept_debug( $comment_id );
 
@@ -259,8 +261,8 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		 */
 		$expected = [
 			'comment' => [
-				'agent'    => null,
-				'author'   => [
+				'agent'  => null,
+				'author' => [
 					'node' => [
 						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'databaseId' => absint( $comment_id ),
@@ -269,7 +271,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
-				'status' => 'APPROVE'
+				'status' => 'APPROVE',
 			],
 		];
 
@@ -287,8 +289,8 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		 */
 		$expected = [
 			'comment' => [
-				'agent'    => null,
-				'author'   => [
+				'agent'  => null,
+				'author' => [
 					'node' => [
 						'id'         => \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id ),
 						'databaseId' => absint( $comment_id ),
@@ -297,12 +299,11 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						'url'        => get_comment_author_url( $comment_id ),
 					],
 				],
-				'status' => 'APPROVE'
+				'status' => 'APPROVE',
 			],
 		];
 
 		$this->assertEqualSets( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -316,11 +317,13 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	public function testCommentQueryWithChildrenAssignedPostAndParent() {
 
 		// Post object to assign comments to.
-		$post_id = $this->factory()->post->create( [
-			'post_content' => 'Post object',
-			'post_author'  => $this->admin,
-			'post_status'  => 'publish',
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_content' => 'Post object',
+				'post_author'  => $this->admin,
+				'post_status'  => 'publish',
+			]
+		);
 
 		// Parent comment.
 		$parent_comment = $this->createCommentObject(
@@ -333,24 +336,30 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		/**
 		 * Create a comment
 		 */
-		$comment_id = $this->createCommentObject( [
-			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Test comment' ),
-			'comment_parent'  => $parent_comment,
-		] );
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_post_ID' => $post_id,
+				'comment_content' => apply_filters( 'comment_text', 'Test comment' ),
+				'comment_parent'  => $parent_comment,
+			]
+		);
 
 		// Create child comments.
-		$child_1 = $this->createCommentObject( [
-			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Child 1' ),
-			'comment_parent'  => $comment_id,
-		] );
+		$child_1 = $this->createCommentObject(
+			[
+				'comment_post_ID' => $post_id,
+				'comment_content' => apply_filters( 'comment_text', 'Child 1' ),
+				'comment_parent'  => $comment_id,
+			]
+		);
 
-		$child_2 = $this->createCommentObject( [
-			'comment_post_ID' => $post_id,
-			'comment_content' => apply_filters( 'comment_text', 'Child 2' ),
-			'comment_parent'  => $comment_id,
-		] );
+		$child_2 = $this->createCommentObject(
+			[
+				'comment_post_ID' => $post_id,
+				'comment_content' => apply_filters( 'comment_text', 'Child 2' ),
+				'comment_parent'  => $comment_id,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the comment_type and the created $id
@@ -442,7 +451,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * @param $user
 	 * @param $should_display
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testCommentQueryHiddenFields( $user, $should_display ) {
 
@@ -514,7 +523,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			$this->assertNull( $admin_actual['data']['comment']['authorIp'] );
 			$this->assertNull( $admin_actual['data']['comment']['agent'] );
 		}
-
 	}
 
 	/**
@@ -523,7 +531,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * @dataProvider dataProviderSwitchUser
 	 * @param $user
 	 * @param $should_display
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUnapprovedCommentsNotQueryableWithoutAuth( $user, $should_display ) {
 
@@ -594,21 +602,22 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		} else {
 			$this->assertEmpty( $admin_actual['data']['comment'] );
 		}
-
 	}
 
 	/**
 	 * Assert that comments attached to private posts are hidden from users
 	 * without proper caps
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testPrivatePostCommentsNotQueryableWithoutAuth() {
 
-		$post_id = $this->factory()->post->create( [
-			'post_status'  => 'private',
-			'post_content' => 'Test',
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'  => 'private',
+				'post_content' => 'Test',
+			]
+		);
 
 		$comment_args = [
 			'comment_post_ID'      => $post_id,
@@ -662,7 +671,6 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertNotNull( $admin_actual['data']['comment']['agent'] );
 		$this->assertEquals( $comment, $admin_actual['data']['comment']['commentId'] );
 		$this->assertEquals( apply_filters( 'comment_text', $comment_args['comment_content'] ), $admin_actual['data']['comment']['content'] );
-
 	}
 
 	public function dataProviderSwitchUser() {
@@ -679,15 +687,17 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryingAvatarOnUserAuthorsIsValidForPublicAndAuthenticatedRequests() {
 
 		// create a comment with a guest author as the author
-		$comment_by_comment_author_id = $this->createCommentObject([
-			'user_id'              => 0,
-			'comment_author_email' => 'guest@email.test',
-		]);
+		$comment_by_comment_author_id = $this->createCommentObject(
+			[
+				'user_id'              => 0,
+				'comment_author_email' => 'guest@email.test',
+			]
+		);
 
 		$comment_by_user_id = $this->createCommentObject();
 
@@ -757,21 +767,22 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		wp_delete_comment( $comment_by_user_id );
 		wp_delete_comment( $comment_by_comment_author_id );
-
 	}
 
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryingAvatarOnCommentAuthorsIsValid() {
 
 		// create a comment with a guest author as the author
-		$comment_id = $this->createCommentObject([
-			'comment_author'       => 0,
-			'comment_author_email' => 'test@gmail.com',
-			'user_id'              => 0,
-		]);
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_author'       => 0,
+				'comment_author_email' => 'test@gmail.com',
+				'user_id'              => 0,
+			]
+		);
 
 		$query = '
 		query GetCommentAuthorWithAvatar($id:ID!){
@@ -792,12 +803,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_id,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $global_id,
+				],
+			]
+		);
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$typename = $actual['data']['comment']['author']['node']['__typename'];
@@ -816,9 +829,11 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$content = uniqid();
 
 		wp_set_current_user( $this->admin );
-		$comment_id = $this->createCommentObject([
-			'comment_content' => $content,
-		]);
+		$comment_id = $this->createCommentObject(
+			[
+				'comment_content' => $content,
+			]
+		);
 		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 
 		$query = '
@@ -831,12 +846,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $global_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $content, null ), $actual['data']['comment']['content'] );
@@ -844,21 +861,25 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$filtered = 'filtered...';
 
 		// test that filtering the comment text with 2 arguments works properly
-		add_filter( 'comment_text', function ( $text, $comment ) use ( $filtered ) {
-			return $filtered;
-		}, 10, 2 );
+		add_filter(
+			'comment_text',
+			static function ( $text, $comment ) use ( $filtered ) {
+				return $filtered;
+			},
+			10,
+			2
+		);
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $global_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $filtered, null ), $actual['data']['comment']['content'] );
-
 	}
-
-
 }

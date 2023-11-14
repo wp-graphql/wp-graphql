@@ -19,24 +19,33 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		$this->contributor      = $this->factory()->user->create( [
-			'role' => 'contributor',
-		] );
+		$this->admin            = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+		$this->contributor      = $this->factory()->user->create(
+			[
+				'role' => 'contributor',
+			]
+		);
 
-		add_shortcode( 'wpgql_test_shortcode', function ( $attrs, $content = null ) {
-			global $post;
-			if ( 'post' !== $post->post_type ) {
-				return $content;
+		add_shortcode(
+			'wpgql_test_shortcode',
+			static function ( $attrs, $content = null ) {
+				global $post;
+				if ( 'post' !== $post->post_type ) {
+					return $content;
+				}
+
+				return 'overridden content';
 			}
+		);
 
-			return 'overridden content';
-		} );
-
-		add_shortcode( 'graphql_tests_basic_post_list', function ( $atts ) {
-			$query = '
+		add_shortcode(
+			'graphql_tests_basic_post_list',
+			function ( $atts ) {
+				$query = '
 			query basicPostList($first:Int){
 				posts(first:$first){
 					edges{
@@ -50,27 +59,27 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			}
 			';
 
-			$variables = [
-				'first' => ! empty( $atts['first'] ) ? absint( $atts['first'] ) : 5,
-			];
+				$variables = [
+					'first' => ! empty( $atts['first'] ) ? absint( $atts['first'] ) : 5,
+				];
 
-			$data  = $this->graphql( compact( 'query', 'variables' ) );
-			$edges = ! empty( $data['data']['posts']['edges'] ) ? $data['data']['posts']['edges'] : [];
+				$data  = $this->graphql( compact( 'query', 'variables' ) );
+				$edges = ! empty( $data['data']['posts']['edges'] ) ? $data['data']['posts']['edges'] : [];
 
-			if ( ! empty( $edges ) && is_array( $edges ) ) {
-				$output = '<ul class="gql-test-shortcode-list">';
-				foreach ( $edges as $edge ) {
-					$node = ! empty( $edge['node'] ) ? $edge['node'] : '';
-					if ( ! empty( $node ) && is_array( $node ) ) {
-						$output .= '<li id="' . $node['id'] . '">' . $node['title'] . ' ' . $node['date'] . '</li>';
+				if ( ! empty( $edges ) && is_array( $edges ) ) {
+					$output = '<ul class="gql-test-shortcode-list">';
+					foreach ( $edges as $edge ) {
+						$node = ! empty( $edge['node'] ) ? $edge['node'] : '';
+						if ( ! empty( $node ) && is_array( $node ) ) {
+							$output .= '<li id="' . $node['id'] . '">' . $node['title'] . ' ' . $node['date'] . '</li>';
+						}
 					}
+					$output .= '</ul>';
 				}
-				$output .= '</ul>';
+
+				return ! empty( $output ) ? $output : '';
 			}
-
-			return ! empty( $output ) ? $output : '';
-		} );
-
+		);
 	}
 
 	public function tearDown(): void {
@@ -130,7 +139,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Return the $id of the post_object that was created
 		 */
 		return $post_id;
-
 	}
 
 	/**
@@ -139,22 +147,27 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 * This tests creating a single post with data and retrieving said post via a GraphQL query
 	 *
 	 * @since 0.0.5
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testPostQuery() {
 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type' => 'post',
+			]
+		);
 
-		add_filter('upload_dir', function ( $param ) {
-			$dir           = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
-			$param['path'] = $dir;
-			return $param;
-		});
+		add_filter(
+			'upload_dir',
+			static function ( $param ) {
+				$dir           = trailingslashit( WP_CONTENT_DIR ) . 'uploads';
+				$param['path'] = $dir;
+				return $param;
+			}
+		);
 
 		/**
 		 * Create a featured image and attach it to the post
@@ -276,7 +289,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		wp_delete_attachment( $featured_image_id, true );
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -324,9 +336,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create Post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type' => 'post',
+			]
+		);
 		/**
 		 * Create the global ID based on the post_type and the created $id
 		 */
@@ -442,15 +456,19 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
 
 		// Create a comment and assign it to post.
-		$comment_id = $this->factory()->comment->create( [
-			'comment_post_ID' => $post_id,
-		] );
+		$comment_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID' => $post_id,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -514,17 +532,21 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	public function testPageQueryWithParent() {
 
 		// Parent post.
-		$parent_id = $this->createPostObject( [
-			'post_type' => 'page',
-		] );
+		$parent_id = $this->createPostObject(
+			[
+				'post_type' => 'page',
+			]
+		);
 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'   => 'page',
-			'post_parent' => $parent_id,
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'   => 'page',
+				'post_parent' => $parent_id,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -633,7 +655,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertEquals( $parent_id, $parent['pageId'] );
 		$this->assertEquals( $global_child_id, $child['id'] );
 		$this->assertEquals( $child_id, $child['pageId'] );
-
 	}
 
 	/**
@@ -648,14 +669,18 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type' => 'post',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type' => 'post',
+			]
+		);
 
 		// Create a comment and assign it to post.
-		$tag_id = $this->factory()->tag->create( [
-			'name' => 'Test Tag',
-		] );
+		$tag_id = $this->factory()->tag->create(
+			[
+				'name' => 'Test Tag',
+			]
+		);
 
 		wp_delete_object_term_relationships( $post_id, [ 'post_tag', 'category' ] );
 		wp_set_object_terms( $post_id, $tag_id, 'post_tag', true );
@@ -725,17 +750,21 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-			'post_title'  => 'Test Post for PostQueryWithCategories',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+				'post_title'  => 'Test Post for PostQueryWithCategories',
+			]
+		);
 
 		// Create a comment and assign it to post.
-		$category_id = $this->factory()->category->create( [
-			'name' => 'A category',
-		] );
+		$category_id = $this->factory()->category->create(
+			[
+				'name' => 'A category',
+			]
+		);
 
 		wp_set_object_terms( $post_id, $category_id, 'category', false );
 
@@ -797,10 +826,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'  => 'post',
-			'post_title' => 'Test Post for PostByIdQuery',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'  => 'post',
+				'post_title' => 'Test Post for PostByIdQuery',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -834,7 +865,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -845,10 +875,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'  => 'post',
-			'post_title' => 'Test post for PostByUriQuery',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'  => 'post',
+				'post_title' => 'Test post for PostByUriQuery',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -884,7 +916,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -895,21 +926,25 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a page
 		 */
-		$parent_id = $this->createPostObject( [
-			'post_type'   => 'page',
-			'post_type'   => 'page',
-			'post_title'  => 'Parent Page for PageByUri',
-			'post_name'   => 'parent-page',
-			'post_status' => 'publish',
-		] );
+		$parent_id = $this->createPostObject(
+			[
+				'post_type'   => 'page',
+				'post_type'   => 'page',
+				'post_title'  => 'Parent Page for PageByUri',
+				'post_name'   => 'parent-page',
+				'post_status' => 'publish',
+			]
+		);
 
-		$child_id = $this->createPostObject( [
-			'post_type'   => 'page',
-			'post_title'  => 'Child Page for PageByUri',
-			'post_name'   => 'child-page',
-			'post_parent' => $parent_id,
-			'post_status' => 'publish',
-		] );
+		$child_id = $this->createPostObject(
+			[
+				'post_type'   => 'page',
+				'post_title'  => 'Child Page for PageByUri',
+				'post_name'   => 'child-page',
+				'post_parent' => $parent_id,
+				'post_status' => 'publish',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -954,7 +989,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -964,12 +998,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		wp_set_current_user( $this->admin );
 
-		$post_id = $this->createPostObject( [
-			'post_type'   => 'page',
-			'post_title'  => 'Page for PageByQueries',
-			'post_author' => $this->admin,
-			'post_status' => 'publish',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'   => 'page',
+				'post_title'  => 'Page for PageByQueries',
+				'post_author' => $this->admin,
+				'post_status' => 'publish',
+			]
+		);
 
 		$path = get_page_uri( $post_id );
 		codecept_debug( $path );
@@ -1025,7 +1061,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertEquals( $node, $byUri );
 		$this->assertEquals( $node, $byPageId );
 		$this->assertEquals( $node, $byId );
-
 	}
 
 	/**
@@ -1046,7 +1081,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * This should return an error as we tried to query with an invalid ID
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -1057,10 +1091,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create the post
 		 */
-		$post_id = $this->createPostObject( [
-			'post_type'  => 'post',
-			'post_title' => 'Post that will be deleted',
-		] );
+		$post_id = $this->createPostObject(
+			[
+				'post_type'  => 'post',
+				'post_title' => 'Post that will be deleted',
+			]
+		);
 
 		/**
 		 * Get the ID
@@ -1093,7 +1129,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['postBy'] );
-
 	}
 
 	/**
@@ -1104,10 +1139,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->createPostObject( [
-			'post_type'  => 'page',
-			'post_title' => 'Test for PostByQueryWithIDForADifferentType',
-		] );
+		$page_id = $this->createPostObject(
+			[
+				'post_type'  => 'page',
+				'post_title' => 'Test for PostByQueryWithIDForADifferentType',
+			]
+		);
 
 		/**
 		 * Get the ID
@@ -1134,7 +1171,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['postBy'] );
-
 	}
 
 	/**
@@ -1246,14 +1282,19 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Add a filter that will be called when the content field from the query
 		 * above is resolved.
 		 */
-		add_filter( 'the_content', function () use ( $graphql_query_post_id ) {
-			/**
-			 * Assert that post data was correctly set up.
-			 */
-			$this->assertEquals( $graphql_query_post_id, $GLOBALS['post']->ID );
+		add_filter(
+			'the_content',
+			function () use ( $graphql_query_post_id ) {
+				/**
+				 * Assert that post data was correctly set up.
+				 */
+				$this->assertEquals( $graphql_query_post_id, $GLOBALS['post']->ID );
 
-			return 'Overridden for testPostQueryPostDataSetup';
-		}, 99, 0 );
+				return 'Overridden for testPostQueryPostDataSetup';
+			},
+			99,
+			0
+		);
 
 		/**
 		 * Run the GraphQL query
@@ -1319,7 +1360,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// original
 		// https://github.com/WordPress/WordPress/blob/b5542c6b1b41d69b4e5c26ef8280c6e85de67224/wp-includes/class-wp-query.php#L4158
 		$this->assertEquals( $main_query_post_id, $GLOBALS['id'] );
-
 	}
 
 	/**
@@ -1340,9 +1380,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->factory()->post->create( [
-			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
-		] );
+		$graphql_query_post_id = $this->factory()->post->create(
+			[
+				'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1373,7 +1415,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Asset that the query has been reset to the main query.
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
-
 	}
 
 	public function testPostQueryPageWithShortcodeInContent() {
@@ -1391,10 +1432,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_page_id = $this->factory()->post->create( [
-			'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
-			'post_type'    => 'page',
-		] );
+		$graphql_query_page_id = $this->factory()->post->create(
+			[
+				'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
+				'post_type'    => 'page',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1425,7 +1468,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Asset that the query has been reset to the main query.
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
-
 	}
 
 	/**
@@ -1453,10 +1495,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_page_id = $this->factory()->post->create( [
-			'post_content' => '<p>Some content before the shortcode</p>[graphql_tests_basic_post_list]<p>Some content after the shortcode</p>',
-			'post_type'    => 'page',
-		] );
+		$graphql_query_page_id = $this->factory()->post->create(
+			[
+				'post_content' => '<p>Some content before the shortcode</p>[graphql_tests_basic_post_list]<p>Some content after the shortcode</p>',
+				'post_type'    => 'page',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1491,7 +1535,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Asset that the query has been reset to the main query.
 		 */
 		$this->assertEquals( $main_query_post_id, $post->ID );
-
 	}
 
 	/**
@@ -1499,10 +1542,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testPrivatePosts() {
 
-		$post_id = $this->factory()->post->create( [
-			'post_status'  => 'private',
-			'post_content' => 'Test private posts',
-		] );
+		$post_id = $this->factory()->post->create(
+			[
+				'post_status'  => 'private',
+				'post_content' => 'Test private posts',
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1531,7 +1576,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -1557,13 +1601,15 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 
 		$post_date = date( 'Y-m-d H:i:s', $post_date );
-		$post_id   = $this->factory()->post->create( [
-			'post_status'  => $status,
-			'post_author'  => $author,
-			'post_title'   => $title,
-			'post_content' => $content,
-			'post_date'    => $post_date,
-		] );
+		$post_id   = $this->factory()->post->create(
+			[
+				'post_status'  => $status,
+				'post_author'  => $author,
+				'post_title'   => $title,
+				'post_content' => $content,
+				'post_date'    => $post_date,
+			]
+		);
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1633,7 +1679,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		} else {
 			$this->assertEquals( $expected, $actual['data'] );
 		}
-
 	}
 
 	public function dataProviderRestrictedPosts() {
@@ -1662,18 +1707,16 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'user'       => 'contributor',
 				'restricted' => false,
 			];
-
 		}
 
 		return $test_vars;
-
 	}
 
 
 	/**
 	 * Tests to make sure the page set as the front page shows as the front page
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testIsFrontPage() {
 
@@ -1683,17 +1726,21 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		update_option( 'show_on_front', 'post' );
 		update_option( 'page_on_front', 0 );
 
-		$pageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test Front Page',
-		]);
+		$pageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test Front Page',
+			]
+		);
 
-		$other_pageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test Not Front Page',
-		]);
+		$other_pageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test Not Front Page',
+			]
+		);
 
 		$query = '
 		query Page( $pageId: Int ) {
@@ -1705,12 +1752,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
  		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $pageId,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $pageId,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
@@ -1724,12 +1773,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Query again
 		 */
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $pageId,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $pageId,
+				],
+			]
+		);
 
 		/**
 		 * Assert that the page is showing as the front page
@@ -1741,39 +1792,44 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Query a page that is NOT set as the front page
 		 * so we can assert that isFrontPage is FALSE for it
 		 */
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $other_pageId, // <-- NOTE OTHER PAGE ID
-			],
-		]);
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $other_pageId, // <-- NOTE OTHER PAGE ID
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isFrontPage'] );
-
 	}
 
 	/**
 	 * Tests to make sure the page set as the privacy page shows as the privacy page
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testIsPrivacyPage() {
 
 		/**
 		 * Set up test
 		 */
-		$notPrivacyPageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test is not Privacy Page',
-		]);
+		$notPrivacyPageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test is not Privacy Page',
+			]
+		);
 
-		$privacyPageId = $this->factory()->post->create([
-			'post_status' => 'publish',
-			'post_type'   => 'page',
-			'post_title'  => 'Test is Privacy Page',
-		]);
+		$privacyPageId = $this->factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Test is Privacy Page',
+			]
+		);
 
 		update_option( 'wp_page_for_privacy_policy', $privacyPageId );
 
@@ -1790,12 +1846,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Make sure page not set as privacy page returns false
 		 */
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $notPrivacyPageId,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $notPrivacyPageId,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertFalse( $actual['data']['pageBy']['isPrivacyPage'] );
@@ -1803,31 +1861,34 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Make sure page set as privacy page returns true
 		 */
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'pageId' => $privacyPageId,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'pageId' => $privacyPageId,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertTrue( $actual['data']['pageBy']['isPrivacyPage'] );
-
 	}
 
 	/**
 	 * This tests to query posts using the new idType option for single
 	 * node entry points
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryPostUsingIDType() {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryPostUsingIDType',
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryPostUsingIDType',
+			]
+		);
 
 		$post = get_post( $post_id );
 
@@ -1889,9 +1950,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['postBySlugID'] );
@@ -1902,22 +1965,23 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected, $actual['data']['postByUri'] );
 		$this->assertSame( $expected, $actual['data']['postById'] );
 		$this->assertSame( $expected, $actual['data']['postByPostId'] );
-
 	}
 
 	/**
 	 * This tests to query posts using the new idType option for single
 	 * node entry points
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryPageUsingIDType() {
 
-		$page_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test for QueryPageUsingIDType',
-		]);
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Test for QueryPageUsingIDType',
+			]
+		);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', absint( $page_id ) );
 		$slug      = get_post( $page_id )->post_name;
@@ -1969,9 +2033,11 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['pageByUriID'] );
@@ -1980,22 +2046,25 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected, $actual['data']['pageByUri'] );
 		$this->assertSame( $expected, $actual['data']['pageById'] );
 		$this->assertSame( $expected, $actual['data']['pageBypageId'] );
-
 	}
 
 	public function testQueryPostOfAnotherPostTypeReturnsNull() {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
-		$page_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$query = '
 		query getPage($id:ID!){
@@ -2008,39 +2077,44 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$global_post_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_post_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $global_post_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( null, $actual['data']['page'] );
 
 		$global_page_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $global_page_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $global_page_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $global_page_id, $actual['data']['page']['id'] );
-
 	}
 
 	public function testQueryPostByPageSlugReturnsNull() {
 
 		$slug = 'test-page-slug';
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_name'   => $slug,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_name'   => $slug,
+			]
+		);
 
 		$query = '
 		query PostAndPageByUri($uri:ID!){
@@ -2055,49 +2129,55 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $slug,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $slug,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
 		$this->assertSame( $post_id, $actual['data']['page']['databaseId'] );
-
 	}
 
 	public function testQueryCustomPostTypeByPageUriReturnsNull() {
 
-		register_post_type('block', [
-			'exclude_from_search' => true,
-			'graphql_single_name' => 'block',
-			'graphql_plural_name' => 'blocks',
-			'labels'              => [
-				'edit_item'     => 'Edit Block',
-				'name'          => 'Blocks',
-				'new_item'      => 'New Block',
-				'singular_name' => 'Block',
-			],
-			'has_archive'         => true,
-			'menu_icon'           => 'dashicons-screenoptions',
-			'menu_position'       => 20,
-			'public'              => false,
-			'show_ui'             => true,
-			'show_in_graphql'     => true,
-			'show_in_menu'        => true,
-			'show_in_nav_menus'   => false,
-			'supports'            => [ 'custom-fields', 'revisions', 'title' ],
-		]);
+		register_post_type(
+			'block',
+			[
+				'exclude_from_search' => true,
+				'graphql_single_name' => 'block',
+				'graphql_plural_name' => 'blocks',
+				'labels'              => [
+					'edit_item'     => 'Edit Block',
+					'name'          => 'Blocks',
+					'new_item'      => 'New Block',
+					'singular_name' => 'Block',
+				],
+				'has_archive'         => true,
+				'menu_icon'           => 'dashicons-screenoptions',
+				'menu_position'       => 20,
+				'public'              => false,
+				'show_ui'             => true,
+				'show_in_graphql'     => true,
+				'show_in_menu'        => true,
+				'show_in_nav_menus'   => false,
+				'supports'            => [ 'custom-fields', 'revisions', 'title' ],
+			]
+		);
 
 		$slug = 'test-page-slug';
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_name'   => $slug,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_name'   => $slug,
+			]
+		);
 
 		$query = '
 		query BlockAndPageByUri($uri:ID!){
@@ -2112,17 +2192,18 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $slug,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $slug,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['block'] );
 		$this->assertSame( $post_id, $actual['data']['page']['databaseId'] );
-
 	}
 
 	public function testQueryNonPostsAsPostReturnsNull() {
@@ -2136,37 +2217,45 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 
 		// Test page.
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$uri = wp_make_link_relative( get_permalink( $post_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
 
 		// Test term.
-		$term_id = $this->factory()->term->create([
-			'taxonomy' => 'category',
-		]);
+		$term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'category',
+			]
+		);
 
 		$uri = wp_make_link_relative( get_term_link( $term_id ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
@@ -2174,12 +2263,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test User.
 		$uri = wp_make_link_relative( get_author_posts_url( $this->admin ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
@@ -2187,12 +2278,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test post type archive
 		$uri = wp_make_link_relative( get_post_type_archive_link( 'post' ) );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'uri' => $uri,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['post'] );
@@ -2206,46 +2299,54 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// the $encoded_slug will have a dash between words i.e. 'سلا-دنیا'
 		$encoded_slug = urldecode( sanitize_title( $raw_title ) );
 
-		$non_ascii_post = $this->factory()->post->create_and_get([
-			'post_title' => $raw_title,
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$non_ascii_post = $this->factory()->post->create_and_get(
+			[
+				'post_title'  => $raw_title,
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
-		codecept_debug( [
-			'$non_ascii_string' => $raw_title,
-			'$encoded_slug' => $encoded_slug,
-			'$post_name' => $non_ascii_post->post_name,
-			'post' => $non_ascii_post,
-		]);
+		codecept_debug(
+			[
+				'$non_ascii_string' => $raw_title,
+				'$encoded_slug'     => $encoded_slug,
+				'$post_name'        => $non_ascii_post->post_name,
+				'post'              => $non_ascii_post,
+			]
+		);
 
 		$query = '
 		query getPostBySlug( $id: ID! ) {
-		  post( id: $id idType: SLUG ) {
-		    __typename
-		    title
-		    slug
-		    databaseId
-		  }
+			post( id: $id idType: SLUG ) {
+				__typename
+				title
+				slug
+				databaseId
+			}
 		}
 		';
 
 		// query the post by (encoded) slug
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => $encoded_slug, // سلام-دنیا //
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $encoded_slug, // سلام-دنیا //
+				],
 			]
-		]);
+		);
 
 		// assert that the response is what we expect
-		self::assertQuerySuccessful($actual, [
-			$this->expectedField( 'post.__typename', 'Post' ),
-			$this->expectedField( 'post.title', $raw_title ),
-			$this->expectedField( 'post.slug', $encoded_slug ),
-			$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
-		]);
-
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.__typename', 'Post' ),
+				$this->expectedField( 'post.title', $raw_title ),
+				$this->expectedField( 'post.slug', $encoded_slug ),
+				$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
+			]
+		);
 	}
 
 	// create a post using unicode
@@ -2256,46 +2357,53 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// the $encoded_slug will have a dash between words i.e. 'سلا-دنیا'
 		$encoded_slug = urldecode( sanitize_title( $raw_title ) );
 
-		$non_ascii_post = $this->factory()->post->create_and_get([
-			'post_title' => $raw_title,
-			'post_status' => 'publish',
-			'post_author' => $this->admin,
-		]);
+		$non_ascii_post = $this->factory()->post->create_and_get(
+			[
+				'post_title'  => $raw_title,
+				'post_status' => 'publish',
+				'post_author' => $this->admin,
+			]
+		);
 
-		codecept_debug( [
-			'$non_ascii_string' => $raw_title,
-			'$encoded_slug' => $encoded_slug,
-			'$post_name' => $non_ascii_post->post_name,
-			'post' => $non_ascii_post,
-		]);
+		codecept_debug(
+			[
+				'$non_ascii_string' => $raw_title,
+				'$encoded_slug'     => $encoded_slug,
+				'$post_name'        => $non_ascii_post->post_name,
+				'post'              => $non_ascii_post,
+			]
+		);
 
 		$query = '
 		query getPostBySlug( $id: ID! ) {
-		  post( id: $id idType: SLUG ) {
-		    __typename
-		    title
-		    slug
-		    databaseId
-		  }
+			post( id: $id idType: SLUG ) {
+				__typename
+				title
+				slug
+				databaseId
+			}
 		}
 		';
 
 		// query the post by (encoded) slug
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'id' => $encoded_slug, // سلام-دنیا //
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $encoded_slug, // سلام-دنیا //
+				],
 			]
-		]);
+		);
 
 		// assert that the response is what we expect
-		self::assertQuerySuccessful($actual, [
-			$this->expectedField( 'post.__typename', 'Post' ),
-			$this->expectedField( 'post.title', $raw_title ),
-			$this->expectedField( 'post.slug', $encoded_slug ),
-			$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
-		]);
-
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'post.__typename', 'Post' ),
+				$this->expectedField( 'post.title', $raw_title ),
+				$this->expectedField( 'post.slug', $encoded_slug ),
+				$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
+			]
+		);
 	}
-
 }
