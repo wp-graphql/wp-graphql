@@ -2,5 +2,3 @@
 /**
  * Template Name: My custom template
  */
-
-?>

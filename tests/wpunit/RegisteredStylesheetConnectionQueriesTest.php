@@ -62,7 +62,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 				'variables' => [
 					'first' => 4,
 				],
-			] 
+			]
 		);
 
 		// Confirm it's valid.
@@ -174,7 +174,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 				'variables' => [
 					'last' => 6,
 				],
-			] 
+			]
 		);
 
 		// Confirm it's valid.
@@ -275,7 +275,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 				'variables' => [
 					'first' => 100,
 				],
-			] 
+			]
 		);
 
 		$after_cursor  = $actual['data']['registeredStylesheets']['edges'][0]['cursor'];

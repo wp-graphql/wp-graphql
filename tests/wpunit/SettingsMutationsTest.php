@@ -34,24 +34,32 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->clearSchema();
 
-		$this->subscriber      = $this->factory->user->create( [
-			'role' => 'subscriber',
-		] );
+		$this->subscriber      = $this->factory->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 		$this->subscriber_name = 'User ' . $this->subscriber;
 
-		$this->author = $this->factory->user->create( [
-			'role' => 'author',
-		] );
+		$this->author = $this->factory->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$this->editor = $this->factory->user->create( [
-			'role' => 'editor',
-		] );
+		$this->editor = $this->factory->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
 
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin      = $this->factory->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin      = $this->factory->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->admin_name = 'User ' . $this->admin;
 
 		/**
@@ -123,12 +131,16 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		* This registers a setting as a number to see if it gets the correct type
 		* associated with it and returned through WPGraphQL
 		*/
-		register_setting( 'Zool', 'points', [
-			'type'            => 'number',
-			'description'     => __( 'Test how many points we have in Zool.' ),
-			'show_in_graphql' => true,
-			'default'         => 4.5,
-		] );
+		register_setting(
+			'Zool',
+			'points',
+			[
+				'type'            => 'number',
+				'description'     => __( 'Test how many points we have in Zool.' ),
+				'show_in_graphql' => true,
+				'default'         => 4.5,
+			]
+		);
 	}
 
 	public function tearDown(): void {
@@ -190,7 +202,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 					}
 				}
 			';
-
 		} else {
 			$mutation = '
 				mutation updateSettings( $input: UpdateSettingsInput! ){
@@ -239,15 +250,14 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 					}
 				}
 			';
-
 		}
 
-		$actual = $this->graphql([
-			'query'     => $mutation,
-			'variables' => $this->update_variables,
-		]);
-
-		return $actual;
+		return $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => $this->update_variables,
+			]
+		);
 	}
 
 	/**
@@ -266,7 +276,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$actual = $this->updateSettingsMutation();
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -296,7 +305,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 		$actual = $this->graphql( compact( 'query' ) );
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -318,7 +326,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$actual = $this->updateSettingsMutation();
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
@@ -435,7 +442,6 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Compare the actual output vs the expected output
 		 */
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -468,10 +474,14 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testRegisteringSettingWithUnderscoresAllowsSettingToBeMutated() {
 
-		register_setting( 'my_setting_group', 'my_setting_field', [
-			'show_in_rest' => true,
-			'type'         => 'string',
-		] );
+		register_setting(
+			'my_setting_group',
+			'my_setting_field',
+			[
+				'show_in_rest' => true,
+				'type'         => 'string',
+			]
+		);
 
 		wp_set_current_user( $this->admin );
 
@@ -490,18 +500,19 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$unique_value = uniqid( 'test', true );
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'input' => [
-					'mySettingGroupSettingsMySettingField' => $unique_value,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'mySettingGroupSettingsMySettingField' => $unique_value,
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $unique_value, $actual['data']['updateSettings']['allSettings']['mySettingGroupSettingsMySettingField'] );
 		$this->assertSame( $unique_value, $actual['data']['updateSettings']['mySettingGroupSettings']['mySettingField'] );
 	}
-
 }

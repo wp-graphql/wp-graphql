@@ -8,9 +8,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
@@ -83,7 +85,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -303,7 +304,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @since 0.0.5
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserNodeQuery( $has_posts, $user, $private ) {
 
@@ -315,13 +316,14 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		$user_id = $this->factory->user->create( $user_args );
 
 		if ( true === $has_posts ) {
-			$this->factory()->post->create( [
-				'post_author' => $user_id,
-			] );
+			$this->factory()->post->create(
+				[
+					'post_author' => $user_id,
+				]
+			);
 		}
 
 		if ( ! empty( $user ) ) {
-
 			switch ( $user ) {
 				case 'admin':
 					$current_user = $this->admin;
@@ -335,7 +337,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			}
 
 			wp_set_current_user( $current_user );
-
 		}
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
@@ -407,12 +408,14 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$user_id = $this->factory->user->create( $user_args );
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Post for CommentNodeQuery',
-			'post_author' => $this->admin,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Post for CommentNodeQuery',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$comment_args = [
 			'user_id'         => $user_id,
@@ -480,7 +483,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -490,11 +492,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  node(id:"cG9zdF90eXBlOnBvc3Q="){
+			node(id:"cG9zdF90eXBlOnBvc3Q="){
 			...on ContentType {
-			  name
+				name
 			}
-		  }
+			}
 		}
 		';
 
@@ -507,7 +509,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -519,11 +520,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = "
 		{
-		  node(id:\"$id\"){
+			node(id:\"$id\"){
 			...on ContentType {
-			  name
+				name
 			}
-		  }
+			}
 		}
 		";
 
@@ -531,7 +532,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['node'] );
-
 	}
 
 	/**
@@ -541,11 +541,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  node(id:"dGF4b25vbXk6Y2F0ZWdvcnk="){
+			node(id:"dGF4b25vbXk6Y2F0ZWdvcnk="){
 			...on Taxonomy {
-			  name
+				name
 			}
-		  }
+			}
 		}
 		';
 
@@ -558,7 +558,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -568,11 +567,11 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  node(id:"dGF4b25vbXk6dGVzdA=="){
+			node(id:"dGF4b25vbXk6dGVzdA=="){
 			...on Taxonomy {
-			  name
+				name
 			}
-		  }
+			}
 		}
 		';
 
@@ -580,7 +579,6 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['node'] );
-
 	}
 
 	/**
@@ -590,18 +588,16 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 
 		$query = '
 		{
-		  node(id:"nonExistentId"){
+			node(id:"nonExistentId"){
 			...on Comment {
-			  id
+				id
 			}
-		  }
+			}
 		}
 		';
 
 		$actual = do_graphql_request( $query );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
-
 }

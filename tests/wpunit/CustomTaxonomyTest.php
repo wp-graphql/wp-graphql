@@ -38,14 +38,16 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testQueryCustomTaxomomy() {
 
-		$id = $this->factory()->term->create( [
-			'taxonomy' => 'test_custom_tax',
-			'name'     => 'Honda',
-		] );
+		$id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'test_custom_tax',
+				'name'     => 'Honda',
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_TAX_TERMS {
@@ -62,35 +64,42 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql( [
-			'query' => $query,
-		] );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertEquals( $id, $actual['data']['bootstrapTerms']['nodes'][0]['bootstrapTermId'] );
 		$this->assertEquals( $id, $actual['data']['bootstrapTerms']['edges'][0]['node']['bootstrapTermId'] );
-
 	}
 	public function testQueryCustomTaxomomyChildren() {
 
 		// Just create a post of the same cpt to expose issue #905
-		$this->factory()->post->create( [
-			'post_content' => 'Test post content',
-			'post_excerpt' => 'Test excerpt',
-			'post_status'  => 'publish',
-			'post_title'   => 'Test Post QueryCustomTaxomomyChildren',
-			'post_type'    => 'test_custom_tax_cpt',
-		] );
+		$this->factory()->post->create(
+			[
+				'post_content' => 'Test post content',
+				'post_excerpt' => 'Test excerpt',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test Post QueryCustomTaxomomyChildren',
+				'post_type'    => 'test_custom_tax_cpt',
+			]
+		);
 
-		$parent_id = $this->factory()->term->create( [
-			'taxonomy' => 'test_custom_tax',
-			'name'     => 'parent',
-		] );
+		$parent_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'test_custom_tax',
+				'name'     => 'parent',
+			]
+		);
 
-		$child_id = $this->factory()->term->create( [
-			'taxonomy' => 'test_custom_tax',
-			'name'     => 'child',
-			'parent'   => $parent_id,
-		] );
+		$child_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'test_custom_tax',
+				'name'     => 'child',
+				'parent'   => $parent_id,
+			]
+		);
 
 		$query = '
 		query TaxonomyChildren {
@@ -112,12 +121,13 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql( [
-			'query' => $query,
-		] );
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertEquals( 'child', $actual['data']['bootstrapTerms']['nodes'][0]['children']['nodes'][0]['name'] );
-
 	}
 
 	public function testQueryCustomTaxonomyWithSameValueForGraphqlSingleNameAndGraphqlPluralName() {
@@ -132,10 +142,12 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$term_id = $this->factory()->term->create( [
-			'taxonomy' => 'aircraft',
-			'name'     => 'Boeing 767',
-		] );
+		$term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'aircraft',
+				'name'     => 'Boeing 767',
+			]
+		);
 
 		$query = '
 		query GET_CUSTOM_TAX_TERMS( $id: ID! ) {
@@ -155,12 +167,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $term_id,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $term_id,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -172,12 +186,16 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithoutRootField() {
-		register_taxonomy( 'non_root_field', [ 'test_custom_tax_cpt' ], [
-			'show_in_graphql'             => true,
-			'graphql_single_name'         => 'NonRoot',
-			'graphql_plural_name'         => 'NonRoots',
-			'graphql_register_root_field' => false,
-		]);
+		register_taxonomy(
+			'non_root_field',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'show_in_graphql'             => true,
+				'graphql_single_name'         => 'NonRoot',
+				'graphql_plural_name'         => 'NonRoots',
+				'graphql_register_root_field' => false,
+			]
+		);
 
 		$query = '
 		query GetType( $typeName: String! ){
@@ -190,12 +208,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'RootQuery',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'RootQuery',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
@@ -215,12 +235,16 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithoutRootConnection() {
-		register_taxonomy( 'non_root_connection', [ 'test_custom_tax_cpt' ], [
-			'show_in_graphql'                  => true,
-			'graphql_single_name'              => 'NonRoot',
-			'graphql_plural_name'              => 'NonRoots',
-			'graphql_register_root_connection' => false,
-		]);
+		register_taxonomy(
+			'non_root_connection',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'show_in_graphql'                  => true,
+				'graphql_single_name'              => 'NonRoot',
+				'graphql_plural_name'              => 'NonRoots',
+				'graphql_register_root_connection' => false,
+			]
+		);
 
 		$query = '
 		query GetType( $typeName: String! ){
@@ -233,12 +257,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'RootQuery',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'RootQuery',
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
@@ -260,29 +286,38 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRegisterCustomTaxonomyWithCustomInterfaces() {
 		$value = uniqid( 'testField', true );
 
-		register_graphql_interface_type( 'TestInterface', [
-			'fields' => [
-				'testField' => [
-					'type'    => 'String',
-					'resolve' => function () use ( $value ) {
-						return $value;
-					},
+		register_graphql_interface_type(
+			'TestInterface',
+			[
+				'fields' => [
+					'testField' => [
+						'type'    => 'String',
+						'resolve' => static function () use ( $value ) {
+							return $value;
+						},
+					],
 				],
-			],
-		]);
+			]
+		);
 
-		register_taxonomy( 'custom_interface', [ 'test_custom_tax_cpt' ], [
-			'show_in_graphql'     => true,
-			'public'              => true,
-			'graphql_single_name' => 'CustomInterface',
-			'graphql_plural_name' => 'CustomInterfaces',
-			'graphql_interfaces'  => [ 'TestInterface' ],
-		]);
+		register_taxonomy(
+			'custom_interface',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'show_in_graphql'     => true,
+				'public'              => true,
+				'graphql_single_name' => 'CustomInterface',
+				'graphql_plural_name' => 'CustomInterfaces',
+				'graphql_interfaces'  => [ 'TestInterface' ],
+			]
+		);
 
-		$term_id = self::factory()->term->create([
-			'taxonomy' => 'custom_interface',
-			'name'     => 'my test term',
-		]);
+		$term_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'custom_interface',
+				'name'     => 'my test term',
+			]
+		);
 
 		$query = '
 		query getCustomInterfacePost($id:ID!){
@@ -296,19 +331,24 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $term_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $term_id,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'customInterface.__typename', 'CustomInterface' ),
-			$this->expectedField( 'customInterface.databaseId', $term_id ),
-			$this->expectedField( 'customInterface.testField', $value ),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'customInterface.__typename', 'CustomInterface' ),
+				$this->expectedField( 'customInterface.databaseId', $term_id ),
+				$this->expectedField( 'customInterface.testField', $value ),
+			]
+		);
 
 		// now we want to query type from the schema and assert that it
 		// has the interface applied and the field from the interface
@@ -329,65 +369,95 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'CustomInterface',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'CustomInterface',
+				],
+			]
+		);
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedObject( '__type.fields', [
-				'name' => 'testField',
-			]),
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'TestInterface',
-			]),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedObject(
+					'__type.fields',
+					[
+						'name' => 'testField',
+					]
+				),
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'TestInterface',
+					]
+				),
+			]
+		);
 
 		// Now, query for the TestInterface type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'TestInterface',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'TestInterface',
+				],
+			]
+		);
 
 		// assert that it has the testField field, and that the CustomInterface is the
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedObject( '__type.fields', [
-				'name' => 'testField',
-			]),
-			$this->expectedObject( '__type.possibleTypes', [
-				'name' => 'CustomInterface',
-			]),
-		]);
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedObject(
+					'__type.fields',
+					[
+						'name' => 'testField',
+					]
+				),
+				$this->expectedObject(
+					'__type.possibleTypes',
+					[
+						'name' => 'CustomInterface',
+					]
+				),
+			]
+		);
 
 		// assert that the only Type that implements the TestInterface is the CustomInterface type
 		// i.e. it hasn't accidentally leaked into being applied to other post types
-		$this->assertEqualSets( [
-			[ 'name' => 'CustomInterface' ],
-		], $actual['data']['__type']['possibleTypes'] );
+		$this->assertEqualSets(
+			[
+				[ 'name' => 'CustomInterface' ],
+			],
+			$actual['data']['__type']['possibleTypes']
+		);
 
 		unregister_taxonomy( 'custom_interface' );
-
 	}
 
 	public function testRegisterCustomTaxonomyWithExcludedInterfaces() {
-		register_taxonomy( 'removed_interfaces', [ 'test_custom_tax_cpt' ], [
-			'show_in_graphql'            => true,
-			'public'                     => true,
-			'hierarchical'               => true,
-			'show_in_nav_menus'          => true,
-			'graphql_single_name'        => 'CustomInterfaceExcluded',
-			'graphql_plural_name'        => 'CustomInterfacesExcluded',
-			'graphql_exclude_interfaces' => [ 'HierarchicalTermNode' ],
-		]);
+		register_taxonomy(
+			'removed_interfaces',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'show_in_graphql'            => true,
+				'public'                     => true,
+				'hierarchical'               => true,
+				'show_in_nav_menus'          => true,
+				'graphql_single_name'        => 'CustomInterfaceExcluded',
+				'graphql_plural_name'        => 'CustomInterfacesExcluded',
+				'graphql_exclude_interfaces' => [ 'HierarchicalTermNode' ],
+			]
+		);
 
-		$term_id = self::factory()->term->create([
-			'taxonomy' => 'removed_interfaces',
-			'name'     => 'my test term',
-		]);
+		$term_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'removed_interfaces',
+				'name'     => 'my test term',
+			]
+		);
 
 		$query = '
 		query getCustomInterfaceExcludedPost($id:ID!){
@@ -397,12 +467,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'id' => $term_id,
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $term_id,
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -427,52 +499,69 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'CustomInterfaceExcluded',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'CustomInterfaceExcluded',
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertNotContains( $actual['data']['__type']['interfaces'], [
-			[ 'name' => 'HierarchicalTermNode' ],
-		] );
-		$this->assertNotContains( $actual['data']['__type']['fields'], [
-			[ 'name' => 'parentDatabaseId' ],
-		]);
+		$this->assertNotContains(
+			$actual['data']['__type']['interfaces'],
+			[
+				[ 'name' => 'HierarchicalTermNode' ],
+			]
+		);
+		$this->assertNotContains(
+			$actual['data']['__type']['fields'],
+			[
+				[ 'name' => 'parentDatabaseId' ],
+			]
+		);
 
 		// Now, query for the HierarchicalTermNode type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'HierarchicalTermNode',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'HierarchicalTermNode',
+				],
+			]
+		);
 
 		$this->assertIsValidQueryResponse( $actual );
-		$this->assertNotContains( $actual['data']['__type']['possibleTypes'], [
-			[ 'name' => 'CustomInterfaceExcluded' ],
-		] );
+		$this->assertNotContains(
+			$actual['data']['__type']['possibleTypes'],
+			[
+				[ 'name' => 'CustomInterfaceExcluded' ],
+			]
+		);
 
 		unregister_taxonomy( 'removed_interfaces' );
 	}
 
 	public function testRegisterCustomTaxonomyWithConnections() {
-		register_taxonomy( 'with_connections', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithConnection',
-			'graphql_plural_name' => 'WithConnections',
-			'graphql_connections' => [
-				'connectionFieldName' => [
-					'toType'  => 'Post',
-					'resolve' => function () {
-						return null;
-					},
+		register_taxonomy(
+			'with_connections',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithConnection',
+				'graphql_plural_name' => 'WithConnections',
+				'graphql_connections' => [
+					'connectionFieldName' => [
+						'toType'  => 'Post',
+						'resolve' => static function () {
+							return null;
+						},
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$query = '
 		{
@@ -490,9 +579,11 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$response = $this->graphql([
-			'query' => $query,
-		]);
+		$response = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// assert that the query is valid
 		$this->assertIsValidQueryResponse( $response );
@@ -510,12 +601,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		// query the WithConnection type
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'typeName' => 'WithConnection',
-			],
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'typeName' => 'WithConnection',
+				],
+			]
+		);
 
 		$names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 		codecept_debug( [ 'names' => $names ] );
@@ -528,17 +621,20 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertContains( 'connectionFieldName', $names );
 
 		unregister_taxonomy( 'with_connections' );
-
 	}
 
 	public function testRegisterTaxonomyWithExcludedConnections() {
-		register_taxonomy( 'missing_connections', [ 'test_custom_tax_cpt' ], [
-			'public'                      => true,
-			'show_in_graphql'             => true,
-			'graphql_single_name'         => 'ExcludedConnection',
-			'graphql_plural_name'         => 'ExcludedConnections',
-			'graphql_exclude_connections' => [ 'contentNodes' ],
-		]);
+		register_taxonomy(
+			'missing_connections',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'                      => true,
+				'show_in_graphql'             => true,
+				'graphql_single_name'         => 'ExcludedConnection',
+				'graphql_plural_name'         => 'ExcludedConnections',
+				'graphql_exclude_connections' => [ 'contentNodes' ],
+			]
+		);
 
 		$query = '
 		{
@@ -573,29 +669,41 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithInterfaceKind',
-			'graphql_plural_name' => 'WithInterfaceKinds',
-			'graphql_kind'        => 'interface',
-		]);
-		register_taxonomy( 'with_union_kind_one', [ 'test_custom_tax_cpt' ], [
-			'public'              => true,
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'WithUnionKindOne',
-			'graphql_plural_name' => 'WithUnionKindOnes',
-			'graphql_kind'        => 'union',
-		]);
+		register_taxonomy(
+			'with_interface_kind',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithInterfaceKind',
+				'graphql_plural_name' => 'WithInterfaceKinds',
+				'graphql_kind'        => 'interface',
+			]
+		);
+		register_taxonomy(
+			'with_union_kind_one',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'WithUnionKindOne',
+				'graphql_plural_name' => 'WithUnionKindOnes',
+				'graphql_kind'        => 'union',
+			]
+		);
 
-		register_taxonomy( 'with_union_kind_two', [ 'test_custom_tax_cpt' ], [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithUnionKindTwo',
-			'graphql_plural_name'  => 'WithUnionKindTwos',
-			'graphql_kind'         => 'union',
-			'graphql_resolve_type' => $this->resolve_type(),
-		]);
+		register_taxonomy(
+			'with_union_kind_two',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKindTwo',
+				'graphql_plural_name'  => 'WithUnionKindTwos',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+			]
+		);
 
 		// Don't clutter up the log.
 		$actual = graphql( [ 'query' => $query ] );
@@ -604,7 +712,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEmpty( $actual['data']['taxonomies']['nodes'] );
 
 		$error_object_names = array_map(
-			function ( $obj ){
+			static function ( $obj ) {
 				return $obj->name;
 			},
 			array_column( $actual['extensions']['debug'], 'registered_taxonomy_object' )
@@ -622,51 +730,65 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithInterfaceKind() {
-		register_taxonomy( 'with_interface_kind', [ 'test_custom_tax_cpt' ], [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithInterfaceKind',
-			'graphql_plural_name'  => 'WithInterfaceKinds',
-			'graphql_kind'         => 'interface',
-			'graphql_resolve_type' => $this->resolve_type(),
-		]);
-
-		register_graphql_object_type( 'ChildTypeOne', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'WithInterfaceKind' ],
-			'fields' => [
-				'isTypeOne' => [
-					'type' => 'Boolean',
-					'resolve' => function( $term ) {
-						return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
-					}
-				]
+		register_taxonomy(
+			'with_interface_kind',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithInterfaceKind',
+				'graphql_plural_name'  => 'WithInterfaceKinds',
+				'graphql_kind'         => 'interface',
+				'graphql_resolve_type' => $this->resolve_type(),
 			]
-		]);
+		);
 
-		register_graphql_object_type( 'ChildTypeTwo', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'WithInterfaceKind' ],
-			'fields' => [
-				'isTypeTwo' => [
-					'type' => 'Boolean',
-					'resolve' => function( $term ) {
-						return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
-					}
-				]
+		register_graphql_object_type(
+			'ChildTypeOne',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'WithInterfaceKind' ],
+				'fields'          => [
+					'isTypeOne' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $term ) {
+							return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
+						},
+					],
+				],
 			]
-		]);
+		);
 
-		$term_one_id = $this->factory()->term->create( [
-			'taxonomy' => 'with_interface_kind',
-			'name'     => 'Interface child 1',
-		] );
+		register_graphql_object_type(
+			'ChildTypeTwo',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'WithInterfaceKind' ],
+				'fields'          => [
+					'isTypeTwo' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $term ) {
+							return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
+						},
+					],
+				],
+			]
+		);
+
+		$term_one_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'with_interface_kind',
+				'name'     => 'Interface child 1',
+			]
+		);
 		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
 
-		$term_two_id = $this->factory()->term->create( [
-			'taxonomy' => 'with_interface_kind',
-			'name'     => 'Interface child 2',
-		] );
+		$term_two_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'with_interface_kind',
+				'name'     => 'Interface child 2',
+			]
+		);
 		add_term_meta( $term_two_id, 'child_type', 'ChildTypeTwo' );
 
 		$this->clearSchema();
@@ -703,55 +825,69 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testRegisterTaxonomyWithUnionKind() {
-		register_taxonomy( 'with_union_kind', [ 'test_custom_tax_cpt' ], [
-			'public'               => true,
-			'show_in_graphql'      => true,
-			'graphql_single_name'  => 'WithUnionKind',
-			'graphql_plural_name'  => 'WithUnionKinds',
-			'graphql_kind'         => 'union',
-			'graphql_resolve_type' => $this->resolve_type(),
-			'graphql_union_types'  => [
-				'ChildTypeOne',
-				'ChildTypeTwo',
-			],
-		]);
-
-		register_graphql_object_type( 'ChildTypeOne', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'TermNode' ],
-			'fields' => [
-				'isTypeOne' => [
-					'type' => 'Boolean',
-					'resolve' => function( $term ) {
-						return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
-					}
-				]
+		register_taxonomy(
+			'with_union_kind',
+			[ 'test_custom_tax_cpt' ],
+			[
+				'public'               => true,
+				'show_in_graphql'      => true,
+				'graphql_single_name'  => 'WithUnionKind',
+				'graphql_plural_name'  => 'WithUnionKinds',
+				'graphql_kind'         => 'union',
+				'graphql_resolve_type' => $this->resolve_type(),
+				'graphql_union_types'  => [
+					'ChildTypeOne',
+					'ChildTypeTwo',
+				],
 			]
-		]);
+		);
 
-		register_graphql_object_type( 'ChildTypeTwo', [
-			'eagerlyLoadType' => true,
-			'interfaces' => [ 'TermNode' ],
-			'fields' => [
-				'isTypeTwo' => [
-					'type' => 'Boolean',
-					'resolve' => function( $term ) {
-						return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
-					}
-				]
+		register_graphql_object_type(
+			'ChildTypeOne',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'TermNode' ],
+				'fields'          => [
+					'isTypeOne' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $term ) {
+							return 'ChildTypeOne' === get_term_meta( $term->databaseId, 'child_type', true );
+						},
+					],
+				],
 			]
-		]);
+		);
 
-		$term_one_id = $this->factory()->term->create( [
-			'taxonomy' => 'with_union_kind',
-			'name'     => 'Union child 1',
-		] );
+		register_graphql_object_type(
+			'ChildTypeTwo',
+			[
+				'eagerlyLoadType' => true,
+				'interfaces'      => [ 'TermNode' ],
+				'fields'          => [
+					'isTypeTwo' => [
+						'type'    => 'Boolean',
+						'resolve' => static function ( $term ) {
+							return 'ChildTypeTwo' === get_term_meta( $term->databaseId, 'child_type', true );
+						},
+					],
+				],
+			]
+		);
+
+		$term_one_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'with_union_kind',
+				'name'     => 'Union child 1',
+			]
+		);
 		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
 
-		$term_two_id = $this->factory()->term->create( [
-			'taxonomy' => 'with_union_kind',
-			'name'     => 'Union child 2',
-		] );
+		$term_two_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'with_union_kind',
+				'name'     => 'Union child 2',
+			]
+		);
 		add_term_meta( $term_two_id, 'child_type', 'ChildTypeTwo' );
 
 		$this->clearSchema();
@@ -790,7 +926,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 
 	public function resolve_type() {
-		return function ( $value ) {
+		return static function ( $value ) {
 			$type_registry = WPGraphQL::get_type_registry();
 
 			$type = null;
@@ -807,38 +943,44 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testExcludeCreateMutation() {
 
-		register_taxonomy( 'without_create', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutCreate',
-			'graphql_plural_name' => 'WithoutCreates',
-			'graphql_exclude_mutations' => [ 'create' ],
-		]);
+		register_taxonomy(
+			'without_create',
+			'post',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutCreate',
+				'graphql_plural_name'       => 'WithoutCreates',
+				'graphql_exclude_mutations' => [ 'create' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
-		$this->assertContains(  'deleteWithoutCreate', $field_names );
-		$this->assertContains(  'updateWithoutCreate', $field_names );
+		$this->assertContains( 'deleteWithoutCreate', $field_names );
+		$this->assertContains( 'updateWithoutCreate', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'createWithoutCreate', $field_names );
+		$this->assertNotContains( 'createWithoutCreate', $field_names );
 
 		unregister_taxonomy( 'without_create' );
 	}
@@ -846,133 +988,153 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testExcludeDeleteMutation() {
 
 
-		register_taxonomy( 'without_delete', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutDelete',
-			'graphql_plural_name' => 'WithoutDeletes',
-			'graphql_exclude_mutations' => [ 'delete' ],
-		]);
+		register_taxonomy(
+			'without_delete',
+			'post',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutDelete',
+				'graphql_plural_name'       => 'WithoutDeletes',
+				'graphql_exclude_mutations' => [ 'delete' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
-		$this->assertContains(  'createWithoutDelete', $field_names );
-		$this->assertContains(  'updateWithoutDelete', $field_names );
+		$this->assertContains( 'createWithoutDelete', $field_names );
+		$this->assertContains( 'updateWithoutDelete', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'deleteWithoutDelete', $field_names );
+		$this->assertNotContains( 'deleteWithoutDelete', $field_names );
 
 		unregister_taxonomy( 'without_delete' );
-
 	}
 
 	public function testExcludeUpdateMutation() {
 
 
-		register_taxonomy( 'without_update', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'WithoutUpdate',
-			'graphql_plural_name' => 'WithoutUpdates',
-			'graphql_exclude_mutations' => [ 'update' ],
-		]);
+		register_taxonomy(
+			'without_update',
+			'post',
+			[
+				'public'                    => true,
+				'show_in_graphql'           => true,
+				'graphql_single_name'       => 'WithoutUpdate',
+				'graphql_plural_name'       => 'WithoutUpdates',
+				'graphql_exclude_mutations' => [ 'update' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"RootMutation") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"RootMutation") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
 
 		$field_names = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
-		$this->assertContains(  'createWithoutUpdate', $field_names );
-		$this->assertContains(  'deleteWithoutUpdate', $field_names );
+		$this->assertContains( 'createWithoutUpdate', $field_names );
+		$this->assertContains( 'deleteWithoutUpdate', $field_names );
 
 		// we excluded this mutation
-		$this->assertNotContains(  'updateWithoutUpdate', $field_names );
+		$this->assertNotContains( 'updateWithoutUpdate', $field_names );
 
 		unregister_taxonomy( 'without_update' );
-
 	}
 
 	public function testRegisterTaxonomyWithGraphqlFields() {
 
-		register_taxonomy( 'gql_fields', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'GraphqlField',
-			'graphql_plural_name' => 'GraphqlFields',
+		register_taxonomy(
+			'gql_fields',
+			'post',
+			[
+				'public'              => true,
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'GraphqlField',
+				'graphql_plural_name' => 'GraphqlFields',
 
-			# we're testing that this field was added to the Schema when
-			# registering a post type
-			'graphql_fields' => [
-				'testField' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-						return 'test value';
-					}
-				]
+				// we're testing that this field was added to the Schema when
+				// registering a post type
+				'graphql_fields'      => [
+					'testField' => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
+				],
 			]
-		] );
+		);
 
 		$this->clearSchema();
 
-		$term_id = $this->factory()->term->create([
-			'taxonomy' => 'gql_fields',
-			'name' => 'Test GraphQL Fields',
-		]);
+		$term_id = $this->factory()->term->create(
+			[
+				'taxonomy' => 'gql_fields',
+				'name'     => 'Test GraphQL Fields',
+			]
+		);
 
-		$post_id = $this->factory()->post->create([
-			'post_type' => 'post',
-			'post_status' => 'publish'
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			]
+		);
 
 		wp_set_object_terms( $post_id, [ $term_id ], 'gql_fields' );
 
 		$query = '
 		{
-		  graphqlFields {
-		    nodes {
-		      id
-		      databaseId
-		      name
-		      testField
-		    }
-		  }
+			graphqlFields {
+				nodes {
+					id
+					databaseId
+					name
+					testField
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'test value', $actual['data']['graphqlFields']['nodes'][0]['testField'] );
@@ -980,53 +1142,58 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_term( $term_id, 'gql_fields' );
 		unregister_taxonomy( 'gql_fields' );
-
 	}
 
 	public function testRegisterTaxonomyWithGraphqlExcludeFields() {
 
-		register_taxonomy( 'gql_exclude_fields', 'post', [
-			'public' => true,
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'GraphqlExcludeField',
-			'graphql_plural_name' => 'GraphqlExcludeFields',
+		register_taxonomy(
+			'gql_exclude_fields',
+			'post',
+			[
+				'public'                 => true,
+				'show_in_graphql'        => true,
+				'graphql_single_name'    => 'GraphqlExcludeField',
+				'graphql_plural_name'    => 'GraphqlExcludeFields',
 
-			# we're testing that this field was added to the Schema when
-			# registering a post type
-			'graphql_fields' => [
-				'testField' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-						return 'test value';
-					}
+				// we're testing that this field was added to the Schema when
+				// registering a post type
+				'graphql_fields'         => [
+					'testField'    => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
+					'testFieldTwo' => [
+						'type'        => 'String',
+						'description' => 'test field',
+						'resolve'     => static function () {
+							return 'test value';
+						},
+					],
 				],
-				'testFieldTwo' => [
-					'type' => 'String',
-					'description' => 'test field',
-					'resolve' => function() {
-						return 'test value';
-					}
-				]
-			],
-			'graphql_exclude_fields' => [ 'testField' ]
-		] );
+				'graphql_exclude_fields' => [ 'testField' ],
+			]
+		);
 
 		$this->clearSchema();
 
 		$query = '
 		query {
-		  __type(name:"GraphqlExcludeField") {
-		    fields {
-		      name
-		    }
-		  }
+			__type(name:"GraphqlExcludeField") {
+				fields {
+					name
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertNotEmpty( $actual['data']['__type']['fields'] );
 
@@ -1035,13 +1202,12 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// we included 2 fields, then excluded 1
 
 		// the excluded field should not be present
-		$this->assertNotContains(  'testField', $field_names );
+		$this->assertNotContains( 'testField', $field_names );
 
 		// the included field that was not excluded should still remain
-		$this->assertContains(  'testFieldTwo', $field_names );
+		$this->assertContains( 'testFieldTwo', $field_names );
 
 		unregister_taxonomy( 'gql_exclude_fields' );
-
 	}
 
 	public function testRegisterCustomPostTypeWithUnderscoresInGraphqlNameHasValidSchema() {
@@ -1067,48 +1233,59 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Assert true upon success.
 		$this->assertTrue( true );
-
 	}
 
 	public function testRegisterTaxonomyWithoutGraphqlPluralNameIsValid() {
 
-		register_taxonomy( 'tax_no_plural', 'post',[
-			'show_in_graphql' => true,
-			'graphql_single_name' => 'taxNoPlural'
-		]);
+		register_taxonomy(
+			'tax_no_plural',
+			'post',
+			[
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'taxNoPlural',
+			]
+		);
 
 		$request = new \WPGraphQL\Request();
 		$request->schema->assertValid();
 
 		$query = '
 		{
-		  allTaxNoPlural {
-		    nodes {
-		      id
-		    }
-		  }
+			allTaxNoPlural {
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'allTaxNoPlural.nodes', self::IS_FALSY )
-		]);
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'allTaxNoPlural.nodes', self::IS_FALSY ),
+			]
+		);
 
 		unregister_taxonomy( 'tax_no_plural' );
-
 	}
 
 	public function testRegisterTaxonomyWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
-		register_taxonomy( 'tax_no_single_plural', 'post',[
-			'show_in_graphql' => true,
+		register_taxonomy(
+			'tax_no_single_plural',
+			'post',
+			[
+				'show_in_graphql' => true,
 			// no graphql_single_name
 			// no graphql_plural_name
-		]);
+			]
+		);
 
 		// assert that the schema is still valid, even though the tax
 		// didn't provide the single/plural name (it will be left out of the schema)
@@ -1116,7 +1293,5 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$request->schema->assertValid();
 
 		unregister_taxonomy( 'tax_no_single_plural' );
-
 	}
-
 }

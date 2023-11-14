@@ -2,7 +2,7 @@
 
 use GraphQLRelay\Relay;
 
-class MenuItemQueriesTest extends  \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
+class MenuItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $admin;
 	public $location_name;
@@ -12,9 +12,11 @@ class MenuItemQueriesTest extends  \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		add_theme_support( 'nav_menus' );
 
@@ -181,5 +183,4 @@ class MenuItemQueriesTest extends  \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		';
 	}
-
 }

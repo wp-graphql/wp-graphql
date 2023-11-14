@@ -22,11 +22,11 @@ class MenuItemConnectionResolverTest extends \Codeception\TestCase\WPTestCase {
 		$query = '
 		{
 			menuItems {
-			  nodes {
+				nodes {
 				id
-			  }
+				}
 			}
-		  }
+			}
 		';
 
 		$actual = do_graphql_request( $query );

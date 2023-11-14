@@ -23,23 +23,24 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		    }
-		  }
+			posts {
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
-		$response = $this->graphql([
-			'query' => $query,
-		]);
+		$response = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		codecept_debug( $response );
 
 		$this->assertIsValidQueryResponse( $response );
 		$this->assertNotEmpty( $response['extensions']['tracing'] );
-
 	}
 
 	public function testQueryByGraphqlIdWorksWithTracingEnabled() {
@@ -52,23 +53,23 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      id
-		    }
-		  }
+			posts {
+				nodes {
+					id
+				}
+			}
 		}
 		';
 
-		$response = $this->graphql([
-			'queryId' => $query,
-		]);
+		$response = $this->graphql(
+			[
+				'queryId' => $query,
+			]
+		);
 
 		codecept_debug( $response );
 
 		$this->assertIsValidQueryResponse( $response );
 		$this->assertNotEmpty( $response['extensions']['tracing'] );
-
 	}
-
 }

@@ -4,7 +4,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	public $created_taxonomy_ids;
 
 	/**
-	 * @var array|string[]|WP_Taxonomy[]
+	 * @var array|string[]|\WP_Taxonomy[]
 	 */
 	public $taxonomies = [];
 
@@ -16,7 +16,6 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->clearSchema();
 
 		$this->taxonomies = get_taxonomies( [ 'show_in_graphql' => true ] );
-
 	}
 
 	public function tearDown(): void {
@@ -55,7 +54,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$alphabet = range( 'A', 'Z' );
 
 		$created_taxonomies = [];
-		for ( $i = 1; $i <= 3; $i ++ ) {
+		for ( $i = 1; $i <= 3; $i++ ) {
 			$created_taxonomies[ $i ] = $this->createTaxonomyObject(
 				'tax_connection_queries-' . $alphabet[ $i ],
 				[
@@ -296,15 +295,14 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( $expected, $actual['data']['taxonomies']['nodes'][0] );
-
 	}
 
 		/**
-	 * Common asserts for testing pagination.
-	 *
-	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
-	 * @param array $actual The GraphQL results.
-	 */
+		 * Common asserts for testing pagination.
+		 *
+		 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+		 * @param array $actual The GraphQL results.
+		 */
 	public function assertValidPagination( $expected, $actual ) {
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -326,5 +324,4 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEquals( $start_cursor, $actual['data']['taxonomies']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['taxonomies']['pageInfo']['endCursor'] );
 	}
-
 }

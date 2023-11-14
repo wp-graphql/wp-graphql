@@ -7,15 +7,17 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	public $admin;
 	public $created_menus;
 
-	public function setUp():void {
+	public function setUp(): void {
 		// before
 
 		$this->clearSchema();
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		add_theme_support( 'nav_menu_locations' );
 		register_nav_menu( 'my-menu-location', 'My Menu' );
@@ -33,9 +35,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	public function createMenuObject( $slug = '' ) {
 		$menu_slug = $slug ?: 'my-test-menu';
 
-		$menu_id = wp_create_nav_menu( $menu_slug );
-
-		return $menu_id;
+		return wp_create_nav_menu( $menu_slug );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	public function create_menus() {
 		// Create 6 menus
 		$created_menus = [];
-		for ( $i = 1; $i <= 6; $i ++ ) {
+		for ( $i = 1; $i <= 6; $i++ ) {
 			// Set the date 1 minute apart for each post
 			$menu_slug           = 'my-test-menu-' . $i;
 			$created_menus[ $i ] = $this->createMenuObject( $menu_slug );
@@ -400,5 +400,4 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertEquals( $start_cursor, $actual['data']['menus']['pageInfo']['startCursor'] );
 		$this->assertEquals( $end_cursor, $actual['data']['menus']['pageInfo']['endCursor'] );
 	}
-
 }

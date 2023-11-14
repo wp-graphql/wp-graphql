@@ -51,19 +51,25 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		/**
 		 * Set up different user roles for permissions testing
 		 */
-		$this->subscriber      = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		] );
+		$this->subscriber      = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 		$this->subscriber_name = 'User ' . $this->subscriber;
 
-		$this->author      = $this->factory()->user->create( [
-			'role' => 'author',
-		] );
+		$this->author      = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin      = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin      = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->admin_name = 'User ' . $this->admin;
 
 		/**
@@ -100,10 +106,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 * Create a mediaItem to update and store it's WordPress post ID
 		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
 		 */
-		$this->attachment_id = $this->factory()->attachment->create( [
-			'post_mime_type' => 'image/gif',
-			'post_author'    => $this->admin,
-		] );
+		$this->attachment_id = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->admin,
+			]
+		);
 		$this->media_item_id = \GraphQLRelay\Relay::toGlobalId( 'post', $this->attachment_id );
 
 		/**
@@ -231,10 +239,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 			}
 		';
 
-		return $this->graphql( [
-			'query'     => $query,
-			'variables' => $this->create_variables,
-		]);
+		return $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $this->create_variables,
+			]
+		);
 	}
 
 	/**
@@ -288,10 +298,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 		';
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => '',
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => '',
+			]
+		);
 		$this->assertArrayHasKey( 'errors', $actual );
 	}
 
@@ -404,10 +416,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testCreateMediaItemAttachToParentAsAuthor() {
-		$post                                        = $this->factory()->post->create( [
-			'post_author' => $this->admin,
-			'post_status' => 'publish',
-		] );
+		$post                                        = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_status' => 'publish',
+			]
+		);
 		$this->create_variables['input']['parentId'] = absint( $post );
 
 		/**
@@ -418,15 +432,16 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->createMediaItemMutation();
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testCreateMediaItemAttachToParentAsAdmin() {
 
-		$post                                        = $this->factory()->post->create( [
-			'post_author' => $this->admin,
-			'post_status' => 'publish',
-		] );
+		$post                                        = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+				'post_status' => 'publish',
+			]
+		);
 		$this->create_variables['input']['parentId'] = absint( $post );
 
 		wp_set_current_user( $this->admin );
@@ -512,9 +527,11 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testCreateMediaItemEditOthersPosts() {
-		$post = $this->factory()->post->create( [
-			'post_author' => $this->admin,
-		] );
+		$post = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+			]
+		);
 		wp_set_current_user( $this->author );
 		$this->create_variables['input']['parentId'] = $post;
 		$actual                                      = $this->createMediaItemMutation();
@@ -676,7 +693,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -793,10 +809,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 		';
 
-		return $this->graphql([
-			'query'     => $query,
-			'variables' => $this->update_variables,
-		]);
+		return $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $this->update_variables,
+			]
+		);
 	}
 
 	/**
@@ -850,9 +868,11 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testUpdateMediaItemEditOthersPosts() {
-		$post = $this->factory()->post->create( [
-			'post_author' => $this->admin,
-		] );
+		$post = $this->factory()->post->create(
+			[
+				'post_author' => $this->admin,
+			]
+		);
 		wp_set_current_user( $this->author );
 		$this->update_variables['input']['parentId'] = $post;
 		$actual                                      = $this->updateMediaItemMutation();
@@ -950,7 +970,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 * Compare the actual output vs the expected output
 		 */
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	/**
@@ -976,10 +995,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		}
 		';
 
-		return $this->graphql( [
-			'query'     => $mutation,
-			'variables' => $this->delete_variables,
-		]);
+		return $this->graphql(
+			[
+				'query'     => $mutation,
+				'variables' => $this->delete_variables,
+			]
+		);
 	}
 
 	/**
@@ -1091,7 +1112,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual              = do_graphql_request( $mutation, 'deleteMediaItem', $delete_trash_variables );
 		$actual_deleted_item = $actual['data']['deleteMediaItem'];
 		$this->assertArrayHasKey( 'deletedId', $actual_deleted_item );
-
 	}
 
 	/**
@@ -1134,7 +1154,6 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->delete_variables['input']['id'] = $this->media_item_id;
-
 	}
 
 	/**
@@ -1188,10 +1207,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
 
-		$media_item_1 = $this->factory()->attachment->create( [
-			'post_mime_type' => 'image/gif',
-			'post_author'    => $this->author,
-		] );
+		$media_item_1 = $this->factory()->attachment->create(
+			[
+				'post_mime_type' => 'image/gif',
+				'post_author'    => $this->author,
+			]
+		);
 
 		wp_set_current_user( $this->author );
 
@@ -1205,39 +1226,40 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->updateMediaItemMutation();
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testCannotInputPharAsFilePath() {
 
 		$query = '
 		mutation CreateMediaItem( $input: CreateMediaItemInput! ) {
-		  createMediaItem(input: $input) {
-		    mediaItem {
-		      link
-		      sourceUrl
-		      uri
-		    }
-		  }
+			createMediaItem(input: $input) {
+				mediaItem {
+					link
+					sourceUrl
+					uri
+				}
+			}
 		}
 		';
 
 		$variables = [
-			"input" => [
-				"filePath" => "php://filter/resource=phar://phar.jpeg"
-			]
+			'input' => [
+				'filePath' => 'php://filter/resource=phar://phar.jpeg',
+			],
 		];
 
 		// set the user as admin, as they have privileges to create media items
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $variables,
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -1248,36 +1270,37 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$this->assertQueryError( $actual, $expected );
-
 	}
 
 	public function testCannotInputLocalhostAsFilePath() {
 
 		$query = '
 		mutation CreateMediaItem( $input: CreateMediaItemInput! ) {
-		  createMediaItem(input: $input) {
-		    mediaItem {
-		      link
-		      sourceUrl
-		      uri
-		    }
-		  }
+			createMediaItem(input: $input) {
+				mediaItem {
+					link
+					sourceUrl
+					uri
+				}
+			}
 		}
 		';
 
 		$variables = [
-			"input" => [
-				"filePath" => "http://127.0.0.1:8000/?t=img.png"
-			]
+			'input' => [
+				'filePath' => 'http://127.0.0.1:8000/?t=img.png',
+			],
 		];
 
 		// set the user as admin, as they have privileges to create media items
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => $variables,
-		]);
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => $variables,
+			]
+		);
 
 		codecept_debug( $actual );
 
@@ -1288,8 +1311,5 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		];
 
 		$this->assertQueryError( $actual, $expected );
-
 	}
-
-
 }
