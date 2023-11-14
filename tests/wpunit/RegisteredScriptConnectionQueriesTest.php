@@ -62,7 +62,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 				'variables' => [
 					'first' => 4,
 				],
-			] 
+			]
 		);
 
 		// Confirm it's valid.
@@ -176,7 +176,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 				'variables' => [
 					'last' => 6,
 				],
-			] 
+			]
 		);
 
 		// Confirm it's valid.
@@ -276,7 +276,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 				'variables' => [
 					'first' => 100,
 				],
-			] 
+			]
 		);
 
 		$after_cursor  = $actual['data']['registeredScripts']['edges'][0]['cursor'];

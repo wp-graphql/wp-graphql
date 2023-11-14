@@ -22,7 +22,7 @@ class UserRoleEnumTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Test filter for WP enum type invokes.
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserEdittableRoleWhenNameEmpty() {
 
@@ -32,7 +32,7 @@ class UserRoleEnumTest extends \Codeception\TestCase\WPTestCase {
 		 */
 		add_filter(
 			'editable_roles',
-			function ( $roles ) {
+			static function ( $roles ) {
 				return [
 					'foo' => [
 						'name'  => 'Foo',

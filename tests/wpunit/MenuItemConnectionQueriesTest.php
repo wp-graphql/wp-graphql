@@ -20,13 +20,14 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		register_nav_menu( $this->menu_location, 'My Menu' );
 		set_theme_mod( 'nav_menu_locations', [ $this->menu_location => 0 ] );
 
-		$this->admin = $this->factory()->user->create( [
-			'role'       => 'administrator',
-			'user_email' => 'test@test.com',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role'       => 'administrator',
+				'user_email' => 'test@test.com',
+			]
+		);
 
 		$this->created_menu_items = $this->create_menu_items( 'my-menu-items-test', $this->menu_location, 6 );
-
 	}
 
 	public function tearDown(): void {
@@ -45,10 +46,12 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$post_ids      = [];
 
 		// Create some Post menu items.
-		for ( $x = 1; $x <= $count; $x ++ ) {
-			$post_id    = $this->factory()->post->create( [
-				'post_status' => 'publish',
-			] );
+		for ( $x = 1; $x <= $count; $x++ ) {
+			$post_id    = $this->factory()->post->create(
+				[
+					'post_status' => 'publish',
+				]
+			);
 			$post_ids[] = $post_id;
 
 			$menu_item_ids[] = $this->createMenuItem(
@@ -82,7 +85,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$created = $this->create_menu_items( 'my-test-menu-with-child-items', $location, $count );
 
 		// Add some child items to the fourth menu item.
-		for ( $x = 1; $x <= $child_count; $x ++ ) {
+		for ( $x = 1; $x <= $child_count; $x++ ) {
 			$options = [
 				'menu-item-title'     => "Child menu item {$x}",
 				'menu-item-object'    => 'post',
@@ -96,7 +99,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		}
 
 		return $created;
-
 	}
 
 	/**
@@ -114,17 +116,23 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// The returned menu items have the expected IDs in the expected order.
 		$this->assertEquals(
 			$created_menu_ids,
-			array_map( function ( $menu_item ) {
-				return $menu_item['node']['databaseId'];
-			}, $edges )
+			array_map(
+				static function ( $menu_item ) {
+					return $menu_item['node']['databaseId'];
+				},
+				$edges
+			)
 		);
 
 		// The connected posts have the expected IDs in the expected order.
 		$this->assertEquals(
 			$created_post_ids,
-			array_map( function ( $menu_item ) {
-				return $menu_item['node']['connectedObject']['databaseId'];
-			}, $edges )
+			array_map(
+				static function ( $menu_item ) {
+					return $menu_item['node']['connectedObject']['databaseId'];
+				},
+				$edges
+			)
 		);
 	}
 
@@ -486,7 +494,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		}
 
 		$this->assertEquals( 3, count( $child_items_via_relay_id ) );
-
 	}
 
 	public function testParentIdWhereArgsNonExplicit() {
@@ -541,7 +548,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$variables = [
 			'where' => [
 				'parentId' => $parent_id,
-				'location'         => WPEnumType::get_safe_name( $menu_location ),
+				'location' => WPEnumType::get_safe_name( $menu_location ),
 			],
 		];
 
@@ -553,7 +560,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$this->assertEquals( $parent_id, $actual['data']['menuItems']['edges'][0]['node']['parentDatabaseId'] );
 
 		// Test with global ID
-		$variables['where']['parentId'] =  Relay::toGlobalId( 'post', $parent_id );
+		$variables['where']['parentId'] = Relay::toGlobalId( 'post', $parent_id );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
@@ -626,7 +633,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedObject']['status'] );
 		$this->assertEquals( 'draft', $actual['data']['menuItems']['edges'][0]['node']['connectedNode']['node']['status'] );
-
 	}
 
 	public function testMenuItemsOrder() {
@@ -653,9 +659,12 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Assert that the `order` field actually exists and is an int
 		$this->assertIsInt( 3, $actual['data']['menuItems']['nodes'][0]['order'] );
 
-		$orders = array_map( function ( $node ) {
-			return $node['order'];
-		}, $actual['data']['menuItems']['nodes'] );
+		$orders = array_map(
+			static function ( $node ) {
+				return $node['order'];
+			},
+			$actual['data']['menuItems']['nodes']
+		);
 
 		// Make copy of the results that are sorted by the order
 		$sorted_orders = $orders;
@@ -663,7 +672,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Assert that the returned list was in the sorted order
 		$this->assertEquals( $orders, $sorted_orders );
-
 	}
 
 	/**
@@ -673,13 +681,17 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	 */
 	public function testFilterMenuItemsByLocationDoesntBreakWhenTaxonomyNamedLocationExists() {
 		// register a "location" taxonomy
-		register_taxonomy( 'location', 'post', [
-			'show_ui'             => true,
-			'label'               => 'Location',
-			'show_in_graphql'     => true,
-			'graphql_single_name' => 'Location',
-			'graphql_plural_name' => 'Locations',
-		]);
+		register_taxonomy(
+			'location',
+			'post',
+			[
+				'show_ui'             => true,
+				'label'               => 'Location',
+				'show_in_graphql'     => true,
+				'graphql_single_name' => 'Location',
+				'graphql_plural_name' => 'Locations',
+			]
+		);
 		WPGraphQL::clear_schema();
 
 		$query     = $this->getQuery();
@@ -702,15 +714,14 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		}
 
 		unregister_taxonomy( 'location' );
-
 	}
 
 		/**
-	 * Common asserts for testing pagination.
-	 *
-	 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
-	 * @param array $actual The GraphQL results.
-	 */
+		 * Common asserts for testing pagination.
+		 *
+		 * @param array $expected An array of the results from WordPress. When testing backwards pagination, the order of this array should be reversed.
+		 * @param array $actual The GraphQL results.
+		 */
 	public function assertValidPagination( $expected, $actual ) {
 		$this->assertIsValidQueryResponse( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -741,16 +752,18 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$created = $this->create_nested_menu( 3, $menu_location );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'first' => 100,
-				'after' => null,
-				'where' => [
-					'parentId' => 0
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 100,
+					'after' => null,
+					'where' => [
+						'parentId' => 0,
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -761,7 +774,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			$this->assertSame( 0, $node['parentDatabaseId'] );
 			$this->assertNull( $node['parentId'] );
 		}
-
 	}
 
 	public function testQueryMenuItemsWithParentDatabaseIdSetToZero() {
@@ -772,15 +784,17 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$created = $this->create_nested_menu( 3, $menu_location );
 
-		$actual = $this->graphql([
-			'query' => $this->getQuery(),
-			'variables' => [
-				'first' => 100,
-				'where' => [
-					'parentDatabaseId' => 0
-				]
+		$actual = $this->graphql(
+			[
+				'query'     => $this->getQuery(),
+				'variables' => [
+					'first' => 100,
+					'where' => [
+						'parentDatabaseId' => 0,
+					],
+				],
 			]
-		]);
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
@@ -791,7 +805,5 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			$this->assertSame( 0, $node['parentDatabaseId'] );
 			$this->assertNull( $node['parentId'] );
 		}
-
 	}
-
 }

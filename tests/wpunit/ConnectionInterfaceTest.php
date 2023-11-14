@@ -14,22 +14,23 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function interfaceQuery( string $name ) {
 
-		return $this->graphql([
-			'query' => '
+		return $this->graphql(
+			[
+				'query'     => '
 				query GetTypeByName($name: String!) {
-				  __type(name: $name) {
-				    name
-				    interfaces {
-				      name
-				    }
-				  }
+					__type(name: $name) {
+						name
+						interfaces {
+							name
+						}
+					}
 				}
 			',
-			'variables' => [
-				'name' => $name
+				'variables' => [
+					'name' => $name,
+				],
 			]
-		]);
-
+		);
 	}
 
 	public function testCommentConnectionImplementsConnection() {
@@ -37,12 +38,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testCommentConnectionEdgeImplementsConnection() {
@@ -50,12 +56,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testCommentToCommenterConnectionEdgeImplementsConnection() {
@@ -63,12 +74,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentToCommenterConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'OneToOneConnection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'OneToOneConnection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testContentNodeConnectionImplementsConnection() {
@@ -76,12 +92,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentNodeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testContentNodeConnectionEdgeImplementsConnection() {
@@ -89,12 +110,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentNodeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testContentTypeConnectionImplementsConnection() {
@@ -102,12 +128,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentTypeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testContentTypeConnectionEdgeImplementsConnection() {
@@ -115,12 +146,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentTypeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuConnectionImplementsConnection() {
@@ -128,12 +164,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuConnectionEdgeImplementsConnection() {
@@ -141,12 +182,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuItemConnectionImplementsConnection() {
@@ -154,12 +200,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuItemConnectionEdgeImplementsConnection() {
@@ -167,12 +218,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuItemLinkableConnectionEdgeImplementsEdge() {
@@ -180,12 +236,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemLinkableConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testMenuItemLinkableConnectionEdgeImplementsConnection() {
@@ -193,12 +254,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemLinkableConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testTaxonomyConnectionImplementsConnection() {
@@ -206,12 +272,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TaxonomyConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testTaxonomyEdgeConnectionImplementsConnection() {
@@ -219,12 +290,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TaxonomyConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testTermNodeConnectionEdgeImplementsConnection() {
@@ -232,12 +308,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TermNodeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testTermNodeConnectionImplementsConnection() {
@@ -245,12 +326,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TermNodeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testUserConnectionImplementsConnection() {
@@ -258,12 +344,17 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'UserConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Connection'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Connection',
+					]
+				),
+			]
+		);
 	}
 
 	public function testUserConnectionEdgeImplementsEdge() {
@@ -271,71 +362,76 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'UserConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful( $results, [
-			$this->expectedObject( '__type.interfaces', [
-				'name' => 'Edge'
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$results,
+			[
+				$this->expectedObject(
+					'__type.interfaces',
+					[
+						'name' => 'Edge',
+					]
+				),
+			]
+		);
 	}
 
 	public function testPageInfoFragmentOnConnections() {
 
 		$query = '
 		{
-		  contentNodes {
-		    ...PaginatedConnection
-		  }
-		  terms {
-		    ...PaginatedConnection
-		  }
-		  users {
-		    ...PaginatedConnection
-		  }
-		  mediaItems {
-		    ...PaginatedConnection
-		  }
-		  comments {
-		    ...PaginatedConnection
-		  }
-		  contentTypes {
-		    ...PaginatedConnection
-		  }
-		  plugins {
-		    ...PaginatedConnection
-		  }
-		  themes {
-		    ...PaginatedConnection
-		  }
-		  menus {
-		    ...PaginatedConnection
-		  }
-		  menuItems {
-		    ...PaginatedConnection
-		  }
+			contentNodes {
+				...PaginatedConnection
+			}
+			terms {
+				...PaginatedConnection
+			}
+			users {
+				...PaginatedConnection
+			}
+			mediaItems {
+				...PaginatedConnection
+			}
+			comments {
+				...PaginatedConnection
+			}
+			contentTypes {
+				...PaginatedConnection
+			}
+			plugins {
+				...PaginatedConnection
+			}
+			themes {
+				...PaginatedConnection
+			}
+			menus {
+				...PaginatedConnection
+			}
+			menuItems {
+				...PaginatedConnection
+			}
 		}
 		
 		fragment PaginatedConnection on Connection {
-		  __typename
-		  pageInfo {
-		    startCursor
-		    endCursor
-		    hasNextPage
-		    hasPreviousPage
-		  }
-		  nodes {
-		    __typename
-		    id
-		  }
+			__typename
+			pageInfo {
+				startCursor
+				endCursor
+				hasNextPage
+				hasPreviousPage
+			}
+			nodes {
+				__typename
+				id
+			}
 		}
 		';
 
-		$results = $this->graphql([
-			'query' => $query
-		]);
+		$results = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-
 	}
-
 }

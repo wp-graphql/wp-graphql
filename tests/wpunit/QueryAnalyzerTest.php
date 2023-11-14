@@ -3,19 +3,20 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
 
-	public function _setUp():void {
+	public function _setUp(): void {
 		parent::_setUp();
 
-		$this->post_id = self::factory()->post->create([
-			'post_status' => 'publish',
-			'post_title' => 'test post'
-		]);
+		$this->post_id = self::factory()->post->create(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'test post',
+			]
+		);
 
 		WPGraphQL::clear_schema();
-
 	}
 
-	public function _tearDown():void {
+	public function _tearDown(): void {
 		wp_delete_post( $this->post_id, true );
 		parent::_tearDown();
 	}
@@ -24,9 +25,12 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '{ posts { nodes { id, title } } }';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
@@ -47,9 +51,12 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testListModels() {
 		$query = '{ posts { nodes { id, title } } }';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		// before execution, this should be null (no nodes have loaded)
 		$this->assertEmpty( $request->get_query_analyzer()->get_runtime_nodes() );
@@ -68,9 +75,12 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '{ posts { nodes { id, title } } }';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 
 		// before execution, this should be null
@@ -88,60 +98,76 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// types that do not implement the "Node" interface shouldn't be tracked as keys
 		// in the Query Analyzer
 
-		add_action( 'graphql_register_types', function() {
-			register_graphql_interface_type( 'TestInterface', [
-				'eagerlyLoadType' => true,
-				'fields'      => [
-					'test' => [
-						'type' => 'String',
-					],
-				],
-				'resolveType' => function () {
-					return 'TestType';
-				},
-			] );
-
-			register_graphql_object_type( 'TestType', [
-				'eagerlyLoadType' => true,
-				'interfaces' => [ 'TestInterface' ],
-				'fields'     => [
-					'test' => [
-						'type' => 'String',
-					],
-				],
-			] );
-
-			register_graphql_field( 'Post', 'testField', [
-				'type'    => [ 'list_of' => 'TestInterface' ],
-				'resolve' => function () {
-					return [
-						[
-							'test' => 'value',
+		add_action(
+			'graphql_register_types',
+			static function () {
+				register_graphql_interface_type(
+					'TestInterface',
+					[
+						'eagerlyLoadType' => true,
+						'fields'          => [
+							'test' => [
+								'type' => 'String',
+							],
 						],
-						[
-							'test' => 'value',
+						'resolveType'     => static function () {
+							return 'TestType';
+						},
+					]
+				);
+
+				register_graphql_object_type(
+					'TestType',
+					[
+						'eagerlyLoadType' => true,
+						'interfaces'      => [ 'TestInterface' ],
+						'fields'          => [
+							'test' => [
+								'type' => 'String',
+							],
 						],
-					];
-				},
-			] );
-		} );
+					]
+				);
+
+				register_graphql_field(
+					'Post',
+					'testField',
+					[
+						'type'    => [ 'list_of' => 'TestInterface' ],
+						'resolve' => static function () {
+							return [
+								[
+									'test' => 'value',
+								],
+								[
+									'test' => 'value',
+								],
+							];
+						},
+					]
+				);
+			}
+		);
 
 
 		$query = '
 		{
-		  posts {
-		    nodes {
-		      testField {
-		        test
-		      }
-		    }
-		  }
+			posts {
+				nodes {
+					testField {
+						test
+					}
+				}
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query
-		], true );
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		$request->execute();
 
@@ -154,7 +180,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'list:testinterface', $list_types );
 		$this->assertNotContains( 'list:testtype', $list_types );
 		$this->assertContains( 'list:post', $list_types );
-
 	}
 
 	/**
@@ -165,35 +190,38 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  tags {
-		    edges {
-		      node {
-		        id
-		      }
-		    }
-		  }
-		  posts {
-		    nodes {
-		      id
-		      title
-		      author {
-		        node {
-		          name
-		        }
-		      }
-		      featuredImage {
-		        node {
-		          sourceUrl
-		        }
-		      }
-		    }
-		  }
+			tags {
+				edges {
+					node {
+						id
+					}
+				}
+			}
+			posts {
+				nodes {
+					id
+					title
+					author {
+						node {
+							name
+						}
+					}
+					featuredImage {
+						node {
+							sourceUrl
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 
 		// before execution, this should be null
@@ -211,7 +239,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// connections and should not be output as lists
 		$this->assertNotContains( 'list:mediaitem', $types );
 		$this->assertNotContains( 'list:user', $types );
-
 	}
 
 	/**
@@ -222,23 +249,26 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = '
 		{
-		  contentNodes {
-		    nodes {
-		      id
-		      title
-		      author {
-		        node {
-		          name
-		        }
-		      }
-		    }
-		  }
+			contentNodes {
+				nodes {
+					id
+					title
+					author {
+						node {
+							name
+						}
+					}
+				}
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 
 		// before execution, this should be null
@@ -261,43 +291,45 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// the author was queried as part of one-to-one
 		// connection and should not be output as list:user
 		$this->assertNotContains( 'list:user', $types );
-
 	}
 
 	public function testNestedConnectionDoesNotShowInListTypes() {
 
 		$query = '
 		query getCategory( $id: ID! $postId: ID! ) {
-		  category( id: $id idType: DATABASE_ID ) {
-		    name
-		    posts {
-		      nodes {
-		         id
-		         title
-		      }
-		    }
-		  }
-		  post (id: $postId idType: DATABASE_ID ) {
-		    title
-		    categories {
-		      nodes {
-		        id
-		        name
-		      }
-		    }
-		  }
-		  pages {
-		    nodes {
-		      id
-		      title
-		    }
-		  }
+			category( id: $id idType: DATABASE_ID ) {
+				name
+				posts {
+					nodes {
+						 id
+						 title
+					}
+				}
+			}
+			post (id: $postId idType: DATABASE_ID ) {
+				title
+				categories {
+					nodes {
+						id
+						name
+					}
+				}
+			}
+			pages {
+				nodes {
+					id
+					title
+				}
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query,
-		], true);
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
@@ -315,71 +347,79 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertContains( 'list:page', $types );
 
 		$this->assertSame( [ 'list:page' ], $types );
-
 	}
 
 	public function testNonNullListOfNonNullPostMapsToListOfPosts() {
 
-		register_graphql_field( 'RootQuery', 'listOfThing', [
-			'type' => [
-				'non_null' => [
-					'list_of' => [
-						'non_null' => 'Post'
+		register_graphql_field(
+			'RootQuery',
+			'listOfThing',
+			[
+				'type' => [
+					'non_null' => [
+						'list_of' => [
+							'non_null' => 'Post',
+						],
 					],
 				],
-			],
-		]);
+			]
+		);
 
 		$query = '
 		{
-		  listOfThing {
-		    __typename
-		  }
+			listOfThing {
+				__typename
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query,
-		], true );
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		$request->execute();
 
 		$types = $request->get_query_analyzer()->get_list_types();
 
 		$this->assertContains( 'list:post', $types );
-
 	}
 
 	public function testListOfNonNullPostMapsToListOfPosts() {
 
-		register_graphql_field( 'RootQuery', 'listOfThing', [
-			'type' => [
-				'list_of' => [
-					'non_null' => 'Post'
+		register_graphql_field(
+			'RootQuery',
+			'listOfThing',
+			[
+				'type' => [
+					'list_of' => [
+						'non_null' => 'Post',
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$query = '
 		{
-		  listOfThing {
-		    __typename
-		  }
+			listOfThing {
+				__typename
+			}
 		}
 		';
 
-		$request = graphql([
-			'query' => $query,
-		], true );
+		$request = graphql(
+			[
+				'query' => $query,
+			],
+			true
+		);
 
 		$request->execute();
 
 		$types = $request->get_query_analyzer()->get_list_types();
 
 		$this->assertContains( 'list:post', $types );
-
 	}
-
-
-
 }

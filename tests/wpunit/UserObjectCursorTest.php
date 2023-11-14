@@ -2,7 +2,7 @@
 
 use WPGraphQL\Data\Connection\UserConnectionResolver;
 
-class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  {
+class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $current_time;
 	public $current_date;
@@ -18,9 +18,11 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 
 		$this->delete_users();
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		// Set admin as current user to authorize 'users' queries
 		wp_set_current_user( $this->admin );
@@ -47,7 +49,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 				}
 			}
 		';
-
 	}
 
 	public function tearDown(): void {
@@ -74,13 +75,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		/**
 		 * Create the page
 		 */
-		$user_id = $this->factory->user->create( $args );
-
-		/**
-		 * Return the $id of the user that was created
-		 */
-		return $user_id;
-
+		return $this->factory->user->create( $args );
 	}
 
 	/**
@@ -93,7 +88,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		// Initialize with the default user
 		$created_user_ids = [ 1 ];
 		// Create a few more users
-		for ( $i = 1; $i < $this->count; $i ++ ) {
+		for ( $i = 1; $i < $this->count; $i++ ) {
 			$created_user_ids[ $i ] = $this->createUserObject(
 				[
 					'user_login' => $alphabet[ $i ],
@@ -104,7 +99,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		}
 
 		$this->created_user_ids = array_reverse( $created_user_ids );
-
 	}
 
 	/**
@@ -122,7 +116,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUsersForwardPagination() {
 
@@ -130,11 +124,13 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 
 		$search_string = 'http://www.test.test';
 
-		$user_query = new WP_User_Query([
-			'search' => '*' . $search_string . '*',
-			'fields' => 'ids',
-			'number' => -1,
-		]);
+		$user_query = new WP_User_Query(
+			[
+				'search' => '*' . $search_string . '*',
+				'fields' => 'ids',
+				'number' => -1,
+			]
+		);
 
 		$expected_user_ids = $user_query->get_results();
 		codecept_debug( $expected_user_ids );
@@ -158,7 +154,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasNextPage'] );
 
 		// Compare actual results to ground truth
-		for ( $i = 0; $i < $paged_count; $i ++ ) {
+		for ( $i = 0; $i < $paged_count; $i++ ) {
 			$this->assertEquals( $expected_user_ids[ $i ], $actual['data']['users']['nodes'][ $i ]['userId'] );
 		}
 
@@ -196,7 +192,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 	/**
 	 * Tests the backward pagination of connections
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUsersBackwardPagination() {
 
@@ -204,11 +200,13 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 
 		$paged_count = 3;
 
-		$user_query = new WP_User_Query([
-			'search' => '*' . $search_string . '*',
-			'fields' => 'ids',
-			'number' => -1,
-		]);
+		$user_query = new WP_User_Query(
+			[
+				'search' => '*' . $search_string . '*',
+				'fields' => 'ids',
+				'number' => -1,
+			]
+		);
 
 		codecept_debug( $user_query );
 
@@ -236,7 +234,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 
 		$node_counter = count( $expected_user_ids ) - $paged_count;
 		// Compare actual results to ground truth
-		for ( $i = 0; $i < $paged_count; $i ++ ) {
+		for ( $i = 0; $i < $paged_count; $i++ ) {
 			$this->assertEquals( $expected_user_ids[ $node_counter++ ], $actual['data']['users']['nodes'][ $i ]['userId'] );
 		}
 
@@ -258,7 +256,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasPreviousPage'] );
 		$this->assertEquals( true, $actual['data']['users']['pageInfo']['hasNextPage'] );
-
 	}
 
 	private function formatNumber( $num ) {
@@ -280,7 +277,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			],
 		];
 
-		 $query = new WP_User_Query( $args );
+		$query = new WP_User_Query( $args );
 
 		foreach ( $query->results as $user ) {
 			wp_delete_user( $user->ID, true );
@@ -290,7 +287,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 	/**
 	 * Assert given 'orderby' field by comparing the GraphQL query against a plain WP_User_Query
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function assertQueryInCursor( $graphql_args, $wp_user_query_args, $order_by_meta_field = false ) {
 
@@ -300,7 +297,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		if ( $order_by_meta_field ) {
 			add_filter(
 				'graphql_map_input_fields_to_wp_user_query',
-				function ( $query_args ) use ( $wp_user_query_args ) {
+				static function ( $query_args ) use ( $wp_user_query_args ) {
 					return array_merge( $query_args, $wp_user_query_args );
 				},
 				10,
@@ -325,39 +322,53 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 					}
 				}
 			}
-		  }
+			}
 		';
 
 		codecept_debug( $query );
 
-		$first = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first'  => $users_per_page,
-			'cursor' => null,
-		]) );
+		$first = do_graphql_request(
+			$query,
+			'getUsers',
+			array_merge(
+				$graphql_args,
+				[
+					'first'  => $users_per_page,
+					'cursor' => null,
+				]
+			)
+		);
 
 		codecept_debug( $first );
 
 		$this->assertArrayNotHasKey( 'errors', $first, print_r( $first, true ) );
 
 		$first_page_actual = array_map(
-			function ( $edge ) {
+			static function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$first['data']['users']['edges']
 		);
 
 		$cursor = $first['data']['users']['pageInfo']['endCursor'];
-		$second = do_graphql_request( $query, 'getUsers', array_merge( $graphql_args, [
-			'first'  => $users_per_page,
-			'cursor' => $cursor,
-		]) );
+		$second = do_graphql_request(
+			$query,
+			'getUsers',
+			array_merge(
+				$graphql_args,
+				[
+					'first'  => $users_per_page,
+					'cursor' => $cursor,
+				]
+			)
+		);
 
 		codecept_debug( $second );
 
 		$this->assertArrayNotHasKey( 'errors', $second, print_r( $second, true ) );
 
 		$second_page_actual = array_map(
-			function ( $edge ) {
+			static function ( $edge ) {
 				return $edge['node']['userId'];
 			},
 			$second['data']['users']['edges']
@@ -385,7 +396,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			)
 		);
 		WPGraphQL::set_is_graphql_request( false );
-
 	}
 
 	/**
@@ -534,7 +544,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			],
 			true
 		);
-
 	}
 
 	public function testUserOrderingByMetaDate() {
@@ -676,7 +685,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			],
 			true
 		);
-
 	}
 
 	public function testUserOrderingByMetaQueryClause() {
@@ -738,7 +746,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			],
 			true
 		);
-
 	}
 
 	/**
@@ -802,7 +809,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 			],
 			true
 		);
-
 	}
 
 	/**
@@ -841,7 +847,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 	/**
 	 * Test orderby nicename__in should work even with order parameter added by mistake
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testOrderbyNiceNameIn() {
 		$this->assertQueryInCursor(
@@ -864,10 +870,10 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 		// Register new posts connection.
 		register_graphql_connection(
 			[
-				'fromType'       => 'RootQuery',
-				'toType'         => 'User',
-				'fromFieldName'  => 'usersOrderedByEmail',
-				'resolve'        => function ( $source, $args, $context, $info ) {
+				'fromType'      => 'RootQuery',
+				'toType'        => 'User',
+				'fromFieldName' => 'usersOrderedByEmail',
+				'resolve'       => static function ( $source, $args, $context, $info ) {
 					global $wpdb;
 					$resolver = new UserConnectionResolver( $source, $args, $context, $info );
 
@@ -878,7 +884,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 					$user    = get_user_by( 'ID', $post_id );
 
 					// Get order.
-					$order   = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
+					$order = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
 
 					// Set threshold field.
 					$resolver->set_query_arg(
@@ -902,7 +908,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase  
 					}
 
 					return $resolver->get_connection();
-				}
+				},
 			]
 		);
 

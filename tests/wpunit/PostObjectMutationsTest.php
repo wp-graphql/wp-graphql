@@ -16,22 +16,30 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->title   = 'some title';
 		$this->content = 'some content';
 
-		$this->author = $this->factory()->user->create( [
-			'role' => 'author',
-		] );
+		$this->author = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
 
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
-		$this->contributor = $this->factory()->user->create( [
-			'role' => 'contributor',
-			'display_name' => 'contributor'
-		] );
+		$this->contributor = $this->factory()->user->create(
+			[
+				'role'         => 'contributor',
+				'display_name' => 'contributor',
+			]
+		);
 
-		$this->subscriber = $this->factory()->user->create( [
-			'role' => 'subscriber',
-		] );
+		$this->subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
 
 		WPGraphQL::clear_schema();
 	}
@@ -124,7 +132,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * subscriber
 		 */
 		$this->assertNotEmpty( $actual['errors'] );
-
 	}
 
 	/**
@@ -155,7 +162,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		];
 
 		$this->assertEquals( $expected, $actual['data'] );
-
 	}
 
 	public function testCreatePostWithNoInput() {
@@ -176,7 +182,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Make sure we're throwing an error if there's no $input with the mutation
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testCreatePostByAuthorCanHavePublishStatus() {
@@ -210,7 +215,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'publish', $actual['data']['createPost']['post']['status'] );
 		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
-
 	}
 
 	public function testCreatePostByContributorCannotHavePublishStatus() {
@@ -244,18 +248,19 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'pending', $actual['data']['createPost']['post']['status'] );
 		$this->assertSame( $variables['input']['title'], $actual['data']['createPost']['post']['title'] );
-
 	}
 
 	public function testCreatePageWithParent() {
 		wp_set_current_user( $this->admin );
 
-		$parent_page_id = $this->factory()->post->create(  [
-			'post_type'    => 'page',
-			'post_status'  => 'publish',
-			'post_title'   => 'Parent Page for PostObjectMutationsTest',
-			'post_content' => 'Parent Content',
-		] );
+		$parent_page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Parent Page for PostObjectMutationsTest',
+				'post_content' => 'Parent Content',
+			]
+		);
 
 		$query = '
 		mutation createPage( $input:CreatePageInput! ){
@@ -409,10 +414,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$dateExpected    = '2017-01-03T00:00:00';
 		$dateGmtExpected = '2017-01-03T00:00:00';
 
-		$results = $this->createPostWithDatesMutation([
-			'date'   => '1/3/2017',
-			'status' => 'PUBLISH',
-		]);
+		$results = $this->createPostWithDatesMutation(
+			[
+				'date'   => '1/3/2017',
+				'status' => 'PUBLISH',
+			]
+		);
 		codecept_debug( $results );
 
 		/**
@@ -428,7 +435,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
-
 	}
 
 	public function testDateInputsWithSlashFormattingForCreatePost() {
@@ -447,9 +453,11 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$dateExpected    = '2017-01-03T00:00:00';
 		$dateGmtExpected = '2017-01-03T00:00:00';
 
-		$results = $this->createPostWithDatesMutation([
-			'date' => '2017/01/03',
-		]);
+		$results = $this->createPostWithDatesMutation(
+			[
+				'date' => '2017/01/03',
+			]
+		);
 		codecept_debug( $results );
 
 		/**
@@ -466,7 +474,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
-
 	}
 
 	public function testDateInputsWithStatusPendingAndDashesCreatePost() {
@@ -485,10 +492,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$dateExpected    = '2017-01-03T00:00:00';
 		$dateGmtExpected = null;
 
-		$results = $this->createPostWithDatesMutation([
-			'date'   => '3-1-2017',
-			'status' => 'PENDING',
-		]);
+		$results = $this->createPostWithDatesMutation(
+			[
+				'date'   => '3-1-2017',
+				'status' => 'PENDING',
+			]
+		);
 		codecept_debug( $results );
 
 		/**
@@ -505,7 +514,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $dateGmtExpected, $results['data']['createPost']['post']['dateGmt'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modified'] );
 		$this->assertNotEquals( '0000-00-00 00:00:00', $results['data']['createPost']['post']['modifiedGmt'] );
-
 	}
 
 	public function testDateInputsWithDraftAndPublishUpdatePost() {
@@ -519,10 +527,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against and set global ID
 		 */
-		$test_post = $this->factory()->post->create( [
-			'post_title'  => 'My Test Post for PostObjectMutationsTest',
-			'post_status' => 'draft',
-		] );
+		$test_post = $this->factory()->post->create(
+			[
+				'post_title'  => 'My Test Post for PostObjectMutationsTest',
+				'post_status' => 'draft',
+			]
+		);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 
@@ -561,10 +571,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Update post to test against status: published
 		 */
-		wp_update_post( [
-			'ID'          => $test_post,
-			'post_status' => 'publish',
-		] );
+		wp_update_post(
+			[
+				'ID'          => $test_post,
+				'post_status' => 'publish',
+			]
+		);
 
 		/**
 		 * Run GQl request
@@ -579,10 +591,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Update post back to draft
 		 */
-		wp_update_post( [
-			'ID'          => $test_post,
-			'post_status' => 'draft',
-		] );
+		wp_update_post(
+			[
+				'ID'          => $test_post,
+				'post_status' => 'draft',
+			]
+		);
 
 		/**
 		 * Run GQl request
@@ -707,10 +721,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $expected, $actual['data'] );
 
 		// Test with database ID
-		wp_update_post( [
-			'ID'          => $page_id,
-			'post_status' => 'publish',
-		] );
+		wp_update_post(
+			[
+				'ID'          => $page_id,
+				'post_status' => 'publish',
+			]
+		);
 
 		$variables['input']['id'] = $page_id;
 
@@ -754,7 +770,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Now we should have errors again, because there's nothing to be deleted
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testDeletePostOfAnotherType() {
@@ -794,7 +809,6 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * The mutation should fail because the ID is for a page, but we're trying to delete a post
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testUpdatePageMutation() {
@@ -971,9 +985,11 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 
-		$page_id   = $this->factory()->post->create( [
-			'post_type' => 'page',
-		] );
+		$page_id   = $this->factory()->post->create(
+			[
+				'post_type' => 'page',
+			]
+		);
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $page_id );
 
 		$variables = [
@@ -991,20 +1007,21 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * We should get an error here because the updatePost mutation should only be able to update "post" objects
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserWithoutProperCapabilityCannotUpdateOthersPosts() {
 
-		$admin_created_post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_title'  => 'Test Post from Admin, Edit by Contributor',
-			'post_author' => $this->admin,
-		]);
+		$admin_created_post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Post from Admin, Edit by Contributor',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_post_id );
 
@@ -1032,20 +1049,21 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testUserWithoutProperCapabilityCannotUpdateOthersPages() {
 
-		$admin_created_page_id = $this->factory()->post->create( [
-			'post_type'   => 'page',
-			'post_status' => 'publish',
-			'post_title'  => 'Test Page from Admin, Edit by Contributor',
-			'post_author' => $this->admin,
-		] );
+		$admin_created_page_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Test Page from Admin, Edit by Contributor',
+				'post_author' => $this->admin,
+			]
+		);
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $admin_created_page_id );
 
@@ -1073,16 +1091,17 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-
 	}
 
 	public function testUpdatingPostByOtherAuthorRequiresEditOtherPostCapability() {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_author' => $this->author,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->author,
+			]
+		);
 
 		wp_set_current_user( $this->contributor );
 
@@ -1097,15 +1116,17 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		';
 
-		$actual = graphql([
-			'query'     => $query,
-			'variables' => [
-				'input' => [
-					'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
-					'title' => 'Test Update',
+		$actual = graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+						'title' => 'Test Update',
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		// A contributor cannot edit another authors posts
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -1114,19 +1135,20 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$updated_title = uniqid();
 
-		$actual = $this->graphql([
-			'query'     => $query,
-			'variables' => [
-				'input' => [
-					'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
-					'title' => $updated_title,
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'input' => [
+						'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+						'title' => $updated_title,
+					],
 				],
-			],
-		]);
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $updated_title, $actual['data']['updatePost']['post']['title'] );
-
 	}
 
 	public function testUpdatePostWithLockFails() {
@@ -1134,39 +1156,43 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against
 		 */
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_author' => $this->contributor,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->contributor,
+			]
+		);
 
-		$editor_id = $this->factory()->user->create( [
-			'role' => 'editor'
-		] );
+		$editor_id = $this->factory()->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
 
 		/**
 		 *  Set lock and lock user
 		 */
-		$lock = sprintf( '%s:%s', time() - 60,  $this->contributor );
+		$lock = sprintf( '%s:%s', time() - 60, $this->contributor );
 		update_post_meta( $post_id, '_edit_lock', $lock );
 
 		$query = '
 		mutation updatePostWithLockShouldFail($input: UpdatePostInput!) {
 			updatePost(input: $input) {
-			  post {
+				post {
 				id
 				title
 				content
-			  }
+				}
 			}
-		  }
+			}
 		';
 
 		$variables = [
 			'input' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
-				'title' => 'updated title'
-			]
+				'id'    => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+				'title' => 'updated title',
+			],
 		];
 
 		/**
@@ -1188,8 +1214,8 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'input' => [
 				'id'             => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
 				'title'          => 'updated title',
-				'ignoreEditLock' => true
-			]
+				'ignoreEditLock' => true,
+			],
 		];
 
 		/**
@@ -1205,38 +1231,42 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against
 		 */
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_author' => $this->contributor,
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_author' => $this->contributor,
+			]
+		);
 
-		$editor_id = $this->factory()->user->create( [
-			'role' => 'editor'
-		] );
+		$editor_id = $this->factory()->user->create(
+			[
+				'role' => 'editor',
+			]
+		);
 
 		/**
 		 *  Set lock and lock user
 		 */
-		$lock = sprintf( '%s:%s', time() - 60,  $this->contributor );
+		$lock = sprintf( '%s:%s', time() - 60, $this->contributor );
 		update_post_meta( $post_id, '_edit_lock', $lock );
 
 		$query = '
 		mutation deletePostWithLockShouldFail($input: DeletePostInput!) {
 			deletePost(input: $input) {
-			  post {
+				post {
 				id
 				title
 				content
-			  }
+				}
 			}
-		  }
+			}
 		';
 
 		$variables = [
 			'input' => [
-				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id )
-			]
+				'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+			],
 		];
 
 		/**
@@ -1257,8 +1287,8 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$variables = [
 			'input' => [
 				'id'             => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
-				'ignoreEditLock' => true
-			]
+				'ignoreEditLock' => true,
+			],
 		];
 
 		/**
@@ -1268,5 +1298,4 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$actual = graphql( compact( 'query', 'variables' ) );
 		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ), $actual['data']['deletePost']['post']['id'] );
 	}
-
 }

@@ -10,9 +10,11 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->clearSchema();
 
-		$this->admin = $this->factory()->user->create([
-			'role' => 'administrator',
-		]);
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		// your set up methods here
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
@@ -41,13 +43,18 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'contentTypes.nodes', [
-				'__typename' => 'ContentType',
-				'name'       => 'post',
-			] ),
-		]);
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'contentTypes.nodes',
+					[
+						'__typename' => 'ContentType',
+						'name'       => 'post',
+					]
+				),
+			]
+		);
 	}
 
 	public function testRootQueryToPluginsConnection() {
@@ -66,23 +73,31 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'plugins.nodes', [
-				'__typename' => 'Plugin',
-			] ),
-		] );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'plugins.nodes',
+					[
+						'__typename' => 'Plugin',
+					]
+				),
+			]
+		);
 
 		wp_set_current_user( 0 );
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			/**
-			 * @todo 'nodes' should return null.
-			 */
-			$this->expectedField( 'plugins.nodes', self::IS_FALSY ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				/**
+				 * @todo 'nodes' should return null.
+				 */
+				$this->expectedField( 'plugins.nodes', self::IS_FALSY ),
+			]
+		);
 	}
 
 	public function testRootQueryToRegisteredScriptsConnection() {
@@ -99,12 +114,17 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'registeredScripts.nodes', [
-				'__typename' => 'EnqueuedScript',
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'registeredScripts.nodes',
+					[
+						'__typename' => 'EnqueuedScript',
+					]
+				),
+			]
+		);
 	}
 
 	public function testRootQueryToRegisteredStylesheetsConnection() {
@@ -121,12 +141,17 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'registeredStylesheets.nodes', [
-				'__typename' => 'EnqueuedStylesheet',
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'registeredStylesheets.nodes',
+					[
+						'__typename' => 'EnqueuedStylesheet',
+					]
+				),
+			]
+		);
 	}
 
 	public function testRootQueryToThemesConnection() {
@@ -145,12 +170,17 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedNode( 'themes.nodes', [
-				'__typename' => 'Theme',
-			] ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'themes.nodes',
+					[
+						'__typename' => 'Theme',
+					]
+				),
+			]
+		);
 	}
 
 	public function testRootQueryToUserRolesConnection() {
@@ -167,13 +197,14 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			/**
-			 * @todo 'nodes' should return null.
-			 */
-			$this->expectedField( 'userRoles.nodes', self::IS_FALSY ),
-		] );
-
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				/**
+				 * @todo 'nodes' should return null.
+				 */
+				$this->expectedField( 'userRoles.nodes', self::IS_FALSY ),
+			]
+		);
 	}
-
 }

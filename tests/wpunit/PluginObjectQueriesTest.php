@@ -7,9 +7,11 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
-		$this->admin = $this->factory()->user->create( [
-			'role' => 'administrator',
-		] );
+		$this->admin = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		if ( is_multisite() ) {
 			grant_super_admin( $this->admin );
 		}
@@ -26,7 +28,7 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @param string $versionA  string representation of version number
 	 * @param string $versionB  string representation of version number
-	 * @return string|boolean   returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
+	 * @return string|bool   returns true|false if $versionA <> $versionB, and "equals" if $versionA == $versionB
 	 */
 	public function compareSemantics( $versionA, $versionB ) {
 		$a = explode( '.', $versionA );
@@ -131,7 +133,6 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$plugin_version = $actual['data']['plugin']['version'];
 		$this->assertTrue( ( is_string( $plugin_version ) || null === $plugin_version ) );
-
 	}
 
 	/**
@@ -174,5 +175,4 @@ class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual['data'] );
 	}
-
 }
