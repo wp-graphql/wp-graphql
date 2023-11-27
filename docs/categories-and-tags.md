@@ -5,7 +5,7 @@ title: "Categories and Tags"
 
 WPGraphQL provides support for querying Categories, Tags and Custom Taxonomies in various ways.
 
-This page will be most useful for users what are familiar with [GraphQL Concepts](/docs/intro-to-graphql/) and understand the basics of [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
+This page will be most useful for users who are familiar with [GraphQL Concepts](/docs/intro-to-graphql/) and understand the basics of [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
 
 ## Querying Categories and Tags
 
