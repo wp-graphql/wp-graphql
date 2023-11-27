@@ -17,8 +17,6 @@ The following written tutorial should be helpful for developers of any experienc
 
 It's similar, but not identical, to the video tutorial above.
 
-This tutorial should be helpful for developers of any experience level, but it will be most useful for developers that have some previous experience building WordPress plugins.
-
 Before starting this tutorial, you should have a [local WordPress development environment](https://getflywheel.com/layout/local-wordpress-development-environment-how-to/) setup with [WPGraphQL installed and activated](/docs/quick-start/).
 
 ## What we're building
