@@ -90,7 +90,7 @@ query GetCurrentUserNotifications {
 
 or: 
 
-```
+```graphql
 query GetNotificationNode {
   node( id: "bm90aWZpY2F0aW9uOjE=" ) {
     __typename
@@ -622,7 +622,7 @@ query GetCurrentUserNotifications {
 
 or: 
 
-```
+```graphql
 query GetNotificationNode {
   node( id: "bm90aWZpY2F0aW9uOjE=" ) {
     __typename
