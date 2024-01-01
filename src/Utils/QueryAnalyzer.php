@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
+use WPGraphQL;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
 
@@ -124,14 +125,15 @@ class QueryAnalyzer {
 	 * Initialize the QueryAnalyzer.
 	 */
 	public function init(): void {
+		$is_debug_enabled = WPGraphQL::debug();
 
 		/**
 		 * Filters whether to analyze queries or not
 		 *
-		 * @param bool          $should_analyze_queries Whether to analyze queries or not. Default true
+		 * @param bool          $should_analyze_queries Whether to analyze queries or not. Defaults to `true` if GraphQL Debugging is enabled, otherwise `false`.
 		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The QueryAnalyzer instance
 		 */
-		$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', true, $this );
+		$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', $is_debug_enabled, $this );
 
 		// If query analyzer is disabled, bail
 		if ( true !== $should_analyze_queries ) {
