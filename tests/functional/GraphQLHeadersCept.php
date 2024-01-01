@@ -30,6 +30,18 @@ $I->sendGet( 'http://localhost/graphql?query=' . $query );
 $I->seeResponseCodeIs( 200 );
 $I->seeResponseIsJson();
 $x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
+$I->assertEmpty( $x_graphql_keys );
+
+// Test with GraphQL Debugging enabled
+$graphql_general_settings = get_option( 'graphql_general_settings' );
+$graphql_general_settings['debug_mode_enabled'] = 'on';
+update_option( 'graphql_general_settings', $graphql_general_settings );
+
+$I->sendGet( 'http://localhost/graphql?query=' . $query );
+
+$I->seeResponseCodeIs( 200 );
+$I->seeResponseIsJson();
+$x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
 $x_graphql_url  = $I->grabHttpHeader( 'X-GraphQL-URL' );
 
 $I->assertNotEmpty( $x_graphql_keys );
@@ -77,3 +89,7 @@ $post_cache_key = base64_encode( 'post:' . $post_id );
 $I->assertContains( $post_cache_key, explode( ' ', $x_graphql_keys ) );
 $list_post_key = 'list:post';
 $I->assertContains( $list_post_key, explode( ' ', $x_graphql_keys ) );
+
+// cleanup
+$graphql_general_settings['debug_mode_enabled'] = 'off';
+
