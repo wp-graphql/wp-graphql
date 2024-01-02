@@ -315,7 +315,7 @@ class QueryAnalyzer {
 
 		// Determine if we're dealing with a connection
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
-			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
+			$interfaces      = $type->getInterfaces();
 			$interface_names = ! empty( $interfaces ) ? array_map(
 				static function ( InterfaceType $interface_obj ) {
 					return $interface_obj->name;

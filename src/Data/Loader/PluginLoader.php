@@ -44,7 +44,7 @@ class PluginLoader extends AbstractDataLoader {
 		$plugins = array_merge( $site_plugins, $mu_plugins, $dropin_plugins );
 
 		$loaded = [];
-		if ( ! empty( $plugins ) && is_array( $plugins ) ) {
+		if ( ! empty( $plugins ) ) {
 			foreach ( $keys as $key ) {
 				if ( isset( $plugins[ $key ] ) ) {
 					$plugin         = $plugins[ $key ];

@@ -47,7 +47,7 @@ class InstrumentSchema {
 	 * @return mixed
 	 */
 	protected static function wrap_fields( array $fields, string $type_name ) {
-		if ( empty( $fields ) || ! is_array( $fields ) ) {
+		if ( empty( $fields ) ) {
 			return $fields;
 		}
 
@@ -139,7 +139,7 @@ class InstrumentSchema {
 					 * If the current field doesn't have a resolve function, use the defaultFieldResolver,
 					 * otherwise use the $field_resolver
 					 */
-					if ( null === $field_resolver || ! is_callable( $field_resolver ) ) {
+					if ( null === $field_resolver ) {
 						$result = Executor::defaultFieldResolver( $source, $args, $context, $info );
 					} else {
 						$result = $field_resolver( $source, $args, $context, $info );

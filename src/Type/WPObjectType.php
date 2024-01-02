@@ -101,7 +101,7 @@ class WPObjectType extends ObjectType {
 
 					$interface_config_fields = $interface_type->getFields();
 
-					if ( empty( $interface_config_fields ) || ! is_array( $interface_config_fields ) ) {
+					if ( empty( $interface_config_fields ) ) {
 						continue;
 					}
 

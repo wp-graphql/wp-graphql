@@ -889,13 +889,11 @@ class TypeRegistry {
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
 		$prepared_fields = [];
-		if ( ! empty( $fields ) && is_array( $fields ) ) {
-			foreach ( $fields as $field_name => $field_config ) {
-				if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
-					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
-					if ( ! empty( $prepared_field ) ) {
-						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
-					}
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
+				$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
+				if ( ! empty( $prepared_field ) ) {
+					$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
 				}
 			}
 		}

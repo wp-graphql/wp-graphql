@@ -2,9 +2,10 @@ parameters:
     level: 8
     dynamicConstantNames:
         - WPGRAPHQL_AUTOLOAD
-    inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: true
     treatPhpDocTypesAsCertain: false
+    inferPrivatePropertyTypeFromConstructor: true
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkMissingIterableValueType: true
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php
