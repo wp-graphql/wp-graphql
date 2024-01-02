@@ -382,7 +382,7 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param array<string, mixed>|null $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param array<string,mixed>|null $pre_pieces The pre-filtered term query SQL clauses.
 		 * @param array<string,mixed>      $pieces     Terms query SQL clauses.
 		 * @param string[]                 $taxonomies An array of taxonomies.
 		 * @param array<string,mixed>      $args       An array of terms query arguments.

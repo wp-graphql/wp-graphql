@@ -224,7 +224,7 @@ abstract class AbstractCursor {
 	/**
 	 * Returns the ID key.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public function get_cursor_id_key() {
 		$key = $this->get_query_var( 'graphql_cursor_id_key' );

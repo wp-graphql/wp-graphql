@@ -551,7 +551,7 @@ class SettingsRegistry {
 	 *
 	 * @param array<string,mixed> $options settings field args
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 */
 	public function sanitize_options( array $options ) {
 		if ( ! $options ) {
@@ -576,7 +576,7 @@ class SettingsRegistry {
 	 *
 	 * @param string $slug option slug
 	 *
-	 * @return mixed string or bool false
+	 * @return callable|false
 	 */
 	public function get_sanitize_callback( $slug = '' ) {
 		if ( empty( $slug ) ) {

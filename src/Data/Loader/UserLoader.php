@@ -43,7 +43,7 @@ class UserLoader extends AbstractDataLoader {
 	 *
 	 * @param int[] $keys Array of author IDs (int).
 	 *
-	 * @return array<int, bool> Associative array of author IDs (int) to boolean.
+	 * @return array<int,bool> Associative array of author IDs (int) to boolean.
 	 */
 	public function get_public_users( array $keys ) {
 
@@ -109,7 +109,7 @@ class UserLoader extends AbstractDataLoader {
 	 *
 	 * @param int[] $keys
 	 *
-	 * @return array<int, \WP_User|null>
+	 * @return array<int,\WP_User|null>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

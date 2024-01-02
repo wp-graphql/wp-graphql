@@ -124,7 +124,7 @@ class QueryLog {
 	/**
 	 * Return the query log produced from the logs stored by WPDB.
 	 *
-	 * @return mixed[]
+	 * @return array<string,mixed>
 	 */
 	public function get_query_log() {
 		global $wpdb;

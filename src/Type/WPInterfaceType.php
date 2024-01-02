@@ -121,7 +121,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
 	 * @param string                            $type_name
 	 *
-	 * @return mixed
+	 * @return array<string,array<string,mixed>>
 	 * @since 0.0.5
 	 */
 	public function prepare_fields( array $fields, string $type_name ) {

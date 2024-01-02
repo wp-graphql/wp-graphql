@@ -150,8 +150,8 @@ function get_graphql_register_action() {
  *
  * Should be used at the `graphql_register_types` hook.
  *
- * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
- * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
+ * @param string|string[] $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
+ * @param string|string[] $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
  *
  * Example:
  * The following would register the "MyNewInterface" interface to the Post and Page type in the

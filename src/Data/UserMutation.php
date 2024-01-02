@@ -272,7 +272,7 @@ class UserMutation {
 	 * @param string $role    Name of the role trying to get added to a user object
 	 * @param int    $user_id The ID of the user being mutated
 	 *
-	 * @return mixed|bool|\WP_Error
+	 * @return bool|\WP_Error
 	 */
 	private static function verify_user_role( $role, $user_id ) {
 		global $wp_roles;

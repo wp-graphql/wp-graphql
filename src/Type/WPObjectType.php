@@ -167,7 +167,7 @@ class WPObjectType extends ObjectType {
 	 * @param string              $type_name
 	 * @param array<string,mixed> $config         The config for the Object Type
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 * @since 0.0.5
 	 */
 	public function prepare_fields( $fields, $type_name, $config ) {

@@ -44,7 +44,7 @@ class InstrumentSchema {
 	 * @param mixed[] $fields    The fields configured for a Type
 	 * @param string  $type_name The Type name
 	 *
-	 * @return mixed
+	 * @return mixed[]
 	 */
 	protected static function wrap_fields( array $fields, string $type_name ) {
 		if ( empty( $fields ) || ! is_array( $fields ) ) {
@@ -119,15 +119,15 @@ class InstrumentSchema {
 				 * and the execution of the actual resolved is skipped. This filter can be used to implement
 				 * field level caches or for efficiently hiding data by returning null.
 				 *
-				 * @param mixed           $nil            Unique nil value
-				 * @param mixed           $source         The source passed down the Resolve Tree
-				 * @param array           $args           The args for the field
-				 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-				 * @param string          $type_name      The name of the type the fields belong to
-				 * @param string          $field_key      The name of the field
-				 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
-				 * @param mixed           $field_resolver The default field resolver
+				 * @param mixed                                    $nil            Unique nil value
+				 * @param mixed                                    $source         The source passed down the Resolve Tree
+				 * @param array                                    $args           The args for the field
+				 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
+				 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param string                                   $type_name      The name of the type the fields belong to
+				 * @param string                                   $field_key      The name of the field
+				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
+				 * @param ?callable                                $field_resolver The default field resolver
 				 */
 				$result = apply_filters( 'graphql_pre_resolve_field', $nil, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 
@@ -149,15 +149,15 @@ class InstrumentSchema {
 				/**
 				 * Fire an action before the field resolves
 				 *
-				 * @param mixed           $result         The result of the field resolution
-				 * @param mixed           $source         The source passed down the Resolve Tree
-				 * @param array           $args           The args for the field
-				 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-				 * @param string          $type_name      The name of the type the fields belong to
-				 * @param string          $field_key      The name of the field
+				 * @param mixed                                    $result          The result of the field resolution
+				 * @param mixed                                    $source          The source passed down the Resolve Tree
+				 * @param array                                    $args            The args for the field
+				 * @param \WPGraphQL\AppContext                    $context         The AppContext passed down the ResolveTree
+				 * @param \GraphQL\Type\Definition\ResolveInfo     $info            The ResolveInfo passed down the ResolveTree
+				 * @param string                                   $type_name       The name of the type the fields belong to
+				 * @param string                                   $field_key       The name of the field
 				 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
-				 * @param mixed           $field_resolver The default field resolver
+				 * @param ?callable                                $field_resolver  The default field resolver
 				 */
 				$result = apply_filters( 'graphql_resolve_field', $result, $source, $args, $context, $info, $type_name, $field_key, $field, $field_resolver );
 

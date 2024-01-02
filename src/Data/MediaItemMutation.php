@@ -17,10 +17,10 @@ class MediaItemMutation {
 	/**
 	 * This prepares the media item for insertion
 	 *
-	 * @param array<string,mixed> $input            The input for the mutation from the GraphQL request
-	 * @param \WP_Post_Type       $post_type_object The post_type_object for the mediaItem (attachment)
-	 * @param string              $mutation_name    The name of the mutation being performed (create, update, etc.)
-	 * @param mixed               $file             The mediaItem (attachment) file
+	 * @param array<string,mixed>       $input            The input for the mutation from the GraphQL request
+	 * @param \WP_Post_Type             $post_type_object The post_type_object for the mediaItem (attachment)
+	 * @param string                    $mutation_name    The name of the mutation being performed (create, update, etc.)
+	 * @param array<string,mixed>|false $file             The mediaItem (attachment) file
 	 *
 	 * @return array<string,mixed>
 	 */

@@ -64,8 +64,8 @@ class WPHelper extends Helper {
 	/**
 	 * Parse parameters and proxy to parse_extensions.
 	 *
-	 * @param  mixed[] $params Request parameters.
-	 * @return mixed[]
+	 * @param array<string,mixed>|array<string,mixed>[] $params Request parameters.
+	 * @return array<string,mixed>|array<string,mixed>[]
 	 */
 	private function parse_params( $params ) {
 		if ( isset( $params[0] ) ) {
@@ -78,8 +78,8 @@ class WPHelper extends Helper {
 	/**
 	 * Parse query extensions.
 	 *
-	 * @param  mixed[] $params Request parameters.
-	 * @return mixed[]
+	 * @param  array<string,mixed> $params Request parameters.
+	 * @return array<string,mixed>
 	 */
 	private function parse_extensions( $params ) {
 		if ( isset( $params['extensions'] ) && is_string( $params['extensions'] ) ) {

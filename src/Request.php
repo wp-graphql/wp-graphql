@@ -94,7 +94,7 @@ class Request {
 	/**
 	 * The default field resolver function. Default null
 	 *
-	 * @var mixed|callable|null
+	 * @var callable|null
 	 */
 	protected $field_resolver;
 
@@ -190,7 +190,7 @@ class Request {
 	}
 
 	/**
-	 * @return mixed
+	 * @return callable|null
 	 */
 	protected function get_field_resolver() {
 		return $this->field_resolver;
@@ -231,8 +231,8 @@ class Request {
 		/**
 		 * Return the filtered root value
 		 *
-		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
-		 * @param \WPGraphQL\Request $request The Request instance
+		 * @param mixed              $root_value The root value the Schema should use to resolve with. Default null.
+		 * @param \WPGraphQL\Request $request    The Request instance
 		 */
 		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}

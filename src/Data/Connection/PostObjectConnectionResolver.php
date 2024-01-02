@@ -446,7 +446,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * This strips the status from the query_args if the user doesn't have permission to query for
 	 * posts of that status.
 	 *
-	 * @param mixed $stati The status(es) to sanitize
+	 * @param string[]|string $stati The status(es) to sanitize.
 	 *
 	 * @return string[]|null
 	 */
