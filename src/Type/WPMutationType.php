@@ -56,7 +56,7 @@ class WPMutationType {
 	/**
 	 * The resolver function to resolve the mutation
 	 *
-	 * @var callable|\Closure
+	 * @var callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info): array<string,mixed>
 	 */
 	protected $resolve_mutation;
 
@@ -192,6 +192,8 @@ class WPMutationType {
 
 	/**
 	 * Gets the resolver callable for the mutation.
+	 *
+	 * @return callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info): array<string,mixed>
 	 */
 	protected function get_resolver(): callable {
 		return function ( $root, array $args, AppContext $context, ResolveInfo $info ) {

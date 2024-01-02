@@ -91,7 +91,7 @@ class WPConnectionType {
 	/**
 	 * The resolver function to resolve the connection
 	 *
-	 * @var callable|\Closure
+	 * @var callable(mixed $root,array<string,mixed> $args,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):mixed
 	 */
 	protected $resolve_connection;
 

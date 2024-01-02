@@ -65,6 +65,8 @@ class SendPasswordResetEmail {
 
 	/**
 	 * Defines the mutation data modification closure.
+	 *
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload(): callable {
 		return static function ( $input ) {

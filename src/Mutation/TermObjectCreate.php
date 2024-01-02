@@ -107,7 +107,7 @@ class TermObjectCreate {
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 * @param string       $mutation_name The name of the mutation.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {

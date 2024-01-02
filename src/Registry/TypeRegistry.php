@@ -147,7 +147,7 @@ class TypeRegistry {
 	/**
 	 * The loaders needed to register types
 	 *
-	 * @var array<string,Callable>
+	 * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
 	 */
 	protected $type_loaders;
 
