@@ -6,6 +6,7 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     checkAlwaysTrueCheckTypeFunctionCall: true
     checkMissingIterableValueType: true
+    # checkAlwaysTrueInstanceof: true This can be enabled after #3008
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php
