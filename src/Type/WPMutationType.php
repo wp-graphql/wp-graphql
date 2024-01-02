@@ -147,7 +147,7 @@ class WPMutationType {
 			$is_valid = false;
 		}
 
-		return (bool) $is_valid;
+		return $is_valid;
 	}
 
 	/**
