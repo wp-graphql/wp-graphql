@@ -338,9 +338,8 @@ abstract class Model {
 		}
 
 		$clean_array = [];
-		$self        = $this;
 		foreach ( $this->fields as $key => $data ) {
-			$clean_array[ $key ] = function () use ( $key, $data, $self ) {
+			$clean_array[ $key ] = function () use ( $key, $data ) {
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
 
@@ -388,9 +387,9 @@ abstract class Model {
 					$result = $pre;
 				} else {
 					if ( is_callable( $callback ) ) {
-						$self->setup();
+						$this->setup();
 						$field = call_user_func( $callback );
-						$self->tear_down();
+						$this->tear_down();
 					} else {
 						$field = $callback;
 					}
