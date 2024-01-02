@@ -5,9 +5,18 @@ parameters:
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
     checkAlwaysTrueCheckTypeFunctionCall: true
-    checkMissingIterableValueType: true
-    checkAlwaysTrueStrictComparison: true
     # checkAlwaysTrueInstanceof: true This can be enabled after #3008
+    checkAlwaysTrueStrictComparison: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+    checkMissingIterableValueType: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    polluteScopeWithAlwaysIterableForeach: false
+    polluteScopeWithLoopInitialAssignments: false
+    reportAlwaysTrueInLastCondition: true
+    reportStaticMethodSignatures: true
+    reportWrongPhpDocTypeInVarTag: true
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php
