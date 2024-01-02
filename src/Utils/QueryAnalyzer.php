@@ -306,7 +306,7 @@ class QueryAnalyzer {
 		}
 
 		if ( $type instanceof NonNull || $type instanceof ListOfType ) {
-			if ( $type instanceof ListOfType && isset( $parent_type->name ) && 'RootQuery' === $parent_type->name ) {
+			if ( $type instanceof ListOfType && isset( $parent_type->name ) ) {
 				$is_list_type = true;
 			}
 
