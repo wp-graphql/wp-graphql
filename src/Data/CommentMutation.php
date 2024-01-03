@@ -103,9 +103,9 @@ class CommentMutation {
 		/**
 		 * Filter the $insert_post_args
 		 *
-		 * @param array  $output_args   The array of $input_post_args that will be passed to wp_new_comment
-		 * @param array  $input         The data that was entered as input for the mutation
-		 * @param string $mutation_type The type of mutation being performed ( create, edit, etc )
+		 * @param array<string,mixed> $output_args   The array of $input_post_args that will be passed to wp_new_comment
+		 * @param array<string,mixed> $input         The data that was entered as input for the mutation
+		 * @param string              $mutation_type The type of mutation being performed ( create, edit, etc )
 		 */
 		$output_args = apply_filters( 'graphql_comment_insert_post_args', $output_args, $input, $mutation_name );
 

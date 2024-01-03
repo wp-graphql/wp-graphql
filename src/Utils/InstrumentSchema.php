@@ -82,9 +82,9 @@ class InstrumentSchema {
 			 * Replace the existing field resolve method with a new function that captures data about
 			 * the resolver to be stored in the resolver_report
 			 *
-			 * @param mixed       $source  The source passed down the Resolve Tree
-			 * @param array       $args    The args for the field
-			 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
+			 * @param mixed                                $source  The source passed down the Resolve Tree
+			 * @param array<string,mixed>                  $args    The args for the field
+			 * @param \WPGraphQL\AppContext                $context The AppContext passed down the ResolveTree
 			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
 			 *
 			 * @return mixed
@@ -96,14 +96,14 @@ class InstrumentSchema {
 				/**
 				 * Fire an action BEFORE the field resolves
 				 *
-				 * @param mixed           $source         The source passed down the Resolve Tree
-				 * @param array           $args           The args for the field
-				 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-				 * @param ?callable       $field_resolver The Resolve function for the field
-				 * @param string          $type_name      The name of the type the fields belong to
-				 * @param string          $field_key      The name of the field
-				 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
+				 * @param mixed                                    $source         The source passed down the Resolve Tree
+				 * @param array<string,mixed>                      $args           The args for the field
+				 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
+				 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param ?callable                                $field_resolver The Resolve function for the field
+				 * @param string                                   $type_name      The name of the type the fields belong to
+				 * @param string                                   $field_key      The name of the field
+				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
 				 */
 				do_action( 'graphql_before_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field );
 
@@ -121,7 +121,7 @@ class InstrumentSchema {
 				 *
 				 * @param mixed                                    $nil            Unique nil value
 				 * @param mixed                                    $source         The source passed down the Resolve Tree
-				 * @param array                                    $args           The args for the field
+				 * @param array<string,mixed>                      $args           The args for the field
 				 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
 				 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
 				 * @param string                                   $type_name      The name of the type the fields belong to
@@ -151,7 +151,7 @@ class InstrumentSchema {
 				 *
 				 * @param mixed                                    $result          The result of the field resolution
 				 * @param mixed                                    $source          The source passed down the Resolve Tree
-				 * @param array                                    $args            The args for the field
+				 * @param array<string,mixed>                      $args            The args for the field
 				 * @param \WPGraphQL\AppContext                    $context         The AppContext passed down the ResolveTree
 				 * @param \GraphQL\Type\Definition\ResolveInfo     $info            The ResolveInfo passed down the ResolveTree
 				 * @param string                                   $type_name       The name of the type the fields belong to
@@ -164,15 +164,15 @@ class InstrumentSchema {
 				/**
 				 * Fire an action AFTER the field resolves
 				 *
-				 * @param mixed           $source         The source passed down the Resolve Tree
-				 * @param array           $args           The args for the field
-				 * @param \WPGraphQL\AppContext $context The AppContext passed down the ResolveTree
-				 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the ResolveTree
-				 * @param ?callable        $field_resolver The Resolve function for the field
-				 * @param string          $type_name      The name of the type the fields belong to
-				 * @param string          $field_key      The name of the field
-				 * @param \GraphQL\Type\Definition\FieldDefinition $field The Field Definition for the resolving field
-				 * @param mixed           $result         The result of the field resolver
+				 * @param mixed                                    $source         The source passed down the Resolve Tree
+				 * @param array<string,mixed>                      $args           The args for the field
+				 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
+				 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
+				 * @param ?callable                                $field_resolver The Resolve function for the field
+				 * @param string                                   $type_name      The name of the type the fields belong to
+				 * @param string                                   $field_key      The name of the field
+				 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
+				 * @param mixed                                    $result         The result of the field resolver
 				 */
 				do_action( 'graphql_after_resolve_field', $source, $args, $context, $info, $field_resolver, $type_name, $field_key, $field, $result );
 

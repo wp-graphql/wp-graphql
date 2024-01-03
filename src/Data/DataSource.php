@@ -463,7 +463,7 @@ class DataSource {
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
-		 * @param array $allowed_settings_by_group
+		 * @param array<string,array<string,mixed>> $allowed_settings_by_group
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
 	}

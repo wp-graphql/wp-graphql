@@ -163,8 +163,8 @@ class QueryLog {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array    $trace     The trace to return
-		 * @param \WPGraphQL\Utils\QueryLog $instance The QueryLog class instance
+		 * @param mixed[]                   $trace     The trace to return
+		 * @param \WPGraphQL\Utils\QueryLog $instance  The QueryLog class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}
