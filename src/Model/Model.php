@@ -520,7 +520,7 @@ abstract class Model {
 			return $str;
 		}
 
-		return html_entity_decode( $str );
+		return html_entity_decode( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8' );
 	}
 
 	/**
