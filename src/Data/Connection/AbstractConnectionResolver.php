@@ -415,8 +415,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Get_query_amount
 	 *
-	 * Returns the max between what was requested and what is defined as the $max_query_amount to
-	 * ensure that queries don't exceed unwanted limits when querying data.
+	 * Returns the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
+	 *
+	 * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
 	 *
 	 * @return int
 	 * @throws \Exception
@@ -438,8 +439,17 @@ abstract class AbstractConnectionResolver {
 		 * @since 0.0.6
 		 */
 		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
+		
+		$requested_amount = $this->get_amount_requested();
 
-		return min( $max_query_amount, absint( $this->get_amount_requested() ) );
+		if ( $requested_amount > $max_query_amount ) {
+			graphql_debug(
+				sprintf( 'The number of items requested by the connection (%s) exceeds the max query amount. Only the first %s items will be returned.', $requested_amount, $max_query_amount ),
+				[ 'connection' => static::class ]
+			);
+		}
+
+		return min( $max_query_amount, $requested_amount );
 	}
 
 	/**
@@ -447,7 +457,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * This checks the $args to determine the amount requested, and if
 	 *
-	 * @return int|null
+	 * @return int
 	 * @throws \GraphQL\Error\UserError If there is an issue with the pagination $args.
 	 */
 	public function get_amount_requested() {
@@ -495,7 +505,7 @@ abstract class AbstractConnectionResolver {
 		 * @param int                        $amount   the requested amount
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $resolver Instance of the connection resolver class
 		 */
-		return max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
+		return (int) max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
 	}
 
 	/**
