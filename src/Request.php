@@ -59,7 +59,7 @@ class Request {
 	 * GraphQL operation parameters for this request. Can also be an array of
 	 * OperationParams.
 	 *
-	 * @var mixed|array|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
+	 * @var mixed|mixed[]|\GraphQL\Server\OperationParams|\GraphQL\Server\OperationParams[]
 	 */
 	public $params;
 
@@ -94,7 +94,7 @@ class Request {
 	/**
 	 * The default field resolver function. Default null
 	 *
-	 * @var mixed|callable|null
+	 * @var callable|null
 	 */
 	protected $field_resolver;
 
@@ -190,7 +190,7 @@ class Request {
 	}
 
 	/**
-	 * @return mixed
+	 * @return callable|null
 	 */
 	protected function get_field_resolver() {
 		return $this->field_resolver;
@@ -231,8 +231,8 @@ class Request {
 		/**
 		 * Return the filtered root value
 		 *
-		 * @param mixed   $root_value The root value the Schema should use to resolve with. Default null.
-		 * @param \WPGraphQL\Request $request The Request instance
+		 * @param mixed              $root_value The root value the Schema should use to resolve with. Default null.
+		 * @param \WPGraphQL\Request $request    The Request instance
 		 */
 		return apply_filters( 'graphql_root_value', $root_value, $this );
 	}
@@ -474,7 +474,7 @@ class Request {
 	 * @param mixed|array<string,mixed>|object $response The response for your GraphQL request
 	 * @param mixed|int|null                   $key      The array key of the params for batch requests
 	 *
-	 * @return array<string,mixed>
+	 * @return mixed|array<string,mixed>|object
 	 */
 	private function after_execute_actions( $response, $key = null ) {
 
@@ -501,12 +501,12 @@ class Request {
 		/**
 		 * Run an action. This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param mixed|array $response  The response your GraphQL request
-		 * @param \WPGraphQL\WPSchema $schema The schema object for the root request
-		 * @param mixed|string|null      $operation The name of the operation
-		 * @param string      $query     The query that GraphQL executed
-		 * @param array|null  $variables Variables to passed to your GraphQL query
-		 * @param \WPGraphQL\Request $request Instance of the Request
+		 * @param mixed|array<string,mixed>|object $response  The response your GraphQL request
+		 * @param \WPGraphQL\WPSchema              $schema The schema object for the root request
+		 * @param mixed|string|null                $operation The name of the operation
+		 * @param string                           $query     The query that GraphQL executed
+		 * @param mixed[]|null                     $variables Variables to passed to your GraphQL query
+		 * @param \WPGraphQL\Request               $request Instance of the Request
 		 *
 		 * @since 0.0.4
 		 */
@@ -537,13 +537,13 @@ class Request {
 		 * every response, regardless of the request that was sent to it, this could allow for that
 		 * to be hooked in and included in the $response.
 		 *
-		 * @param array      $response  The response for your GraphQL query
-		 * @param \WPGraphQL\WPSchema $schema The schema object for the root query
-		 * @param string     $operation The name of the operation
-		 * @param string     $query     The query that GraphQL executed
-		 * @param array|null $variables Variables to passed to your GraphQL request
-		 * @param \WPGraphQL\Request $request Instance of the Request
-		 * @param string|null $query_id The query id that GraphQL executed
+		 * @param mixed|array<string,mixed>|object $response  The response for your GraphQL query
+		 * @param \WPGraphQL\WPSchema              $schema    The schema object for the root query
+		 * @param string                           $operation The name of the operation
+		 * @param string                           $query     The query that GraphQL executed
+		 * @param mixed[]|null                     $variables Variables to passed to your GraphQL request
+		 * @param \WPGraphQL\Request               $request   Instance of the Request
+		 * @param ?string                          $query_id  The query id that GraphQL executed
 		 *
 		 * @since 0.0.5
 		 */
@@ -553,14 +553,14 @@ class Request {
 		 * Run an action after the response has been filtered, as the response is being returned.
 		 * This is a good place for debug tools to hook in to log things, etc.
 		 *
-		 * @param array      $filtered_response The filtered response for the GraphQL request
-		 * @param array      $response          The response for your GraphQL request
-		 * @param \WPGraphQL\WPSchema $schema The schema object for the root request
-		 * @param string     $operation         The name of the operation
-		 * @param string     $query             The query that GraphQL executed
-		 * @param array|null $variables         Variables to passed to your GraphQL query
-		 * @param \WPGraphQL\Request $request Instance of the Request
-		 * @param string|null $query_id          The query id that GraphQL executed
+		 * @param mixed|array<string,mixed>|object $filtered_response The filtered response for the GraphQL request
+		 * @param mixed|array<string,mixed>|object $response          The response for your GraphQL request
+		 * @param \WPGraphQL\WPSchema              $schema            The schema object for the root request
+		 * @param string                           $operation         The name of the operation
+		 * @param string                           $query             The query that GraphQL executed
+		 * @param mixed[]|null                     $variables         Variables to passed to your GraphQL query
+		 * @param \WPGraphQL\Request               $request           Instance of the Request
+		 * @param ?string                          $query_id          The query id that GraphQL executed
 		 */
 		do_action( 'graphql_return_response', $filtered_response, $response, $this->schema, $operation, $query, $variables, $this, $query_id );
 

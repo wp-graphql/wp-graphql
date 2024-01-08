@@ -109,9 +109,9 @@ abstract class AbstractDataLoader {
 	 * Loads a key and returns value represented by this key.
 	 * Internally this method will load all currently buffered items and cache them locally.
 	 *
-	 * @param mixed $key
+	 * @param int|string|mixed $key
 	 *
-	 * @return mixed
+	 * @return ?\WPGraphQL\Model\Model
 	 * @throws \Exception
 	 */
 	public function load( $key ) {
@@ -418,7 +418,7 @@ abstract class AbstractDataLoader {
 	/**
 	 * Returns a cached data object by key.
 	 *
-	 * @param mixed $key  Key.
+	 * @param int|string $key Key.
 	 *
 	 * @return mixed
 	 */
@@ -431,10 +431,10 @@ abstract class AbstractDataLoader {
 		/**
 		 * Use this filter to retrieving cached data objects from third-party caching system.
 		 *
-		 * @param mixed  $value         Value to be cached.
-		 * @param mixed  $key           Key identifying object.
-		 * @param string $loader_class  Loader class name.
-		 * @param mixed  $loader        Loader instance.
+		 * @param mixed       $value        Value to be cached.
+		 * @param int|string  $key          Key identifying object.
+		 * @param string      $loader_class Loader class name.
+		 * @param mixed       $loader       Loader instance.
 		 */
 		$value = apply_filters(
 			'graphql_dataloader_get_cached',

@@ -64,7 +64,7 @@ class WPEnumType extends EnumType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array $values
+		 * @param array<string,mixed> $values
 		 */
 		$values = apply_filters( 'graphql_enum_values', $values );
 
@@ -76,7 +76,7 @@ class WPEnumType extends EnumType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $values
+		 * @param array<string,mixed> $values
 		 *
 		 * @since 0.0.5
 		 */

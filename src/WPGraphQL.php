@@ -324,9 +324,9 @@ final class WPGraphQL {
 					/**
 					 * Filters the interfaces applied to an object type
 					 *
-					 * @param array                              $interfaces List of interfaces applied to the Object Type
-					 * @param array                              $config     The config for the Object Type
-					 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type The Type instance
+					 * @param string[]                                                           $interfaces List of interfaces applied to the Object Type
+					 * @param array<string,mixed>                                                $config     The config for the Object Type
+					 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
 					 */
 					return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 				}
@@ -439,8 +439,8 @@ final class WPGraphQL {
 		/**
 		 * Filters the graphql args set on a post type
 		 *
-		 * @param array  $args           The graphql specific args for the post type
-		 * @param string $post_type_name The name of the post type being registered
+		 * @param array<string,mixed> $args           The graphql specific args for the post type
+		 * @param string              $post_type_name The name of the post type being registered
 		 */
 		$graphql_args = apply_filters( 'register_graphql_post_type_args', $graphql_args, $post_type_name );
 
@@ -468,8 +468,8 @@ final class WPGraphQL {
 		/**
 		 * Filters the graphql args set on a taxonomy
 		 *
-		 * @param array  $args          The graphql specific args for the taxonomy
-		 * @param string $taxonomy_name The name of the taxonomy being registered
+		 * @param array<string,mixed> $args          The graphql specific args for the taxonomy
+		 * @param string              $taxonomy_name The name of the taxonomy being registered
 		 */
 		$graphql_args = apply_filters( 'register_graphql_taxonomy_args', $graphql_args, $taxonomy_name );
 
@@ -543,12 +543,10 @@ final class WPGraphQL {
 			 * Pass through a filter to allow the post_types to be modified.
 			 * For example if a certain post_type should not be exposed to the GraphQL API.
 			 *
-			 * @param array $post_type_names   Array of post type names.
-			 * @param array $post_type_objects Array of post type objects.
+			 * @param string[]        $post_type_names   Array of post type names.
+			 * @param \WP_Post_Type[] $post_type_objects Array of post type objects.
 			 *
-			 * @return array
 			 * @since 1.8.1 add $post_type_objects parameter.
-			 *
 			 * @since 0.0.2
 			 */
 			$allowed_post_type_names = apply_filters( 'graphql_post_entities_allowed_post_types', $post_type_names, $post_type_objects );
@@ -629,12 +627,10 @@ final class WPGraphQL {
 			 * Pass through a filter to allow the taxonomies to be modified.
 			 * For example if a certain taxonomy should not be exposed to the GraphQL API.
 			 *
-			 * @param array $tax_names   Array of taxonomy names
-			 * @param array $tax_objects Array of taxonomy objects.
+			 * @param string[]       $tax_names   Array of taxonomy names
+			 * @param \WP_Taxonomy[] $tax_objects Array of taxonomy objects.
 			 *
-			 * @return array
 			 * @since 1.8.1 add $tax_names and $tax_objects parameters.
-			 *
 			 * @since 0.0.2
 			 */
 			$allowed_tax_names = apply_filters( 'graphql_term_entities_allowed_taxonomies', $tax_names, $tax_objects );
