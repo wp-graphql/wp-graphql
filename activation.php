@@ -43,7 +43,7 @@ function graphql_migrate_1_20_0(): void {
 	 * This is to prevent breaking changes in caching solutions that rely on the Query Analyzer, but aren't insuring that the `graphql_should_analyze_queries` filter is set to true.
 	 */
 
-	$graphql_settings = get_option( 'graphql_general_settings' );
+	$graphql_settings = get_option( 'graphql_general_settings', [] );
 
 	$graphql_settings['query_analyzer_enabled'] = 'on';
 
