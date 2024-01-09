@@ -103,10 +103,31 @@ class QueryAnalyzer {
 	protected $queried_list_types = [];
 
 	/**
-	 * @var ?bool Whether the Query Analyzer is enabled or not.
+	 * @var ?bool Whether the Query Analyzer is enabled for the specific or not.
 	 */
-	protected $is_enabled;
+	protected $is_enabled_for_query;
 
+	/**
+	 * Checks whether the Query Analyzer is enabled on the site.
+	 *
+	 * @uses `graphql_query_analyzer_enabled` filter.
+	 */
+	public static function is_enabled(): bool {
+		$query_analyzer_enabled = false;
+		$is_debug_enabled       = WPGraphQL::debug();
+
+		if ( ! $is_debug_enabled ) {
+			$query_analyzer_enabled = get_graphql_setting( 'query_analyzer_enabled', 'off' );
+			$query_analyzer_enabled = 'on' === $query_analyzer_enabled;
+		}
+
+		/**
+		 * Filters whether to analyze queries for all GraphQL requests.
+		 *
+		 * @param bool $should_track_types Whether to analyze queries or not. Defaults to `true` if GraphQL Debugging is enabled, otherwise `false`.
+		 */
+		return apply_filters( 'graphql_should_analyze_queries', $query_analyzer_enabled );
+	}
 
 	/**
 	 * @param \WPGraphQL\Request $request The GraphQL request being executed
@@ -132,29 +153,29 @@ class QueryAnalyzer {
 	 *
 	 * @uses `graphql_should_analyze_queries` filter.
 	 */
-	public function is_enabled(): bool {
-		if ( ! isset( $this->is_enabled ) ) {
-			$is_debug_enabled = WPGraphQL::debug();
+	public function is_enabled_for_query(): bool {
+		if ( ! isset( $this->is_enabled_for_query ) ) {
+			$is_enabled = self::is_enabled();
 		
 			/**
-			 * Filters whether to analyze queries or not
+			 * Filters whether to analyze queries or for a specific GraphQL request.
 			 *
-			 * @param bool          $should_analyze_queries Whether to analyze queries or not. Defaults to `true` if GraphQL Debugging is enabled, otherwise `false`.
-			 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The QueryAnalyzer instance
+			 * @param bool          $should_analyze_queries Whether to analyze queries for the current request. Defaults to the value of `graphql_query_analyzer_enabled` filter.
+			 * @param \WPGraphQL\Request $request               The GraphQL request being executed
 			 */
-			$should_analyze_queries = apply_filters( 'graphql_should_analyze_queries', $is_debug_enabled, $this );
+			$should_analyze_queries = apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
 			
-			$this->is_enabled = true === $should_analyze_queries;
+			$this->is_enabled_for_query = true === $should_analyze_queries;
 		}
 
-		return $this->is_enabled;
+		return $this->is_enabled_for_query;
 	}
 
 	/**
 	 * Initialize the QueryAnalyzer.
 	 */
 	public function init(): void {
-		$should_analyze_queries = $this->is_enabled();
+		$should_analyze_queries = $this->is_enabled_for_query();
 
 		// If query analyzer is disabled, bail
 		if ( true !== $should_analyze_queries ) {
