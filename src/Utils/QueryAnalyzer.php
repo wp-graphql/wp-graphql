@@ -113,9 +113,12 @@ class QueryAnalyzer {
 	 * @uses `graphql_query_analyzer_enabled` filter.
 	 */
 	public static function is_enabled(): bool {
-		$query_analyzer_enabled = false;
-		$is_debug_enabled       = WPGraphQL::debug();
+		$is_debug_enabled = WPGraphQL::debug();
 
+		// The query analyzer is enabled if WPGraphQL Debugging is enabled
+		$query_analyzer_enabled = $is_debug_enabled;
+
+		// If WPGraphQL Debugging is not enabled, check the setting
 		if ( ! $is_debug_enabled ) {
 			$query_analyzer_enabled = get_graphql_setting( 'query_analyzer_enabled', 'off' );
 			$query_analyzer_enabled = 'on' === $query_analyzer_enabled;
@@ -807,10 +810,10 @@ class QueryAnalyzer {
 	 * @return array<string,mixed>|object|null
 	 */
 	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables ) {
-		$should = \WPGraphQL::debug();
+		$should = $this->is_enabled_for_query() && \WPGraphQL::debug();
 
 		/**
-		 * @param bool                     $should         Whether the query analyzer output should be displayed in the Extensions output. Default to the value of WPGraphQL Debug.
+		 * @param bool                     $should         Whether the query analyzer output should be displayed in the Extensions output. Defaults to true if the query analyzer is enabled for the request and WPGraphQL Debugging is enabled.
 		 * @param mixed                    $response       The response of the WPGraphQL Request being executed
 		 * @param \WPGraphQL\WPSchema      $schema The WPGraphQL Schema
 		 * @param string|null              $operation_name The operation name being executed

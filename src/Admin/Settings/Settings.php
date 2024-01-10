@@ -208,6 +208,7 @@ class Settings {
 					'type'     => 'checkbox',
 					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
 					'disabled' => defined( 'GRAPHQL_DEBUG' ),
+					'default'  => 'off',
 				],
 				[
 					'name'    => 'tracing_enabled',
