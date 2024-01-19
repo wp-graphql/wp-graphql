@@ -36,6 +36,13 @@ class QueryAnalyzer {
 	protected $schema;
 
 	/**
+	 * Indicates whether any nodes have been resolved.
+	 *
+	 * @var bool
+	 */
+	private static $nodes_resolved = false;
+
+	/**
 	 * Types that are referenced in the query
 	 *
 	 * @var string[]
@@ -603,6 +610,7 @@ class QueryAnalyzer {
 	 */
 	public function track_nodes( $model ) {
 		if ( isset( $model->id ) && in_array( get_class( $model ), $this->get_query_models(), true ) ) {
+			self::$nodes_resolved = true;
 			// Is this model type part of the requested/returned data in the asked for query?
 
 			/**
@@ -624,6 +632,30 @@ class QueryAnalyzer {
 		}
 
 		return $model;
+	}
+
+		/**
+		 * Checks if any nodes have been resolved.
+		 *
+		 * This method is used to determine whether any nodes (or models)
+		 * were successfully resolved during the GraphQL query processing.
+		 * It returns the current state of the `nodes_resolved` flag.
+		 *
+		 * @return bool True if any nodes have been resolved, false otherwise.
+		 */
+	public static function areNodesResolved() {
+		return self::$nodes_resolved;
+	}
+
+	/**
+	 * Resets the nodes resolved status.
+	 *
+	 * This method is called at the beginning of each GraphQL request
+	 * to reset the `nodes_resolved` flag. Ensuring that each request
+	 * starts with a clean state for tracking whether nodes have been resolved.
+	 */
+	public static function resetNodesResolved() {
+		self::$nodes_resolved = false;
 	}
 
 	/**
