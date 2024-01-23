@@ -3,7 +3,6 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
-use WPGraphQL\Utils\QueryAnalyzer;
 use WP_User;
 
 /**
@@ -327,7 +326,7 @@ class Router {
 
 		// If the Query Analyzer was instantiated
 		// Get the headers determined from its Analysis
-		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
+		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer()->is_enabled_for_query() ) {
 			$headers = self::get_request()->get_query_analyzer()->get_headers( $headers );
 		}
 
