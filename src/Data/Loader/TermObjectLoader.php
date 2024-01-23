@@ -50,7 +50,7 @@ class TermObjectLoader extends AbstractDataLoader {
 	 *
 	 * @param int[] $keys
 	 *
-	 * @return array<int, mixed>
+	 * @return array<int,\WP_Term|\WP_Error|null>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

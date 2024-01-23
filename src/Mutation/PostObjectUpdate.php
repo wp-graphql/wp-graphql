@@ -73,7 +73,7 @@ class PostObjectUpdate {
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string        $mutation_name      The mutation name.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {
@@ -185,10 +185,10 @@ class PostObjectUpdate {
 			 *
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
-			 * @param int    $post_id       Inserted post ID
-			 * @param \WP_Post_Type $post_type_object The Post Type object for the post being mutated
-			 * @param array  $args          The args used to insert the term
-			 * @param string $mutation_name The name of the mutation being performed
+			 * @param int                 $post_id          Inserted post ID
+			 * @param \WP_Post_Type       $post_type_object The Post Type object for the post being mutated
+			 * @param array<string,mixed> $args             The args used to insert the term
+			 * @param string              $mutation_name    The name of the mutation being performed
 			 */
 			do_action( 'graphql_insert_post_object', absint( $post_id ), $post_type_object, $post_args, $mutation_name );
 
@@ -197,9 +197,9 @@ class PostObjectUpdate {
 			 *
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
-			 * @param int    $post_id       Inserted post ID
-			 * @param array  $args          The args used to insert the term
-			 * @param string $mutation_name The name of the mutation being performed
+			 * @param int                 $post_id       Inserted post ID
+			 * @param array<string,mixed> $args          The args used to insert the term
+			 * @param string              $mutation_name The name of the mutation being performed
 			 */
 			do_action( "graphql_insert_{$post_type_object->name}", absint( $post_id ), $post_args, $mutation_name );
 

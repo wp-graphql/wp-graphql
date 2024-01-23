@@ -29,7 +29,7 @@ class UniformResourceIdentifiable {
 					],
 					'id'            => [
 						'type'        => [ 'non_null' => 'ID' ],
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
+						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
 					],
 					'isContentNode' => [
 						'type'        => [ 'non_null' => 'Boolean' ],

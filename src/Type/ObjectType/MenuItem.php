@@ -171,12 +171,12 @@ class MenuItem {
 							 * but would prefer to represent the menu item in other ways,
 							 * e.g., a linked post object (or vice-versa).
 							 *
-							 * @param \WP_Post|\WP_Term $resolved_object Post or term connected to MenuItem
-							 * @param array             $args            Array of arguments input in the field as part of the GraphQL query
-							 * @param \WPGraphQL\AppContext $context Object containing app context that gets passed down the resolve tree
-							 * @param \GraphQL\Type\Definition\ResolveInfo $info Info about fields passed down the resolve tree
-							 * @param int               $object_id       Post or term ID of connected object
-							 * @param string            $object_type     Type of connected object ("post_type" or "taxonomy")
+							 * @param \WP_Post|\WP_Term                    $resolved_object Post or term connected to MenuItem
+							 * @param array<string,mixed>                  $args            Array of arguments input in the field as part of the GraphQL query
+							 * @param \WPGraphQL\AppContext                $context         Object containing app context that gets passed down the resolve tree
+							 * @param \GraphQL\Type\Definition\ResolveInfo $info            Info about fields passed down the resolve tree
+							 * @param int                                  $object_id       Post or term ID of connected object
+							 * @param string                               $object_type     Type of connected object ("post_type" or "taxonomy")
 							 *
 							 * @since 0.0.30
 							 */
