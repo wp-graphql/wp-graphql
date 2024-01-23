@@ -458,7 +458,7 @@ class DataSource {
 		/**
 		 * Set the setting groups that are allowed
 		 */
-		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) && is_array( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
+		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
 
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
@@ -513,7 +513,7 @@ class DataSource {
 		/**
 		 * Verify that we have the allowed settings
 		 */
-		$allowed_settings = ! empty( $allowed_settings ) && is_array( $allowed_settings ) ? $allowed_settings : [];
+		$allowed_settings = ! empty( $allowed_settings ) ? $allowed_settings : [];
 
 		/**
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in

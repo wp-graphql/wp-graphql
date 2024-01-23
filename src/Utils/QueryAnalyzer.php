@@ -353,7 +353,7 @@ class QueryAnalyzer {
 		}
 
 		if ( $type instanceof NonNull || $type instanceof ListOfType ) {
-			if ( $type instanceof ListOfType && isset( $parent_type->name ) && 'RootQuery' === $parent_type->name ) {
+			if ( $type instanceof ListOfType && isset( $parent_type->name ) ) {
 				$is_list_type = true;
 			}
 
@@ -362,7 +362,7 @@ class QueryAnalyzer {
 
 		// Determine if we're dealing with a connection
 		if ( $type instanceof ObjectType || $type instanceof InterfaceType ) {
-			$interfaces      = method_exists( $type, 'getInterfaces' ) ? $type->getInterfaces() : [];
+			$interfaces      = $type->getInterfaces();
 			$interface_names = ! empty( $interfaces ) ? array_map(
 				static function ( InterfaceType $interface_obj ) {
 					return $interface_obj->name;

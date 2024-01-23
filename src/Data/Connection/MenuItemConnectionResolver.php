@@ -61,7 +61,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		}
 
 		// Only query for menu items in assigned locations.
-		if ( ! empty( $locations ) && is_array( $locations ) ) {
+		if ( ! empty( $locations ) ) {
 
 			// unset the location arg
 			// we don't need this passed as a taxonomy parameter to wp_query

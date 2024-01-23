@@ -1,8 +1,22 @@
 parameters:
     level: 8
-    inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: true
+    dynamicConstantNames:
+        - WPGRAPHQL_AUTOLOAD
     treatPhpDocTypesAsCertain: false
+    inferPrivatePropertyTypeFromConstructor: true
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+    checkMissingIterableValueType: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    polluteScopeWithAlwaysIterableForeach: false
+    polluteScopeWithLoopInitialAssignments: false
+    reportAlwaysTrueInLastCondition: true
+    reportStaticMethodSignatures: true
+    reportWrongPhpDocTypeInVarTag: true
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php

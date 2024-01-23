@@ -170,10 +170,6 @@ class TermObject {
 				'description'        => __( 'The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' ),
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 				'resolve'            => static function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
-					if ( ! $tax_object instanceof WP_Taxonomy ) {
-						return null;
-					}
-
 					$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
 
 					if ( empty( $ancestor_ids ) ) {
