@@ -124,7 +124,7 @@ class QueryLog {
 	/**
 	 * Return the query log produced from the logs stored by WPDB.
 	 *
-	 * @return mixed[]
+	 * @return array<string,mixed>
 	 */
 	public function get_query_log() {
 		global $wpdb;
@@ -163,8 +163,8 @@ class QueryLog {
 		/**
 		 * Filter the trace
 		 *
-		 * @param array    $trace     The trace to return
-		 * @param \WPGraphQL\Utils\QueryLog $instance The QueryLog class instance
+		 * @param mixed[]                   $trace     The trace to return
+		 * @param \WPGraphQL\Utils\QueryLog $instance  The QueryLog class instance
 		 */
 		return apply_filters( 'graphql_tracing_response', $trace, $this );
 	}

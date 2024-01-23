@@ -18,7 +18,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * The name of the post type, or array of post types the connection resolver is resolving for
 	 *
-	 * @var mixed string|array
+	 * @var mixed|string|string[]
 	 */
 	protected $post_type;
 
@@ -352,11 +352,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
-		 * @param array       $query_args The args that will be passed to the WP_Query
-		 * @param mixed       $source     The source that's passed down the GraphQL queries
-		 * @param array       $args       The inputArgs on the field
-		 * @param \WPGraphQL\AppContext $context The AppContext passed down the GraphQL tree
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the GraphQL tree
+		 * @param array<string,mixed>                  $query_args The args that will be passed to the WP_Query
+		 * @param mixed                                $source     The source that's passed down the GraphQL queries
+		 * @param array<string,mixed>                  $args       The inputArgs on the field
+		 * @param \WPGraphQL\AppContext                $context    The AppContext passed down the GraphQL tree
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
 		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
 	}
@@ -419,15 +419,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
 		 *
-		 * @param array              $query_args The mapped query arguments
-		 * @param array              $args       Query "where" args
-		 * @param mixed              $source     The query results for a query calling this
-		 * @param array              $all_args   All of the arguments for the query (not just the "where" args)
-		 * @param \WPGraphQL\AppContext $context The AppContext object
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
-		 * @param mixed|string|array $post_type  The post type for the query
+		 * @param array<string,mixed>                  $query_args The mapped query arguments
+		 * @param array<string,mixed>                  $args       Query "where" args
+		 * @param mixed                                $source     The query results for a query calling this
+		 * @param array<string,mixed>                  $all_args   All of the arguments for the query (not just the "where" args)
+		 * @param \WPGraphQL\AppContext                $context    The AppContext object
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo object
+		 * @param mixed|string|string[]                $post_type  The post type for the query
 		 *
-		 * @return array
 		 * @since 0.0.5
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->args, $this->context, $this->info, $this->post_type );
@@ -446,7 +445,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * This strips the status from the query_args if the user doesn't have permission to query for
 	 * posts of that status.
 	 *
-	 * @param mixed $stati The status(es) to sanitize
+	 * @param string[]|string $stati The status(es) to sanitize.
 	 *
 	 * @return string[]|null
 	 */
@@ -576,9 +575,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array                        $args                The GraphQL args passed to the resolver.
+		 * @param array<string,mixed>                                     $args                The GraphQL args passed to the resolver.
 		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
-		 * @param array                        $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed>                                     $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */

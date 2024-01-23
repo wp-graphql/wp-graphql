@@ -1,4 +1,7 @@
 <?php
+
+use WPGraphQL\Utils\QueryAnalyzer;
+
 class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
@@ -18,7 +21,77 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function _tearDown(): void {
 		wp_delete_post( $this->post_id, true );
+
 		parent::_tearDown();
+	}
+
+	/**
+	 * Sets the query analyzer setting. If null is passed, the setting is unset.
+	 */
+	protected function toggle_query_analyzer( ?bool $toggle ): void {
+		$settings = get_option( 'graphql_general_settings', [] );
+
+		// Unset the setting if null is passed
+		if ( null === $toggle ) {
+			unset( $settings['query_analyzer_enabled'] );
+			update_option( 'graphql_general_settings', $settings );
+			return;
+		}
+
+		$settings['query_analyzer_enabled'] = $toggle === true ? 'on' : 'off';
+
+		update_option( 'graphql_general_settings', $settings );
+	}
+
+	public function testEnableQueryAnalyzer(): void {
+		// Unset GraphQL Debugging.
+		add_filter( 'graphql_debug_enabled', '__return_false' );
+
+		$query = '{ posts { nodes { id, title } } }';
+
+		/** Test with Query Analyzer toggled on */
+		$this->toggle_query_analyzer( true );
+		$actual = QueryAnalyzer::is_enabled();
+		$this->assertTrue( $actual, 'Query Analyzer should be enabled when turned "on"' );
+
+		$request = graphql( ['query' => $query ], true );
+		$actual_response = $request->execute();
+		$actual_analyzer = $request->get_query_analyzer();
+
+		$this->assertTrue( $actual_analyzer->is_enabled(), 'Query Analyzer should be enabled when turned "on"' );
+		$this->assertTrue( $actual_analyzer->is_enabled_for_query(), 'Query Analyzer should be enabled for query when turned "on"' );
+		$this->assertArrayNotHasKey( 'queryAnalyzer', $actual_response['extensions'], 'There should be no extension output if GraphQL debugging is disabled ' );
+
+		/** Test with Query Analyzer toggled off */
+		$this->toggle_query_analyzer( false );
+		$actual = QueryAnalyzer::is_enabled();
+		$this->assertFalse( $actual, 'Query Analyzer should be disabled when turned "off".' );
+
+		$request = graphql( ['query' => $query ], true );
+		$actual_response = $request->execute();
+		$actual_analyzer = $request->get_query_analyzer();
+
+		$this->assertFalse( $actual_analyzer->is_enabled(), 'Query Analyzer should be disabled when turned "off"' );
+		$this->assertFalse( $actual_analyzer->is_enabled_for_query(), 'Query Analyzer should be disabled for query when turned "off"' );
+		$this->assertArrayNotHasKey( 'queryAnalyzer', $actual_response['extensions'], 'There should be no extension output if GraphQL debugging is disabled ' );
+
+		/** Test with GraphQL Debugging Enabled */
+		add_filter( 'graphql_debug_enabled', '__return_true' );
+		$actual = QueryAnalyzer::is_enabled();
+		$this->assertTrue( $actual, 'Query Analyzer should be enabled when the "graphql_debug_enabled" filter is set to true.' );
+
+		$request = graphql( ['query' => $query ], true );
+		$actual_response = $request->execute();
+		$actual_analyzer = $request->get_query_analyzer();
+
+		$this->assertTrue( $actual_analyzer->is_enabled(), 'Query Analyzer should be enabled when GraphQL Debugging is on' );
+		$this->assertTrue( $actual_analyzer->is_enabled_for_query(), 'Query Analyzer should be enabled for query when GraphQL Debugging is on' );
+		$this->assertNotEmpty( $actual_response['extensions']['queryAnalyzer'], 'There should be extension output if GraphQL debugging and Query Analyzer are enabled.' );
+
+		// Clean up
+		$this->toggle_query_analyzer( null );
+		remove_filter( 'graphql_debug_enabled', '__return_true' );
+		remove_filter( 'graphql_debug_enabled', '__return_false' );
 	}
 
 	public function testListTypes() {

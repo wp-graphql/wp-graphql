@@ -5,7 +5,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
     checkAlwaysTrueCheckTypeFunctionCall: true
-    # checkAlwaysTrueInstanceof: true This can be enabled after #3008
+    checkAlwaysTrueInstanceof: true
     checkAlwaysTrueStrictComparison: true
     checkExplicitMixedMissingReturn: true
     checkFunctionNameCase: true

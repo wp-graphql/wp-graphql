@@ -76,8 +76,8 @@ class WPUnionType extends UnionType {
 		/**
 		 * Filter the possible_types to allow systems to add to the possible resolveTypes.
 		 *
-		 * @param mixed       $types         The possible types for the Union
-		 * @param array       $config        The config for the Union Type
+		 * @param mixed                       $types         The possible types for the Union
+		 * @param array<string,mixed>         $config        The config for the Union Type
 		 * @param \WPGraphQL\Type\WPUnionType $wp_union_type The WPUnionType instance
 		 *
 		 * @return mixed|array
@@ -87,7 +87,7 @@ class WPUnionType extends UnionType {
 		/**
 		 * Filter the config of WPUnionType
 		 *
-		 * @param array       $config        Array of configuration options passed to the WPUnionType when instantiating a new type
+		 * @param array<string,mixed>         $config        Array of configuration options passed to the WPUnionType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPUnionType $wp_union_type The instance of the WPUnionType class
 		 *
 		 * @since 0.0.30
@@ -97,7 +97,7 @@ class WPUnionType extends UnionType {
 		/**
 		 * Run an action when the WPUnionType is instantiating
 		 *
-		 * @param array       $config        Array of configuration options passed to the WPUnionType when instantiating a new type
+		 * @param array<string,mixed>       $config        Array of configuration options passed to the WPUnionType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPUnionType $wp_union_type The instance of the WPUnionType class
 		 */
 		do_action( 'graphql_wp_union_type', $config, $this );

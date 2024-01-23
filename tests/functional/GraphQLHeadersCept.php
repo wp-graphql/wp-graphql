@@ -3,6 +3,11 @@
 $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Test GraphQL Keys returned in headers' );
 
+// First test with Query_analyzer disabled
+$graphql_general_settings = get_option( 'graphql_general_settings' );
+$graphql_general_settings['query_analyzer_enabled'] = 'off';
+update_option( 'graphql_general_settings', $graphql_general_settings );
+
 $admin_id = $I->haveUserInDatabase( 'admin', 'administrator' );
 $post_id  = $I->havePostInDatabase(
 	[
@@ -24,6 +29,17 @@ $page_id  = $I->havePostInDatabase(
 );
 
 $query = 'query GetPosts { posts { nodes { title } } }';
+
+$I->sendGet( 'http://localhost/graphql?query=' . $query );
+
+$I->seeResponseCodeIs( 200 );
+$I->seeResponseIsJson();
+$x_graphql_keys = $I->grabHttpHeader( 'X-GraphQL-Keys' );
+$I->assertEmpty( $x_graphql_keys );
+
+// Then test with Query Analyzer enabled.
+$graphql_general_settings['query_analyzer_enabled'] = 'on';
+update_option( 'graphql_general_settings', $graphql_general_settings );
 
 $I->sendGet( 'http://localhost/graphql?query=' . $query );
 
@@ -77,3 +93,8 @@ $post_cache_key = base64_encode( 'post:' . $post_id );
 $I->assertContains( $post_cache_key, explode( ' ', $x_graphql_keys ) );
 $list_post_key = 'list:post';
 $I->assertContains( $list_post_key, explode( ' ', $x_graphql_keys ) );
+
+// cleanup
+$graphql_general_settings['query_analyzer_enabled'] = 'off';
+update_option( 'graphql_general_settings', $graphql_general_settings );
+

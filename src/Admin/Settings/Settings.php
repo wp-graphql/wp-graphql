@@ -165,6 +165,18 @@ class Settings {
 					},
 				],
 				[
+					'name'     => 'query_analyzer_enabled',
+					'label'    => __( 'Enable GraphQL Type Tracking', 'wp-graphql' ),
+					'desc'     => sprintf(
+						// translators: %s is either empty or a string with a note about force enabling.
+						__( 'When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s', 'wp-graphql' ),
+						true === \WPGraphQL::debug() ? '<br /><strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : ''
+					),
+					'type'     => 'checkbox',
+					'disabled' => true === \WPGraphQL::debug(),
+					'value'    => true === \WPGraphQL\Utils\QueryAnalyzer::is_enabled() ? 'on' : get_graphql_setting( 'query_analyzer_enabled', 'off' ),
+				],
+				[
 					'name'    => 'graphiql_enabled',
 					'label'   => __( 'Enable GraphiQL IDE', 'wp-graphql' ),
 					'desc'    => __( 'GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard.', 'wp-graphql' ),
@@ -195,6 +207,7 @@ class Settings {
 					'type'     => 'checkbox',
 					'value'    => true === \WPGraphQL::debug() ? 'on' : get_graphql_setting( 'debug_mode_enabled', 'off' ),
 					'disabled' => defined( 'GRAPHQL_DEBUG' ),
+					'default'  => 'off',
 				],
 				[
 					'name'    => 'tracing_enabled',

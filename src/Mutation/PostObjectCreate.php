@@ -193,7 +193,7 @@ class PostObjectCreate {
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string        $mutation_name    The mutation name.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload( $post_type_object, $mutation_name ) {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $post_type_object, $mutation_name ) {

@@ -77,10 +77,10 @@ class TermObjectMutation {
 		/**
 		 * Filter the $insert_args
 		 *
-		 * @param array $insert_args The array of input args that will be passed to the functions that insert terms
-		 * @param array $input The data that was entered as input for the mutation
-		 * @param \WP_Taxonomy $taxonomy The taxonomy object of the term being mutated
-		 * @param string $mutation_name The name of the mutation being performed (create, edit, etc)
+		 * @param array<string,mixed> $insert_args   The array of input args that will be passed to the functions that insert terms
+		 * @param array<string,mixed> $input         The data that was entered as input for the mutation
+		 * @param \WP_Taxonomy        $taxonomy      The taxonomy object of the term being mutated
+		 * @param string              $mutation_name The name of the mutation being performed (create, edit, etc)
 		 */
 		return apply_filters( 'graphql_term_object_insert_term_args', $insert_args, $input, $taxonomy, $mutation_name );
 	}

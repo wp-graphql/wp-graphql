@@ -195,6 +195,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertCount( 20, $actual['data']['posts']['edges'] );
 		$this->assertTrue( $actual['data']['posts']['pageInfo']['hasNextPage'] );
+		$this->assertStringContainsString( 'The number of items requested by the connection (150) exceeds the max query amount.', $actual['extensions']['debug'][0]['message'] );
 	}
 
 	/**

@@ -382,12 +382,10 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param array<string, mixed>|null $pre_pieces The pre-filtered term query SQL clauses.
-		 * @param array<string,mixed>      $pieces     Terms query SQL clauses.
-		 * @param string[]                 $taxonomies An array of taxonomies.
-		 * @param array<string,mixed>      $args       An array of terms query arguments.
-		 *
-		 * @return array|null
+		 * @param ?array<string,mixed> $pre_pieces The pre-filtered term query SQL clauses.
+		 * @param array<string,mixed>  $pieces     Terms query SQL clauses.
+		 * @param string[]             $taxonomies An array of taxonomies.
+		 * @param array<string,mixed>  $args       An array of terms query arguments.
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_term_query_cursor_pagination_support', null, $pieces, $taxonomies, $args );
 		if ( null !== $pre_pieces ) {
@@ -455,11 +453,9 @@ class Config {
 		/**
 		 * If pre-filter hooked, return $pre_pieces.
 		 *
-		 * @param array|null        $pre_pieces The pre-filtered comment query clauses.
-		 * @param array             $pieces     A compacted array of comment query clauses.
-		 * @param \WP_Comment_Query $query      Current instance of WP_Comment_Query, passed by reference.
-		 *
-		 * @return array|null
+		 * @param ?array<string,mixed> $pre_pieces The pre-filtered comment query clauses.
+		 * @param array<string,mixed>  $pieces     A compacted array of comment query clauses.
+		 * @param \WP_Comment_Query    $query      Current instance of WP_Comment_Query, passed by reference.
 		 */
 		$pre_pieces = apply_filters( 'graphql_pre_wp_comments_query_cursor_pagination_support', null, $pieces, $query );
 		if ( null !== $pre_pieces ) {
