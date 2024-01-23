@@ -173,7 +173,6 @@ class Settings {
 						true === \WPGraphQL::debug() ? '<br /><strong>' . __( 'NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. ', 'wp-graphql' ) . '</strong>' : ''
 					),
 					'type'     => 'checkbox',
-					'default'  => 'off',
 					'disabled' => true === \WPGraphQL::debug(),
 					'value'    => true === \WPGraphQL\Utils\QueryAnalyzer::is_enabled() ? 'on' : get_graphql_setting( 'query_analyzer_enabled', 'off' ),
 				],

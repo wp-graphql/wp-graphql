@@ -2,8 +2,6 @@
 
 use WPGraphQL\Utils\QueryAnalyzer;
 
-use function Codeception\Extension\codecept_log;
-
 class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $post_id;
@@ -50,19 +48,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		add_filter( 'graphql_debug_enabled', '__return_false' );
 
 		$query = '{ posts { nodes { id, title } } }';
-
-		/** Test default behavior */
-		$this->toggle_query_analyzer( null );
-		$actual = QueryAnalyzer::is_enabled();
-		$this->assertFalse( $actual, 'Query Analyzer should be disabled by default' );
-
-		$request = graphql( ['query' => $query ], true );
-		$actual_response = $request->execute();
-		$actual_analyzer = $request->get_query_analyzer();
-
-		$this->assertFalse( $actual_analyzer->is_enabled(), 'Query Analyzer should be disabled by default' );
-		$this->assertFalse( $actual_analyzer->is_enabled_for_query(), 'Query Analyzer should be disabled for query' );
-		$this->assertArrayNotHasKey( 'queryAnalyzer', $actual_response['extensions'], 'There should be no extension output if Query Analyzer is disabled ' );
 
 		/** Test with Query Analyzer toggled on */
 		$this->toggle_query_analyzer( true );
