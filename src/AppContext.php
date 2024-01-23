@@ -66,7 +66,7 @@ class AppContext {
 	/**
 	 * Passes context about the current connection being resolved
 	 *
-	 * @var mixed|String|null
+	 * @var mixed|string|null
 	 */
 	public $currentConnection = null;
 
@@ -148,7 +148,7 @@ class AppContext {
 	 *
 	 * @param string $key The name of the loader to get
 	 *
-	 * @return mixed
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
 	 *
 	 * @deprecated Use get_loader instead.
 	 */

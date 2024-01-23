@@ -96,7 +96,7 @@ Actions and Filters are types of "Hooks", a convention provided by WordPress, th
 
 ## The Model Layer
 
-WPGraphQL has a "Model Layer", or a series of PHP Classes that take WordPress objects, such as `WP_Post`, `WP_Comment`, etc and normalize the data to a GraphQL-friendly shape, and also applies logic to ensure the requested data is allowed to be seen be the requesting user.
+WPGraphQL has a "Model Layer", or a series of PHP Classes that take WordPress objects, such as `WP_Post`, `WP_Comment`, etc and normalize the data to a GraphQL-friendly shape, and also applies logic to ensure the requested data is allowed to be seen by the requesting user.
 
 For example, WordPress uses `snake_case` naming conventions, but GraphQL fields use `camelCase` naming conventions. WordPress also makes use of prefixes that don't necessarily make sense in the context of an API. For example, WordPress `$post->post_content` becomes $post->`content` in the WPGraphQL Post Model.
 

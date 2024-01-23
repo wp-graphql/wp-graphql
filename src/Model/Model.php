@@ -319,8 +319,6 @@ abstract class Model {
 			 * @param string|null $visibility                The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner                     The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
-			 *
-			 * @return array
 			 */
 				apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
 			)
@@ -338,9 +336,8 @@ abstract class Model {
 		}
 
 		$clean_array = [];
-		$self        = $this;
 		foreach ( $this->fields as $key => $data ) {
-			$clean_array[ $key ] = function () use ( $key, $data, $self ) {
+			$clean_array[ $key ] = function () use ( $key, $data ) {
 				if ( is_array( $data ) ) {
 					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
 
@@ -380,7 +377,7 @@ abstract class Model {
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
 				 *
-				 * @return callable|int|string|array|mixed|null
+				 * @return callable|int|string|mixed[]|mixed|null
 				 */
 				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
@@ -388,9 +385,9 @@ abstract class Model {
 					$result = $pre;
 				} else {
 					if ( is_callable( $callback ) ) {
-						$self->setup();
+						$this->setup();
 						$field = call_user_func( $callback );
-						$self->tear_down();
+						$this->tear_down();
 					} else {
 						$field = $callback;
 					}
@@ -465,13 +462,11 @@ abstract class Model {
 		/**
 		 * Add support for the deprecated "graphql_return_modeled_data" filter.
 		 *
-		 * @param array    $fields       The array of fields for the model
-		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param string   $visibility   The visibility setting for this piece of data
-		 * @param int|null $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
-		 *
-		 * @return array
+		 * @param array<string,mixed>    $fields       The array of fields for the model
+		 * @param string                 $model_name   Name of the model the filter is currently being executed in
+		 * @param string                 $visibility   The visibility setting for this piece of data
+		 * @param ?int                   $owner        The user ID for the owner of this piece of data
+		 * @param \WP_User               $current_user The current user for the session
 		 *
 		 * @deprecated 1.7.0 use "graphql_model_prepare_fields" filter instead, which passes additional context to the filter
 		 */
@@ -480,14 +475,12 @@ abstract class Model {
 		/**
 		 * Filter the array of fields for the Model before the object is hydrated with it
 		 *
-		 * @param array    $fields       The array of fields for the model
-		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed    $data         The un-modeled incoming data
-		 * @param string   $visibility   The visibility setting for this piece of data
-		 * @param int|null $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
-		 *
-		 * @return array
+		 * @param array<string,mixed>    $fields       The array of fields for the model
+		 * @param string                 $model_name   Name of the model the filter is currently being executed in
+		 * @param mixed                  $data         The un-modeled incoming data
+		 * @param string                 $visibility   The visibility setting for this piece of data
+		 * @param ?int                   $owner        The user ID for the owner of this piece of data
+		 * @param \WP_User               $current_user The current user for the session
 		 */
 		$this->fields = apply_filters( 'graphql_model_prepare_fields', $this->fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 		$this->wrap_fields();
@@ -520,7 +513,7 @@ abstract class Model {
 			return $str;
 		}
 
-		return html_entity_decode( $str );
+		return html_entity_decode( $str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8' );
 	}
 
 	/**

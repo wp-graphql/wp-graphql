@@ -77,7 +77,7 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Setup the fields
 		 *
-		 * @return array|mixed
+		 * @return array<string, array<string, mixed>> $fields
 		 */
 		$config['fields'] = function () use ( $config ) {
 			$fields = $config['fields'];
@@ -101,7 +101,7 @@ class WPObjectType extends ObjectType {
 
 					$interface_config_fields = $interface_type->getFields();
 
-					if ( empty( $interface_config_fields ) || ! is_array( $interface_config_fields ) ) {
+					if ( empty( $interface_config_fields ) ) {
 						continue;
 					}
 
@@ -124,7 +124,7 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
-		 * @param array                        $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
@@ -163,11 +163,11 @@ class WPObjectType extends ObjectType {
 	 * This function sorts the fields and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the type.
 	 *
-	 * @param array<string,mixed> $fields         The array of fields for the object config
+	 * @param array<string,mixed> $fields    The array of fields for the object config
 	 * @param string              $type_name
-	 * @param array<string,mixed> $config         The config for the Object Type
+	 * @param array<string,mixed> $config    The config for the Object Type
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 * @since 0.0.5
 	 */
 	public function prepare_fields( $fields, $type_name, $config ) {
@@ -178,10 +178,10 @@ class WPObjectType extends ObjectType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array        $fields         The array of fields for the object config
-		 * @param string       $type_name      The name of the object type
-		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
+		 * @param array<string,mixed>              $fields         The array of fields for the object config
+		 * @param string                           $type_name      The name of the object type
+		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
 
@@ -197,9 +197,9 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array        $fields         The array of fields for the object config
-		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
+		 * @param array<string,mixed>              $fields         The array of fields for the object config
+		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
 
@@ -209,9 +209,9 @@ class WPObjectType extends ObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array        $fields         The array of fields for the object config
-		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The Type Registry
+		 * @param array<string,mixed>              $fields         The array of fields for the object config
+		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
+		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );
 

@@ -3,7 +3,6 @@
 namespace WPGraphQL;
 
 use GraphQL\Error\FormattedError;
-use WPGraphQL\Utils\QueryAnalyzer;
 use WP_User;
 
 /**
@@ -299,7 +298,7 @@ class Router {
 		/**
 		 * Filtered list of access control headers.
 		 *
-		 * @param array $access_control_headers Array of headers to allow.
+		 * @param string[] $access_control_headers Array of headers to allow.
 		 */
 		$access_control_allow_headers = apply_filters(
 			'graphql_access_control_allow_headers',
@@ -327,7 +326,7 @@ class Router {
 
 		// If the Query Analyzer was instantiated
 		// Get the headers determined from its Analysis
-		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer() instanceof QueryAnalyzer ) {
+		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer()->is_enabled_for_query() ) {
 			$headers = self::get_request()->get_query_analyzer()->get_headers( $headers );
 		}
 
@@ -386,7 +385,7 @@ class Router {
 			/**
 			 * Fire an action when the headers are set
 			 *
-			 * @param array $headers The headers sent in the response
+			 * @param array<string,mixed> $headers The headers sent in the response
 			 */
 			do_action( 'graphql_response_set_headers', $headers );
 		}
@@ -410,7 +409,7 @@ class Router {
 	/**
 	 * This processes the graphql requests that come into the /graphql endpoint via an HTTP request
 	 *
-	 * @return mixed
+	 * @return void
 	 * @throws \Exception Throws Exception.
 	 * @throws \Throwable Throws Exception.
 	 * @global WP_User $current_user The currently authenticated user.
@@ -483,7 +482,7 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 *
-			 * @param array               $errors  Formatted errors object.
+			 * @param mixed[]             $errors  Formatted errors object.
 			 * @param \Throwable          $error   Thrown error.
 			 * @param \WPGraphQL\Request  $request WPGraphQL Request object.
 			 */
@@ -508,12 +507,12 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param array  $response       The GraphQL response
-		 * @param array  $result         The result of the GraphQL Query
-		 * @param string $operation_name The name of the operation
-		 * @param string $query          The request that GraphQL executed
-		 * @param ?array $variables      Variables to passed to your GraphQL query
-		 * @param mixed  $status_code    The status code for the response
+		 * @param array<string,mixed> $response       The GraphQL response
+		 * @param array<string,mixed> $result         The result of the GraphQL Query
+		 * @param string              $operation_name The name of the operation
+		 * @param string              $query          The request that GraphQL executed
+		 * @param ?array              $variables      Variables to passed to your GraphQL query
+		 * @param int|string          $status_code    The status code for the response
 		 *
 		 * @since 0.0.5
 		 */
@@ -542,12 +541,12 @@ class Router {
 		/**
 		 * Filter the $status_code before setting the headers
 		 *
-		 * @param int     $status_code     The status code to apply to the headers
-		 * @param array   $response        The response of the GraphQL Request
-		 * @param array   $graphql_results The results of the GraphQL execution
-		 * @param string  $query           The GraphQL query
-		 * @param string  $operation_name  The operation name of the GraphQL Request
-		 * @param array   $variables       The variables applied to the GraphQL Request
+		 * @param int      $status_code     The status code to apply to the headers
+		 * @param array    $response        The response of the GraphQL Request
+		 * @param array    $graphql_results The results of the GraphQL execution
+		 * @param string   $query           The GraphQL query
+		 * @param string   $operation_name  The operation name of the GraphQL Request
+		 * @param mixed[]  $variables       The variables applied to the GraphQL Request
 		 * @param \WP_User $user The current user object
 		 */
 		self::$http_status_code = apply_filters( 'graphql_response_status_code', self::$http_status_code, $response, $graphql_results, $query, $operation_name, $variables, $user );

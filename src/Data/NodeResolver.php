@@ -122,7 +122,7 @@ class NodeResolver {
 		 * @param string $uri The uri being searched.
 		 * @param \WPGraphQL\AppContext $content The app context.
 		 * @param \WP $wp WP object.
-		 * @param mixed|array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
+		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
 		 */
 		$node = apply_filters( 'graphql_pre_resolve_uri', null, $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -155,11 +155,11 @@ class NodeResolver {
 		 *
 		 * This can be used by Extensions which use a different query class to resolve data.
 		 *
-		 * @param class-string          $query_class The query class used to resolve the URI. Defaults to WP_Query.
-		 * @param ?string               $uri The uri being searched.
-		 * @param \WPGraphQL\AppContext $content The app context.
-		 * @param \WP                   $wp WP object.
-		 * @param mixed|array|string    $extra_query_vars Any extra query vars to consider.
+		 * @param class-string               $query_class The query class used to resolve the URI. Defaults to WP_Query.
+		 * @param ?string                    $uri The uri being searched.
+		 * @param \WPGraphQL\AppContext      $content The app context.
+		 * @param \WP                        $wp WP object.
+		 * @param array<string,mixed>|string $extra_query_vars Any extra query vars to consider.
 		 */
 		$query_class = apply_filters( 'graphql_resolve_uri_query_class', 'WP_Query', $uri, $this->context, $this->wp, $extra_query_vars );
 
@@ -202,7 +202,7 @@ class NodeResolver {
 		 * @param \WP_Query                                     $query            The query object.
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
-		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
+		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
 		 */
 		$node = apply_filters( 'graphql_resolve_uri', null, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 
@@ -297,7 +297,7 @@ class NodeResolver {
 		 * @param \WP_Query                                     $query            The query object.
 		 * @param \WPGraphQL\AppContext                         $content          The app context.
 		 * @param \WP                                           $wp               WP object.
-		 * @param mixed|array|string                            $extra_query_vars Any extra query vars to consider.
+		 * @param array<string,mixed>|string                    $extra_query_vars Any extra query vars to consider.
 		 */
 		return apply_filters( 'graphql_post_resolve_uri', $node, $uri, $queried_object, $query, $this->context, $this->wp, $extra_query_vars );
 	}
@@ -593,7 +593,7 @@ class NodeResolver {
 		/**
 		 * Filters the array of parsed query variables.
 		 *
-		 * @param array $query_vars The array of requested query variables.
+		 * @param array<string,mixed> $query_vars The array of requested query variables.
 		 *
 		 * @since 2.1.0
 		 */

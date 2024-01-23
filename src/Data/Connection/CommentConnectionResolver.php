@@ -135,10 +135,10 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
 		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
 		 *
-		 * @param array       $query_args array of query_args being passed to the
-		 * @param mixed       $source     source passed down from the resolve tree
-		 * @param array       $args       array of arguments input in the field as part of the GraphQL query
-		 * @param \WPGraphQL\AppContext $context object passed down the resolve tree
+		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
+		 * @param mixed                                $source     source passed down from the resolve tree
+		 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
+		 * @param \WPGraphQL\AppContext                $context object passed down the resolve tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
 		 *
 		 * @since 0.0.6
@@ -256,7 +256,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array                     $args                The GraphQL args passed to the resolver.
+		 * @param array<string,mixed>                                  $args                The GraphQL args passed to the resolver.
 		 * @param \WPGraphQL\Data\Connection\CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
 		 *
 		 * @since 1.11.0

@@ -74,7 +74,7 @@ class DataSource {
 	 *
 	 * @param int $comment_id The ID of the comment the comment author is associated with.
 	 *
-	 * @return mixed|\WPGraphQL\Model\CommentAuthor|null
+	 * @return \WPGraphQL\Model\CommentAuthor|null
 	 * @throws \Exception Throws Exception.
 	 */
 	public static function resolve_comment_author( int $comment_id ) {
@@ -91,7 +91,7 @@ class DataSource {
 	 * @param \WPGraphQL\AppContext                $context The context of the query to pass along
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 *
-	 * @return mixed
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since 0.0.5
 	 */
@@ -160,7 +160,7 @@ class DataSource {
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
 	 * @param mixed|string|string[]                $post_type Post type of the post we are trying to resolve
 	 *
-	 * @return mixed
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since  0.0.5
 	 */
@@ -209,7 +209,7 @@ class DataSource {
 	 * @param int                   $id      ID of the term you are trying to retrieve the object for
 	 * @param \WPGraphQL\AppContext $context The context of the GraphQL Request
 	 *
-	 * @return mixed
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 * @since      0.0.5
 	 *
@@ -458,12 +458,12 @@ class DataSource {
 		/**
 		 * Set the setting groups that are allowed
 		 */
-		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) && is_array( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
+		$allowed_settings_by_group = ! empty( $allowed_settings_by_group ) ? $allowed_settings_by_group : [];
 
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
-		 * @param array $allowed_settings_by_group
+		 * @param array<string,array<string,mixed>> $allowed_settings_by_group
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
 	}
@@ -513,7 +513,7 @@ class DataSource {
 		/**
 		 * Verify that we have the allowed settings
 		 */
-		$allowed_settings = ! empty( $allowed_settings ) && is_array( $allowed_settings ) ? $allowed_settings : [];
+		$allowed_settings = ! empty( $allowed_settings ) ? $allowed_settings : [];
 
 		/**
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
@@ -714,7 +714,7 @@ class DataSource {
 	 * @param \WPGraphQL\AppContext                $context The AppContext passed through the GraphQL Resolve Tree
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed through the GraphQL Resolve tree
 	 *
-	 * @return mixed
+	 * @return \GraphQL\Deferred
 	 * @throws \Exception
 	 */
 	public static function resolve_resource_by_uri( $uri, $context, $info ) {

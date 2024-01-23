@@ -28,7 +28,7 @@ class WPInputObjectType extends InputObjectType {
 		/**
 		 * Setup the fields
 		 *
-		 * @return array|mixed
+		 * @return array<string,array<string,mixed>>
 		 */
 		if ( ! empty( $config['fields'] ) && is_array( $config['fields'] ) ) {
 			$config['fields'] = function () use ( $config, $type_registry ) {
@@ -63,11 +63,10 @@ class WPInputObjectType extends InputObjectType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array  $fields    The array of fields for the object config
-		 * @param string $type_name The name of the object type
-		 * @param array  $config    The type config
-		 *
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
+		 * @param array<string,array<string,mixed>> $fields        The array of fields for the object config
+		 * @param string                            $type_name     The name of the object type
+		 * @param array<string,mixed>               $config        The type config
+		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
 
@@ -83,8 +82,8 @@ class WPInputObjectType extends InputObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
+		 * @param array<string,array<string,mixed>> $fields        The array of fields for the object config
+		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $type_registry );
 
@@ -94,8 +93,8 @@ class WPInputObjectType extends InputObjectType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
+		 * @param array<string,array<string,mixed>> $fields        The array of fields for the object config
+		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $type_registry );
 

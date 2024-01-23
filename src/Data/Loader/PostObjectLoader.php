@@ -57,7 +57,7 @@ class PostObjectLoader extends AbstractDataLoader {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return array<string|int, \WP_Post|null>
+	 * @return array<string|int,\WP_Post|null>
 	 */
 	public function loadKeys( array $keys ) {
 		if ( empty( $keys ) ) {

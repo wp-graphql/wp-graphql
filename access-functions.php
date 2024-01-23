@@ -150,8 +150,8 @@ function get_graphql_register_action() {
  *
  * Should be used at the `graphql_register_types` hook.
  *
- * @param mixed|string|array<string> $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
- * @param mixed|string|array<string> $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
+ * @param string|string[] $interface_names Array of one or more names of the GraphQL Interfaces to apply to the GraphQL Types
+ * @param string|string[] $type_names      Array of one or more names of the GraphQL Types to apply the interfaces to.
  *
  * Example:
  * The following would register the "MyNewInterface" interface to the Post and Page type in the
@@ -819,10 +819,10 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 
 	/**
 	 * Filter the section fields
-	 *
-	 * @param array  $section_fields The values of the fields stored for the section
-	 * @param string $section_name   The name of the section
-	 * @param mixed  $default_value  The default value for the option being retrieved
+	 
+	 * @param array<string,mixed> $section_fields The values of the fields stored for the section
+	 * @param string              $section_name   The name of the section
+	 * @param mixed               $default_value  The default value for the option being retrieved
 	 */
 	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
@@ -834,11 +834,11 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 	/**
 	 * Filter the value before returning it
 	 *
-	 * @param mixed  $value          The value of the field
-	 * @param mixed  $default_value  The default value if there is no value set
-	 * @param string $option_name    The name of the option
-	 * @param array  $section_fields The setting values within the section
-	 * @param string $section_name   The name of the section the setting belongs to
+	 * @param mixed               $value          The value of the field
+	 * @param mixed               $default_value  The default value if there is no value set
+	 * @param string              $option_name    The name of the option
+	 * @param array<string,mixed> $section_fields The setting values within the section
+	 * @param string              $section_name   The name of the section the setting belongs to
 	 */
 	return apply_filters( 'graphql_get_setting_section_field_value', $value, $default_value, $option_name, $section_fields, $section_name );
 }
