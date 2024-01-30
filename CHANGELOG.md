@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.20.0
+
+### New Features
+
+- [#3013](https://github.com/wp-graphql/wp-graphql/pull/3013): feat: output GRAPHQL_DEBUG message if requested amount is larger than connection limit. Thanks @justlevine!
+- [#3008](https://github.com/wp-graphql/wp-graphql/pull/3008): perf: Expose graphql_should_analyze_queries as setting. Thanks @justlevine!
+
+### Chores / Bugfixes
+
+- [#3022](https://github.com/wp-graphql/wp-graphql/pull/3022): chore: add @justlevine to list of contributors! 🙌 🥳
+- [#3011](https://github.com/wp-graphql/wp-graphql/pull/3011): chore: update composer dev-dependencies and use php-compatibility:develop branch to 8.0+ lints. Thanks @justlevine! 
+- [#3010](https://github.com/wp-graphql/wp-graphql/pull/3010): chore: implement stricter PHPDoc types. Thanks @justlevine!
+- [#3009](https://github.com/wp-graphql/wp-graphql/pull/3009): chore: implement stricter PHPStan config and clean up unnecessary type-guards. Thanks @justlevine!
+- [#3007](https://github.com/wp-graphql/wp-graphql/pull/3007): fix: call html_entity_decode() with explicit flags and decode single-quotes. Thanks @justlevine!
+- [#3006](https://github.com/wp-graphql/wp-graphql/pull/3006): fix: replace deprecated AbstractConnectionResolver::setQueryArg() call with ::set_query_arg(). Thanks @justlevine!
+- [#3004](https://github.com/wp-graphql/wp-graphql/pull/3004): docs: Update using-data-from-custom-database-tables.md
+- [#2998](https://github.com/wp-graphql/wp-graphql/pull/2998): docs: Update build-your-first-wpgraphql-extension.md. Thanks @Jacob-Daniel!
+- [#2997](https://github.com/wp-graphql/wp-graphql/pull/2997): docs: update wpgraphql-concepts.md. Thanks @Jacob-Daniel!
+- [#2996](https://github.com/wp-graphql/wp-graphql/pull/2996): fix: Field id duplicates uri field description. Thanks @marcinkrzeminski!
+
 ## 1.19.0
 
 ### New Features

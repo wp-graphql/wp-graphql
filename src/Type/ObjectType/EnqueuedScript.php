@@ -59,9 +59,10 @@ class EnqueuedScript {
 					'version'      => [
 						'description' => __( 'The version of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
+							/** @var \WP_Scripts $wp_scripts */
 							global $wp_scripts;
 
-							return ! empty( $script->ver ) && is_string( $script->ver ) ? (string) $script->ver : $wp_scripts->default_version;
+							return ! empty( $script->ver ) && is_string( $script->ver ) ? $script->ver : $wp_scripts->default_version;
 						},
 					],
 				],

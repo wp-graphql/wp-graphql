@@ -147,7 +147,7 @@ class TypeRegistry {
 	/**
 	 * The loaders needed to register types
 	 *
-	 * @var array<string,Callable>
+	 * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
 	 */
 	protected $type_loaders;
 
@@ -839,8 +839,7 @@ class TypeRegistry {
 	 *
 	 * @param string $type_name The name of the Type to get from the registry
 	 *
-	 * @return mixed
-	 * |null
+	 * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
 	 */
 	public function get_type( string $type_name ) {
 		$key = $this->format_key( $type_name );
@@ -889,13 +888,11 @@ class TypeRegistry {
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
 		$prepared_fields = [];
-		if ( ! empty( $fields ) && is_array( $fields ) ) {
-			foreach ( $fields as $field_name => $field_config ) {
-				if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
-					$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
-					if ( ! empty( $prepared_field ) ) {
-						$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
-					}
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
+				$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
+				if ( ! empty( $prepared_field ) ) {
+					$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
 				}
 			}
 		}
@@ -1001,7 +998,7 @@ class TypeRegistry {
 	 *
 	 * @param mixed|string|array<string,mixed> $type The type definition to process.
 	 *
-	 * @return mixed
+	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>|mixed
 	 * @throws \Exception
 	 */
 	public function setup_type_modifiers( $type ) {
@@ -1218,7 +1215,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a NonNull of that type
 	 *
-	 * @param mixed $type The Type being wrapped
+	 * @param string|callable|\GraphQL\Type\Definition\NullableType $type The Type being wrapped
 	 *
 	 * @return \GraphQL\Type\Definition\NonNull
 	 */
@@ -1235,7 +1232,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type
 	 *
-	 * @param mixed $type The Type being wrapped
+	 * @param string|\GraphQL\Type\Definition\Type $type The Type being wrapped
 	 *
 	 * @return \GraphQL\Type\Definition\ListOfType
 	 */

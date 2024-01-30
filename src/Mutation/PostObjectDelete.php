@@ -97,7 +97,7 @@ class PostObjectDelete {
 	 * @param \WP_Post_Type $post_type_object The post type of the mutation.
 	 * @param string        $mutation_name    The mutation name.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload( WP_Post_Type $post_type_object, string $mutation_name ) {
 		return static function ( $input ) use ( $post_type_object ) {

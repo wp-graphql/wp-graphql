@@ -107,7 +107,7 @@ class TermObjectCreate {
 	 * @param \WP_Taxonomy $taxonomy The taxonomy type of the mutation.
 	 * @param string       $mutation_name The name of the mutation.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload( WP_Taxonomy $taxonomy, string $mutation_name ) {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) use ( $taxonomy, $mutation_name ) {
@@ -167,12 +167,12 @@ class TermObjectCreate {
 			/**
 			 * Fires after a single term is created or updated via a GraphQL mutation
 			 *
-			 * @param int         $term_id       Inserted term object
-			 * @param \WP_Taxonomy $taxonomy The taxonomy of the term being updated
-			 * @param array       $args          The args used to insert the term
-			 * @param string      $mutation_name The name of the mutation being performed
-			 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
-			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the resolve tree
+			 * @param int                                  $term_id       Inserted term object
+			 * @param \WP_Taxonomy                         $taxonomy      The taxonomy of the term being updated
+			 * @param array<string,mixed>                  $args          The args used to insert the term
+			 * @param string                               $mutation_name The name of the mutation being performed
+			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
 			 */
 			do_action( 'graphql_insert_term', $term['term_id'], $taxonomy, $args, $mutation_name, $context, $info );
 
@@ -181,11 +181,11 @@ class TermObjectCreate {
 			 *
 			 * The dynamic portion of the hook name, `$taxonomy->name` refers to the taxonomy of the term being mutated
 			 *
-			 * @param int         $term_id       Inserted term object
-			 * @param array       $args          The args used to insert the term
-			 * @param string      $mutation_name The name of the mutation being performed
-			 * @param \WPGraphQL\AppContext $context The AppContext passed down the resolve tree
-			 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo passed down the resolve tree
+			 * @param int                                  $term_id       Inserted term object
+			 * @param array<string,mixed>                  $args          The args used to insert the term
+			 * @param string                               $mutation_name The name of the mutation being performed
+			 * @param \WPGraphQL\AppContext                $context       The AppContext passed down the resolve tree
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info          The ResolveInfo passed down the resolve tree
 			 */
 			do_action( "graphql_insert_{$taxonomy->name}", $term['term_id'], $args, $mutation_name, $context, $info );
 

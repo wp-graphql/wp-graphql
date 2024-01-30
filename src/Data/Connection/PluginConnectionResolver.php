@@ -85,7 +85,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		$recently_activated_list = isset( $active_stati['recently_activated'] ) ? get_site_option( 'recently_activated', [] ) : [];
 
 		// Loop through the plugins, add additional data, and store them in $plugins_by_status.
-		foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
+		foreach ( $all_plugins as $plugin_file => $plugin_data ) {
 			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
 				unset( $all_plugins[ $plugin_file ] );
 				continue;

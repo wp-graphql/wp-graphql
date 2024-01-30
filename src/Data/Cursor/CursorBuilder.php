@@ -51,9 +51,9 @@ class CursorBuilder {
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination
 		 *
-		 * @param array         $field          The field key, value, type and order
+		 * @param array<string,mixed>                  $field          The field key, value, type and order
 		 * @param \WPGraphQL\Data\Cursor\CursorBuilder $cursor_builder The CursorBuilder class
-		 * @param ?object        $object_cursor  The Cursor class
+		 * @param ?object                              $object_cursor  The Cursor class
 		 */
 		$field = apply_filters(
 			'graphql_cursor_ordering_field',

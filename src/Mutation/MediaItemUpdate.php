@@ -60,14 +60,14 @@ class MediaItemUpdate {
 	/**
 	 * Defines the mutation data modification closure.
 	 *
-	 * @return callable
+	 * @return callable(array<string,mixed>$input,\WPGraphQL\AppContext $context,\GraphQL\Type\Definition\ResolveInfo $info):array<string,mixed>
 	 */
 	public static function mutate_and_get_payload() {
 		return static function ( $input, AppContext $context, ResolveInfo $info ) {
 			$post_type_object = get_post_type_object( 'attachment' );
 
 			if ( empty( $post_type_object ) ) {
-				return null;
+				return [];
 			}
 
 			// Get the database ID for the comment.

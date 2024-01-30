@@ -58,7 +58,7 @@ class WPInterfaceType extends InterfaceType {
 
 					$interface_config_fields = $interface_type->getFields();
 
-					if ( empty( $interface_config_fields ) || ! is_array( $interface_config_fields ) ) {
+					if ( empty( $interface_config_fields ) ) {
 						continue;
 					}
 
@@ -97,7 +97,7 @@ class WPInterfaceType extends InterfaceType {
 		/**
 		 * Filter the config of WPInterfaceType
 		 *
-		 * @param array           $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
+		 * @param array<string,mixed>             $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The instance of the WPInterfaceType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
@@ -121,7 +121,7 @@ class WPInterfaceType extends InterfaceType {
 	 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
 	 * @param string                            $type_name
 	 *
-	 * @return mixed
+	 * @return array<string,array<string,mixed>>
 	 * @since 0.0.5
 	 */
 	public function prepare_fields( array $fields, string $type_name ) {
@@ -132,8 +132,8 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array  $fields    The array of fields for the object config
-		 * @param string $type_name The name of the object type
+		 * @param array<string,array<string,mixed>> $fields    The array of fields for the object config
+		 * @param string                            $type_name The name of the object type
 		 */
 		$fields = apply_filters( 'graphql_interface_fields', $fields, $type_name );
 
@@ -149,7 +149,7 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
+		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
 		 */
 		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields );
 
@@ -159,7 +159,7 @@ class WPInterfaceType extends InterfaceType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array $fields The array of fields for the object config
+		 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
 		 */
 		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields );
 
