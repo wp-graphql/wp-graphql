@@ -30,26 +30,55 @@ final class AdminNotices {
 	 */
 	public function init(): void {
 
-		$this->admin_notices = [
-			'wpgraphql-gravity-forms'    => [
-				'type'           => 'danger',
-				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
-				'is_dismissable' => false,
-			],
-			'wpgraphql-acf-announcement' => [
-				'type'           => 'warning',
-				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
-				'is_dismissable' => true,
-                'conditions'     => function() {
-                    return $this->should_display_acf_notice();
-                }
-			],
-		];
+        // this should work?
+//        register_graphql_admin_notice( 'wpgraphql-acf-announcement', [
+//	        [
+//		        'type'           => 'warning',
+//		        'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
+//		        'is_dismissable' => true,
+//		        'conditions'     => function() {
+//			        if ( ! class_exists( 'ACF' ) ) {
+//				        return false;
+//			        }
+//
+//			        // Bail if new version of WPGraphQL for ACF is active.
+//			        if ( class_exists( 'WPGraphQLAcf' ) ) {
+//				        return false;
+//			        }
+//
+//			        return true;
+//		        }
+//	        ],
+//        ] );
+
+        $this->admin_notices = [
+	        'wpgraphql-acf-announcement' => [
+		        'type'           => 'warning',
+		        'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
+		        'is_dismissable' => true,
+		        'conditions'     => function() {
+			        if ( ! class_exists( 'ACF' ) ) {
+				        return false;
+			        }
+
+			        // Bail if new version of WPGraphQL for ACF is active.
+			        if ( class_exists( 'WPGraphQLAcf' ) ) {
+				        return false;
+			        }
+
+			        return true;
+		        }
+	        ],
+        ];
+
+        // Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
+		do_action( 'graphql_admin_notices_init', $this );
 
 		$this->dismissed_notices = get_option( 'wpgraphql_dismissed_admin_notices', [] );
-		$this->pre_filter_dismissed_notices();
 
-		do_action( 'graphql_admin_notices_init', $this );
+		// Filter the notices to remove any dismissed notices
+        $this->pre_filter_dismissed_notices();
+
 		add_action( 'admin_notices', [ $this, 'maybe_display_notices' ] );
 		add_action( 'admin_init', [ $this, 'handle_dismissal_of_acf_notice' ] );
 	}
@@ -66,8 +95,6 @@ final class AdminNotices {
 
         // For all remaining notices, run the callback to see if it's actually relevant
         foreach ( $this->admin_notices as $notice_slug => $notice ) {
-
-            
 
             if ( ! isset( $notice['conditions'] ) ) {
                 continue;
@@ -108,6 +135,10 @@ final class AdminNotices {
          * @param string string $slug The slug identifying the admin notice
 		 */
         $filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
+
+        if ( ! isset( $config['message'] ) ) {
+            return [];
+        }
 
 		$this->admin_notices[ $slug ] = $filtered_notice;
 		return $this->admin_notices[ $slug ];
@@ -154,7 +185,6 @@ final class AdminNotices {
 		if ( empty( $notices ) ) {
 			return;
 		}
-
 		?>
 		<style>
 			/* Only display the ACF notice */
@@ -191,10 +221,10 @@ final class AdminNotices {
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
 				if ( $this->is_notice_dismissable( $notice ) ) {
-					$dismiss_acf_nonce = wp_create_nonce( 'wpgraphql_disable_acf_notice_nonce' );
+					$dismiss_acf_nonce = wp_create_nonce( 'wpgraphql_disable_notice_nonce' );
 					$dismiss_url       = add_query_arg(
 						[
-							'wpgraphql_disable_acf_notice_nonce' => $dismiss_acf_nonce,
+							'wpgraphql_disable_notice_nonce' => $dismiss_acf_nonce,
 							'wpgraphql_disable_notice' => $notice_slug,
 						]
 					);
@@ -234,36 +264,20 @@ final class AdminNotices {
 	}
 
 	/**
-	 * Checks if an admin notice should be displayed for WPGraphqlQL for ACF
-	 */
-	protected function should_display_acf_notice(): bool {
-		if ( ! class_exists( 'ACF' ) ) {
-			return false;
-		}
-
-		// Bail if new version of WPGraphQL for ACF is active.
-		if ( class_exists( 'WPGraphQLAcf' ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Handles the dismissal of the ACF notice.
 	 * set_transient reference: https://developer.wordpress.org/reference/functions/set_transient/
 	 * This function sets a transient to remember the dismissal status of the notice.
 	 */
 	public function handle_dismissal_of_acf_notice(): void {
-		if ( ! isset( $_GET['wpgraphql_disable_acf_notice_nonce'], $_GET['wpgraphql_disable_notice'] ) ) {
+		if ( ! isset( $_GET['wpgraphql_disable_notice_nonce'], $_GET['wpgraphql_disable_notice'] ) ) {
 			return;
 		}
 
-		$nonce       = sanitize_text_field( wp_unslash( $_GET['wpgraphql_disable_acf_notice_nonce'] ) );
+		$nonce       = sanitize_text_field( wp_unslash( $_GET['wpgraphql_disable_notice_nonce'] ) );
 		$notice_slug = sanitize_text_field( wp_unslash( $_GET['wpgraphql_disable_notice'] ) );
 
-		if ( empty( $notice_slug ) || ! wp_verify_nonce( $nonce, 'wpgraphql_disable_acf_notice_nonce' ) ) {
-			return;
+		if ( empty( $notice_slug ) || ! wp_verify_nonce( $nonce, 'wpgraphql_disable_notice_nonce' ) ) {
+            return;
 		}
 
 		$disabled   = get_option( 'wpgraphql_dismissed_admin_notices', [] );
@@ -271,7 +285,7 @@ final class AdminNotices {
 		update_option( 'wpgraphql_dismissed_admin_notices', array_unique( $disabled ) );
 
 		// Redirect to clear URL parameters
-		wp_safe_redirect( remove_query_arg( [ 'wpgraphql_disable_acf_notice_nonce', 'wpgraphql_disable_notice' ] ) );
+		wp_safe_redirect( remove_query_arg( [ 'wpgraphql_disable_notice_nonce', 'wpgraphql_disable_notice' ] ) );
 		exit();
 	}
 }
