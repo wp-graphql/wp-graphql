@@ -72,7 +72,7 @@ const GraphiQLScreen = () => {
     variables,
     setVariables,
   } = graphiqlContext;
-  const { endpoint, nonce, schema, setSchema, setSchemaLoading } = appContext;
+  const { endpoint, nonce, schema, setSchema } = appContext;
 
   let fetcher = getFetcher(endpoint, { nonce });
   fetcher = hooks.applyFilters("graphiql_fetcher", fetcher, appContext);
