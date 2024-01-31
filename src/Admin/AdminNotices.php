@@ -61,11 +61,13 @@ final class AdminNotices {
 
         // remove any notice that's been dismissed
 		foreach ( $this->dismissed_notices as $dismissed_notice ) {
-			unset( $this->admin_notices[ $dismissed_notice ] );
+			$this->remove_admin_notice( $dismissed_notice );
 		}
 
         // For all remaining notices, run the callback to see if it's actually relevant
         foreach ( $this->admin_notices as $notice_slug => $notice ) {
+
+            
 
             if ( ! isset( $notice['conditions'] ) ) {
                 continue;
@@ -76,7 +78,7 @@ final class AdminNotices {
             }
 
             if ( false === $notice['conditions']() ) {
-	            unset( $this->admin_notices[ $notice_slug ] );
+                $this->remove_admin_notice( $notice_slug );
             }
 
         }
@@ -92,23 +94,22 @@ final class AdminNotices {
 	}
 
 	/**
-	 * @param string $slug Return the admin notice corresponding with the given slug
-	 *
-	 * @return array<mixed>
-	 */
-	public function get_admin_notice( string $slug ): array {
-		$notices = $this->get_admin_notices();
-		return $notices[ $slug ] ?? [];
-	}
-
-	/**
 	 * @param string       $slug The slug identifying the admin notice
 	 * @param array<mixed> $config The config of the admin notice
 	 *
 	 * @return array<mixed>
 	 */
 	public function add_admin_notice( string $slug, array $config ): array {
-		$this->admin_notices[ $slug ] = $config;
+
+		/**
+		 * Pass the notice through a filter before registering it
+         *
+         * @param array<mixed>  $config The config of the admin notice
+         * @param string string $slug The slug identifying the admin notice
+		 */
+        $filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
+
+		$this->admin_notices[ $slug ] = $filtered_notice;
 		return $this->admin_notices[ $slug ];
 	}
 
