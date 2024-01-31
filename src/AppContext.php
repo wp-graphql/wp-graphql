@@ -28,6 +28,7 @@ use WPGraphQL\Data\NodeResolver;
  *
  * @package WPGraphQL
  */
+#[\AllowDynamicProperties]
 class AppContext {
 
 	/**
