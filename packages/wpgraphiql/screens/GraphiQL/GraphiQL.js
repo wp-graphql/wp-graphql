@@ -72,7 +72,7 @@ const GraphiQLScreen = () => {
     variables,
     setVariables,
   } = graphiqlContext;
-  const { endpoint, nonce, schema, setSchema } = appContext;
+  const { endpoint, nonce, schema, setSchema, setSchemaLoading } = appContext;
 
   let fetcher = getFetcher(endpoint, { nonce });
   fetcher = hooks.applyFilters("graphiql_fetcher", fetcher, appContext);
@@ -182,9 +182,9 @@ const GraphiQLScreen = () => {
 
 const GraphiQLScreenWithContext = () => {
   const appContext = useAppContext();
-  const { schema } = appContext;
+  const { schemaLoading } = appContext;
 
-  return schema ? (
+  return ! schemaLoading ? (
     <GraphiQLContextProvider appContext={appContext}>
       <GraphiQLScreen />
     </GraphiQLContextProvider>
