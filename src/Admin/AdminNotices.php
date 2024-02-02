@@ -30,54 +30,54 @@ final class AdminNotices {
 	 */
 	public function init(): void {
 
-        // this should work?
-//        register_graphql_admin_notice( 'wpgraphql-acf-announcement', [
-//	        [
-//		        'type'           => 'warning',
-//		        'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
-//		        'is_dismissable' => true,
-//		        'conditions'     => function() {
-//			        if ( ! class_exists( 'ACF' ) ) {
-//				        return false;
-//			        }
-//
-//			        // Bail if new version of WPGraphQL for ACF is active.
-//			        if ( class_exists( 'WPGraphQLAcf' ) ) {
-//				        return false;
-//			        }
-//
-//			        return true;
-//		        }
-//	        ],
-//        ] );
+		// this should work?
+		// register_graphql_admin_notice( 'wpgraphql-acf-announcement', [
+		// [
+		// 'type'           => 'warning',
+		// 'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
+		// 'is_dismissable' => true,
+		// 'conditions'     => function() {
+		// if ( ! class_exists( 'ACF' ) ) {
+		// return false;
+		// }
+		//
+		// Bail if new version of WPGraphQL for ACF is active.
+		// if ( class_exists( 'WPGraphQLAcf' ) ) {
+		// return false;
+		// }
+		//
+		// return true;
+		// }
+		// ],
+		// ] );
 
-        $this->admin_notices = [
-	        'wpgraphql-acf-announcement' => [
-		        'type'           => 'warning',
-		        'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
-		        'is_dismissable' => true,
-		        'conditions'     => function() {
-			        if ( ! class_exists( 'ACF' ) ) {
-				        return false;
-			        }
+		$this->admin_notices = [
+			'wpgraphql-acf-announcement' => [
+				'type'           => 'warning',
+				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
+				'is_dismissable' => true,
+				'conditions'     => static function () {
+					if ( ! class_exists( 'ACF' ) ) {
+						return false;
+					}
 
-			        // Bail if new version of WPGraphQL for ACF is active.
-			        if ( class_exists( 'WPGraphQLAcf' ) ) {
-				        return false;
-			        }
+					// Bail if new version of WPGraphQL for ACF is active.
+					if ( class_exists( 'WPGraphQLAcf' ) ) {
+						return false;
+					}
 
-			        return true;
-		        }
-	        ],
-        ];
+					return true;
+				},
+			],
+		];
 
-        // Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
+		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
 		do_action( 'graphql_admin_notices_init', $this );
 
 		$this->dismissed_notices = get_option( 'wpgraphql_dismissed_admin_notices', [] );
 
 		// Filter the notices to remove any dismissed notices
-        $this->pre_filter_dismissed_notices();
+		$this->pre_filter_dismissed_notices();
 
 		add_action( 'admin_notices', [ $this, 'maybe_display_notices' ] );
 		add_action( 'admin_init', [ $this, 'handle_dismissal_of_acf_notice' ] );
@@ -88,27 +88,25 @@ final class AdminNotices {
 	 */
 	protected function pre_filter_dismissed_notices(): void {
 
-        // remove any notice that's been dismissed
+		// remove any notice that's been dismissed
 		foreach ( $this->dismissed_notices as $dismissed_notice ) {
 			$this->remove_admin_notice( $dismissed_notice );
 		}
 
-        // For all remaining notices, run the callback to see if it's actually relevant
-        foreach ( $this->admin_notices as $notice_slug => $notice ) {
+		// For all remaining notices, run the callback to see if it's actually relevant
+		foreach ( $this->admin_notices as $notice_slug => $notice ) {
+			if ( ! isset( $notice['conditions'] ) ) {
+				continue;
+			}
 
-            if ( ! isset( $notice['conditions'] ) ) {
-                continue;
-            }
+			if ( ! is_callable( $notice['conditions'] ) ) {
+				continue;
+			}
 
-            if ( ! is_callable( $notice['conditions'] ) ) {
-                continue;
-            }
-
-            if ( false === $notice['conditions']() ) {
-                $this->remove_admin_notice( $notice_slug );
-            }
-
-        }
+			if ( false === $notice['conditions']() ) {
+				$this->remove_admin_notice( $notice_slug );
+			}       
+		}
 	}
 
 	/**
@@ -130,15 +128,15 @@ final class AdminNotices {
 
 		/**
 		 * Pass the notice through a filter before registering it
-         *
-         * @param array<mixed>  $config The config of the admin notice
-         * @param string string $slug The slug identifying the admin notice
+		 *
+		 * @param array<mixed>  $config The config of the admin notice
+		 * @param string string $slug The slug identifying the admin notice
 		 */
-        $filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
+		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
-        if ( ! isset( $config['message'] ) ) {
-            return [];
-        }
+		if ( ! isset( $config['message'] ) ) {
+			return [];
+		}
 
 		$this->admin_notices[ $slug ] = $filtered_notice;
 		return $this->admin_notices[ $slug ];
@@ -177,7 +175,6 @@ final class AdminNotices {
 	}
 
 	/**
-	 * @return void
 	 */
 	protected function render_notices(): void {
 		$notices = $this->get_admin_notices();
@@ -277,7 +274,7 @@ final class AdminNotices {
 		$notice_slug = sanitize_text_field( wp_unslash( $_GET['wpgraphql_disable_notice'] ) );
 
 		if ( empty( $notice_slug ) || ! wp_verify_nonce( $nonce, 'wpgraphql_disable_notice_nonce' ) ) {
-            return;
+			return;
 		}
 
 		$disabled   = get_option( 'wpgraphql_dismissed_admin_notices', [] );
