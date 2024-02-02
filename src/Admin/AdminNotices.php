@@ -11,7 +11,7 @@ namespace WPGraphQL\Admin;
  * Breaking changes to this class will not be considered a semver breaking change as there's no
  * expectation that users will be calling these functions directly or extending this class.
  */
-final class AdminNotices {
+class AdminNotices {
 
 	/**
 	 * Stores the admin notices to display
@@ -40,12 +40,12 @@ final class AdminNotices {
 					if ( ! class_exists( 'ACF' ) ) {
 						return false;
 					}
-			
+
 					// Bail if new version of WPGraphQL for ACF is active.
 					if ( class_exists( 'WPGraphQLAcf' ) ) {
 						return false;
 					}
-				
+
 					return true;
 				},
 			]
@@ -54,14 +54,15 @@ final class AdminNotices {
 		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
 		do_action( 'graphql_admin_notices_init', $this );
 
-		$current_user_id = get_current_user_id();
+		$current_user_id         = get_current_user_id();
 		$this->dismissed_notices = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true ) ?: [];
 
 		// Filter the notices to remove any dismissed notices
 		$this->pre_filter_dismissed_notices();
 
 		add_action( 'admin_notices', [ $this, 'maybe_display_notices' ] );
-		add_action( 'admin_init', [ $this, 'handle_dismissal_of_acf_notice' ] );
+		add_action( 'admin_init', [ $this, 'handle_dismissal_of_notice' ] );
+		add_action( 'admin_menu', [ $this, 'add_notification_bubble' ], 100 );
 	}
 
 	/**
@@ -86,7 +87,7 @@ final class AdminNotices {
 
 			if ( false === $notice['conditions']() ) {
 				$this->remove_admin_notice( $notice_slug );
-			}       
+			}
 		}
 	}
 
@@ -156,9 +157,33 @@ final class AdminNotices {
 	}
 
 	/**
+	 * Adds a
+	 */
+	public function add_notification_bubble(): void {
+		global $menu;
+
+		$admin_notices = $this->get_admin_notices();
+
+		$notice_count = count( $admin_notices );
+
+		if ( 0 === $notice_count ) {
+			return;
+		}
+
+		foreach ( $menu as $key => $item ) {
+			if ( 'graphiql-ide' === $item[2] ) {
+                // @phpcs:ignore
+				$menu[ $key ][0] .= ' <span class="update-plugins count-' . absint( $notice_count ) . '>"><span class="plugin-count">' . absint( $notice_count ) . '</span></span>';
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Render the notices.
 	 */
 	protected function render_notices(): void {
+
 		$notices = $this->get_admin_notices();
 
 		if ( empty( $notices ) ) {
@@ -248,7 +273,7 @@ final class AdminNotices {
 	 * set_transient reference: https://developer.wordpress.org/reference/functions/set_transient/
 	 * This function sets a transient to remember the dismissal status of the notice.
 	 */
-	public function handle_dismissal_of_acf_notice(): void {
+	public function handle_dismissal_of_notice(): void {
 		if ( ! isset( $_GET['wpgraphql_disable_notice_nonce'], $_GET['wpgraphql_disable_notice'] ) ) {
 			return;
 		}
