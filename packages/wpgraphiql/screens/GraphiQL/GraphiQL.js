@@ -182,9 +182,9 @@ const GraphiQLScreen = () => {
 
 const GraphiQLScreenWithContext = () => {
   const appContext = useAppContext();
-  const { schema } = appContext;
+  const { schemaLoading } = appContext;
 
-  return schema ? (
+  return ! schemaLoading ? (
     <GraphiQLContextProvider appContext={appContext}>
       <GraphiQLScreen />
     </GraphiQLContextProvider>
