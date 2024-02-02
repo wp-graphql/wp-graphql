@@ -30,29 +30,9 @@ final class AdminNotices {
 	 */
 	public function init(): void {
 
-		// this should work?
-		// register_graphql_admin_notice( 'wpgraphql-acf-announcement', [
-		// [
-		// 'type'           => 'warning',
-		// 'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
-		// 'is_dismissable' => true,
-		// 'conditions'     => function() {
-		// if ( ! class_exists( 'ACF' ) ) {
-		// return false;
-		// }
-		//
-		// Bail if new version of WPGraphQL for ACF is active.
-		// if ( class_exists( 'WPGraphQLAcf' ) ) {
-		// return false;
-		// }
-		//
-		// return true;
-		// }
-		// ],
-		// ] );
-
-		$this->admin_notices = [
-			'wpgraphql-acf-announcement' => [
+		register_graphql_admin_notice(
+			'wpgraphql-acf-announcement',
+			[
 				'type'           => 'warning',
 				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
 				'is_dismissable' => true,
@@ -60,16 +40,16 @@ final class AdminNotices {
 					if ( ! class_exists( 'ACF' ) ) {
 						return false;
 					}
-
+			
 					// Bail if new version of WPGraphQL for ACF is active.
 					if ( class_exists( 'WPGraphQLAcf' ) ) {
 						return false;
 					}
-
+				
 					return true;
 				},
-			],
-		];
+			]
+		);
 
 		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
 		do_action( 'graphql_admin_notices_init', $this );
@@ -130,7 +110,7 @@ final class AdminNotices {
 		 * Pass the notice through a filter before registering it
 		 *
 		 * @param array<mixed>  $config The config of the admin notice
-		 * @param string string $slug The slug identifying the admin notice
+		 * @param string $slug The slug identifying the admin notice
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
@@ -175,6 +155,7 @@ final class AdminNotices {
 	}
 
 	/**
+	 * Render the notices.
 	 */
 	protected function render_notices(): void {
 		$notices = $this->get_admin_notices();
