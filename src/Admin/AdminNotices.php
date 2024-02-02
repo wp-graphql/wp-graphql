@@ -180,6 +180,7 @@ final class AdminNotices {
 			.wpgraphql-admin-notice {
 				position: relative;
 				text-decoration: none;
+				padding: 1px 40px 1px 12px;
 			}
 			.wpgraphql-admin-notice .notice-dismiss {
 				text-decoration: none;
