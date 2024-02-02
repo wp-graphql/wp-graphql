@@ -54,7 +54,8 @@ final class AdminNotices {
 		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
 		do_action( 'graphql_admin_notices_init', $this );
 
-		$this->dismissed_notices = get_option( 'wpgraphql_dismissed_admin_notices', [] );
+		$current_user_id = get_current_user_id();
+		$this->dismissed_notices = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true ) ?: [];
 
 		// Filter the notices to remove any dismissed notices
 		$this->pre_filter_dismissed_notices();
@@ -259,9 +260,12 @@ final class AdminNotices {
 			return;
 		}
 
-		$disabled   = get_option( 'wpgraphql_dismissed_admin_notices', [] );
+		$current_user_id = get_current_user_id();
+
+		$disabled   = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true ) ?: [];
 		$disabled[] = $notice_slug;
-		update_option( 'wpgraphql_dismissed_admin_notices', array_unique( $disabled ) );
+
+		update_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', array_unique( $disabled ) );
 
 		// Redirect to clear URL parameters
 		wp_safe_redirect( remove_query_arg( [ 'wpgraphql_disable_notice_nonce', 'wpgraphql_disable_notice' ] ) );
