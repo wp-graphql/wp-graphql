@@ -2338,4 +2338,45 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// query should error because the mutation was deregistered
 		self::assertQueryError( $actual, [] );
 	}
+
+	public function testRegisterFieldWithNonExistingTypeReturnsErrorWhenFieldIsReferenced() {
+
+		register_graphql_field( 'User', 'fakeField', [
+			'type' => 'NonExistingType'
+		]);
+
+		// This should query without error because the field doesn't impact types queried here
+		$query_one = '{posts{nodes{id}}}';
+
+		// Should not return error because the field with the invalid type is not being queried for
+		$query_two = '{users{nodes{id}}}';
+
+		// This should return an error because the fakeField is being queried for and it references a non-existent type
+		$query_three = '{users{nodes{id, fakeField}}}';
+
+		$actual = $this->graphql([
+			'query' => $query_one
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedField( 'posts', self::NOT_NULL ),
+		] );
+
+		$actual_two = $this->graphql([
+			'query' => $query_two
+		]);
+
+		self::assertQuerySuccessful( $actual_two, [
+			$this->expectedField( 'users', self::NOT_NULL ),
+		] );
+
+		// The third query should throw a GraphQL\Error calling out the fact that the field is referencing a non-existent type
+		$this->expectException( GraphQL\Error\Error::class );
+		$this->expectExceptionMessageMatches( "/non-existent/" );
+
+		$actual_three = $this->graphql([
+			'query' => $query_three
+		]);
+
+	}
 }
