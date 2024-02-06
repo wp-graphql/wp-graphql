@@ -10,13 +10,15 @@ namespace WPGraphQL\Admin;
  *
  * Breaking changes to this class will not be considered a semver breaking change as there's no
  * expectation that users will be calling these functions directly or extending this class.
+ * 
+ * @internal
  */
 class AdminNotices {
 
 	/**
 	 * Stores the admin notices to display
 	 *
-	 * @var array<mixed>
+	 * @var array<string,array<string,mixed>>
 	 */
 	protected $admin_notices = [];
 
@@ -33,7 +35,7 @@ class AdminNotices {
 		register_graphql_admin_notice(
 			'wpgraphql-acf-announcement',
 			[
-				'type'           => 'warning',
+				'type'           => 'info',
 				'message'        => __( 'You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href="https://acf.wpgraphql.com/" target="_blank" rel="nofollow">WPGraphQL for ACF</a>?', 'wp-graphql' ),
 				'is_dismissable' => true,
 				'conditions'     => static function () {
@@ -95,34 +97,65 @@ class AdminNotices {
 	/**
 	 * Return all admin notices
 	 *
-	 * @return array<mixed>
+	 * @return array<string,array<string,mixed>>
 	 */
 	public function get_admin_notices(): array {
 		return $this->admin_notices;
 	}
 
 	/**
-	 * @param string       $slug The slug identifying the admin notice
-	 * @param array<mixed> $config The config of the admin notice
+	 * @param string              $slug The slug identifying the admin notice
+	 * @param array<string,mixed> $config The config of the admin notice
 	 *
-	 * @return array<mixed>
+	 * @return array<string,mixed>
 	 */
 	public function add_admin_notice( string $slug, array $config ): array {
-
 		/**
 		 * Pass the notice through a filter before registering it
 		 *
-		 * @param array<mixed>  $config The config of the admin notice
-		 * @param string $slug The slug identifying the admin notice
+         * @param array<string,mixed> $config The config of the admin notice  
+         * @param string              $slug   The slug identifying the admin notice  
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
-		if ( ! isset( $config['message'] ) ) {
+		// If not a valid config, bail early.
+		if ( ! $this->is_valid_config( $config ) ) {
 			return [];
 		}
-
+	
 		$this->admin_notices[ $slug ] = $filtered_notice;
 		return $this->admin_notices[ $slug ];
+	}
+
+	/**
+	 * Throw an error if the config is not valid.
+	 *
+	 * @since @TODO
+	 *
+	 * @return array<string,array<string,mixed>>  
+	 */
+	public function is_valid_config( array $config ): bool {
+		if ( empty( $config['message'] ) ) {
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config message is required', 'wp-graphql' ), '@TODO' );
+			return false;
+		}
+
+		if ( isset( $config['conditions'] ) && ! is_callable( $config['conditions'] ) ) {
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config conditions should be callable', 'wp-graphql' ), '@TODO' );
+			return false;
+		}
+
+		if ( isset( $config['type'] ) && ! in_array( $config['type'], ['error', 'warning', 'success', 'info'], true ) ) {
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config type should be one of the following: error | warning | success | info', 'wp-graphql' ), '@TODO' );
+			return false;
+		}
+
+		if ( isset( $config['is_dismissable'] ) && ! is_bool( $config['is_dismissable'] ) ) {
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'is_dismissable should be a boolean', 'wp-graphql' ), '@TODO' );
+			return false;
+		}
+		
+		return true;
 	}
 
 	/**
@@ -158,7 +191,7 @@ class AdminNotices {
 	}
 
 	/**
-	 * Adds a
+	 * Adds the notification count to the menu item.
 	 */
 	public function add_notification_bubble(): void {
 		global $menu;
@@ -173,7 +206,7 @@ class AdminNotices {
 
 		foreach ( $menu as $key => $item ) {
 			if ( 'graphiql-ide' === $item[2] ) {
-                // @phpcs:ignore
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $key ][0] .= ' <span class="update-plugins count-' . absint( $notice_count ) . '>"><span class="plugin-count">' . absint( $notice_count ) . '</span></span>';
 				break;
 			}
@@ -217,13 +250,14 @@ class AdminNotices {
 		<?php
 		$count = 0;
 		foreach ( $notices as $notice_slug => $notice ) {
+			$type = $notice['type'] ?? 'info';
 			?>
 			<style>
 				body.toplevel_page_graphiql-ide #wpbody #wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?> {
 					top: <?php echo esc_attr( ( $count * 45 ) . 'px' ); ?>
 				}
 			</style>
-			<div id="wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?>" class="wpgraphql-admin-notice notice notice-<?php echo esc_attr( $notice['type'] ) ?? 'success'; ?> <?php echo $this->is_notice_dismissable( $notice ) ? 'is-dismissable' : ''; ?>">
+			<div id="wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?>" class="wpgraphql-admin-notice notice notice-<?php echo esc_attr( $type ); ?> <?php echo $this->is_notice_dismissable( $notice ) ? 'is-dismissable' : ''; ?>">
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
 				if ( $this->is_notice_dismissable( $notice ) ) {
