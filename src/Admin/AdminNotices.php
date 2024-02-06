@@ -132,7 +132,7 @@ class AdminNotices {
 	 *
 	 * @since @TODO
 	 *
-	 * @return array<string,array<string,mixed>>  
+	 * @return array<string,array<string,mixed>>
 	 */
 	public function is_valid_config( array $config ): bool {
 		if ( empty( $config['message'] ) ) {
