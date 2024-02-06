@@ -134,7 +134,7 @@ class AdminNotices {
 	 *
 	 * @param array<string,mixed> $config The config of the admin notice
 	 *
-	 * @return array<string,array<string,mixed>>
+	 * @return bool
 	 */
 	public function is_valid_config( array $config ): bool {
 		if ( empty( $config['message'] ) ) {
