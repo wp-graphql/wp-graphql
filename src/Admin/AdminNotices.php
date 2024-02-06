@@ -61,6 +61,7 @@ class AdminNotices {
 		$this->pre_filter_dismissed_notices();
 
 		add_action( 'admin_notices', [ $this, 'maybe_display_notices' ] );
+		add_action( 'network_admin_notices', [ $this, 'maybe_display_notices' ] );
 		add_action( 'admin_init', [ $this, 'handle_dismissal_of_notice' ] );
 		add_action( 'admin_menu', [ $this, 'add_notification_bubble' ], 100 );
 	}
@@ -85,7 +86,7 @@ class AdminNotices {
 				continue;
 			}
 
-			if ( false === $notice['conditions']() ) {
+			if ( false === $notice['conditions']() && ! is_network_admin() ) {
 				$this->remove_admin_notice( $notice_slug );
 			}
 		}
@@ -259,6 +260,7 @@ class AdminNotices {
 
 		$allowed_pages = [
 			'plugins',
+			'plugins-network',
 			'toplevel_page_graphiql-ide',
 			'graphql_page_graphql-settings',
 		];
