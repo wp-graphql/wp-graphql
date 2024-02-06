@@ -158,41 +158,7 @@ abstract class AbstractConnectionResolver {
 		 */
 		$this->args = $args;
 
-		/**
-		 *
-		 * Filters the GraphQL args before they are used in get_query_args().
-		 *
-		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
-		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
-		 *
-		 * @since 1.11.0
-		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
 
-		/**
-		 * Determine the query amount for the resolver.
-		 *
-		 * This is the amount of items to query from the database. We determine this by
-		 * determining how many items were asked for (first/last), then compare with the
-		 * max amount allowed to query (default is 100), and then we fetch 1 more than
-		 * that amount, so we know whether hasNextPage/hasPreviousPage should be true.
-		 *
-		 * If there are more items than were asked for, then there's another page.
-		 */
-		$this->query_amount = $this->get_query_amount();
-
-		/**
-		 * Get the Query Args. This accepts the input args and maps it to how it should be
-		 * used in the WP_Query
-		 *
-		 * Filters the args
-		 *
-		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
-		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 	}
 
 	/**
@@ -438,7 +404,7 @@ abstract class AbstractConnectionResolver {
 		 * @since 0.0.6
 		 */
 		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
-		
+
 		$requested_amount = $this->get_amount_requested();
 
 		if ( $requested_amount > $max_query_amount ) {
@@ -902,6 +868,42 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function execute_and_get_ids() {
+
+		/**
+		 *
+		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
+		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
+		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 *
+		 * @since 1.11.0
+		 */
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
+
+		/**
+		 * Determine the query amount for the resolver.
+		 *
+		 * This is the amount of items to query from the database. We determine this by
+		 * determining how many items were asked for (first/last), then compare with the
+		 * max amount allowed to query (default is 100), and then we fetch 1 more than
+		 * that amount, so we know whether hasNextPage/hasPreviousPage should be true.
+		 *
+		 * If there are more items than were asked for, then there's another page.
+		 */
+		$this->query_amount = $this->get_query_amount();
+
+		/**
+		 * Get the Query Args. This accepts the input args and maps it to how it should be
+		 * used in the WP_Query
+		 *
+		 * Filters the args
+		 *
+		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
+		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 */
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 
 		/**
 		 * If should_execute is explicitly set to false already, we can

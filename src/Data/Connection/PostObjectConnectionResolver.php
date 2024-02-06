@@ -151,7 +151,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
 
-		$query_args = [];
+		$query_args = $this->query_args;
+
 		/**
 		 * Ignore sticky posts by default
 		 */
@@ -253,7 +254,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				static function ( $id ) {
 					return absint( $id );
 				},
-				$post_in 
+				$post_in
 			);
 
 			// If we're coming backwards, let's reverse the IDs
@@ -560,7 +561,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 								static function ( $id ) {
 									return Utils::get_database_id_from_id( $id );
 								},
-								$input_value 
+								$input_value
 							);
 							break;
 						}
