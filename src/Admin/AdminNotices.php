@@ -113,8 +113,8 @@ class AdminNotices {
 		/**
 		 * Pass the notice through a filter before registering it
 		 *
-         * @param array<string,mixed> $config The config of the admin notice  
-         * @param string              $slug   The slug identifying the admin notice  
+		 * @param array<string,mixed> $config The config of the admin notice  
+		 * @param string              $slug   The slug identifying the admin notice  
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
@@ -132,6 +132,8 @@ class AdminNotices {
 	 *
 	 * @since @TODO
 	 *
+	 * @param array<string,mixed> $config The config of the admin notice
+	 *
 	 * @return array<string,array<string,mixed>>
 	 */
 	public function is_valid_config( array $config ): bool {
@@ -145,7 +147,7 @@ class AdminNotices {
 			return false;
 		}
 
-		if ( isset( $config['type'] ) && ! in_array( $config['type'], ['error', 'warning', 'success', 'info'], true ) ) {
+		if ( isset( $config['type'] ) && ! in_array( $config['type'], [ 'error', 'warning', 'success', 'info' ], true ) ) {
 			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config type should be one of the following: error | warning | success | info', 'wp-graphql' ), '@TODO' );
 			return false;
 		}
