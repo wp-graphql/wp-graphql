@@ -158,7 +158,6 @@ abstract class AbstractConnectionResolver {
 		 */
 		$this->args = $args;
 
-
 	}
 
 	/**
@@ -879,7 +878,19 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $this->args );
+
+		/**
+		 * Get the Query Args. This accepts the input args and maps it to how it should be
+		 * used in the WP_Query
+		 *
+		 * Filters the args
+		 *
+		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
+		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 */
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->args );
 
 		/**
 		 * Determine the query amount for the resolver.
@@ -892,18 +903,6 @@ abstract class AbstractConnectionResolver {
 		 * If there are more items than were asked for, then there's another page.
 		 */
 		$this->query_amount = $this->get_query_amount();
-
-		/**
-		 * Get the Query Args. This accepts the input args and maps it to how it should be
-		 * used in the WP_Query
-		 *
-		 * Filters the args
-		 *
-		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
-		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
 
 		/**
 		 * If should_execute is explicitly set to false already, we can
