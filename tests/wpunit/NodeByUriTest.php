@@ -252,7 +252,11 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Clean up
 		wp_delete_comment( $comment_one_id, true );
+		wp_delete_comment( $comment_two_id, true );
+		wp_delete_comment( $comment_three_id, true );
+		wp_delete_comment( $child_comment_id, true );
 		wp_delete_post( $post_one_id, true );
+		wp_delete_post( $post_two_id, true );
 	}
 
 	/**
