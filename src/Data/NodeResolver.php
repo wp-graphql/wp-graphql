@@ -130,15 +130,13 @@ class NodeResolver {
 			return $node;
 		}
 
-		codecept_debug( 'parsed => ' );
-		codecept_debug( $uri );
-
 		/**
 		 * Comments are embedded as a #comment-{$id} in the post's content.
+		 *
+		 * If the URI is for a comment, we can resolve it now.
 		 */
 		$comment_id = $this->maybe_parse_comment_uri( $uri );
 		if ( null !== $comment_id ) {
-			codecept_debug( $comment_id );
 			return $this->context->get_loader( 'comment' )->load_deferred( $comment_id );
 		}
 
