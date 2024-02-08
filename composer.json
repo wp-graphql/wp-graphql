@@ -47,8 +47,7 @@
 		"slevomat/coding-standard": "^8.9",
 		"szepeviktor/phpstan-wordpress": "~1.3.0",
 		"wp-graphql/wp-graphql-testcase": "~2.3",
-		"wp-cli/wp-cli-bundle": "^2.8",
-		"10up/wp_mock": "^0.5.0"
+		"wp-cli/wp-cli-bundle": "^2.8"
 	},
 	"config": {
 		"platform": {
