@@ -130,6 +130,18 @@ class NodeResolver {
 			return $node;
 		}
 
+		codecept_debug( 'parsed => ' );
+		codecept_debug( $uri );
+
+		/**
+		 * Comments are embedded as a #comment-{$id} in the post's content.
+		 */
+		$comment_id = $this->maybe_parse_comment_uri( $uri );
+		if ( null !== $comment_id ) {
+			codecept_debug( $comment_id );
+			return $this->context->get_loader( 'comment' )->load_deferred( $comment_id );
+		}
+
 		/**
 		 * Try to resolve the URI with WP_Query.
 		 *
@@ -140,6 +152,7 @@ class NodeResolver {
 
 		// Parse the URI and sets the $wp->query_vars property.
 		$uri = $this->parse_request( $uri, $extra_query_vars );
+
 
 		/**
 		 * If the URI is '/', we can resolve it now.
@@ -645,5 +658,22 @@ class NodeResolver {
 
 		// We dont have an 'Archive' type, so we resolve to the ContentType.
 		return $this->context->get_loader( 'post_type' )->load_deferred( 'post' );
+	}
+
+	/**
+	 * Checks if the URI is a comment URI and, if so, returns the comment ID.
+	 *
+	 * @param string $uri The URI to check.
+	 */
+	protected function maybe_parse_comment_uri( string $uri ): ?int {
+		$comment_match = [];
+		// look for a #comment-{$id} anywhere in the uri.
+		if ( preg_match( '/#comment-(\d+)/', $uri, $comment_match ) ) {
+			$comment_id = isset( $comment_match[1] ) ? absint( $comment_match[1] ) : null;
+
+			return ! empty( $comment_id ) ? $comment_id : null;
+		}
+
+		return null;
 	}
 }
