@@ -10,7 +10,7 @@ namespace WPGraphQL\Admin;
  *
  * Breaking changes to this class will not be considered a semver breaking change as there's no
  * expectation that users will be calling these functions directly or extending this class.
- * 
+ *
  * @internal
  */
 class AdminNotices {
@@ -113,8 +113,8 @@ class AdminNotices {
 		/**
 		 * Pass the notice through a filter before registering it
 		 *
-		 * @param array<string,mixed> $config The config of the admin notice  
-		 * @param string              $slug   The slug identifying the admin notice  
+		 * @param array<string,mixed> $config The config of the admin notice
+		 * @param string              $slug   The slug identifying the admin notice
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
@@ -122,7 +122,7 @@ class AdminNotices {
 		if ( ! $this->is_valid_config( $config ) ) {
 			return [];
 		}
-	
+
 		$this->admin_notices[ $slug ] = $filtered_notice;
 		return $this->admin_notices[ $slug ];
 	}
@@ -130,31 +130,31 @@ class AdminNotices {
 	/**
 	 * Throw an error if the config is not valid.
 	 *
-	 * @since @TODO
+	 * @since v1.21.0
 	 *
 	 * @param array<string,mixed> $config The config of the admin notice
 	 */
 	public function is_valid_config( array $config ): bool {
 		if ( empty( $config['message'] ) ) {
-			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config message is required', 'wp-graphql' ), '@TODO' );
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config message is required', 'wp-graphql' ), '1.21.0' );
 			return false;
 		}
 
 		if ( isset( $config['conditions'] ) && ! is_callable( $config['conditions'] ) ) {
-			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config conditions should be callable', 'wp-graphql' ), '@TODO' );
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config conditions should be callable', 'wp-graphql' ), '1.21.0' );
 			return false;
 		}
 
 		if ( isset( $config['type'] ) && ! in_array( $config['type'], [ 'error', 'warning', 'success', 'info' ], true ) ) {
-			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config type should be one of the following: error | warning | success | info', 'wp-graphql' ), '@TODO' );
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'Config type should be one of the following: error | warning | success | info', 'wp-graphql' ), '1.21.0' );
 			return false;
 		}
 
 		if ( isset( $config['is_dismissable'] ) && ! is_bool( $config['is_dismissable'] ) ) {
-			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'is_dismissable should be a boolean', 'wp-graphql' ), '@TODO' );
+			_doing_it_wrong( 'register_graphql_admin_notice', esc_html__( 'is_dismissable should be a boolean', 'wp-graphql' ), '1.21.0' );
 			return false;
 		}
-		
+
 		return true;
 	}
 
