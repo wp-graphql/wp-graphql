@@ -948,7 +948,7 @@ class TypeRegistry {
 				$type = $this->get_type( $field_config['type'] );
 				if ( ! $type ) {
 					$message = sprintf(
-					/* translators: %s is the Field name. */
+					/* translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced. */
 						__( 'The field \'%1$s\' on Type \'%2$s\' is configured to return \'%3$s\' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with \'%3$s\', or it needs to be registered to the Schema.', 'wp-graphql' ),
 						$field_config['name'],
 						$type_name,
@@ -956,7 +956,7 @@ class TypeRegistry {
 					);
 					// We throw an error here instead of graphql_debug message, as an error would already be thrown if a type didn't exist at this point,
 					// but now it will have a more helpful error message.
-					throw new Error( $message );
+					throw new Error( esc_html( $message ) );
 				}
 				return $type;
 			};
