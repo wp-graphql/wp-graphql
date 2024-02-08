@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.4.1
 Requires PHP: 7.1
-Stable tag: 1.20.0
+Stable tag: 1.21.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -252,7 +252,21 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
-= 1.20.0=
+= 1.21.0 =
+
+**New Features**
+
+- [#3035](https://github.com/wp-graphql/wp-graphql/pull/3035): feat: provide better error when field references a type that does not exist
+- [#3027](https://github.com/wp-graphql/wp-graphql/pull/3027): feat: Add register_graphql_admin_notice API and intial use to inform users of the new WPGraphQL for ACF plugin
+
+**Chores / Bugfixes**
+
+- [#3038](https://github.com/wp-graphql/wp-graphql/pull/3038): chore(deps-dev): bump the composer group across 1 directories with 1 update. Thanks @dependabot!
+- [#3033](https://github.com/wp-graphql/wp-graphql/pull/3033): fix: php deprecation error for dynamic properties on AppContext class
+- [#3031](https://github.com/wp-graphql/wp-graphql/pull/3031): fix(graphiql): Allow GraphiQL to run even if a valid schema cannot be returned. Thanks @linucks!
+
+
+= 1.20.0 =
 
 **New Features**
 
@@ -273,7 +287,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 - [#2996](https://github.com/wp-graphql/wp-graphql/pull/2996): fix: Field id duplicates uri field description. Thanks @marcinkrzeminski!
 
 
-= 1.19.0=
+= 1.19.0 =
 
 **New Features**
 
