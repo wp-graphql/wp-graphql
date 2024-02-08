@@ -735,7 +735,7 @@ function register_graphql_settings_field( string $group, array $config ) {
  *
  * @param mixed|string|mixed[] $message The debug message
  * @param array<string,mixed>  $config  The debug config. Should be an associative array of keys and values.
- *                                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG. 
+ *                                      $config['type'] will set the "type" of the log, default type is GRAPHQL_DEBUG.
  *                                      Other fields added to $config will be merged into the debug entry.
  *
  * @return void
@@ -819,7 +819,7 @@ function get_graphql_setting( string $option_name, $default_value = '', $section
 
 	/**
 	 * Filter the section fields
-	 
+
 	 * @param array<string,mixed> $section_fields The values of the fields stored for the section
 	 * @param string              $section_name   The name of the section
 	 * @param mixed               $default_value  The default value for the option being retrieved
@@ -952,4 +952,17 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 
 		return $needle_length <= strlen( $haystack ) && 0 === substr_compare( $haystack, $needle, -$needle_length );
 	}
+}
+
+/**
+ * @param string       $slug A unique slug to identify the admin notice by
+ * @param array<mixed> $config The config for the admin notice. Determines visibility, context, etc.
+ */
+function register_graphql_admin_notice( string $slug, array $config ): void {
+	add_action(
+		'graphql_admin_notices_init',
+		static function ( \WPGraphQL\Admin\AdminNotices $admin_notices ) use ( $slug, $config ) {
+			$admin_notices->add_admin_notice( $slug, $config );
+		}
+	);
 }

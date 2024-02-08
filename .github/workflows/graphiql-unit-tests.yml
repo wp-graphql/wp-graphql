@@ -1,12 +1,7 @@
 name: GraphiQL Unit Tests
 
 on:
-  pull_request:
-  push:
-    branches:
-      - master
-      - develop
-      - 'release/**'
+  workflow_dispatch:
 
 jobs:
   admin:

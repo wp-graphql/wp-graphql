@@ -59,7 +59,7 @@ class DataSource {
 	 * @throws \GraphQL\Error\UserError Throws UserError.
 	 * @throws \Exception Throws UserError.
 	 *
-	 * @since      0.0.5
+	 * @since 0.0.5
 	 *
 	 * @deprecated Use the Loader passed in $context instead
 	 */

@@ -28,7 +28,16 @@ use WPGraphQL\Data\NodeResolver;
  *
  * @package WPGraphQL
  */
+// @phpcs:ignore
+#[\AllowDynamicProperties]
 class AppContext {
+
+	/**
+	 * Stores the class to use for the connection query.
+	 *
+	 * @var \WP_Query|null
+	 */
+	public $connection_query_class = null;
 
 	/**
 	 * Stores the url string for the current site
