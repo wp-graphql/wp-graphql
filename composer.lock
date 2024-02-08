@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a6e1933c327abb2aa15be70c49d1b99",
+    "content-hash": "3bd8f09a8a131fbadbfe66f9581f17ee",
     "packages": [
         {
             "name": "appsero/client",
@@ -164,52 +164,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "10up/wp_mock",
-            "version": "0.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/10up/wp_mock.git",
-                "reference": "5cd57c63b1a946301ce0d7aaaa37cdc25805c163"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/10up/wp_mock/zipball/5cd57c63b1a946301ce0d7aaaa37cdc25805c163",
-                "reference": "5cd57c63b1a946301ce0d7aaaa37cdc25805c163",
-                "shasum": ""
-            },
-            "require": {
-                "antecedent/patchwork": "^2.1",
-                "mockery/mockery": "^1.5",
-                "php": ">=7.3 < 9.0",
-                "phpunit/phpunit": "^9.5.24"
-            },
-            "require-dev": {
-                "behat/behat": "^v3.11.0",
-                "php-coveralls/php-coveralls": "^v2.5.3",
-                "sebastian/comparator": "^4.0.8",
-                "sempro/phpunit-pretty-print": "^1.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WP_Mock\\": "./php/WP_Mock"
-                },
-                "classmap": [
-                    "php/WP_Mock.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A mocking library to take the pain out of unit testing for WordPress",
-            "support": {
-                "issues": "https://github.com/10up/wp_mock/issues",
-                "source": "https://github.com/10up/wp_mock/tree/0.5.0"
-            },
-            "time": "2022-11-01T03:01:40+00:00"
-        },
         {
             "name": "antecedent/patchwork",
             "version": "2.1.28",
@@ -2635,57 +2589,6 @@
             "time": "2023-04-17T16:00:37+00:00"
         },
         {
-            "name": "hamcrest/hamcrest-php",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hamcrest/hamcrest-php.git",
-                "reference": "8c3d0a3f6af734494ad8f6fbbee0ba92422859f3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/8c3d0a3f6af734494ad8f6fbbee0ba92422859f3",
-                "reference": "8c3d0a3f6af734494ad8f6fbbee0ba92422859f3",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3|^7.0|^8.0"
-            },
-            "replace": {
-                "cordoval/hamcrest-php": "*",
-                "davedevelopment/hamcrest-php": "*",
-                "kodova/hamcrest-php": "*"
-            },
-            "require-dev": {
-                "phpunit/php-file-iterator": "^1.4 || ^2.0",
-                "phpunit/phpunit": "^4.8.36 || ^5.7 || ^6.5 || ^7.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.1-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "hamcrest"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "This is the PHP port of Hamcrest Matchers",
-            "keywords": [
-                "test"
-            ],
-            "support": {
-                "issues": "https://github.com/hamcrest/hamcrest-php/issues",
-                "source": "https://github.com/hamcrest/hamcrest-php/tree/v2.0.1"
-            },
-            "time": "2020-07-09T08:09:16+00:00"
-        },
-        {
             "name": "illuminate/collections",
             "version": "v8.83.27",
             "source": {
@@ -3241,89 +3144,6 @@
                 "source": "https://github.com/mikemclin/laravel-wp-password/tree/2.0.3"
             },
             "time": "2021-09-30T13:48:57+00:00"
-        },
-        {
-            "name": "mockery/mockery",
-            "version": "1.6.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mockery/mockery.git",
-                "reference": "0cc058854b3195ba21dc6b1f7b1f60f4ef3a9c06"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/0cc058854b3195ba21dc6b1f7b1f60f4ef3a9c06",
-                "reference": "0cc058854b3195ba21dc6b1f7b1f60f4ef3a9c06",
-                "shasum": ""
-            },
-            "require": {
-                "hamcrest/hamcrest-php": "^2.0.1",
-                "lib-pcre": ">=7.0",
-                "php": ">=7.3"
-            },
-            "conflict": {
-                "phpunit/phpunit": "<8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.5 || ^9.6.10",
-                "symplify/easy-coding-standard": "^12.0.8"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "library/helpers.php",
-                    "library/Mockery.php"
-                ],
-                "psr-4": {
-                    "Mockery\\": "library/Mockery"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Pádraic Brady",
-                    "email": "padraic.brady@gmail.com",
-                    "homepage": "https://github.com/padraic",
-                    "role": "Author"
-                },
-                {
-                    "name": "Dave Marshall",
-                    "email": "dave.marshall@atstsolutions.co.uk",
-                    "homepage": "https://davedevelopment.co.uk",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Nathanael Esayeas",
-                    "email": "nathanael.esayeas@protonmail.com",
-                    "homepage": "https://github.com/ghostwriter",
-                    "role": "Lead Developer"
-                }
-            ],
-            "description": "Mockery is a simple yet flexible PHP mock object framework",
-            "homepage": "https://github.com/mockery/mockery",
-            "keywords": [
-                "BDD",
-                "TDD",
-                "library",
-                "mock",
-                "mock objects",
-                "mockery",
-                "stub",
-                "test",
-                "test double",
-                "testing"
-            ],
-            "support": {
-                "docs": "https://docs.mockery.io/",
-                "issues": "https://github.com/mockery/mockery/issues",
-                "rss": "https://github.com/mockery/mockery/releases.atom",
-                "security": "https://github.com/mockery/mockery/security/advisories",
-                "source": "https://github.com/mockery/mockery"
-            },
-            "time": "2023-12-10T02:24:34+00:00"
         },
         {
             "name": "mustache/mustache",
@@ -11286,5 +11106,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
