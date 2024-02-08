@@ -137,7 +137,7 @@ const Router = (props) => {
     screen: StringParam,
   });
 
-  const { endpoint, schema, setSchema } = useAppContext();
+  const { endpoint, schema, setSchema, setSchemaLoading } = useAppContext();
 
   const { screen } = queryParams;
 
@@ -150,18 +150,27 @@ const Router = (props) => {
 
     const remoteQuery = getIntrospectionQuery();
 
+    const querySucccess = (res) => {
+        const clientSchema = res?.data ? buildClientSchema(res.data) : null;
+        if (clientSchema !== schema) {
+          setSchema(clientSchema);
+        }
+        setSchemaLoading(false);
+      }
+
+    const queryFailure = (res) => {
+      console.error(`Failure running getIntrospectionQuery: ${JSON.stringify(res, null, 2)}`);
+      setSchemaLoading(false);
+    }
+
+    setSchemaLoading(true);
     client(endpoint)
         .query({
           query: gql`
           ${remoteQuery}
         `,
         })
-        .then((res) => {
-          const clientSchema = res?.data ? buildClientSchema(res.data) : null;
-          if (clientSchema !== schema) {
-            setSchema(clientSchema);
-          }
-        });
+        .then(querySucccess, queryFailure);
   }, [endpoint]);
 
   const getActiveScreenName = () => {

@@ -17,14 +17,11 @@ const { useState, useEffect } = wp.element;
 const Wrapper = ({ schema, children }) => {
   if (!schema) {
     return (
-      <div
-        style={{
-          fontFamily: "sans-serif",
-          textAlign: `center`,
-        }}
-        className="error-container"
-      >
-        <Spin />
+      // Wrap in graphiql-container div so error message  matches that in the Documentation Explorer
+      <div className="graphiql-container">
+        <div className="error-container">
+          No Schema Available
+        </div>
       </div>
     );
   }
