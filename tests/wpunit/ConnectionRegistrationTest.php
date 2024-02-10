@@ -808,7 +808,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 	public function testWithCustomSetQueryClass() : void {
-		require_once __DIR__ . '/../_support/Utils/WP_Query_Custom.php';
+		require_once __DIR__ . '/../_data/classes/WP_Query_Custom.php';
 
 		$post_ids = $this->factory()->post->create_many( 2 );
 
@@ -927,7 +927,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 	public function testWithIncompatibleSetQueryClass() : void {
-		require_once __DIR__ . '/../_support/Utils/WP_Query_Incompatible.php';
+		require_once __DIR__ . '/../_data/classes/WP_Query_Incompatible.php';
 
 		$query = '
 			query {
