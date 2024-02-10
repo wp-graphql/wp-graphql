@@ -17,7 +17,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
 		$queried = $this->query;
 
@@ -35,34 +35,33 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
-		// If any args are added to filter/sort the connection
+	public function prepare_query_args( array $args ): array {
+		// If any args are added to filter/sort the connection.
 		return [];
 	}
 
 
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */
-	public function get_query() {
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
+	protected function query( array $query_args ) {
+		if ( isset( $query_args['name'] ) ) {
+			return [ $query_args['name'] ];
 		}
 
-		if ( isset( $this->query_args['in'] ) ) {
-			return is_array( $this->query_args['in'] ) ? $this->query_args['in'] : [ $this->query_args['in'] ];
+		if ( isset( $query_args['in'] ) ) {
+			return is_array( $query_args['in'] ) ? $query_args['in'] : [ $query_args['in'] ];
 		}
 
-		$query_args = $this->query_args;
 		return \WPGraphQL::get_allowed_taxonomies( 'names', $query_args );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	public function loader_name(): string {
 		return 'taxonomy';
 	}
 
@@ -71,14 +70,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param string $offset The offset (taxonomy name) to check.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_taxonomy( $offset );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
 	}
 }

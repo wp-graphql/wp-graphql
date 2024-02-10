@@ -23,14 +23,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function should_execute() {
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_loader_name() {
+	public function loader_name(): string {
 		return 'user';
 	}
 
@@ -39,13 +32,13 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @throws \Exception
 	 */
-	public function get_query_args() {
+	public function prepare_query_args( array $args ): array {
 		$query_args = [];
 
 		/**
 		 * Prepare for later use
 		 */
-		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $args['last'] ) ? $args['last'] : null;
 
 		/**
 		 * Set the $query_args based on various defaults and primary input $args
@@ -55,7 +48,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Pass the graphql $args to the WP_Query
 		 */
-		$query_args['graphql_args'] = $this->args;
+		$query_args['graphql_args'] = $args;
 
 		/**
 		 * Set the graphql_cursor_compare to determine what direction the
@@ -79,8 +72,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * sanitize their GraphQL input to apply to the WP_Query
 		 */
 		$input_fields = [];
-		if ( ! empty( $this->args['where'] ) ) {
-			$input_fields = $this->sanitize_input_fields( $this->args['where'] );
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = $this->sanitize_input_fields( $args['where'] );
 		}
 
 		/**
@@ -132,8 +125,8 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map the orderby inputArgs to the WP_User_Query
 		 */
-		if ( ! empty( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
-			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+		if ( ! empty( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
+			foreach ( $args['where']['orderby'] as $orderby_input ) {
 				/**
 				 * These orderby options should not include the order parameter.
 				 */
@@ -148,7 +141,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 					$query_args['orderby'] = esc_sql( $orderby_input['field'] );
 				} elseif ( ! empty( $orderby_input['field'] ) ) {
 					$order = $orderby_input['order'];
-					if ( ! empty( $this->args['last'] ) ) {
+					if ( ! empty( $args['last'] ) ) {
 						if ( 'ASC' === $order ) {
 							$order = 'DESC';
 						} else {
@@ -185,18 +178,10 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of the WP_User_Query with the args for the connection being executed
-	 *
-	 * @return object|\WP_User_Query
-	 * @throws \Exception
+	 * {@inheritDoc}
 	 */
-	public function get_query() {
-		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_User_Query';
-
-		return new $queryClass( $this->query_args );
+	protected function query_class(): string {
+		return 'WP_User_Query';
 	}
 
 	/**
@@ -204,7 +189,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return int[]
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : [];
 
 		// If we're going backwards, we need to reverse the array.
@@ -268,26 +253,20 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @param array<string,mixed>                  $query_args The mapped query args
 		 * @param array<string,mixed>                  $args       The query "where" args
-		 * @param mixed                                $source     The query results of the query calling this relation
-		 * @param array<string,mixed>                  $all_args   Array of all the query args (not just the "where" args)
-		 * @param \WPGraphQL\AppContext                $context The AppContext object
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
+		 * @param \WPGraphQL\Data\Connection\UserConnectionResolver $resolver   The UserConnectionResolver instance.
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 	}
-
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param int $offset The ID of the node used as the offset in the cursor
-	 *
-	 * @return bool
+	 * @param int $offset The ID of the node used as the offset in the cursor.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_user_by( 'ID', absint( $offset ) );
 	}
 }

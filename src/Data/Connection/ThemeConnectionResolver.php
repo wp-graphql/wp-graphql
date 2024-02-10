@@ -18,7 +18,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
 		$queried = ! empty( $this->query ) ? $this->query : [];
 
@@ -36,43 +36,33 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	public function prepare_query_args( array $args ): array {
 		return [
 			'allowed' => null,
 		];
 	}
 
-
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */
-	public function get_query() {
-		$query_args = $this->query_args;
-
+	protected function query( array $query_args ) {
 		return array_keys( wp_get_themes( $query_args ) );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	public function loader_name(): string {
 		return 'theme';
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		$theme = wp_get_theme( $offset );
 		return $theme->exists();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
 	}
 }
