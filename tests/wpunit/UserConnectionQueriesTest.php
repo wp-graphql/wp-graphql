@@ -943,4 +943,142 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEmpty( $actual['data']['users']['edges'] );
 	}
+
+	public function testWithSearchColumns() {
+		$admin_id = $this->factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
+
+		$user_one_id = $this->factory()->user->create(
+			[
+				'user_login' => 'keyword',
+			]
+		);
+
+		$user_two_id = $this->factory()->user->create(
+			[
+				'user_email' => 'keyword@test.test',
+			]
+		);
+
+		$user_three_id = $this->factory()->user->create(
+			[
+				'user_url' => 'https://keyword.com',
+			]
+		);
+
+		$query = '
+			query UsersWithSearchColumns( $search: String, $searchColumns: [UsersConnectionSearchColumnEnum] ){
+				users(first:100 where: { search: $search, searchColumns: $searchColumns } ) {
+					edges{
+						node{
+							databaseId
+						}
+					}
+				}
+			}
+		';
+
+		// Test search by user_login
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => 'LOGIN'
+		];
+
+		wp_set_current_user( $admin_id );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['users']['edges'] );
+		$this->assertEquals( $user_one_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		// Test search by user_email
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => 'EMAIL'
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['users']['edges'] );
+
+		$this->assertEquals( $user_two_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		// Test search by user_url
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => 'URL'
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 1, $actual['data']['users']['edges'] );
+
+		$this->assertEquals( $user_three_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+
+		// Test search by all columns
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => [ 'LOGIN', 'EMAIL', 'URL' ]
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 3, $actual['data']['users']['edges'] );
+
+		$this->assertEquals( $user_one_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+		$this->assertEquals( $user_two_id, $actual['data']['users']['edges'][1]['node']['databaseId'] );
+		$this->assertEquals( $user_three_id, $actual['data']['users']['edges'][2]['node']['databaseId'] );
+
+		// Test search by two columns
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => [ 'LOGIN', 'EMAIL' ]
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['users']['edges'] );
+
+		$this->assertEquals( $user_one_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+		$this->assertEquals( $user_two_id, $actual['data']['users']['edges'][1]['node']['databaseId'] );
+
+		// And a different two columns
+		$variables = [
+			'search'         => 'keyword',
+			'searchColumns'  => [ 'NICENAME', 'URL' ]
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['users']['edges'] );
+
+		$this->assertEquals( $user_one_id, $actual['data']['users']['edges'][0]['node']['databaseId'] );
+		$this->assertEquals( $user_three_id, $actual['data']['users']['edges'][1]['node']['databaseId'] );
+
+		// Test bad keyword returns no results
+		$variables = [
+			'search'         => 'badkeyword',
+			'searchColumns'  => [ 'LOGIN', 'EMAIL', 'URL' ]
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEmpty( $actual['data']['users']['edges'] );
+
+		// Cleanup.
+		wp_delete_user( $admin_id );
+		wp_delete_user( $user_one_id );
+		wp_delete_user( $user_two_id );
+		wp_delete_user( $user_three_id );
+	}
 }
