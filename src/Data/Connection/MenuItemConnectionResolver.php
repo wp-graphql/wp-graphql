@@ -44,24 +44,21 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 			$query_args['meta_value'] = $this->args['where']['parentId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
-		// Get unique list of locations as the default limitation of
-		// locations to allow public queries for.
-		// Public queries should only be allowed to query for
-		// Menu Items assigned to a Menu Location
+		// Get unique list of location term IDs as the default limitation of locations to allow public queries for.
+		// Public queries should only be allowed to query for Menu Items assigned to a Menu Location.
 		$locations = is_array( $menu_locations ) && ! empty( $menu_locations ) ? array_unique( array_values( $menu_locations ) ) : [];
 
 		// If the location argument is set, set the argument to the input argument
-		if ( isset( $this->args['where']['location'], $menu_locations[ $this->args['where']['location'] ] ) ) {
-			$locations = [ $menu_locations[ $this->args['where']['location'] ] ];
+		if ( ! empty( $this->args['where']['location'] ) ) {
+			$locations = isset( $menu_locations[ $this->args['where']['location'] ] ) ? [ $menu_locations[ $this->args['where']['location'] ] ] : []; // We use an empty array to prevent fetching all media items if the location has no items assigned.
 
-			// if the $locations are NOT set and the user has proper capabilities, let the user query
-			// all menu items connected to any menu
 		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			// If the $locations are NOT set, let a user with proper capability query all menu items.
 			$locations = null;
 		}
 
 		// Only query for menu items in assigned locations.
-		if ( ! empty( $locations ) ) {
+		if ( isset( $locations ) ) {
 
 			// unset the location arg
 			// we don't need this passed as a taxonomy parameter to wp_query
