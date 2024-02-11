@@ -429,7 +429,9 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$menu_location = 'my-menu-items-location';
 		register_nav_menu( $menu_location, 'My MenuItems' );
 
+		// // These should be filtered out.
 		$ignored_location = 'ignored-menu-items-location';
+		$ignored = $this->create_menu_items( 'ignored-menu-for-test', $ignored_location, 3 );
 		register_nav_menu( $ignored_location, 'Ignored MenuItems' );
 
 		WPGraphQL::clear_schema();
@@ -449,9 +451,6 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Test with menu assigned.
 		$created = $this->create_menu_items( 'menu-for-location-test', $menu_location, 1 );
-
-		// // These should be filtered out.
-		$ignored = $this->create_menu_items( 'ignored-menu-for-test', $ignored_location, 3 );
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
