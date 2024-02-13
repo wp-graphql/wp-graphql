@@ -14,7 +14,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use WPGraphQL;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
 
@@ -35,13 +34,6 @@ class QueryAnalyzer {
 	 * @var \GraphQL\Type\Schema
 	 */
 	protected $schema;
-
-	/**
-	 * Indicates whether any nodes have been resolved.
-	 *
-	 * @var bool
-	 */
-	private static $nodes_resolved = false;
 
 	/**
 	 * Types that are referenced in the query
@@ -120,7 +112,7 @@ class QueryAnalyzer {
 	 * @uses `graphql_query_analyzer_enabled` filter.
 	 */
 	public static function is_enabled(): bool {
-		$is_debug_enabled = WPGraphQL::debug();
+		$is_debug_enabled = \WPGraphQL::debug();
 
 		// The query analyzer is enabled if WPGraphQL Debugging is enabled
 		$query_analyzer_enabled = $is_debug_enabled;
@@ -166,7 +158,7 @@ class QueryAnalyzer {
 	public function is_enabled_for_query(): bool {
 		if ( ! isset( $this->is_enabled_for_query ) ) {
 			$is_enabled = self::is_enabled();
-		
+
 			/**
 			 * Filters whether to analyze queries or for a specific GraphQL request.
 			 *
@@ -174,7 +166,7 @@ class QueryAnalyzer {
 			 * @param \WPGraphQL\Request $request               The GraphQL request being executed
 			 */
 			$should_analyze_queries = apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
-			
+
 			$this->is_enabled_for_query = true === $should_analyze_queries;
 		}
 
@@ -657,7 +649,6 @@ class QueryAnalyzer {
 	 */
 	public function track_nodes( $model ) {
 		if ( isset( $model->id ) && in_array( get_class( $model ), $this->get_query_models(), true ) ) {
-			self::$nodes_resolved = true;
 			// Is this model type part of the requested/returned data in the asked for query?
 
 			/**
@@ -679,30 +670,6 @@ class QueryAnalyzer {
 		}
 
 		return $model;
-	}
-
-		/**
-		 * Checks if any nodes have been resolved.
-		 *
-		 * This method is used to determine whether any nodes (or models)
-		 * were successfully resolved during the GraphQL query processing.
-		 * It returns the current state of the `nodes_resolved` flag.
-		 *
-		 * @return bool True if any nodes have been resolved, false otherwise.
-		 */
-	public static function areNodesResolved() {
-		return self::$nodes_resolved;
-	}
-
-	/**
-	 * Resets the nodes resolved status.
-	 *
-	 * This method is called at the beginning of each GraphQL request
-	 * to reset the `nodes_resolved` flag. Ensuring that each request
-	 * starts with a clean state for tracking whether nodes have been resolved.
-	 */
-	public static function resetNodesResolved() {
-		self::$nodes_resolved = false;
 	}
 
 	/**
@@ -827,7 +794,11 @@ class QueryAnalyzer {
 			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
 		}
 
-		return $headers;
+		/**
+		 * @param array<string,mixed> $headers The array of headers being returned
+		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
+		 */
+		return apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
 	}
 
 	/**
