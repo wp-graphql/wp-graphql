@@ -70,6 +70,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					databaseId
 				}
 				uri
+				isPostsPage
+				isFrontPage
 			}
 		}
 		';
@@ -1896,6 +1898,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isPostsPage'] );
 
 		delete_option( 'page_for_posts' );
 
