@@ -182,16 +182,7 @@ class PostType extends Model {
 				},
 				// If the homepage settings are to set to
 				'isPostsPage'         => function () {
-					if (
-						'post' === $this->name &&
-						(
-							'posts' === get_option( 'show_on_front', 'posts' ) ||
-							empty( (int) get_option( 'page_for_posts', 0 ) ) )
-					) {
-						return true;
-					}
-
-					return false;
+					return true;
 				},
 				'isFrontPage'         => function () {
 					if (
