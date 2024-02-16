@@ -182,7 +182,8 @@ class PostType extends Model {
 				},
 				// If the homepage settings are to set to
 				'isPostsPage'         => function () {
-					return true;
+				    // the "post" ContentType is always represented as isPostsPage
+					return 'post' === $this->name;
 				},
 				'isFrontPage'         => function () {
 					if (
