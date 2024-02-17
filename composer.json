@@ -101,11 +101,5 @@
 			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
 			"rm -rf plugin-build/wp-graphql/"
 		]
-	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "/Users/jason.bahl/Sites/libs/wp-graphql-testcase"
-		}
-	]
+	}
 }

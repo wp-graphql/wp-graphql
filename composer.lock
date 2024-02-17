@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8875038e24abf6ac2c1274d1f9f3f2ef",
+    "content-hash": "f87169f4882e6327cbb361da80d5f007",
     "packages": [
         {
             "name": "appsero/client",
@@ -10360,24 +10360,25 @@
         {
             "name": "wp-graphql/wp-graphql-testcase",
             "version": "dev-develop",
-            "dist": {
-                "type": "path",
-                "url": "/Users/jason.bahl/Sites/libs/wp-graphql-testcase",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-graphql/wp-graphql-testcase.git",
                 "reference": "8ee80b562abcbaadc3370ac3a630c554ecc2f8ff"
             },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/8ee80b562abcbaadc3370ac3a630c554ecc2f8ff",
+                "reference": "8ee80b562abcbaadc3370ac3a630c554ecc2f8ff",
+                "shasum": ""
+            },
             "require": {
-                "codeception/module-asserts": "^3.0",
-                "codeception/module-rest": "^3.3",
-                "codeception/util-universalframework": "^1.0",
-                "php": "^7.1 || ^8.0 || ^8.1"
+                "php": "^7.1 || ^8.0"
             },
             "require-dev": {
                 "automattic/vipwpcs": "^2.3",
                 "composer/installers": "^1.9",
                 "johnpbloch/wordpress": "^5.4",
-                "lucatume/wp-browser": "^4.0",
                 "squizlabs/php_codesniffer": "^3.5",
-                "vlucas/phpdotenv": "5.*",
                 "wp-coding-standards/wpcs": "^2.3",
                 "wp-graphql/wp-graphql": "^1.1.8"
             },
@@ -10388,6 +10389,7 @@
                 "lucatume/wp-browser": "Needed for \\Tests\\WPGraphQL\\TestCase\\WPGraphQLTestcase to work.",
                 "wp-phpunit/wp-phpunit": "Needed for \\Tests\\WPGraphQL\\TestCase\\WPGraphQLUnitTestcase to work."
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "wordpress-install-dir": "local/public",
@@ -10405,23 +10407,7 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "cli": [
-                    "docker-compose run --rm --workdir=/var/www/html/wp-content/plugins/wp-graphql-testcase --user $(id -u) wordpress wait_for_it $TEST_DB -s -t 300 --"
-                ],
-                "codeception": [
-                    "codecept run wpunit --"
-                ],
-                "phpunit": [
-                    "phpunit --"
-                ],
-                "run-codeception": [
-                    "env TEST_DB=mysql:3306 composer cli vendor/bin/codecept run wpunit"
-                ],
-                "run-phpunit": [
-                    "env TEST_DB=mysql_phpunit:3306 composer cli vendor/bin/phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -10432,9 +10418,11 @@
                 }
             ],
             "description": "Codeception module for WPGraphQL API testing",
-            "transport-options": {
-                "relative": false
-            }
+            "support": {
+                "issues": "https://github.com/wp-graphql/wp-graphql-testcase/issues",
+                "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/develop"
+            },
+            "time": "2023-09-28T22:40:32+00:00"
         }
     ],
     "aliases": [
@@ -10459,5 +10447,5 @@
     "platform-overrides": {
         "php": "8.1.24"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
