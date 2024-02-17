@@ -9,13 +9,13 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->editor = $this->factory()->user->create(
+		$this->editor = self::factory()->user->create(
 			[
 				'role' => 'editor',
 			]
@@ -477,7 +477,7 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$expected = 'my custom field value';
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',

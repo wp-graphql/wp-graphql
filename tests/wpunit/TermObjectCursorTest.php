@@ -22,7 +22,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$alphabet = range( 'a', 'z' );
 		$term_ids = [];
 		foreach ( $alphabet as $letter ) {
-			$term_ids[] = $this->factory()->term->create(
+			$term_ids[] = self::factory()->term->create(
 				[
 					'name'     => ucwords( "Letter {$letter}" ),
 					'taxonomy' => 'letter',

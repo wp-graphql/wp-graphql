@@ -17,12 +17,12 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
-		$this->subscriber       = $this->factory()->user->create(
+		$this->subscriber       = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -64,7 +64,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		/**
 		 * Create the page
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
 		/**
 		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to
@@ -523,7 +523,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 */
 	public function testPrivatePostsNotReturnedToPublicUserInConnection() {
 
-		$public_post_id = $this->factory()->post->create(
+		$public_post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'Post',
 				'post_status' => 'publish',
@@ -531,7 +531,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$private_post_id = $this->factory()->post->create(
+		$private_post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'Post',
 				'post_status' => 'publish',
@@ -646,7 +646,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 */
 	public function testPostInArgumentWorksWithCursors() {
 
-		$post_1 = $this->factory()->post->create(
+		$post_1 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -654,7 +654,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_2 = $this->factory()->post->create(
+		$post_2 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -662,7 +662,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_3 = $this->factory()->post->create(
+		$post_3 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -670,7 +670,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_4 = $this->factory()->post->create(
+		$post_4 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -777,7 +777,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 */
 	public function testCustomPostConnectionWithSetIdsWorksWithCursors() {
 
-		$post_1 = $this->factory()->post->create(
+		$post_1 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -785,7 +785,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_2 = $this->factory()->post->create(
+		$post_2 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -793,7 +793,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_3 = $this->factory()->post->create(
+		$post_3 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -801,7 +801,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$post_4 = $this->factory()->post->create(
+		$post_4 = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -960,7 +960,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		 *
 		 * @see: https://github.com/wp-graphql/wp-graphql/issues/1338
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'     => 'post',
 				'post_status'   => 'publish',
@@ -1000,7 +1000,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$title   = 'Test Title for QueryPasswordProtectedPost' . uniqid();
 		$content = 'Test Content for QueryPasswordProtectedPost' . uniqid();
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'     => 'post',
 				'post_status'   => 'publish',
@@ -1051,7 +1051,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testIsStickyFieldOnPost() {
 
-		$sticky_post_id = $this->factory()->post->create(
+		$sticky_post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -1061,7 +1061,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$nonsticky_post_id = $this->factory()->post->create(
+		$nonsticky_post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -1191,26 +1191,26 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	public function testAuthorWhereArgs() {
-		$author_one_id = $this->factory()->user->create(
+		$author_one_id = self::factory()->user->create(
 			[
 				'role'          => 'author',
 				'user_nicename' => 'author-one',
 			]
 		);
-		$author_two_id = $this->factory()->user->create(
+		$author_two_id = self::factory()->user->create(
 			[
 				'role'          => 'author',
 				'user_nicename' => 'author-two',
 			]
 		);
 
-		$post_one_id = $this->factory()->post->create(
+		$post_one_id = self::factory()->post->create(
 			[
 				'post_author' => $author_one_id,
 				'post_status' => 'publish',
 			]
 		);
-		$post_two_id = $this->factory()->post->create(
+		$post_two_id = self::factory()->post->create(
 			[
 				'post_author' => $author_two_id,
 				'post_status' => 'publish',
@@ -1273,13 +1273,13 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	public function testCategoryWhereArgs() {
-		$term_one_id = $this->factory()->term->create(
+		$term_one_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'term-one',
 			]
 		);
-		$term_two_id = $this->factory()->term->create(
+		$term_two_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'term-two',
@@ -1345,7 +1345,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	}
 
 	public function testContentTypesWhereArgs() {
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -1395,7 +1395,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$parent_one_id = $this->created_post_ids[1];
 		$parent_two_id = $this->created_post_ids[2];
 
-		$child_one_id = $this->factory()->post->create(
+		$child_one_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -1406,7 +1406,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$child_two_id = $this->factory()->post->create(
+		$child_two_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -1567,12 +1567,12 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	public function testTagWhereArgs() {
 		$query = $this->getQuery();
 
-		$tag_one_id = $this->factory()->tag->create(
+		$tag_one_id = self::factory()->tag->create(
 			[
 				'name' => 'test',
 			]
 		);
-		$tag_two_id = $this->factory()->tag->create(
+		$tag_two_id = self::factory()->tag->create(
 			[
 				'name' => 'test2',
 			]
@@ -1684,7 +1684,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testQueryForAncestorsIsInCorrectOrder() {
 
-		$grandchild = $this->factory()->post->create(
+		$grandchild = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -1694,7 +1694,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$parent = $this->factory()->post->create(
+		$parent = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -1704,7 +1704,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-		$child = $this->factory()->post->create(
+		$child = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',

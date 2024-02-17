@@ -8,7 +8,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -41,7 +41,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->factory()->post->create( $args );
+		$page_id = self::factory()->post->create( $args );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -108,7 +108,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->factory()->post->create( $args );
+		$page_id = self::factory()->post->create( $args );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -161,7 +161,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $this->admin,
 		];
 
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
@@ -201,7 +201,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $this->admin,
 		];
 
-		$attachment_id = $this->factory()->post->create( $args );
+		$attachment_id = self::factory()->post->create( $args );
 		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$query         = "
 		query {
@@ -313,10 +313,10 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'user_email' => 'graphqliscool@wpgraphql.com',
 		];
 
-		$user_id = $this->factory()->user->create( $user_args );
+		$user_id = self::factory()->user->create( $user_args );
 
 		if ( true === $has_posts ) {
-			$this->factory()->post->create(
+			self::factory()->post->create(
 				[
 					'post_author' => $user_id,
 				]
@@ -406,9 +406,9 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'user_email' => 'graphqliscool@wpgraphql.com',
 		];
 
-		$user_id = $this->factory()->user->create( $user_args );
+		$user_id = self::factory()->user->create( $user_args );
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -422,7 +422,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_content' => 'GraphQL is really awesome, dude!',
 			'comment_post_ID' => $post_id,
 		];
-		$comment_id   = $this->factory()->comment->create( $comment_args );
+		$comment_id   = self::factory()->comment->create( $comment_args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'comment', $comment_id );
 		$query     = "
@@ -459,7 +459,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_content'      => 'JsOnB00l smellz',
 		];
 
-		$comment_id = $this->factory()->comment->create( $comment_args );
+		$comment_id = self::factory()->comment->create( $comment_args );
 		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id );
 
 		$query = "

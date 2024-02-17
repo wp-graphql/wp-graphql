@@ -13,7 +13,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function testReplaceString() {
-		$pageId = $this->factory()->post->create(
+		$pageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
@@ -64,7 +64,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	 * Null should be like any other value
 	 */
 	public function testPresolveToNull() {
-		$pageId = $this->factory()->post->create(
+		$pageId = self::factory()->post->create(
 			[
 				'post_status'  => 'publish',
 				'post_type'    => 'page',
@@ -116,7 +116,7 @@ class PreresolveTest extends \Codeception\TestCase\WPTestCase {
 	 * False should be like any other value
 	 */
 	public function testPreresolveToFalse() {
-		$pageId = $this->factory()->post->create(
+		$pageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',

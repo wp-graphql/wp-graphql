@@ -19,12 +19,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
-		$this->contributor      = $this->factory()->user->create(
+		$this->contributor      = self::factory()->user->create(
 			[
 				'role' => 'contributor',
 			]
@@ -124,7 +124,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create the page
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
 		/**
 		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to
@@ -173,7 +173,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * Create a featured image and attach it to the post
 		 */
 		$filename          = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$featured_image_id = $this->factory()->attachment->create_upload_object( $filename );
+		$featured_image_id = self::factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $post_id, '_thumbnail_id', $featured_image_id );
 
 		/**
@@ -464,7 +464,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		// Create a comment and assign it to post.
-		$comment_id = $this->factory()->comment->create(
+		$comment_id = self::factory()->comment->create(
 			[
 				'comment_post_ID' => $post_id,
 			]
@@ -603,13 +603,13 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testPageWithChildren() {
 
-		$parent_id = $this->factory()->post->create(
+		$parent_id = self::factory()->post->create(
 			[
 				'post_type' => 'page',
 			]
 		);
 
-		$child_id = $this->factory()->post->create(
+		$child_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_parent' => $parent_id,
@@ -676,7 +676,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		// Create a comment and assign it to post.
-		$tag_id = $this->factory()->tag->create(
+		$tag_id = self::factory()->tag->create(
 			[
 				'name' => 'Test Tag',
 			]
@@ -760,7 +760,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		// Create a comment and assign it to post.
-		$category_id = $this->factory()->category->create(
+		$category_id = self::factory()->category->create(
 			[
 				'name' => 'A category',
 			]
@@ -1263,7 +1263,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create a post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->factory()->post->create();
+		$graphql_query_post_id = self::factory()->post->create();
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1322,14 +1322,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * completed.
 		 */
 		global $post;
-		$main_query_post_id = $this->factory()->post->create();
+		$main_query_post_id = self::factory()->post->create();
 		$this->go_to( get_permalink( $main_query_post_id ) );
 		setup_postdata( $post );
 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->factory()->post->create();
+		$graphql_query_post_id = self::factory()->post->create();
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -1373,14 +1373,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * completed.
 		 */
 		global $post;
-		$main_query_post_id = $this->factory()->post->create();
+		$main_query_post_id = self::factory()->post->create();
 		$this->go_to( get_permalink( $main_query_post_id ) );
 		setup_postdata( $post );
 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_post_id = $this->factory()->post->create(
+		$graphql_query_post_id = self::factory()->post->create(
 			[
 				'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
 			]
@@ -1425,14 +1425,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * completed.
 		 */
 		global $post;
-		$main_query_post_id = $this->factory()->post->create();
+		$main_query_post_id = self::factory()->post->create();
 		$this->go_to( get_permalink( $main_query_post_id ) );
 		setup_postdata( $post );
 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_page_id = $this->factory()->post->create(
+		$graphql_query_page_id = self::factory()->post->create(
 			[
 				'post_content' => '<p>Some content before the shortcode</p>[wpgql_test_shortcode]some test content[/wpgql_test_shortcode]<p>Some content after the shortcode</p>',
 				'post_type'    => 'page',
@@ -1488,14 +1488,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 * completed.
 		 */
 		global $post;
-		$main_query_post_id = $this->factory()->post->create();
+		$main_query_post_id = self::factory()->post->create();
 		$this->go_to( get_permalink( $main_query_post_id ) );
 		setup_postdata( $post );
 
 		/**
 		 * Create another post that we can query via GraphQL.
 		 */
-		$graphql_query_page_id = $this->factory()->post->create(
+		$graphql_query_page_id = self::factory()->post->create(
 			[
 				'post_content' => '<p>Some content before the shortcode</p>[graphql_tests_basic_post_list]<p>Some content after the shortcode</p>',
 				'post_type'    => 'page',
@@ -1542,7 +1542,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testPrivatePosts() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status'  => 'private',
 				'post_content' => 'Test private posts',
@@ -1601,7 +1601,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		}
 
 		$post_date = date( 'Y-m-d H:i:s', $post_date );
-		$post_id   = $this->factory()->post->create(
+		$post_id   = self::factory()->post->create(
 			[
 				'post_status'  => $status,
 				'post_author'  => $author,
@@ -1726,7 +1726,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		update_option( 'show_on_front', 'post' );
 		update_option( 'page_on_front', 0 );
 
-		$pageId = $this->factory()->post->create(
+		$pageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
@@ -1734,7 +1734,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 
-		$other_pageId = $this->factory()->post->create(
+		$other_pageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
@@ -1815,7 +1815,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Set up test
 		 */
-		$notPrivacyPageId = $this->factory()->post->create(
+		$notPrivacyPageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
@@ -1823,7 +1823,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 
-		$privacyPageId = $this->factory()->post->create(
+		$privacyPageId = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_type'   => 'page',
@@ -1882,7 +1882,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testQueryPostUsingIDType() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1975,7 +1975,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	 */
 	public function testQueryPageUsingIDType() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2050,7 +2050,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testQueryPostOfAnotherPostTypeReturnsNull() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -2058,7 +2058,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2108,7 +2108,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$slug = 'test-page-slug';
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2171,7 +2171,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$slug = 'test-page-slug';
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2217,7 +2217,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 
 		// Test page.
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2240,7 +2240,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['post'] );
 
 		// Test term.
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 			]
@@ -2299,7 +2299,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// the $encoded_slug will have a dash between words i.e. 'سلا-دنیا'
 		$encoded_slug = urldecode( sanitize_title( $raw_title ) );
 
-		$non_ascii_post = $this->factory()->post->create_and_get(
+		$non_ascii_post = self::factory()->post->create_and_get(
 			[
 				'post_title'  => $raw_title,
 				'post_status' => 'publish',
@@ -2357,7 +2357,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// the $encoded_slug will have a dash between words i.e. 'سلا-دنیا'
 		$encoded_slug = urldecode( sanitize_title( $raw_title ) );
 
-		$non_ascii_post = $this->factory()->post->create_and_get(
+		$non_ascii_post = self::factory()->post->create_and_get(
 			[
 				'post_title'  => $raw_title,
 				'post_status' => 'publish',

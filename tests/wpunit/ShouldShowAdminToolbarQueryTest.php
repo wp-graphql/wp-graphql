@@ -14,7 +14,7 @@ class ShouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
 
 	public function testViewerQuery() {
 
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]

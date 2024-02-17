@@ -33,7 +33,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$this->post_id = $this->factory()->post->create(
+		$this->post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'cpt_test_cpt',
 				'post_status' => 'publish',
@@ -41,7 +41,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -127,7 +127,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$database_id = $this->factory()->post->create(
+		$database_id = self::factory()->post->create(
 			[
 				'post_type'   => 'cpt_test_private_cpt',
 				'post_status' => 'publish',
@@ -202,7 +202,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$database_id = $this->factory()->post->create(
+		$database_id = self::factory()->post->create(
 			[
 				'post_type'   => 'cpt_test_private_cpt',
 				'post_status' => 'publish',
@@ -261,7 +261,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$database_id = $this->factory()->post->create(
+		$database_id = self::factory()->post->create(
 			[
 				'post_type'   => 'cpt_test_private_cpt',
 				'post_status' => 'publish',
@@ -347,7 +347,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'test_cpt_by_uri',
 				'post_status' => 'publish',
@@ -356,7 +356,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$child_post_id = $this->factory()->post->create(
+		$child_post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'test_cpt_by_uri',
 				'post_status' => 'publish',
@@ -438,7 +438,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'test_cpt_by_uri',
 				'post_status' => 'publish',
@@ -447,7 +447,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$child_post_id = $this->factory()->post->create(
+		$child_post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'test_cpt_by_uri',
 				'post_status' => 'publish',
@@ -513,7 +513,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'test_cpt_by_uri',
 				'post_status' => 'publish',
@@ -1183,7 +1183,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$cpt_one_id = $this->factory()->post->create(
+		$cpt_one_id = self::factory()->post->create(
 			[
 				'post_type'   => 'with_interface_kind',
 				'post_status' => 'publish',
@@ -1194,7 +1194,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$cpt_two_id = $this->factory()->post->create(
+		$cpt_two_id = self::factory()->post->create(
 			[
 				'post_type'   => 'with_interface_kind',
 				'post_status' => 'publish',
@@ -1286,7 +1286,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$cpt_one_id = $this->factory()->post->create(
+		$cpt_one_id = self::factory()->post->create(
 			[
 				'post_type'   => 'with_union_kind',
 				'post_status' => 'publish',
@@ -1297,7 +1297,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$cpt_two_id = $this->factory()->post->create(
+		$cpt_two_id = self::factory()->post->create(
 			[
 				'post_type'   => 'with_union_kind',
 				'post_status' => 'publish',
@@ -1512,7 +1512,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'graphql_fields',
 				'post_status' => 'publish',

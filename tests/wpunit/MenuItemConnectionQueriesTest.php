@@ -20,7 +20,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		register_nav_menu( $this->menu_location, 'My Menu' );
 		set_theme_mod( 'nav_menu_locations', [ $this->menu_location => 0 ] );
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role'       => 'administrator',
 				'user_email' => 'test@test.com',
@@ -47,7 +47,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Create some Post menu items.
 		for ( $x = 1; $x <= $count; $x++ ) {
-			$post_id    = $this->factory()->post->create(
+			$post_id    = self::factory()->post->create(
 				[
 					'post_status' => 'publish',
 				]
@@ -89,7 +89,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			$options = [
 				'menu-item-title'     => "Child menu item {$x}",
 				'menu-item-object'    => 'post',
-				'menu-item-object-id' => $this->factory()->post->create(),
+				'menu-item-object-id' => self::factory()->post->create(),
 				'menu-item-parent-id' => $created['menu_item_ids'][3],
 				'menu-item-status'    => 'publish',
 				'menu-item-type'      => 'post_type',

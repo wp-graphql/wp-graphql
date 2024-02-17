@@ -15,12 +15,12 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// before
 		parent::setUp();
 
-		$this->post_id = $this->factory()->post->create();
+		$this->post_id = self::factory()->post->create();
 
 		$this->current_time        = strtotime( '- 1 day' );
 		$this->current_date        = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt    = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin               = $this->factory()->user->create(
+		$this->admin               = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -40,7 +40,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -68,7 +68,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Create the page
 		 */
-		return $this->factory()->comment->create( $args );
+		return self::factory()->comment->create( $args );
 	}
 
 	/**
@@ -382,13 +382,13 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testAuthorWhereArgs() {
 		$query = $this->getQuery();
 
-		$author_one_id      = $this->factory()->user->create(
+		$author_one_id      = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'subscriber@wpgraphql.test',
 			]
 		);
-		$author_two_id      = $this->factory()->user->create(
+		$author_two_id      = self::factory()->user->create(
 			[
 				'role'       => 'author',
 				'user_email' => 'author@wpgraphql.test',
@@ -561,17 +561,17 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentWhereArgs() {
 		$query = $this->getQuery();
 
-		$author_one_id = $this->factory()->user->create( [ 'role' => 'author' ] );
-		$author_two_id = $this->factory()->user->create( [ 'role' => 'author' ] );
+		$author_one_id = self::factory()->user->create( [ 'role' => 'author' ] );
+		$author_two_id = self::factory()->user->create( [ 'role' => 'author' ] );
 
-		$post_one_id = $this->factory()->post->create(
+		$post_one_id = self::factory()->post->create(
 			[
 				'post_author' => $author_one_id,
 				'post_type'   => 'post',
 			]
 		);
 
-		$post_two_id = $this->factory()->post->create(
+		$post_two_id = self::factory()->post->create(
 			[
 				'post_author' => $author_two_id,
 				'post_type'   => 'page',
@@ -712,7 +712,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentStatusWhereArgs() {
 		$query = $this->getQuery();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status' => 'pending',
 			]
@@ -751,20 +751,20 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentParentWhereArgs() {
 		$query = $this->getQuery();
 
-		$parent_post_id = $this->factory()->post->create(
+		$parent_post_id = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 			]
 		);
 
-		$child_post_id_one = $this->factory()->post->create(
+		$child_post_id_one = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_parent' => $parent_post_id,
 			]
 		);
 
-		$child_post_id_two = $this->factory()->post->create(
+		$child_post_id_two = self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_parent' => $parent_post_id,
@@ -802,7 +802,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testIncludeUnapprovedWhereArgs() {
 		$query = $this->getQuery();
 
-		$author_id = $this->factory()->user->create(
+		$author_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_email' => 'subscriber@wpgraphql.test',
@@ -1003,7 +1003,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testUserIdWhereArgs() {
 		$query = $this->getQuery();
 
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]

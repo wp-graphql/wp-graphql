@@ -24,7 +24,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			]
 		);
 
-		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown(): void {
@@ -65,7 +65,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		wp_set_current_user( $this->admin );
 
 		// Create a user with no role
-		$user_with_no_role = $this->factory()->user->create( [ 'role' => false ] );
+		$user_with_no_role = self::factory()->user->create( [ 'role' => false ] );
 
 		// Set the test query
 		$query = '

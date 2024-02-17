@@ -24,25 +24,25 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->first_name = 'Test';
 		$this->last_name  = 'User';
 
-		$this->author = $this->factory()->user->create(
+		$this->author = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_author' => $this->author,
 			]
 		);
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -198,7 +198,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$username = 'duplicateUsername';
 
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'user_login' => $username,
 			]
@@ -220,7 +220,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$email = 'duplicateEmailAddress@test.com';
 
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'user_email' => $email,
 			]
@@ -269,7 +269,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			'role'       => $user_role,
 		];
 
-		$user_id = $this->factory()->user->create( $args );
+		$user_id = self::factory()->user->create( $args );
 		$guid    = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
 
 		$user_object = get_user_by( 'ID', $user_id );
@@ -371,7 +371,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$username = 'user_to_delete_without_capability';
 
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_login' => $username,
@@ -448,7 +448,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Test with databaseId
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_login' => $username,
@@ -482,7 +482,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( false, $user_obj_after_delete );
 
 		// Test with global Id
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_login' => $username,
@@ -533,14 +533,14 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		';
 
 		// Test with no Id
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_login' => $username,
 			]
 		);
 
-		$post = $this->factory()->post->create(
+		$post = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 			]
@@ -571,7 +571,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $this->admin, $post_obj_after_delete->post_author );
 
 		// Test with global Id
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role'       => 'subscriber',
 				'user_login' => $username,

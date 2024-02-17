@@ -57,7 +57,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Create the page
 		 */
-		return $this->factory()->user->create( $args );
+		return self::factory()->user->create( $args );
 	}
 
 
@@ -76,7 +76,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'post',
@@ -215,12 +215,12 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Create posts for users so they are only restricted instead of private
 		 */
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_author' => $user_1_id,
 			]
 		);
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_author' => $user_2_id,
 			]
@@ -258,31 +258,31 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Let's create a few admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$subscriber = $this->factory()->user->create(
+		$subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -333,31 +333,31 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$subscriber = $this->factory()->user->create(
+		$subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -663,13 +663,13 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$published_users   = [];
 		$unpublished_users = [];
 		foreach ( $alphabet as $letter ) {
-			$unpublished_users[] = $this->factory()->user->create(
+			$unpublished_users[] = self::factory()->user->create(
 				[
 					'user_login' => 'unpublished_' . $letter,
 					'user_email' => $letter . '_unpublishded@example.com',
 				]
 			);
-			$author_id           = $this->factory()->user->create(
+			$author_id           = self::factory()->user->create(
 				[
 					'user_login' => 'published_' . $letter,
 					'user_email' => $letter . '_published@example.com',
@@ -678,7 +678,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 			);
 
 			$published_users[] = $author_id;
-			$this->factory()->post->create(
+			self::factory()->post->create(
 				[
 					'post_status' => 'publish',
 					'post_title'  => $letter . '_Post for UserQueryWithComments',
@@ -813,7 +813,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	}
 
 	public function testWithHasPublishedPostsFilter() {
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -834,7 +834,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Test page.
 		 */
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'page',
@@ -875,7 +875,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		wp_set_current_user( 0 );
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'post',
@@ -903,7 +903,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Attachments
 		 */
-		$attachment_id = $this->factory()->attachment->create(
+		$attachment_id = self::factory()->attachment->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'attachment',

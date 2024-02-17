@@ -18,7 +18,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	public function createTermObject( $args = [] ) {
-		return $this->factory()->term->create( $args );
+		return self::factory()->term->create( $args );
 	}
 
 	public function testTermObjectConnectionQuery() {
@@ -260,7 +260,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		// Create a comment and assign it to term.
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
@@ -269,14 +269,14 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		codecept_debug( $post_id );
-		$page_id  = $this->factory()->post->create(
+		$page_id  = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
 				'post_status' => 'publish',
 			]
 		);
-		$media_id = $this->factory()->post->create(
+		$media_id = self::factory()->post->create(
 			[
 				'post_type'   => 'attachment',
 				'post_title'  => 'Post for TermQueryWithAssociatedPostObjects',
@@ -523,13 +523,13 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testQueryChildCategoryByUri() {
 
-		$parent_id = $this->factory()->category->create(
+		$parent_id = self::factory()->category->create(
 			[
 				'name' => 'parent',
 			]
 		);
 
-		$child_id = $this->factory()->category->create(
+		$child_id = self::factory()->category->create(
 			[
 				'name'   => 'child',
 				'parent' => $parent_id,
@@ -583,14 +583,14 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->clearSchema();
 
-		$parent_id = $this->factory()->term->create(
+		$parent_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'news',
 				'name'     => 'parent',
 			]
 		);
 
-		$child_id = $this->factory()->term->create(
+		$child_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'news',
 				'name'     => 'child',
@@ -598,7 +598,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'news',
 				'post_status' => 'publish',
@@ -665,7 +665,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 
 		// Test page.
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -688,7 +688,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['category'] );
 
 		// Test different term.
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -740,13 +740,13 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	public function testUnicodeSlugsAreDecoded() {
-		$term_id       = $this->factory()->term->create(
+		$term_id       = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'חדשות',
 			]
 		);
-		$child_term_id = $this->factory()->term->create(
+		$child_term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'parent'   => $term_id,

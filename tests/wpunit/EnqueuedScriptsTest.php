@@ -22,7 +22,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$this->admin_id = $this->factory()->user->create(
+		$this->admin_id = self::factory()->user->create(
 			[
 				'user_login' => uniqid(),
 				'user_email' => uniqid() . '@test.com',
@@ -30,7 +30,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->author_id = $this->factory()->user->create(
+		$this->author_id = self::factory()->user->create(
 			[
 				'user_login' => uniqid(),
 				'user_email' => uniqid() . '@test.com',
@@ -59,28 +59,28 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->category_id = $this->factory()->term->create(
+		$this->category_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => uniqid(),
 			]
 		);
 
-		$this->tag_id = $this->factory()->term->create(
+		$this->tag_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'post_tag',
 				'name'     => uniqid(),
 			]
 		);
 
-		$this->custom_tax_id = $this->factory()->term->create(
+		$this->custom_tax_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_script_tax',
 				'name'     => uniqid(),
 			]
 		);
 
-		$this->page_id = $this->factory()->post->create(
+		$this->page_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_status'  => 'publish',
@@ -90,7 +90,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->post_id = $this->factory()->post->create(
+		$this->post_id = self::factory()->post->create(
 			[
 				'post_type'     => 'post',
 				'post_status'   => 'publish',
@@ -103,9 +103,9 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$filename       = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$this->media_id = $this->factory()->attachment->create_upload_object( $filename, $this->post_id );
+		$this->media_id = self::factory()->attachment->create_upload_object( $filename, $this->post_id );
 
-		$this->custom_post_id = $this->factory()->post->create(
+		$this->custom_post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'test_script_cpt',
 				'post_status'  => 'publish',
@@ -460,7 +460,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( in_array( $src, $sources, true ) );
 
 		// Make sure the script is NOT connected to another page
-		$another_page_id = $this->factory()->post->create(
+		$another_page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',

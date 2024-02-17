@@ -515,7 +515,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'register_edge_cpt',
 				'post_title'  => 'Test Register Edge CPT',
@@ -591,7 +591,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'edge_fields_cpt',
 				'post_title'  => 'Test Register Edge CPT',
@@ -658,7 +658,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'connect_input_cpt',
 				'post_title'  => 'Test Register Connection Inputs CPT',
@@ -726,7 +726,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'connect_inputs_cpt',
 				'post_title'  => 'Test Register Connection Inputs CPT',
@@ -1411,7 +1411,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Since only the Post Type is removed, but the connection is still registered, we should expect the resolvers to still return an unresolved type.
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_title'  => 'Test deregister type',
 				'post_status' => 'publish',
@@ -1483,7 +1483,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'contentType', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
 
 		// Ensure query still works
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_title'  => 'Test deregister enum type',
 				'post_status' => 'publish',
@@ -1544,7 +1544,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'dateQuery', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
 
 		// Ensure query still works
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_title'  => 'Test deregister input type',
 				'post_status' => 'publish',
@@ -1605,7 +1605,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__type']['interfaces'], 'name' ) );
 
 		// Ensure query still works
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_title'  => 'Test deregister interface type',
 				'post_status' => 'publish',

@@ -6,7 +6,7 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// Skip until bugs in CommentObjectCursor class are resolved.
 		$this->markTestIncomplete();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -24,13 +24,13 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$comments = [];
 		for ( $i = 0; $i < 3; $i++ ) {
 			$letter      = $alphabet[ $i ];
-			$users[ $i ] = $this->factory()->user->create(
+			$users[ $i ] = self::factory()->user->create(
 				[
 					'user_email' => "test_{$letter}@test.com",
 				]
 			);
 			for ( $j = 1; $j <= 3; $j++ ) {
-				$comments[] = $this->factory()->comment->create(
+				$comments[] = self::factory()->comment->create(
 					[
 						'comment_post_ID'  => $post_id,
 						'user_id'          => $users[ $i ],

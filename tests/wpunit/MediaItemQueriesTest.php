@@ -14,12 +14,12 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
-		$this->subscriber       = $this->factory()->user->create(
+		$this->subscriber       = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -55,7 +55,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create the page
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
 		/**
 		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to
@@ -343,7 +343,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testMediaItemImageUrl() {
 
 		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment_id = self::factory()->attachment->create_upload_object( $filename );
 
 		$expected_filesize = filesize( $filename );
 
@@ -371,10 +371,10 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testQueryMediaItemsByMimeType() {
 		
 		$png_filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$png_attachment_id = $this->factory()->attachment->create_upload_object( $png_filename );
+		$png_attachment_id = self::factory()->attachment->create_upload_object( $png_filename );
 
 		$pdf_filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/media/test.pdf' );
-		$pdf_attachment_id = $this->factory()->attachment->create_upload_object( $pdf_filename );
+		$pdf_attachment_id = self::factory()->attachment->create_upload_object( $pdf_filename );
 
 		$query = '
 			query GET_MEDIA_ITEMS( $mimeType: MimeTypeEnum ) {
@@ -420,7 +420,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testQueryMediaItemBySourceUrl() {
 
 		$filename          = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$attachment_id     = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment_id     = self::factory()->attachment->create_upload_object( $filename );
 		$expected_filesize = filesize( $filename );
 
 		$default_image_meta = [
@@ -544,7 +544,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Upload a medium size attachment
 		 */
 		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-medium.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment_id = self::factory()->attachment->create_upload_object( $filename );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -597,7 +597,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 * Upload a medium size attachment
 		 */
 		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment_id = self::factory()->attachment->create_upload_object( $filename );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id

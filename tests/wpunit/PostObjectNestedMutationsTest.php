@@ -17,19 +17,19 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->author = $this->factory()->user->create(
+		$this->author = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -140,7 +140,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory()->term->create(
+		$new_term = self::factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'post_tag',
@@ -175,7 +175,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory()->term->create(
+		$new_term = self::factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'post_tag',
@@ -210,7 +210,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory()->term->create(
+		$new_term = self::factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'category',

@@ -42,7 +42,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$this->user = $this->factory()->user->create(
+		$this->user = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -79,7 +79,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Post URIs
 	 */
 	public function testPostByUri(): void {
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -238,8 +238,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_author' => $this->user,
 		];
 
-		$post_1_id = $this->factory()->post->create( $post_args );
-		$post_2_id = $this->factory()->post->create( $post_args );
+		$post_1_id = self::factory()->post->create( $post_args );
+		$post_2_id = self::factory()->post->create( $post_args );
 
 		$query = $this->getQuery();
 
@@ -278,7 +278,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Page URIs
 	 */
 	public function testPageByUri(): void {
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -385,7 +385,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testPageWithIdenticalSlugs(): void {
-		$parent_1_id = $this->factory()->post->create(
+		$parent_1_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -393,7 +393,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'post_author' => $this->user,
 			]
 		);
-		$parent_2_id = $this->factory()->post->create(
+		$parent_2_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -409,8 +409,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_author' => $this->user,
 		];
 
-		$child_1_id = $this->factory()->post->create( $child_page_args + [ 'post_parent' => $parent_1_id ] );
-		$child_2_id = $this->factory()->post->create( $child_page_args + [ 'post_parent' => $parent_2_id ] );
+		$child_1_id = self::factory()->post->create( $child_page_args + [ 'post_parent' => $parent_1_id ] );
+		$child_2_id = self::factory()->post->create( $child_page_args + [ 'post_parent' => $parent_2_id ] );
 
 		$query = '
 		query GET_NODE_BY_URI( $uri: String! ) {
@@ -459,7 +459,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testPageWithUpdatedUri(): void {
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -513,7 +513,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNull( $actual['data']['nodeByUri'], 'Original URI should not resolve to a node' );
 
 		// Test page moved to child.
-		$parent_id = $this->factory()->post->create(
+		$parent_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -560,7 +560,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Attachment URIs
 	 */
 	public function testAttachmentByUri() {
-		$attachment_id = $this->factory()->attachment->create_object(
+		$attachment_id = self::factory()->attachment->create_object(
 			[
 				'file'           => 'example.jpg',
 				'post_title'     => 'Example Image',
@@ -599,14 +599,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testAttachmentWithParent() {
-		$post_id       = $this->factory()->post->create(
+		$post_id       = self::factory()->post->create(
 			[
 				'post_title'  => 'Example Post',
 				'post_type'   => 'post',
 				'post_status' => 'publish',
 			]
 		);
-		$attachment_id = $this->factory()->attachment->create_object(
+		$attachment_id = self::factory()->attachment->create_object(
 			[
 				'file'           => 'example.jpg',
 				'post_title'     => 'Example Image',
@@ -647,7 +647,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test CPT Uris
 	 */
 	public function testCptByUri(): void {
-		$cpt_id = $this->factory()->post->create(
+		$cpt_id = self::factory()->post->create(
 			[
 				'post_type'   => 'by_uri_cpt',
 				'post_status' => 'publish',
@@ -689,9 +689,9 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_author' => $this->user,
 		];
 
-		$post_id = $this->factory()->post->create( $post_args + [ 'post_type' => 'post' ] );
-		$page_id = $this->factory()->post->create( $post_args + [ 'post_type' => 'page' ] );
-		$cpt_id  = $this->factory()->post->create( $post_args + [ 'post_type' => 'by_uri_cpt' ] );
+		$post_id = self::factory()->post->create( $post_args + [ 'post_type' => 'post' ] );
+		$page_id = self::factory()->post->create( $post_args + [ 'post_type' => 'page' ] );
+		$cpt_id  = self::factory()->post->create( $post_args + [ 'post_type' => 'by_uri_cpt' ] );
 
 		$query = $this->getQuery();
 
@@ -788,7 +788,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules( true );
 
-		$parent = $this->factory()->post->create(
+		$parent = self::factory()->post->create(
 			[
 				'post_type'    => 'test_hierarchical',
 				'post_title'   => 'Test for HierarchicalCptNodesByUri',
@@ -797,7 +797,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$child = $this->factory()->post->create(
+		$child = self::factory()->post->create(
 			[
 				'post_type'    => 'test_hierarchical',
 				'post_title'   => 'Test child for HierarchicalCptNodesByUri',
@@ -949,7 +949,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		flush_rewrite_rules( true );
 		$this->clearSchema();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'test_with_front',
 				'post_title'   => 'Test for testCptWithNoFront',
@@ -1012,7 +1012,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		add_rewrite_rule( 'custom_rewrite_rule/([^/]+)/?$', 'index.php?post_type=by_uri_cpt&p=$matches[1]', 'top' );
 		flush_rewrite_rules( true );
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'by_uri_cpt',
 				'post_title'   => 'Test for testCptWithCustomRewriteRule',
@@ -1053,7 +1053,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Category URIs
 	 */
 	public function testCategoryByUri() {
-		$category_id = $this->factory()->term->create(
+		$category_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'Test categoryByUri',
@@ -1142,7 +1142,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Tag URIs
 	 */
 	public function testTagByUri() {
-		$tag_id = $this->factory()->term->create(
+		$tag_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'post_tag',
 				'name'     => 'Test tagByUri',
@@ -1190,7 +1190,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test Post Format URIs
 	 */
 	public function testPostFormatByUri() {
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_title'  => 'Test postFormatByUri',
 				'post_type'   => 'post',
@@ -1259,7 +1259,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testCustomTaxTermByUri() {
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'by_uri_tax',
 				'name'     => 'Test customTaxTermByUri',
@@ -1305,35 +1305,35 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules( true );
 
-		$category_term_id = $this->factory()->term->create(
+		$category_term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'Test identicalSlugs',
 			]
 		);
 
-		$by_uri_term_id = $this->factory()->term->create(
+		$by_uri_term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'by_uri_tax',
 				'name'     => 'Test identicalSlugs',
 			]
 		);
 
-		$identical_slugs_term_1_id = $this->factory()->term->create(
+		$identical_slugs_term_1_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'identical_slugs_tax',
 				'name'     => 'Test identicalSlugs',
 			]
 		);
 
-		$_parent_id = $this->factory()->term->create(
+		$_parent_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'identical_slugs_tax',
 				'name'     => 'Test identicalSlugs Parent',
 			]
 		);
 
-		$identical_slugs_term_2_child_id = $this->factory()->term->create(
+		$identical_slugs_term_2_child_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'identical_slugs_tax',
 				'name'     => 'Test identicalSlugs',
@@ -1426,13 +1426,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		flush_rewrite_rules( true );
 
-		$parent_id = $this->factory()->term->create(
+		$parent_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_hierarchical',
 				'name'     => 'Test hierirchical parent',
 			]
 		);
-		$child_id  = $this->factory()->term->create(
+		$child_id  = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_hierarchical',
 				'name'     => 'Test hierirchical child',
@@ -1540,7 +1540,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 		flush_rewrite_rules();
 
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_tax_with_front',
 				'name'     => 'Test Tax With Front',
@@ -1573,7 +1573,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testAuthorByUri() {
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1733,7 +1733,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testHomePageByUri() {
 
 		$title   = 'Home Test' . uniqid();
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -1804,7 +1804,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testPageQueryWhenPageIsSetToHomePage() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2066,7 +2066,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testNodeByUriWithCustomPermalinkStructureAndFrontPageSet() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2114,14 +2114,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testQueryPostsPageByUriReturnsExpectedUriOnNode() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
 			]
 		);
 
-		$page_for_posts = $this->factory()->post->create(
+		$page_for_posts = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -2178,7 +2178,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$slug = 'test-slug';
 
-		$postId = $this->factory()->post->create(
+		$postId = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',

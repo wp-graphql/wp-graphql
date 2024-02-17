@@ -34,20 +34,20 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->clearSchema();
 
-		$this->subscriber      = $this->factory()->user->create(
+		$this->subscriber      = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
 		);
 		$this->subscriber_name = 'User ' . $this->subscriber;
 
-		$this->author = $this->factory()->user->create(
+		$this->author = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->editor = $this->factory()->user->create(
+		$this->editor = self::factory()->user->create(
 			[
 				'role' => 'editor',
 			]
@@ -55,7 +55,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin      = $this->factory()->user->create(
+		$this->admin      = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -77,7 +77,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->generalSettingsTimezone                = 'America/Denver';
 		$this->generalSettingsTitle                   = 'WPGraphQL Site Title';
 		$this->readingSettingsPostsPerPage            = 20;
-		$this->writingSettingsDefaultCategory         = $this->factory()->category->create();
+		$this->writingSettingsDefaultCategory         = self::factory()->category->create();
 		$this->writingSettingsDefaultPostFormat       = 'quote';
 		$this->writingSettingsUseSmilies              = false;
 

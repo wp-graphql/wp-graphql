@@ -7,7 +7,7 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		WPGraphQL::clear_schema();
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -31,13 +31,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testTaxonomyQueryForCategories( $logged_in ) {
 
-		$category_id = $this->factory()->category->create(
+		$category_id = self::factory()->category->create(
 			[
 				'name' => 'test',
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -183,13 +183,13 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testTaxonomyQueryForTags( $logged_in ) {
 
-		$tag_id = $this->factory()->tag->create(
+		$tag_id = self::factory()->tag->create(
 			[
 				'name' => 'test',
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -330,11 +330,11 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryCategoryConnections() {
-		$post_id       = $this->factory()->post->create();
-		$page_id       = $this->factory()->post->create( [ 'post_type' => 'page' ] );
-		$attachment_id = $this->factory()->post->create( [ 'post_type' => 'attachment' ] );
+		$post_id       = self::factory()->post->create();
+		$page_id       = self::factory()->post->create( [ 'post_type' => 'page' ] );
+		$attachment_id = self::factory()->post->create( [ 'post_type' => 'attachment' ] );
 
-		$category_id = $this->factory()->term->create( [ 'name' => 'Test' ] );
+		$category_id = self::factory()->term->create( [ 'name' => 'Test' ] );
 
 		wp_set_object_terms( $post_id, $category_id, 'category' );
 		wp_set_object_terms( $page_id, $category_id, 'category' );
@@ -390,9 +390,9 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryTagsConnections() {
-		$post_id = $this->factory()->post->create();
+		$post_id = self::factory()->post->create();
 
-		$post_tag_id = $this->factory()->term->create( [ 'name' => 'Test' ] );
+		$post_tag_id = self::factory()->term->create( [ 'name' => 'Test' ] );
 
 		wp_set_object_terms( $post_id, $post_tag_id, 'post_tag' );
 
@@ -447,9 +447,9 @@ class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 * @throws \Exception
 	 */
 	public function testTaxonomyQueryPostConnections() {
-		$post_id           = $this->factory()->post->create();
-		$unrelated_post_id = $this->factory()->post->create();
-		$term_id           = $this->factory()->term->create( [ 'name' => 'Test' ] );
+		$post_id           = self::factory()->post->create();
+		$unrelated_post_id = self::factory()->post->create();
+		$term_id           = self::factory()->term->create( [ 'name' => 'Test' ] );
 
 		wp_set_object_terms( $post_id, $term_id, 'post_tag' );
 

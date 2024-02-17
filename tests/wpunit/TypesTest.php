@@ -287,7 +287,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			3
 		);
 
-		$user_id = $this->factory()->user->create(
+		$user_id = self::factory()->user->create(
 			[
 				'user_login' => 'test' . uniqid(),
 				'user_email' => 'test' . uniqid() . '@example.com',

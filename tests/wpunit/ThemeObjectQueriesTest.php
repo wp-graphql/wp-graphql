@@ -25,7 +25,7 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'template', $this->active_theme );
 		update_option( 'stylesheet', $this->active_theme );
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]

@@ -42,7 +42,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testQueryCustomTaxomomy() {
 
-		$id = $this->factory()->term->create(
+		$id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_custom_tax',
 				'name'     => 'Honda',
@@ -76,7 +76,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testQueryCustomTaxomomyChildren() {
 
 		// Just create a post of the same cpt to expose issue #905
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_content' => 'Test post content',
 				'post_excerpt' => 'Test excerpt',
@@ -86,14 +86,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$parent_id = $this->factory()->term->create(
+		$parent_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_custom_tax',
 				'name'     => 'parent',
 			]
 		);
 
-		$child_id = $this->factory()->term->create(
+		$child_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'test_custom_tax',
 				'name'     => 'child',
@@ -142,7 +142,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'aircraft',
 				'name'     => 'Boeing 767',
@@ -775,7 +775,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$term_one_id = $this->factory()->term->create(
+		$term_one_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'with_interface_kind',
 				'name'     => 'Interface child 1',
@@ -783,7 +783,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
 
-		$term_two_id = $this->factory()->term->create(
+		$term_two_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'with_interface_kind',
 				'name'     => 'Interface child 2',
@@ -874,7 +874,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$term_one_id = $this->factory()->term->create(
+		$term_one_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'with_union_kind',
 				'name'     => 'Union child 1',
@@ -882,7 +882,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 		add_term_meta( $term_one_id, 'child_type', 'ChildTypeOne' );
 
-		$term_two_id = $this->factory()->term->create(
+		$term_two_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'with_union_kind',
 				'name'     => 'Union child 2',
@@ -1101,14 +1101,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'gql_fields',
 				'name'     => 'Test GraphQL Fields',
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',

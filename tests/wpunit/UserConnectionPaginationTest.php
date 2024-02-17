@@ -8,7 +8,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function setUp(): void {
 		parent::setUp();
 		$this->delete_users();
-		$this->admin    = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->admin    = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		$this->user_ids = $this->create_users( 5 );
 		WPGraphQL::clear_schema();
 	}
@@ -43,7 +43,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Create users
 		$created_users = [];
 		for ( $i = 1; $i <= $count; $i++ ) {
-			$created_users[] = $this->factory()->user->create(
+			$created_users[] = self::factory()->user->create(
 				[
 					'role' => 'editor',
 				]

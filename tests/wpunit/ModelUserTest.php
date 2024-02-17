@@ -100,7 +100,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		 * Loop through and create the users and update their user data.
 		 */
 		foreach ( $users as $user ) {
-			$this->{ $user['role'] } = $id = (int) $this->factory()->user->create(
+			$this->{ $user['role'] } = $id = (int) self::factory()->user->create(
 				[
 					'role' => $user['role'],
 				]
@@ -109,7 +109,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 			/**
 			 * Create a post published by the user
 			 */
-			$this->factory()->post->create(
+			self::factory()->post->create(
 				[
 					'post_title'  => 'Post by ' . $user['role'],
 					'post_status' => 'publish',

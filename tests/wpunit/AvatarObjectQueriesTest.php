@@ -7,7 +7,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role'       => 'admin',
 				'user_email' => 'test@test.com',
@@ -15,7 +15,7 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		// Create a published post for the author so it is public in the API.
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_author' => $this->admin,
 			]

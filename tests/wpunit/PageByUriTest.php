@@ -8,7 +8,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->user = $this->factory()->user->create(
+		$this->user = self::factory()->user->create(
 			[
 				'role'       => 'administrator',
 				'user_login' => 'queryPagebyUriTestUser',

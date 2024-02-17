@@ -86,19 +86,19 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testFilterConnectionQueryArgsForUserRoleQueriesDoesntReturnError() {
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_author' => $admin,

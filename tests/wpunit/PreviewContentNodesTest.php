@@ -8,7 +8,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -108,7 +108,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// a draft is created
 		// a revision is also created
 		$draft_title = uniqid( 'preview:', true );
-		$draft_id    = $this->factory()->post->create(
+		$draft_id    = self::factory()->post->create(
 			[
 				'post_type'   => $this->with_post_type,
 				'post_status' => 'draft',
@@ -119,7 +119,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$draft_post = get_post( $draft_id );
 
-		$revision_id = $this->factory()->post->create(
+		$revision_id = self::factory()->post->create(
 			[
 				'post_type'   => 'revision',
 				'post_status' => 'inherit',
@@ -349,7 +349,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// user clicks "preview"
 		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
-		$draft_id    = $this->factory()->post->create(
+		$draft_id    = self::factory()->post->create(
 			[
 				'post_type'   => $this->with_post_type,
 				'post_status' => 'draft',
@@ -359,7 +359,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		);
 
 		// since the post type supports revisions, a revision is created
-		$revision_id = $this->factory()->post->create(
+		$revision_id = self::factory()->post->create(
 			[
 				'post_type'   => 'revision',
 				'post_status' => 'inherit',
@@ -468,7 +468,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// user clicks "preview"
 		// the draft is created or updated
 		$draft_title = 'draft title test, yo';
-		$draft_id    = $this->factory()->post->create(
+		$draft_id    = self::factory()->post->create(
 			[
 				'post_type'   => $this->without_post_type,
 				'post_status' => 'draft',
@@ -575,7 +575,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		// we're starting with a published post
 		$title        = 'published title';
-		$published_id = $this->factory()->post->create(
+		$published_id = self::factory()->post->create(
 			[
 				'post_type'   => $this->with_post_type,
 				'post_status' => 'publish',
@@ -589,7 +589,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		// User clicks preview
 		// an autosave revision is created
-		$revision_id = $this->factory()->post->create(
+		$revision_id = self::factory()->post->create(
 			[
 				'post_type'   => 'revision',
 				'post_status' => 'inherit',
@@ -700,7 +700,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		// we're starting with a published post
 		$title        = 'published title';
-		$published_id = $this->factory()->post->create(
+		$published_id = self::factory()->post->create(
 			[
 				'post_type'   => $this->without_post_type,
 				'post_status' => 'publish',
@@ -715,7 +715,7 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// User clicks preview
 		// autosave revisions are always created for published posts
 		// regardless of post type support
-		$revision_id = $this->factory()->post->create(
+		$revision_id = self::factory()->post->create(
 			[
 				'post_type'   => 'revision',
 				'post_status' => 'inherit',

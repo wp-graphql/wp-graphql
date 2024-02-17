@@ -21,13 +21,13 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->description_update = 'Description Update';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -318,7 +318,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Test delete with databaseId
 		 */
-		$category_id      = $this->factory()->category->create();
+		$category_id      = self::factory()->category->create();
 		$deleted_category = $this->deleteCategoryMutation( $category_id );
 		$this->assertArrayNotHasKey( 'errors', $deleted_category );
 		$this->assertEquals( $category_id, $deleted_category['data']['deleteCategory']['category']['databaseId'] );
@@ -402,7 +402,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a term
 		 */
-		$term = $this->factory()->term->create(
+		$term = self::factory()->term->create(
 			[
 				'taxonomy' => 'post_tag',
 				'name'     => 'some random name',
@@ -539,7 +539,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertEquals( $deleted_tag['data']['deleteTag']['tag']['name'], $this->tag_name );
 
 		// Test delete with database_id
-		$tag_id      = $this->factory()->tag->create();
+		$tag_id      = self::factory()->tag->create();
 		$deleted_tag = $this->deleteTagMutation( $tag_id );
 		codecept_debug( $deleted_tag );
 
@@ -638,7 +638,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		wp_set_current_user( $this->admin );
 
-		$parent_term_id = $this->factory()->term->create(
+		$parent_term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'Parent Category',
@@ -704,7 +704,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		// Test changing parent ID.
 		$database_id        = $actual['data']['createCategory']['category']['databaseId'];
-		$new_parent_term_id = $this->factory()->term->create(
+		$new_parent_term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'Parent Category 2',

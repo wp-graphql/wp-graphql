@@ -11,7 +11,7 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -33,7 +33,7 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			}
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
