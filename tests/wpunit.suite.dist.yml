@@ -13,6 +13,8 @@ modules:
     WPDb:
       cleanup: false
     WPLoader:
+      backupGlobals: false
+      backupStaticAttributes: false
       multisite: '%MULTISITE%'
       plugins:
         - wp-graphql/wp-graphql.php
