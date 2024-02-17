@@ -106,7 +106,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		set_current_user( $admin );
+		wp_set_current_user( $admin );
 
 		$query = '
 		{
