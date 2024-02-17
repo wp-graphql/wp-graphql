@@ -60,6 +60,7 @@ modules:
     WPLoader:
       backupGlobals: true
       backupStaticAttributes: true
+      WP_HTTP_BLOCK_EXTERNAL: false
       wpRootFolder: '%WP_ROOT_FOLDER%'
       dbName: '%DB_NAME%'
       dbHost: '%DB_HOST%'

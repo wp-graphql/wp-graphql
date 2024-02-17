@@ -15,6 +15,7 @@ modules:
     WPLoader:
       backupGlobals: false
       backupStaticAttributes: false
+      WP_HTTP_BLOCK_EXTERNAL: false
       multisite: '%MULTISITE%'
       plugins:
         - wp-graphql/wp-graphql.php

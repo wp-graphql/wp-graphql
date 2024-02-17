@@ -59,6 +59,7 @@ modules:
         WPLoader:
             backupGlobals: true
             backupStaticAttributes: true
+            WP_HTTP_BLOCK_EXTERNAL: false
             multisite: '%MULTISITE%'
             wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
             dbName: '%TEST_DB_NAME%'
