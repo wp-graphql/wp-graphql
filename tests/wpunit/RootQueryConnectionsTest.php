@@ -43,7 +43,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode(
@@ -73,7 +73,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode(
@@ -89,7 +89,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				/**
@@ -114,7 +114,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode(
@@ -141,7 +141,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode(
@@ -170,7 +170,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode(
@@ -197,7 +197,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$actual = graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				/**

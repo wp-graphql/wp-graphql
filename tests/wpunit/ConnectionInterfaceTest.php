@@ -38,7 +38,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -56,7 +56,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -74,7 +74,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'CommentToCommenterConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -92,7 +92,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentNodeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -110,7 +110,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentNodeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -128,7 +128,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentTypeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -146,7 +146,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'ContentTypeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -164,7 +164,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -182,7 +182,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -200,7 +200,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -218,7 +218,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -236,7 +236,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemLinkableConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -254,7 +254,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'MenuItemLinkableConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -272,7 +272,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TaxonomyConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -290,7 +290,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TaxonomyConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -308,7 +308,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TermNodeConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -326,7 +326,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'TermNodeConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -344,7 +344,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'UserConnection' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(
@@ -362,7 +362,7 @@ class ConnectionInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$results = $this->interfaceQuery( 'UserConnectionEdge' );
 
 		$this->assertArrayNotHasKey( 'errors', $results );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$results,
 			[
 				$this->expectedObject(

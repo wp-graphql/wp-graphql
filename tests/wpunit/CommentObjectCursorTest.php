@@ -173,7 +173,7 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				4
 			),
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the query for second batch is successful.
@@ -226,6 +226,6 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				3
 			),
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 }

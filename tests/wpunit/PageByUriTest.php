@@ -113,7 +113,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'page.__typename', 'Page' ),
@@ -134,7 +134,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'page', self::IS_NULL ),

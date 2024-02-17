@@ -986,7 +986,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		$variables = [
 			'first' => 5,
@@ -1046,7 +1046,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert query successful in reverse
@@ -1106,7 +1106,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		$variables = [
 			'last'   => 5,
@@ -1166,6 +1166,6 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 }

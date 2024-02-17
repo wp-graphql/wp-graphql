@@ -669,7 +669,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		$variables = [
 			'first' => 5,
@@ -736,7 +736,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		$variables = [
 			'last'  => 5,
@@ -802,7 +802,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		$variables = [
 			'last'   => 5,
@@ -869,7 +869,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 
 	public function testThresholdFieldsQueryVar() {
@@ -989,7 +989,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				4
 			),
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the query for second batch is successful.
@@ -1046,7 +1046,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				4
 			),
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the reverse query is successful.
@@ -1102,7 +1102,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the query for second batch is successful.
@@ -1159,7 +1159,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				4
 			),
 		];
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 
 	/**

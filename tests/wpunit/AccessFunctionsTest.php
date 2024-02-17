@@ -768,7 +768,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query    = '{ __type(name: "RootQuery") { fields { name } } }';
 		$response = $this->graphql( compact( 'query' ) );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->not()->expectedNode( '__type.fields', [ 'name' => 'user' ] ),
@@ -785,7 +785,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->not()->expectedNode( '__type.fields', [ 'name' => 'users' ] ),
@@ -812,7 +812,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query    = '{ __schema { types { name } } }';
 		$response = $this->graphql( compact( 'query' ) );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->not()->expectedNode( '__schema.types', [ 'name' => 'User' ] ),
@@ -876,7 +876,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Both fields registered using the Original Type name and the Replaced Type Name
 		// should be respected
 		// should now be fields of the Type "RenamedUser"
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->expectedNode(
@@ -940,7 +940,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
@@ -1000,7 +1000,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		foreach ( $actual as $response ) {
 			$this->assertTrue( is_array( $response ) );
-			$this->assertQuerySuccessful(
+			self::assertQuerySuccessful(
 				$response,
 				[
 					$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
@@ -2143,7 +2143,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'testMutationForInputField.testValue', 'test' ),

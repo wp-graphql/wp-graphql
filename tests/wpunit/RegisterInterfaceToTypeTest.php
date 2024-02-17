@@ -74,7 +74,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
@@ -154,7 +154,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterface' ] ),
@@ -173,7 +173,7 @@ class RegisterInterfaceToTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedNode( '__type.interfaces', [ 'name' => 'TestInterfaceTwo' ] ),

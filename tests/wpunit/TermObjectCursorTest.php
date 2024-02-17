@@ -150,7 +150,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the query for second batch is successful.
@@ -213,7 +213,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the reverse query is successful.
@@ -273,7 +273,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Assert that the query for second batch is successful.
@@ -336,6 +336,6 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 }

@@ -56,7 +56,7 @@ class PluginCompatibilityTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'post.databaseId', $post_id ),

@@ -138,7 +138,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'users.nodes', self::NOT_NULL ),
@@ -180,7 +180,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'posts.nodes', self::NOT_NULL ),

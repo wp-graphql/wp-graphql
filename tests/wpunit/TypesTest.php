@@ -64,7 +64,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug( $response );
 
 		$this->assertEmpty( $this->lodashGet( $response, 'errors' ) );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->expectedField( 'example.example', self::IS_NULL ),
@@ -102,7 +102,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->expectedField( 'posts.nodes', self::NOT_NULL ),
@@ -327,7 +327,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 	}
 
 	/**
@@ -380,7 +380,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$response,
 			[
 				$this->expectedField( 'customTestConnection.nodes', self::IS_NULL ),
