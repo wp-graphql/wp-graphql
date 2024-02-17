@@ -2241,7 +2241,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'fromType'              => 'RootQuery',
 				'toType'                => 'Post',
 				'fromFieldName'         => 'test_connection_with_underscores',
-				'connectionTypeName'    => 'test_Connection_With_Underscores',
+				'connectionTypeName'    => 'test_connection_with_underscores',
 				'allowFieldUnderscores' => true,
 			]
 		);
