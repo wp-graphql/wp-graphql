@@ -455,7 +455,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testCommentQueryHiddenFields( $user, $should_display ) {
 
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory()->post->create();
 
 		$admin_args         = [
 			'comment_post_ID'      => $post_id,
@@ -535,7 +535,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testUnapprovedCommentsNotQueryableWithoutAuth( $user, $should_display ) {
 
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory()->post->create();
 
 		$admin_args         = [
 			'comment_post_ID'      => $post_id,

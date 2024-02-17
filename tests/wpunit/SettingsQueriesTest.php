@@ -5,13 +5,13 @@ class WP_GraphQL_Test_Settings_Queries extends \Tests\WPGraphQL\TestCase\WPGraph
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory->user->create(
+		$this->admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->editor = $this->factory->user->create(
+		$this->editor = $this->factory()->user->create(
 			[
 				'role' => 'editor',
 			]

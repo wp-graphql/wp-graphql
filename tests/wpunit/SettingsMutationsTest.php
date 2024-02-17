@@ -34,20 +34,20 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->clearSchema();
 
-		$this->subscriber      = $this->factory->user->create(
+		$this->subscriber      = $this->factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
 		);
 		$this->subscriber_name = 'User ' . $this->subscriber;
 
-		$this->author = $this->factory->user->create(
+		$this->author = $this->factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->editor = $this->factory->user->create(
+		$this->editor = $this->factory()->user->create(
 			[
 				'role' => 'editor',
 			]
@@ -55,7 +55,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin      = $this->factory->user->create(
+		$this->admin      = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]

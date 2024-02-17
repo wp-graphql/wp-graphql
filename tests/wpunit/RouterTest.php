@@ -158,7 +158,7 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	// **
 	// * Create a test a query
 	// */
-	// $this->factory->post->create( [
+	// $this->factory()->post->create( [
 	// 'post_title'  => 'test',
 	// 'post_status' => 'publish',
 	// ] );
@@ -209,7 +209,7 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	// **
 	// * Create a test a query
 	// */
-	// $this->factory->post->create( [
+	// $this->factory()->post->create( [
 	// 'post_title'  => 'test',
 	// 'post_status' => 'publish',
 	// ] );

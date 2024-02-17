@@ -1141,7 +1141,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		/**
 		 * Create a page to test against and set the post id in the mutation variables
 		 */
-		$post_to_delete                        = $this->factory->post->create( $args );
+		$post_to_delete                        = $this->factory()->post->create( $args );
 		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $post_to_delete );
 
 		/**

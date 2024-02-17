@@ -258,31 +258,31 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Let's create a few admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		$this->factory->user->create(
+		$this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$subscriber = $this->factory->user->create(
+		$subscriber = $this->factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -333,31 +333,31 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		/**
 		 * Let's create 2 admins and 1 subscriber so we can test our "where" arg is working
 		 */
-		$this->factory->user->create(
+		$this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$admin = $this->factory->user->create(
+		$admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$subscriber = $this->factory->user->create(
+		$subscriber = $this->factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]

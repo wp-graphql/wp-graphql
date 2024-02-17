@@ -24,7 +24,7 @@ class DataConfigTest extends \Codeception\TestCase\WPTestCase {
 
 		$posts = array_map(
 			function ( $offset ) use ( $timestamp, $offset_multiplier ) {
-				return $this->factory->post->create_and_get(
+				return $this->factory()->post->create_and_get(
 					[
 						'post_date' => date( 'Y-m-d H:i:s', $timestamp + ( $offset * $offset_multiplier ) ),
 					]

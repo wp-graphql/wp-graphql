@@ -313,7 +313,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$user    = get_user_by( 'id', $user_id );
 
 
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id ] );
+		$post_id = $this->factory()->post->create( [ 'post_author' => $user_id ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -491,7 +491,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory->post->create(
+		$post_id = $this->factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'attachment',

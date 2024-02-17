@@ -561,17 +561,17 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentWhereArgs() {
 		$query = $this->getQuery();
 
-		$author_one_id = $this->factory->user->create( [ 'role' => 'author' ] );
-		$author_two_id = $this->factory->user->create( [ 'role' => 'author' ] );
+		$author_one_id = $this->factory()->user->create( [ 'role' => 'author' ] );
+		$author_two_id = $this->factory()->user->create( [ 'role' => 'author' ] );
 
-		$post_one_id = $this->factory->post->create(
+		$post_one_id = $this->factory()->post->create(
 			[
 				'post_author' => $author_one_id,
 				'post_type'   => 'post',
 			]
 		);
 
-		$post_two_id = $this->factory->post->create(
+		$post_two_id = $this->factory()->post->create(
 			[
 				'post_author' => $author_two_id,
 				'post_type'   => 'page',
@@ -712,7 +712,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentStatusWhereArgs() {
 		$query = $this->getQuery();
 
-		$post_id = $this->factory->post->create(
+		$post_id = $this->factory()->post->create(
 			[
 				'post_status' => 'pending',
 			]
@@ -751,20 +751,20 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function testContentParentWhereArgs() {
 		$query = $this->getQuery();
 
-		$parent_post_id = $this->factory->post->create(
+		$parent_post_id = $this->factory()->post->create(
 			[
 				'post_status' => 'publish',
 			]
 		);
 
-		$child_post_id_one = $this->factory->post->create(
+		$child_post_id_one = $this->factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_parent' => $parent_post_id,
 			]
 		);
 
-		$child_post_id_two = $this->factory->post->create(
+		$child_post_id_two = $this->factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_parent' => $parent_post_id,

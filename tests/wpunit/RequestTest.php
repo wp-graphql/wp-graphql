@@ -50,7 +50,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	 * Create an example request and verify that the request works and calls actions.
 	 */
 	public function testRequestExecution() {
-		$this->factory->post->create();
+		$this->factory()->post->create();
 		$request = $this->create_example_request();
 
 		$this->assertEquals( 0, did_action( 'do_graphql_request' ) );
@@ -72,7 +72,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	 * Test that the request results can be filtered with graphql_request_results.
 	 */
 	public function testRequestResultsFilter() {
-		$this->factory->post->create();
+		$this->factory()->post->create();
 		$request = $this->create_example_request();
 
 		add_filter(
@@ -91,7 +91,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	 * When passing invalid request data, the response should include an error.
 	 */
 	public function testRequestError() {
-		$this->factory->post->create();
+		$this->factory()->post->create();
 
 		$request = new Request( [ 'query' => 'query {}' ] );
 		$results = $request->execute();
@@ -107,7 +107,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	public function testRequestPreservesGlobalPost() {
 		$GLOBALS['post'] = 'testing';
 
-		$this->factory->post->create();
+		$this->factory()->post->create();
 		$this->create_example_request()->execute();
 
 		$this->assertEquals( 'testing', $GLOBALS['post'] );
@@ -117,7 +117,7 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 	 * The request should provide a public method to get the parsed operation params.
 	 */
 	public function testRequestCanGetOperationParams() {
-		$this->factory->post->create();
+		$this->factory()->post->create();
 		$request          = $this->create_example_request();
 		$operation_params = $request->get_params();
 

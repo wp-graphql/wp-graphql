@@ -41,7 +41,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->factory->post->create( $args );
+		$page_id = $this->factory()->post->create( $args );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -108,7 +108,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 		/**
 		 * Create the page
 		 */
-		$page_id = $this->factory->post->create( $args );
+		$page_id = $this->factory()->post->create( $args );
 
 		/**
 		 * Create the global ID based on the post_type and the created $id
@@ -161,7 +161,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $this->admin,
 		];
 
-		$post_id = $this->factory->post->create( $args );
+		$post_id = $this->factory()->post->create( $args );
 
 		$global_id = \GraphQLRelay\Relay::toGlobalId( 'post', $post_id );
 
@@ -201,7 +201,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'post_author'  => $this->admin,
 		];
 
-		$attachment_id = $this->factory->post->create( $args );
+		$attachment_id = $this->factory()->post->create( $args );
 		$global_id     = \GraphQLRelay\Relay::toGlobalId( 'post', $attachment_id );
 		$query         = "
 		query {
@@ -313,7 +313,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'user_email' => 'graphqliscool@wpgraphql.com',
 		];
 
-		$user_id = $this->factory->user->create( $user_args );
+		$user_id = $this->factory()->user->create( $user_args );
 
 		if ( true === $has_posts ) {
 			$this->factory()->post->create(
@@ -406,7 +406,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'user_email' => 'graphqliscool@wpgraphql.com',
 		];
 
-		$user_id = $this->factory->user->create( $user_args );
+		$user_id = $this->factory()->user->create( $user_args );
 
 		$post_id = $this->factory()->post->create(
 			[
@@ -459,7 +459,7 @@ class NodesTest extends \Codeception\TestCase\WPTestCase {
 			'comment_content'      => 'JsOnB00l smellz',
 		];
 
-		$comment_id = $this->factory->comment->create( $comment_args );
+		$comment_id = $this->factory()->comment->create( $comment_args );
 		$global_id  = \GraphQLRelay\Relay::toGlobalId( 'comment_author', $comment_id );
 
 		$query = "

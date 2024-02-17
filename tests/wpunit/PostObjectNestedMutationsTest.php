@@ -140,7 +140,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create(
+		$new_term = $this->factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'post_tag',
@@ -175,7 +175,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create(
+		$new_term = $this->factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'post_tag',
@@ -210,7 +210,7 @@ class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $this->admin );
 
-		$new_term = $this->factory->term->create(
+		$new_term = $this->factory()->term->create(
 			[
 				'name'     => 'Test Term',
 				'taxonomy' => 'category',

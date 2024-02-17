@@ -100,7 +100,7 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 		 * Loop through and create the users and update their user data.
 		 */
 		foreach ( $users as $user ) {
-			$this->{ $user['role'] } = $id = (int) $this->factory->user->create(
+			$this->{ $user['role'] } = $id = (int) $this->factory()->user->create(
 				[
 					'role' => $user['role'],
 				]

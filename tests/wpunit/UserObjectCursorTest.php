@@ -75,7 +75,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create the page
 		 */
-		return $this->factory->user->create( $args );
+		return $this->factory()->user->create( $args );
 	}
 
 	/**

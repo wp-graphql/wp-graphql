@@ -9,13 +9,13 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// before
 		parent::setUp();
 
-		$this->admin = $this->factory->user->create(
+		$this->admin = $this->factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->editor = $this->factory->user->create(
+		$this->editor = $this->factory()->user->create(
 			[
 				'role' => 'editor',
 			]

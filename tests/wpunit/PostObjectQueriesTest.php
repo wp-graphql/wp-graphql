@@ -603,13 +603,13 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public function testPageWithChildren() {
 
-		$parent_id = $this->factory->post->create(
+		$parent_id = $this->factory()->post->create(
 			[
 				'post_type' => 'page',
 			]
 		);
 
-		$child_id = $this->factory->post->create(
+		$child_id = $this->factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_parent' => $parent_id,

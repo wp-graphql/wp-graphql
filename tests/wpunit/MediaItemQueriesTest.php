@@ -55,7 +55,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create the page
 		 */
-		$post_id = $this->factory->post->create( $args );
+		$post_id = $this->factory()->post->create( $args );
 
 		/**
 		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to

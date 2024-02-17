@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "afbb1d93f5fc27b9eb6f3cf0f393c695",
+    "content-hash": "8875038e24abf6ac2c1274d1f9f3f2ef",
     "packages": [
         {
             "name": "appsero/client",
@@ -10359,27 +10359,25 @@
         },
         {
             "name": "wp-graphql/wp-graphql-testcase",
-            "version": "v2.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wp-graphql/wp-graphql-testcase.git",
-                "reference": "d4c0bd7430efeca5a4982c1ed4d5a7935254abb7"
-            },
+            "version": "dev-develop",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/d4c0bd7430efeca5a4982c1ed4d5a7935254abb7",
-                "reference": "d4c0bd7430efeca5a4982c1ed4d5a7935254abb7",
-                "shasum": ""
+                "type": "path",
+                "url": "/Users/jason.bahl/Sites/libs/wp-graphql-testcase",
+                "reference": "8ee80b562abcbaadc3370ac3a630c554ecc2f8ff"
             },
             "require": {
-                "php": "^7.1 || ^8.0",
-                "phpunit/phpunit": "^7.5 || ^8.5.0 || ^9.5"
+                "codeception/module-asserts": "^3.0",
+                "codeception/module-rest": "^3.3",
+                "codeception/util-universalframework": "^1.0",
+                "php": "^7.1 || ^8.0 || ^8.1"
             },
             "require-dev": {
-                "automattic/vipwpcs": "^2.2",
+                "automattic/vipwpcs": "^2.3",
                 "composer/installers": "^1.9",
                 "johnpbloch/wordpress": "^5.4",
-                "simpod/php-coveralls-mirror": "^3.0",
+                "lucatume/wp-browser": "^4.0",
+                "squizlabs/php_codesniffer": "^3.5",
+                "vlucas/phpdotenv": "5.*",
                 "wp-coding-standards/wpcs": "^2.3",
                 "wp-graphql/wp-graphql": "^1.1.8"
             },
@@ -10407,7 +10405,23 @@
                     "src/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "cli": [
+                    "docker-compose run --rm --workdir=/var/www/html/wp-content/plugins/wp-graphql-testcase --user $(id -u) wordpress wait_for_it $TEST_DB -s -t 300 --"
+                ],
+                "codeception": [
+                    "codecept run wpunit --"
+                ],
+                "phpunit": [
+                    "phpunit --"
+                ],
+                "run-codeception": [
+                    "env TEST_DB=mysql:3306 composer cli vendor/bin/codecept run wpunit"
+                ],
+                "run-phpunit": [
+                    "env TEST_DB=mysql_phpunit:3306 composer cli vendor/bin/phpunit"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -10418,11 +10432,9 @@
                 }
             ],
             "description": "Codeception module for WPGraphQL API testing",
-            "support": {
-                "issues": "https://github.com/wp-graphql/wp-graphql-testcase/issues",
-                "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v2.3.0"
-            },
-            "time": "2022-05-25T14:49:51+00:00"
+            "transport-options": {
+                "relative": false
+            }
         }
     ],
     "aliases": [
@@ -10435,7 +10447,8 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "phpcompatibility/php-compatibility": 20
+        "phpcompatibility/php-compatibility": 20,
+        "wp-graphql/wp-graphql-testcase": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
