@@ -386,7 +386,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testCreateMediaItemWithInvalidUrl() {
 		wp_set_current_user( $this->author );
-		$this->create_variables['input']['filePath'] = 'htt://vice.co.um/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$this->create_variables['input']['filePath'] = 'https://github.com/wp-graphql/wp-graphql/blob/develop/docs/images/application-data-graph.png?raw=true';
 		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
@@ -401,7 +401,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testCreateMediaItemWithNoFile() {
 		wp_set_current_user( $this->author );
-		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$this->create_variables['input']['filePath'] = 'https://github.com/wp-graphql/wp-graphql/blob/develop/docs/images/application-data-graph.png?raw=true';
 		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
@@ -447,6 +447,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		wp_set_current_user( $this->admin );
 		// Test with databaseId
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( [
+			'$actual' => $actual,
+		]);
 
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
 		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
