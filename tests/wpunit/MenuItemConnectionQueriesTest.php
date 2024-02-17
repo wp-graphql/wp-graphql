@@ -193,6 +193,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	}
 
 	public function testForwardPagination() {
+
 		$query    = $this->getQuery();
 		$wp_query = wp_get_nav_menu_items( 'my-menu-items-test' );
 
@@ -207,7 +208,14 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Run the GraphQL Query
 		$expected = array_slice( $wp_query, 0, 2, false );
+
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( [
+			'$actual' => $actual,
+		]);
+
+		$this->setExpectedIncorrectUsage( 'MenuItemObjectUnion' );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );

@@ -2,8 +2,16 @@
 
 class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	public $admin;
+
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->admin = self::factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 
 		global $wp_rewrite;
 		update_option( 'permalink_structure', '/%year%/%monthnum%/%day%/%postname%/' );
@@ -653,7 +661,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		unregister_taxonomy( 'news' );
 	}
 
-	
+
 	public function testQueryNonCategoryAsCategoryReturnsNull() {
 		$query = '
 		query CategoryByUri($uri: ID!) {

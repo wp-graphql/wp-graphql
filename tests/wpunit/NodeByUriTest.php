@@ -5,12 +5,16 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $post;
 	public $page;
 	public $user;
+	public $current_time;
+	public $current_date;
 
 	public function setUp(): void {
 		parent::setUp();
 		// Set category base to empty string to avoid issues with the test
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
+		$this->current_time     = strtotime( '- 1 day' );
+		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		create_initial_taxonomies();
 
 		register_post_type(

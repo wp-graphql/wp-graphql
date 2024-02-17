@@ -4,11 +4,17 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public $current_time;
 	public $current_date;
+	public $admin;
 
 	public function setUp(): void {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::setUp();
 
+		$this->admin = self::factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->delete_users();
@@ -946,7 +952,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 	}
 
-	
+
 	public function testQueryNonUserAsUserReturnsNull() {
 		$query = '
 		query userByUri($uri: ID!) {

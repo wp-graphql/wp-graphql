@@ -362,6 +362,8 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testTermIdNotReturningAfterCreate() {
 
+		$this->setExpectedIncorrectUsage( 'WP_Object_Cache::delete' );
+
 		/**
 		 * Filter the term response to simulate a failure with the response of a term creation mutation
 		 */

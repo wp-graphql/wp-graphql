@@ -7,6 +7,10 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	public function setUp(): void {
 		parent::setUp();
 
+		if ( !function_exists( 'populate_roles' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/schema.php' );
+		}
+
 		add_role(
 			'test_role',
 			__( 'Test role' ),
@@ -166,6 +170,10 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 	public function testForwardPagination() {
 		wp_set_current_user( $this->admin );
+		$wp_roles = wp_roles();
+		codecept_debug( [
+			'wp_roles' => $wp_roles,
+		]);
 		$query = $this->getQuery();
 
 		// The list of userRoles might change, so we'll reuse this to check late.
