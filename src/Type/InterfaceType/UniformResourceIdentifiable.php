@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Type\InterfaceType;
 
+use WPGraphQL\Model\Comment;
 use WPGraphQL\Model\Post;
 use WPGraphQL\Model\PostType;
 use WPGraphQL\Model\Term;
@@ -57,6 +58,13 @@ class UniformResourceIdentifiable {
 						'description' => __( 'Whether  the node represents the blog page.', 'wp-graphql' ),
 						'resolve'     => static function ( $node, $args, $context, $info ) {
 							return isset( $node->isPostsPage ) && (bool) $node->isPostsPage;
+            },
+          ],
+					'isComment'     => [
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => __( 'Whether the node is a Comment', 'wp-graphql' ),
+						'resolve'     => static function ( $node ) {
+							return $node instanceof Comment;
 						},
 					],
 				],
@@ -77,6 +85,9 @@ class UniformResourceIdentifiable {
 							break;
 						case $node instanceof PostType:
 							$type = $type_registry->get_type( 'ContentType' );
+							break;
+						case $node instanceof Comment:
+							$type = $type_registry->get_type( 'Comment' );
 							break;
 						default:
 							$type = null;
