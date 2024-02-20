@@ -46,6 +46,20 @@ class UniformResourceIdentifiable {
 							return $node instanceof Term;
 						},
 					],
+					'isFrontPage'   => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether the node represents the front page.', 'wp-graphql' ),
+						'resolve'     => static function ( $node, $args, $context, $info ) {
+							return isset( $node->isFrontPage ) && (bool) $node->isFrontPage;
+						},
+					],
+					'isPostsPage'   => [
+						'type'        => [ 'non_null' => 'Bool' ],
+						'description' => __( 'Whether  the node represents the blog page.', 'wp-graphql' ),
+						'resolve'     => static function ( $node, $args, $context, $info ) {
+							return isset( $node->isPostsPage ) && (bool) $node->isPostsPage;
+						},
+					],
 					'isComment'     => [
 						'type'        => [ 'non_null' => 'Boolean' ],
 						'description' => __( 'Whether the node is a Comment', 'wp-graphql' ),
