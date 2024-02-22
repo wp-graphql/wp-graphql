@@ -7,7 +7,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -56,7 +56,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testQueryContentNodesOfManyTypes() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -65,7 +65,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -152,7 +152,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testContentNodeFieldByDatabaseId() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -161,7 +161,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -217,7 +217,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * @throws \Exception
 	 */
 	public function testContentNodeFieldByUri() {
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -226,7 +226,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -263,7 +263,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testContentNodeFieldById() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -272,7 +272,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -309,7 +309,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testContentNodeFieldByQueryArgUri() {
 
-		$page_id = $this->factory()->post->create(
+		$page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -318,7 +318,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -385,7 +385,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			register_post_type( $post_type, $args );
 		}
 
-		$post_id_book = $this->factory()->post->create(
+		$post_id_book = self::factory()->post->create(
 			[
 				'post_type'   => 'by_slug_book',
 				'post_status' => 'publish',
@@ -394,7 +394,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id_test = $this->factory()->post->create(
+		$post_id_test = self::factory()->post->create(
 			[
 				'post_type'   => 'by_slug_test',
 				'post_status' => 'publish',
@@ -403,7 +403,7 @@ class ContentNodeInterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			]
 		);
 
-		$post_id_cat = $this->factory()->post->create(
+		$post_id_cat = self::factory()->post->create(
 			[
 				'post_type'   => 'by_slug_cat',
 				'post_status' => 'publish',

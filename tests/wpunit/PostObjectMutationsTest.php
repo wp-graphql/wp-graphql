@@ -16,26 +16,26 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->title   = 'some title';
 		$this->content = 'some content';
 
-		$this->author = $this->factory()->user->create(
+		$this->author = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->contributor = $this->factory()->user->create(
+		$this->contributor = self::factory()->user->create(
 			[
 				'role'         => 'contributor',
 				'display_name' => 'contributor',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -253,7 +253,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	public function testCreatePageWithParent() {
 		wp_set_current_user( $this->admin );
 
-		$parent_page_id = $this->factory()->post->create(
+		$parent_page_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_status'  => 'publish',
@@ -527,7 +527,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against and set global ID
 		 */
-		$test_post = $this->factory()->post->create(
+		$test_post = self::factory()->post->create(
 			[
 				'post_title'  => 'My Test Post for PostObjectMutationsTest',
 				'post_status' => 'draft',
@@ -622,7 +622,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a page to test against
 		 */
-		$page_id = $this->factory()->post->create( $args );
+		$page_id = self::factory()->post->create( $args );
 
 		/**
 		 * Get the new page object
@@ -784,7 +784,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a page to test against
 		 */
-		$page_id = $this->factory()->post->create( $args );
+		$page_id = self::factory()->post->create( $args );
 
 		$query = '
 		mutation deletePostWithPageIdShouldFail{
@@ -823,7 +823,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a page to test against
 		 */
-		$page_id = $this->factory()->post->create( $args );
+		$page_id = self::factory()->post->create( $args );
 
 		/**
 		 * Get the new page object
@@ -985,7 +985,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
 
-		$page_id   = $this->factory()->post->create(
+		$page_id   = self::factory()->post->create(
 			[
 				'post_type' => 'page',
 			]
@@ -1014,7 +1014,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 */
 	public function testUserWithoutProperCapabilityCannotUpdateOthersPosts() {
 
-		$admin_created_post_id = $this->factory()->post->create(
+		$admin_created_post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1056,7 +1056,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	 */
 	public function testUserWithoutProperCapabilityCannotUpdateOthersPages() {
 
-		$admin_created_page_id = $this->factory()->post->create(
+		$admin_created_page_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -1095,7 +1095,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 	public function testUpdatingPostByOtherAuthorRequiresEditOtherPostCapability() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1156,7 +1156,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1164,7 +1164,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$editor_id = $this->factory()->user->create(
+		$editor_id = self::factory()->user->create(
 			[
 				'role' => 'editor',
 			]
@@ -1231,7 +1231,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Create a post to test against
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -1239,7 +1239,7 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$editor_id = $this->factory()->user->create(
+		$editor_id = self::factory()->user->create(
 			[
 				'role' => 'editor',
 			]

@@ -119,7 +119,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// Assert that the query above is successful given the registered type and connections
 		// But since there's no data for the connection, we can safely assert the response
 		// should be null, but with no errors
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'testTypeConnection', self::IS_NULL ),
@@ -184,7 +184,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'test', self::IS_NULL ),
@@ -289,7 +289,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'blu' ] ),
 		];
 
-		$this->assertQuerySuccessful( $response, $expected );
+		self::assertQuerySuccessful( $response, $expected );
 
 		/**
 		 * Expect query to fail on both type/field-level.

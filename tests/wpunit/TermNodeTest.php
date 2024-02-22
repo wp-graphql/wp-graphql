@@ -20,13 +20,13 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testQueryTermNodes() {
 
-		$this->factory()->term->create_and_get(
+		self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
 		);
 
-		$this->factory()->term->create_and_get(
+		self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -69,7 +69,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTagByGlobalId() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -110,7 +110,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTagByDatabaseId() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -151,7 +151,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTagByName() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -192,7 +192,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTagBySlug() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -233,7 +233,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTagByUri() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -274,7 +274,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryCategoryByGlobalId() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -315,7 +315,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryCategoryByDatabaseId() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -356,7 +356,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryCategoryByName() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -397,7 +397,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryCategoryBySlug() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -438,7 +438,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryCategoryByUri() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -479,7 +479,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByGlobalId() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -524,7 +524,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByDatabaseId() {
-		$tag = $this->factory()->term->create_and_get(
+		$tag = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'post_tag',
 			]
@@ -569,7 +569,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByName() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -614,7 +614,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermNodeBySlug() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -659,7 +659,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermNodeByUri() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]
@@ -709,7 +709,7 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @throws \Exception
 	 */
 	public function testQueryTermLinkCustomHostPortReplacement() {
-		$cat = $this->factory()->term->create_and_get(
+		$cat = self::factory()->term->create_and_get(
 			[
 				'taxonomy' => 'category',
 			]

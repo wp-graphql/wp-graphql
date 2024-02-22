@@ -8,7 +8,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->user = $this->factory()->user->create(
+		$this->user = self::factory()->user->create(
 			[
 				'role'       => 'administrator',
 				'user_login' => 'queryPagebyUriTestUser',
@@ -113,7 +113,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'page.__typename', 'Page' ),
@@ -134,7 +134,7 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'page', self::IS_NULL ),

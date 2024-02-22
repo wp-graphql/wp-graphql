@@ -86,19 +86,19 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testFilterConnectionQueryArgsForUserRoleQueriesDoesntReturnError() {
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->factory()->user->create(
+		self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_status' => 'publish',
 				'post_author' => $admin,
@@ -106,7 +106,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		set_current_user( $admin );
+		wp_set_current_user( $admin );
 
 		$query = '
 		{
@@ -138,7 +138,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'users.nodes', self::NOT_NULL ),
@@ -180,7 +180,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
+		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'posts.nodes', self::NOT_NULL ),

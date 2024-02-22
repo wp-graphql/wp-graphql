@@ -14,6 +14,7 @@ settings:
 coverage:
     enabled: true
     remote: false
+    path_coverage: false
     c3_url: '%WP_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
     include:
         - src/*
@@ -26,12 +27,6 @@ extensions:
         - Codeception\Extension\RunFailed
     commands:
         - Codeception\Command\GenerateWPUnit
-        - Codeception\Command\GenerateWPRestApi
-        - Codeception\Command\GenerateWPRestController
-        - Codeception\Command\GenerateWPRestPostTypeController
-        - Codeception\Command\GenerateWPAjax
-        - Codeception\Command\GenerateWPCanonical
-        - Codeception\Command\GenerateWPXMLRPC
 modules:
     config:
         WPDb:
@@ -63,6 +58,9 @@ modules:
             themes: '/wp-content/themes'
             uploads: '/wp-content/uploads'
         WPLoader:
+            backupGlobals: true
+            backupStaticAttributes: true
+            WP_HTTP_BLOCK_EXTERNAL: false
             multisite: '%MULTISITE%'
             wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
             dbName: '%TEST_DB_NAME%'

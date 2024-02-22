@@ -8,13 +8,13 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -37,7 +37,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
@@ -49,7 +49,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object(
+		self::factory()->post->update_object(
 			$post_id,
 			[
 				'post_content' => 'Revised Test',
@@ -94,7 +94,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
@@ -106,7 +106,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object(
+		self::factory()->post->update_object(
 			$post_id,
 			[
 				'post_content' => 'Revised Test',
@@ -167,7 +167,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a post
 		 */
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
@@ -179,7 +179,7 @@ class RevisionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Revise the post
 		 */
-		$this->factory()->post->update_object(
+		self::factory()->post->update_object(
 			$post_id,
 			[
 				'post_content' => 'Revised Test',

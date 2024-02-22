@@ -11,26 +11,26 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->editor = $this->factory()->user->create(
+		$this->editor = self::factory()->user->create(
 			[
 				'role' => 'editor',
 			]
 		);
 
-		$this->category = $this->factory()->term->create(
+		$this->category = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 				'name'     => 'cat test' . uniqid(),
 			]
 		);
 
-		$this->post = $this->factory()->post->create(
+		$this->post = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -43,10 +43,10 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_set_object_terms( $this->post, $this->category, 'category', false );
 
 		$filename             = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
-		$this->featured_image = $this->factory()->attachment->create_upload_object( $filename );
+		$this->featured_image = self::factory()->attachment->create_upload_object( $filename );
 		update_post_meta( $this->post, '_thumbnail_id', $this->featured_image );
 
-		$this->preview = $this->factory()->post->create(
+		$this->preview = self::factory()->post->create(
 			[
 				'post_status'  => 'inherit',
 				'post_title'   => 'Preview Post for PreviewTest',

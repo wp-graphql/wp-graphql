@@ -243,7 +243,7 @@ class QueryAnalyzer {
 
 		// if the query is empty, get it from the request params
 		if ( empty( $query ) ) {
-			$query = $this->request->params->query ?: null;
+			$query = ! empty( $this->request->params->query ) ? $this->request->params->query : null;
 		}
 
 		if ( empty( $query ) ) {
@@ -251,7 +251,7 @@ class QueryAnalyzer {
 		}
 
 		$query_id       = Utils::get_query_id( $query );
-		$this->query_id = $query_id ?: uniqid( 'gql:', true );
+		$this->query_id = ! empty( $query_id ) ? $query_id : uniqid( 'gql:', true );
 
 		// if there's a query (either saved or part of the request params)
 		// get the GraphQL Types being asked for by the query
@@ -791,8 +791,8 @@ class QueryAnalyzer {
 		$keys = $this->get_graphql_keys();
 
 		if ( ! empty( $keys ) ) {
-			$headers['X-GraphQL-Query-ID'] = $this->query_id ?: null;
-			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
+			$headers['X-GraphQL-Query-ID'] = ! empty( $this->query_id ) ? $this->query_id : null;
+			$headers['X-GraphQL-Keys']     = ! empty( $keys['keys'] ) ? $keys['keys'] : null;
 		}
 
 		/**
@@ -836,10 +836,10 @@ class QueryAnalyzer {
 
 		if ( ! empty( $response ) ) {
 			if ( is_array( $response ) ) {
-				$response['extensions']['queryAnalyzer'] = $keys ?: null;
+				$response['extensions']['queryAnalyzer'] = ! empty( $keys ) ? $keys : null;
 			} elseif ( is_object( $response ) ) {
 				// @phpstan-ignore-next-line
-				$response->extensions['queryAnalyzer'] = $keys ?: null;
+				$response->extensions['queryAnalyzer'] = ! empty( $keys ) ? $keys : null;
 			}
 		}
 

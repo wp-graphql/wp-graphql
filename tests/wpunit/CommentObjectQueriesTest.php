@@ -14,12 +14,12 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
-		$this->subscriber       = $this->factory()->user->create(
+		$this->subscriber       = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -32,7 +32,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 	public function createCommentObject( $args = [] ) {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -66,7 +66,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		/**
 		 * Create the page
 		 */
-		return $this->factory()->comment->create( $args );
+		return self::factory()->comment->create( $args );
 	}
 
 
@@ -321,7 +321,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	public function testCommentQueryWithChildrenAssignedPostAndParent() {
 
 		// Post object to assign comments to.
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_content' => 'Post object',
 				'post_author'  => $this->admin,
@@ -459,7 +459,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testCommentQueryHiddenFields( $user, $should_display ) {
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$admin_args         = [
 			'comment_post_ID'      => $post_id,
@@ -545,7 +545,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testUnapprovedCommentsNotQueryableWithoutAuth( $user, $should_display ) {
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$admin_args         = [
 			'comment_post_ID'      => $post_id,
@@ -622,7 +622,7 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 */
 	public function testPrivatePostCommentsNotQueryableWithoutAuth() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_status'  => 'private',
 				'post_content' => 'Test',

@@ -7,6 +7,10 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 	public function setUp(): void {
 		parent::setUp();
 
+		if ( !function_exists( 'populate_roles' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/schema.php' );
+		}
+
 		add_role(
 			'test_role',
 			__( 'Test role' ),
@@ -24,7 +28,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			]
 		);
 
-		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown(): void {
@@ -65,7 +69,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		wp_set_current_user( $this->admin );
 
 		// Create a user with no role
-		$user_with_no_role = $this->factory()->user->create( [ 'role' => false ] );
+		$user_with_no_role = self::factory()->user->create( [ 'role' => false ] );
 
 		// Set the test query
 		$query = '
@@ -166,6 +170,10 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 	public function testForwardPagination() {
 		wp_set_current_user( $this->admin );
+		$wp_roles = wp_roles();
+		codecept_debug( [
+			'wp_roles' => $wp_roles,
+		]);
 		$query = $this->getQuery();
 
 		// The list of userRoles might change, so we'll reuse this to check late.

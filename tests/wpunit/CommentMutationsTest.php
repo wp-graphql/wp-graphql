@@ -18,19 +18,19 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->content            = 'some content';
 		$this->client_mutation_id = 'someUniqueId';
 
-		$this->author = $this->factory()->user->create(
+		$this->author = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->subscriber = $this->factory()->user->create(
+		$this->subscriber = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -61,7 +61,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a page to test against
 		 */
-		$post_id = $this->factory()->post->create( $post_args );
+		$post_id = self::factory()->post->create( $post_args );
 
 		wp_set_current_user( $commentCreator );
 		$user         = wp_get_current_user();
@@ -77,7 +77,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a comment to test against
 		 */
-		$comment_id = $this->factory()->comment->create( $comment_args );
+		$comment_id = self::factory()->comment->create( $comment_args );
 		return $comment_id;
 	}
 
@@ -100,9 +100,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a page to test against
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
@@ -253,14 +253,14 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testUpdateCommentWithAuthorConnection() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
 
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
 		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
-		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
+		$new_comment = self::factory()->comment->get_object_by_id( $comment_id );
 
 		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
@@ -381,14 +381,14 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testDeleteCommentWithPostConnection() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
 		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
-		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
+		$new_comment = self::factory()->comment->get_object_by_id( $comment_id );
 		$content     = 'Comment Content';
 		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
@@ -453,14 +453,14 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRestoreComment() {
 		$this->createComment( $post_id, $comment_id, $this->author, $this->subscriber );
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '1' );
 		$this->assertEquals( $new_post->post_type, 'post' );
 		$this->assertEquals( $new_post->post_title, 'Post for CommentMutationsTest' );
 		$this->assertEquals( $new_post->post_content, 'Post Content' );
 
-		$new_comment = $this->factory()->comment->get_object_by_id( $comment_id );
+		$new_comment = self::factory()->comment->get_object_by_id( $comment_id );
 		$content     = 'Comment Content';
 		$this->assertEquals( $new_comment->user_id, get_current_user_id() );
 		$this->assertEquals( $new_comment->comment_post_ID, $post_id );
@@ -550,9 +550,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a page to test against
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );
@@ -611,9 +611,9 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		/**
 		 * Create a page to test against
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
-		$new_post = $this->factory()->post->get_object_by_id( $post_id );
+		$new_post = self::factory()->post->get_object_by_id( $post_id );
 
 		$this->assertEquals( $new_post->comment_count, '0' );
 		$this->assertEquals( $new_post->post_type, 'post' );

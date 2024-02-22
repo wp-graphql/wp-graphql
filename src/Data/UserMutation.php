@@ -258,7 +258,7 @@ class UserMutation {
 				} elseif ( is_wp_error( $verified ) ) {
 					throw new Exception( esc_html( $verified->get_error_message() ) );
 				} elseif ( false === $verified ) {
-					// Translators: The placeholder is the name of the user role
+					// Translators: The placeholder is the name of the user role.
 					throw new Exception( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
 				}
 			}
@@ -280,7 +280,7 @@ class UserMutation {
 		$potential_role = isset( $wp_roles->role_objects[ $role ] ) ? $wp_roles->role_objects[ $role ] : '';
 
 		if ( empty( $wp_roles->role_objects[ $role ] ) ) {
-			// Translators: The placeholder is the name of the user role
+			// Translators: The placeholder is the name of the user role.
 			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'The role %s does not exist', 'wp-graphql' ), $role ) );
 		}
 

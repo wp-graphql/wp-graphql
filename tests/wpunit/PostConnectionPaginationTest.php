@@ -12,7 +12,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -20,12 +20,12 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
-		$this->subscriber       = $this->factory()->user->create(
+		$this->subscriber       = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
@@ -69,7 +69,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		/**
 		 * Create the page
 		 */
-		$post_id = $this->factory()->post->create( $args );
+		$post_id = self::factory()->post->create( $args );
 
 		/**
 		 * Update the _edit_last and _edit_lock fields to simulate a user editing the page to
@@ -414,7 +414,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		for ( $i = 1; $i <= 6; $i++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$created_posts[]   = $this->factory()->post->create( $args );
+			$created_posts[]   = self::factory()->post->create( $args );
 		}
 
 		// Set the variables to use in the GraphQL query.
@@ -455,7 +455,7 @@ class PostConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		for ( $i = 1; $i <= 6; $i++ ) {
 			$date              = date( 'Y-m-d H:i:s', strtotime( "-1 day -{$i} minutes" ) );
 			$args['post_date'] = $date;
-			$created_posts[]   = $this->factory()->post->create( $args );
+			$created_posts[]   = self::factory()->post->create( $args );
 		}
 
 		// Set the variables to use in the GraphQL query.

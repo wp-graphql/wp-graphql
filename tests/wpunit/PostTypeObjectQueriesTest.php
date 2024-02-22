@@ -14,7 +14,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
-		$this->admin            = $this->factory()->user->create(
+		$this->admin            = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -39,7 +39,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPosts() {
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'Post',
 				'post_status' => 'publish',
@@ -225,7 +225,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForPages() {
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'    => 'Page',
 				'post_status'  => 'publish',
@@ -342,7 +342,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function testPostTypeQueryForMedia() {
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_status'  => 'publish',
@@ -351,7 +351,7 @@ class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'attachment',
 				'post_status' => 'inherit',

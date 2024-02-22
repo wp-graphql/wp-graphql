@@ -38,7 +38,7 @@ class ContentTemplate {
 		$page_templates            = [];
 		$page_templates['default'] = 'DefaultTemplate';
 
-		// Cycle through the registered post types and get the template information
+		// Cycle through the registered post types and get the template information.
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 		foreach ( $allowed_post_types as $post_type ) {
 			$post_type_templates = wp_get_theme()->get_page_templates( null, $post_type );
@@ -48,7 +48,7 @@ class ContentTemplate {
 			}
 		}
 
-		// Register each template to the schema
+		// Register each template to the schema.
 		foreach ( $page_templates as $file => $name ) {
 			$template_type_name = Utils::format_type_name_for_wp_template( $name, $file );
 
@@ -69,7 +69,7 @@ class ContentTemplate {
 				$template_type_name,
 				[
 					'interfaces'      => [ 'ContentTemplate' ],
-					// Translators: Placeholder is the name of the GraphQL Type in the Schema
+					// Translators: Placeholder is the name of the GraphQL Type in the Schema.
 					'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
 					'fields'          => [
 						'templateName' => [

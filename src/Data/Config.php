@@ -192,12 +192,12 @@ class Config {
 			return $orderby;
 		}
 
-		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query,
+		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query.
 		if ( ! isset( $query->query_vars['graphql_cursor_compare'] ) ) {
 			return $orderby;
 		}
 
-		// Check the cursor compare order
+		// Check the cursor compare order.
 		$order = '>' === $query->query_vars['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 
 		// Get Cursor ID key.
@@ -243,7 +243,7 @@ class Config {
 			return $where;
 		}
 
-		// Apply the after cursor, moving forward through results
+		// Apply the after cursor, moving forward through results.
 		if ( ! empty( $query->query_vars['graphql_after_cursor'] ) ) {
 			$after_cursor = new PostObjectCursor( $query->query_vars, 'after' );
 			$where       .= $after_cursor->get_where();
@@ -295,12 +295,12 @@ class Config {
 			return $orderby;
 		}
 
-		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query,
+		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query.
 		if ( ! isset( $query->query_vars['graphql_cursor_compare'] ) ) {
 			return $orderby;
 		}
 
-		// Check the cursor compare order
+		// Check the cursor compare order.
 		$order = '>' === $query->query_vars['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 
 		// Get Cursor ID key.
@@ -398,12 +398,12 @@ class Config {
 			return $pieces;
 		}
 
-		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query,
+		// Bail early if the cursor "graphql_cursor_compare" arg is not in the query.
 		if ( ! isset( $args['graphql_cursor_compare'] ) ) {
 			return $pieces;
 		}
 
-		// Determine the limit for the query
+		// Determine the limit for the query.
 		if ( isset( $args['number'] ) && absint( $args['number'] ) ) {
 			$pieces['limits'] = sprintf( ' LIMIT 0, %d', absint( $args['number'] ) );
 		}
@@ -420,7 +420,7 @@ class Config {
 			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
 		}
 
-		// Check the cursor compare order
+		// Check the cursor compare order.
 		$order = '>' === $args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 
 		// Get Cursor ID key.

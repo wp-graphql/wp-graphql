@@ -75,7 +75,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$settings['public_introspection_enabled'] = 'off';
 		update_option( 'graphql_general_settings', $settings );
 
-		$admin = $this->factory()->user->create(
+		$admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]

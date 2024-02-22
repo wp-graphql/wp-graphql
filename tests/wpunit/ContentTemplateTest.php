@@ -87,7 +87,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 
 	public function testDefaultTemplate(): void {
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_title'   => 'Default Template',
@@ -103,7 +103,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testPostWithTemplate(): void {
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'post',
 				'post_title'   => 'Post with Template',
@@ -121,7 +121,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testCustomTemplate(): void {
 		$template_slug = 'custom';
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_title'   => 'Custom Template',
@@ -143,7 +143,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testI18nTemplate(): void {
 		$template_slug = 'custom-i18n';
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_title'   => 'Custom i18n Template',
@@ -169,7 +169,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testI18nTemplateFileName(): void {
 		$template_slug = 'תבנית-שלי';
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'    => 'page',
 				'post_title'   => 'Custom i18n Template and File',

@@ -12,7 +12,7 @@ class MenuItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory()->user->create(
+		$this->admin = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -41,7 +41,7 @@ class MenuItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testMenuItemQueryWithPostObject() {
-		$post_id   = $this->factory()->post->create();
+		$post_id   = self::factory()->post->create();
 		$permalink = get_permalink( $post_id );
 
 		$menu_args = [

@@ -694,7 +694,7 @@ class Post extends Model {
 					'callback'   => function () {
 						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 					},
-					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
+					'capability' => ! empty( $this->post_type_object->cap->edit_others_posts ) ? $this->post_type_object->cap->edit_others_posts : 'edit_others_posts',
 				],
 				'enqueuedScriptsQueue'      => static function () {
 					global $wp_scripts;

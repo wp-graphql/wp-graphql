@@ -4,11 +4,17 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 	public $current_time;
 	public $current_date;
+	public $admin;
 
 	public function setUp(): void {
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 		parent::setUp();
 
+		$this->admin = self::factory()->user->create(
+			[
+				'role' => 'administrator',
+			]
+		);
 		$this->current_time = strtotime( '- 1 day' );
 		$this->current_date = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->delete_users();
@@ -57,7 +63,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		/**
 		 * Create the user.
 		 */
-		return $this->factory()->user->create( $args );
+		return self::factory()->user->create( $args );
 	}
 
 	/**
@@ -227,7 +233,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -236,7 +242,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			]
 		);
 
-		$comment_id = $this->factory()->comment->create(
+		$comment_id = self::factory()->comment->create(
 			[
 				'user_id'         => $user_id,
 				'comment_post_ID' => $post_id,
@@ -313,7 +319,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$user    = get_user_by( 'id', $user_id );
 
 
-		$post_id = $this->factory->post->create( [ 'post_author' => $user_id ] );
+		$post_id = self::factory()->post->create( [ 'post_author' => $user_id ] );
 
 		/**
 		 * Create the global ID based on the user_type and the created $id
@@ -417,7 +423,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'page',
@@ -491,7 +497,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		 */
 		$user_id = $this->createUserObject();
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_author' => $user_id,
 				'post_type'   => 'attachment',
@@ -616,12 +622,12 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'last_name'     => 'last_name',
 		];
 
-		$admin = $this->factory()->user->create_and_get( $user_data );
+		$admin = self::factory()->user->create_and_get( $user_data );
 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_author' => $admin->ID,
@@ -750,12 +756,12 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'last_name'     => 'last_name',
 		];
 
-		$admin = $this->factory()->user->create_and_get( $user_data );
+		$admin = self::factory()->user->create_and_get( $user_data );
 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_author' => $admin->ID,
@@ -860,12 +866,12 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			'last_name'     => 'subscriber_last_name',
 		];
 
-		$subscriber = $this->factory()->user->create_and_get( $subscriber_data );
+		$subscriber = self::factory()->user->create_and_get( $subscriber_data );
 
 		/**
 		 * Create one post by this author to query by URI
 		 */
-		$this->factory()->post->create(
+		self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_author' => $subscriber->ID,
@@ -946,7 +952,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 	}
 
-	
+
 	public function testQueryNonUserAsUserReturnsNull() {
 		$query = '
 		query userByUri($uri: ID!) {
@@ -961,7 +967,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		wp_set_current_user( $this->admin );
 
 		// Test page.
-		$post_id = $this->factory()->post->create(
+		$post_id = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',
@@ -984,7 +990,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['user'] );
 
 		// Test term.
-		$term_id = $this->factory()->term->create(
+		$term_id = self::factory()->term->create(
 			[
 				'taxonomy' => 'category',
 			]

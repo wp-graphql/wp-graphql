@@ -438,7 +438,7 @@ abstract class AbstractConnectionResolver {
 		 * @since 0.0.6
 		 */
 		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
-		
+
 		$requested_amount = $this->get_amount_requested();
 
 		if ( $requested_amount > $max_query_amount ) {
@@ -624,7 +624,7 @@ abstract class AbstractConnectionResolver {
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
-		$cursor = $cursor ?: ( $this->args['before'] ?? null );
+		$cursor = ! empty( $cursor ) ? $cursor : ( $this->args['before'] ?? null );
 
 		return $this->get_offset_for_cursor( $cursor );
 	}

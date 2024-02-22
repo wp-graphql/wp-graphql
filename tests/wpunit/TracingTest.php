@@ -6,7 +6,7 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown(): void {

@@ -56,8 +56,13 @@ class AdminNotices {
 		// Initialize Admin Notices. This is where register_graphql_admin_notice hooks in
 		do_action( 'graphql_admin_notices_init', $this );
 
-		$current_user_id         = get_current_user_id();
-		$this->dismissed_notices = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true ) ?: [];
+		$dismissed_notices = get_user_meta( get_current_user_id(), 'wpgraphql_dismissed_admin_notices', true );
+
+		if ( ! empty( $dismissed_notices ) && is_array( $dismissed_notices ) ) {
+			$this->dismissed_notices = $dismissed_notices;
+		} else {
+			$this->dismissed_notices = [];
+		}
 
 		// Filter the notices to remove any dismissed notices
 		$this->pre_filter_dismissed_notices();
@@ -225,7 +230,7 @@ class AdminNotices {
 		}
 		?>
 		<style>
-			/* Only display the ACF notice */
+			/* Only display the GraphQL notices (other notices are hidden in the GraphiQL IDE page) */
 			body.toplevel_page_graphiql-ide #wpbody .wpgraphql-admin-notice {
 				display: block;
 				position: absolute;
@@ -261,10 +266,10 @@ class AdminNotices {
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
 				if ( $this->is_notice_dismissable( $notice ) ) {
-					$dismiss_acf_nonce = wp_create_nonce( 'wpgraphql_disable_notice_nonce' );
-					$dismiss_url       = add_query_arg(
+					$dismiss_graphql_notice_nonce = wp_create_nonce( 'wpgraphql_disable_notice_nonce' );
+					$dismiss_url                  = add_query_arg(
 						[
-							'wpgraphql_disable_notice_nonce' => $dismiss_acf_nonce,
+							'wpgraphql_disable_notice_nonce' => $dismiss_graphql_notice_nonce,
 							'wpgraphql_disable_notice' => $notice_slug,
 						]
 					);
@@ -305,7 +310,7 @@ class AdminNotices {
 	}
 
 	/**
-	 * Handles the dismissal of the ACF notice.
+	 * Handles the dismissal of the GraphQL Admin notice.
 	 * set_transient reference: https://developer.wordpress.org/reference/functions/set_transient/
 	 * This function sets a transient to remember the dismissal status of the notice.
 	 */
@@ -323,13 +328,14 @@ class AdminNotices {
 
 		$current_user_id = get_current_user_id();
 
-		$disabled   = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true ) ?: [];
+		$disabled   = get_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', true );
+		$disabled   = ! empty( $disabled ) && is_array( $disabled ) ? $disabled : [];
 		$disabled[] = $notice_slug;
 
 		update_user_meta( $current_user_id, 'wpgraphql_dismissed_admin_notices', array_unique( $disabled ) );
 
 		// Redirect to clear URL parameters
-		wp_safe_redirect( remove_query_arg( [ 'wpgraphql_disable_notice_nonce', 'wpgraphql_disable_notice' ] ) );
+		wp_safe_redirect( remove_query_arg( [ 'wpgraphql_dismissed_admin_notices', 'wpgraphql_disable_notice' ] ) );
 		exit();
 	}
 }

@@ -37,13 +37,13 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->clearSchema();
 
-		$this->user = $this->factory()->user->create(
+		$this->user = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
 		);
 
-		$this->post = $this->factory()->post->create(
+		$this->post = self::factory()->post->create(
 			[
 				'post_type'   => 'post',
 				'post_status' => 'publish',
@@ -52,7 +52,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->custom_type = $this->factory()->post->create(
+		$this->custom_type = self::factory()->post->create(
 			[
 				'post_type'   => 'by_slug_cpt',
 				'post_status' => 'publish',
@@ -64,7 +64,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function tearDown(): void {
 		wp_delete_post( $this->post );
-		wp_delete_post( $this->custom_post_type );
+		wp_delete_post( $this->custom_type );
 		wp_delete_user( $this->user );
 
 		unregister_post_type( 'by_slug_cpt' );
@@ -190,7 +190,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	function testPageWithNameOfPostType() {
 
-		$this->custom_type = $this->factory()->post->create(
+		$this->custom_type = self::factory()->post->create(
 			[
 				'post_type'   => 'faq',
 				'post_status' => 'publish',
@@ -199,7 +199,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->page = $this->factory()->post->create(
+		$this->page = self::factory()->post->create(
 			[
 				'post_type'   => 'page',
 				'post_status' => 'publish',

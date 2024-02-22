@@ -6,7 +6,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->admin = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 	}
 
 	public function tearDown(): void {

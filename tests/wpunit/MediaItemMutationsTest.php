@@ -51,21 +51,21 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		/**
 		 * Set up different user roles for permissions testing
 		 */
-		$this->subscriber      = $this->factory()->user->create(
+		$this->subscriber      = self::factory()->user->create(
 			[
 				'role' => 'subscriber',
 			]
 		);
 		$this->subscriber_name = 'User ' . $this->subscriber;
 
-		$this->author      = $this->factory()->user->create(
+		$this->author      = self::factory()->user->create(
 			[
 				'role' => 'author',
 			]
 		);
 		$this->author_name = 'User ' . $this->author;
 
-		$this->admin      = $this->factory()->user->create(
+		$this->admin      = self::factory()->user->create(
 			[
 				'role' => 'administrator',
 			]
@@ -106,7 +106,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 * Create a mediaItem to update and store it's WordPress post ID
 		 * and it's WPGraphQL ID for using in our updateMediaItem mutation
 		 */
-		$this->attachment_id = $this->factory()->attachment->create(
+		$this->attachment_id = self::factory()->attachment->create(
 			[
 				'post_mime_type' => 'image/gif',
 				'post_author'    => $this->admin,
@@ -386,7 +386,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testCreateMediaItemWithInvalidUrl() {
 		wp_set_current_user( $this->author );
-		$this->create_variables['input']['filePath'] = 'htt://vice.co.um/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$this->create_variables['input']['filePath'] = 'https://github.com/wp-graphql/wp-graphql/blob/develop/docs/images/application-data-graph.png?raw=true';
 		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
@@ -401,7 +401,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testCreateMediaItemWithNoFile() {
 		wp_set_current_user( $this->author );
-		$this->create_variables['input']['filePath'] = 'https://i-d-images.vice.com/images/2016/09/16/bill-murray-has-a-couple-of-shifts-at-a-brooklyn-bar-this-weekend-body-image-1473999364.jpg?crop=1xw:1xh;center,center&resize=1440:*';
+		$this->create_variables['input']['filePath'] = 'https://github.com/wp-graphql/wp-graphql/blob/develop/docs/images/application-data-graph.png?raw=true';
 		$actual                                      = $this->createMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->create_variables['input']['filePath'] = $this->filePath;
@@ -416,7 +416,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testCreateMediaItemAttachToParentAsAuthor() {
-		$post                                        = $this->factory()->post->create(
+		$post                                        = self::factory()->post->create(
 			[
 				'post_author' => $this->admin,
 				'post_status' => 'publish',
@@ -436,7 +436,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 	public function testCreateMediaItemAttachToParentAsAdmin() {
 
-		$post                                        = $this->factory()->post->create(
+		$post                                        = self::factory()->post->create(
 			[
 				'post_author' => $this->admin,
 				'post_status' => 'publish',
@@ -447,6 +447,10 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		wp_set_current_user( $this->admin );
 		// Test with databaseId
 		$actual = $this->createMediaItemMutation();
+
+		codecept_debug( [
+			'$actual' => $actual,
+		]);
 
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
 		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
@@ -527,7 +531,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testCreateMediaItemEditOthersPosts() {
-		$post = $this->factory()->post->create(
+		$post = self::factory()->post->create(
 			[
 				'post_author' => $this->admin,
 			]
@@ -839,7 +843,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testUpdateMediaItemUpdatePost() {
-		$test_post                             = $this->factory()->post->create();
+		$test_post                             = self::factory()->post->create();
 		$this->update_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $test_post );
 		$actual                                = $this->updateMediaItemMutation();
 		$this->assertArrayHasKey( 'errors', $actual );
@@ -868,7 +872,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * @return void
 	 */
 	public function testUpdateMediaItemEditOthersPosts() {
-		$post = $this->factory()->post->create(
+		$post = self::factory()->post->create(
 			[
 				'post_author' => $this->admin,
 			]
@@ -1037,7 +1041,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$deleted_media_item = self::factory()->attachment->create( [ 'post_status' => 'trash' ] );
 		$post               = get_post( $deleted_media_item );
 
 		/**
@@ -1079,7 +1083,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testForceDeleteMediaItemAlreadyInTrash() {
 
-		$deleted_media_item = $this->factory()->attachment->create( [ 'post_status' => 'trash' ] );
+		$deleted_media_item = self::factory()->attachment->create( [ 'post_status' => 'trash' ] );
 
 		/**
 		 * Prepare the deleteMediaItem mutation
@@ -1141,7 +1145,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		/**
 		 * Create a page to test against and set the post id in the mutation variables
 		 */
-		$post_to_delete                        = $this->factory->post->create( $args );
+		$post_to_delete                        = self::factory()->post->create( $args );
 		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $post_to_delete );
 
 		/**
@@ -1195,7 +1199,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// test global Id
-		$deleted_media_item                    = $this->factory()->attachment->create();
+		$deleted_media_item                    = self::factory()->attachment->create();
 		$this->delete_variables['input']['id'] = \GraphQLRelay\Relay::toGlobalId( 'post', $deleted_media_item );
 
 		$actual = $this->deleteMediaItemMutation();
@@ -1207,7 +1211,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 	public function testUpdateMediaItemOwnedByUserUpdatingIt() {
 
-		$media_item_1 = $this->factory()->attachment->create(
+		$media_item_1 = self::factory()->attachment->create(
 			[
 				'post_mime_type' => 'image/gif',
 				'post_author'    => $this->author,
