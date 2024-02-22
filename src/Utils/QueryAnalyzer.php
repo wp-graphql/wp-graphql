@@ -159,7 +159,7 @@ class QueryAnalyzer {
 	public function is_enabled_for_query(): bool {
 		if ( ! isset( $this->is_enabled_for_query ) ) {
 			$is_enabled = self::is_enabled();
-		
+
 			/**
 			 * Filters whether to analyze queries or for a specific GraphQL request.
 			 *
@@ -167,7 +167,7 @@ class QueryAnalyzer {
 			 * @param \WPGraphQL\Request $request               The GraphQL request being executed
 			 */
 			$should_analyze_queries = apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
-			
+
 			$this->is_enabled_for_query = true === $should_analyze_queries;
 		}
 
@@ -244,7 +244,7 @@ class QueryAnalyzer {
 
 		// if the query is empty, get it from the request params
 		if ( empty( $query ) ) {
-			$query = $this->request->params->query ?: null;
+			$query = ! empty( $this->request->params->query ) ? $this->request->params->query : null;
 		}
 
 		if ( empty( $query ) ) {
@@ -252,7 +252,7 @@ class QueryAnalyzer {
 		}
 
 		$query_id       = Utils::get_query_id( $query );
-		$this->query_id = $query_id ?: uniqid( 'gql:', true );
+		$this->query_id = ! empty( $query_id ) ? $query_id : uniqid( 'gql:', true );
 
 		// if there's a query (either saved or part of the request params)
 		// get the GraphQL Types being asked for by the query
@@ -791,8 +791,8 @@ class QueryAnalyzer {
 		$keys = $this->get_graphql_keys();
 
 		if ( ! empty( $keys ) ) {
-			$headers['X-GraphQL-Query-ID'] = $this->query_id ?: null;
-			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
+			$headers['X-GraphQL-Query-ID'] = ! empty( $this->query_id ) ? $this->query_id : null;
+			$headers['X-GraphQL-Keys']     = ! empty( $keys['keys'] ) ? $keys['keys'] : null;
 		}
 
 		return $headers;
@@ -832,10 +832,10 @@ class QueryAnalyzer {
 
 		if ( ! empty( $response ) ) {
 			if ( is_array( $response ) ) {
-				$response['extensions']['queryAnalyzer'] = $keys ?: null;
+				$response['extensions']['queryAnalyzer'] = ! empty( $keys ) ? $keys : null;
 			} elseif ( is_object( $response ) ) {
 				// @phpstan-ignore-next-line
-				$response->extensions['queryAnalyzer'] = $keys ?: null;
+				$response->extensions['queryAnalyzer'] = ! empty( $keys ) ? $keys : null;
 			}
 		}
 

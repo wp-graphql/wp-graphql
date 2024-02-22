@@ -85,7 +85,6 @@
 	<rule ref="WordPress">
 		<!-- Definitely should not be added back -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
-		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
