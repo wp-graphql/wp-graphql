@@ -273,9 +273,9 @@ class Settings {
 	 */
 	public function initialize_settings_page_scripts( ?string $hook_suffix ): void {
 
-        if ( ! $hook_suffix ) {
-            return;
-        }
+		if ( ! $hook_suffix ) {
+			return;
+		}
 
 		$this->settings_api->admin_enqueue_scripts( $hook_suffix );
 	}
