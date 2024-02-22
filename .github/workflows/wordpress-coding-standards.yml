@@ -30,6 +30,8 @@ jobs:
       - name: Get Changed Files
         id: get-changed-files
         uses: lots0logs/gh-action-get-changed-files@2.2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run PHPCBF on Changed Files and Check for Errors
         id: phpcbf
