@@ -436,7 +436,7 @@ abstract class Model {
 	private function add_model_visibility() {
 
 		/**
-		 * @TODO: potentially abstract this out into a more central spot
+		 * @todo: potentially abstract this out into a more central spot
 		 */
 		$this->fields['isPublic']     = function () {
 			return 'public' === $this->get_visibility();
