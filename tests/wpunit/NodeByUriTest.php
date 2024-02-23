@@ -70,9 +70,195 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					databaseId
 				}
 				uri
+				isPostsPage
+				isFrontPage
 			}
 		}
 		';
+	}
+
+	/**
+	 * Test Comment URIs
+	 */
+	public function testCommentByUri(): void {
+		$post_one_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test commentByUri 1',
+				'post_author' => $this->user,
+			]
+		);
+
+		$post_two_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Test commentByUri 2',
+				'post_author' => $this->user,
+			]
+		);
+
+		$comment_one_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID' => $post_one_id,
+				'comment_content' => 'Test comment 1',
+				'comment_author'  => 'Test Author 1',
+				'comment_author_email' => 'info@test-comment-author1.test',
+			]
+		);
+
+		$comment_two_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID' => $post_one_id,
+				'comment_content' => 'Test comment 2',
+				'comment_author'  => 'Test Author 2',
+				'comment_author_email' => 'info@test-comment-author2.test',
+			]
+		);
+
+		$comment_three_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID' => $post_two_id,
+				'comment_content' => 'Test comment 3',
+				'comment_author'  => 'Test Author 3',
+				'comment_author_email' => 'info@test-comment-author3.test',
+			]
+		);
+
+		$child_comment_id = $this->factory()->comment->create(
+			[
+				'comment_post_ID' => $post_two_id,
+				'comment_content' => 'Test child comment',
+				'comment_author'  => 'Test Child Author',
+				'comment_parent'  => $comment_three_id,
+			]
+		);
+
+		$query = $this->getQuery();
+
+		// Test bad URI should return null.
+		$uri = '/2022/12/31/bad-uri/#comment-99999999';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'], 'nodeByUri should return null when no comment is found' );
+
+		// Test Bad comment on good Post returns null.
+		$uri = wp_make_link_relative( get_permalink( $post_one_id ) ) . '#comment-99999999';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'], 'nodeByUri should return null when no comment is found, even if the post is valid' );
+
+		// Test Fake comment on good post returns Post.
+		$uri = wp_make_link_relative( get_permalink( $post_one_id ) ) . '#comment-NaN';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Post', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $post_one_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( wp_make_link_relative( get_permalink( $post_one_id ) ), $actual['data']['nodeByUri']['uri'] );
+
+		// Test with good comment on good post.
+		$uri = wp_make_link_relative( get_comment_link( $comment_one_id ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Comment', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $comment_one_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test multiple comments on the same post.
+		$uri = wp_make_link_relative( get_comment_link( $comment_two_id ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Comment', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $comment_two_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test comments on another post.
+		$uri = wp_make_link_relative( get_comment_link( $comment_three_id ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Comment', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $comment_three_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Test child comment on another post.
+		$uri = wp_make_link_relative( get_comment_link( $child_comment_id ) );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'Comment', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertSame( $child_comment_id, $actual['data']['nodeByUri']['databaseId'] );
+		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
+
+		// Clean up
+		wp_delete_comment( $comment_one_id, true );
+		wp_delete_comment( $comment_two_id, true );
+		wp_delete_comment( $comment_three_id, true );
+		wp_delete_comment( $child_comment_id, true );
+		wp_delete_post( $post_one_id, true );
+		wp_delete_post( $post_two_id, true );
 	}
 
 	/**
@@ -1896,6 +2082,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( 'ContentType', $actual['data']['nodeByUri']['__typename'] );
+		$this->assertTrue( $actual['data']['nodeByUri']['isPostsPage'] );
 
 		delete_option( 'page_for_posts' );
 

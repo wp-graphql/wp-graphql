@@ -20,19 +20,19 @@ class UsersConnectionSearchColumnEnum {
 						'description' => __( 'The globally unique ID.', 'wp-graphql' ),
 					],
 					'LOGIN'    => [
-						'value'       => 'login',
+						'value'       => 'user_login',
 						'description' => __( 'The username the User uses to login with.', 'wp-graphql' ),
 					],
 					'NICENAME' => [
-						'value'       => 'nicename',
+						'value'       => 'user_nicename',
 						'description' => __( 'A URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' ),
 					],
 					'EMAIL'    => [
-						'value'       => 'email',
+						'value'       => 'user_email',
 						'description' => __( 'The user\'s email address.', 'wp-graphql' ),
 					],
 					'URL'      => [
-						'value'       => 'url',
+						'value'       => 'user_url',
 						'description' => __( 'The URL of the user\'s website.', 'wp-graphql' ),
 					],
 				],
