@@ -211,7 +211,7 @@ class MenuItem {
 									$object_id,
 									$object_type,
 								],
-								'@todo',
+								'1.22.0',
 								'graphql_pre_resolve_menu_item_connected_node',
 								__( 'Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' )
 							);
