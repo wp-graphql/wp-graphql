@@ -151,7 +151,6 @@ class NodeResolver {
 		// Parse the URI and sets the $wp->query_vars property.
 		$uri = $this->parse_request( $uri, $extra_query_vars );
 
-
 		/**
 		 * If the URI is '/', we can resolve it now.
 		 *

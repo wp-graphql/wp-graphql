@@ -16,6 +16,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
+use WPGraphQL;
 
 /**
  * This class is used to identify "keys" relevant to the GraphQL Request.
@@ -112,7 +113,7 @@ class QueryAnalyzer {
 	 * @uses `graphql_query_analyzer_enabled` filter.
 	 */
 	public static function is_enabled(): bool {
-		$is_debug_enabled = \WPGraphQL::debug();
+		$is_debug_enabled = WPGraphQL::debug();
 
 		// The query analyzer is enabled if WPGraphQL Debugging is enabled
 		$query_analyzer_enabled = $is_debug_enabled;
@@ -814,7 +815,7 @@ class QueryAnalyzer {
 	 * @return array<string,mixed>|object|null
 	 */
 	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables ) {
-		$should = $this->is_enabled_for_query() && \WPGraphQL::debug();
+		$should = $this->is_enabled_for_query() && WPGraphQL::debug();
 
 		/**
 		 * @param bool                     $should         Whether the query analyzer output should be displayed in the Extensions output. Defaults to true if the query analyzer is enabled for the request and WPGraphQL Debugging is enabled.
