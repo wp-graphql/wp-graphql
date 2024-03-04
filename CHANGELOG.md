@@ -1,8 +1,25 @@
 # Changelog
 
+## 1.22.0
+
+### New Features
+
+- [#3044](https://github.com/wp-graphql/wp-graphql/pull/3044): feat: add `graphql_pre_resolve_menu_item_connected_node` filter
+- [#3039](https://github.com/wp-graphql/wp-graphql/pull/3043): feat: add `UniformResourceIdentifiable` interface to `Comment` type
+- [#3020](https://github.com/wp-graphql/wp-graphql/pull/3020): feat: introduce `graphql_query_analyzer_get_headers` filter
+
+### Chores / Bugfixes
+
+- [#3062](https://github.com/wp-graphql/wp-graphql/pull/3062): ci: pin wp-browser to "<3.5" to allow automated tests to run properly 
+- [#3057](https://github.com/wp-graphql/wp-graphql/pull/3057): fix: `admin_enqueue_scripts` callback should expect a possible `null` value passed to it
+- [#3048](https://github.com/wp-graphql/wp-graphql/pull/3048): fix: `isPostsPage` on content type
+- [#3043](https://github.com/wp-graphql/wp-graphql/pull/3043): fix: return empty when filtering `menuItems` by a location with no assigned items
+- [#3045](https://github.com/wp-graphql/wp-graphql/pull/3045): fix: `UsersConnectionSearchColumnEnum` values should be prefixed with `user_`
+
 ## 1.21.0
 
 ### New Features
+
 - [#3035](https://github.com/wp-graphql/wp-graphql/pull/3035): feat: provide better error when field references a type that does not exist
 - [#3027](https://github.com/wp-graphql/wp-graphql/pull/3027): feat: Add register_graphql_admin_notice API and intial use to inform users of the new WPGraphQL for ACF plugin
 

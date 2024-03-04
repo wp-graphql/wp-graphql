@@ -34,7 +34,7 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
-      
+
       - name: Install dependencies
         uses: ramsey/composer-install@v2
         with:

@@ -23,7 +23,7 @@ class Comment {
 			[
 				'description' => __( 'A Comment object', 'wp-graphql' ),
 				'model'       => CommentModel::class,
-				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
+				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'UniformResourceIdentifiable' ],
 				'connections' => [
 					'author' => [
 						'toType'      => 'Commenter',
@@ -107,6 +107,10 @@ class Comment {
 					'karma'            => [
 						'type'        => 'Int',
 						'description' => __( 'Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the "comment_karma" column in SQL.', 'wp-graphql' ),
+					],
+					'link'             => [
+						'type'        => 'String',
+						'description' => __( 'The permalink of the comment', 'wp-graphql' ),
 					],
 					'parentId'         => [
 						'type'        => 'ID',

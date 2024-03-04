@@ -2,9 +2,9 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, hughdevore, chopinbach, kidunot89, justlevine
 Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nextjs, Vue, Apollo, REST, JSON, HTTP, Remote, Query Language
 Requires at least: 5.0
-Tested up to: 6.4.1
+Tested up to: 6.4.3
 Requires PHP: 7.1
-Stable tag: 1.21.0
+Stable tag: 1.22.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -251,6 +251,22 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.22.0 =
+
+**New Features**
+
+- [#3044](https://github.com/wp-graphql/wp-graphql/pull/3044): feat: add `graphql_pre_resolve_menu_item_connected_node` filter
+- [#3039](https://github.com/wp-graphql/wp-graphql/pull/3043): feat: add `UniformResourceIdentifiable` interface to `Comment` type
+- [#3020](https://github.com/wp-graphql/wp-graphql/pull/3020): feat: introduce `graphql_query_analyzer_get_headers` filter
+
+**Chores / Bugfixes**
+
+- [#3062](https://github.com/wp-graphql/wp-graphql/pull/3062): ci: pin wp-browser to "<3.5" to allow automated tests to run properly
+- [#3057](https://github.com/wp-graphql/wp-graphql/pull/3057): fix: `admin_enqueue_scripts` callback should expect a possible `null` value passed to it
+- [#3048](https://github.com/wp-graphql/wp-graphql/pull/3048): fix: `isPostsPage` on content type
+- [#3043](https://github.com/wp-graphql/wp-graphql/pull/3043): fix: return empty when filtering `menuItems` by a location with no assigned items
+- [#3045](https://github.com/wp-graphql/wp-graphql/pull/3045): fix: `UsersConnectionSearchColumnEnum` values should be prefixed with `user_`
 
 = 1.21.0 =
 

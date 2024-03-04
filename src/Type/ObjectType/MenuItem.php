@@ -36,7 +36,27 @@ class MenuItem {
 							$object_id   = (int) get_post_meta( $menu_item->databaseId, '_menu_item_object_id', true );
 							$object_type = get_post_meta( $menu_item->databaseId, '_menu_item_type', true );
 
-							$resolver = null;
+							/**
+							 * When this filter returns anything other than null it will be used as the resolved connection for the menu item's connected node, short-circuiting the default resolution.
+							 *
+							 * This is useful since we often add taxonomy terms to menus but would prefer to represent the menu item in other ways.
+							 * E.g., a linked post object (or vice-versa).
+							 *
+							 * @param ?\GraphQL\Deferred                   $deferred_connection The AbstractConnectionResolver's connection, or null to continue with the default resolution.
+							 * @param \WPGraphQL\Model\MenuItem            $menu_item           The MenuItem model.
+							 * @param array<string,mixed>                  $args                The GraphQL args for the connection.
+							 * @param \WPGraphQL\AppContext                $context             The AppContext object.
+							 * @param \GraphQL\Type\Definition\ResolveInfo $info                The ResolveInfo object.
+							 * @param int                                  $object_id           The ID of the connected object.
+							 * @param string                               $object_type         The type of the connected object.
+							 */
+							$deferred_connection = apply_filters( 'graphql_pre_resolve_menu_item_connected_node', null, $menu_item, $args, $context, $info, $object_id, $object_type );
+
+							if ( null !== $deferred_connection ) {
+								return $deferred_connection;
+							}
+
+							// Handle the default resolution.
 							switch ( $object_type ) {
 								// Post object
 								case 'post_type':
@@ -53,6 +73,7 @@ class MenuItem {
 									$resolver->set_query_arg( 'include', $object_id );
 									break;
 								default:
+									$resolver = null;
 									break;
 							}
 
@@ -180,14 +201,19 @@ class MenuItem {
 							 *
 							 * @since 0.0.30
 							 */
-							return apply_filters(
+							return apply_filters_deprecated(
 								'graphql_resolve_menu_item',
-								$resolved_object,
-								$args,
-								$context,
-								$info,
-								$object_id,
-								$object_type
+								[
+									$resolved_object,
+									$args,
+									$context,
+									$info,
+									$object_id,
+									$object_type,
+								],
+								'1.22.0',
+								'graphql_pre_resolve_menu_item_connected_node',
+								__( 'Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' )
 							);
 						},
 					],

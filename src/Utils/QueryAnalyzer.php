@@ -14,9 +14,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
-use WPGraphQL;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
+use WPGraphQL;
 
 /**
  * This class is used to identify "keys" relevant to the GraphQL Request.
@@ -159,7 +159,7 @@ class QueryAnalyzer {
 	public function is_enabled_for_query(): bool {
 		if ( ! isset( $this->is_enabled_for_query ) ) {
 			$is_enabled = self::is_enabled();
-		
+
 			/**
 			 * Filters whether to analyze queries or for a specific GraphQL request.
 			 *
@@ -167,7 +167,7 @@ class QueryAnalyzer {
 			 * @param \WPGraphQL\Request $request               The GraphQL request being executed
 			 */
 			$should_analyze_queries = apply_filters( 'graphql_should_analyze_query', $is_enabled, $this->get_request() );
-			
+
 			$this->is_enabled_for_query = true === $should_analyze_queries;
 		}
 
@@ -650,6 +650,7 @@ class QueryAnalyzer {
 	 */
 	public function track_nodes( $model ) {
 		if ( isset( $model->id ) && in_array( get_class( $model ), $this->get_query_models(), true ) ) {
+
 			// Is this model type part of the requested/returned data in the asked for query?
 
 			/**
@@ -795,7 +796,11 @@ class QueryAnalyzer {
 			$headers['X-GraphQL-Keys']     = $keys['keys'] ?: null;
 		}
 
-		return $headers;
+		/**
+		 * @param array<string,mixed> $headers The array of headers being returned
+		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
+		 */
+		return apply_filters( 'graphql_query_analyzer_get_headers', $headers, $this );
 	}
 
 	/**
@@ -810,7 +815,7 @@ class QueryAnalyzer {
 	 * @return array<string,mixed>|object|null
 	 */
 	public function show_query_analyzer_in_extensions( $response, WPSchema $schema, ?string $operation_name, ?string $request, ?array $variables ) {
-		$should = $this->is_enabled_for_query() && \WPGraphQL::debug();
+		$should = $this->is_enabled_for_query() && WPGraphQL::debug();
 
 		/**
 		 * @param bool                     $should         Whether the query analyzer output should be displayed in the Extensions output. Defaults to true if the query analyzer is enabled for the request and WPGraphQL Debugging is enabled.
