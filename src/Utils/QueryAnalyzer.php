@@ -14,9 +14,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
+use WPGraphQL;
 use WPGraphQL\Request;
 use WPGraphQL\WPSchema;
-use WPGraphQL;
 
 /**
  * This class is used to identify "keys" relevant to the GraphQL Request.
