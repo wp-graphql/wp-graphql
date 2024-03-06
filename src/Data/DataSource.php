@@ -352,13 +352,7 @@ class DataSource {
 			return null;
 		}
 
-		$avatar = new Avatar( $avatar );
-
-		if ( 'private' === $avatar->get_visibility() ) {
-			return null;
-		}
-
-		return $avatar;
+		return new Avatar( $avatar );
 	}
 
 	/**

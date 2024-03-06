@@ -38,14 +38,6 @@ class Avatar extends Model {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function is_private() {
-		$show_avatars = get_option( 'show_avatars' );
-		return ! (bool) $show_avatars;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	protected function init() {
