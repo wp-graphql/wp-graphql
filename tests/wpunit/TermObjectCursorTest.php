@@ -40,7 +40,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'resolve'       => static function ( $source, $args, $context, $info ) {
 					global $wpdb;
 					$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, 'letter' );
-					
+
 					// Get cursor node
 					$cursor  = $args['after'] ?? null;
 					$cursor  = $cursor ?: ( $args['before'] ?? null );
@@ -337,5 +337,77 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 
 		$this->assertQuerySuccessful( $response, $expected );
+	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/pull/3063
+	 * @return void
+	 */
+	public function testWpTermQueryCursorPaginationSupport() {
+
+		$category = self::factory()->term->create( [ 'taxonomy' => 'category' ] );
+		$child_category = self::factory()->term->create( [ 'taxonomy' => 'category', 'parent' => $category ] );
+
+		$actual_pieces = null;
+
+		// hook into the terms_clauses filter after WPGraphQL hooks in
+		add_filter( 'terms_clauses', function( $pieces, $taxonomies, $args ) use ( &$actual_pieces ) {
+			$actual_pieces = $pieces;
+			return $pieces;
+		} , 99, 3 );
+
+		$query = '
+		query terms ($parent: Int) {
+		  categories(where: {
+		    parent: $parent
+		  }) {
+		    nodes {
+		      __typename
+		      databaseId
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query,
+			'variables' => [
+				'parent' => $category
+			]
+		]);
+
+//		This is a note of what the "pieces" looked like in v1.22.0 before
+//      this fix: https://github.com/wp-graphql/wp-graphql/pull/3063
+//
+//      The "where" arg was empty, but now it's not empty.
+//
+//		$prev_pieces = [
+//			'fields' => 't.term_id',
+//			'join' => 'INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id',
+//			'where' => '',
+//			'distinct' => null,
+//			'order_by' => 'ORDER BY FIELD( t.term_id, 29 )',
+//			'order' => 'ASC',
+//			'limits' => null,
+//		];
+
+//		codecept_debug( [
+//			'$actual' => $actual,
+//			'$actual_pieces' => $actual_pieces,
+//		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedNode(
+				'categories.nodes',
+				[
+					$this->expectedField( '__typename', 'Category' ),
+					$this->expectedField( 'databaseId', $child_category ),
+				],
+				0
+			),
+		] );
+
+		$this->assertNotEmpty( $actual_pieces['where'] );
+
 	}
 }
