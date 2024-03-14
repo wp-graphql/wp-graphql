@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.22.1
+
+### Chores / Bugfixes
+
+- [#3067](https://github.com/wp-graphql/wp-graphql/pull/3067): fix: respect show avatar setting
+- [#3063](https://github.com/wp-graphql/wp-graphql/pull/3063): fix: fixes a bug in cursor stability filters that could lead to empty order
+- [#3070](https://github.com/wp-graphql/wp-graphql/pull/3070): test(3063): Adds test for [#3063](https://github.com/wp-graphql/wp-graphql/pull/3063)
+
 ## 1.22.0
 
 ### New Features
