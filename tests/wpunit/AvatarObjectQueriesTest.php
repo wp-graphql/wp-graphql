@@ -95,6 +95,12 @@ class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected, $actual['data'] );
 
+		// set the option to false
+		update_option( 'show_avatars', 0 );
+		$actual = do_graphql_request( $query );
+		$this->assertEquals( null, $actual['data']['user']['avatar'] );
+
+		update_option( 'show_avatars', 1 );
 		// Clean up filter usage.
 		remove_filter( 'get_avatar_url', [ $this, 'avatar_test_url' ] );
 	}
