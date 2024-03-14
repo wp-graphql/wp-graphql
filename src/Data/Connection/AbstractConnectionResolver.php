@@ -291,7 +291,15 @@ abstract class AbstractConnectionResolver {
 	 * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
 	 */
 	public function set_query_arg( $key, $value ) {
-		$this->query_args[ $key ] = $value;
+		if ( ! empty( $this->query_args[ $key ] ) && is_array( $this->query_args[ $key ] ) ) {
+			if ( ! is_array( $value ) ) {
+				$value = [ $value ];
+			}
+
+			$this->query_args[ $key ] = array_merge( $this->query_args[ $key ], $value );
+		} else {
+			$this->query_args[ $key ] = $value;
+		}
 
 		return $this;
 	}
