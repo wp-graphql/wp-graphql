@@ -40,7 +40,7 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'resolve'       => static function ( $source, $args, $context, $info ) {
 					global $wpdb;
 					$resolver = new TermObjectConnectionResolver( $source, $args, $context, $info, 'letter' );
-					
+
 					// Get cursor node
 					$cursor  = $args['after'] ?? null;
 					$cursor  = $cursor ?: ( $args['before'] ?? null );
