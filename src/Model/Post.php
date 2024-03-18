@@ -595,6 +595,12 @@ class Post extends Model {
 
 					return false;
 				},
+				'hasPassword'               => function () {
+					return ! empty( $this->data->post_password );
+				},
+				'password'                  => function () {
+					return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
+				},
 				'toPing'                    => function () {
 					$to_ping = get_to_ping( $this->databaseId );
 
@@ -690,12 +696,6 @@ class Post extends Model {
 
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
-				'password'                  => [
-					'callback'   => function () {
-						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
-					},
-					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
-				],
 				'enqueuedScriptsQueue'      => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );

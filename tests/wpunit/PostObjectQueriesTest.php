@@ -101,7 +101,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	public function createPostObject( $args ) {
-
 		/**
 		 * Set up the $defaults
 		 */
@@ -212,6 +211,8 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				}
 				enclosure
 				excerpt
+				hasPassword
+				password
 				status
 				link
 				postId
@@ -270,6 +271,8 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'slug'            => 'test-title-for-postobjectqueriestest',
 				'toPing'          => null,
 				'pinged'          => null,
+				'hasPassword'     => false,
+				'password'        => null,
 				'modified'        => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified ),
 				'modifiedGmt'     => \WPGraphQL\Utils\Utils::prepare_date_response( get_post( $post_id )->post_modified_gmt ),
 				'title'           => apply_filters( 'the_title', 'Test Title for PostObjectQueriesTest' ),
@@ -2396,7 +2399,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		// assert that the response is what we expect
-		self::assertQuerySuccessful(
+		$this->assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'post.__typename', 'Post' ),
@@ -2405,5 +2408,85 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				$this->expectedField( 'post.databaseId', $non_ascii_post->ID ),
 			]
 		);
+	}
+
+	public function testPasswordProtectedPost() {
+		$post = $this->factory()->post->create_and_get(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_password'    => 'mypassword',
+				'title'       => 'Password Protected post',
+				'content'     => 'Some content',
+			]
+		);
+
+		$subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
+
+		$query = '
+		query GetPasswordProtectedPost( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				title
+				content
+				status
+				password
+			}
+		}
+		';
+
+		// Test password protected post as unauthenticated user.
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'id' => $post->ID,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when unauthenticated' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when unauthenticated' );
+		$this->assertNull( $actual['data']['post']['content'], 'Content should be null when unauthenticated' );
+		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when unauthenticated' );
+
+		// Test password protected post as a subscriber.
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $post->ID,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when unauthenticated' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when unauthenticated' );
+		$this->assertNull( $actual['data']['post']['content'], 'Content should be null when unauthenticated' );
+		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when unauthenticated' );
+
+		// Test password protected post as admin.
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'id' => $post->ID,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when authenticated' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when authenticated' );
+		$this->assertNotEmpty( $actual['data']['post']['content'], 'Content should be returned when authenticated' );
+		$this->assertEquals( $post->post_password, $actual['data']['post']['password'], 'Password should be returned when authenticated' );
+
+		// @todo add case with password supplied once supported.
+		// @see https://github.com/wp-graphql/wp-graphql/issues/930
+
+		// cleanup
+		wp_delete_post( $post->ID, true );
+		wp_delete_user( $subscriber );
 	}
 }
