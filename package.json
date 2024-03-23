@@ -57,7 +57,7 @@
     "@wordpress/env": "5.4.0",
     "@wordpress/jest-console": "5.4.0",
     "@wordpress/jest-puppeteer-axe": "4.0.2",
-    "@wordpress/scripts": "23.5.0",
+    "@wordpress/scripts": "27.5.0",
     "babel-jest": "28.1.3",
     "babel-loader": "8.2.5",
     "babel-plugin-inline-json-import": "0.3.2",
