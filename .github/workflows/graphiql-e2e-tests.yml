@@ -47,6 +47,12 @@ jobs:
               run: npm run test:e2e
               continue-on-error: true # This allows the workflow to continue even if this step fails, so that screenshots can be collected.
 
+            - name: List Screenshots
+              if: always() # Ensures this step always runs for diagnostic purposes
+              run: |
+                echo "Listing contents of artifacts/test-results/"
+                ls -R artifacts/test-results/ || echo "No screenshots directory found"
+
             - name: Upload Screenshots on Failure
               if: failure() # This ensures that the following steps are only run if the previous step fails.
               uses: actions/upload-artifact@v2
