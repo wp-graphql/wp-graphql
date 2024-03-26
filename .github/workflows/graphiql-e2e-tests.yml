@@ -51,9 +51,9 @@ jobs:
               if: failure() # This ensures that the following steps are only run if the previous step fails.
               uses: actions/upload-artifact@v2
               with:
-                name: failed-test-screenshots
-                path: artifacts/test-results/
+                  name: failed-test-screenshots
+                  path: artifacts/test-results/
 
             - name: Stop WordPress Environment
               run: npm run wp-env -- stop
-              
+
