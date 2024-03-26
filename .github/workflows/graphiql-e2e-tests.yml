@@ -1,12 +1,18 @@
 name: GraphiQL End-to-End Tests
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - '**.js'
+      - '.github/workflows/*.yml'
+      - '!docs/**'
 
 jobs:
     e2e-tests:
