@@ -217,6 +217,8 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
     _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
 
     await visitAdminFacingPage( page, wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}` );
-    await page.waitForSelector( '#graphiql .graphiql-container' );
+    await page.waitForSelector( '.graphiql-container', {
+        state: 'visible',
+    } );
 
 }
