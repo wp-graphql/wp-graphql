@@ -1,6 +1,7 @@
 {
   "name": "wp-graphql",
-  "version": "1.12.0",
+  "private": true,
+  "version": "1.22.0",
   "description": "GraphQL API for WordPress",
   "homepage": "https://github.com/wp-graphql/wp-graphql#readme",
   "author": "WPGraphQL <info@wpgraphql.com> (https://www.wpgraphql.com)",
@@ -12,17 +13,19 @@
     "test": "tests"
   },
   "scripts": {
+    "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
-    "pretty": "prettier --write ./packages",
-    "format:docs": "remark docs/ --quiet --output",
     "start": "wp-scripts start",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
-    "test-e2e:debug": "wp-scripts --inspect-brk test-e2e --config tests/e2e/jest.config.js --puppeteer-devtools",
-    "test-e2e:watch": "npm run test-e2e -- --watch",
-    "test:unit": "jest test-unit-js --config tests/js-unit/jest.config.js",
-    "wp-env": "wp-env"
+    "test:unit": "jest --config tests/unit/jest.config.js",
+    "format": "wp-scripts format",
+    "format:src": "wp-scripts format ./src",
+    "lint:js": "wp-scripts lint-js ./src",
+    "lint:js:fix": "wp-scripts lint-js --fix ./src",
+    "lint:js:src": "wp-scripts lint-js ./src",
+    "wp-env": "wp-env",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -67,26 +70,13 @@
     "dotenv": "^16.4.4",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "sort-package-json": "^2.7.0",
-    "remark-cli": "^11.0.0",
-    "remark-frontmatter": "^4.0.1",
-    "remark-preset-lint-consistent": "^5.1.1",
-    "remark-preset-lint-markdown-style-guide": "^5.1.2",
-    "remark-preset-lint-recommended": "^6.1.2"
+    "sort-package-json": "^2.7.0"
   },
   "lint-staged": {
-    "*.php": "composer run check-cs"
-  },
-  "wp-env": {
-    "plugins": [
-      "."
-    ]
+    "package.json": "sort-package-json"
   },
   "overrides": {
     "react": "18.2.0",
     "react-dom": "18.2.0"
-  },
-  "lint-staged": {
-    "package.json": "sort-package-json"
   }
 }
