@@ -227,14 +227,10 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
     console.log( { url })
     await page.goto(
         url,
-        { waitUntil: 'domcontentloaded' }
+        { waitUntil: 'networkidle' }
     );
 
     console.log( {
         domContentLoaded: true,
     })
-
-    await page.waitForSelector( '.graphiql-container', {
-        state: 'visible',
-    } );
 }
