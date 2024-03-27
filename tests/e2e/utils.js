@@ -212,10 +212,12 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
 
     _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
 
-    await visitAdminFacingPage( page, wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}` );
-    await page.waitForLoadState( 'networkidle' );
-    await page.waitForSelector( '.graphiql-container', {
-        state: 'visible',
-    } );
+    const url = wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`;
+    console.log( { url })
+    await page.goto(
+        url,
+        { waitUntil: 'networkidle' }
+    );
 
+    await page.locator( '.graphiql-container' ).isVisible();
 }

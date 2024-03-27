@@ -22,7 +22,7 @@ const selectors = {
 // Login to WordPress before each test
 test.beforeEach( async ( { page } ) => {
     await loginToWordPressAdmin( page );
-    await page.evaluate(() => localStorage.clear());
+    // await page.evaluate(() => localStorage.clear());
 } );
 
 test.describe('GraphiQL', () => {
