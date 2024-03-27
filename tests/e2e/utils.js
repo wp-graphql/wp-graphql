@@ -45,10 +45,21 @@ export async function loginToWordPressAdmin( page ) {
     await page.goto( 'http://localhost:8888/wp-login.php', {
         waitUntil: 'networkidle',
     } );
+    console.log( {
+        title: await page.title(),
+        url: await page.url(),
+    } )
+
     await page.fill( selectors.loginUsername, 'admin' );
     await page.fill( selectors.loginPassword, 'password' );
     await page.click( selectors.submitButton );
-    await page.waitForSelector( '#wpadminbar' ); // Confirm login by waiting for the admin bar
+    await page.waitForLoadState( 'networkidle' );
+    console.log( {
+        title: await page.title(),
+        url: await page.url(),
+    } )
+    // await expect( page.locator( '#wpadminbar' ) ).toBeVisible(); // Confirm login by waiting for the admin bar
+    await page.waitForSelector( '#wpadminbar', { state: 'visible' } ); // Confirm login by waiting for the admin bar
 }
 
 /**
@@ -216,8 +227,14 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
     console.log( { url })
     await page.goto(
         url,
-        { waitUntil: 'networkidle' }
+        { waitUntil: 'domcontentloaded' }
     );
 
-    await page.locator( '.graphiql-container' ).isVisible();
+    console.log( {
+        domContentLoaded: true,
+    })
+
+    await page.waitForSelector( '.graphiql-container', {
+        state: 'visible',
+    } );
 }
