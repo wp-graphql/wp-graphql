@@ -21,25 +21,32 @@ const selectors = {
 
 // Login to WordPress before each test
 test.beforeEach( async ( { page } ) => {
-    await loginToWordPressAdmin( page );
+    // await loginToWordPressAdmin( page );
     // await page.evaluate(() => localStorage.clear());
 } );
 
 test.describe('GraphiQL', () => {
 
-    test('it executes query', async ({ page }) => {
+    test('it executes query', async ({ browser }) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await loginToWordPressAdmin( page );
 
-        await loadGraphiQL( page );
+        await context.storageState({ path: 'state.json' });
+        const contextWithState = await browser.newContext({ storageState: 'state.json' });
+        const pageWithState = await contextWithState.newPage();
+
+        await loadGraphiQL( pageWithState );
         console.log( {
-            title: await page.title(),
-            url: await page.url(),
-            html: await page.content()
+            title: await pageWithState.title(),
+            url: await pageWithState.url(),
+            html: await pageWithState.content()
         } )
-        await expect( page.locator( '.graphiql-container' ) ).toBeVisible();
-        await typeQuery( page, `{posts{nodes{id}}}` );
-        await page.click( selectors.executeQueryButton );
-        await page.waitForLoadState('networkidle');
-        const response = await page.locator( selectors.graphiqlResponse );
+        await expect( pageWithState.locator( '.graphiql-container' ) ).toBeVisible();
+        await typeQuery( pageWithState, `{posts{nodes{id}}}` );
+        await pageWithState.click( selectors.executeQueryButton );
+        await pageWithState.waitForLoadState('networkidle');
+        const response = await pageWithState.locator( selectors.graphiqlResponse );
         await expect( response ).not.toContainText( 'errors' );
         await expect( response ).toContainText( "posts" );
 

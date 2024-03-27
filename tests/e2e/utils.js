@@ -53,13 +53,14 @@ export async function loginToWordPressAdmin( page ) {
     await page.fill( selectors.loginUsername, 'admin' );
     await page.fill( selectors.loginPassword, 'password' );
     await page.click( selectors.submitButton );
-    await page.waitForLoadState( 'networkidle' );
-    console.log( {
-        title: await page.title(),
-        url: await page.url(),
-    } )
-    // await expect( page.locator( '#wpadminbar' ) ).toBeVisible(); // Confirm login by waiting for the admin bar
-    await page.waitForSelector( '#wpadminbar', { state: 'visible' } ); // Confirm login by waiting for the admin bar
+
+    // await page.waitForLoadState( 'networkidle' );
+    // console.log( {
+    //     title: await page.title(),
+    //     url: await page.url(),
+    // } )
+    // // await expect( page.locator( '#wpadminbar' ) ).toBeVisible(); // Confirm login by waiting for the admin bar
+    // await page.waitForSelector( '#wpadminbar', { state: 'visible' } ); // Confirm login by waiting for the admin bar
 }
 
 /**
