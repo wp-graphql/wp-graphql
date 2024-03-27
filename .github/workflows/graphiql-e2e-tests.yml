@@ -70,7 +70,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: failed-test-screenshots
-                  path: artifacts/test-results/*/*.png
+                  path: artifacts/test-results/
                   compression-level: 1
                   if-no-files-found: warn
                   retention-days: 1
