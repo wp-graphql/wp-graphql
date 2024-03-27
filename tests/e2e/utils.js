@@ -35,12 +35,12 @@ export const wpAdminUrl = 'http://localhost:8888/wp-admin';
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
 export async function loginToWordPressAdmin( page ) {
-    // const isLoggedIn = await page.$( '#wpadminbar' );
-    //
-    // // If already logged in, return early
-    // if ( isLoggedIn ) {
-    //     return;
-    // }
+    const isLoggedIn = await page.$( '#wpadminbar' );
+
+    // If already logged in, return early
+    if ( isLoggedIn ) {
+        return;
+    }
 
     await page.goto( 'http://localhost:8888/wp-login.php', {
         waitUntil: 'networkidle',
@@ -230,6 +230,21 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
         url,
         { waitUntil: 'networkidle' }
     );
+
+    const isLoggedIn = await page.$( '#wpadminbar' );
+
+    // If already logged in, return early
+    if ( ! isLoggedIn ) {
+        console.log( `Logging in as admin` )
+        await page.fill( selectors.loginUsername, 'admin' );
+        await page.fill( selectors.loginPassword, 'password' );
+        await page.click( selectors.submitButton );
+
+    } else {
+        console.log( `Already logged in as admin` )
+    }
+
+    await page.waitForLoadState( 'networkidle' );
 
     console.log( {
         domContentLoaded: true,

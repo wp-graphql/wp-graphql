@@ -27,26 +27,13 @@ test.beforeEach( async ( { page } ) => {
 
 test.describe('GraphiQL', () => {
 
-    test('it executes query', async ({ browser }) => {
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await loginToWordPressAdmin( page );
+    test('it executes query', async ({ page }) => {
 
-        await context.storageState({ path: 'state.json' });
-        const contextWithState = await browser.newContext({ storageState: 'state.json' });
-        const pageWithState = await contextWithState.newPage();
-
-        await loadGraphiQL( pageWithState );
-        console.log( {
-            title: await pageWithState.title(),
-            url: await pageWithState.url(),
-            html: await pageWithState.content()
-        } )
-        await expect( pageWithState.locator( '.graphiql-container' ) ).toBeVisible();
-        await typeQuery( pageWithState, `{posts{nodes{id}}}` );
-        await pageWithState.click( selectors.executeQueryButton );
-        await pageWithState.waitForLoadState('networkidle');
-        const response = await pageWithState.locator( selectors.graphiqlResponse );
+        await loadGraphiQL( page );
+        await typeQuery( page, `{posts{nodes{id}}}` );
+        await page.click( selectors.executeQueryButton );
+        await page.waitForLoadState('networkidle');
+        const response = await page.locator( selectors.graphiqlResponse );
         await expect( response ).not.toContainText( 'errors' );
         await expect( response ).toContainText( "posts" );
 
