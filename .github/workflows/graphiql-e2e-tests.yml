@@ -66,11 +66,15 @@ jobs:
               id: check_screenshots
 
             - name: Upload Screenshots on Failure
-              if: failure() # This ensures that the following steps are only run if the previous step fails.
-              uses: actions/upload-artifact@v2
+              if: always() # This ensures that the following steps are only run if the previous step fails.
+              uses: actions/upload-artifact@v4
               with:
                   name: failed-test-screenshots
-                  path: artifacts/test-results/
+                  path: artifacts/test-results/*/*.png
+                  compression-level: 1
+                  if-no-files-found: warn
+                  retention-days: 1
+                  overwrite: true
 
             - name: Stop WordPress Environment
               run: npm run wp-env -- stop
