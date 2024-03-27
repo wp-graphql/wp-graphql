@@ -221,7 +221,7 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
         _queryParams += `&variables=${encodeURIComponent( JSON.stringify( variables ) )}`;
     }
 
-    _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
+    // _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
 
     const url = wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`;
     console.log( { url })
@@ -232,5 +232,7 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
 
     console.log( {
         domContentLoaded: true,
+        title: await page.title(),
+        url: await page.url(),
     })
 }
