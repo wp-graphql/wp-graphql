@@ -124,11 +124,7 @@ export async function visitPublicFacingPage( page ) {
     await page.goto( wpHomeUrl, { waitUntil: 'networkidle' } );
 }
 
-export async function visitAdminFacingPage( page, path = null ) {
-
-    if ( ! path ) {
-        path = wpAdminUrl;
-    }
+export async function visitAdminFacingPage( page, path = wpAdminUrl ) {
     await page.goto( path, { waitUntil: 'networkidle' } );
 }
 
@@ -217,6 +213,7 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
     _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
 
     await visitAdminFacingPage( page, wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}` );
+    await page.waitForLoadState( 'networkidle' );
     await page.waitForSelector( '.graphiql-container', {
         state: 'visible',
     } );
