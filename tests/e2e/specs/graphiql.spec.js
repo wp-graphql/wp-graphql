@@ -78,7 +78,7 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
 
     // if there's an error, go to the plugins page
     if ( ! pageTitle.includes( 'GraphiQL' ) ) {
-        page.goto( wpAdminUrl + '/plugins.php' )
+        page.goto( wpAdminUrl + '/plugins.php', { waitUntil: 'networkidle' } )
     }
 
     await page.waitForLoadState( 'networkidle' );
