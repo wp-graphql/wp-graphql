@@ -53,6 +53,18 @@ jobs:
                 echo "Listing contents of artifacts/test-results/"
                 ls -R artifacts/test-results/ || echo "No screenshots directory found"
 
+            - name: Check for Screenshots and Upload if Present
+              if: always() # This ensures the step runs regardless of previous success/failure
+              run: |
+                if [ -d artifacts/test-results/ ] && [ "$(ls -A artifacts/test-results/)" ]; then
+                  echo "Screenshots found, uploading..."
+                  echo "::set-output name=upload_screenshots::true"
+                else
+                  echo "No screenshots found, skipping upload."
+                  echo "::set-output name=upload_screenshots::false"
+                fi
+              id: check_screenshots
+
             - name: Upload Screenshots on Failure
               if: failure() # This ensures that the following steps are only run if the previous step fails.
               uses: actions/upload-artifact@v2
