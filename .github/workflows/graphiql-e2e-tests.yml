@@ -31,15 +31,15 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             - name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                  php-version: 7.4
-                  extensions: mbstring, intl
-                  tools: composer
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: 7.4
+                extensions: mbstring, intl
+                tools: composer
 
             - name: Install PHP dependencies
-                run: |
-                  composer install --optimize-autoloader
+              run: |
+                composer install --optimize-autoloader
 
             - name: Install JavaScript dependencies
               run: npm ci
