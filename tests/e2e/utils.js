@@ -42,25 +42,13 @@ export async function loginToWordPressAdmin( page ) {
         return;
     }
 
-    await page.goto( 'http://localhost:8888/wp-login.php', {
+    await page.goto( 'http://localhost:8888/wp-admin', {
         waitUntil: 'networkidle',
     } );
-    console.log( {
-        title: await page.title(),
-        url: await page.url(),
-    } )
-
     await page.fill( selectors.loginUsername, 'admin' );
     await page.fill( selectors.loginPassword, 'password' );
     await page.click( selectors.submitButton );
-
-    // await page.waitForLoadState( 'networkidle' );
-    // console.log( {
-    //     title: await page.title(),
-    //     url: await page.url(),
-    // } )
-    // // await expect( page.locator( '#wpadminbar' ) ).toBeVisible(); // Confirm login by waiting for the admin bar
-    // await page.waitForSelector( '#wpadminbar', { state: 'visible' } ); // Confirm login by waiting for the admin bar
+    await page.waitForSelector( '#wpadminbar' ); // Confirm login by waiting for the admin bar
 }
 
 /**
@@ -136,7 +124,11 @@ export async function visitPublicFacingPage( page ) {
     await page.goto( wpHomeUrl, { waitUntil: 'networkidle' } );
 }
 
-export async function visitAdminFacingPage( page, path = wpAdminUrl ) {
+export async function visitAdminFacingPage( page, path = null ) {
+
+    if ( ! path ) {
+        path = wpAdminUrl;
+    }
     await page.goto( path, { waitUntil: 'networkidle' } );
 }
 
@@ -222,33 +214,11 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
         _queryParams += `&variables=${encodeURIComponent( JSON.stringify( variables ) )}`;
     }
 
-    // _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
+    _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
 
-    const url = wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`;
-    console.log( { url })
-    await page.goto(
-        url,
-        { waitUntil: 'networkidle' }
-    );
+    await visitAdminFacingPage( page, wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}` );
+    await page.waitForSelector( '.graphiql-container', {
+        state: 'visible',
+    } );
 
-    const isLoggedIn = await page.$( '#wpadminbar' );
-
-    // If already logged in, return early
-    if ( ! isLoggedIn ) {
-        console.log( `Logging in as admin` )
-        await page.fill( selectors.loginUsername, 'admin' );
-        await page.fill( selectors.loginPassword, 'password' );
-        await page.click( selectors.submitButton );
-
-    } else {
-        console.log( `Already logged in as admin` )
-    }
-
-    await page.waitForLoadState( 'networkidle' );
-
-    console.log( {
-        domContentLoaded: true,
-        title: await page.title(),
-        url: await page.url(),
-    })
 }

@@ -1,7 +1,15 @@
-
+import {
+    loginToWordPressAdmin,
+    openDrawer,
+    pasteVariables,
+    typeQuery,
+    typeVariables,
+    visitAdminFacingPage,
+    visitPublicFacingPage,
+    wpAdminUrl,
+    loadGraphiQL,
+} from '../utils.js';
 import { test, expect } from '@playwright/test';
-
-export const wpAdminUrl = 'http://localhost:8888/wp-admin';
 
 const selectors = {
     graphiqlContainer: '.graphiql-container',
@@ -9,88 +17,13 @@ const selectors = {
     executeQueryButton: '.execute-button',
     queryInput: '[aria-label="Query Editor"] .CodeMirror',
     variablesInput: '[aria-label="Variables"] .CodeMirror',
-    loginUsername: '#user_login',
-    loginPassword: '#user_pass',
-    submitButton: '#wp-submit',
 };
 
-/**
- * Types a GraphQL query into the CodeMirror editor.
- * @param {import('@playwright/test').Page} page  The Playwright page object.
- * @param {string}                          query The GraphQL query to type.
- */
-export async function typeQuery( page, query = '' ) {
-
-    const selector = '.query-editor .cm-s-graphiql';
-
-    // Set the value
-    await page.evaluate( async ({ query, selector }) => {
-        const editor = document.querySelector(selector).CodeMirror;
-        await editor.setValue( query );
-    }, { query, selector });
-
-    // Wait for the value to be set
-    await page.waitForTimeout( 500 );
-}
-
-export async function loadGraphiQL( page, queryParams = { query: null, variables: null, isQueryComposerOpen: null } ) {
-
-    const {
-        query,
-        variables,
-        isQueryComposerOpen,
-    } = queryParams;
-
-    let _queryParams = '';
-
-    if ( query ) {
-        _queryParams += `&query=${encodeURIComponent( query )}`;
-    }
-
-    if ( variables ) {
-        _queryParams += `&variables=${encodeURIComponent( JSON.stringify( variables ) )}`;
-    }
-
-    // _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
-
-    const url = wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`;
-    console.log( { url })
-    await page.goto(
-        url,
-        { waitUntil: 'networkidle' }
-    );
-
-    const isLoggedIn = await page.locator( '#wpadminbar' ).isVisible();
-
-    if ( ! isLoggedIn ) {
-        console.log( `Logging in as admin` )
-        await page.fill( selectors.loginUsername, 'admin' );
-        await page.fill( selectors.loginPassword, 'password' );
-        await page.click( selectors.submitButton );
-
-    } else {
-        console.log( `Already logged in as admin` )
-    }
-
-    await page.waitForLoadState( 'networkidle' );
-
-    const pageTitle = await page.title();
-
-    // if there's an error, go to the plugins page
-    if ( ! pageTitle.includes( 'GraphiQL' ) ) {
-        page.goto( wpAdminUrl + '/plugins.php', { waitUntil: 'networkidle' } )
-    }
-
-    await page.waitForLoadState( 'networkidle' );
-
-    console.log( {
-        domContentLoaded: true,
-        title: await page.title(),
-        url: await page.url(),
-    })
-
-
-}
+// Login to WordPress before each test
+test.beforeEach( async ( { page } ) => {
+    await loginToWordPressAdmin( page );
+    await page.evaluate(() => localStorage.clear());
+} );
 
 test.describe('GraphiQL', () => {
 
