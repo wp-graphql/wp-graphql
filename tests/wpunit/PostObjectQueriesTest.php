@@ -2411,6 +2411,24 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 	}
 
 	public function testPasswordProtectedPost() {
+		$subscriber = $this->factory()->user->create(
+			[
+				'role' => 'subscriber',
+			]
+		);
+
+		$post_author_one = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
+
+		$post_author_two = $this->factory()->user->create(
+			[
+				'role' => 'author',
+			]
+		);
+
 		$post = $this->factory()->post->create_and_get(
 			[
 				'post_type'   => 'post',
@@ -2418,12 +2436,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'post_password'    => 'mypassword',
 				'title'       => 'Password Protected post',
 				'content'     => 'Some content',
-			]
-		);
-
-		$subscriber = $this->factory()->user->create(
-			[
-				'role' => 'subscriber',
+				'post_author' => $post_author_one,
 			]
 		);
 
@@ -2453,6 +2466,7 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when unauthenticated' );
 
 		// Test password protected post as a subscriber.
+		wp_set_current_user( $subscriber );
 		$actual = $this->graphql( [
 			'query' => $query,
 			'variables' => [
@@ -2461,10 +2475,41 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		] );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when unauthenticated' );
-		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when unauthenticated' );
-		$this->assertNull( $actual['data']['post']['content'], 'Content should be null when unauthenticated' );
-		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when unauthenticated' );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when lacking permissions' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when lacking permissions' );
+		$this->assertNull( $actual['data']['post']['content'], 'Content should be null when lacking permissions' );
+		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when lacking permissions' );
+
+		// Test password protected post as different author.
+		wp_set_current_user( $post_author_two );
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $post->ID,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when lacking permissions' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when lacking permissions' );
+		$this->assertNull( $actual['data']['post']['content'], 'Content should be null when lacking permissions' );
+		$this->assertNull( $actual['data']['post']['password'], 'Password should be null when lacking permissions' );
+
+		// Test password protected post as current author.
+		wp_set_current_user( $post_author_one );
+
+		$actual = $this->graphql( [
+			'query'     => $query,
+			'variables' => [
+				'id' => $post->ID,
+			],
+		] );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when authenticated' );
+		$this->assertEquals( 'publish', $actual['data']['post']['status'], 'Status should be "publish" when authenticated' );
+		$this->assertNotEmpty( $actual['data']['post']['content'], 'Content should be returned when authenticated' );
+		$this->assertEquals( $post->post_password, $actual['data']['post']['password'], 'Password should be returned when authenticated' );
 
 		// Test password protected post as admin.
 		wp_set_current_user( $this->admin );
