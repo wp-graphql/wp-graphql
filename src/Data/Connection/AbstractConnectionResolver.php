@@ -60,9 +60,18 @@ abstract class AbstractConnectionResolver {
 	protected $should_execute = true;
 
 	/**
+	 * The loader name.
+	 *
+	 * Defaults to `loader_name()` and filterable by `graphql_connection_loader_name`.
+	 *
+	 * @var ?string
+	 */
+	protected $loader_name;
+
+	/**
 	 * The loader the resolver is configured to use.
 	 *
-	 * @var \WPGraphQL\Data\Loader\AbstractDataLoader
+	 * @var ?\WPGraphQL\Data\Loader\AbstractDataLoader
 	 */
 	protected $loader;
 
@@ -185,6 +194,17 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * The name of the loader to use for this connection.
+	 *
+	 * Filterable by `graphql_connection_loader_name`.
+	 *
+	 * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
+	 */
+	protected function loader_name(): string {
+		return '';
+	}
+
+	/**
 	 * Returns the $args passed to the connection.
 	 *
 	 * Useful for modifying the $args before they are passed to $this->get_query_args().
@@ -194,15 +214,6 @@ abstract class AbstractConnectionResolver {
 	public function get_args(): array {
 		return $this->args;
 	}
-
-	/**
-	 * Get_loader_name
-	 *
-	 * Return the name of the loader to be used with the connection resolver
-	 *
-	 * @return string
-	 */
-	abstract public function get_loader_name();
 
 	/**
 	 * Get_query_args
@@ -346,6 +357,51 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_info(): ResolveInfo {
 		return $this->info;
+	}
+
+	/**
+	 * Returns the loader name.
+	 *
+	 * If $loader_name is not initialized, this plugin will initialize it.
+	 *
+	 * @return string
+	 *
+	 * @throws \Exception
+	 */
+	public function get_loader_name() {
+		// Only initialize the loader_name property once.
+		if ( ! isset( $this->loader_name ) ) {
+			$name = $this->loader_name();
+
+			// This is a b/c check because `loader_name()` is not abstract.
+			if ( empty( $name ) ) {
+				throw new \Exception(
+					sprintf(
+						// translators: %s is the name of the connection resolver class.
+						esc_html__( 'Class %s does not implement a valid method `loader_name()`.', 'wp-graphql' ),
+						esc_html( static::class )
+					)
+				);
+			}
+
+			/**
+			 * Filters the loader name.
+			 * This is the name of the registered DataLoader that will be used to load the data for the connection.
+			 *
+			 * @param string $loader_name The name of the loader.
+			 * @param self   $resolver    The AbstractConnectionResolver instance.
+			 */
+			$name = apply_filters( 'graphql_connection_loader_name', $name, $this );
+
+			// Bail if the loader name is invalid.
+			if ( empty( $name ) || ! is_string( $name ) ) {
+				throw new \Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+			}
+
+			$this->loader_name = $name;
+		}
+
+		return $this->loader_name;
 	}
 
 	/**
@@ -551,16 +607,19 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the loader.
 	 *
+	 * If $loader is not initialized, this method will initialize it.
+	 *
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 * @throws \Exception
 	 */
 	protected function get_loader() {
-		$name = $this->get_loader_name();
-		if ( empty( $name ) || ! is_string( $name ) ) {
-			throw new Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+		// If the loader isn't set, set it.
+		if ( ! isset( $this->loader ) ) {
+			$name = $this->get_loader_name();
+
+			$this->loader = $this->context->get_loader( $name );
 		}
 
-		return $this->context->get_loader( $name );
+		return $this->loader;
 	}
 
 	/**
@@ -634,7 +693,7 @@ abstract class AbstractConnectionResolver {
 		return new Deferred(
 			function () {
 				if ( ! empty( $this->ids ) ) {
-					$this->loader->load_many( $this->ids );
+					$this->get_loader()->load_many( $this->ids );
 				}
 
 				/**
@@ -748,7 +807,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Buffer the IDs for deferred resolution
 		 */
-		$this->loader->buffer( $this->ids );
+		$this->get_loader()->buffer( $this->ids );
 
 		return $this->ids;
 	}
@@ -846,7 +905,7 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_node_by_id( $id ) {
-		return $this->loader->load( $id );
+		return $this->get_loader()->load( $id );
 	}
 
 	/**
