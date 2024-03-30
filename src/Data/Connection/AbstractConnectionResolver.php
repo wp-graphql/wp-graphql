@@ -145,7 +145,7 @@ abstract class AbstractConnectionResolver {
 		}
 
 		// Get the loader for the Connection.
-		$this->loader = $this->getLoader();
+		$this->loader = $this->get_loader();
 
 		/**
 		 *
@@ -185,15 +185,6 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns the source of the connection
-	 *
-	 * @return mixed
-	 */
-	public function getSource() {
-		return $this->source;
-	}
-
-	/**
 	 * Returns the $args passed to the connection.
 	 *
 	 * Useful for modifying the $args before they are passed to $this->get_query_args().
@@ -202,27 +193,6 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_args(): array {
 		return $this->args;
-	}
-
-	/**
-	 * Returns the AppContext of the connection
-	 */
-	public function getContext(): AppContext {
-		return $this->context;
-	}
-
-	/**
-	 * Returns the ResolveInfo of the connection
-	 */
-	public function getInfo(): ResolveInfo {
-		return $this->info;
-	}
-
-	/**
-	 * Returns whether the connection should execute
-	 */
-	public function getShouldExecute(): bool {
-		return $this->should_execute;
 	}
 
 	/**
@@ -341,7 +311,6 @@ abstract class AbstractConnectionResolver {
 		return is_numeric( $offset ) ? absint( $offset ) : $offset;
 	}
 
-
 	/**
 	 * Validates Model.
 	 *
@@ -354,6 +323,36 @@ abstract class AbstractConnectionResolver {
 	 */
 	protected function is_valid_model( $model ) {
 		return isset( $model->fields ) && ! empty( $model->fields );
+	}
+
+	/**
+	 * Returns the source of the connection
+	 *
+	 * @return mixed
+	 */
+	public function get_source() {
+		return $this->source;
+	}
+
+	/**
+	 * Returns the AppContext of the connection.
+	 */
+	public function get_context(): AppContext {
+		return $this->context;
+	}
+
+	/**
+	 * Returns the ResolveInfo of the connection.
+	 */
+	public function get_info(): ResolveInfo {
+		return $this->info;
+	}
+
+	/**
+	 * Returns whether the connection should execute.
+	 */
+	public function get_should_execute(): bool {
+		return $this->should_execute;
 	}
 
 	/**
@@ -555,7 +554,7 @@ abstract class AbstractConnectionResolver {
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 * @throws \Exception
 	 */
-	protected function getLoader() {
+	protected function get_loader() {
 		$name = $this->get_loader_name();
 		if ( empty( $name ) || ! is_string( $name ) ) {
 			throw new Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
@@ -1008,5 +1007,65 @@ abstract class AbstractConnectionResolver {
 		$cursor = $cursor ?: ( $this->args['before'] ?? null );
 
 		return $this->get_offset_for_cursor( $cursor );
+	}
+
+	/**
+	 * Returns the source of the connection.
+	 *
+	 * @deprecated @todo in favor of $this->get_source().
+	 *
+	 * @return mixed
+	 */
+	public function getSource() {
+		_deprecated_function( __METHOD__, '@todo', static::class . '::get_source()' );
+
+		return $this->get_source();
+	}
+
+	/**
+	 * Returns the AppContext of the connection.
+	 *
+	 * @deprecated @todo in favor of $this->get_context().
+	 */
+	public function getContext(): AppContext {
+		_deprecated_function( __METHOD__, '@todo', static::class . '::get_context()' );
+
+		return $this->get_context();
+	}
+
+	/**
+	 * Returns the ResolveInfo of the connection.
+	 *
+	 * @deprecated @todo in favor of $this->get_info().
+	 */
+	public function getInfo(): ResolveInfo {
+		_deprecated_function( __METHOD__, '@todo', static::class . '::get_info()' );
+
+		return $this->get_info();
+	}
+
+	/**
+	 * Returns whether the connection should execute.
+	 *
+	 * @deprecated @todo in favor of $this->get_should_execute().
+	 */
+	public function getShouldExecute(): bool {
+		_deprecated_function( __METHOD__, '@todo', static::class . '::should_execute()' );
+
+		return $this->get_should_execute();
+	}
+
+	/**
+	 * Returns the loader.
+	 *
+	 * @deprecated @todo in favor of $this->get_loader().
+	 *
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+	 * @throws \Exception
+	 */
+	protected function getLoader() {
+		_deprecated_function( __METHOD__, '@todo', static::class . '::get_loader()' );
+
+		return $this->get_loader();
 	}
 }
