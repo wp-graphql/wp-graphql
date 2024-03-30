@@ -243,7 +243,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_args(): array {
-		$args = $this->args;
+		$args = $this->get_unfiltered_args();
 
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
@@ -284,7 +284,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->args );
+		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->get_unfiltered_args() );
 	}
 
 	/**

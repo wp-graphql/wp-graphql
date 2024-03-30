@@ -183,7 +183,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @return array<string,mixed>
 	 */
 	public function get_args(): array {
-		$args = $this->args;
+		$args = $this->get_unfiltered_args();
 
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
