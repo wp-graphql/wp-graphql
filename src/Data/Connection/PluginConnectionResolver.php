@@ -4,7 +4,7 @@ namespace WPGraphQL\Data\Connection;
 /**
  * Class PluginConnectionResolver - Connects plugins to other objects
  *
- * @package WPGraphQL\Data\Resolvers
+ * @package WPGraphQL\Data\Connection
  * @since 0.0.5
  */
 class PluginConnectionResolver extends AbstractConnectionResolver {

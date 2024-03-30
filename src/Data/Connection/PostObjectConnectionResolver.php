@@ -28,6 +28,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var \WP_Query|object
 	 */
 	protected $query;
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -450,7 +451,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return string[]|null
 	 */
 	public function sanitize_post_stati( $stati ) {
-
 		/**
 		 * If no stati is explicitly set by the input, default to publish. This will be the
 		 * most common scenario.
@@ -572,7 +572,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                     $args                The GraphQL args passed to the resolver.

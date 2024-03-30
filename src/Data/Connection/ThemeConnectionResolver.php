@@ -42,9 +42,8 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 		];
 	}
 
-
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */

@@ -12,7 +12,6 @@ use WP_Comment_Query;
  * @package WPGraphQL\Data\Connection
  */
 class CommentConnectionResolver extends AbstractConnectionResolver {
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -23,7 +22,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws \GraphQL\Error\UserError If there is a problem with the $args.
+	 * @throws \GraphQL\Error\UserError
 	 */
 	public function get_query_args() {
 
@@ -179,21 +178,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * For example, if the $source were a post_type that didn't support comments, we could prevent
-	 * the connection query from even executing. In our case, we prevent comments from even showing
-	 * in the Schema for post types that don't have comment support, so we don't need to worry
-	 * about that, but there may be other situations where we'd need to prevent it.
-	 *
-	 * @return bool
-	 */
-	public function should_execute() {
-		return true;
-	}
-
-
-	/**
 	 * Filters the GraphQL args before they are used in get_query_args().
 	 *
 	 * @return array<string,mixed>
@@ -253,7 +237,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                  $args                The GraphQL args passed to the resolver.
@@ -328,5 +311,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function is_valid_offset( $offset ) {
 		return ! empty( get_comment( $offset ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function should_execute() {
+		return true;
 	}
 }

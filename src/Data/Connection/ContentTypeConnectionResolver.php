@@ -40,7 +40,6 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 		return [];
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 *

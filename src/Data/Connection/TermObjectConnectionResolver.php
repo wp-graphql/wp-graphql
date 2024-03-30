@@ -52,7 +52,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			$taxonomy             = array_intersect( $all_taxonomies, $requested_taxonomies );
 		}
 
-
 		$query_args = [
 			'taxonomy' => $taxonomy,
 		];
@@ -180,15 +179,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
-	 */
-	public function should_execute() {
-		return true;
-	}
-
-	/**
 	 * This maps the GraphQL "friendly" args to get_terms $args.
 	 * There's probably a cleaner/more dynamic way to approach this, but this was quick. I'd be down
 	 * to explore more dynamic ways to map this, but for now this gets the job done.
@@ -286,7 +276,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                     $args                The GraphQL args passed to the resolver.
@@ -305,5 +294,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function is_valid_offset( $offset ) {
 		return get_term( absint( $offset ) ) instanceof \WP_Term;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
+	 */
+	public function should_execute() {
+		return true;
 	}
 }

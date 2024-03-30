@@ -60,7 +60,6 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		return [];
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -78,11 +77,9 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Determine if the model is valid
+	 * {@inheritDoc}
 	 *
-	 * @param ?\_WP_Dependency $model
-	 *
-	 * @return bool
+	 * @param ?\_WP_Dependency $model The model to check.
 	 */
 	protected function is_valid_model( $model ) {
 		return isset( $model->handle );
