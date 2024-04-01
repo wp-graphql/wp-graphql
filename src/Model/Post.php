@@ -51,6 +51,7 @@ use WP_Post;
  * @property array   $editLock
  * @property string  $enclosure
  * @property string  $guid
+ * @property bool    $hasPassword
  * @property int     $menuOrder
  * @property string  $link
  * @property string  $uri
@@ -58,6 +59,7 @@ use WP_Post;
  * @property string  $featuredImageId
  * @property int     $featuredImageDatabaseId
  * @property string  $pageTemplate
+ * @property string  $password
  * @property int     $previewRevisionDatabaseId
  *
  * @property string  $captionRaw
@@ -152,6 +154,7 @@ class Post extends Model {
 			'isPostsPage',
 			'isFrontPage',
 			'isPrivacyPage',
+			'hasPassword',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
