@@ -270,7 +270,8 @@ class AdminNotices {
 			<div id="wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?>" class="wpgraphql-admin-notice notice notice-<?php echo esc_attr( $type ); ?> <?php echo $this->is_notice_dismissable( $notice ) ? 'is-dismissable' : ''; ?>">
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
-				if ( $is_dismissable = $this->is_notice_dismissable( $notice ) ) {
+				$is_dismissable = $this->is_notice_dismissable( $notice );
+				if ( $is_dismissable ) {
 					$dismiss_acf_nonce = wp_create_nonce( 'wpgraphql_disable_notice_nonce' );
 					$dismiss_url       = add_query_arg(
 						[
