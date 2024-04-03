@@ -253,7 +253,7 @@ class AdminNotices {
 		/**
 		 * Fires before the admin notices are rendered.
 		 *
-		 * @param array<mixed> $notices The notices to be rendered
+		 * @param array<string,mixed> $notices The notices to be rendered
 		 *
 		 * @since todo
 		 */
