@@ -323,7 +323,7 @@ class AdminNotices {
 
 		$current_page_id = $screen->id;
 
-		$is_plugin_scoped_page = in_array( $current_page_id, $allowed_pages, true );
+		$is_allowed_admin_page = in_array( $current_page_id, $allowed_pages, true );
 
 		/**
 		 * Filter to determine if the current admin page is within the scope of the plugin's own pages.
@@ -335,7 +335,7 @@ class AdminNotices {
 		 * @param string $current_page_id The ID of the current admin page.
 		 * @param array<string> $allowed_pages The list of allowed pages.
 		 */
-		return apply_filters( 'graphql_admin_notices_is_plugin_scoped_page', $is_plugin_scoped_page, $current_page_id, $allowed_pages );
+		return apply_filters( 'graphql_admin_notices_is_allowed_admin_page', $is_allowed_admin_page, $current_page_id, $allowed_pages );
 	}
 
 	/**
