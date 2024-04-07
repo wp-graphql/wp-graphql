@@ -21,9 +21,6 @@ jobs:
   run:
     runs-on: ubuntu-latest
     name: PHPCS
-    strategy:
-      matrix:
-        php: [ 8.1 ]
 
     steps:
       - name: Checkout
@@ -32,7 +29,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: 8.2
           tools: composer:v2
           coverage: none
 
