@@ -23,34 +23,43 @@ concurrency:
 
 jobs:
   continuous_integration:
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: [ '8.2', '8.1' ]
-        wordpress: [ '6.5', '6.4.3' ]
+        wordpress: [ '6.5', '6.4', '6.3', '6.2', '6.1' ]
+        multisite: [ false ]
         include:
-          - php: '8.1'
-            wordpress: '6.2'
-            multisite: true
-          - php: '8.2'
-            wordpress: '6.5'
-          - php: '8.3'
-            wordpress: '6.5'
-          - php: '8.2'
-            wordpress: '6.5'
+          # Latest WordPress + PHP.
+          - wordpress: '6.5'
+            php: '8.3'
             coverage: 1
-          - php: '8.0'
-            wordpress: '6.3'
-          - php: '8.1'
-            wordpress: '6.0'
-          - php: '7.4'
-            wordpress: '6.1.1'
-          - php: '7.3'
-            wordpress: '5.9'
-          - php: '8.1'
-            wordpress: '5.9'
+          - wordpress: '6.5'
+            php: '8.3'
+            multisite: true
+          # Lowest PHP version for WordPress versions in matrix.
+          - wordpress: '6.4'
+            php: '8.0'
+          - wordpress: '6.3'
+            php: '8.0'
+          - wordpress: '6.2'
+            php: '8.0'
+          - wordpress: '6.1'
+            php: '7.4'
+          # Older WordPress versions with highest + lowest PHP versions.
+          - wordpress: '6.0'
+            php: '8.1'
+          - wordpress: '6.0'
+            php: '7.4'
+          - wordpress: '5.9'
+            php: '8.1'
+          - wordpress: '5.9'
+            php: '7.3'
+          # Minimum plugin requirement:
+          - wordpress: '5.2' # Earlier docker builds are broken.
+            php: '7.3' # Our build script requires PHP 7.3+.
 
     steps:
       - name: Checkout
