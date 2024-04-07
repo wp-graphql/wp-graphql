@@ -14,13 +14,18 @@ on:
       - '.github/workflows/*.yml'
       - '!docs/**'
 
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  # Group workflow runs by workflow name, along with the head branch ref of the pull request
+  # or otherwise the branch or tag ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
     e2e-tests:
         name: E2E tests on Node ${{ matrix.node-version }}
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node-version: ['18']
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -28,18 +33,19 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: ${{ matrix.node-version }}
+                  node-version: 18
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                php-version: 7.4
+                php-version: 8.1
                 extensions: mbstring, intl
                 tools: composer
 
-            - name: Install PHP dependencies
-              run: |
-                composer install --optimize-autoloader
+            - name: Install dependencies
+              uses: ramsey/composer-install@v3
+              with:
+                composer-options: "--no-progress"
 
             - name: Install JavaScript dependencies
               run: npm ci
