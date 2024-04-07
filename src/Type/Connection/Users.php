@@ -109,7 +109,7 @@ class Users {
 					$resolver->set_query_arg( 'include', [ absint( $post->authorDatabaseId ) ] );
 					return $resolver->one_to_one()->get_connection();
 				},
-			] 
+			]
 		);
 	}
 

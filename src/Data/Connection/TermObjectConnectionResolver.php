@@ -52,7 +52,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			$taxonomy             = array_intersect( $all_taxonomies, $requested_taxonomies );
 		}
 
-
 		$query_args = [
 			'taxonomy' => $taxonomy,
 		];

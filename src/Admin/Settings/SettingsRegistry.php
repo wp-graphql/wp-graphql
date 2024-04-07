@@ -509,7 +509,7 @@ class SettingsRegistry {
 				'id'       => $args['section'] . '[' . $args['id'] . ']',
 				'echo'     => 0,
 			],
-			$args 
+			$args
 		);
 
 		$clean_args = [];
