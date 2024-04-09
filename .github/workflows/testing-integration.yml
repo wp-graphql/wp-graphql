@@ -58,7 +58,7 @@ jobs:
           - wordpress: '5.9'
             php: '7.3'
           # Minimum plugin requirement:
-          - wordpress: '5.2' # Earlier docker builds are broken.
+          - wordpress: '5.5' # Keeps compatibility with our test env.
             php: '7.3' # Our build script requires PHP 7.3+.
 
     steps:
