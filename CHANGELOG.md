@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.23.0
+
+### New Features
+
+- [#3073](https://github.com/wp-graphql/wp-graphql/pull/3073): feat: expose `hasPassword` and `password` fields on Post objects. Thanks @justlevine!
+- [#3091](https://github.com/wp-graphql/wp-graphql/pull/3091): feat: introduce actions and filters for GraphQL Admin Notices
+
+### Chores / Bugfixes
+
+- [#3079](https://github.com/wp-graphql/wp-graphql/pull/3079): fix: GraphiQL IDE test failures
+- [#3084](https://github.com/wp-graphql/wp-graphql/pull/3084): perf: refactor PluginConnectionResolver to only fetch plugins once. Thanks @justlevine!
+- [#3092](https://github.com/wp-graphql/wp-graphql/pull/3092): ci: test against wp 6.5
+- [#3093](https://github.com/wp-graphql/wp-graphql/pull/3093): ci: Update actions in GitHub workflows and cleanup. Thanks @justlevine!
+- [#3093](https://github.com/wp-graphql/wp-graphql/pull/3093): chore: update Composer dev-deps and lint. Thanks @justlevine!
+
 ## 1.22.1
 
 ### Chores / Bugfixes
