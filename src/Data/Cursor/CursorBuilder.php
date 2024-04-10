@@ -46,7 +46,7 @@ class CursorBuilder {
 	 *
 	 * @return void
 	 */
-	public function add_field( string $key, $value, string $type = null, string $order = null, $object_cursor = null ) {
+	public function add_field( string $key, $value, ?string $type = null, ?string $order = null, $object_cursor = null ) {
 
 		/**
 		 * Filters the field used for ordering when cursors are used for pagination

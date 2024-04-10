@@ -51,6 +51,7 @@ use WP_Post;
  * @property array   $editLock
  * @property string  $enclosure
  * @property string  $guid
+ * @property bool    $hasPassword
  * @property int     $menuOrder
  * @property string  $link
  * @property string  $uri
@@ -58,6 +59,7 @@ use WP_Post;
  * @property string  $featuredImageId
  * @property int     $featuredImageDatabaseId
  * @property string  $pageTemplate
+ * @property string  $password
  * @property int     $previewRevisionDatabaseId
  *
  * @property string  $captionRaw
@@ -152,6 +154,7 @@ class Post extends Model {
 			'isPostsPage',
 			'isFrontPage',
 			'isPrivacyPage',
+			'hasPassword',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
@@ -595,6 +598,12 @@ class Post extends Model {
 
 					return false;
 				},
+				'hasPassword'               => function () {
+					return ! empty( $this->data->post_password );
+				},
+				'password'                  => function () {
+					return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
+				},
 				'toPing'                    => function () {
 					$to_ping = get_to_ping( $this->databaseId );
 
@@ -690,12 +699,6 @@ class Post extends Model {
 
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
-				'password'                  => [
-					'callback'   => function () {
-						return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
-					},
-					'capability' => isset( $this->post_type_object->cap->edit_others_posts ) ?: 'edit_others_posts',
-				],
 				'enqueuedScriptsQueue'      => static function () {
 					global $wp_scripts;
 					do_action( 'wp_enqueue_scripts' );

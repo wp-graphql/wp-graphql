@@ -249,6 +249,16 @@ class AdminNotices {
 		</style>
 		<?php
 		$count = 0;
+
+		/**
+		 * Fires before the admin notices are rendered.
+		 *
+		 * @param array<string,mixed> $notices The notices to be rendered
+		 *
+		 * @since v1.23.0
+		 */
+		do_action( 'graphql_admin_notices_render_notices', $notices );
+
 		foreach ( $notices as $notice_slug => $notice ) {
 			$type = $notice['type'] ?? 'info';
 			?>
@@ -260,7 +270,8 @@ class AdminNotices {
 			<div id="wpgraphql-admin-notice-<?php echo esc_attr( $notice_slug ); ?>" class="wpgraphql-admin-notice notice notice-<?php echo esc_attr( $type ); ?> <?php echo $this->is_notice_dismissable( $notice ) ? 'is-dismissable' : ''; ?>">
 				<p><?php echo ! empty( $notice['message'] ) ? wp_kses_post( $notice['message'] ) : ''; ?></p>
 				<?php
-				if ( $this->is_notice_dismissable( $notice ) ) {
+				$is_dismissable = $this->is_notice_dismissable( $notice );
+				if ( $is_dismissable ) {
 					$dismiss_acf_nonce = wp_create_nonce( 'wpgraphql_disable_notice_nonce' );
 					$dismiss_url       = add_query_arg(
 						[
@@ -275,6 +286,17 @@ class AdminNotices {
 				<?php } ?>
 			</div>
 			<?php
+			/**
+			 * Fires for each admin notice that is rendered.
+			 *
+			 * @param string $notice_slug The slug of the notice
+			 * @param array<mixed> $notice The notice to be rendered
+			 * @param bool $is_dismissable Whether the notice is dismissable or not
+			 * @param int $count The count of the notice
+			 *
+			 * @since v1.23.0
+			 */
+			do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
 			++$count;
 		}
 	}
@@ -301,7 +323,19 @@ class AdminNotices {
 
 		$current_page_id = $screen->id;
 
-		return in_array( $current_page_id, $allowed_pages, true );
+		$is_allowed_admin_page = in_array( $current_page_id, $allowed_pages, true );
+
+		/**
+		 * Filter to determine if the current admin page is within the scope of the plugin's own pages.
+		 * This filter can be used to add additional pages to the list of allowed pages.
+		 *
+		 * The filter receives the following arguments:
+		 *
+		 * @param bool $is_plugin_scoped_page True if the current page is within scope of the plugin's pages.
+		 * @param string $current_page_id The ID of the current admin page.
+		 * @param array<string> $allowed_pages The list of allowed pages.
+		 */
+		return apply_filters( 'graphql_admin_notices_is_allowed_admin_page', $is_allowed_admin_page, $current_page_id, $allowed_pages );
 	}
 
 	/**
