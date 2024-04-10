@@ -14,50 +14,56 @@ on:
       - '.github/workflows/*.yml'
       - '!docs/**'
 
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  # Group workflow runs by workflow name, along with the head branch ref of the pull request
+  # or otherwise the branch or tag ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   continuous_integration:
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }}
+    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: [ '8.2', '8.1' ]
-        wordpress: [ '6.3', '6.2' ]
+        wordpress: [ '6.5', '6.4', '6.3', '6.2', '6.1' ]
+        multisite: [ false ]
         include:
-          - php: '8.1'
-            wordpress: '6.2'
-            multisite: true
-          - php: '8.2'
-            wordpress: '6.4.0'
+          # Latest WordPress + PHP.
+          - wordpress: '6.5'
+            php: '8.3'
             coverage: 1
-          - php: '8.0'
-            wordpress: '6.3'
-          - php: '8.1'
-            wordpress: '6.0'
-          - php: '8.3'
-            wordpress: '6.4.3'
-          - php: '8.1'
-            wordpress: '5.9'
-          - php: '7.4'
-            wordpress: '6.1.1'
-          - php: '7.3'
-            wordpress: '5.9'
-          - php: '7.3'
-            wordpress: '5.8'
-          - php: '7.3'
-            wordpress: '5.7'
-          - php: '7.3'
-            wordpress: '5.6'
+          - wordpress: '6.5'
+            php: '8.3'
+            multisite: true
+          # Lowest PHP version for WordPress versions in matrix.
+          - wordpress: '6.4'
+            php: '8.0'
+          - wordpress: '6.3'
+            php: '8.0'
+          - wordpress: '6.2'
+            php: '8.0'
+          - wordpress: '6.1'
+            php: '7.4'
+          # Older WordPress versions with highest + lowest PHP versions.
+          - wordpress: '6.0'
+            php: '8.1'
+          - wordpress: '6.0'
+            php: '7.4'
+          - wordpress: '5.9'
+            php: '8.1'
+          - wordpress: '5.9'
+            php: '7.3'
+          # Minimum plugin requirement:
+          - wordpress: '5.5' # Keeps compatibility with our test env.
+            php: '7.3' # Our build script requires PHP 7.3+.
 
     steps:
-      - name: Cancel previous runs of this workflow (pull requests only)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -67,7 +73,7 @@ jobs:
           extensions: json, mbstring
 
       - name: Install dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
         with:
           composer-options: "--no-dev"
 
