@@ -14,47 +14,60 @@ jobs:
     strategy:
       matrix:
         php: [ '8.1', '8.0', '7.4', '7.3' ]
-        wordpress: [ '6.2', '6.1', '6.0', '5.9', '5.8', '5.7.2', '5.6', '5.5.3' ]
+        wordpress: [ '6.5', '6.4', '6.3', '6.2', '6.1', '6.0', '5.9', '5.8', '5.7', '5.6', '5.5' ]
         include:
-          - php: '8.3'
-            wordpress: '6.5'
-          - php: '8.2'
-            wordpress: '6.5'
-          - php: '8.1'
-            wordpress: '6.5'
-          - php: '8.2'
-            wordpress: '6.1'
-          - php: '8.2'
-            wordpress: '6.2'
-          - php: '8.2'
-            wordpress: '6.4.0'
-          - php: '8.2'
-            wordpress: '6.3'
-          - php: '8.1'
-            wordpress: '6.3'
+          # WordPress versions above the PHP testing matrix.
+          - wordpress: '6.5'
+            php: '8.3'
+          - wordpress: '6.5'
+            php: '8.2'
+          - wordpress: '6.4'
+            php: '8.2'
+          - wordpress: '6.3'
+            php: '8.2'
+          - wordpress: '6.2'
+            php: '8.2'
+          - wordpress: '6.1'
+            php: '8.2'
         exclude:
-          - php: '8.1'
-            wordpress: '5.5.3'
-          - php: '8.1'
-            wordpress: '5.6'
-          - php: '8.1'
-            wordpress: '5.7.2'
-          - php: '8.0'
-            wordpress: '5.5.3'
-          - php: '7.3'
-            wordpress: '6.0'
-          - php: '7.3'
-            wordpress: '6.1'
-          - php: '7.3'
-            wordpress: '6.2'
-          # This is a temporary exclusion until a php74 image is released. See #2780
-          - php: '7.4'
-            wordpress: '6.2'
+          # WordPress versions that don't have a PHP Docker image available (too new)
+          - wordpress: '6.5'
+            php: '8.0'
+          - wordpress: '6.5'
+            php: '7.4'
+          - wordpress: '6.5'
+            php: '7.3'
+          - wordpress: '6.4'
+            php: '7.4'
+          - wordpress: '6.4'
+            php: '7.3'
+          - wordpress: '6.3'
+            php: '7.4'
+          - wordpress: '6.3'
+            php: '7.3'
+          - wordpress: '6.2'
+            php: '7.4'
+          - wordpress: '6.2'
+            php: '7.3'
+          - wordpress: '6.1'
+            php: '7.3'
+          - wordpress: '6.0'
+            php: '7.3'
+          # WordPress versions that don't support PHP versions in the matrix (too old)
+          - wordpress: '5.7'
+            php: '8.1'
+          - wordpress: '5.6'
+            php: '8.1'
+          - wordpress: '5.5'
+            php: '8.1'
+          - wordpress: '5.5'
+            php: '8.0'
+
       fail-fast: false
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Use magic to get the tag number from /ref/heads/v0.1.2 in GITHUB_REF
       - name: Get the version
@@ -62,14 +75,14 @@ jobs:
         run: echo "tag=$(echo ${GITHUB_REF:11})" >> $GITHUB_OUTPUT
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -82,7 +95,7 @@ jobs:
             WP_VERSION=${{ matrix.wordpress }}
 
       - name: Build and push Docker testing image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
