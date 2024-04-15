@@ -22,6 +22,16 @@ class WPInterfaceType extends InterfaceType {
 	public $config;
 
 	/**
+	 * @var array<string, array<string, mixed>>
+	 */
+	public $fields;
+
+	/**
+	 * @var array<string, array<string, mixed>>
+	 */
+	public $interfaces;
+
+	/**
 	 * WPInterfaceType constructor.
 	 *
 	 * @param array<string,mixed>              $config
@@ -38,6 +48,8 @@ class WPInterfaceType extends InterfaceType {
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = function () use ( $config ) {
 			$fields = $config['fields'];
+
+			$fields = array_filter( $fields );
 
 			/**
 			 * Get the fields of interfaces and ensure they exist as fields of this type.
@@ -68,14 +80,41 @@ class WPInterfaceType extends InterfaceType {
 				}
 			}
 
-			if ( ! empty( $interface_fields ) ) {
-				$fields = array_replace_recursive( $interface_fields, $fields );
+			// diff the $interface_fiedls and the $fields
+			// if the field is not in $fields, add it
+			$diff = ! empty( $interface_fields ) ? array_diff_key( $interface_fields, $fields ) : [];
+
+			// If the Interface has fields defined that are not defined
+			// on the Object Type, add them to the Object Type
+			if ( ! empty( $diff ) ) {
+				$fields = array_merge( $fields, $diff );
 			}
 
-			$fields = $this->prepare_fields( $fields, $config['name'] );
+			$image_icon = false;
+
+			foreach ( $fields as $field_name => $field ) {
+
+				if ( ! isset( $field['type'] ) ) {
+					if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
+						$fields[ $field_name ]['type'] = $interface_fields[ $field_name ]['type'];
+					} else {
+						unset( $fields[ $field_name ] );
+					}
+				}
+
+
+//				// ignore connections coming over from interfaces
+//				if ( isset( $field['fromType'] ) ) {
+//					unset( $fields[ $field_name ] );
+//				}
+
+			}
+
+			$fields = $this->prepare_fields( $fields, $config['name'], $config );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
 
-			return $fields;
+			$this->fields = $fields;
+			return $this->fields;
 		};
 
 		$config['resolveType'] = function ( $obj ) use ( $config ) {

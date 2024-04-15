@@ -43,6 +43,16 @@ class WPObjectType extends ObjectType {
 	public $config;
 
 	/**
+	 * @var array<string, array<string, mixed>>
+	 */
+	public $fields;
+
+	/**
+	 * @var array<string, array<string, mixed>>
+	 */
+	public $interfaces;
+
+	/**
 	 * WPObjectType constructor.
 	 *
 	 * @param array<string,mixed>              $config
@@ -79,8 +89,12 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @return array<string, array<string, mixed>> $fields
 		 */
-		$config['fields'] = function () use ( $config ) {
+		$config['fields'] = ! empty( $this->fields ) ? $this->fields : function () use ( $config ) {
 			$fields = $config['fields'];
+
+			$fields = array_filter( $fields );
+
+			$raw_fields = $fields;
 
 			/**
 			 * Get the fields of interfaces and ensure they exist as fields of this type.
@@ -111,14 +125,52 @@ class WPObjectType extends ObjectType {
 				}
 			}
 
-			if ( ! empty( $interface_fields ) ) {
-				$fields = array_replace_recursive( $interface_fields, $fields );
+			// diff the $interface_fiedls and the $fields
+			// if the field is not in $fields, add it
+			$diff = ! empty( $interface_fields ) ? array_diff_key( $interface_fields, $fields ) : [];
+
+			// If the Interface has fields defined that are not defined
+			// on the Object Type, add them to the Object Type
+			if ( ! empty( $diff ) ) {
+				$fields = array_merge( $fields, $diff );
 			}
 
+			$image_icon = false;
+
+			foreach ( $fields as $field_name => $field ) {
+
+				$new_field = $field;
+
+				if ( ! isset( $field['type'] ) ) {
+					if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
+						$fields[ $field_name ]['type'] = $interface_fields[ $field_name ]['type'];
+					} else {
+						unset( $fields[ $field_name ] );
+					}
+				}
+
+				if ( 'imageicon' === $field_name ) {
+					$image_icon = true;
+				}
+
+			}
+
+			$fields_before_prep = $fields;
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
 
-			return $fields;
+//			if ( $image_icon ) {
+//				wp_send_json( [
+//					'$raw_fields' => $raw_fields,
+//					'$fields_before_prep' => $fields_before_prep,
+//					'$interface_fields' => $interface_fields,
+//					'$fields' => $fields,
+//					'$config' => $config,
+//				]);
+//			}
+
+			$this->fields = $fields;
+			return $this->fields;
 		};
 
 		/**
@@ -138,7 +190,11 @@ class WPObjectType extends ObjectType {
 	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	public function getInterfaces(): array {
-		return $this->get_implemented_interfaces();
+		if ( ! empty( $this->interfaces ) ) {
+			return $this->interfaces;
+		}
+		$this->interfaces = $this->get_implemented_interfaces();
+		return $this->interfaces;
 	}
 
 	/**
