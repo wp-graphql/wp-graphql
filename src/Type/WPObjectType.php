@@ -48,7 +48,7 @@ class WPObjectType extends ObjectType {
 	public $fields;
 
 	/**
-	 * @var array<string, array<string, mixed>>
+	 * @var array<\GraphQL\Type\Definition\InterfaceType>
 	 */
 	public $interfaces;
 
@@ -101,9 +101,8 @@ class WPObjectType extends ObjectType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
+			$interface_fields = [];
 			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
-				$interface_fields = [];
-
 				foreach ( $this->getInterfaces() as $interface_type ) {
 					if ( ! $interface_type instanceof InterfaceType ) {
 						$interface_type = $this->type_registry->get_type( $interface_type );
@@ -125,7 +124,7 @@ class WPObjectType extends ObjectType {
 				}
 			}
 
-			// diff the $interface_fiedls and the $fields
+			// diff the $interface_fields and the $fields
 			// if the field is not in $fields, add it
 			$diff = ! empty( $interface_fields ) ? array_diff_key( $interface_fields, $fields ) : [];
 
@@ -135,12 +134,7 @@ class WPObjectType extends ObjectType {
 				$fields = array_merge( $fields, $diff );
 			}
 
-			$image_icon = false;
-
 			foreach ( $fields as $field_name => $field ) {
-
-				$new_field = $field;
-
 				if ( ! isset( $field['type'] ) ) {
 					if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
 						$fields[ $field_name ]['type'] = $interface_fields[ $field_name ]['type'];
@@ -148,26 +142,10 @@ class WPObjectType extends ObjectType {
 						unset( $fields[ $field_name ] );
 					}
 				}
-
-				if ( 'imageicon' === $field_name ) {
-					$image_icon = true;
-				}
-
 			}
 
-			$fields_before_prep = $fields;
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
 			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
-
-//			if ( $image_icon ) {
-//				wp_send_json( [
-//					'$raw_fields' => $raw_fields,
-//					'$fields_before_prep' => $fields_before_prep,
-//					'$interface_fields' => $interface_fields,
-//					'$fields' => $fields,
-//					'$config' => $config,
-//				]);
-//			}
 
 			$this->fields = $fields;
 			return $this->fields;

@@ -56,9 +56,9 @@ class WPInterfaceType extends InterfaceType {
 			 *
 			 * Types are still responsible for ensuring the fields resolve properly.
 			 */
-			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
-				$interface_fields = [];
+			$interface_fields = [];
 
+			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
 				foreach ( $this->getInterfaces() as $interface_type ) {
 					if ( ! $interface_type instanceof InterfaceType ) {
 						$interface_type = $this->type_registry->get_type( $interface_type );
@@ -80,7 +80,7 @@ class WPInterfaceType extends InterfaceType {
 				}
 			}
 
-			// diff the $interface_fiedls and the $fields
+			// diff the $interface_fields and the $fields
 			// if the field is not in $fields, add it
 			$diff = ! empty( $interface_fields ) ? array_diff_key( $interface_fields, $fields ) : [];
 
@@ -90,10 +90,7 @@ class WPInterfaceType extends InterfaceType {
 				$fields = array_merge( $fields, $diff );
 			}
 
-			$image_icon = false;
-
 			foreach ( $fields as $field_name => $field ) {
-
 				if ( ! isset( $field['type'] ) ) {
 					if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
 						$fields[ $field_name ]['type'] = $interface_fields[ $field_name ]['type'];
@@ -101,13 +98,6 @@ class WPInterfaceType extends InterfaceType {
 						unset( $fields[ $field_name ] );
 					}
 				}
-
-
-//				// ignore connections coming over from interfaces
-//				if ( isset( $field['fromType'] ) ) {
-//					unset( $fields[ $field_name ] );
-//				}
-
 			}
 
 			$fields = $this->prepare_fields( $fields, $config['name'], $config );
@@ -159,11 +149,11 @@ class WPInterfaceType extends InterfaceType {
 	 *
 	 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
 	 * @param string                            $type_name
-	 *
+	 * @param array<string,mixed>               $config    The config for the Object Type
 	 * @return array<string,array<string,mixed>>
 	 * @since 0.0.5
 	 */
-	public function prepare_fields( array $fields, string $type_name ) {
+	public function prepare_fields( array $fields, string $type_name, array $config ) {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param
