@@ -94,8 +94,6 @@ class WPObjectType extends ObjectType {
 
 			$fields = array_filter( $fields );
 
-			$raw_fields = $fields;
-
 			/**
 			 * Get the fields of interfaces and ensure they exist as fields of this type.
 			 *
