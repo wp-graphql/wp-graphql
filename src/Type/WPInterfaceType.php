@@ -46,7 +46,7 @@ class WPInterfaceType extends InterfaceType {
 
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = function () use ( $config ) {
+		$config['fields'] = ! empty( $this->fields ) ? $this->fields : function () use ( $config ) {
 			$fields = $config['fields'];
 
 			$fields = array_filter( $fields );
@@ -148,12 +148,12 @@ class WPInterfaceType extends InterfaceType {
 	 * extending/modifying the shape of the Schema for the type.
 	 *
 	 * @param array<string,array<string,mixed>> $fields The array of fields for the object config
-	 * @param string                            $type_name
+	 * @param string                            $type_name The name of the type to prepare fields for
 	 * @param array<string,mixed>               $config    The config for the Object Type
 	 * @return array<string,array<string,mixed>>
 	 * @since 0.0.5
 	 */
-	public function prepare_fields( array $fields, string $type_name, array $config ) {
+	public function prepare_fields( array $fields, string $type_name, array $config ): array {
 
 		/**
 		 * Filter all object fields, passing the $typename as a param

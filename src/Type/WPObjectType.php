@@ -196,7 +196,7 @@ class WPObjectType extends ObjectType {
 	 * extending/modifying the shape of the Schema for the type.
 	 *
 	 * @param array<string,mixed> $fields    The array of fields for the object config
-	 * @param string              $type_name
+	 * @param string              $type_name The name of the type to prepare fields for
 	 * @param array<string,mixed> $config    The config for the Object Type
 	 *
 	 * @return array<string,mixed>
