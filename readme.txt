@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.5
 Requires PHP: 7.1
-Stable tag: 1.23.0
+Stable tag: 1.24.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
