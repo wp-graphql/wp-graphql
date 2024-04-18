@@ -97,7 +97,7 @@ class WPInterfaceType extends InterfaceType {
 	public function prepare_fields( array $fields, string $type_name, array $config ): array {
 
 		/**
-		 * Filter all object fields, passing the $typename as a param
+		 * Filter all interface fields, passing the $typename as a param
 		 *
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
