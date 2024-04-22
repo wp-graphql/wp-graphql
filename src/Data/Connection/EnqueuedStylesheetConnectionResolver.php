@@ -41,9 +41,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get the IDs from the source
-	 *
-	 * @return mixed[]
+	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
 		$ids     = [];
@@ -68,9 +66,8 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		return [];
 	}
 
-
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */
@@ -79,20 +76,16 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * The name of the loader to load the data
-	 *
-	 * @return string
+	 * {@inheritDoc}
 	 */
 	public function get_loader_name() {
 		return 'enqueued_stylesheet';
 	}
 
 	/**
-	 * Determine if the model is valid
+	 * {@inheritDoc}
 	 *
 	 * @param ?\_WP_Dependency $model
-	 *
-	 * @return bool
 	 */
 	protected function is_valid_model( $model ) {
 		return isset( $model->handle );
@@ -107,7 +100,7 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * D{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public function should_execute() {
 		return true;

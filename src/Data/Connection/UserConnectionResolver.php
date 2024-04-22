@@ -23,13 +23,6 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function should_execute() {
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public function get_loader_name() {
 		return 'user';
 	}
@@ -185,7 +178,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of the WP_User_Query with the args for the connection being executed
+	 * {@inheritDoc}
 	 *
 	 * @return object|\WP_User_Query
 	 * @throws \Exception
@@ -283,11 +276,16 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param int $offset The ID of the node used as the offset in the cursor
-	 *
-	 * @return bool
+	 * @param int $offset The ID of the node used as the offset in the cursor.
 	 */
 	public function is_valid_offset( $offset ) {
 		return (bool) get_user_by( 'ID', absint( $offset ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function should_execute() {
+		return true;
 	}
 }
