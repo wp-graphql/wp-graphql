@@ -1,9 +1,6 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-
 /**
  * Class EnqueuedStylesheetConnectionResolver
  *
@@ -16,29 +13,6 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 * @var string[]
 	 */
 	protected $query;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
-		/**
-		 * Filter the query amount to be 1000 for
-		 */
-		add_filter(
-			'graphql_connection_max_query_amount',
-			static function ( $max, $source, $args, $context, ResolveInfo $info ) {
-				if ( 'enqueuedStylesheets' === $info->fieldName || 'registeredStylesheets' === $info->fieldName ) {
-					return 1000;
-				}
-				return $max;
-			},
-			10,
-			5
-		);
-
-		parent::__construct( $source, $args, $context, $info );
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -80,6 +54,13 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 	 */
 	protected function loader_name(): string {
 		return 'enqueued_stylesheet';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected function max_query_amount(): int {
+		return 1000;
 	}
 
 	/**

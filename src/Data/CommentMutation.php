@@ -141,7 +141,7 @@ class CommentMutation {
 	 *
 	 * @return \WP_User|false
 	 */
-	protected static function get_comment_author( string $author_email = null ) {
+	protected static function get_comment_author( ?string $author_email = null ) {
 		$user = wp_get_current_user();
 
 		// Fail if no logged in user.
