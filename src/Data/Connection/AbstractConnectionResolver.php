@@ -125,6 +125,15 @@ abstract class AbstractConnectionResolver {
 	protected $edges;
 
 	/**
+	 * The page info for the connection.
+	 *
+	 * Filterable by `graphql_connection_page_info`.
+	 *
+	 * @var ?array<string,mixed>
+	 */
+	protected $page_info;
+
+	/**
 	 * The query amount to return for the connection.
 	 *
 	 * @var ?int
@@ -522,41 +531,40 @@ abstract class AbstractConnectionResolver {
 	 * @return array<string,mixed>
 	 */
 	public function get_page_info() {
-		$page_info = [
-			'startCursor'     => $this->get_start_cursor(),
-			'endCursor'       => $this->get_end_cursor(),
-			'hasNextPage'     => (bool) $this->has_next_page(),
-			'hasPreviousPage' => (bool) $this->has_previous_page(),
-		];
+		if ( ! isset( $this->page_info ) ) {
+			$page_info = $this->prepare_page_info();
 
-		/**
-		 * Filter the pageInfo that is returned to the connection.
-		 *
-		 * This filter allows for additional fields to be filtered into the pageInfo
-		 * of a connection, such as "totalCount", etc, because the filter has enough
-		 * context of the query, args, request, etc to be able to calculate and return
-		 * that information.
-		 *
-		 * example:
-		 *
-		 * You would want to register a "total" field to the PageInfo type, then filter
-		 * the pageInfo to return the total for the query, something to this tune:
-		 *
-		 * add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) {
-		 *
-		 *   $page_info['total'] = null;
-		 *
-		 *   if ( $connection->query instanceof WP_Query ) {
-		 *      if ( isset( $connection->query->found_posts ) {
-		 *          $page_info['total'] = (int) $connection->query->found_posts;
-		 *      }
-		 *   }
-		 *
-		 *   return $page_info;
-		 *
-		 * });
-		 */
-		return apply_filters( 'graphql_connection_page_info', $page_info, $this );
+			/**
+			 * Filter the pageInfo that is returned to the connection.
+			 *
+			 * This filter allows for additional fields to be filtered into the pageInfo
+			 * of a connection, such as "totalCount", etc, because the filter has enough
+			 * context of the query, args, request, etc to be able to calcuate and return
+			 * that information.
+			 *
+			 * example:
+			 *
+			 * You would want to register a "total" field to the PageInfo type, then filter
+			 * the pageInfo to return the total for the query, something to this tune:
+			 *
+			 * add_filter( 'graphql_connection_page_info', function( $page_info, $connection ) {
+			 *
+			 *   $page_info['total'] = null;
+			 *
+			 *   if ( $connection->query instanceof WP_Query ) {
+			 *      if ( isset( $connection->query->found_posts ) {
+			 *          $page_info['total'] = (int) $connection->query->found_posts;
+			 *      }
+			 *   }
+			 *
+			 *   return $page_info;
+			 *
+			 * });
+			 */
+			$this->page_info = apply_filters( 'graphql_connection_page_info', $page_info, $this );
+		}
+
+		return $this->page_info;
 	}
 
 	/**
@@ -894,6 +902,22 @@ abstract class AbstractConnectionResolver {
 	 */
 	protected function get_cursor_for_node( $id ) {
 		return base64_encode( 'arrayconnection:' . (string) $id );
+	}
+
+	/**
+	 * Prepares the page info for the connection.
+	 *
+	 * @used-by self::get_page_info()
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected function prepare_page_info(): array {
+		return [
+			'startCursor'     => $this->get_start_cursor(),
+			'endCursor'       => $this->get_end_cursor(),
+			'hasNextPage'     => $this->has_next_page(),
+			'hasPreviousPage' => $this->has_previous_page(),
+		];
 	}
 
 	/**
