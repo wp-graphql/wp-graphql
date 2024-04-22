@@ -25,7 +25,16 @@ abstract class AbstractConnectionResolver {
 	protected $source;
 
 	/**
+	 * The args input before it is filtered and prepared by the constructor.
+	 *
+	 * @var array<string,mixed>
+	 */
+	protected $unfiltered_args;
+
+	/**
 	 * The args input on the field calling the connection.
+	 *
+	 * Filterable by `graphql_connection_args`.
 	 *
 	 * @var array<string,mixed>
 	 */
@@ -134,10 +143,16 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		// Set the source (the root object), context, resolveInfo, and unfiltered args for the resolver.
-		$this->source  = $source;
-		$this->args    = $args;
-		$this->context = $context;
-		$this->info    = $info;
+		$this->source          = $source;
+		$this->unfiltered_args = $args;
+		$this->context         = $context;
+		$this->info            = $info;
+
+		/**
+		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
+		 * We can remove this once the rest of lifecyle has been updated.
+		 */
+		$this->args = $args; 
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
@@ -157,7 +172,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
+		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $this->get_unfiltered_args() );
 
 		// Get the query amount for the connection.
 		$this->query_amount = $this->get_query_amount();
@@ -354,6 +369,15 @@ abstract class AbstractConnectionResolver {
 	 */
 	protected function is_valid_model( $model ) {
 		return isset( $model->fields ) && ! empty( $model->fields );
+	}
+
+	/**
+	 * Returns the $args passed to the connection, before any modifications.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_unfiltered_args(): array {
+		return $this->unfiltered_args;
 	}
 
 	/**
