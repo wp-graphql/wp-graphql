@@ -29,8 +29,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		$query_args = [];
 
@@ -49,7 +48,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->get_query_amount() ) + 1;
+		$query_args['number'] = $this->get_query_amount() + 1;
 
 		/**
 		 * Set the default order

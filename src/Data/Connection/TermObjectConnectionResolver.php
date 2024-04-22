@@ -59,8 +59,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		/**
 		 * Set hide_empty as false by default
@@ -70,7 +69,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the number, ensuring it doesn't exceed the amount set as the $max_query_amount
 		 */
-		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
+		$query_args['number'] = $this->get_query_amount() + 1;
 
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive

@@ -149,8 +149,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		$query_args = [];
 		/**
@@ -176,10 +175,10 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set posts_per_page the highest value of $first and $last, with a (filterable) max of 100
 		 */
-		$query_args['posts_per_page'] = $this->one_to_one ? 1 : min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
+		$query_args['posts_per_page'] = $this->one_to_one ? 1 : $this->get_query_amount() + 1;
 
 		// set the graphql cursor args
-		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+		$query_args['graphql_cursor_compare'] = ! empty( $last ) ? '>' : '<';
 		$query_args['graphql_after_cursor']   = $this->get_after_offset();
 		$query_args['graphql_before_cursor']  = $this->get_before_offset();
 

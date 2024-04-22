@@ -118,7 +118,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The query amount to return for the connection.
 	 *
-	 * @var int
+	 * @var ?int
 	 */
 	protected $query_amount;
 
@@ -159,16 +159,7 @@ abstract class AbstractConnectionResolver {
 		 */
 		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $args );
 
-		/**
-		 * Determine the query amount for the resolver.
-		 *
-		 * This is the amount of items to query from the database. We determine this by
-		 * determining how many items were asked for (first/last), then compare with the
-		 * max amount allowed to query (default is 100), and then we fetch 1 more than
-		 * that amount, so we know whether hasNextPage/hasPreviousPage should be true.
-		 *
-		 * If there are more items than were asked for, then there's another page.
-		 */
+		// Get the query amount for the connection.
 		$this->query_amount = $this->get_query_amount();
 
 		/**
@@ -277,6 +268,15 @@ abstract class AbstractConnectionResolver {
 	 * @return bool
 	 */
 	abstract public function should_execute();
+	
+	/**
+	 * The maximum number of items that should be returned by the query.
+	 *
+	 * This is filtered by `graphql_connection_max_query_amount` in ::get_query_amount().
+	 */
+	protected function max_query_amount(): int {
+		return 100;
+	}
 
 	/**
 	 * Is_valid_offset
@@ -367,33 +367,45 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_query_amount() {
+		if ( ! isset( $this->query_amount ) ) {
+			/**
+			 * Filter the maximum number of posts per page that should be queried. This prevents queries from being exceedingly resource intensive.
+			 *
+			 * The default is 100 - unless overloaded by ::max_query_amount() in the child class.
+			 *
+			 * @param int                                  $max_posts  the maximum number of posts per page.
+			 * @param mixed                                $source     source passed down from the resolve tree
+			 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
+			 * @param \WPGraphQL\AppContext                $context    Object containing app context that gets passed down the resolve tree
+			 * @param \GraphQL\Type\Definition\ResolveInfo $info       Info about fields passed down the resolve tree
+			 *
+			 * @since 0.0.6
+			 */
+			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->args, $this->context, $this->info );
 
-		/**
-		 * Filter the maximum number of posts per page that should be queried. The default is 100 to prevent queries from
-		 * being exceedingly resource intensive, however individual systems can override this for their specific needs.
-		 *
-		 * This filter is intentionally applied AFTER the query_args filter, as
-		 *
-		 * @param int                                  $max_posts  the maximum number of posts per page.
-		 * @param mixed                                $source     source passed down from the resolve tree
-		 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
-		 * @param \WPGraphQL\AppContext                $context    Object containing app context that gets passed down the resolve tree
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info       Info about fields passed down the resolve tree
-		 *
-		 * @since 0.0.6
-		 */
-		$max_query_amount = apply_filters( 'graphql_connection_max_query_amount', 100, $this->source, $this->args, $this->context, $this->info );
-		
-		$requested_amount = $this->get_amount_requested();
-
-		if ( $requested_amount > $max_query_amount ) {
-			graphql_debug(
-				sprintf( 'The number of items requested by the connection (%s) exceeds the max query amount. Only the first %s items will be returned.', $requested_amount, $max_query_amount ),
-				[ 'connection' => static::class ]
+			// We don't want the requested amount to be lower than 0.
+			$requested_query_amount = (int) max(
+				0,
+				/**
+				 * This filter allows to modify the number of nodes the connection should return.
+				 *
+				 * @param int                        $amount   the requested amount
+				 * @param self $resolver Instance of the connection resolver class
+				 */
+				apply_filters( 'graphql_connection_amount_requested', $this->get_amount_requested(), $this )
 			);
+
+			if ( $requested_query_amount > $max_query_amount ) {
+				graphql_debug(
+					sprintf( 'The number of items requested by the connection (%s) exceeds the max query amount. Only the first %s items will be returned.', $requested_query_amount, $max_query_amount ),
+					[ 'connection' => static::class ]
+				);
+			}
+
+			$this->query_amount = (int) min( $max_query_amount, $requested_query_amount );
 		}
 
-		return min( $max_query_amount, $requested_amount );
+		return $this->query_amount;
 	}
 
 	/**
@@ -568,54 +580,53 @@ abstract class AbstractConnectionResolver {
 	 * Returns the amount of items requested from the connection.
 	 *
 	 * @return int
+	 *
 	 * @throws \GraphQL\Error\UserError If the `first` or `last` args are used together.
 	 */
 	public function get_amount_requested() {
-
 		/**
-		 * Set the default amount
+		 * Filters the default query amount for a connection, if no `first` or `last` GraphQL argument is supplied.
+		 *
+		 * @param int  $amount_requested The default query amount for a connection.
+		 * @param self $resolver         Instance of the Connection Resolver.
 		 */
-		$amount_requested = 10;
+		$amount_requested = apply_filters( 'graphql_connection_default_query_amount', 10, $this );
 
 		/**
-		 * If both first & last are used in the input args, throw an exception as that won't
-		 * work properly
+		 * If both first & last are used in the input args, throw an exception.
 		 */
 		if ( ! empty( $this->args['first'] ) && ! empty( $this->args['last'] ) ) {
-			throw new UserError( esc_html__( 'first and last cannot be used together. For forward pagination, use first & after. For backward pagination, use last & before.', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`.', 'wp-graphql' ) );
 		}
 
 		/**
-		 * If first is set, and is a positive integer, use it for the $amount_requested
+		 * Get the key to use for the query amount.
+		 * We avoid a ternary here for unit testing.
+		 */
+		$args_key = ! empty( $this->args['first'] ) && is_int( $this->args['first'] ) ? 'first' : null;
+		if ( null === $args_key ) {
+			$args_key = ! empty( $this->args['last'] ) && is_int( $this->args['last'] ) ? 'last' : null;
+		}
+
+		/**
+		 * If the key is set, and is a positive integer, use it for the $amount_requested
 		 * but if it's set to anything that isn't a positive integer, throw an exception
 		 */
-		if ( ! empty( $this->args['first'] ) && is_int( $this->args['first'] ) ) {
-			if ( 0 > $this->args['first'] ) {
-				throw new UserError( esc_html__( 'first must be a positive integer.', 'wp-graphql' ) );
+		if ( null !== $args_key && isset( $this->args[ $args_key ] ) ) {
+			if ( 0 > $this->args[ $args_key ] ) {
+				throw new UserError(
+					sprintf(
+						// translators: %s: The name of the arg that was invalid
+						esc_html__( '%s must be a positive integer.', 'wp-graphql' ),
+						esc_html( $args_key )
+					)
+				);
 			}
 
-			$amount_requested = $this->args['first'];
+			$amount_requested = $this->args[ $args_key ];
 		}
 
-		/**
-		 * If last is set, and is a positive integer, use it for the $amount_requested
-		 * but if it's set to anything that isn't a positive integer, throw an exception
-		 */
-		if ( ! empty( $this->args['last'] ) && is_int( $this->args['last'] ) ) {
-			if ( 0 > $this->args['last'] ) {
-				throw new UserError( esc_html__( 'last must be a positive integer.', 'wp-graphql' ) );
-			}
-
-			$amount_requested = $this->args['last'];
-		}
-
-		/**
-		 * This filter allows to modify the requested connection page size
-		 *
-		 * @param int                        $amount   the requested amount
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $resolver Instance of the connection resolver class
-		 */
-		return (int) max( 0, apply_filters( 'graphql_connection_amount_requested', $amount_requested, $this ) );
+		return (int) $amount_requested;
 	}
 
 	/**
@@ -831,11 +842,11 @@ abstract class AbstractConnectionResolver {
 
 		// If we're going backwards then our overfetched ID is at the front.
 		if ( ! empty( $this->args['last'] ) && count( $this->ids ) > absint( $this->args['last'] ) ) {
-			return array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->query_amount, true );
+			return array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->get_query_amount(), true );
 		}
 
 		// If we're going forwards, our overfetched ID is at the back.
-		return array_slice( $this->ids, 0, $this->query_amount, true );
+		return array_slice( $this->ids, 0, $this->get_query_amount(), true );
 	}
 
 	/**
@@ -919,7 +930,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_next_page() {
 		if ( ! empty( $this->args['first'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
 		}
 
 		$before_offset = $this->get_before_offset();
@@ -941,7 +952,7 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function has_previous_page() {
 		if ( ! empty( $this->args['last'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->query_amount;
+			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
 		}
 
 		$after_offset = $this->get_after_offset();
