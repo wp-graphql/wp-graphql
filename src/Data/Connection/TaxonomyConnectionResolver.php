@@ -62,7 +62,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'taxonomy';
 	}
 
