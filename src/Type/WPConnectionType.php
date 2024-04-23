@@ -563,7 +563,6 @@ class WPConnectionType {
 			);
 		}
 
-
 		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
 			$this->type_registry->register_interface_type(
 				$connection_edge_type,

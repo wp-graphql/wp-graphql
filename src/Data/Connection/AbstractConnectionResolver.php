@@ -170,7 +170,7 @@ abstract class AbstractConnectionResolver {
 		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
 		 * We can remove this once the rest of lifecyle has been updated.
 		 */
-		$this->args = $args; 
+		$this->args = $args;
 
 		// Bail if the Post->ID is empty, as that indicates a private post.
 		if ( $source instanceof Post && empty( $source->ID ) ) {
@@ -273,7 +273,7 @@ abstract class AbstractConnectionResolver {
 	 * @return bool
 	 */
 	abstract public function should_execute();
-	
+
 	/**
 	 * The maximum number of items that should be returned by the query.
 	 *
@@ -495,6 +495,7 @@ abstract class AbstractConnectionResolver {
 
 		return $this->query_amount;
 	}
+
 
 	/**
 	 * Returns an array of IDs for the connection.

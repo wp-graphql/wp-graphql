@@ -323,7 +323,6 @@ class Router {
 			'X-GraphQL-URL'                => $host_and_path,
 		];
 
-
 		// If the Query Analyzer was instantiated
 		// Get the headers determined from its Analysis
 		if ( self::get_request() instanceof Request && self::get_request()->get_query_analyzer()->is_enabled_for_query() ) {

@@ -281,8 +281,6 @@ class NodeResolver {
 				return null;
 			}
 
-
-
 			return ! empty( $queried_object->name ) ? $this->context->get_loader( 'post_type' )->load_deferred( $queried_object->name ) : null;
 		}
 
@@ -389,7 +387,6 @@ class NodeResolver {
 		$this->wp->query_vars['uri'] = $uri;
 
 		// Process PATH_INFO, REQUEST_URI, and 404 for permalinks.
-
 
 		// Fetch the rewrite rules.
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
@@ -593,7 +590,6 @@ class NodeResolver {
 		if ( isset( $error ) ) {
 			$this->wp->query_vars['error'] = $error;
 		}
-
 
 		// if the parsed url is ONLY a query, unset the pagename query var
 		if ( isset( $this->wp->query_vars['pagename'], $parsed_url['query'] ) && ( $parsed_url['query'] === $this->wp->query_vars['pagename'] ) ) {

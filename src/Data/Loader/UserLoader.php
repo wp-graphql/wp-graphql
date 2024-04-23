@@ -54,7 +54,7 @@ class UserLoader extends AbstractDataLoader {
 			'names',
 			[
 				'public' => true,
-			] 
+			]
 		);
 
 		/**
