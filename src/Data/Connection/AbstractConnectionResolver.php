@@ -168,7 +168,7 @@ abstract class AbstractConnectionResolver {
 
 		/**
 		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
-		 * We can remove this once the rest of lifecyle has been updated.
+		 * We can remove this once the rest of lifecycle has been updated.
 		 */
 		$this->args = $args;
 
@@ -1131,12 +1131,12 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the source of the connection.
 	 *
-	 * @deprecated @todo in favor of $this->get_source().
+	 * @deprecated 1.24.0 in favor of $this->get_source().
 	 *
 	 * @return mixed
 	 */
 	public function getSource() {
-		_deprecated_function( __METHOD__, '@todo', static::class . '::get_source()' );
+		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_source()' );
 
 		return $this->get_source();
 	}
@@ -1144,10 +1144,10 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the AppContext of the connection.
 	 *
-	 * @deprecated @todo in favor of $this->get_context().
+	 * @deprecated 1.24.0 in favor of $this->get_context().
 	 */
 	public function getContext(): AppContext {
-		_deprecated_function( __METHOD__, '@todo', static::class . '::get_context()' );
+		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_context()' );
 
 		return $this->get_context();
 	}
@@ -1155,10 +1155,10 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the ResolveInfo of the connection.
 	 *
-	 * @deprecated @todo in favor of $this->get_info().
+	 * @deprecated 1.24.0 in favor of $this->get_info().
 	 */
 	public function getInfo(): ResolveInfo {
-		_deprecated_function( __METHOD__, '@todo', static::class . '::get_info()' );
+		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_info()' );
 
 		return $this->get_info();
 	}
@@ -1166,10 +1166,10 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns whether the connection should execute.
 	 *
-	 * @deprecated @todo in favor of $this->get_should_execute().
+	 * @deprecated 1.24.0 in favor of $this->get_should_execute().
 	 */
 	public function getShouldExecute(): bool {
-		_deprecated_function( __METHOD__, '@todo', static::class . '::should_execute()' );
+		_deprecated_function( __METHOD__, '1.24.0', static::class . '::should_execute()' );
 
 		return $this->get_should_execute();
 	}
@@ -1177,13 +1177,13 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the loader.
 	 *
-	 * @deprecated @todo in favor of $this->get_loader().
+	 * @deprecated 1.24.0 in favor of $this->get_loader().
 	 *
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 * @throws \Exception
 	 */
 	protected function getLoader() {
-		_deprecated_function( __METHOD__, '@todo', static::class . '::get_loader()' );
+		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_loader()' );
 
 		return $this->get_loader();
 	}
