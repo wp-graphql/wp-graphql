@@ -153,7 +153,7 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 	public function testMaxQueryAmount() {
 		// Create some additional posts to test a large query.
-		$this->create_posts( 150 );
+		$post_ids = $this->create_posts( 150 );
 
 		$query = $this->getQuery();
 
@@ -186,16 +186,65 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		add_filter(
-			'graphql_connection_max_query_amount',
-			static function () {
-				return 100;
-			}
-		);
-
 		$this->assertCount( 20, $actual['data']['posts']['edges'] );
 		$this->assertTrue( $actual['data']['posts']['pageInfo']['hasNextPage'] );
 		$this->assertStringContainsString( 'The number of items requested by the connection (150) exceeds the max query amount.', $actual['extensions']['debug'][0]['message'] );
+
+		// Cleanup
+		remove_all_filters( 'graphql_connection_max_query_amount' );
+		foreach( $post_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+	}
+
+	public function testDefaultQueryAmount() {
+		// Create some additional posts to test a large query.
+		$post_ids = $this->create_posts( 25 );
+
+		$query = $this->getQuery();
+
+		$variables = [
+			'first' => null,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertNotEmpty( $actual );
+
+		/**
+		 * The default that can be queried by default is 10 items
+		 */
+		$this->assertCount( 10, $actual['data']['posts']['edges'], '10 items should be returned by default' );
+
+		/**
+		 * Test the filter to make sure it's defaulting the results properly
+		 */
+		add_filter(
+			'graphql_connection_default_query_amount',
+			static function () {
+				return 20;
+			}
+		);
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertCount( 20, $actual['data']['posts']['edges'], '20 items should be returned by default' );
+
+		add_filter(
+			'graphql_connection_default_query_amount',
+			static function () {
+				return 5;
+			}
+		);
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertCount( 5, $actual['data']['posts']['edges'], '5 items should be returned by default' );
+
+		// Cleanup
+		remove_all_filters( 'graphql_connection_max_query_amount' );
+		foreach( $post_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
 	}
 
 	/**
