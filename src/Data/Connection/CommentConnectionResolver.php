@@ -311,11 +311,4 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return ! empty( get_comment( $offset ) );
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
-	}
 }

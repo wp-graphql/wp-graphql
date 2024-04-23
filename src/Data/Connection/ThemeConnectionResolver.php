@@ -67,11 +67,4 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 		$theme = wp_get_theme( $offset );
 		return $theme->exists();
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
-	}
 }
