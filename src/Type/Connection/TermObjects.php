@@ -38,7 +38,7 @@ class TermObjects {
 				'resolve'        => static function ( $source, $args, $context, $info ) {
 					$taxonomies = isset( $args['where']['taxonomies'] ) && is_array( $args['where']['taxonomies'] ) ? $args['where']['taxonomies'] : \WPGraphQL::get_allowed_taxonomies();
 					$resolver   = new TermObjectConnectionResolver( $source, $args, $context, $info, array_values( $taxonomies ) );
-					
+
 					return $resolver->get_connection();
 				},
 			]

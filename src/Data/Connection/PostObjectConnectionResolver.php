@@ -28,6 +28,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var \WP_Query|object
 	 */
 	protected $query;
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -68,7 +69,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'post';
 	}
 
@@ -148,8 +149,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		$query_args = [];
 		/**
@@ -175,10 +175,10 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set posts_per_page the highest value of $first and $last, with a (filterable) max of 100
 		 */
-		$query_args['posts_per_page'] = $this->one_to_one ? 1 : min( max( absint( $first ), absint( $last ), 10 ), $this->query_amount ) + 1;
+		$query_args['posts_per_page'] = $this->one_to_one ? 1 : $this->get_query_amount() + 1;
 
 		// set the graphql cursor args
-		$query_args['graphql_cursor_compare'] = ( ! empty( $last ) ) ? '>' : '<';
+		$query_args['graphql_cursor_compare'] = ! empty( $last ) ? '>' : '<';
 		$query_args['graphql_after_cursor']   = $this->get_after_offset();
 		$query_args['graphql_before_cursor']  = $this->get_before_offset();
 
@@ -253,7 +253,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 				static function ( $id ) {
 					return absint( $id );
 				},
-				$post_in 
+				$post_in
 			);
 
 			// If we're coming backwards, let's reverse the IDs
@@ -450,7 +450,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return string[]|null
 	 */
 	public function sanitize_post_stati( $stati ) {
-
 		/**
 		 * If no stati is explicitly set by the input, default to publish. This will be the
 		 * most common scenario.
@@ -533,7 +532,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_args(): array {
-		$args = $this->args;
+		$args = $this->get_unfiltered_args();
 
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
@@ -560,7 +559,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 								static function ( $id ) {
 									return Utils::get_database_id_from_id( $id );
 								},
-								$input_value 
+								$input_value
 							);
 							break;
 						}
@@ -572,7 +571,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                     $args                The GraphQL args passed to the resolver.
@@ -581,7 +579,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->args );
+		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_unfiltered_args() );
 	}
 
 	/**

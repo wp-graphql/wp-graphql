@@ -12,7 +12,6 @@ use WP_Comment_Query;
  * @package WPGraphQL\Data\Connection
  */
 class CommentConnectionResolver extends AbstractConnectionResolver {
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -23,15 +22,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws \GraphQL\Error\UserError If there is a problem with the $args.
+	 * @throws \GraphQL\Error\UserError
 	 */
 	public function get_query_args() {
 
 		/**
 		 * Prepare for later use
 		 */
-		$last  = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
-		$first = ! empty( $this->args['first'] ) ? $this->args['first'] : null;
+		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
 
 		$query_args = [];
 
@@ -50,7 +48,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		$query_args['number'] = min( max( absint( $first ), absint( $last ), 10 ), $this->get_query_amount() ) + 1;
+		$query_args['number'] = $this->get_query_amount() + 1;
 
 		/**
 		 * Set the default order
@@ -159,7 +157,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'comment';
 	}
 
@@ -179,27 +177,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * For example, if the $source were a post_type that didn't support comments, we could prevent
-	 * the connection query from even executing. In our case, we prevent comments from even showing
-	 * in the Schema for post types that don't have comment support, so we don't need to worry
-	 * about that, but there may be other situations where we'd need to prevent it.
-	 *
-	 * @return bool
-	 */
-	public function should_execute() {
-		return true;
-	}
-
-
-	/**
 	 * Filters the GraphQL args before they are used in get_query_args().
 	 *
 	 * @return array<string,mixed>
 	 */
 	public function get_args(): array {
-		$args = $this->args;
+		$args = $this->get_unfiltered_args();
 
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
@@ -253,7 +236,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                  $args                The GraphQL args passed to the resolver.
@@ -328,5 +310,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function is_valid_offset( $offset ) {
 		return ! empty( get_comment( $offset ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function should_execute() {
+		return true;
 	}
 }

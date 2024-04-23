@@ -36,13 +36,13 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_query_args() {
-		// If any args are added to filter/sort the connection
+		// If any args are added to filter/sort the connection.
 		return [];
 	}
 
 
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */
@@ -62,7 +62,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'taxonomy';
 	}
 

@@ -1,39 +1,12 @@
 <?php
 namespace WPGraphQL\Data\Connection;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use WPGraphQL\AppContext;
-
 /**
  * Class EnqueuedScriptsConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
  */
 class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
-
-		/**
-		 * Filter the query amount to be 1000 for
-		 */
-		add_filter(
-			'graphql_connection_max_query_amount',
-			static function ( $max, $source, $args, $context, ResolveInfo $info ) {
-				if ( 'enqueuedScripts' === $info->fieldName || 'registeredScripts' === $info->fieldName ) {
-					return 1000;
-				}
-				return $max;
-			},
-			10,
-			5
-		);
-
-		parent::__construct( $source, $args, $context, $info );
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -60,7 +33,6 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		return [];
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -73,16 +45,21 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'enqueued_script';
 	}
 
 	/**
-	 * Determine if the model is valid
+	 * {@inheritDoc}
+	 */
+	protected function max_query_amount(): int {
+		return 1000;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
-	 * @param ?\_WP_Dependency $model
-	 *
-	 * @return bool
+	 * @param ?\_WP_Dependency $model The model to check.
 	 */
 	protected function is_valid_model( $model ) {
 		return isset( $model->handle );
