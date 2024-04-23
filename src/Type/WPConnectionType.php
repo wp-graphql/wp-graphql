@@ -515,6 +515,7 @@ class WPConnectionType {
 				'type'                  => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
 				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
 				'auth'                  => $this->auth,
+				'isConnectionField'     => true,
 				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 				'description'           => ! empty( $this->config['description'] )
 					? $this->config['description']

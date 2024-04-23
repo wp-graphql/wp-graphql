@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\InterfaceType;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Trait WPInterfaceTrait
@@ -101,5 +102,86 @@ trait WPInterfaceTrait {
 		}
 
 		return array_unique( $new_interfaces );
+	}
+
+	/**
+	 * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
+	 *
+	 * @param array<mixed>                     $config
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @return array<mixed>
+	 * @throws \Exception
+	 */
+	protected function get_fields( array $config, TypeRegistry $type_registry ): array {
+		$fields = $config['fields'];
+
+		$fields = array_filter( $fields );
+
+		/**
+		 * Get the fields of interfaces and ensure they exist as fields of this type.
+		 *
+		 * Types are still responsible for ensuring the fields resolve properly.
+		 */
+		$interface_fields = [];
+
+		if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
+			foreach ( $this->getInterfaces() as $interface_type ) {
+				if ( ! $interface_type instanceof InterfaceType ) {
+					$interface_type = $type_registry->get_type( $interface_type );
+				}
+
+				if ( ! $interface_type instanceof InterfaceType ) {
+					continue;
+				}
+
+				$interface_config_fields = $interface_type->getFields();
+
+				if ( empty( $interface_config_fields ) ) {
+					continue;
+				}
+
+				foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
+					$interface_fields[ $interface_field_name ] = $interface_field->config;
+				}
+			}
+		}
+
+		// diff the $interface_fields and the $fields
+		// if the field is not in $fields, add it
+		$diff = ! empty( $interface_fields ) ? array_diff_key( $interface_fields, $fields ) : [];
+
+		// If the Interface has fields defined that are not defined
+		// on the Object Type, add them to the Object Type
+		if ( ! empty( $diff ) ) {
+			$fields = array_merge( $fields, $diff );
+		}
+
+		foreach ( $fields as $field_name => $field ) {
+			$new_field = $field;
+
+			if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
+				$new_field['description'] = $interface_fields[ $field_name ]['description'];
+			}
+
+			if ( ! isset( $new_field['type'] ) ) {
+				if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
+					$new_field['type'] = $interface_fields[ $field_name ]['type'];
+				} else {
+					unset( $fields[ $field_name ] );
+				}
+			}
+
+			// If the field has not been unset, update the field
+			if ( isset( $fields[ $field_name ] ) ) {
+				$fields[ $field_name ] = $new_field;
+			}
+		}
+
+		$fields = $this->prepare_fields( $fields, $config['name'], $config );
+		$fields = $type_registry->prepare_fields( $fields, $config['name'] );
+
+		$this->fields = $fields;
+		return $this->fields;
 	}
 }

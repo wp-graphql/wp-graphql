@@ -255,7 +255,7 @@ class AdminNotices {
 		 *
 		 * @param array<string,mixed> $notices The notices to be rendered
 		 *
-		 * @since todo
+		 * @since v1.23.0
 		 */
 		do_action( 'graphql_admin_notices_render_notices', $notices );
 
@@ -294,7 +294,7 @@ class AdminNotices {
 			 * @param bool $is_dismissable Whether the notice is dismissable or not
 			 * @param int $count The count of the notice
 			 *
-			 * @since todo
+			 * @since v1.23.0
 			 */
 			do_action( 'graphql_admin_notices_render_notice', $notice_slug, $notice, $is_dismissable, $count );
 			++$count;

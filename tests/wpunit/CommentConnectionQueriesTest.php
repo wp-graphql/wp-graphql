@@ -576,7 +576,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 				'post_author' => $author_two_id,
 				'post_type'   => 'page',
 				'post_title'  => 'Page for testing content where args',
-				'',
 			]
 		);
 
