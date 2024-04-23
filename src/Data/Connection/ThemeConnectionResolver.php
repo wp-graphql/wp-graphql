@@ -42,9 +42,8 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 		];
 	}
 
-
 	/**
-	 * Get the items from the source
+	 * {@inheritDoc}
 	 *
 	 * @return string[]
 	 */
@@ -57,7 +56,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_loader_name() {
+	protected function loader_name(): string {
 		return 'theme';
 	}
 

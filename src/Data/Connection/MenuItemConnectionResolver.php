@@ -80,7 +80,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_args(): array {
-		$args = $this->args;
+		$args = $this->get_unfiltered_args();
 
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
@@ -106,6 +106,6 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_menu_item_connection_args', $args, $this->args );
+		return apply_filters( 'graphql_menu_item_connection_args', $args, $this->get_unfiltered_args() );
 	}
 }

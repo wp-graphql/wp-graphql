@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.24.0
+
+### Upgrade Notice
+
+The AbstractConnectionResolver has undergone some refactoring. Some methods using `snakeCase` have been deprecated in favor of their `camel_case` equivalent. While we've preserved the deprecated methods to prevent breaking changes, you might begin seeing PHP notices about the deprecations. Any plugin that extends the AbstractConnectionResolver should update the following methods:
+
+- `getSource` -> `get_source`
+- `getContext` -> `get_context`
+- `getInfo` -> `get_info`
+- `getShouldExecute` -> `get_should_execute`
+- `getLoader` -> `getLoader`
+
+### New Features
+
+- [#3084](https://github.com/wp-graphql/wp-graphql/pull/3084): perf: refactor PluginConnectionResolver to only fetch plugins once. Thanks @justlevine!
+- [#3088](https://github.com/wp-graphql/wp-graphql/pull/3088): refactor: improve loader handling in AbstractConnectionResolver. Thanks @justlevine!
+- [#3087](https://github.com/wp-graphql/wp-graphql/pull/3087): feat: improve query amount handling in AbstractConnectionResolver. Thanks @justlevine!
+- [#3086](https://github.com/wp-graphql/wp-graphql/pull/3086): refactor: add AbstractConnectionResolver::get_unfiltered_args() public getter. Thanks @justlevine!
+- [#3085](https://github.com/wp-graphql/wp-graphql/pull/3085): refactor: add AbstractConnectionResolver::prepare_page_info()and only instantiate once. Thanks @justlevine!
+- [#3083](https://github.com/wp-graphql/wp-graphql/pull/3083): refactor: deprecate camelCase methods in AbstractConnectionResolver for snake_case equivalents. Thanks @justlevine!
+
+
+### Chores / Bugfixes
+
+- [#3095](https://github.com/wp-graphql/wp-graphql/pull/3095): chore: lint for superfluous whitespace. Thanks @justlevine!
+- [#3100](https://github.com/wp-graphql/wp-graphql/pull/3100): fix: recursion issues with interfaces
+- [#3082](https://github.com/wp-graphql/wp-graphql/pull/3082): chore: prepare ConnectionResolver classes for v2 backport
+
 ## 1.23.0
 
 ### New Features
