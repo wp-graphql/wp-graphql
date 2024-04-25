@@ -274,9 +274,9 @@ abstract class AbstractConnectionResolver {
 		$should_execute = true;
 
 		/**
-		 * If the source is a Post and the ID is empty, we should not execute the query.
+		 * If the source is a Post and the ID is empty (i.e. if the user doesn't have permissions to view the source), we should not execute the query.
 		 *
-		 * @todo this can probably be moved to the PostObjectConnectionResolver when we don't care about b/c.
+		 * @todo This can probably be abstracted to check if _any_ source is private, and not just `PostObject` models.
 		 */
 		if ( $source instanceof Post && empty( $source->ID ) ) {
 			$should_execute = false;
