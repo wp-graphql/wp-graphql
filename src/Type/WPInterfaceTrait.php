@@ -170,7 +170,6 @@ trait WPInterfaceTrait {
 
 			// If the field has not been unset, update the field
 			if ( isset( $fields[ $field_name ] ) ) {
-
 				if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
 					$new_field['description'] = $interface_fields[ $field_name ]['description'];
 				}
@@ -180,7 +179,6 @@ trait WPInterfaceTrait {
 				}
 
 				$fields[ $field_name ] = $new_field;
-
 			}
 		}
 
