@@ -484,4 +484,112 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 	}
+
+
+	public function testFieldResolverOnObjectTypeOverridesFieldResolverOnInterface() {
+
+		register_graphql_interface_type( 'InterfaceWithTestField', [
+			'fields' => [
+				'test' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'interface value';
+					}
+				],
+			]
+		] );
+
+		register_graphql_object_type( 'ObjectTypeWithTestField', [
+			'interfaces' => [ 'InterfaceWithTestField' ],
+			'fields' => [
+				'test' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_field( 'RootQuery', 'interfaceResolverTest', [
+			'type' => 'ObjectTypeWithTestField',
+			'resolve' => function() {
+				return true;
+			},
+		]);
+
+		$query = '
+		{
+		  interfaceResolverTest {
+		    test
+		  }
+		}
+		';
+
+		$actual = graphQL( [
+			'query' => $query
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( 'object value', $actual['data']['interfaceResolverTest']['test'], 'Field resolver on object type should override field resolver on interface' );
+
+	}
+
+	public function testArgsOnInterfaceFieldAreAppliedToObjectField() {
+
+		register_graphql_interface_type( 'InterfaceWithArgs', [
+			'fields' => [
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'args' => [
+						'interfaceArg' => [
+							'type' => 'String',
+						],
+					],
+					'resolve' => function( $source, $args ) {
+						return $args['arg'];
+					}
+				],
+			]
+		] );
+
+		register_graphql_object_type( 'ObjectTypeImplementingInterfaceWithArgs', [
+			'interfaces' => [ 'InterfaceWithArgs' ],
+			'fields' => [
+				'fieldWithArgs' => [
+					'args' => [
+						'objectArg' => [
+							'type' => 'String',
+						],
+					],
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_field( 'RootQuery', 'interfaceArgsTest', [
+			'type' => 'ObjectTypeImplementingInterfaceWithArgs',
+			'resolve' => function() {
+				return true;
+			},
+		]);
+
+		$query = '
+		{
+		  interfaceArgsTest {
+		    fieldWithArgs(interfaceArg: "test" objectArg: "test")
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
+
+	}
 }
