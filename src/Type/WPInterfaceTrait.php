@@ -160,10 +160,6 @@ trait WPInterfaceTrait {
 		foreach ( $fields as $field_name => $field ) {
 			$new_field = $field;
 
-			if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
-				$new_field['description'] = $interface_fields[ $field_name ]['description'];
-			}
-
 			if ( ! isset( $new_field['type'] ) ) {
 				if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
 					$new_field['type'] = $interface_fields[ $field_name ]['type'];
@@ -174,7 +170,17 @@ trait WPInterfaceTrait {
 
 			// If the field has not been unset, update the field
 			if ( isset( $fields[ $field_name ] ) ) {
+
+				if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
+					$new_field['description'] = $interface_fields[ $field_name ]['description'];
+				}
+
+				if ( ! empty( $interface_fields[ $field_name ]['args'] ) && is_array( $interface_fields[ $field_name ]['args'] ) ) {
+					$new_field['args'] = ! empty( $new_field['args'] ) && is_array( $new_field['args'] ) ? array_merge( $interface_fields[ $field_name ]['args'], $new_field['args'] ) : $interface_fields[ $field_name ]['args'];
+				}
+
 				$fields[ $field_name ] = $new_field;
+
 			}
 		}
 
