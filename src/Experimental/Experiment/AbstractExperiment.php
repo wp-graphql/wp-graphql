@@ -27,7 +27,7 @@ abstract class AbstractExperiment {
 	 *
 	 * @var ?array{title:string,description:string}
 	 */
-	protected static $config;
+	protected $config;
 
 	/**
 	 * Whether the experiment is active.
