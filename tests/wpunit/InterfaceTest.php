@@ -484,4 +484,168 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 	}
+
+	public function testArgsOnInterfaceFieldAreAppliedToObjectField() {
+
+		register_graphql_interface_type( 'InterfaceWithArgs', [
+			'fields' => [
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'args' => [
+						'interfaceArg' => [
+							'type' => 'String',
+						],
+					],
+					'resolve' => function( $source, $args ) {
+						return $args['arg'];
+					}
+				],
+			]
+		] );
+
+		register_graphql_object_type( 'ObjectTypeImplementingInterfaceWithArgs', [
+			'interfaces' => [ 'InterfaceWithArgs' ],
+			'fields' => [
+				'fieldWithArgs' => [
+					'args' => [
+						'objectArg' => [
+							'type' => 'String',
+						],
+					],
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_object_type( 'AnotherObjectTypeImplementingInterfaceWithArgs', [
+			'interfaces' => [ 'InterfaceWithArgs' ],
+			'fields' => [
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_field( 'RootQuery', 'interfaceArgsTest', [
+			'type' => 'ObjectTypeImplementingInterfaceWithArgs',
+			'resolve' => function() {
+				return true;
+			},
+		]);
+
+		register_graphql_field( 'RootQuery', 'interfaceArgsTest2', [
+			'type' => 'AnotherObjectTypeImplementingInterfaceWithArgs',
+			'resolve' => function() {
+				return true;
+			},
+		]);
+
+		$query = '
+		{
+		  interfaceArgsTest {
+		    fieldWithArgs(interfaceArg: "test" objectArg: "test")
+		  }
+		  interfaceArgsTest2 {
+		    fieldWithArgs(interfaceArg: "test")
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query
+		]);
+
+		$this->assertArrayNotHasKey( 'errors', $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
+
+	}
+
+	public function testInvalidArgsOnInheritedObjectFieldsAreCaptured() {
+		register_graphql_interface_type( 'InterfaceWithArgs', [
+			'fields' => [
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'args' => [
+						'interfaceArg' => [
+							'type' => 'String',
+						],
+					],
+					'resolve' => function( $source, $args ) {
+						return $args['arg'];
+					}
+				],
+			]
+		] );
+
+		register_graphql_object_type( 'BadObjectTypeImplementingInterfaceWithArgs', [
+			'interfaces' => [ 'InterfaceWithArgs' ],
+			'fields' => [
+				'fieldWithArgs' => [
+					'args' => [
+						'interfaceArg' => [
+							'type' => 'Number',
+						],
+					],
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_object_type( 'BadObjectTypeImplementingInterfaceWithArgs2', [
+			'interfaces' => [ 'InterfaceWithArgs' ],
+			'fields' => [
+				'fieldWithArgs' => [
+					'args' => [
+						'interfaceArg' => [
+							'type' => [ 'list_of' => 'Number' ],
+						],
+					],
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					}
+				],
+			],
+		] );
+
+		register_graphql_fields( 'RootQuery', [
+			'interfaceArgsTest'  => [
+				'type' => 'BadObjectTypeImplementingInterfaceWithArgs',
+				'resolve' => function() {
+					return true;
+				},
+			],
+			'interfaceArgsTest2' => [
+				'type' => 'BadObjectTypeImplementingInterfaceWithArgs2',
+				'resolve' => function() {
+					return true;
+				},
+			],
+		]);
+
+		$query = '
+		{
+		  interfaceArgsTest {
+		    fieldWithArgs(interfaceArg: 2)
+		  }
+		  interfaceArgsTest2 {
+		    fieldWithArgs(interfaceArg: [2, 4, 5])
+		  }
+		}
+		';
+
+		$actual = graphql( [
+			'query' => $query
+		]);
+
+		$this->assertArrayHasKey( 'errors', $actual, 'Invalid field arguments should be flagged' );
+	}
 }
