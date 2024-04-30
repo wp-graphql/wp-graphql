@@ -112,24 +112,23 @@ trait WPInterfaceTrait {
 	 * @return string
 	 */
 	private function field_arg_type_to_string( $type ) {
+		$output = '';
 		if ( is_string( $type ) ) {
-			return $type;
-		}
-
-		if ( is_array( $type ) && 2 === count( $type ) ) {
+			$output = $type;
+		} else if ( is_array( $type ) && 2 === count( $type ) ) {
 			switch ( $type[0] ) {
 				case 'list_of':
-					return '[' . $this->field_arg_type_to_string( $type[1] ) . ']';
+					$output = '[' . $this->field_arg_type_to_string( $type[1] ) . ']';
+					break;
 				case 'non_null':
-					return '!' . $this->field_arg_type_to_string( $type[1] );
+					$output = '!' . $this->field_arg_type_to_string( $type[1] );
+					break;
 			}
+		} else if ( is_object( $type ) && method_exists( $type, 'name' ) ) {
+			$output = $type->name;
 		}
 
-		if ( is_object( $type ) && method_exists( $type, 'name' ) ) {
-			return $type->name;
-		}
-
-		return '';
+		return $output;
 	}
 
 	/**
