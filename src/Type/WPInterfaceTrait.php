@@ -105,6 +105,34 @@ trait WPInterfaceTrait {
 	}
 
 	/**
+	 * Given a type it will return a string representation of the type
+	 *
+	 * @param array|string $type  A GraphQL Type
+	 * 
+	 * @return string
+	 */
+	private function field_arg_type_to_string( $type ) {
+		if ( is_string( $type ) ) {
+			return $type;
+		}
+
+		if ( is_array( $type ) && 2 === count( $type ) ) {
+			switch ( $type[0] ) {
+				case 'list_of':
+					return '[' . $this->field_arg_type_to_string( $type[1] ) . ']';
+				case 'non_null':
+					return '!' . $this->field_arg_type_to_string( $type[1] );
+			}
+		}
+
+		if ( is_object( $type ) && method_exists( $type, 'name' ) ) {
+			return $type->name;
+		}
+
+		return '';
+	}
+
+	/**
 	 * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
 	 *
 	 * @param array<mixed>                     $config
@@ -162,6 +190,51 @@ trait WPInterfaceTrait {
 
 			if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
 				$new_field['description'] = $interface_fields[ $field_name ]['description'];
+			}
+
+			if ( empty( $new_field['args'] ) && ! empty( $interface_fields[ $field_name ]['args'] ) ) {
+				$new_field['args'] = $interface_fields[ $field_name ]['args'];
+			} elseif ( ! empty( $new_field['args'] ) && ! empty( $interface_fields[ $field_name ]['args'] ) ) {
+				// Set field args to the interface fields to be overwrite with the new field args.
+				$field_args = $interface_fields[ $field_name ]['args'];
+				
+				foreach( $new_field['args'] as $arg_name => $arg_definition ) {
+					$new_field_arg_type = $arg_definition['type'];
+					if ( empty( $field_args[ $arg_name ] ) ) {
+						$field_args[ $arg_name ] = $arg_definition;
+						continue;
+					}
+					
+					$interface_field_arg = $field_args[ $arg_name ];
+					
+					if ( empty( $interface_field_arg['type'] ) || $interface_field_arg['type'] !== $new_field_arg_type ) {
+						graphql_debug(
+							sprintf(
+								__(
+									'Interface field argument "%1$s.%2$s(%3$s:)" expected to be of type "%4$s" but got "%5$s". Please ensure the field arguments match the interface field arguments or rename the argument.',
+									'wp-graphql'
+								),
+								$config['name'],
+								$field_name,
+								$arg_name,
+								$this->field_arg_type_to_string( $interface_field_arg['type'] ),
+								$this->field_arg_type_to_string( $new_field_arg_type ),
+							)
+						);
+						continue;
+					}
+
+					// Set the field args to the new field args.
+					$field_args[ $arg_name ] = $arg_definition;
+				}
+
+				
+
+				$new_field['args'] = array_merge( $interface_fields[ $field_name ]['args'], $new_field['args'] );
+			}
+
+			if ( empty( $new_field['resolve'] ) && ! empty( $interface_fields[ $field_name ]['resolve'] ) ) {
+				$new_field['resolve'] = $interface_fields[ $field_name ]['resolve'];
 			}
 
 			if ( ! isset( $new_field['type'] ) ) {

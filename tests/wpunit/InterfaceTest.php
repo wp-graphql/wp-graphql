@@ -463,10 +463,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'fieldWithArgs' => [
 						'type'    => 'String',
 						'args'    => [
-							'interfaceArg' => [ 'type' => 'String' ],
+							'interfaceArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'parent'
+							],
 						],
 						'resolve' => function( $source, $args ) {
-							return $args['arg'];
+							return implode( ' ', array_keys( $args ) );
 						}
 					],
 				]
@@ -480,12 +483,12 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'fields'     => [
 					'fieldWithArgs' => [
 						'args'    => [
-							'objectArg' => [ 'type' => 'String' ],
+							'objectArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'child'
+							],
 						],
 						'type'    => 'String',
-						'resolve' => function() {
-							return 'object value';
-						}
 					],
 				],
 			]
@@ -497,9 +500,8 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'interfaces' => [ 'InterfaceWithArgs' ],
 				'fields'     => [
 					'fieldWithArgs' => [
-						'type' => 'String',
-						'resolve' => function() {
-							return 'object value';
+						'resolve' => function( $_, $args ) {
+							return implode( ',', array_keys( $args ) );
 						}
 					],
 				],
@@ -515,7 +517,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						return true;
 					},
 				],
-					'interfaceArgsTest2' => [
+				'interfaceArgsTest2' => [
 					'type'    => 'AnotherObjectTypeImplementingInterfaceWithArgs',
 					'resolve' => function() {
 						return true;
@@ -526,16 +528,19 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = 'query {
 			interfaceArgsTest {
-				fieldWithArgs(interfaceArg: "test" objectArg: "test")
+				fieldWithArgs
 			}
 		  	interfaceArgsTest2 {
-		    	fieldWithArgs(interfaceArg: "test")
+		    	fieldWithArgs
 		  	}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-		$this->assertQuerySuccessful( $actual, [], 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
-
+		$expected = [
+			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
+			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
+		];
+		$this->assertQuerySuccessful( $actual, $expected, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
 	}
 
 	public function testInvalidArgsOnInheritedObjectFieldsAreCaptured() {
