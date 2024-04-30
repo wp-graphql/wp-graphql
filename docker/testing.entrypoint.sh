@@ -87,9 +87,9 @@ fi
 
 # Install the PHP dependencies
 echo "Running composer update"
-COMPOSER_MEMORY_LIMIT=-1 composer update
+COMPOSER_MEMORY_LIMIT=-1 composer update --ignore-platform-reqs
 echo "Running composer install"
-COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction
+COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction
 
 
 # Install pcov/clobber if PHP7.1+
