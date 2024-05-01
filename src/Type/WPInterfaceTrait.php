@@ -124,8 +124,6 @@ trait WPInterfaceTrait {
 					$output = '!' . $this->field_arg_type_to_string( $type[1] );
 					break;
 			}
-		} elseif ( is_object( $type ) && method_exists( $type, 'name' ) ) {
-			$output = $type->name;
 		}
 
 		return $output;
