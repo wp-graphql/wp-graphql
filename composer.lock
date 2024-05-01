@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
     "content-hash": "1a3f5842150c900c52f8026a66f17617",
-=======
-    "content-hash": "36697373e15a0d4c1d3a9ecd9950cf98",
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
     "packages": [
         {
             "name": "appsero/client",
@@ -3694,7 +3690,6 @@
             "time": "2023-11-22T10:21:01+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "php-extended/polyfill-php80-str-utils",
             "version": "1.3.7",
             "source": {
@@ -3761,17 +3756,6 @@
             },
             "dist": {
                 "type": "zip",
-=======
-            "name": "php-stubs/wordpress-stubs",
-            "version": "v6.5.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "379f17a90c01498d4c99a0d15aab6e7aa6a2c840"
-            },
-            "dist": {
-                "type": "zip",
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
                 "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/379f17a90c01498d4c99a0d15aab6e7aa6a2c840",
                 "reference": "379f17a90c01498d4c99a0d15aab6e7aa6a2c840",
                 "shasum": ""
@@ -3881,21 +3865,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-<<<<<<< HEAD
                 "reference": "96072c30924c80d20d74f1762cfd706754b17638"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/96072c30924c80d20d74f1762cfd706754b17638",
                 "reference": "96072c30924c80d20d74f1762cfd706754b17638",
-=======
-                "reference": "782436f92f26dd66a049059efbfc31350f6b814d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/782436f92f26dd66a049059efbfc31350f6b814d",
-                "reference": "782436f92f26dd66a049059efbfc31350f6b814d",
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
                 "shasum": ""
             },
             "require": {
@@ -3972,11 +3947,7 @@
                     "type": "open_collective"
                 }
             ],
-<<<<<<< HEAD
             "time": "2024-04-30T23:24:59+00:00"
-=======
-            "time": "2024-04-24T14:07:49+00:00"
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
@@ -10432,16 +10403,16 @@
         },
         {
             "name": "wp-cli/scaffold-command",
-            "version": "v2.2.0",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/scaffold-command.git",
-                "reference": "8aa906c3ec6ae7d95f38c962fc2561714f9c7145"
+                "reference": "7a7d145c260ead64fa93a59498d60def970d5214"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/scaffold-command/zipball/8aa906c3ec6ae7d95f38c962fc2561714f9c7145",
-                "reference": "8aa906c3ec6ae7d95f38c962fc2561714f9c7145",
+                "url": "https://api.github.com/repos/wp-cli/scaffold-command/zipball/7a7d145c260ead64fa93a59498d60def970d5214",
+                "reference": "7a7d145c260ead64fa93a59498d60def970d5214",
                 "shasum": ""
             },
             "require": {
@@ -10492,9 +10463,9 @@
             "homepage": "https://github.com/wp-cli/scaffold-command",
             "support": {
                 "issues": "https://github.com/wp-cli/scaffold-command/issues",
-                "source": "https://github.com/wp-cli/scaffold-command/tree/v2.2.0"
+                "source": "https://github.com/wp-cli/scaffold-command/tree/v2.3.0"
             },
-            "time": "2023-11-16T15:25:33+00:00"
+            "time": "2024-04-26T21:05:48+00:00"
         },
         {
             "name": "wp-cli/search-replace-command",
@@ -11054,7 +11025,6 @@
         },
         {
             "name": "wp-graphql/wp-graphql-testcase",
-<<<<<<< HEAD
             "version": "v3.0.0",
             "source": {
                 "type": "git",
@@ -11069,22 +11039,6 @@
             },
             "require": {
                 "php-extended/polyfill-php80-str-utils": "^1.3"
-=======
-            "version": "v2.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wp-graphql/wp-graphql-testcase.git",
-                "reference": "0c3fa9d33da3b21b0b8064163706c3067afa3ac6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/0c3fa9d33da3b21b0b8064163706c3067afa3ac6",
-                "reference": "0c3fa9d33da3b21b0b8064163706c3067afa3ac6",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
             },
             "require-dev": {
                 "automattic/vipwpcs": "^2.3",
@@ -11134,15 +11088,9 @@
             "description": "Codeception module for WPGraphQL API testing",
             "support": {
                 "issues": "https://github.com/wp-graphql/wp-graphql-testcase/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v3.0.0"
             },
             "time": "2024-05-02T04:30:04+00:00"
-=======
-                "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v2.4.1"
-            },
-            "time": "2024-04-30T23:03:46+00:00"
->>>>>>> 8a242c57 (fix: Interface field arg/resolve patch implemented)
         },
         {
             "name": "zordius/lightncandy",
