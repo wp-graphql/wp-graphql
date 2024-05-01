@@ -107,15 +107,15 @@ trait WPInterfaceTrait {
 	/**
 	 * Given a type it will return a string representation of the type
 	 *
-	 * @param array|string $type  A GraphQL Type
-	 * 
+	 * @param mixed $type  A GraphQL Type
+	 *
 	 * @return string
 	 */
 	private function field_arg_type_to_string( $type ) {
 		$output = '';
 		if ( is_string( $type ) ) {
 			$output = $type;
-		} else if ( is_array( $type ) && 2 === count( $type ) ) {
+		} elseif ( is_array( $type ) && 2 === count( $type ) ) {
 			switch ( $type[0] ) {
 				case 'list_of':
 					$output = '[' . $this->field_arg_type_to_string( $type[1] ) . ']';
@@ -124,7 +124,7 @@ trait WPInterfaceTrait {
 					$output = '!' . $this->field_arg_type_to_string( $type[1] );
 					break;
 			}
-		} else if ( is_object( $type ) && method_exists( $type, 'name' ) ) {
+		} elseif ( is_object( $type ) && method_exists( $type, 'name' ) ) {
 			$output = $type->name;
 		}
 
@@ -196,19 +196,20 @@ trait WPInterfaceTrait {
 			} elseif ( ! empty( $new_field['args'] ) && ! empty( $interface_fields[ $field_name ]['args'] ) ) {
 				// Set field args to the interface fields to be overwrite with the new field args.
 				$field_args = $interface_fields[ $field_name ]['args'];
-				
-				foreach( $new_field['args'] as $arg_name => $arg_definition ) {
+
+				foreach ( $new_field['args'] as $arg_name => $arg_definition ) {
 					$new_field_arg_type = $arg_definition['type'];
 					if ( empty( $field_args[ $arg_name ] ) ) {
 						$field_args[ $arg_name ] = $arg_definition;
 						continue;
 					}
-					
+
 					$interface_field_arg = $field_args[ $arg_name ];
-					
+
 					if ( empty( $interface_field_arg['type'] ) || $interface_field_arg['type'] !== $new_field_arg_type ) {
 						graphql_debug(
 							sprintf(
+								/* translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type. */
 								__(
 									'Interface field argument "%1$s.%2$s(%3$s:)" expected to be of type "%4$s" but got "%5$s". Please ensure the field arguments match the interface field arguments or rename the argument.',
 									'wp-graphql'
@@ -217,7 +218,7 @@ trait WPInterfaceTrait {
 								$field_name,
 								$arg_name,
 								$this->field_arg_type_to_string( $interface_field_arg['type'] ),
-								$this->field_arg_type_to_string( $new_field_arg_type ),
+								$this->field_arg_type_to_string( $new_field_arg_type )
 							)
 						);
 						continue;
@@ -226,8 +227,6 @@ trait WPInterfaceTrait {
 					// Set the field args to the new field args.
 					$field_args[ $arg_name ] = $arg_definition;
 				}
-
-				
 
 				$new_field['args'] = array_merge( $interface_fields[ $field_name ]['args'], $new_field['args'] );
 			}
