@@ -3865,12 +3865,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "782436f92f26dd66a049059efbfc31350f6b814d"
+                "reference": "96072c30924c80d20d74f1762cfd706754b17638"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/782436f92f26dd66a049059efbfc31350f6b814d",
-                "reference": "782436f92f26dd66a049059efbfc31350f6b814d",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/96072c30924c80d20d74f1762cfd706754b17638",
+                "reference": "96072c30924c80d20d74f1762cfd706754b17638",
                 "shasum": ""
             },
             "require": {
@@ -3947,7 +3947,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-04-24T14:07:49+00:00"
+            "time": "2024-04-30T23:24:59+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
