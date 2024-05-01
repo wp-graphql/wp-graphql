@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36697373e15a0d4c1d3a9ecd9950cf98",
+    "content-hash": "1a3f5842150c900c52f8026a66f17617",
     "packages": [
         {
             "name": "appsero/client",
@@ -3688,6 +3688,63 @@
                 "source": "https://github.com/php-coveralls/php-coveralls/tree/v2.7.0"
             },
             "time": "2023-11-22T10:21:01+00:00"
+        },
+        {
+            "name": "php-extended/polyfill-php80-str-utils",
+            "version": "1.3.7",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.com/php-extended/polyfill-php80-str-utils.git",
+                "reference": "0749426252e3e27c526fda939e8d3ff050bf907b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/php-extended%2Fpolyfill-php80-str-utils/repository/archive.zip?sha=0749426252e3e27c526fda939e8d3ff050bf907b",
+                "reference": "0749426252e3e27c526fda939e8d3ff050bf907b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "php-extended/placeholder-phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "PhpExtended\\Polyfill\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Anastaszor",
+                    "homepage": "https://gitlab.com/Anastaszor",
+                    "role": "developer"
+                }
+            ],
+            "description": "A php implementation of string functions introduced in php8 and above",
+            "homepage": "https://gitlab.com/php-extended/polyfill-str-utils",
+            "keywords": [
+                "implementation",
+                "php",
+                "polyfill",
+                "str",
+                "string_ends_with",
+                "string_starts_with",
+                "utils"
+            ],
+            "support": {
+                "issues": "https://gitlab.com/php-extended/polyfill-str-utils/issues",
+                "source": "https://gitlab.com/php-extended/polyfill-str-utils"
+            },
+            "time": "2024-03-31T13:28:10+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
@@ -10968,20 +11025,20 @@
         },
         {
             "name": "wp-graphql/wp-graphql-testcase",
-            "version": "v2.4.1",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-graphql/wp-graphql-testcase.git",
-                "reference": "0c3fa9d33da3b21b0b8064163706c3067afa3ac6"
+                "reference": "706c2d7a61a50e3b87854f5f3eb1981423f9e357"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/0c3fa9d33da3b21b0b8064163706c3067afa3ac6",
-                "reference": "0c3fa9d33da3b21b0b8064163706c3067afa3ac6",
+                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/706c2d7a61a50e3b87854f5f3eb1981423f9e357",
+                "reference": "706c2d7a61a50e3b87854f5f3eb1981423f9e357",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.1"
+                "php-extended/polyfill-php80-str-utils": "^1.3"
             },
             "require-dev": {
                 "automattic/vipwpcs": "^2.3",
@@ -11031,9 +11088,9 @@
             "description": "Codeception module for WPGraphQL API testing",
             "support": {
                 "issues": "https://github.com/wp-graphql/wp-graphql-testcase/issues",
-                "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v2.4.1"
+                "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v3.0.0"
             },
-            "time": "2024-04-30T23:03:46+00:00"
+            "time": "2024-05-01T22:23:19+00:00"
         },
         {
             "name": "zordius/lightncandy",

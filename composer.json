@@ -46,7 +46,7 @@
 		"php-coveralls/php-coveralls": "^2.5",
 		"slevomat/coding-standard": "^8.9",
 		"szepeviktor/phpstan-wordpress": "~1.3.0",
-		"wp-graphql/wp-graphql-testcase": "^2.4",
+		"wp-graphql/wp-graphql-testcase": "^3.0",
 		"wp-cli/wp-cli-bundle": "^2.8"
 	},
 	"config": {
