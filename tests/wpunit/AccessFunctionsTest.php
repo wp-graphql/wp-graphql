@@ -2232,7 +2232,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testDeRegisterConnectionWithUnderscores() {
-		deregister_graphql_connection( 'TestConnectionFieldWithUnderscores' );
+		deregister_graphql_connection( 'Test_Connection_With_Underscores' );
 
 		register_graphql_connection(
 			[
