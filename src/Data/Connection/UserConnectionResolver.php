@@ -281,11 +281,4 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return (bool) get_user_by( 'ID', absint( $offset ) );
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
-	}
 }

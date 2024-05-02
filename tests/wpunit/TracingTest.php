@@ -39,7 +39,7 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $response );
 
-		$this->assertIsValidQueryResponse( $response );
+		$this->assertResponseIsValid( $response );
 		$this->assertNotEmpty( $response['extensions']['tracing'] );
 	}
 
@@ -69,7 +69,7 @@ class TracingTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		codecept_debug( $response );
 
-		$this->assertIsValidQueryResponse( $response );
+		$this->assertResponseIsValid( $response );
 		$this->assertNotEmpty( $response['extensions']['tracing'] );
 	}
 }

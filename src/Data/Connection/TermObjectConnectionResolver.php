@@ -294,13 +294,4 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Default is true, meaning any time a TermObjectConnection resolver is asked for, it will execute.
-	 */
-	public function should_execute() {
-		return true;
-	}
 }

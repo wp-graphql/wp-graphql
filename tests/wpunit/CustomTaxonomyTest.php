@@ -340,7 +340,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertQuerySuccessful(
 			$actual,
 			[
@@ -476,7 +476,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "parentDatabaseId"', $actual['errors'][0]['message'] );
 
@@ -508,7 +508,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotContains(
 			$actual['data']['__type']['interfaces'],
 			[
@@ -532,7 +532,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotContains(
 			$actual['data']['__type']['possibleTypes'],
 			[
@@ -586,7 +586,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// assert that the query is valid
-		$this->assertIsValidQueryResponse( $response );
+		$this->assertResponseIsValid( $response );
 		$this->assertArrayNotHasKey( 'errors', $response );
 
 		$query = '
