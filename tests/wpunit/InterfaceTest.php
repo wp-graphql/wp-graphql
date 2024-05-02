@@ -99,7 +99,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				testInt
 				testString
 				interfaceOnlyField
-        	}
+			}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
