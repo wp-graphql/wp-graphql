@@ -558,7 +558,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						}
 					],
 				]
-			]
+
+			] 
+
 		);
 
 		register_graphql_object_type(
@@ -629,7 +631,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ]);
 		$this->assertQuerySuccessful( $actual, [], 'Invalid field arguments should be flagged' );
 	}
-
+	
 	public function testInterfaceWithNonNullableArg() {
 		register_graphql_interface_type( 'InterfaceWithNonNullableArg', [
 			'fields' => [

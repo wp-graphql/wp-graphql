@@ -113,15 +113,19 @@ trait WPInterfaceTrait {
 	 */
 	private function field_arg_type_to_string( $type ) {
 		$output = '';
-		if ( is_string( $type ) ) {
+		if ( empty( $type ) ) {
+			return $output;
+		} elseif ( is_string( $type ) ) {
 			$output = $type;
-		} elseif ( is_array( $type ) && 2 === count( $type ) ) {
-			switch ( $type[0] ) {
+		} elseif ( is_array( $type ) ) {
+			$modifier = array_keys( $type )[0];
+			$type     = $type[ $modifier ];
+			switch ( $modifier ) {
 				case 'list_of':
-					$output = '[' . $this->field_arg_type_to_string( $type[1] ) . ']';
+					$output = '[' . $this->field_arg_type_to_string( $type ) . ']';
 					break;
 				case 'non_null':
-					$output = '!' . $this->field_arg_type_to_string( $type[1] );
+					$output = '!' . $this->field_arg_type_to_string( $type );
 					break;
 			}
 		}
@@ -196,15 +200,14 @@ trait WPInterfaceTrait {
 				$field_args = $interface_fields[ $field_name ]['args'];
 
 				foreach ( $new_field['args'] as $arg_name => $arg_definition ) {
-					$new_field_arg_type = $arg_definition['type'];
+					$new_field_arg_type = $this->field_arg_type_to_string( $arg_definition['type'] );
 					if ( empty( $field_args[ $arg_name ] ) ) {
 						$field_args[ $arg_name ] = $arg_definition;
 						continue;
 					}
 
-					$interface_field_arg = $field_args[ $arg_name ];
-
-					if ( empty( $interface_field_arg['type'] ) || $interface_field_arg['type'] !== $new_field_arg_type ) {
+					$interface_arg_type = $field_args[ $arg_name ]['type']();
+					if ( ! empty( $new_field_arg_type ) && $interface_arg_type !== $new_field_arg_type ) {
 						graphql_debug(
 							sprintf(
 								/* translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type. */
@@ -215,15 +218,15 @@ trait WPInterfaceTrait {
 								$config['name'],
 								$field_name,
 								$arg_name,
-								$this->field_arg_type_to_string( $interface_field_arg['type'] ),
-								$this->field_arg_type_to_string( $new_field_arg_type )
+								$interface_arg_type,
+								$new_field_arg_type,
 							)
 						);
 						continue;
 					}
 
 					// Set the field args to the new field args.
-					$field_args[ $arg_name ] = $arg_definition;
+					$field_args[ $arg_name ] = array_merge( $field_args[ $arg_name ], $arg_definition );
 				}
 
 				$new_field['args'] = array_merge( $interface_fields[ $field_name ]['args'], $new_field['args'] );
