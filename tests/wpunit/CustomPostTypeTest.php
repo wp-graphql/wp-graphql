@@ -721,7 +721,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertQuerySuccessful(
 			$actual,
 			[
@@ -857,7 +857,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringStartsWith( 'Cannot query field "authorDatabaseId"', $actual['errors'][0]['message'] );
 		$this->assertStringStartsWith( 'Cannot query field "title"', $actual['errors'][1]['message'] );
@@ -890,7 +890,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotContains(
 			$actual['data']['__type']['interfaces'],
 			[
@@ -916,7 +916,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotContains(
 			$actual['data']['__type']['possibleTypes'],
 			[
@@ -934,7 +934,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotContains(
 			$actual['data']['__type']['possibleTypes'],
 			[
@@ -988,7 +988,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// assert that the query is valid
-		$this->assertIsValidQueryResponse( $response );
+		$this->assertResponseIsValid( $response );
 		$this->assertArrayNotHasKey( 'errors', $response );
 
 		$query = '

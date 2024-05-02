@@ -72,7 +72,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		);
 
 		// Confirm its valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['path'] );
 
 		// Store for use by $expected.
@@ -139,7 +139,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Theres only one item, so we cant assertValidPagination()
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['plugins']['edges'] ) );
@@ -183,7 +183,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		);
 
 		// Confirm its valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['plugins']['edges'][0]['node']['path'] );
 
 		// Store for use by $expected.
@@ -255,7 +255,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Theres only one item, so we cant assertValidPagination()
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['plugins']['edges'] ) );
@@ -312,7 +312,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$expected = $actual['data']['plugins']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
 
@@ -331,7 +331,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['plugins']['nodes'][0] );
 	}
@@ -359,7 +359,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $active_plugin, $actual_plugins );
@@ -375,7 +375,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $active_plugin, $actual_plugins );
@@ -385,7 +385,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$variables['where']['status'] = 'INACTIVE';
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $inactive_plugin, $actual_plugins );
@@ -399,7 +399,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$actual_plugins = array_column( $actual['data']['plugins']['nodes'], 'path' );
 		$this->assertContains( $inactive_plugin, $actual_plugins );
@@ -426,7 +426,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['plugins']['edges'] ) );
