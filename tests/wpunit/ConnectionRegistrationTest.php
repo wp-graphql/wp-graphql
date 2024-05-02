@@ -243,7 +243,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 						],
 						'fromFieldName' => 'failingAuthConnection',
 						'resolve'       => static function () {
-							return [ 'nodes' => [ null, false, 0 ] ];
+							return [ 'nodes' => [ '', false, 0 ] ];
 						},
 					]
 				);
@@ -317,7 +317,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertQueryError( $response, $expected );
 
 		\wp_set_current_user( 1 );
-		$this->clearSchema();
+
 		$response = $this->graphql( compact( 'query' ) );
 		$expected = [
 			$this->expectedField( 'failingAuthConnection.nodes.0', self::NOT_NULL ),
