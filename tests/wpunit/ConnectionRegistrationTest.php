@@ -243,7 +243,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 						],
 						'fromFieldName' => 'failingAuthConnection',
 						'resolve'       => static function () {
-							return [ 'nodes' => [ '', false, 0 ] ];
+							return [ 'nodes' => [ 'test', false, 0 ] ];
 						},
 					]
 				);
@@ -264,9 +264,6 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		 * Expect query to fail on type level due to missing "first" arg.
 		 */
 		$response = $this->graphql( compact( 'query' ) );
-
-		codecept_debug( $response );
-
 		$expected = [
 			$this->expectedErrorPath( 'secretConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
@@ -280,8 +277,6 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		 */
 		$variables = [ 'first' => 1 ];
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
-
-		codecept_debug( $response );
 
 		$expected = [
 			$this->expectedNode( 'secretConnection.nodes', [ 'test' => 'Blah' ] ),
@@ -305,28 +300,27 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		';
 
 		$response = $this->graphql( compact( 'query' ) );
-
-		codecept_debug( $response );
-
 		$expected = [
 			$this->expectedErrorPath( 'failingAuthConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
 			$this->expectedField( 'failingAuthConnection', self::IS_NULL ),
 		];
-
 		$this->assertQueryError( $response, $expected );
 
+
+		/**
+		 * Expect adminstrator to bypass field-level auth due to caps but fail type-level auth for last to nodes because they have falsy root value.
+		 */
 		\wp_set_current_user( 1 );
 
 		$response = $this->graphql( compact( 'query' ) );
 		$expected = [
-			$this->expectedField( 'failingAuthConnection.nodes.0', self::NOT_NULL ),
-			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
-			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedField( 'failingAuthConnection.nodes.0.test', 'test' ),
 			$this->expectedField( 'failingAuthConnection.nodes.1.test', self::IS_NULL ),
-			$this->expectedErrorPath( 'failingAuthConnection.nodes.2.test' ),
-			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
 			$this->expectedField( 'failingAuthConnection.nodes.2.test', self::IS_NULL ),
+			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
+			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
+			$this->expectedErrorPath( 'failingAuthConnection.nodes.2.test' ),
 		];
 
 		$this->assertQueryError( $response, $expected );
