@@ -219,7 +219,7 @@ trait WPInterfaceTrait {
 								$field_name,
 								$arg_name,
 								$interface_arg_type,
-								$new_field_arg_type,
+								$new_field_arg_type
 							)
 						);
 						continue;
