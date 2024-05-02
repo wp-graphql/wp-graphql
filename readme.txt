@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.5
 Requires PHP: 7.1
-Stable tag: 1.24.0
+Stable tag: 1.25.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -86,6 +86,10 @@ Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
 == Upgrade Notice ==
+
+= 1.25.0 =
+
+This release includes a fix to a regression in the v1.24.0. Users impacted by the regression in 1.24.0 included, but are not necessarily limited to, users of the WPGraphQL for WooCommerce extension.
 
 = 1.24.0 =
 
@@ -261,6 +265,18 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.25.0 =
+
+**New Features**
+
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): feat: add `AbsractConnectionResolver::pre_should_execute()`. Thanks @justlevine!
+
+**Chores / Bugfixes**
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): refactor: `AbstractConnectionResolver::should_execute()` Thanks @justlevine!
+- [#3112](https://github.com/wp-graphql/wp-graphql/pull/3104): fix: fixes a regression from v1.24.0 relating to field arguments defined on Interfaces not being properly merged onto Object Types that implement the interface. Thanks @kidunot89!
+- [#3114](https://github.com/wp-graphql/wp-graphql/pull/3114): fix: node IDs not showing in the Query Analyzer / X-GraphQL-Keys when using DataLoader->load_many()
+- [#3116](https://github.com/wp-graphql/wp-graphql/pull/3116): chore: Update WPGraphQLTestCase to v3. Thanks @kidunot89!
 
 = 1.24.0 =
 
