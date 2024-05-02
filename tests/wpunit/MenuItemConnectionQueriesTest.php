@@ -378,7 +378,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$expected = $actual['data']['menuItems']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 
@@ -397,7 +397,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 	}
@@ -416,7 +416,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
 		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
@@ -751,7 +751,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		 * @param array $actual The GraphQL results.
 		 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['menuItems']['edges'] ) );

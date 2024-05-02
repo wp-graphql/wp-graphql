@@ -317,6 +317,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertQueryError( $response, $expected );
 
 		\wp_set_current_user( 1 );
+		$this->clearSchema();
 		$response = $this->graphql( compact( 'query' ) );
 		$expected = [
 			$this->expectedField( 'failingAuthConnection.nodes.0', self::NOT_NULL ),

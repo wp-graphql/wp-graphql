@@ -66,7 +66,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		);
 
 		// Confirm it's valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 
 		// Test fields for first asset.
@@ -147,7 +147,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 				],
 			]
 		);
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 		$variables['after'] = $actual['data']['registeredStylesheets']['pageInfo']['startCursor'];
 
@@ -178,7 +178,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		);
 
 		// Confirm it's valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 
 		// Store for use by $expected.
@@ -246,7 +246,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
 
 		$variables['before'] = $actual['data']['registeredStylesheets']['pageInfo']['endCursor'];
@@ -291,7 +291,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$expected = $actual['data']['registeredStylesheets']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( $expected, $actual['data']['registeredStylesheets']['nodes'][0] );
@@ -311,7 +311,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['registeredStylesheets']['nodes'][0] );
 	}
@@ -323,7 +323,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['registeredStylesheets']['edges'] ) );

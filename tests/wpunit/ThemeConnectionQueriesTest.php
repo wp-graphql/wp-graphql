@@ -129,7 +129,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		);
 
 		// Confirm its valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['slug'] );
 
 		// Store for use by $expected.
@@ -196,7 +196,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Theres only one item, so we cant assertValidPagination()
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['themes']['edges'] ) );
@@ -243,7 +243,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		);
 
 		// Confirm its valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['themes']['edges'][0]['node']['slug'] );
 
 		$wp_query = $actual['data']['themes'];
@@ -314,7 +314,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// Theres only one item, so we cant assertValidPagination()
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['themes']['edges'] ) );
@@ -373,7 +373,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$expected = $actual['data']['themes']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
@@ -393,7 +393,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['themes']['nodes'][0] );
 	}
@@ -416,7 +416,7 @@ class ThemeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['themes']['edges'] ) );
