@@ -558,7 +558,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						}
 					],
 				]
-			] 
+			]
 		);
 
 		register_graphql_object_type(
@@ -628,5 +628,75 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( [ 'query' => $query ]);
 		$this->assertQuerySuccessful( $actual, [], 'Invalid field arguments should be flagged' );
+	}
+
+	public function testInterfaceWithNonNullableArg() {
+		register_graphql_interface_type( 'InterfaceWithNonNullableArg', [
+			'fields' => [
+				'fieldWithNonNullableArg' => [
+					'type' => 'String',
+					'args' => [
+						'nonNullableArg' => [
+							'type' => [ 'non_null' => 'String' ],
+							'defaultValue' => 'nonNullableArg',
+						],
+						'listOfArg' => [
+							'type' => [ 'list_of' => 'String' ],
+							'defaultValue' => [ 'listOfArg', 'listOfArg 2' ],
+						],
+						'nonNullListOfString' => [
+							'type' => [ 'non_null' => [ 'list_of' => 'String' ] ],
+							'defaultValue' => [ 'nonNullListOfString', 'nonNullListOfString 2' ],
+						],
+						'listOfNonNullString' => [
+							'type' => [ 'list_of' => [ 'non_null' => 'String' ] ],
+							'defaultValue' => [ 'listOfNonNullString', 'listOfNonNullString 2' ],
+						],
+					],
+					'resolve' => function( $source, $args ) {
+						return null;
+					},
+				],
+			],
+		] );
+
+		register_graphql_object_type( 'TestTypeWithNonNullableArg', [
+			'interfaces' => [ 'InterfaceWithNonNullableArg' ],
+			'fields' => [
+				'testField' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					},
+				],
+			],
+		] );
+
+		register_graphql_fields( 'RootQuery', [
+			'testField' => [
+				'type' => 'TestTypeWithNonNullableArg',
+				'resolve' => function() {
+					return true;
+				},
+			],
+		] );
+
+		$query = 'query {
+			testField {
+				fieldWithNonNullableArg(
+					nonNullableArg: "test" 
+					listOfArg: ["test"] 
+					nonNullListOfString: ["test"]
+					listOfNonNullString: ["test"]
+				)
+				testField
+			}
+		}';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'testField.fieldWithNonNullableArg', self::IS_NULL ),
+		], 'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type' );
 	}
 }
