@@ -105,29 +105,35 @@ trait WPInterfaceTrait {
 	}
 
 	/**
-	 * Given a type it will return a string representation of the type
+	 * Given a type it will return a string representation of the type.
 	 *
-	 * @param mixed $type  A GraphQL Type
+	 * This is used for optimistic comparison of the arg types.
 	 *
-	 * @return string
+	 * @param string|array<string,mixed>|mixed $type A GraphQL Type
 	 */
-	private function field_arg_type_to_string( $type ) {
-		$output = '';
+	private function field_arg_type_to_string( $type ): string {
+		// Bail if the type is empty.
 		if ( empty( $type ) ) {
-			return $output;
+			return '';
 		} elseif ( is_string( $type ) ) {
-			$output = $type;
-		} elseif ( is_array( $type ) ) {
-			$modifier = array_keys( $type )[0];
-			$type     = $type[ $modifier ];
-			switch ( $modifier ) {
-				case 'list_of':
-					$output = '[' . $this->field_arg_type_to_string( $type ) . ']';
-					break;
-				case 'non_null':
-					$output = '!' . $this->field_arg_type_to_string( $type );
-					break;
-			}
+			// If the type is already a string, return it as is.
+			return $type;
+		} elseif ( ! is_array( $type ) ) {
+			// If the type is not an array, we can't do anything with it.
+			return '';
+		}
+
+		// Arrays mean the type can be nested in modifiers.
+		$output   = '';
+		$modifier = array_keys( $type )[0];
+		$type     = $type[ $modifier ];
+		switch ( $modifier ) {
+			case 'list_of':
+				$output = '[' . $this->field_arg_type_to_string( $type ) . ']';
+				break;
+			case 'non_null':
+				$output = '!' . $this->field_arg_type_to_string( $type );
+				break;
 		}
 
 		return $output;
