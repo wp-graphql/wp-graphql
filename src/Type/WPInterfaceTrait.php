@@ -195,10 +195,29 @@ trait WPInterfaceTrait {
 		foreach ( $fields as $field_name => $field ) {
 			$new_field = $field;
 
+			// If the field does not have a type, attempt to inherit it from the interface.
+			if ( ! isset( $new_field['type'] ) ) {
+				// If the field doesn't exist in the interface, we have no way to determine (and later register) the type.
+				if ( ! isset( $interface_fields[ $field_name ] ) ) {
+					unset( $fields[ $field_name ] );
+					continue;
+				}
+
+				$new_field['type'] = $interface_fields[ $field_name ]['type'];
+			}
+
+			// Inherit the description from the interface if it's not set on the field.
 			if ( empty( $new_field['description'] ) && ! empty( $interface_fields[ $field_name ]['description'] ) ) {
 				$new_field['description'] = $interface_fields[ $field_name ]['description'];
 			}
 
+			// Inherit the resolver from the interface if it's not set on the field.
+			if ( empty( $new_field['resolve'] ) && ! empty( $interface_fields[ $field_name ]['resolve'] ) ) {
+				$new_field['resolve'] = $interface_fields[ $field_name ]['resolve'];
+			}
+
+			// If the args aren't explicitly defined, inherit them from the interface.
+			// If they're both set, we need to merge them.
 			if ( empty( $new_field['args'] ) && ! empty( $interface_fields[ $field_name ]['args'] ) ) {
 				$new_field['args'] = $interface_fields[ $field_name ]['args'];
 			} elseif ( ! empty( $new_field['args'] ) && ! empty( $interface_fields[ $field_name ]['args'] ) ) {
@@ -206,12 +225,14 @@ trait WPInterfaceTrait {
 				$field_args = $interface_fields[ $field_name ]['args'];
 
 				foreach ( $new_field['args'] as $arg_name => $arg_definition ) {
-					$new_field_arg_type = $this->field_arg_type_to_string( $arg_definition['type'] );
+					// If the arg is not defined in the interface, we can use the current arg definition.
 					if ( empty( $field_args[ $arg_name ] ) ) {
 						$field_args[ $arg_name ] = $arg_definition;
 						continue;
 					}
 
+					// Check if the interface arg type is different from the new field arg type.
+					$new_field_arg_type = $this->field_arg_type_to_string( $arg_definition['type'] );
 					$interface_arg_type = $field_args[ $arg_name ]['type']();
 					if ( ! empty( $new_field_arg_type ) && $interface_arg_type !== $new_field_arg_type ) {
 						graphql_debug(
@@ -238,22 +259,8 @@ trait WPInterfaceTrait {
 				$new_field['args'] = array_merge( $interface_fields[ $field_name ]['args'], $new_field['args'] );
 			}
 
-			if ( empty( $new_field['resolve'] ) && ! empty( $interface_fields[ $field_name ]['resolve'] ) ) {
-				$new_field['resolve'] = $interface_fields[ $field_name ]['resolve'];
-			}
-
-			if ( ! isset( $new_field['type'] ) ) {
-				if ( isset( $interface_fields[ $field_name ]['type'] ) ) {
-					$new_field['type'] = $interface_fields[ $field_name ]['type'];
-				} else {
-					unset( $fields[ $field_name ] );
-				}
-			}
-
-			// If the field has not been unset, update the field
-			if ( isset( $fields[ $field_name ] ) ) {
-				$fields[ $field_name ] = $new_field;
-			}
+			// Update the field.
+			$fields[ $field_name ] = $new_field;
 		}
 
 		$fields = $this->prepare_fields( $fields, $config['name'], $config );
