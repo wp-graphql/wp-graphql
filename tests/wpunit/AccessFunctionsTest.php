@@ -2240,7 +2240,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'toType'                => 'Post',
 				'fromFieldName'         => 'test_field_with_underscores',
 				'allowFieldUnderscores' => true,
-				'connectionTypeName'    => 'TestConnectionFieldWithUnderscores',
+				'connectionTypeName'    => 'Test_Connection_With_Underscores',
 				'resolve' 			 => static function () {
 					return [
 						'nodes' => [],
