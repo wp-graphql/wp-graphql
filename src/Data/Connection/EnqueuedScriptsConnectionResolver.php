@@ -72,11 +72,4 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 		global $wp_scripts;
 		return isset( $wp_scripts->registered[ $offset ] );
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
-	}
 }

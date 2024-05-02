@@ -64,9 +64,13 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Whether the connection resolver should execute.
 	 *
-	 * @var bool
+	 * If `false`, the connection resolve will short-circuit and return an empty array.
+	 *
+	 * Filterable by `graphql_connection_pre_should_execute` and `graphql_connection_should_execute`.
+	 *
+	 * @var ?bool
 	 */
-	protected $should_execute = true;
+	protected $should_execute;
 
 	/**
 	 * The loader name.
@@ -172,8 +176,8 @@ abstract class AbstractConnectionResolver {
 		 */
 		$this->args = $args;
 
-		// Bail if the Post->ID is empty, as that indicates a private post.
-		if ( $source instanceof Post && empty( $source->ID ) ) {
+		// Pre-check if the connection should execute so we can skip expensive logic if we already know it shouldn't execute.
+		if ( ! $this->get_pre_should_execute( $this->source, $this->unfiltered_args, $this->context, $this->info ) ) {
 			$this->should_execute = false;
 		}
 
@@ -257,22 +261,29 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_query();
 
 	/**
-	 * Should_execute
+	 * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
 	 *
-	 * Determine whether or not the query should execute.
+	 * When `pre_should_excecute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
 	 *
-	 * Return true to execute, return false to prevent execution.
-	 *
-	 * Various criteria can be used to determine whether a Connection Query should
-	 * be executed.
-	 *
-	 * For example, if a user is requesting revisions of a Post, and the user doesn't have
-	 * permission to edit the post, they don't have permission to view the revisions, and therefore
-	 * we can prevent the query to fetch revisions from executing in the first place.
-	 *
-	 * @return bool
+	 * @param mixed                                $source  Source passed down from the resolve tree
+	 * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
+	 * @param \WPGraphQL\AppContext                $context The app context that gets passed down the resolve tree.
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info    Info about fields passed down the resolve tree.
 	 */
-	abstract public function should_execute();
+	protected function pre_should_execute( $source, array $args, AppContext $context, ResolveInfo $info ): bool {
+		$should_execute = true;
+
+		/**
+		 * If the source is a Post and the ID is empty (i.e. if the user doesn't have permissions to view the source), we should not execute the query.
+		 *
+		 * @todo This can probably be abstracted to check if _any_ source is private, and not just `PostObject` models.
+		 */
+		if ( $source instanceof Post && empty( $source->ID ) ) {
+			$should_execute = false;
+		}
+
+		return $should_execute;
+	}
 
 	/**
 	 * The maximum number of items that should be returned by the query.
@@ -320,6 +331,25 @@ abstract class AbstractConnectionResolver {
 				static::class
 			)
 		);
+	}
+
+	/**
+	 * Determine whether or not the query should execute.
+	 *
+	 * Return true to exeucte, return false to prevent execution.
+	 *
+	 * Various criteria can be used to determine whether a Connection Query should be executed.
+	 *
+	 * For example, if a user is requesting revisions of a Post, and the user doesn't have permission to edit the post, they don't have permission to view the revisions, and therefore we can prevent the query to fetch revisions from executing in the first place.
+	 *
+	 * Runs only if `pre_should_execute()` returns true.
+	 *
+	 * @todo This is public for b/c but it should be protected.
+	 *
+	 * @return bool
+	 */
+	public function should_execute() {
+		return true;
 	}
 
 	/**
@@ -428,12 +458,6 @@ abstract class AbstractConnectionResolver {
 		return $this->loader_name;
 	}
 
-	/**
-	 * Returns whether the connection should execute.
-	 */
-	public function get_should_execute(): bool {
-		return $this->should_execute;
-	}
 
 	/**
 	 * Returns the $args passed to the connection, before any modifications.
@@ -496,6 +520,19 @@ abstract class AbstractConnectionResolver {
 		return $this->query_amount;
 	}
 
+	/**
+	 * Returns whether the connection should execute.
+	 *
+	 * If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed.
+	 */
+	public function get_should_execute(): bool {
+		// If `pre_should_execute()` or other logic has yet to run, we should run the full `should_execute()` logic.
+		if ( ! isset( $this->should_execute ) ) {
+			$this->should_execute = $this->should_execute();
+		}
+
+		return $this->should_execute;
+	}
 
 	/**
 	 * Returns an array of IDs for the connection.
@@ -650,6 +687,33 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Gets whether or not the query should execute, BEFORE any data is fetched or altered, filtered by 'graphql_connection_pre_should_execute'.
+	 *
+	 * @param mixed                                $source  The source that's passed down the GraphQL queries.
+	 * @param array<string,mixed>                  $args    The inputArgs on the field.
+	 * @param \WPGraphQL\AppContext                $context The AppContext passed down the GraphQL tree.
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info    The ResolveInfo passed down the GraphQL tree.
+	 */
+	protected function get_pre_should_execute( $source, array $args, AppContext $context, ResolveInfo $info ): bool {
+		$should_execute = $this->pre_should_execute( $source, $args, $context, $info );
+
+		/**
+		 * Filters whether or not the query should execute, BEFORE any data is fetched or altered.
+		 *
+		 * This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for shortcircuiting the Connection Resolver before any heavy logic is executed.
+		 *
+		 * For more in-depth checks, use the `graphql_connection_should_execute` filter instead.
+		 *
+		 * @param bool                                 $should_execute Whether or not the query should execute.
+		 * @param mixed                                $source         The source that's passed down the GraphQL queries.
+		 * @param array                                $args           The inputArgs on the field.
+		 * @param \WPGraphQL\AppContext                $context        The AppContext passed down the GraphQL tree.
+		 * @param \GraphQL\Type\Definition\ResolveInfo $info           The ResolveInfo passed down the GraphQL tree.
+		 */
+		return apply_filters( 'graphql_connection_pre_should_execute', $should_execute, $source, $args, $context, $info );
+	}
+
+	/**
 	 * Returns the loader.
 	 *
 	 * If $loader is not initialized, this method will initialize it.
@@ -792,12 +856,9 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function execute_and_get_ids() {
-
 		/**
-		 * If should_execute is explicitly set to false already, we can
-		 * prevent execution quickly. If it's not, we need to
-		 * call the should_execute() method to execute any situational logic
-		 * to determine if the connection query should execute or not
+		 * If should_execute is explicitly set to false already, we can prevent execution quickly.
+		 * If it's not, we need to call the should_execute() method to execute any situational logic to determine if the connection query should execute.
 		 */
 		$should_execute = false === $this->should_execute ? false : $this->should_execute();
 
