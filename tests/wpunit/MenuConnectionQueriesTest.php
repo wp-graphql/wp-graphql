@@ -97,7 +97,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		// a public request should get no menus if there are none associated with a location
 		$this->assertSame( [], $actual['data']['menus']['edges'] );
@@ -349,7 +349,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$expected = $actual['data']['menus']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menus']['nodes'][0] );
 
@@ -368,7 +368,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menus']['nodes'][0] );
 	}
@@ -380,7 +380,7 @@ class MenuConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['menus']['edges'] ) );

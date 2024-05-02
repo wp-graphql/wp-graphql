@@ -10403,16 +10403,16 @@
         },
         {
             "name": "wp-cli/scaffold-command",
-            "version": "v2.2.0",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/scaffold-command.git",
-                "reference": "8aa906c3ec6ae7d95f38c962fc2561714f9c7145"
+                "reference": "7a7d145c260ead64fa93a59498d60def970d5214"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/scaffold-command/zipball/8aa906c3ec6ae7d95f38c962fc2561714f9c7145",
-                "reference": "8aa906c3ec6ae7d95f38c962fc2561714f9c7145",
+                "url": "https://api.github.com/repos/wp-cli/scaffold-command/zipball/7a7d145c260ead64fa93a59498d60def970d5214",
+                "reference": "7a7d145c260ead64fa93a59498d60def970d5214",
                 "shasum": ""
             },
             "require": {
@@ -10463,9 +10463,9 @@
             "homepage": "https://github.com/wp-cli/scaffold-command",
             "support": {
                 "issues": "https://github.com/wp-cli/scaffold-command/issues",
-                "source": "https://github.com/wp-cli/scaffold-command/tree/v2.2.0"
+                "source": "https://github.com/wp-cli/scaffold-command/tree/v2.3.0"
             },
-            "time": "2023-11-16T15:25:33+00:00"
+            "time": "2024-04-26T21:05:48+00:00"
         },
         {
             "name": "wp-cli/search-replace-command",
@@ -11029,12 +11029,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-graphql/wp-graphql-testcase.git",
-                "reference": "706c2d7a61a50e3b87854f5f3eb1981423f9e357"
+                "reference": "c18eb271a4a1cf740e9ab8d9a13fecf150f04b5d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/706c2d7a61a50e3b87854f5f3eb1981423f9e357",
-                "reference": "706c2d7a61a50e3b87854f5f3eb1981423f9e357",
+                "url": "https://api.github.com/repos/wp-graphql/wp-graphql-testcase/zipball/c18eb271a4a1cf740e9ab8d9a13fecf150f04b5d",
+                "reference": "c18eb271a4a1cf740e9ab8d9a13fecf150f04b5d",
                 "shasum": ""
             },
             "require": {
@@ -11090,7 +11090,7 @@
                 "issues": "https://github.com/wp-graphql/wp-graphql-testcase/issues",
                 "source": "https://github.com/wp-graphql/wp-graphql-testcase/tree/v3.0.0"
             },
-            "time": "2024-05-01T22:23:19+00:00"
+            "time": "2024-05-02T04:30:04+00:00"
         },
         {
             "name": "zordius/lightncandy",
@@ -11170,5 +11170,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

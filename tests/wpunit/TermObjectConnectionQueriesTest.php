@@ -319,7 +319,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$expected = $actual['data']['categories']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['categories']['nodes'][0] );
 
@@ -338,7 +338,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['categories']['nodes'][0] );
 	}
@@ -671,7 +671,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$expected_count = count( $expected ) ?? 2;
