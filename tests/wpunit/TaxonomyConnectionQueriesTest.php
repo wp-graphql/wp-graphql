@@ -272,7 +272,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$expected = $actual['data']['taxonomies']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['taxonomies']['nodes'][0] );
 
@@ -291,7 +291,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( $expected, $actual['data']['taxonomies']['nodes'][0] );
@@ -304,7 +304,7 @@ class TaxonomyConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		 * @param array $actual The GraphQL results.
 		 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['taxonomies']['edges'] ) );

@@ -113,33 +113,30 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function should_execute() {
-		if ( false === $this->should_execute ) {
-			return false;
+		/**
+		 * If the post_type is not revision we can just return the parent::should_execute().
+		 *
+		 * @todo This works because AbstractConnectionResolver::pre_should_execute does a permission check on the `Post` model )
+		 */
+		if ( ! isset( $this->post_type ) || 'revision' !== $this->post_type ) {
+			return parent::should_execute();
 		}
 
-		/**
-		 * For revisions, we only want to execute the connection query if the user
-		 * has access to edit the parent post.
-		 *
-		 * If the user doesn't have permission to edit the parent post, then we shouldn't
-		 * even execute the connection
-		 */
-		if ( isset( $this->post_type ) && 'revision' === $this->post_type ) {
-			if ( $this->source instanceof Post ) {
-				$parent_post_type_obj = get_post_type_object( $this->source->post_type );
-				if ( ! isset( $parent_post_type_obj->cap->edit_post ) || ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
-					$this->should_execute = false;
-				}
-				/**
-				 * If the connection is from the RootQuery, check if the user
-				 * has the 'edit_posts' capability
-				 */
-			} elseif ( ! current_user_can( 'edit_posts' ) ) {
-					$this->should_execute = false;
+		// If the connection is from the RootQuery (i.e. it doesn't have a `Post` source), check if the user has the 'edit_posts' capability.
+		if ( ! $this->source instanceof Post && current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+
+		// For revisions, we only want to execute the connection query if the user has access to edit the parent post.
+		if ( $this->source instanceof Post ) {
+			$parent_post_type_obj = get_post_type_object( $this->source->post_type );
+
+			if ( isset( $parent_post_type_obj->cap->edit_post ) && current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
+				return true;
 			}
 		}
 
-		return $this->should_execute;
+		return false;
 	}
 
 	/**

@@ -66,7 +66,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		);
 
 		// Confirm it's valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
 		// Test fields for first asset.
@@ -147,7 +147,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
 		$variables['after'] = $actual['data']['registeredScripts']['pageInfo']['startCursor'];
@@ -180,7 +180,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		);
 
 		// Confirm it's valid.
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
 		// Store for use by $expected.
@@ -247,7 +247,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 			]
 		);
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertNotEmpty( $actual['data']['registeredScripts']['edges'][0]['node']['handle'] );
 
 		$variables['before'] = $actual['data']['registeredScripts']['pageInfo']['endCursor'];
@@ -292,7 +292,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$expected = $actual['data']['registeredScripts']['nodes'][1];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
 
@@ -311,7 +311,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['registeredScripts']['nodes'][0] );
 	}
@@ -323,7 +323,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['registeredScripts']['edges'] ) );

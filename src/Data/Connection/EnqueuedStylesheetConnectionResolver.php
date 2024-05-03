@@ -79,11 +79,4 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 		global $wp_styles;
 		return isset( $wp_styles->registered[ $offset ] );
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
-	}
 }
