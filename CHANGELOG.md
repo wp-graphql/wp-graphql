@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.25.0
+
+### Upgrade Notice
+
+This release includes a fix to a regression in the v1.24.0. Users impacted by the regression in 1.24.0 included, but are not necessarily limited to, users of the WPGraphQL for WooCommerce extension.
+
+### New Features
+
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): feat: add `AbsractConnectionResolver::pre_should_execute()`. Thanks @justlevine!
+
+### Chores / Bugfixes
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): refactor: `AbstractConnectionResolver::should_execute()` Thanks @justlevine!
+- [#3112](https://github.com/wp-graphql/wp-graphql/pull/3104): fix: fixes a regression from v1.24.0 relating to field arguments defined on Interfaces not being properly merged onto Object Types that implement the interface. Thanks @kidunot89!
+- [#3114](https://github.com/wp-graphql/wp-graphql/pull/3114): fix: node IDs not showing in the Query Analyzer / X-GraphQL-Keys when using DataLoader->load_many()
+- [#3116](https://github.com/wp-graphql/wp-graphql/pull/3116): chore: Update WPGraphQLTestCase to v3. Thanks @kidunot89!
+
+
 ## 1.24.0
 
 ### Upgrade Notice
@@ -10,7 +27,7 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 - `getContext` -> `get_context`
 - `getInfo` -> `get_info`
 - `getShouldExecute` -> `get_should_execute`
-- `getLoader` -> `getLoader`
+- `getLoader` -> `get_loader`
 
 ### New Features
 
