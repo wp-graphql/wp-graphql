@@ -530,12 +530,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			interfaceArgsTest {
 				fieldWithArgs
 			}
-		  	interfaceArgsTest2 {
-		    	fieldWithArgs
-		  	}
+			interfaceArgsTest2 {
+				fieldWithArgs
+			}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
 		$expected = [
 			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
 			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
@@ -697,8 +698,11 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( [ 'query' => $query ] );
 
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'testField.fieldWithNonNullableArg', self::IS_NULL ),
-		], 'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type' );
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[ $this->expectedField( 'testField.fieldWithNonNullableArg',self::IS_NULL ) ],
+			'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type'
+		);
 	}
 }
