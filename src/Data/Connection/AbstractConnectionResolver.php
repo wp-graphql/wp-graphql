@@ -240,6 +240,8 @@ abstract class AbstractConnectionResolver {
 	 * @return array<string,mixed>
 	 *
 	 * @throws \Exception If the method is not implemented.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	protected function prepare_query_args( array $args ): array {
 		throw new Exception(
