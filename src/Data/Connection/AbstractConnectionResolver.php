@@ -261,6 +261,17 @@ abstract class AbstractConnectionResolver {
 	abstract public function get_query();
 
 	/**
+	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
+	 *
+	 * Offset is equivalent to WordPress ID (e.g post_id, term_id). So this is equivalent to checking if the WordPress object exists for the given ID.
+	 *
+	 * @param mixed $offset The offset to validate. Typically a WordPress Database ID
+	 *
+	 * @return bool
+	 */
+	abstract public function is_valid_offset( $offset );
+
+	/**
 	 * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
 	 *
 	 * When `pre_should_excecute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
@@ -293,19 +304,6 @@ abstract class AbstractConnectionResolver {
 	protected function max_query_amount(): int {
 		return 100;
 	}
-
-	/**
-	 * Is_valid_offset
-	 *
-	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset
-	 * exists. Offset is equivalent to WordPress ID (e.g post_id, term_id). So this function is
-	 * equivalent to checking if the WordPress object exists for the given ID.
-	 *
-	 * @param mixed $offset The offset to validate. Typically a WordPress Database ID
-	 *
-	 * @return bool
-	 */
-	abstract public function is_valid_offset( $offset );
 
 	/**
 	 * Return an array of ids from the query
