@@ -24,8 +24,9 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	public function get_ids_from_query() {
 
 		// Given a list of role slugs
-		if ( isset( $this->query_args['slugIn'] ) ) {
-			return $this->query_args['slugIn'];
+		$query_args = $this->get_query_args();
+		if ( isset( $query_args['slugIn'] ) ) {
+			return $query_args['slugIn'];
 		}
 
 		$ids     = [];
