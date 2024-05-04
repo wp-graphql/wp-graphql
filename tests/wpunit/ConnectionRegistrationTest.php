@@ -770,7 +770,6 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		);
 	}
 
-
 	public function testWithSetQueryClassWhenNotSupported() : void {
 		$config = [
 			'fromType'      => 'RootQuery',

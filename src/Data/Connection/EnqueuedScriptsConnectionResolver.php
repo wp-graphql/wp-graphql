@@ -11,7 +11,7 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
 		$queried = $this->get_query();
 
@@ -60,14 +60,14 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param ?\_WP_Dependency $model The model to check.
 	 */
-	protected function is_valid_model( $model ) {
+	protected function is_valid_model( $model ): bool {
 		return isset( $model->handle );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		global $wp_scripts;
 		return isset( $wp_scripts->registered[ $offset ] );
 	}

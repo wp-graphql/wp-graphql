@@ -11,9 +11,9 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
-		$queried = $this->query;
+		$queried = $this->get_query();
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -37,7 +37,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function query( array $query_args ) {
+	public function query( array $query_args ) {
 		if ( isset( $query_args['contentTypeNames'] ) && is_array( $query_args['contentTypeNames'] ) ) {
 			return $query_args['contentTypeNames'];
 		}
@@ -61,7 +61,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param string $offset The offset (post type name) to check.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_post_type_object( $offset );
 	}
 }

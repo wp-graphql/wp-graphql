@@ -124,17 +124,11 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the query args used by the connection.
 		 *
-		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
-		 * @param mixed                                $source     source passed down from the resolve tree
-		 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
-		 * @param \WPGraphQL\AppContext                $context    object passed down the resolve tree
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info       info about fields passed down the resolve tree
-		 *
+		 * @param array<string,mixed> $query_args The query args to be used with the executable query to get data.
+		 * @param self                $resolver   The connection resolver instance.
 		 * @since 0.0.6
 		 */
-		$query_args = apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
-
-		return $query_args;
+		return apply_filters( 'graphql_term_object_connection_query_args', $query_args, $this );
 	}
 
 	/**
@@ -147,12 +141,8 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$queried = isset( $this->query ) ? $this->query : $this->get_query();
-
+	public function get_ids_from_query(): array {
+		$queried = $this->get_query();
 		/** @var string[] $ids */
 		$ids = ! empty( $queried->get_terms() ) ? $queried->get_terms() : [];
 
@@ -198,7 +188,6 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 
 		$args       = $this->get_args();
 		$where_args = ! empty( $args['where'] ) ? $args['where'] : null;
-
 		// Deprecate usage of 'termTaxonomId'.
 		if ( ! empty( $where_args['termTaxonomId'] ) ) {
 			_deprecated_argument( 'where.termTaxonomId', '1.11.0', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
@@ -219,17 +208,13 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the get_terms query
 		 *
-		 * @param array<string,mixed>                  $query_args Array of mapped query args
-		 * @param array<string,mixed>                  $where_args Array of query "where" args
-		 * @param string                               $taxonomy   The name of the taxonomy
-		 * @param mixed                                $source     The query results
-		 * @param array<string,mixed>                  $all_args   All of the query arguments (not just the "where" args)
-		 * @param \WPGraphQL\AppContext                $context   The AppContext object
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info      The ResolveInfo object
+		 * @param array<string,mixed> $query_args Array of mapped query args
+		 * @param array<string,mixed> $where_args Array of query "where" args
+		 * @param self                $resolver   The connection resolver instance.
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this->taxonomy, $this->source, $args, $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_get_terms', $query_args, $where_args, $this );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 	}
@@ -271,13 +256,12 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array<string,mixed> $args            The GraphQL args passed to the resolver.
-		 * @param self                $resolver        Instance of the ConnectionResolver.
-		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed> $args     The GraphQL args passed to the resolver.
+		 * @param self                $resolver Instance of the AbstractConnectionResolver
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_term_object_connection_args', $args, $this, $this->get_unfiltered_args() );
+		return apply_filters( 'graphql_term_object_connection_args', $args, $this );
 	}
 
 	/**
@@ -285,7 +269,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param int $offset The ID of the node used in the cursor for offset.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return get_term( absint( $offset ) ) instanceof \WP_Term;
 	}
 }

@@ -12,13 +12,9 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$queried = isset( $this->query ) ? $this->query : $this->get_query();
-
-		$ids = [];
+	public function get_ids_from_query(): array {
+		$ids     = [];
+		$queried = $this->get_query();
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -66,7 +62,7 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param string $offset The offset (taxonomy name) to check.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_taxonomy( $offset );
 	}
 }

@@ -20,9 +20,9 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
-		$queried = ! empty( $this->query ) ? $this->query : [];
+		$queried = $this->get_query();
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -38,7 +38,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function prepare_query_args( array $args ): array {
+	public function prepare_query_args( array $args ): array {
 		if ( ! empty( $args['where']['status'] ) ) {
 			$args['where']['stati'] = [ $args['where']['status'] ];
 		} elseif ( ! empty( $args['where']['stati'] ) && is_string( $args['where']['stati'] ) ) {
@@ -227,7 +227,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		$plugins = $this->get_all_plugins();
 
 		$all_plugins = array_merge( $plugins['site'], $plugins['mustuse'], $plugins['dropins'] );
@@ -238,7 +238,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function should_execute() {
+	protected function should_execute(): bool {
 		if ( is_multisite() ) {
 			// update_, install_, and delete_ are handled above with is_super_admin().
 			$menu_perms = get_site_option( 'menu_items', [] );

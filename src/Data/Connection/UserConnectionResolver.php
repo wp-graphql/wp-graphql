@@ -173,20 +173,15 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	protected function query_class(): string {
-		return \WP_User_Query::class;
+		return 'WP_User_Query';
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$queried = isset( $this->query ) ? $this->query : $this->get_query();
-
-		/** @var int[] $ids */
-		$ids = $queried->get_results();
+	public function get_ids_from_query(): array {
+		$queried = $this->get_query();
+		$ids     = $queried->get_results();
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();
@@ -248,16 +243,13 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_User_Query
 		 *
-		 * @param array<string,mixed>                  $query_args The mapped query args
-		 * @param array<string,mixed>                  $args       The query "where" args
-		 * @param mixed                                $source     The query results of the query calling this relation
-		 * @param array<string,mixed>                  $all_args   Array of all the query args (not just the "where" args)
-		 * @param \WPGraphQL\AppContext                $context The AppContext object
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo object
+		 * @param array<string,mixed> $query_args The mapped query args
+		 * @param array<string,mixed> $args       The query "where" args
+		 * @param self                $resolver   The UserConnectionResolver instance.
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_user_query', $query_args, $args, $this );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 	}
@@ -267,7 +259,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param int $offset The ID of the node used as the offset in the cursor.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_user_by( 'ID', absint( $offset ) );
 	}
 }

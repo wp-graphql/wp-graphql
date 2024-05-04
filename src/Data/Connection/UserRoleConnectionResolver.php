@@ -15,7 +15,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 
 		// Given a list of role slugs
 		$query_args = $this->get_query_args();
@@ -64,14 +64,14 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_role( $offset );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function should_execute() {
+	public function should_execute(): bool {
 		if (
 			current_user_can( 'list_users' ) ||
 			(

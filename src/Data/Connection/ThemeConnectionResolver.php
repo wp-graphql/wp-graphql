@@ -12,13 +12,9 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$queried = isset( $this->query ) ? $this->query : $this->get_query();
-
-		$ids = [];
+	public function get_ids_from_query(): array {
+		$ids     = [];
+		$queried = $this->get_query();
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -57,7 +53,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		$theme = wp_get_theme( $offset );
 		return $theme->exists();
 	}

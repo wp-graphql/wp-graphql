@@ -125,15 +125,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the query args used by the connection.
 		 *
-		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
-		 * @param mixed                                $source     source passed down from the resolve tree
-		 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
-		 * @param \WPGraphQL\AppContext                $context object passed down the resolve tree
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info info about fields passed down the resolve tree
+		 * @param array<string,mixed> $query_args The query args to be used with  the executable query to get data.
+		 * @param self                $resolver   The AbstractConnectionResolver instance.
 		 *
 		 * @since 0.0.6
 		 */
-		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this );
 	}
 
 	/**
@@ -153,13 +150,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$queried  = isset( $this->query ) ? $this->query : $this->get_query();
+	public function get_ids_from_query(): array {
+		$queried  = $this->get_query();
 		$comments = $queried->get_comments();
-
 		/** @var int[]|string[] $ids */
 		$ids = ! empty( $comments ) ? $comments : [];
 
@@ -289,9 +282,12 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the get_terms query
 		 *
+		 * @param array<string,mixed> $query_args The array of query arguments
+		 * @param self                $resolver   The instance of the CommentConnectionResolver
+		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $this );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 	}
@@ -301,7 +297,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param int $offset The ID of the node used for the cursor offset.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return ! empty( get_comment( $offset ) );
 	}
 }

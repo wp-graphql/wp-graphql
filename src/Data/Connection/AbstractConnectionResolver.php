@@ -131,14 +131,11 @@ abstract class AbstractConnectionResolver {
 	protected $query;
 
 	/**
-	 * @var mixed[]
-	 *
-	 * @deprecated @todo This is an artifact and is unused. It will be removed in a future release.
-	 */
-	protected $items;
-
-	/**
 	 * The IDs returned from the query.
+	 *
+	 * The IDs are sliced to confirm with the pagination args, and overfetched by one.
+	 *
+	 * Filterable by `graphql_connection_ids`.
 	 *
 	 * @var int[]|string[]|null
 	 */
@@ -147,12 +144,16 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The nodes (usually GraphQL models) returned from the query.
 	 *
+	 * Filterable by `graphql_connection_nodes`.
+	 *
 	 * @var \WPGraphQL\Model\Model[]|mixed[]|null
 	 */
 	protected $nodes;
 
 	/**
 	 * The edges for the connection.
+	 *
+	 * Filterable by `graphql_connection_edges`.
 	 *
 	 * @var ?array<string,mixed>[]
 	 */
@@ -189,63 +190,22 @@ abstract class AbstractConnectionResolver {
 		$this->context         = $context;
 		$this->info            = $info;
 
-		/**
-		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
-		 * We can call it later in the lifecycle once that's no longer the case.
-		 */
-		$this->args = $this->get_args();
-
 		// Pre-check if the connection should execute so we can skip expensive logic if we already know it shouldn't execute.
 		if ( ! $this->get_pre_should_execute( $this->source, $this->unfiltered_args, $this->context, $this->info ) ) {
 			$this->should_execute = false;
 		}
-
-		// Get the loader for the Connection.
-		$this->loader = $this->get_loader();
-
-		/**
-		 * Filters the GraphQL args before they are used in get_query_args().
-		 *
-		 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
-		 *
-		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
-		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
-		 *
-		 * @since 1.11.0
-		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
-
-		// Get the query amount for the connection.
-		$this->query_amount = $this->get_query_amount();
-
-		/**
-		 * Filters the query args before they are used in the query.
-		 *
-		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
-		 *
-		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
-		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
-
-		// Get the query class for the connection.
-		$this->query_class = $this->get_query_class();
-
-		// The rest of the class properties are set when `$this->get_connection()` is called.
 	}
+
+	/**
+	 * Abstract Methods - These methods must be implemented in the extending class.
+	 */
 
 	/**
 	 * The name of the loader to use for this connection.
 	 *
 	 * Filterable by `graphql_connection_loader_name`.
-	 *
-	 * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
 	 */
-	protected function loader_name(): string {
-		return '';
-	}
+	abstract protected function loader_name(): string;
 
 	/**
 	 * Prepares the query args used to fetch the data for the connection.
@@ -253,25 +213,21 @@ abstract class AbstractConnectionResolver {
 	 * This accepts the GraphQL args and maps them to a format that can be read by our query class.
 	 * For example, if the ConnectionResolver uses WP_Query to fetch the data, this should return $args for use in `new WP_Query( $args );`
 	 *
-	 * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
-	 *
 	 * @param array<string,mixed> $args The GraphQL input args passed to the connection.
-	 *
 	 * @return array<string,mixed>
-	 *
-	 * @throws \GraphQL\Error\InvariantViolation If the method is not implemented.
-	 *
-	 * @codeCoverageIgnore
 	 */
-	protected function prepare_query_args( array $args ): array {
-		throw new InvariantViolation(
-			sprintf(
-				// translators: %s is the name of the connection resolver class.
-				esc_html__( 'Class %s does not implement a valid method `prepare_query_args()`.', 'wp-graphql' ),
-				static::class
-			)
-		);
-	}
+	abstract protected function prepare_query_args( array $args ): array;
+
+	/**
+	 * Return an array of ids from the query
+	 *
+	 * Each Query class in WP and potential datasource handles this differently, so each connection resolver should handle getting the items into a uniform array of items.
+	 *
+	 * @throws \Exception If child class forgot to implement this.
+
+	 * @return int[]|string[] the array of IDs.
+	 */
+	abstract public function get_ids_from_query(): array;
 
 	/**
 	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
@@ -279,10 +235,16 @@ abstract class AbstractConnectionResolver {
 	 * Offset is equivalent to WordPress ID (e.g post_id, term_id). So this is equivalent to checking if the WordPress object exists for the given ID.
 	 *
 	 * @param mixed $offset The offset to validate. Typically a WordPress Database ID
-	 *
-	 * @return bool
 	 */
-	abstract public function is_valid_offset( $offset );
+	abstract public function is_valid_offset( $offset ): bool;
+
+	/**
+	 * ====================
+	 * The following methods handle the underlying behavior of the connection, and are meant to be overloaded by the child class.
+	 *
+	 * These methods are wrapped in getters which apply the filters and set the properties of the class instance.
+	 * ====================
+	 */
 
 	/**
 	 * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
@@ -384,32 +346,6 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an array of ids from the query
-	 *
-	 * Each Query class in WP and potential datasource handles this differently, so each connection
-	 * resolver should handle getting the items into a uniform array of items.
-	 *
-	 * @todo: This is not an abstract function to prevent backwards compatibility issues, so it
-	 * instead throws an exception. Classes that extend AbstractConnectionResolver should
-	 * override this method, instead of AbstractConnectionResolver::get_ids().
-	 *
-	 * @since 1.9.0
-	 *
-	 * @throws \GraphQL\Error\InvariantViolation If child class forgot to implement this.
-	 *
-	 * @return int[]|string[] the array of IDs.
-	 */
-	public function get_ids_from_query() {
-		throw new InvariantViolation(
-			sprintf(
-				// translators: %s is the name of the connection resolver class.
-				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-				static::class
-			)
-		);
-	}
-
-	/**
 	 * Determine whether or not the query should execute.
 	 *
 	 * Return true to exeucte, return false to prevent execution.
@@ -419,12 +355,8 @@ abstract class AbstractConnectionResolver {
 	 * For example, if a user is requesting revisions of a Post, and the user doesn't have permission to edit the post, they don't have permission to view the revisions, and therefore we can prevent the query to fetch revisions from executing in the first place.
 	 *
 	 * Runs only if `pre_should_execute()` returns true.
-	 *
-	 * @todo This is public for b/c but it should be protected.
-	 *
-	 * @return bool
 	 */
-	public function should_execute() {
+	protected function should_execute(): bool {
 		return true;
 	}
 
@@ -437,7 +369,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int|mixed
 	 */
-	public function get_offset_for_cursor( string $cursor = null ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam.Deprecated -- This is a breaking change to fix.
+	public function get_offset_for_cursor( ?string $cursor = null ) {
 		$offset = false;
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.
@@ -459,12 +391,20 @@ abstract class AbstractConnectionResolver {
 	 * the Connection class.
 	 *
 	 * @param \WPGraphQL\Model\Model|mixed $model The model being validated.
-	 *
-	 * @return bool
 	 */
-	protected function is_valid_model( $model ) {
+	protected function is_valid_model( $model ): bool {
 		return isset( $model->fields ) && ! empty( $model->fields );
 	}
+
+	/**
+	 * ====================
+	 * Public Getters
+	 *
+	 * These methods are used to get the properties of the class instance.
+	 *
+	 * You shouldn't need to overload these, but if you do, take care to ensure that the overloaded method applies the same filters and sets the same properties as the methods here.
+	 * ====================
+	 */
 
 	/**
 	 * Returns the source of the connection
@@ -494,25 +434,12 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * If $loader_name is not initialized, this plugin will initialize it.
 	 *
-	 * @return string
-	 *
 	 * @throws \GraphQL\Error\InvariantViolation
 	 */
-	public function get_loader_name() {
+	public function get_loader_name(): string {
 		// Only initialize the loader_name property once.
 		if ( ! isset( $this->loader_name ) ) {
 			$name = $this->loader_name();
-
-			// This is a b/c check because `loader_name()` is not abstract.
-			if ( empty( $name ) ) {
-				throw new InvariantViolation(
-					sprintf(
-						// translators: %s is the name of the connection resolver class.
-						esc_html__( 'Class %s does not implement a valid method `loader_name()`.', 'wp-graphql' ),
-						esc_html( static::class )
-					)
-				);
-			}
 
 			/**
 			 * Filters the loader name.
@@ -550,7 +477,17 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_args(): array {
 		if ( ! isset( $this->args ) ) {
-			$this->args = $this->prepare_args( $this->get_unfiltered_args() );
+			$prepared_args = $this->prepare_args( $this->get_unfiltered_args() );
+
+			/**
+			 * Filters the GraphQL args before they are used in get_query_args().
+			 *
+			 * @param array $args     The GraphQL args passed to the resolver.
+			 * @param self  $resolver Instance of the AbstractConnectionResolver.
+			 *
+			 * @since 1.11.0
+			 */
+			$this->args = apply_filters( 'graphql_connection_args', $prepared_args, $this );
 		}
 
 		return $this->args;
@@ -562,27 +499,21 @@ abstract class AbstractConnectionResolver {
 	 * The amount is calculated as the the max between what was requested and what is defined as the $max_query_amount to ensure that queries don't exceed unwanted limits when querying data.
 	 *
 	 * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
-	 *
-	 * @return int
 	 */
-	public function get_query_amount() {
+	public function get_query_amount(): int {
 		if ( ! isset( $this->query_amount ) ) {
 			/**
 			 * Filter the maximum number of posts per page that should be queried. This prevents queries from being exceedingly resource intensive.
 			 *
 			 * The default is 100 - unless overloaded by ::max_query_amount() in the child class.
 			 *
-			 * @param int                                  $max_posts  the maximum number of posts per page.
-			 * @param mixed                                $source     source passed down from the resolve tree
-			 * @param array<string,mixed>                  $args       array of arguments input in the field as part of the GraphQL query
-			 * @param \WPGraphQL\AppContext                $context    Object containing app context that gets passed down the resolve tree
-			 * @param \GraphQL\Type\Definition\ResolveInfo $info       Info about fields passed down the resolve tree
+			 * @param int  $max_posts the maximum number of posts per page.
+			 * @param self $resolver  The AbstractConnectionResolver instance.
 			 *
 			 * @since 0.0.6
 			 */
-			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
+			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this );
 
-			// We don't want the requested amount to be lower than 0.
 			$requested_query_amount = (int) max(
 				0,
 				/**
@@ -612,10 +543,19 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function get_query_args() {
+	public function get_query_args(): array {
 		if ( ! isset( $this->query_args ) ) {
 			// We pass $this->get_args() to ensure we're using the filtered args.
-			$this->query_args = $this->prepare_query_args( $this->get_args() );
+			$query_args = $this->prepare_query_args( $this->get_args() );
+
+			/**
+			 * Filters the query args used by the connection.
+			 *
+			 * @param array $query_args The query args to be used with the executable query to get data.
+			 * This should take in the GraphQL args and return args for use in fetching the data.
+			 * @param self  $resolver   Instance of the AbstractConnectionResolver
+			 */
+			$this->query_args = apply_filters( 'graphql_connection_query_args', $query_args, $this );
 		}
 
 		return $this->query_args;
@@ -659,7 +599,15 @@ abstract class AbstractConnectionResolver {
 	public function get_should_execute(): bool {
 		// If `pre_should_execute()` or other logic has yet to run, we should run the full `should_execute()` logic.
 		if ( ! isset( $this->should_execute ) ) {
-			$this->should_execute = $this->should_execute();
+			$should_execute = $this->should_execute();
+
+			/**
+			 * Filter whether the connection should execute.
+			 *
+			 * @param bool $should_execute Whether the connection should execute
+			 * @param self $resolver       Instance of the Connection Resolver
+			 */
+			$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
 		}
 
 		return $this->should_execute;
@@ -673,7 +621,7 @@ abstract class AbstractConnectionResolver {
 	public function get_query() {
 		if ( ! isset( $this->query ) ) {
 			/**
-			 * When this filter returns anything but null, it will be used as the resolved query, and the default query execution will be skipped.
+			 * When this filter returns anything but false, it will be used as the resolved query, and the default query execution will be skipped.
 			 *
 			 * @param null $query               The query to return. Return null to use the default query execution.
 			 * @param self $resolver The connection resolver instance.
@@ -681,14 +629,30 @@ abstract class AbstractConnectionResolver {
 			$query = apply_filters( 'graphql_connection_pre_get_query', null, $this );
 
 			if ( null === $query ) {
-
 				// Validates the query class before it is used in the query() method.
 				$this->validate_query_class();
 
 				$query = $this->query( $this->get_query_args() );
 			}
 
-			$this->query = $query;
+			/**
+			 * Filter the query. For core data, the query is typically an instance of:
+			 *
+			 *   WP_Query
+			 *   WP_Comment_Query
+			 *   WP_User_Query
+			 *   WP_Term_Query
+			 *   ...
+			 *
+			 * But in some cases, the actual mechanism for querying data should be overridden. For
+			 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
+			 * the query to that instead of a native WP_Query class. You could override this with a
+			 * query to that datasource instead.
+			 *
+			 * @param mixed $query    Instance of the Query for the resolver
+			 * @param self  $resolver Instance of the Connection Resolver
+			 */
+			$this->query = apply_filters( 'graphql_connection_query', $query, $this );
 		}
 
 		return $this->query;
@@ -702,9 +666,17 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int[]|string[]
 	 */
-	public function get_ids() {
+	public function get_ids(): array {
 		if ( ! isset( $this->ids ) ) {
-			$this->ids = $this->prepare_ids();
+			$ids = $this->prepare_ids();
+
+			/**
+			 * Filter the connection IDs
+			 *
+			 * @param int[]|string[] $ids      Array of IDs this connection will be resolving
+			 * @param self           $resolver Instance of the Connection Resolver
+			 */
+			$this->ids = apply_filters( 'graphql_connection_ids', $ids, $this );
 		}
 
 		return $this->ids;
@@ -717,9 +689,19 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
 	 */
-	public function get_nodes() {
+	public function get_nodes(): array {
 		if ( ! isset( $this->nodes ) ) {
-			$this->nodes = $this->prepare_nodes();
+			$nodes = $this->prepare_nodes();
+
+			/**
+			 * Set the items. These are the "nodes" that make up the connection.
+			 *
+			 * Filters the nodes in the connection
+			 *
+			 * @param array $nodes    The nodes in the connection
+			 * @param self  $resolver Instance of the Connection Resolver
+			 */
+			$this->nodes = apply_filters( 'graphql_connection_nodes', $nodes, $this );
 		}
 
 		return $this->nodes;
@@ -730,9 +712,17 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array<string,mixed>[]
 	 */
-	public function get_edges() {
+	public function get_edges(): array {
 		if ( ! isset( $this->edges ) ) {
-			$this->edges = $this->prepare_edges( $this->get_nodes() );
+			$edges = $this->prepare_edges( $this->get_nodes() );
+
+			/**
+			 * Filters the edges in the connection.
+			 *
+			 * @param array $edges    The edges in the connection
+			 * @param self  $resolver Instance of the Connection Resolver
+			 */
+			$this->edges = apply_filters( 'graphql_connection_edges', $edges, $this );
 		}
 
 		return $this->edges;
@@ -743,7 +733,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function get_page_info() {
+	public function get_page_info(): array {
 		if ( ! isset( $this->page_info ) ) {
 			$page_info = $this->prepare_page_info();
 
@@ -874,11 +864,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Returns the amount of items requested from the connection.
 	 *
-	 * @return int
-	 *
 	 * @throws \GraphQL\Error\UserError If the `first` or `last` args are used together.
 	 */
-	public function get_amount_requested() {
+	protected function get_amount_requested(): int {
 		/**
 		 * Filters the default query amount for a connection, if no `first` or `last` GraphQL argument is supplied.
 		 *
@@ -887,10 +875,12 @@ abstract class AbstractConnectionResolver {
 		 */
 		$amount_requested = apply_filters( 'graphql_connection_default_query_amount', 10, $this );
 
+		$args = $this->get_args();
+
 		/**
 		 * If both first & last are used in the input args, throw an exception.
 		 */
-		if ( ! empty( $this->args['first'] ) && ! empty( $this->args['last'] ) ) {
+		if ( ! empty( $args['first'] ) && ! empty( $args['last'] ) ) {
 			throw new UserError( esc_html__( 'The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`.', 'wp-graphql' ) );
 		}
 
@@ -898,17 +888,17 @@ abstract class AbstractConnectionResolver {
 		 * Get the key to use for the query amount.
 		 * We avoid a ternary here for unit testing.
 		 */
-		$args_key = ! empty( $this->args['first'] ) && is_int( $this->args['first'] ) ? 'first' : null;
+		$args_key = ! empty( $args['first'] ) && is_int( $args['first'] ) ? 'first' : null;
 		if ( null === $args_key ) {
-			$args_key = ! empty( $this->args['last'] ) && is_int( $this->args['last'] ) ? 'last' : null;
+			$args_key = ! empty( $args['last'] ) && is_int( $args['last'] ) ? 'last' : null;
 		}
 
 		/**
 		 * If the key is set, and is a positive integer, use it for the $amount_requested
 		 * but if it's set to anything that isn't a positive integer, throw an exception
 		 */
-		if ( null !== $args_key && isset( $this->args[ $args_key ] ) ) {
-			if ( 0 > $this->args[ $args_key ] ) {
+		if ( null !== $args_key && isset( $args[ $args_key ] ) ) {
+			if ( 0 > $args[ $args_key ] ) {
 				throw new UserError(
 					sprintf(
 						// translators: %s: The name of the arg that was invalid
@@ -918,7 +908,7 @@ abstract class AbstractConnectionResolver {
 				);
 			}
 
-			$amount_requested = $this->args[ $args_key ];
+			$amount_requested = $args[ $args_key ];
 		}
 
 		return (int) $amount_requested;
@@ -946,38 +936,20 @@ abstract class AbstractConnectionResolver {
 		 */
 		return new Deferred(
 			function () {
-				if ( ! empty( $this->ids ) ) {
+				$ids = $this->get_ids();
+
+				if ( ! empty( $ids ) ) {
 					// Load the ids.
-					$this->get_loader()->load_many( $this->ids );
+					$this->get_loader()->load_many( $ids );
 				}
 
-				/**
-				 * Set the items. These are the "nodes" that make up the connection.
-				 *
-				 * Filters the nodes in the connection
-				 *
-				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
-				 *
-				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
-				 * @param self                                 $resolver Instance of the Connection Resolver
-				 */
-				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
-
-				/**
-				 * Filters the edges in the connection.
-				 *
-				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
-				 *
-				 * @param array<string,mixed> $edges    The edges in the connection
-				 * @param self                $resolver Instance of the Connection Resolver
-				 */
-				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
+				$edges = $this->get_edges();
 
 				// @todo: we should also shortcircuit fetching/populating the actual nodes/edges if we only need one result.
 				if ( true === $this->one_to_one ) {
 					// For one to one connections, return the first edge.
-					$first_edge_key = array_key_first( $this->edges );
-					$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
+					$first_edge_key = array_key_first( $edges );
+					$connection     = isset( $first_edge_key ) && ! empty( $edges[ $first_edge_key ] ) ? $edges[ $first_edge_key ] : null;
 				} else {
 					// For plural connections (default) return edges/nodes/pageInfo
 					$connection = [
@@ -1006,70 +978,32 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int[]|string[]
 	 */
-	public function execute_and_get_ids() {
+	protected function execute_and_get_ids(): array {
 		/**
 		 * If should_execute is explicitly set to false already, we can prevent execution quickly.
-		 * If it's not, we need to call the should_execute() method to execute any situational logic to determine if the connection query should execute.
+		 * If it's not, we need to call the get_should_execute() method to execute any situational logic to determine if the connection query should execute.
 		 */
-		$should_execute = false === $this->should_execute ? false : $this->should_execute();
+		$this->should_execute = false === $this->should_execute ? false : $this->get_should_execute();
 
-		/**
-		 * Check if the connection should execute. If conditions are met that should prevent
-		 * the execution, we can bail from resolving early, before the query is executed.
-		 *
-		 * Filter whether the connection should execute.
-		 *
-		 * @param bool                       $should_execute      Whether the connection should execute
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
-		 */
-		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
+		// Return empty if the query should not execute.
 		if ( false === $this->should_execute ) {
 			return [];
 		}
 
-		/**
-		 * Set the query for the resolver, for use as reference in filters, etc
-		 *
-		 * Filter the query. For core data, the query is typically an instance of:
-		 *
-		 *   WP_Query
-		 *   WP_Comment_Query
-		 *   WP_User_Query
-		 *   WP_Term_Query
-		 *   ...
-		 *
-		 * But in some cases, the actual mechanism for querying data should be overridden. For
-		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
-		 * the query to that instead of a native WP_Query class. You could override this with a
-		 * query to that datasource instead.
-		 *
-		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
-		 *
-		 * @param mixed                      $query               Instance of the Query for the resolver
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
-		 */
-		$this->query = apply_filters( 'graphql_connection_query', $this->get_query(), $this );
+		$this->query = $this->get_query();
 
-		/**
-		 * Filter the connection IDs
-		 *
-		 * @todo We filter the IDs here for b/c. Once that is not a concern, we should relocate this filter to ::get_ids().
-		 *
-		 * @param int[]|string[]                                        $ids                 Array of IDs this connection will be resolving
-		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
-		 */
-		$this->ids = apply_filters( 'graphql_connection_ids', $this->get_ids(), $this );
+		$ids = $this->get_ids();
 
-		if ( empty( $this->ids ) ) {
+		if ( empty( $ids ) ) {
 			return [];
 		}
 
 		/**
 		 * Buffer the IDs for deferred resolution
 		 */
-		$this->get_loader()->buffer( $this->ids );
+		$this->get_loader()->buffer( $ids );
 
-		return $this->ids;
+		return $ids;
 	}
 
 	/**
@@ -1148,14 +1082,16 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int[]|string[]
 	 */
-	public function apply_cursors_to_ids( array $ids ) {
+	public function apply_cursors_to_ids( array $ids ): array {
 		if ( empty( $ids ) ) {
 			return [];
 		}
 
+		$args = $this->get_args();
+
 		// First we slice the array from the front.
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = $this->get_offset_for_cursor( $this->args['after'] );
+		if ( ! empty( $args['after'] ) ) {
+			$offset = $this->get_offset_for_cursor( $args['after'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
 
 			if ( false !== $index ) {
@@ -1165,8 +1101,8 @@ abstract class AbstractConnectionResolver {
 		}
 
 		// Then we slice the array from the back.
-		if ( ! empty( $this->args['before'] ) ) {
-			$offset = $this->get_offset_for_cursor( $this->args['before'] );
+		if ( ! empty( $args['before'] ) ) {
+			$offset = $this->get_offset_for_cursor( $args['before'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
 
 			if ( false !== $index ) {
@@ -1240,18 +1176,22 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int[]|string[]
 	 */
-	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
+	protected function get_ids_for_nodes() {
+		$ids = $this->get_ids();
+
+		if ( empty( $ids ) ) {
 			return [];
 		}
 
+		$args = $this->get_args();
+
 		// If we're going backwards then our overfetched ID is at the front.
-		if ( ! empty( $this->args['last'] ) && count( $this->ids ) > absint( $this->args['last'] ) ) {
-			return array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->get_query_amount(), true );
+		if ( ! empty( $args['last'] ) && count( $ids ) > absint( $args['last'] ) ) {
+			return array_slice( $ids, count( $ids ) - absint( $args['last'] ), $this->get_query_amount(), true );
 		}
 
 		// If we're going forwards, our overfetched ID is at the back.
-		return array_slice( $this->ids, 0, $this->get_query_amount(), true );
+		return array_slice( $ids, 0, $this->get_query_amount(), true );
 	}
 
 	/**
@@ -1349,7 +1289,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return string
 	 */
-	protected function get_cursor_for_node( $id ) {
+	public function get_cursor_for_node( $id ) {
 		return base64_encode( 'arrayconnection:' . (string) $id );
 	}
 
@@ -1397,8 +1337,10 @@ abstract class AbstractConnectionResolver {
 	 * @return int|string|null
 	 */
 	public function get_after_offset() {
-		if ( ! empty( $this->args['after'] ) ) {
-			return $this->get_offset_for_cursor( $this->args['after'] );
+		$args = $this->get_args();
+
+		if ( ! empty( $args['after'] ) ) {
+			return $this->get_offset_for_cursor( $args['after'] );
 		}
 
 		return null;
@@ -1410,8 +1352,10 @@ abstract class AbstractConnectionResolver {
 	 * @return int|string|null
 	 */
 	public function get_before_offset() {
-		if ( ! empty( $this->args['before'] ) ) {
-			return $this->get_offset_for_cursor( $this->args['before'] );
+		$args = $this->get_args();
+
+		if ( ! empty( $args['before'] ) ) {
+			return $this->get_offset_for_cursor( $args['before'] );
 		}
 
 		return null;
@@ -1421,12 +1365,14 @@ abstract class AbstractConnectionResolver {
 	 * Whether there is a next page in the connection.
 	 *
 	 * If there are more "items" than were asked for in the "first" argument or if there are more "items" after the "before" argument, has_next_page() will be set to true.
-	 *
-	 * @return bool
 	 */
-	public function has_next_page() {
-		if ( ! empty( $this->args['first'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
+	public function has_next_page(): bool {
+		$args = $this->get_args();
+
+		if ( ! empty( $args['first'] ) ) {
+			$ids = $this->get_ids();
+
+			return ! empty( $ids ) && count( $ids ) > $this->get_query_amount();
 		}
 
 		$before_offset = $this->get_before_offset();
@@ -1442,12 +1388,14 @@ abstract class AbstractConnectionResolver {
 	 * Whether there is a previous page in the connection.
 	 *
 	 * If there are more "items" than were asked for in the "last" argument or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
-	 *
-	 * @return bool
 	 */
-	public function has_previous_page() {
-		if ( ! empty( $this->args['last'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
+	public function has_previous_page(): bool {
+		$args = $this->get_args();
+
+		if ( ! empty( $args['last'] ) ) {
+			$ids = $this->get_ids();
+
+			return ! empty( $ids ) && count( $ids ) > $this->get_query_amount();
 		}
 
 		$after_offset = $this->get_after_offset();
@@ -1456,122 +1404,5 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return false;
-	}
-
-	/**
-	 * DEPRECATED METHODS
-	 *
-	 * These methods are deprecated and will be removed in a future release.
-	 */
-
-	/**
-	 * Returns the $args passed to the connection
-	 *
-	 * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
-	 *
-	 * @return array<string,mixed>
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function getArgs(): array {
-		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' );
-		return $this->get_args();
-	}
-
-	/**
-	 * @param string $key   The key of the query arg to set
-	 * @param mixed  $value The value of the query arg to set
-	 *
-	 * @return static
-	 *
-	 * @deprecated 0.3.0
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function setQueryArg( $key, $value ) {
-		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' );
-
-		return $this->set_query_arg( $key, $value );
-	}
-
-	/**
-	 * Get_offset
-	 *
-	 * This returns the offset to be used in the $query_args based on the $args passed to the
-	 * GraphQL query.
-	 *
-	 * @deprecated 1.9.0
-	 *
-	 * @codeCoverageIgnore
-	 *
-	 * @return int|mixed
-	 */
-	public function get_offset() {
-		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' );
-
-		// Using shorthand since this is for deprecated code.
-		$cursor = $this->args['after'] ?? null;
-		$cursor = $cursor ?: ( $this->args['before'] ?? null );
-
-		return $this->get_offset_for_cursor( $cursor );
-	}
-
-	/**
-	 * Returns the source of the connection.
-	 *
-	 * @deprecated 1.24.0 in favor of $this->get_source().
-	 *
-	 * @return mixed
-	 */
-	public function getSource() {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_source()' );
-
-		return $this->get_source();
-	}
-
-	/**
-	 * Returns the AppContext of the connection.
-	 *
-	 * @deprecated 1.24.0 in favor of $this->get_context().
-	 */
-	public function getContext(): AppContext {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_context()' );
-
-		return $this->get_context();
-	}
-
-	/**
-	 * Returns the ResolveInfo of the connection.
-	 *
-	 * @deprecated 1.24.0 in favor of $this->get_info().
-	 */
-	public function getInfo(): ResolveInfo {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_info()' );
-
-		return $this->get_info();
-	}
-
-	/**
-	 * Returns whether the connection should execute.
-	 *
-	 * @deprecated 1.24.0 in favor of $this->get_should_execute().
-	 */
-	public function getShouldExecute(): bool {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::should_execute()' );
-
-		return $this->get_should_execute();
-	}
-
-	/**
-	 * Returns the loader.
-	 *
-	 * @deprecated 1.24.0 in favor of $this->get_loader().
-	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 */
-	protected function getLoader() {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_loader()' );
-
-		return $this->get_loader();
 	}
 }

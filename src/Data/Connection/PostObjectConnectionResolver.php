@@ -92,14 +92,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
-		/**
-		 * @todo This is for b/c. We can just use $this->get_query().
-		 */
-		$query = isset( $this->query ) ? $this->query : $this->get_query();
+	public function get_ids_from_query(): array {
+		$queried = $this->get_query();
 
-		/** @var int[] */
-		$ids = ! empty( $query->posts ) ? $query->posts : [];
+		/** @var int[] $ids */
+		$ids = ! empty( $queried->posts ) ? $queried->posts : [];
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();
@@ -114,7 +111,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function should_execute() {
+	public function should_execute(): bool {
 		/**
 		 * If the post_type is not revision we can just return the parent::should_execute().
 		 *
@@ -148,7 +145,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Prepare for later use
 		 */
-		$last = ! empty( $args['last'] ) ? $args['last'] : null;
+		$last      = ! empty( $args['last'] ) ? $args['last'] : null;
+		$post_type = $this->get_post_type();
 
 		$query_args = [];
 		/**
@@ -159,7 +157,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Set the post_type for the query based on the type of post being queried
 		 */
-		$query_args['post_type'] = ! empty( $this->post_type ) ? $this->post_type : 'post';
+		$query_args['post_type'] = ! empty( $post_type ) ? $post_type : 'post';
 
 		/**
 		 * Don't calculate the total rows, it's not needed and can be expensive
@@ -205,7 +203,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
 		 */
-		if ( 'attachment' === $this->post_type || 'revision' === $this->post_type ) {
+		if ( 'attachment' === $post_type || 'revision' === $post_type ) {
 			$query_args['post_status'] = 'inherit';
 		}
 
@@ -213,7 +211,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * Unset the "post_parent" for attachments, as we don't really care if they
 		 * have a post_parent set by default
 		 */
-		if ( 'attachment' === $this->post_type && isset( $input_fields['parent'] ) ) {
+		if ( 'attachment' === $post_type && isset( $input_fields['parent'] ) ) {
 			unset( $input_fields['parent'] );
 		}
 
@@ -351,13 +349,20 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filter the $query args to allow folks to customize queries programmatically
 		 *
-		 * @param array<string,mixed>                  $query_args The args that will be passed to the WP_Query
-		 * @param mixed                                $source     The source that's passed down the GraphQL queries
-		 * @param array<string,mixed>                  $args       The inputArgs on the field
-		 * @param \WPGraphQL\AppContext                $context    The AppContext passed down the GraphQL tree
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
+		 * @param array<string,mixed> $query_args The query args to be used with the executable query to get data. This should take in the GraphQL args and return args for use in fetching the data.
+		 *
+		 * @param self                $resolver   The connection resolver instance.
 		 */
-		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
+		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this );
+	}
+
+	/**
+	 * Returns the post type for the connection.
+	 *
+	 * @return mixed|string|string[]
+	 */
+	public function get_post_type() {
+		return $this->post_type;
 	}
 
 	/**
@@ -371,7 +376,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @return array<string,mixed>
 	 * @since  0.0.5
 	 */
-	public function sanitize_input_fields( array $where_args ) {
+	public function sanitize_input_fields( array $where_args ): array {
 		$arg_mapping = [
 			'authorIn'      => 'author__in',
 			'authorName'    => 'author_name',
@@ -418,17 +423,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * This allows plugins/themes to hook in and alter what $args should be allowed to be passed
 		 * from a GraphQL Query to the WP_Query
 		 *
-		 * @param array<string,mixed>                  $query_args The mapped query arguments
-		 * @param array<string,mixed>                  $args       Query "where" args
-		 * @param mixed                                $source     The query results for a query calling this
-		 * @param array<string,mixed>                  $all_args   All of the arguments for the query (not just the "where" args)
-		 * @param \WPGraphQL\AppContext                $context    The AppContext object
-		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo object
-		 * @param mixed|string|string[]                $post_type  The post type for the query
+		 * @param array<string,mixed> $query_args The mapped query arguments
+		 * @param array<string,mixed> $args       Query "where" args
+		 * @param self                $resolver   The connection resolver instance.
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this );
 
 		/**
 		 * Return the Query Args
@@ -570,13 +571,12 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array<string,mixed> $args            The GraphQL args passed to the resolver.
-		 * @param self                $resolver        Instance of the ConnectionResolver.
-		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed> $args     The GraphQL args passed to the resolver.
+		 * @param self                $resolver Instance of the AbstractConnectionResolver.
 		 *
 		 * @since 1.11.0
 		 */
-		return apply_filters( 'graphql_post_object_connection_args', $args, $this, $this->get_unfiltered_args() );
+		return apply_filters( 'graphql_post_object_connection_args', $args, $this );
 	}
 
 	/**
@@ -584,7 +584,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param int $offset The ID of the node used in the cursor offset.
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		return (bool) get_post( absint( $offset ) );
 	}
 }
