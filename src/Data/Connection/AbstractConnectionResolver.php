@@ -36,7 +36,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Filterable by `graphql_connection_args`.
 	 *
-	 * @var array<string,mixed>
+	 * @var ?array<string,mixed>
 	 */
 	protected $args;
 
@@ -113,6 +113,8 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * @var mixed[]
+	 *
+	 * @deprecated @todo This is an artifact and is unused. It will be removed in a future release.
 	 */
 	protected $items;
 
@@ -172,9 +174,9 @@ abstract class AbstractConnectionResolver {
 
 		/**
 		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
-		 * We can remove this once the rest of lifecycle has been updated.
+		 * We can call it later in the lifecycle once that's no longer the case.
 		 */
-		$this->args = $args;
+		$this->args = $this->get_args();
 
 		// Pre-check if the connection should execute so we can skip expensive logic if we already know it shouldn't execute.
 		if ( ! $this->get_pre_should_execute( $this->source, $this->unfiltered_args, $this->context, $this->info ) ) {
@@ -185,7 +187,6 @@ abstract class AbstractConnectionResolver {
 		$this->loader = $this->get_loader();
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
 		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
@@ -194,7 +195,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $this->get_unfiltered_args() );
+		$this->args = apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
 
 		// Get the query amount for the connection.
 		$this->query_amount = $this->get_query_amount();
@@ -221,17 +222,6 @@ abstract class AbstractConnectionResolver {
 	 */
 	protected function loader_name(): string {
 		return '';
-	}
-
-	/**
-	 * Returns the $args passed to the connection.
-	 *
-	 * Useful for modifying the $args before they are passed to $this->get_query_args().
-	 *
-	 * @return array<string,mixed>
-	 */
-	public function get_args(): array {
-		return $this->args;
 	}
 
 	/**
@@ -283,6 +273,19 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return $should_execute;
+	}
+
+	/**
+	 * Prepares the GraphQL args for use by the connection.
+	 *
+	 * Useful for modifying the $args before they are passed to $this->get_query_args().
+	 *
+	 * @param array<string,mixed> $args The GraphQL input args to prepare.
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected function prepare_args( array $args ): array {
+		return $args;
 	}
 
 	/**
@@ -458,7 +461,6 @@ abstract class AbstractConnectionResolver {
 		return $this->loader_name;
 	}
 
-
 	/**
 	 * Returns the $args passed to the connection, before any modifications.
 	 *
@@ -466,6 +468,19 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_unfiltered_args(): array {
 		return $this->unfiltered_args;
+	}
+
+	/**
+	 * Returns the $args passed to the connection.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_args(): array {
+		if ( ! isset( $this->args ) ) {
+			$this->args = $this->prepare_args( $this->get_unfiltered_args() );
+		}
+
+		return $this->args;
 	}
 
 	/**
@@ -493,7 +508,7 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @since 0.0.6
 			 */
-			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->args, $this->context, $this->info );
+			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
 
 			// We don't want the requested amount to be lower than 0.
 			$requested_query_amount = (int) max(
@@ -809,8 +824,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * This filter allows additional fields to be returned to the connection resolver
 				 *
-				 * @param ?array<string,mixed> $connection          The connection data being returned. A single edge or null if the connection is one-to-one.
-				 * @param self                 $resolver The instance of the connection resolver
+				 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
+				 * @param self                 $resolver   The instance of the connection resolver
 				 */
 				return apply_filters( 'graphql_connection', $connection, $this );
 			}
