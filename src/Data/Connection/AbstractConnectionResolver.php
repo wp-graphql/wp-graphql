@@ -119,7 +119,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The IDs returned from the query.
 	 *
-	 * @var int[]|string[]
+	 * @var int[]|string[]|null
 	 */
 	protected $ids;
 
@@ -543,9 +543,11 @@ abstract class AbstractConnectionResolver {
 	 * @return int[]|string[]
 	 */
 	public function get_ids() {
-		$ids = $this->get_ids_from_query();
+		if ( ! isset( $this->ids ) ) {
+			$this->ids = $this->prepare_ids();
+		}
 
-		return $this->apply_cursors_to_ids( $ids );
+		return $this->ids;
 	}
 
 	/**
@@ -761,6 +763,7 @@ abstract class AbstractConnectionResolver {
 		return new Deferred(
 			function () {
 				if ( ! empty( $this->ids ) ) {
+					// Load the ids.
 					$this->get_loader()->load_many( $this->ids );
 				}
 
@@ -866,6 +869,8 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Filter the connection IDs
 		 *
+		 * @todo We filter the IDs here for b/c. Once that is not a concern, we should relocate this filter to ::get_ids().
+		 *
 		 * @param int[]|string[]                                        $ids                 Array of IDs this connection will be resolving
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
@@ -965,6 +970,19 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return $nodes;
+	}
+
+	/**
+	 * Prepares the IDs for the connection.
+	 *
+	 * @used-by self::get_ids()
+	 *
+	 * @return int[]|string[]
+	 */
+	protected function prepare_ids(): array {
+		$ids = $this->get_ids_from_query();
+
+		return $this->apply_cursors_to_ids( $ids );
 	}
 
 	/**
