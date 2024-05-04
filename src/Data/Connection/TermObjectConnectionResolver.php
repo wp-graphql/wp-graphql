@@ -10,16 +10,9 @@ use WPGraphQL\Utils\Utils;
  * Class TermObjectConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Term_Query>
  */
 class TermObjectConnectionResolver extends AbstractConnectionResolver {
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var \WP_Term_Query
-	 */
-	protected $query;
-
 	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
@@ -145,21 +138,23 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an instance of WP_Term_Query with the args mapped to the query
-	 *
-	 * @return \WP_Term_Query
-	 * @throws \Exception
+	 * {@inheritDoc}
 	 */
-	public function get_query() {
-		return new \WP_Term_Query( $this->get_query_args() );
+	protected function query_class(): string {
+		return \WP_Term_Query::class;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried = isset( $this->query ) ? $this->query : $this->get_query();
+
 		/** @var string[] $ids */
-		$ids = ! empty( $this->query->get_terms() ) ? $this->query->get_terms() : [];
+		$ids = ! empty( $queried->get_terms() ) ? $queried->get_terms() : [];
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();

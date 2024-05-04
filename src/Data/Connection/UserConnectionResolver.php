@@ -9,17 +9,9 @@ use WPGraphQL\Utils\Utils;
  * Class UserConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_User_Query>
  */
 class UserConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * A custom class is assumed to have the same core functions as WP_User_Query.
-	 *
-	 * @var \WP_User_Query|object
-	 */
-	protected $query;
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -179,26 +171,22 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return object|\WP_User_Query
-	 * @throws \Exception
 	 */
-	public function get_query() {
-		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_User_Query';
-
-		return new $queryClass( $this->query_args );
+	protected function query_class(): string {
+		return \WP_User_Query::class;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return int[]
 	 */
 	public function get_ids_from_query() {
-		$ids = method_exists( $this->query, 'get_results' ) ? $this->query->get_results() : [];
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried = isset( $this->query ) ? $this->query : $this->get_query();
+
+		/** @var int[] $ids */
+		$ids = $queried->get_results();
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();

@@ -5,21 +5,20 @@ namespace WPGraphQL\Data\Connection;
  * Class TaxonomyConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class TaxonomyConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		$ids     = [];
-		$queried = $this->query;
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried = isset( $this->query ) ? $this->query : $this->get_query();
+
+		$ids = [];
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -42,12 +41,8 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
-		$query_args = $this->get_query_args();
-
+	protected function query( array $query_args ) {
 		if ( isset( $query_args['name'] ) ) {
 			return [ $query_args['name'] ];
 		}
