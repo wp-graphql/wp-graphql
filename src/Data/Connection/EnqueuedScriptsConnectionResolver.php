@@ -5,6 +5,7 @@ namespace WPGraphQL\Data\Connection;
  * Class EnqueuedScriptsConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
@@ -35,10 +36,8 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		return $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
 	}
 

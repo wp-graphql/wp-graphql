@@ -5,15 +5,9 @@ namespace WPGraphQL\Data\Connection;
  * Class ContentTypeConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class ContentTypeConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -42,12 +36,8 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
-		$query_args = $this->get_query_args();
-
+	protected function query( array $query_args ) {
 		if ( isset( $query_args['contentTypeNames'] ) && is_array( $query_args['contentTypeNames'] ) ) {
 			return $query_args['contentTypeNames'];
 		}

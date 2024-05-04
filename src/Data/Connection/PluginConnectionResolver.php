@@ -6,14 +6,9 @@ namespace WPGraphQL\Data\Connection;
  *
  * @package WPGraphQL\Data\Connection
  * @since 0.0.5
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<array<string,array<string,mixed>>>
  */
 class PluginConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var array<string,array<string,mixed>>
-	 */
-	protected $query;
 
 	/**
 	 * A list of all the installed plugins, keyed by their type.
@@ -58,7 +53,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		// Get all plugins.
 		$plugins = $this->get_all_plugins();
 
@@ -68,9 +63,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		if ( empty( $all_plugins ) ) {
 			return [];
 		}
-
-		// Get the GraphQL args for later.
-		$query_args = $this->get_query_args();
 
 		// Holds the plugin names sorted by status. The other ` status =>  [ plugin_names ] ` will be added later.
 		$plugins_by_status = [
