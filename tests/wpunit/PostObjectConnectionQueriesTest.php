@@ -1864,5 +1864,8 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertEmpty( $actual['data']['posts']['nodes'], 'The filtered connection should not return posts' );
+
+		// Reset the filter
+		remove_filter( 'graphql_connection_is_valid_model', '__return_false' );
 	}
 }
