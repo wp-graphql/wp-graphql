@@ -688,24 +688,7 @@ abstract class AbstractConnectionResolver {
 				$query = $this->query( $this->get_query_args() );
 			}
 
-			/**
-			 * Filter the query. For core data, the query is typically an instance of:
-			 *
-			 *   WP_Query
-			 *   WP_Comment_Query
-			 *   WP_User_Query
-			 *   WP_Term_Query
-			 *   ...
-			 *
-			 * But in some cases, the actual mechanism for querying data should be overridden. For
-			 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
-			 * the query to that instead of a native WP_Query class. You could override this with a
-			 * query to that datasource instead.
-			 *
-			 * @param TQueryClass $query    Instance of the Query for the resolver
-			 * @param self  $resolver Instance of the Connection Resolver
-			 */
-			$this->query = apply_filters( 'graphql_connection_query', $query, $this );
+			$this->query = $query;
 		}
 
 		return $this->query;
@@ -1059,6 +1042,8 @@ abstract class AbstractConnectionResolver {
 		 * example, perhaps you're using ElasticSearch or Solr (hypothetical) and want to offload
 		 * the query to that instead of a native WP_Query class. You could override this with a
 		 * query to that datasource instead.
+		 *
+		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
 		 *
 		 * @param mixed                      $query               Instance of the Query for the resolver
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
