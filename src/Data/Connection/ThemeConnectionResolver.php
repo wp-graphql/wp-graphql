@@ -36,7 +36,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		return [
 			'allowed' => null,
 		];
@@ -48,7 +48,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	 * @return string[]
 	 */
 	public function get_query() {
-		$query_args = $this->query_args;
+		$query_args = $this->get_query_args();
 
 		return array_keys( wp_get_themes( $query_args ) );
 	}

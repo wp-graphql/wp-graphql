@@ -24,9 +24,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @throws \GraphQL\Error\UserError
 	 */
-	public function get_query_args() {
-		$args = $this->get_args();
-
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
@@ -131,8 +129,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ids';
 
 		/**
-		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
-		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 * Filter the query_args that should be applied to the query.
 		 *
 		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
 		 * @param mixed                                $source     source passed down from the resolve tree
@@ -152,7 +149,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new WP_Comment_Query( $this->query_args );
+		return new WP_Comment_Query( $this->get_query_args() );
 	}
 
 	/**

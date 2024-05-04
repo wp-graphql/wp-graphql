@@ -32,8 +32,7 @@ class UserConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @throws \Exception
 	 */
-	public function get_query_args() {
-		$args       = $this->get_args();
+	protected function prepare_query_args( array $args ): array {
 		$query_args = [];
 
 		/**

@@ -45,7 +45,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection
 		return [];
 	}
