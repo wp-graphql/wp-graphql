@@ -40,8 +40,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
-		$args           = $this->get_args();
+	protected function prepare_query_args( array $args ): array {
 		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 		$taxonomy       = ! empty( $this->taxonomy ) && in_array( $this->taxonomy, $all_taxonomies, true ) ? [ $this->taxonomy ] : $all_taxonomies;
 
@@ -130,8 +129,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
-		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 * Filters the query args used by the connection.
 		 *
 		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
 		 * @param mixed                                $source     source passed down from the resolve tree
@@ -153,7 +151,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_query() {
-		return new \WP_Term_Query( $this->query_args );
+		return new \WP_Term_Query( $this->get_query_args() );
 	}
 
 	/**

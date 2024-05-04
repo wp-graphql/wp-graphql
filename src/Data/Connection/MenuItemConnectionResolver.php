@@ -22,9 +22,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
-		$args = $this->get_args();
-
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
@@ -32,7 +30,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
-		$query_args            = parent::get_query_args();
+		$query_args            = parent::prepare_query_args( $args );
 		$query_args['orderby'] = 'menu_order';
 		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
 
@@ -81,7 +79,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepare_args( array $args ): array {
+	protected function prepare_args( array $args ): array {
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
 			foreach ( $args['where'] as $input_key => $input_value ) {

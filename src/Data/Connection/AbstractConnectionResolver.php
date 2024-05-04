@@ -57,7 +57,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The query args used to query for data to resolve the connection.
 	 *
-	 * @var array<string,mixed>
+	 * Filterable by `graphql_connection_query_args`.
+	 *
+	 * @var ?array<string,mixed>
 	 */
 	protected $query_args;
 
@@ -99,9 +101,9 @@ abstract class AbstractConnectionResolver {
 	 * The Query class/array/object used to fetch the data.
 	 *
 	 * Examples:
-	 *   return new WP_Query( $this->query_args );
-	 *   return new WP_Comment_Query( $this->query_args );
-	 *   return new WP_Term_Query( $this->query_args );
+	 *   return new WP_Query( $this->get_query_args() );
+	 *   return new WP_Comment_Query( $this->get_query_args() );
+	 *   return new WP_Term_Query( $this->get_query_args() );
 	 *
 	 * Whatever it is will be passed through filters so that fields throughout
 	 * have context from what was queried and can make adjustments as needed, such
@@ -201,16 +203,13 @@ abstract class AbstractConnectionResolver {
 		$this->query_amount = $this->get_query_amount();
 
 		/**
-		 * Get the Query Args. This accepts the input args and maps it to how it should be
-		 * used in the WP_Query
-		 *
-		 * Filters the args
+		 * Filters the query args before they are used in the query.
 		 *
 		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
 	}
 
 	/**
@@ -225,17 +224,28 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Get_query_args
+	 * Prepares the query args used to fetch the data for the connection.
 	 *
-	 * This method is used to accept the GraphQL Args input to the connection and return args
-	 * that can be used in the Query to the datasource.
+	 * This accepts the GraphQL args and maps them to a format that can be read by our query class.
+	 * For example, if the ConnectionResolver uses WP_Query to fetch the data, this should return $args for use in `new WP_Query( $args );`
 	 *
-	 * For example, if the ConnectionResolver uses WP_Query to fetch the data, this
-	 * should return $args for use in `new WP_Query`
+	 * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
+	 *
+	 * @param array<string,mixed> $args The GraphQL input args passed to the connection.
 	 *
 	 * @return array<string,mixed>
+	 *
+	 * @throws \Exception If the method is not implemented.
 	 */
-	abstract public function get_query_args();
+	protected function prepare_query_args( array $args ): array {
+		throw new Exception(
+			sprintf(
+				// translators: %s is the name of the connection resolver class.
+				esc_html__( 'Class %s does not implement a valid method `prepare_query_args()`.', 'wp-graphql' ),
+				static::class
+			)
+		);
+	}
 
 	/**
 	 * Get_query
@@ -316,7 +326,7 @@ abstract class AbstractConnectionResolver {
 	 * Each Query class in WP and potential datasource handles this differently, so each connection
 	 * resolver should handle getting the items into a uniform array of items.
 	 *
-	 * Note: This is not an abstract function to prevent backwards compatibility issues, so it
+	 * @todo: This is not an abstract function to prevent backwards compatibility issues, so it
 	 * instead throws an exception. Classes that extend AbstractConnectionResolver should
 	 * override this method, instead of AbstractConnectionResolver::get_ids().
 	 *
@@ -533,6 +543,20 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return $this->query_amount;
+	}
+
+	/**
+	 * Gets the query args used by the connection to fetch the data.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_query_args() {
+		if ( ! isset( $this->query_args ) ) {
+			// We pass $this->get_args() to ensure we're using the filtered args.
+			$this->query_args = $this->prepare_query_args( $this->get_args() );
+		}
+
+		return $this->query_args;
 	}
 
 	/**

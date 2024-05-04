@@ -144,9 +144,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
-		$args = $this->get_args();
-
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
@@ -532,7 +530,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepare_args( array $args ): array {
+	protected function prepare_args( array $args ): array {
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
 			foreach ( $args['where'] as $input_key => $input_value ) {

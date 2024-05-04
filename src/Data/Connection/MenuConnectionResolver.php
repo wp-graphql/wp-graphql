@@ -14,15 +14,13 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 	 *
 	 * @throws \Exception
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		$term_args = [
 			'hide_empty' => false,
 			'include'    => [],
 			'taxonomy'   => 'nav_menu',
 			'fields'     => 'ids',
 		];
-
-		$args = $this->get_args();
 
 		if ( ! empty( $args['where']['slug'] ) ) {
 			$term_args['slug']    = $args['where']['slug'];
@@ -44,7 +42,7 @@ class MenuConnectionResolver extends TermObjectConnectionResolver {
 			$term_args['include'] = $args['where']['id'];
 		}
 
-		$query_args = parent::get_query_args();
+		$query_args = parent::prepare_query_args( $args );
 
 		return array_merge( $query_args, $term_args );
 	}
