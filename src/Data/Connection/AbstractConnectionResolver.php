@@ -382,7 +382,7 @@ abstract class AbstractConnectionResolver {
 	 * If model isn't a class with a `fields` member, this function with have be overridden in
 	 * the Connection class.
 	 *
-	 * @param \WPGraphQL\Model\Model|mixed $model The model being validated
+	 * @param \WPGraphQL\Model\Model|mixed $model The model being validated.
 	 *
 	 * @return bool
 	 */
@@ -565,7 +565,7 @@ abstract class AbstractConnectionResolver {
 
 		foreach ( $ids as $id ) {
 			$model = $this->get_node_by_id( $id );
-			if ( true === $this->is_valid_model( $model ) ) {
+			if ( true === $this->get_is_valid_model( $model ) ) {
 				$nodes[ $id ] = $model;
 			}
 		}
@@ -1014,6 +1014,27 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Gets whether or not the model is valid.
+	 *
+	 * @param mixed $model The model being validated.
+	 */
+	protected function get_is_valid_model( $model ): bool {
+		$is_valid = $this->is_valid_model( $model );
+
+		/**
+		 * Filters whether or not the model is valid.
+		 *
+		 * This is useful when the dataloader is overridden and uses a different model than expected by default.
+		 *
+		 * @param bool  $is_valid Whether or not the model is valid.
+		 * @param mixed $model    The model being validated
+		 * @param self  $resolver The connection resolver instance
+		 */
+		return apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
+	}
+
+
+	/**
 	 * Given an ID, a cursor is returned.
 	 *
 	 * @param int|string $id The ID to get the cursor for.
@@ -1091,8 +1112,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Whether there is a next page in the connection.
 	 *
-	 * If there are more "items" than were asked for in the "first" argument
-	 * ore if there are more "items" after the "before" argument, has_next_page() will be set to true.
+	 * If there are more "items" than were asked for in the "first" argument or if there are more "items" after the "before" argument, has_next_page() will be set to true.
 	 *
 	 * @return bool
 	 */
@@ -1113,8 +1133,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Whether there is a previous page in the connection.
 	 *
-	 * If there are more "items" than were asked for in the "last" argument
-	 * or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
+	 * If there are more "items" than were asked for in the "last" argument or if there are more "items" before the "after" argument, has_previous_page() will be set to true.
 	 *
 	 * @return bool
 	 */
