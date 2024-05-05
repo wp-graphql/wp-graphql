@@ -5,12 +5,13 @@ namespace WPGraphQL\Data\Connection;
  * Class EnqueuedScriptsConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_ids_from_query() {
+	public function get_ids_from_query(): array {
 		$ids     = [];
 		$queried = $this->get_query();
 
@@ -28,17 +29,15 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection
 		return [];
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		return $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
 	}
 
@@ -61,14 +60,14 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	 *
 	 * @param ?\_WP_Dependency $model The model to check.
 	 */
-	protected function is_valid_model( $model ) {
+	protected function is_valid_model( $model ): bool {
 		return isset( $model->handle );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function is_valid_offset( $offset ) {
+	public function is_valid_offset( $offset ): bool {
 		global $wp_scripts;
 		return isset( $wp_scripts->registered[ $offset ] );
 	}
