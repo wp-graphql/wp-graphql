@@ -36,7 +36,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * Filterable by `graphql_connection_args`.
 	 *
-	 * @var array<string,mixed>
+	 * @var ?array<string,mixed>
 	 */
 	protected $args;
 
@@ -57,7 +57,9 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The query args used to query for data to resolve the connection.
 	 *
-	 * @var array<string,mixed>
+	 * Filterable by `graphql_connection_query_args`.
+	 *
+	 * @var ?array<string,mixed>
 	 */
 	protected $query_args;
 
@@ -99,9 +101,9 @@ abstract class AbstractConnectionResolver {
 	 * The Query class/array/object used to fetch the data.
 	 *
 	 * Examples:
-	 *   return new WP_Query( $this->query_args );
-	 *   return new WP_Comment_Query( $this->query_args );
-	 *   return new WP_Term_Query( $this->query_args );
+	 *   return new WP_Query( $this->get_query_args() );
+	 *   return new WP_Comment_Query( $this->get_query_args() );
+	 *   return new WP_Term_Query( $this->get_query_args() );
 	 *
 	 * Whatever it is will be passed through filters so that fields throughout
 	 * have context from what was queried and can make adjustments as needed, such
@@ -113,6 +115,8 @@ abstract class AbstractConnectionResolver {
 
 	/**
 	 * @var mixed[]
+	 *
+	 * @deprecated @todo This is an artifact and is unused. It will be removed in a future release.
 	 */
 	protected $items;
 
@@ -172,9 +176,9 @@ abstract class AbstractConnectionResolver {
 
 		/**
 		 * @todo This exists for b/c, where extenders may be directly accessing `$this->args` in ::get_loader() or even `::get_args()`.
-		 * We can remove this once the rest of lifecycle has been updated.
+		 * We can call it later in the lifecycle once that's no longer the case.
 		 */
-		$this->args = $args;
+		$this->args = $this->get_args();
 
 		// Pre-check if the connection should execute so we can skip expensive logic if we already know it shouldn't execute.
 		if ( ! $this->get_pre_should_execute( $this->source, $this->unfiltered_args, $this->context, $this->info ) ) {
@@ -185,8 +189,9 @@ abstract class AbstractConnectionResolver {
 		$this->loader = $this->get_loader();
 
 		/**
-		 *
 		 * Filters the GraphQL args before they are used in get_query_args().
+		 *
+		 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
 		 *
 		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
@@ -194,22 +199,21 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @since 1.11.0
 		 */
-		$this->args = apply_filters( 'graphql_connection_args', $this->get_args(), $this, $this->get_unfiltered_args() );
+		$this->args = apply_filters( 'graphql_connection_args', $this->args, $this, $this->get_unfiltered_args() );
 
 		// Get the query amount for the connection.
 		$this->query_amount = $this->get_query_amount();
 
 		/**
-		 * Get the Query Args. This accepts the input args and maps it to how it should be
-		 * used in the WP_Query
+		 * Filters the query args before they are used in the query.
 		 *
-		 * Filters the args
+		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
 		 *
 		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
-		 * @param array<string,mixed>                                   $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 */
-		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $args );
+		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
 	}
 
 	/**
@@ -224,28 +228,30 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns the $args passed to the connection.
+	 * Prepares the query args used to fetch the data for the connection.
 	 *
-	 * Useful for modifying the $args before they are passed to $this->get_query_args().
+	 * This accepts the GraphQL args and maps them to a format that can be read by our query class.
+	 * For example, if the ConnectionResolver uses WP_Query to fetch the data, this should return $args for use in `new WP_Query( $args );`
+	 *
+	 * @todo This is protected for backwards compatibility, but should be abstract and implemented by the child classes.
+	 *
+	 * @param array<string,mixed> $args The GraphQL input args passed to the connection.
 	 *
 	 * @return array<string,mixed>
+	 *
+	 * @throws \Exception If the method is not implemented.
+	 *
+	 * @codeCoverageIgnore
 	 */
-	public function get_args(): array {
-		return $this->args;
+	protected function prepare_query_args( array $args ): array {
+		throw new Exception(
+			sprintf(
+				// translators: %s is the name of the connection resolver class.
+				esc_html__( 'Class %s does not implement a valid method `prepare_query_args()`.', 'wp-graphql' ),
+				static::class
+			)
+		);
 	}
-
-	/**
-	 * Get_query_args
-	 *
-	 * This method is used to accept the GraphQL Args input to the connection and return args
-	 * that can be used in the Query to the datasource.
-	 *
-	 * For example, if the ConnectionResolver uses WP_Query to fetch the data, this
-	 * should return $args for use in `new WP_Query`
-	 *
-	 * @return array<string,mixed>
-	 */
-	abstract public function get_query_args();
 
 	/**
 	 * Get_query
@@ -297,6 +303,19 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Prepares the GraphQL args for use by the connection.
+	 *
+	 * Useful for modifying the $args before they are passed to $this->get_query_args().
+	 *
+	 * @param array<string,mixed> $args The GraphQL input args to prepare.
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected function prepare_args( array $args ): array {
+		return $args;
+	}
+
+	/**
 	 * The maximum number of items that should be returned by the query.
 	 *
 	 * This is filtered by `graphql_connection_max_query_amount` in ::get_query_amount().
@@ -311,7 +330,7 @@ abstract class AbstractConnectionResolver {
 	 * Each Query class in WP and potential datasource handles this differently, so each connection
 	 * resolver should handle getting the items into a uniform array of items.
 	 *
-	 * Note: This is not an abstract function to prevent backwards compatibility issues, so it
+	 * @todo: This is not an abstract function to prevent backwards compatibility issues, so it
 	 * instead throws an exception. Classes that extend AbstractConnectionResolver should
 	 * override this method, instead of AbstractConnectionResolver::get_ids().
 	 *
@@ -456,7 +475,6 @@ abstract class AbstractConnectionResolver {
 		return $this->loader_name;
 	}
 
-
 	/**
 	 * Returns the $args passed to the connection, before any modifications.
 	 *
@@ -464,6 +482,19 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function get_unfiltered_args(): array {
 		return $this->unfiltered_args;
+	}
+
+	/**
+	 * Returns the $args passed to the connection.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_args(): array {
+		if ( ! isset( $this->args ) ) {
+			$this->args = $this->prepare_args( $this->get_unfiltered_args() );
+		}
+
+		return $this->args;
 	}
 
 	/**
@@ -491,7 +522,7 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * @since 0.0.6
 			 */
-			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->args, $this->context, $this->info );
+			$max_query_amount = (int) apply_filters( 'graphql_connection_max_query_amount', $this->max_query_amount(), $this->source, $this->get_args(), $this->context, $this->info );
 
 			// We don't want the requested amount to be lower than 0.
 			$requested_query_amount = (int) max(
@@ -516,6 +547,20 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return $this->query_amount;
+	}
+
+	/**
+	 * Gets the query args used by the connection to fetch the data.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_query_args() {
+		if ( ! isset( $this->query_args ) ) {
+			// We pass $this->get_args() to ensure we're using the filtered args.
+			$this->query_args = $this->prepare_query_args( $this->get_args() );
+		}
+
+		return $this->query_args;
 	}
 
 	/**
@@ -807,8 +852,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * This filter allows additional fields to be returned to the connection resolver
 				 *
-				 * @param ?array<string,mixed> $connection          The connection data being returned. A single edge or null if the connection is one-to-one.
-				 * @param self                 $resolver The instance of the connection resolver
+				 * @param ?array<string,mixed> $connection The connection data being returned. A single edge or null if the connection is one-to-one.
+				 * @param self                 $resolver   The instance of the connection resolver
 				 */
 				return apply_filters( 'graphql_connection', $connection, $this );
 			}

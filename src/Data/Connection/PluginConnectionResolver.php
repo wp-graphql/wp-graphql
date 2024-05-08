@@ -43,14 +43,14 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
-		if ( ! empty( $this->args['where']['status'] ) ) {
-			$this->args['where']['stati'] = [ $this->args['where']['status'] ];
-		} elseif ( ! empty( $this->args['where']['stati'] ) && is_string( $this->args['where']['stati'] ) ) {
-			$this->args['where']['stati'] = [ $this->args['where']['stati'] ];
+	protected function prepare_query_args( array $args ): array {
+		if ( ! empty( $args['where']['status'] ) ) {
+			$args['where']['stati'] = [ $args['where']['status'] ];
+		} elseif ( ! empty( $args['where']['stati'] ) && is_string( $args['where']['stati'] ) ) {
+			$args['where']['stati'] = [ $args['where']['stati'] ];
 		}
 
-		return $this->args;
+		return $args;
 	}
 
 	/**
@@ -69,6 +69,9 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 			return [];
 		}
 
+		// Get the GraphQL args for later.
+		$query_args = $this->get_query_args();
+
 		// Holds the plugin names sorted by status. The other ` status =>  [ plugin_names ] ` will be added later.
 		$plugins_by_status = [
 			'mustuse' => array_flip( array_keys( $plugins['mustuse'] ) ),
@@ -81,7 +84,7 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		$show_network_plugins = apply_filters( 'show_network_active_plugins', current_user_can( 'manage_network_plugins' ) );
 
 		// Store the plugin stati as array keys for performance.
-		$active_stati = ! empty( $this->args['where']['stati'] ) ? array_flip( $this->args['where']['stati'] ) : [];
+		$active_stati = ! empty( $query_args['where']['stati'] ) ? array_flip( $query_args['where']['stati'] ) : [];
 
 		// Get additional plugin info.
 		$upgradable_list         = $can_update && isset( $active_stati['upgrade'] ) ? get_site_transient( 'update_plugins' ) : [];
@@ -196,9 +199,9 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 		// If plugins exist for the filter, flatten and return them. Otherwise, return the full list.
 		$filtered_plugins = ! empty( $filtered_plugins ) ? array_merge( [], ...$filtered_plugins ) : $plugins_by_status['all'];
 
-		if ( ! empty( $this->args['where']['search'] ) ) {
+		if ( ! empty( $query_args['where']['search'] ) ) {
 			// Filter by search args.
-			$s       = sanitize_text_field( $this->args['where']['search'] );
+			$s       = sanitize_text_field( $query_args['where']['search'] );
 			$matches = array_keys(
 				array_filter(
 					$all_plugins,

@@ -35,7 +35,7 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection
 		return [];
 	}
@@ -46,15 +46,16 @@ class ContentTypeConnectionResolver extends AbstractConnectionResolver {
 	 * @return string[]
 	 */
 	public function get_query() {
-		if ( isset( $this->query_args['contentTypeNames'] ) && is_array( $this->query_args['contentTypeNames'] ) ) {
-			return $this->query_args['contentTypeNames'];
+		$query_args = $this->get_query_args();
+
+		if ( isset( $query_args['contentTypeNames'] ) && is_array( $query_args['contentTypeNames'] ) ) {
+			return $query_args['contentTypeNames'];
 		}
 
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
+		if ( isset( $query_args['name'] ) ) {
+			return [ $query_args['name'] ];
 		}
 
-		$query_args = $this->query_args;
 		return \WPGraphQL::get_allowed_post_types( 'names', $query_args );
 	}
 
