@@ -5,15 +5,9 @@ namespace WPGraphQL\Data\Connection;
  * Class EnqueuedStylesheetConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -42,10 +36,8 @@ class EnqueuedStylesheetConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		return $this->source->enqueuedStylesheetsQueue ? $this->source->enqueuedStylesheetsQueue : [];
 	}
 

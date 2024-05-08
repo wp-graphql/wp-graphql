@@ -12,6 +12,7 @@ use WPGraphQL\Utils\Utils;
  * Class PostObjectConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Query>
  */
 class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
@@ -21,13 +22,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var mixed|string|string[]
 	 */
 	protected $post_type;
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var \WP_Query|object
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
@@ -75,18 +69,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return \WP_Query|object
+	 */
+	protected function query_class(): string {
+		return \WP_Query::class;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation If the query has been modified to suppress_filters.
 	 */
-	public function get_query() {
-		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_Query';
-
-		$query = new $queryClass( $this->query_args );
+	protected function query( array $query_args ) {
+		$query = parent::query( $query_args );
 
 		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
 			throw new InvariantViolation( esc_html__( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
@@ -99,7 +93,13 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		$ids = ! empty( $this->query->posts ) ? $this->query->posts : [];
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$query = isset( $this->query ) ? $this->query : $this->get_query();
+
+		/** @var int[] */
+		$ids = ! empty( $query->posts ) ? $query->posts : [];
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();

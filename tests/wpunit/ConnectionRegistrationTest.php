@@ -1,5 +1,8 @@
 <?php
 
+use WPGraphQL\Data\Connection\ContentTypeConnectionResolver;
+use WPGraphQL\Data\Connection\PostObjectConnectionResolver;
+
 class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public $connection_config;
 
@@ -765,6 +768,193 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 				$this->expectedField( 'connectionWithConfig', self::IS_NULL ),
 			]
 		);
+	}
+
+
+	public function testWithSetQueryClassWhenNotSupported() : void {
+		$config = [
+			'fromType'      => 'RootQuery',
+			'toType'        => 'ContentType',
+			'fromFieldName' => 'testConnection',
+			'resolve'       => function ( $source, $args, $context, $info ) {
+				$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
+
+				$resolver->set_query_class( 'WP_Query' );
+
+				return $resolver->get_connection();
+			},
+		];
+
+		register_graphql_connection( $config );
+
+		$query = '
+			query {
+				testConnection {
+					nodes {
+						id
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringEndsWith( 'should not use a query class, but is attempting to use the WP_Query query class.', $actual['errors'][0]['debugMessage'] );
+	}
+
+	public function testWithCustomSetQueryClass() : void {
+		require_once __DIR__ . '/../_data/classes/WP_Query_Custom.php';
+
+		$post_ids = $this->factory()->post->create_many( 2 );
+
+		$query = '
+			query {
+				testConnection {
+					nodes {
+						__typename
+					}
+				}
+			}
+		';
+
+		// Test that empty query class still resolves
+		$config = [
+			'fromType'           => 'RootQuery',
+			'toType'             => 'Post',
+			'fromFieldName'      => 'testConnection',
+			'connectionTypeName' => 'CustomQueryClassConnection',
+			'resolve'            => function ( $source, $args, $context, $info ) {
+				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
+
+				$resolver->set_query_class( WP_Query_Custom::class );
+
+				return $resolver->get_connection();
+			},
+		];
+
+		register_graphql_connection( $config );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['testConnection']['nodes'] );
+
+
+		// cleanup
+		foreach ( $post_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+	}
+
+	public function testWithEmptySetQueryClass() : void {
+		$post_ids = $this->factory()->post->create_many( 2 );
+
+		$query = '
+			query {
+				testConnection {
+					nodes {
+						__typename
+					}
+				}
+			}
+		';
+
+		// Test that empty query class still resolves
+		$config = [
+			'fromType'           => 'RootQuery',
+			'toType'             => 'Post',
+			'fromFieldName'      => 'testConnection',
+			'connectionTypeName' => 'EmptyQueryClassConnection',
+			'resolve'            => function ( $source, $args, $context, $info ) {
+				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
+
+				$resolver->set_query_class( '' );
+
+				return $resolver->get_connection();
+			},
+		];
+
+		register_graphql_connection( $config );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertCount( 2, $actual['data']['testConnection']['nodes'] );
+
+
+		// cleanup
+		foreach ( $post_ids as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+	}
+
+	public function testWithNonExistentSetQueryClass() : void {
+		$query = '
+			query {
+				testConnection {
+					nodes {
+						__typename
+					}
+				}
+			}
+		';
+
+		$config = [
+			'fromType'           => 'RootQuery',
+			'toType'             => 'Post',
+			'fromFieldName'      => 'testConnection',
+			'connectionTypeName' => 'NonExistentQueryClassConnection',
+			'resolve'            => function ( $source, $args, $context, $info ) {
+				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
+
+				$resolver->set_query_class( 'NonExistentQueryClass' );
+
+				return $resolver->get_connection();
+			},
+		];
+
+		register_graphql_connection( $config );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertEquals( 'The query class NonExistentQueryClass does not exist.', $actual['errors'][0]['debugMessage'] );
+	}
+
+	public function testWithIncompatibleSetQueryClass() : void {
+		require_once __DIR__ . '/../_data/classes/WP_Query_Incompatible.php';
+
+		$query = '
+			query {
+				testConnection {
+					nodes {
+						__typename
+					}
+				}
+			}
+		';
+
+		$config = [
+			'fromType'           => 'RootQuery',
+			'toType'             => 'Post',
+			'fromFieldName'      => 'testConnection',
+			'connectionTypeName' => 'NonExistentQueryClassConnection',
+			'resolve'            => function ( $source, $args, $context, $info ) {
+				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
+
+				$resolver->set_query_class( WP_Query_Incompatible::class );
+
+				return $resolver->get_connection();
+			},
+		];
+
+		register_graphql_connection( $config );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringStartsWith( 'The query class WP_Query_Incompatible is not compatible with', $actual['errors'][0]['debugMessage'] );
 	}
 
 	protected function assertValidTypes( $actual ): void {

@@ -4,20 +4,14 @@ namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
 use WPGraphQL\Utils\Utils;
-use WP_Comment_Query;
 
 /**
  * Class CommentConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Comment_Query>
  */
 class CommentConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var \WP_Comment_Query
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
@@ -129,7 +123,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ids';
 
 		/**
-		 * Filter the query_args that should be applied to the query.
+		 * Filters the query args used by the connection.
 		 *
 		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
 		 * @param mixed                                $source     source passed down from the resolve tree
@@ -144,12 +138,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return \WP_Comment_Query
-	 * @throws \Exception
 	 */
-	public function get_query() {
-		return new WP_Comment_Query( $this->get_query_args() );
+	protected function query_class(): string {
+		return \WP_Comment_Query::class;
 	}
 
 	/**
@@ -163,8 +154,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried  = isset( $this->query ) ? $this->query : $this->get_query();
+		$comments = $queried->get_comments();
+
 		/** @var int[]|string[] $ids */
-		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+		$ids = ! empty( $comments ) ? $comments : [];
 
 		// If we're going backwards, we need to reverse the array.
 		$args = $this->get_args();

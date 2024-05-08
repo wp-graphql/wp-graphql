@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Data\Connection;
 
-use Exception;
 use GraphQL\Deferred;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -15,6 +15,12 @@ use WPGraphQL\Model\Post;
  * Individual Connection Resolvers should extend this to make returning data in proper shape for Relay-compliant connections easier, ensure data is passed through consistent filters, etc.
  *
  * @package WPGraphQL\Data\Connection
+ *
+ * The template type `TQueryClass` is used by static analysis tools to correctly typehint the query class used by the Connection Resolver.
+ * Classes that extend `AbstractConnectionResolver` should add `@extends @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\MY_QUERY_CLASS>` to the class dockblock to get proper hinting.
+ * E.g. `@extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Term_Query>`
+ *
+ * @template TQueryClass
  */
 abstract class AbstractConnectionResolver {
 	/**
@@ -98,7 +104,16 @@ abstract class AbstractConnectionResolver {
 	public $one_to_one = false;
 
 	/**
-	 * The Query class/array/object used to fetch the data.
+	 * The class name of the query to instantiate. Set to `null` if the Connection Resolver does not rely on a query class to fetch data.
+	 *
+	 * Examples `WP_Query`, `WP_Comment_Query`, `WC_Query`, `/My/Namespaced/CustomQuery`, etc.
+	 *
+	 * @var ?class-string<TQueryClass>
+	 */
+	protected $query_class;
+
+	/**
+	 * The instantiated query array/object used to fetch the data.
 	 *
 	 * Examples:
 	 *   return new WP_Query( $this->get_query_args() );
@@ -109,7 +124,9 @@ abstract class AbstractConnectionResolver {
 	 * have context from what was queried and can make adjustments as needed, such
 	 * as exposing `totalCount` in pageInfo, etc.
 	 *
-	 * @var mixed[]|object|mixed
+	 * Filterable by `graphql_connection_pre_get_query` and `graphql_connection_query`.
+	 *
+	 * @var ?TQueryClass
 	 */
 	protected $query;
 
@@ -164,8 +181,6 @@ abstract class AbstractConnectionResolver {
 	 * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
 	 * @param \WPGraphQL\AppContext                $context The app context that gets passed down the resolve tree.
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info    Info about fields passed down the resolve tree.
-	 *
-	 * @throws \Exception
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info ) {
 		// Set the source (the root object), context, resolveInfo, and unfiltered args for the resolver.
@@ -214,6 +229,11 @@ abstract class AbstractConnectionResolver {
 		 * @param array<string,mixed>                                   $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
 		 */
 		$this->query_args = apply_filters( 'graphql_connection_query_args', $this->get_query_args(), $this, $this->get_unfiltered_args() );
+
+		// Get the query class for the connection.
+		$this->query_class = $this->get_query_class();
+
+		// The rest of the class properties are set when `$this->get_connection()` is called.
 	}
 
 	/**
@@ -239,12 +259,12 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return array<string,mixed>
 	 *
-	 * @throws \Exception If the method is not implemented.
+	 * @throws \GraphQL\Error\InvariantViolation If the method is not implemented.
 	 *
 	 * @codeCoverageIgnore
 	 */
 	protected function prepare_query_args( array $args ): array {
-		throw new Exception(
+		throw new InvariantViolation(
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
 				esc_html__( 'Class %s does not implement a valid method `prepare_query_args()`.', 'wp-graphql' ),
@@ -252,19 +272,6 @@ abstract class AbstractConnectionResolver {
 			)
 		);
 	}
-
-	/**
-	 * Get_query
-	 *
-	 * The Query used to get items from the database (or even external datasource) are all
-	 * different.
-	 *
-	 * Each connection resolver should be responsible for defining the Query object that
-	 * is used to fetch items.
-	 *
-	 * @return mixed
-	 */
-	abstract public function get_query();
 
 	/**
 	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
@@ -325,6 +332,58 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * The default query class to use for the connection.
+	 *
+	 * Should return null if the resolver does not use a query class to fetch the data.
+	 *
+	 * @return ?class-string<TQueryClass>
+	 */
+	protected function query_class(): ?string {
+		return null;
+	}
+
+	/**
+	 * Validates the query class. Will be ignored if the Connection Resolver does not use a query class.
+	 *
+	 * By default this checks if the query class has a `query()` method. If the query class requires the `query()` method to be named something else (e.g. $query_class->get_results()` ) this method should be overloaded.
+	 *
+	 * @param string $query_class The query class to validate.
+	 */
+	protected function is_valid_query_class( string $query_class ): bool {
+		return method_exists( $query_class, 'query' );
+	}
+
+	/**
+	 * Executes the query and returns the results.
+	 *
+	 * Usually, the returned value is an instantiated `$query_class` (e.g. `WP_Query`), but it can be any collection of data. The `get_ids_from_query()` method will be used to extract the IDs from the returned value.
+	 *
+	 * If the resolver does not rely on a query class, this should be overloaded to return the data directly.
+	 *
+	 * @param array<string,mixed> $query_args The query args to use to query the data.
+	 *
+	 * @return TQueryClass
+	 *
+	 * @throws \GraphQL\Error\InvariantViolation If the query class is not valid.
+	 */
+	protected function query( array $query_args ) {
+		// If there is no query class, we need the child class to overload this method.
+		$query_class = $this->get_query_class();
+
+		if ( empty( $query_class ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					// translators: %s is the name of the connection resolver class.
+					esc_html__( 'The %s class does not rely on a query class. Please define a `query()` method to return the data directly.', 'wp-graphql' ),
+					static::class
+				)
+			);
+		}
+
+		return new $query_class( $query_args );
+	}
+
+	/**
 	 * Return an array of ids from the query
 	 *
 	 * Each Query class in WP and potential datasource handles this differently, so each connection
@@ -336,12 +395,12 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @throws \Exception If child class forgot to implement this.
+	 * @throws \GraphQL\Error\InvariantViolation If child class forgot to implement this.
 	 *
 	 * @return int[]|string[] the array of IDs.
 	 */
 	public function get_ids_from_query() {
-		throw new Exception(
+		throw new InvariantViolation(
 			sprintf(
 				// translators: %s is the name of the connection resolver class.
 				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
@@ -437,7 +496,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return string
 	 *
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	public function get_loader_name() {
 		// Only initialize the loader_name property once.
@@ -446,7 +505,7 @@ abstract class AbstractConnectionResolver {
 
 			// This is a b/c check because `loader_name()` is not abstract.
 			if ( empty( $name ) ) {
-				throw new \Exception(
+				throw new InvariantViolation(
 					sprintf(
 						// translators: %s is the name of the connection resolver class.
 						esc_html__( 'Class %s does not implement a valid method `loader_name()`.', 'wp-graphql' ),
@@ -466,7 +525,7 @@ abstract class AbstractConnectionResolver {
 
 			// Bail if the loader name is invalid.
 			if ( empty( $name ) || ! is_string( $name ) ) {
-				throw new \Exception( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
+				throw new InvariantViolation( esc_html__( 'The Connection Resolver needs to define a loader name', 'wp-graphql' ) );
 			}
 
 			$this->loader_name = $name;
@@ -505,7 +564,6 @@ abstract class AbstractConnectionResolver {
 	 * If the amount requested is greater than the max query amount, a debug message will be included in the GraphQL response.
 	 *
 	 * @return int
-	 * @throws \Exception
 	 */
 	public function get_query_amount() {
 		if ( ! isset( $this->query_amount ) ) {
@@ -564,6 +622,36 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Gets the query class to be instantiated by the `query()` method.
+	 *
+	 * If null, the `query()` method will be overloaded to return the data.
+	 *
+	 * @return ?class-string<TQueryClass>
+	 */
+	public function get_query_class(): ?string {
+		if ( ! isset( $this->query_class ) ) {
+			$default_query_class = $this->query_class();
+
+			// Attempt to get the query class from the context.
+			$context = $this->get_context();
+
+			$query_class = ! empty( $context->queryClass ) ? $context->queryClass : $default_query_class;
+
+			/**
+			 * Filters the `$query_class` that will be used to execute the query.
+			 *
+			 * This is useful for replacing the default query (e.g `WP_Query` ) with a custom one (E.g. `WP_Term_Query` or WooCommerce's `WC_Query`).
+			 *
+			 * @param ?class-string<TQueryClass> $query_class The query class to be used with the executable query to get data. `null` if the AbstractConnectionResolver does not use a query class.
+			 * @param self        $resolver    Instance of the AbstractConnectionResolver
+			 */
+			$this->query_class = apply_filters( 'graphql_connection_query_class', $query_class, $this );
+		}
+
+		return $this->query_class;
+	}
+
+	/**
 	 * Returns whether the connection should execute.
 	 *
 	 * If conditions are met that should prevent the execution, we can bail from resolving early, before the query is executed.
@@ -575,6 +663,35 @@ abstract class AbstractConnectionResolver {
 		}
 
 		return $this->should_execute;
+	}
+
+	/**
+	 * Gets the results of the executed query.
+	 *
+	 * @return TQueryClass
+	 */
+	public function get_query() {
+		if ( ! isset( $this->query ) ) {
+			/**
+			 * When this filter returns anything but null, it will be used as the resolved query, and the default query execution will be skipped.
+			 *
+			 * @param null $query               The query to return. Return null to use the default query execution.
+			 * @param self $resolver The connection resolver instance.
+			 */
+			$query = apply_filters( 'graphql_connection_pre_get_query', null, $this );
+
+			if ( null === $query ) {
+
+				// Validates the query class before it is used in the query() method.
+				$this->validate_query_class();
+
+				$query = $this->query( $this->get_query_args() );
+			}
+
+			$this->query = $query;
+		}
+
+		return $this->query;
 	}
 
 	/**
@@ -599,8 +716,6 @@ abstract class AbstractConnectionResolver {
 	 * @uses AbstractConnectionResolver::get_ids_for_nodes()
 	 *
 	 * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
-	 *
-	 * @throws \Exception
 	 */
 	public function get_nodes() {
 		if ( ! isset( $this->nodes ) ) {
@@ -666,13 +781,20 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Given a key and value, this sets a query_arg which will modify the query_args used by
-	 * the connection resolvers get_query();
+	 * ===============================
+	 * Public setters
+	 *
+	 * These are used to directly modify the instance properties from outside the class.
+	 * ===============================
+	 */
+
+	/**
+	 * Given a key and value, this sets a query_arg which will modify the query_args used by ::get_query();
 	 *
 	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
 	 *
-	 * @return self
+	 * @return static
 	 */
 	public function set_query_arg( $key, $value ) {
 		$this->query_args[ $key ] = $value;
@@ -681,9 +803,22 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Overloads the query_class which will be used to instantiate the query.
+	 *
+	 * @param class-string<TQueryClass> $query_class The class to use for the query. If empty, this will reset to the default query class.
+	 *
+	 * @return static
+	 */
+	public function set_query_class( string $query_class ) {
+		$this->query_class = $query_class ?: $this->query_class();
+
+		return $this;
+	}
+
+	/**
 	 * Whether the connection should resolve as a one-to-one connection.
 	 *
-	 * @return self
+	 * @return static
 	 */
 	public function one_to_one() {
 		$this->one_to_one = true;
@@ -790,11 +925,17 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * =====================
+	 * Resolver lifecycle methods
+	 *
+	 * These methods are used internally by the class to resolve the connection. They rarely should be overloaded by the child class, but if you do, make sure to preserve any WordPress hooks included in the parent method.
+	 * =====================
+	 */
+
+	/**
 	 * Get the connection to return to the Connection Resolver
 	 *
 	 * @return \GraphQL\Deferred
-	 *
-	 * @throws \Exception
 	 */
 	public function get_connection() {
 		$this->execute_and_get_ids();
@@ -864,8 +1005,6 @@ abstract class AbstractConnectionResolver {
 	 * Execute the resolver query and get the data for the connection
 	 *
 	 * @return int[]|string[]
-	 *
-	 * @throws \Exception
 	 */
 	public function execute_and_get_ids() {
 		/**
@@ -904,6 +1043,8 @@ abstract class AbstractConnectionResolver {
 		 * the query to that instead of a native WP_Query class. You could override this with a
 		 * query to that datasource instead.
 		 *
+		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
+		 *
 		 * @param mixed                      $query               Instance of the Query for the resolver
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
@@ -931,6 +1072,68 @@ abstract class AbstractConnectionResolver {
 		return $this->ids;
 	}
 
+	/**
+	 * Validates the $query_class set on the resolver.
+	 *
+	 * This runs before the query is executed to ensure that the query class is valid.
+	 *
+	 * @throws \GraphQL\Error\InvariantViolation If the query class is invalid.
+	 */
+	protected function validate_query_class(): void {
+		$default_query_class = $this->query_class();
+		$query_class         = $this->get_query_class();
+
+		// If the default query class is null, then the resolver should not use a query class.
+		if ( null === $default_query_class ) {
+			// If the query class is null, then we're good.
+			if ( null === $query_class ) {
+				return;
+			}
+
+			throw new InvariantViolation(
+				sprintf(
+					// translators: %1$s: The name of the class that should not use a query class. %2$s: The name of the query class that is set by the resolver.
+					esc_html__( 'Class %1$s should not use a query class, but is attempting to use the %2$s query class.', 'wp-graphql' ),
+					static::class,
+					esc_html( $query_class )
+				)
+			);
+		}
+
+		// If there's no query class set, throw an error.
+		if ( null === $query_class ) {
+			throw new InvariantViolation(
+				sprintf(
+					// translators: %s: The connection resolver class name.
+					esc_html__( '%s requires a query class, but no query class is set.', 'wp-graphql' ),
+					static::class
+				)
+			);
+		}
+
+		// If the class is invalid, throw an error.
+		if ( ! class_exists( $query_class ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					// translators: %s: The name of the query class that is set by the resolver.
+					esc_html__( 'The query class %s does not exist.', 'wp-graphql' ),
+					esc_html( $query_class )
+				)
+			);
+		}
+
+		// If the class is not compatible with our AbstractConnectionResolver::query() method, throw an error.
+		if ( ! $this->is_valid_query_class( $query_class ) ) {
+			throw new InvariantViolation(
+				sprintf(
+					// translators: %1$s: The name of the query class that is set by the resolver. %2$s: The name of the resolver class.
+					esc_html__( 'The query class %1$s is not compatible with %2$s.', 'wp-graphql' ),
+					esc_html( $this->query_class ?? 'unknown-class' ),
+					static::class
+				)
+			);
+		}
+	}
 
 	/**
 	 * Returns an array slice of IDs, per the Relay Cursor Connection spec.
@@ -1057,7 +1260,6 @@ abstract class AbstractConnectionResolver {
 	 * @param int|string|mixed $id The ID to identify the object by. Could be a database ID or an in-memory ID (like post_type name)
 	 *
 	 * @return mixed|\WPGraphQL\Model\Model|null
-	 * @throws \Exception
 	 */
 	public function get_node_by_id( $id ) {
 		return $this->get_loader()->load( $id );
@@ -1280,7 +1482,7 @@ abstract class AbstractConnectionResolver {
 	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
 	 *
-	 * @return \WPGraphQL\Data\Connection\AbstractConnectionResolver
+	 * @return static
 	 *
 	 * @deprecated 0.3.0
 	 *
@@ -1366,7 +1568,6 @@ abstract class AbstractConnectionResolver {
 	 * @deprecated 1.24.0 in favor of $this->get_loader().
 	 *
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 * @throws \Exception
 	 */
 	protected function getLoader() {
 		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_loader()' );
