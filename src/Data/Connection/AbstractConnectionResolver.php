@@ -126,14 +126,14 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The nodes (usually GraphQL models) returned from the query.
 	 *
-	 * @var \WPGraphQL\Model\Model[]|mixed[]
+	 * @var \WPGraphQL\Model\Model[]|mixed[]|null
 	 */
 	protected $nodes;
 
 	/**
 	 * The edges for the connection.
 	 *
-	 * @var array<string,mixed>[]
+	 * @var ?array<string,mixed>[]
 	 */
 	protected $edges;
 
@@ -558,19 +558,11 @@ abstract class AbstractConnectionResolver {
 	 * @throws \Exception
 	 */
 	public function get_nodes() {
-		$nodes = [];
-
-		// These are already sliced and ordered, we're just populating node data.
-		$ids = $this->get_ids_for_nodes();
-
-		foreach ( $ids as $id ) {
-			$model = $this->get_node_by_id( $id );
-			if ( true === $this->get_is_valid_model( $model ) ) {
-				$nodes[ $id ] = $model;
-			}
+		if ( ! isset( $this->nodes ) ) {
+			$this->nodes = $this->prepare_nodes();
 		}
 
-		return $nodes;
+		return $this->nodes;
 	}
 
 	/**
@@ -579,43 +571,11 @@ abstract class AbstractConnectionResolver {
 	 * @return array<string,mixed>[]
 	 */
 	public function get_edges() {
-		// Bail early if there are no nodes.
-		if ( empty( $this->nodes ) ) {
-			return [];
+		if ( ! isset( $this->edges ) ) {
+			$this->edges = $this->prepare_edges( $this->get_nodes() );
 		}
 
-		$edges = [];
-
-		// The nodes are already ordered, sliced, and populated. What's left is to populate the edge data for each one.
-		foreach ( $this->nodes as $id => $node ) {
-			$edge = [
-				'cursor'     => $this->get_cursor_for_node( $id ),
-				'node'       => $node,
-				'source'     => $this->source,
-				'connection' => $this,
-			];
-
-			/**
-			 * Create the edge, pass it through a filter.
-			 *
-			 * @param array<string,mixed>                                   $edge                The edge within the connection
-			 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the connection resolver class
-			 */
-			$edge = apply_filters(
-				'graphql_connection_edge',
-				$edge,
-				$this
-			);
-
-			/**
-			 * If not empty, add the edge to the edges
-			 */
-			if ( ! empty( $edge ) ) {
-				$edges[] = $edge;
-			}
-		}
-
-		return $edges;
+		return $this->edges;
 	}
 
 	/**
@@ -809,22 +769,28 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * Filters the nodes in the connection
 				 *
-				 * @param array<int|string,mixed|\WPGraphQL\Model\Model|null>   $nodes               The nodes in the connection
-				 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
+				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
+				 *
+				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
+				 * @param self                                 $resolver Instance of the Connection Resolver
 				 */
 				$this->nodes = apply_filters( 'graphql_connection_nodes', $this->get_nodes(), $this );
 
 				/**
-				 * Filters the edges in the connection
+				 * Filters the edges in the connection.
 				 *
-				 * @param array<int|string,mixed|\WPGraphQL\Model\Model|null>   $nodes               The nodes in the connection
-				 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
+				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
+				 *
+				 * @param array<string,mixed> $edges    The edges in the connection
+				 * @param self                $resolver Instance of the Connection Resolver
 				 */
 				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
+				// @todo: we should also shortcircuit fetching/populating the actual nodes/edges if we only need one result.
 				if ( true === $this->one_to_one ) {
 					// For one to one connections, return the first edge.
-					$connection = ! empty( $this->edges[ array_key_first( $this->edges ) ] ) ? $this->edges[ array_key_first( $this->edges ) ] : null;
+					$first_edge_key = array_key_first( $this->edges );
+					$connection     = isset( $first_edge_key ) && ! empty( $this->edges[ $first_edge_key ] ) ? $this->edges[ $first_edge_key ] : null;
 				} else {
 					// For plural connections (default) return edges/nodes/pageInfo
 					$connection = [
@@ -840,8 +806,8 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * This filter allows additional fields to be returned to the connection resolver
 				 *
-				 * @param array<string,mixed>                                   $connection          The connection data being returned
-				 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver The instance of the connection resolver
+				 * @param ?array<string,mixed> $connection          The connection data being returned. A single edge or null if the connection is one-to-one.
+				 * @param self                 $resolver The instance of the connection resolver
 				 */
 				return apply_filters( 'graphql_connection', $connection, $this );
 			}
@@ -979,6 +945,29 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Prepares the nodes for the connection.
+	 *
+	 * @used-by self::get_nodes()
+	 *
+	 * @return array<int|string,mixed|\WPGraphQL\Model\Model|null>
+	 */
+	protected function prepare_nodes(): array {
+		$nodes = [];
+
+		// These are already sliced and ordered, we're just populating node data.
+		$ids = $this->get_ids_for_nodes();
+
+		foreach ( $ids as $id ) {
+			$model = $this->get_node_by_id( $id );
+			if ( true === $this->get_is_valid_model( $model ) ) {
+				$nodes[ $id ] = $model;
+			}
+		}
+
+		return $nodes;
+	}
+
+	/**
 	 * Gets the IDs for the currently-paginated slice of nodes.
 	 *
 	 * We slice the array to match the amount of items that was asked for, as we over-fetched by 1 item to calculate pageInfo.
@@ -1033,6 +1022,62 @@ abstract class AbstractConnectionResolver {
 		return apply_filters( 'graphql_connection_is_valid_model', $is_valid, $model, $this );
 	}
 
+	/**
+	 * Prepares the edges for the connection.
+	 *
+	 * @used-by self::get_edges()
+	 *
+	 * @param array<int|string,mixed|\WPGraphQL\Model\Model|null> $nodes The nodes for the connection.
+	 *
+	 * @return array<string,mixed>[]
+	 */
+	protected function prepare_edges( array $nodes ): array {
+		// Bail early if there are no nodes.
+		if ( empty( $nodes ) ) {
+			return [];
+		}
+
+		// The nodes are already ordered, sliced, and populated. What's left is to populate the edge data for each one.
+		$edges = [];
+		foreach ( $nodes as $id => $node ) {
+			$edge = $this->prepare_edge( $id, $node );
+
+			/**
+			 * Filter the edge within the connection.
+			 *
+			 * @param array<string,mixed> $edge     The edge within the connection
+			 * @param self                $resolver Instance of the connection resolver class
+			 */
+			$edge = apply_filters(
+				'graphql_connection_edge',
+				$edge,
+				$this
+			);
+
+			$edges[] = $edge;
+		}
+
+		return $edges;
+	}
+
+	/**
+	 * Prepares a single edge for the connection.
+	 *
+	 * @used-by self::prepare_edges()
+	 *
+	 * @param int|string                        $id   The ID of the node.
+	 * @param mixed|\WPGraphQL\Model\Model|null $node The node for the edge.
+	 *
+	 * @return array<string,mixed>
+	 */
+	protected function prepare_edge( $id, $node ): array {
+		return [
+			'cursor'     => $this->get_cursor_for_node( $id ),
+			'node'       => $node,
+			'source'     => $this->get_source(),
+			'connection' => $this,
+		];
+	}
 
 	/**
 	 * Given an ID, a cursor is returned.
