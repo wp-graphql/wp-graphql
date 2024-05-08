@@ -22,26 +22,26 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
-		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $args['last'] ) ? $args['last'] : null;
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
-		$query_args            = parent::get_query_args();
+		$query_args            = parent::prepare_query_args( $args );
 		$query_args['orderby'] = 'menu_order';
 		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
 
-		if ( isset( $this->args['where']['parentDatabaseId'] ) ) {
+		if ( isset( $args['where']['parentDatabaseId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';
-			$query_args['meta_value'] = (int) $this->args['where']['parentDatabaseId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			$query_args['meta_value'] = (int) $args['where']['parentDatabaseId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
-		if ( ! empty( $this->args['where']['parentId'] ) || ( isset( $this->args['where']['parentId'] ) && 0 === (int) $this->args['where']['parentId'] ) ) {
+		if ( ! empty( $args['where']['parentId'] ) || ( isset( $args['where']['parentId'] ) && 0 === (int) $args['where']['parentId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';
-			$query_args['meta_value'] = $this->args['where']['parentId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			$query_args['meta_value'] = $args['where']['parentId']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		}
 
 		// Get unique list of location term IDs as the default limitation of locations to allow public queries for.
@@ -49,8 +49,8 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$locations = is_array( $menu_locations ) && ! empty( $menu_locations ) ? array_unique( array_values( $menu_locations ) ) : [];
 
 		// If the location argument is set, set the argument to the input argument
-		if ( ! empty( $this->args['where']['location'] ) ) {
-			$locations = isset( $menu_locations[ $this->args['where']['location'] ] ) ? [ $menu_locations[ $this->args['where']['location'] ] ] : []; // We use an empty array to prevent fetching all media items if the location has no items assigned.
+		if ( ! empty( $args['where']['location'] ) ) {
+			$locations = isset( $menu_locations[ $args['where']['location'] ] ) ? [ $menu_locations[ $args['where']['location'] ] ] : []; // We use an empty array to prevent fetching all media items if the location has no items assigned.
 
 		} elseif ( current_user_can( 'edit_theme_options' ) ) {
 			// If the $locations are NOT set, let a user with proper capability query all menu items.
@@ -79,9 +79,7 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_args(): array {
-		$args = $this->get_unfiltered_args();
-
+	protected function prepare_args( array $args ): array {
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
 			foreach ( $args['where'] as $input_key => $input_value ) {

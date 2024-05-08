@@ -18,7 +18,7 @@ Below are some links to help you get started with WPGraphQL
 - <a href="https://wpgraphql.com/docs/quick-start" target="_blank">Quick Start Guide</a>
 - <a href="https://wpgraphql.com/docs/intro-to-graphql" target="_blank">Intro to GraphQL</a>
 - <a href="https://wpgraphql.com/docs/intro-to-wordpress" target="_blank">Intro to WordPress</a>
-- <a href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA" target="_blank">Join the WPGraphQL community on Slack</a>
+- <a href="https://discord.gg/AGVBqqyaUY" target="_blank">Join the WPGraphQL community on Discord</a>
 
 = Build rich JavaScript applications with WordPress and GraphQL =
 

@@ -9,23 +9,18 @@ use WPGraphQL\Model\User;
  *
  * @package WPGraphQL\Data\Resolvers
  * @since   0.0.5
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class UserRoleConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
 
 		// Given a list of role slugs
-		if ( isset( $this->query_args['slugIn'] ) ) {
-			return $this->query_args['slugIn'];
+		$query_args = $this->get_query_args();
+		if ( isset( $query_args['slugIn'] ) ) {
+			return $query_args['slugIn'];
 		}
 
 		$ids     = [];
@@ -45,17 +40,15 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection
 		return [];
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		$wp_roles = wp_roles();
 
 		return ! empty( $wp_roles->get_names() ) ? array_keys( $wp_roles->get_names() ) : [];
