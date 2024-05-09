@@ -21,7 +21,6 @@ use WPGraphQL\Utils\Preview;
  */
 final class WPGraphQL {
 
-
 	/**
 	 * Stores the instance of the WPGraphQL class
 	 *
