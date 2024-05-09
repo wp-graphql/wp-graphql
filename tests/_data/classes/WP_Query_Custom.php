@@ -62,7 +62,6 @@ class WP_Query_Custom {
 		return $this->query->$name;
 	}
 
-
 		/**
 	 * Forwards function calls to WP_Query instance.
 	 *

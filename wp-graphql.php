@@ -53,7 +53,6 @@ function graphql_require_bootstrap_files(): void {
 	}
 }
 
-
 /**
  * Determines if the plugin can load.
  *

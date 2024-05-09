@@ -244,7 +244,6 @@ abstract class AbstractConnectionResolver {
 		// The rest of the class properties are set when `$this->get_connection()` is called.
 	}
 
-
 	/**
 	 * ====================
 	 * Required/Abstract Methods
