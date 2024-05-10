@@ -133,12 +133,16 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * @var mixed[]
 	 *
-	 * @deprecated @todo This is an artifact and is unused. It will be removed in a future release.
+	 * @deprecated 1.26.0 This is an artifact and is unused. It will be removed in a future release.
 	 */
 	protected $items;
 
 	/**
 	 * The IDs returned from the query.
+	 *
+	 * The IDs are sliced to confirm with the pagination args, and overfetched by one.
+	 *
+	 * Filterable by `graphql_connection_ids`.
 	 *
 	 * @var int[]|string[]|null
 	 */
@@ -147,12 +151,16 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * The nodes (usually GraphQL models) returned from the query.
 	 *
+	 * Filterable by `graphql_connection_nodes`.
+	 *
 	 * @var \WPGraphQL\Model\Model[]|mixed[]|null
 	 */
 	protected $nodes;
 
 	/**
 	 * The edges for the connection.
+	 *
+	 * Filterable by `graphql_connection_edges`.
 	 *
 	 * @var ?array<string,mixed>[]
 	 */
@@ -237,6 +245,16 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * ====================
+	 * Required/Abstract Methods
+	 *
+	 * These methods must be implemented or overloaded in the extending class.
+	 *
+	 * The reason not all methods are abstract is to prevent backwards compatibility issues.
+	 * ====================
+	 */
+
+	/**
 	 * The name of the loader to use for this connection.
 	 *
 	 * Filterable by `graphql_connection_loader_name`.
@@ -274,6 +292,31 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
+	 * Return an array of ids from the query
+	 *
+	 * Each Query class in WP and potential datasource handles this differently,
+	 * so each connection resolver should handle getting the items into a uniform array of items.
+	 *
+	 * @todo: This is not an abstract function to prevent backwards compatibility issues, so it instead throws an exception.
+	 *
+	 * Classes that extend AbstractConnectionResolver should
+	 * override this method instead of ::get_ids().
+	 *
+	 * @since 1.9.0
+	 *
+	 * @throws \GraphQL\Error\InvariantViolation If child class forgot to implement this.
+	 * @return int[]|string[] the array of IDs.
+	 */
+	public function get_ids_from_query() {
+		throw new InvariantViolation(
+			sprintf(
+				// translators: %s is the name of the connection resolver class.
+				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
+				static::class
+			)
+		);
+	}
+	/**
 	 * Determine whether or not the the offset is valid, i.e the item corresponding to the offset exists.
 	 *
 	 * Offset is equivalent to WordPress ID (e.g post_id, term_id). So this is equivalent to checking if the WordPress object exists for the given ID.
@@ -283,6 +326,14 @@ abstract class AbstractConnectionResolver {
 	 * @return bool
 	 */
 	abstract public function is_valid_offset( $offset );
+
+	/**
+	 * ====================
+	 * The following methods handle the underlying behavior of the connection, and are intended to be overloaded by the child class.
+	 *
+	 * These methods are wrapped in getters which apply the filters and set the properties of the class instance.
+	 * ====================
+	 */
 
 	/**
 	 * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
@@ -384,32 +435,6 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Return an array of ids from the query
-	 *
-	 * Each Query class in WP and potential datasource handles this differently, so each connection
-	 * resolver should handle getting the items into a uniform array of items.
-	 *
-	 * @todo: This is not an abstract function to prevent backwards compatibility issues, so it
-	 * instead throws an exception. Classes that extend AbstractConnectionResolver should
-	 * override this method, instead of AbstractConnectionResolver::get_ids().
-	 *
-	 * @since 1.9.0
-	 *
-	 * @throws \GraphQL\Error\InvariantViolation If child class forgot to implement this.
-	 *
-	 * @return int[]|string[] the array of IDs.
-	 */
-	public function get_ids_from_query() {
-		throw new InvariantViolation(
-			sprintf(
-				// translators: %s is the name of the connection resolver class.
-				esc_html__( 'Class %s does not implement a valid method `get_ids_from_query()`.', 'wp-graphql' ),
-				static::class
-			)
-		);
-	}
-
-	/**
 	 * Determine whether or not the query should execute.
 	 *
 	 * Return true to exeucte, return false to prevent execution.
@@ -465,6 +490,16 @@ abstract class AbstractConnectionResolver {
 	protected function is_valid_model( $model ) {
 		return isset( $model->fields ) && ! empty( $model->fields );
 	}
+
+	/**
+	 * ====================
+	 * Public Getters
+	 *
+	 * These methods are used to get the properties of the class instance.
+	 *
+	 * You shouldn't need to overload these, but if you do, take care to ensure that the overloaded method applies the same filters and sets the same properties as the methods here.
+	 * ====================
+	 */
 
 	/**
 	 * Returns the source of the connection
@@ -887,10 +922,13 @@ abstract class AbstractConnectionResolver {
 		 */
 		$amount_requested = apply_filters( 'graphql_connection_default_query_amount', 10, $this );
 
+		// @todo This should use  ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
 		/**
 		 * If both first & last are used in the input args, throw an exception.
 		 */
-		if ( ! empty( $this->args['first'] ) && ! empty( $this->args['last'] ) ) {
+		if ( ! empty( $args['first'] ) && ! empty( $args['last'] ) ) {
 			throw new UserError( esc_html__( 'The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`.', 'wp-graphql' ) );
 		}
 
@@ -898,17 +936,17 @@ abstract class AbstractConnectionResolver {
 		 * Get the key to use for the query amount.
 		 * We avoid a ternary here for unit testing.
 		 */
-		$args_key = ! empty( $this->args['first'] ) && is_int( $this->args['first'] ) ? 'first' : null;
+		$args_key = ! empty( $args['first'] ) && is_int( $args['first'] ) ? 'first' : null;
 		if ( null === $args_key ) {
-			$args_key = ! empty( $this->args['last'] ) && is_int( $this->args['last'] ) ? 'last' : null;
+			$args_key = ! empty( $args['last'] ) && is_int( $args['last'] ) ? 'last' : null;
 		}
 
 		/**
 		 * If the key is set, and is a positive integer, use it for the $amount_requested
 		 * but if it's set to anything that isn't a positive integer, throw an exception
 		 */
-		if ( null !== $args_key && isset( $this->args[ $args_key ] ) ) {
-			if ( 0 > $this->args[ $args_key ] ) {
+		if ( null !== $args_key && isset( $args[ $args_key ] ) ) {
+			if ( 0 > $args[ $args_key ] ) {
 				throw new UserError(
 					sprintf(
 						// translators: %s: The name of the arg that was invalid
@@ -918,7 +956,7 @@ abstract class AbstractConnectionResolver {
 				);
 			}
 
-			$amount_requested = $this->args[ $args_key ];
+			$amount_requested = $args[ $args_key ];
 		}
 
 		return (int) $amount_requested;
@@ -946,9 +984,12 @@ abstract class AbstractConnectionResolver {
 		 */
 		return new Deferred(
 			function () {
-				if ( ! empty( $this->ids ) ) {
+				// @todo This should use ::get_ids() when b/c is not a concern.
+				$ids = $this->ids;
+
+				if ( ! empty( $ids ) ) {
 					// Load the ids.
-					$this->get_loader()->load_many( $this->ids );
+					$this->get_loader()->load_many( $ids );
 				}
 
 				/**
@@ -1023,6 +1064,7 @@ abstract class AbstractConnectionResolver {
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
 		 */
 		$this->should_execute = apply_filters( 'graphql_connection_should_execute', $should_execute, $this );
+
 		if ( false === $this->should_execute ) {
 			return [];
 		}
@@ -1153,9 +1195,12 @@ abstract class AbstractConnectionResolver {
 			return [];
 		}
 
+		// @todo This should use ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
 		// First we slice the array from the front.
-		if ( ! empty( $this->args['after'] ) ) {
-			$offset = $this->get_offset_for_cursor( $this->args['after'] );
+		if ( ! empty( $args['after'] ) ) {
+			$offset = $this->get_offset_for_cursor( $args['after'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
 
 			if ( false !== $index ) {
@@ -1165,8 +1210,8 @@ abstract class AbstractConnectionResolver {
 		}
 
 		// Then we slice the array from the back.
-		if ( ! empty( $this->args['before'] ) ) {
-			$offset = $this->get_offset_for_cursor( $this->args['before'] );
+		if ( ! empty( $args['before'] ) ) {
+			$offset = $this->get_offset_for_cursor( $args['before'] );
 			$index  = $this->get_array_index_for_offset( $offset, $ids );
 
 			if ( false !== $index ) {
@@ -1241,17 +1286,22 @@ abstract class AbstractConnectionResolver {
 	 * @return int[]|string[]
 	 */
 	public function get_ids_for_nodes() {
-		if ( empty( $this->ids ) ) {
+		// @todo This should use ::get_ids() and get_args() when b/c is not a concern.
+		$ids = $this->ids;
+
+		if ( empty( $ids ) ) {
 			return [];
 		}
 
+		$args = $this->args;
+
 		// If we're going backwards then our overfetched ID is at the front.
-		if ( ! empty( $this->args['last'] ) && count( $this->ids ) > absint( $this->args['last'] ) ) {
-			return array_slice( $this->ids, count( $this->ids ) - absint( $this->args['last'] ), $this->get_query_amount(), true );
+		if ( ! empty( $args['last'] ) && count( $ids ) > absint( $args['last'] ) ) {
+			return array_slice( $ids, count( $ids ) - absint( $args['last'] ), $this->get_query_amount(), true );
 		}
 
 		// If we're going forwards, our overfetched ID is at the back.
-		return array_slice( $this->ids, 0, $this->get_query_amount(), true );
+		return array_slice( $ids, 0, $this->get_query_amount(), true );
 	}
 
 	/**
@@ -1397,8 +1447,11 @@ abstract class AbstractConnectionResolver {
 	 * @return int|string|null
 	 */
 	public function get_after_offset() {
-		if ( ! empty( $this->args['after'] ) ) {
-			return $this->get_offset_for_cursor( $this->args['after'] );
+		// @todo This should use ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
+		if ( ! empty( $args['after'] ) ) {
+			return $this->get_offset_for_cursor( $args['after'] );
 		}
 
 		return null;
@@ -1410,8 +1463,11 @@ abstract class AbstractConnectionResolver {
 	 * @return int|string|null
 	 */
 	public function get_before_offset() {
-		if ( ! empty( $this->args['before'] ) ) {
-			return $this->get_offset_for_cursor( $this->args['before'] );
+		// @todo This should use ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
+		if ( ! empty( $args['before'] ) ) {
+			return $this->get_offset_for_cursor( $args['before'] );
 		}
 
 		return null;
@@ -1425,8 +1481,13 @@ abstract class AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function has_next_page() {
-		if ( ! empty( $this->args['first'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
+		// @todo This should use ::get_ids() and ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
+		if ( ! empty( $args['first'] ) ) {
+			$ids = $this->ids;
+
+			return ! empty( $ids ) && count( $ids ) > $this->get_query_amount();
 		}
 
 		$before_offset = $this->get_before_offset();
@@ -1446,8 +1507,13 @@ abstract class AbstractConnectionResolver {
 	 * @return bool
 	 */
 	public function has_previous_page() {
-		if ( ! empty( $this->args['last'] ) ) {
-			return ! empty( $this->ids ) && count( $this->ids ) > $this->get_query_amount();
+		// @todo This should use ::get_ids() and ::get_args() when b/c is not a concern.
+		$args = $this->args;
+
+		if ( ! empty( $args['last'] ) ) {
+			$ids = $this->ids;
+
+			return ! empty( $ids ) && count( $ids ) > $this->get_query_amount();
 		}
 
 		$after_offset = $this->get_after_offset();

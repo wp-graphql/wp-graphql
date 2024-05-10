@@ -1,5 +1,29 @@
 # Changelog
 
+= 1.26.0 =
+
+## New Features
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+    - new: `graphql_connection_pre_get_query` filter
+    - new: `AbstractConnectionResolver::is_valid_query_class()`
+    - new: `AbstractConnectionResolver::get_query()`
+    - new: `AbstractConnectionResolver::get_query_class()`
+    - new: `AsbtractConnectionResolver::query_class()`
+    - new: `AbstractConnectionResolver::$query_class`
+- [#3124](https://github.com/wp-graphql/wp-graphql/pull/3124): refactor: split `AbstractConnectionResolver::get_args()` and `::get_query_args()` into `::prepare_*()` methods
+- [#3123](https://github.com/wp-graphql/wp-graphql/pull/3123): refactor: split `AbstractConnectionResolver::get_ids()` into `::prepare_ids()`
+- [#3121](https://github.com/wp-graphql/wp-graphql/pull/3121): refactor: split `AbstractConnectionResolver::get_nodes()` and `get_edges()` into `prepare_*()` methods
+- [#3120](https://github.com/wp-graphql/wp-graphql/pull/3120): refactor: wrap `AbstractConnectionResolver::is_valid_model()` in `::get_is_valid_model()`
+
+### Chores / Bugfixes
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+    - Implement PHPStan Generic Type
+    - Update generic Exceptions to InvariantViolation
+- [#3127](https://github.com/wp-graphql/wp-graphql/pull/3127): chore: update references to the WPGraphQL Slack Community to point to the new WPGraphQL Discord community instead.
+- [#3122](https://github.com/wp-graphql/wp-graphql/pull/3122): chore: relocate `AbstractConnectionResolver::is_valid_offset()` with other abstract methods.
+- 
 ## 1.25.0
 
 ### Upgrade Notice

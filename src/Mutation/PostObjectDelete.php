@@ -9,7 +9,6 @@ use WPGraphQL\Model\Post;
 use WPGraphQL\Utils\Utils;
 use WP_Post_Type;
 
-
 class PostObjectDelete {
 	/**
 	 * Registers the PostObjectDelete mutation.

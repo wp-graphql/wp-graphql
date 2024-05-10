@@ -338,7 +338,6 @@ class QueryAnalyzer {
 		return $this->query_id;
 	}
 
-
 	/**
 	 * @param \GraphQL\Type\Definition\Type            $type The Type of field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field_def The field definition the type is for
@@ -779,7 +778,6 @@ class QueryAnalyzer {
 
 		return $this->graphql_keys;
 	}
-
 
 	/**
 	 * Return headers
