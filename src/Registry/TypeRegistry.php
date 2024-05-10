@@ -144,7 +144,6 @@ class TypeRegistry {
 	 */
 	protected $types;
 
-
 	/**
 	 * The loaders needed to register types
 	 *
@@ -170,7 +169,6 @@ class TypeRegistry {
 	 * @var string[]
 	 */
 	protected $excluded_types = null;
-
 
 	/**
 	 * Stores a list of mutation names that should be excluded from the schema, along with their generated input and payload types.

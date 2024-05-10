@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.5
 Requires PHP: 7.1
-Stable tag: 1.25.0
+Stable tag: 1.26.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -18,7 +18,7 @@ Below are some links to help you get started with WPGraphQL
 - <a href="https://wpgraphql.com/docs/quick-start" target="_blank">Quick Start Guide</a>
 - <a href="https://wpgraphql.com/docs/intro-to-graphql" target="_blank">Intro to GraphQL</a>
 - <a href="https://wpgraphql.com/docs/intro-to-wordpress" target="_blank">Intro to WordPress</a>
-- <a href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA" target="_blank">Join the WPGraphQL community on Slack</a>
+- <a href="https://discord.gg/AGVBqqyaUY" target="_blank">Join the WPGraphQL community on Discord</a>
 
 = Build rich JavaScript applications with WordPress and GraphQL =
 
@@ -86,6 +86,10 @@ Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
 == Upgrade Notice ==
+
+= 1.26.0 =
+
+This release refactors some code in the AbstractConnectionResolver with an aim at making it more efficient and easier to extend. While we believe there are no breaking changes and have tested against popular extensions such as WPGraphQL Headless Login, WPGraphQL Gravity Forms, WPGraphQL Rank Math and others, we recommend running your own tests on a staging site to confirm that there are no regresssions caused by the refactoring.
 
 = 1.25.0 =
 
@@ -265,6 +269,30 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.26.0 =
+
+**New Features**
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+  - new: `graphql_connection_pre_get_query` filter
+  - new: `AbstractConnectionResolver::is_valid_query_class()`
+  - new: `AbstractConnectionResolver::get_query()`
+  - new: `AbstractConnectionResolver::get_query_class()`
+  - new: `AsbtractConnectionResolver::query_class()`
+  - new: `AbstractConnectionResolver::$query_class`
+- [#3124](https://github.com/wp-graphql/wp-graphql/pull/3124): refactor: split `AbstractConnectionResolver::get_args()` and `::get_query_args()` into `::prepare_*()` methods
+- [#3123](https://github.com/wp-graphql/wp-graphql/pull/3123): refactor: split `AbstractConnectionResolver::get_ids()` into `::prepare_ids()`
+- [#3121](https://github.com/wp-graphql/wp-graphql/pull/3121): refactor: split `AbstractConnectionResolver::get_nodes()` and `get_edges()` into `prepare_*()` methods
+- [#3120](https://github.com/wp-graphql/wp-graphql/pull/3120): refactor: wrap `AbstractConnectionResolver::is_valid_model()` in `::get_is_valid_model()`
+
+**Chores / Bugfixes**
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+  - Implement PHPStan Generic Type
+  - Update generic Exceptions to InvariantViolation
+- [#3127](https://github.com/wp-graphql/wp-graphql/pull/3127): chore: update references to the WPGraphQL Slack Community to point to the new WPGraphQL Discord community instead.
+- [#3122](https://github.com/wp-graphql/wp-graphql/pull/3122): chore: relocate `AbstractConnectionResolver::is_valid_offset()` with other abstract methods.
 
 = 1.25.0 =
 

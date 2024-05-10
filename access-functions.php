@@ -82,7 +82,6 @@ function graphql_format_type_name( $type_name ) {
 	return str_replace( ' ', '', ucfirst( ucwords( $formatted_type_name ) ) );
 }
 
-
 /**
  * Provides a simple way to run a GraphQL query without posting a request to the endpoint.
  *
@@ -624,7 +623,6 @@ function deregister_graphql_field( string $type_name, string $field_name ) {
 		10
 	);
 }
-
 
 /**
  * Given a Connection Name, this removes the connection from the Schema

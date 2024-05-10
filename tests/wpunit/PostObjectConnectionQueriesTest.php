@@ -1839,4 +1839,33 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		wp_delete_post( $child );
 		wp_delete_post( $grandchild );
 	}
+
+	public function testIsValidModelFilter(): void {
+		$query = '
+		query {
+			posts {
+				nodes {
+					__typename
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayHasKey( 'data', $actual );
+		$this->assertNotEmpty( $actual['data']['posts']['nodes'], 'The unfiltered connection should return posts' );
+
+		add_filter( 'graphql_connection_is_valid_model', '__return_false' );
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertArrayHasKey( 'data', $actual );
+		$this->assertEmpty( $actual['data']['posts']['nodes'], 'The filtered connection should not return posts' );
+
+		// Reset the filter
+		remove_filter( 'graphql_connection_is_valid_model', '__return_false' );
+	}
 }

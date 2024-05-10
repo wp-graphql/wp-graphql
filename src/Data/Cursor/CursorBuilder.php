@@ -146,7 +146,6 @@ class CursorBuilder {
 		return sprintf( $sql, $key, $compare, $value, $nest );
 	}
 
-
 	/**
 	 * Copied from
 	 * https://github.com/WordPress/WordPress/blob/c4f8bc468db56baa2a3bf917c99cdfd17c3391ce/wp-includes/class-wp-meta-query.php#L272-L296

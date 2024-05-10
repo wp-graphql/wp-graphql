@@ -4,32 +4,25 @@ namespace WPGraphQL\Data\Connection;
 
 use GraphQL\Error\UserError;
 use WPGraphQL\Utils\Utils;
-use WP_Comment_Query;
 
 /**
  * Class CommentConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Comment_Query>
  */
 class CommentConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var \WP_Comment_Query
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * @throws \GraphQL\Error\UserError
 	 */
-	public function get_query_args() {
-
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
-		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $args['last'] ) ? $args['last'] : null;
 
 		$query_args = [];
 
@@ -56,18 +49,18 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['orderby'] = 'comment_date';
 
 		/**
-		 * Take any of the $this->args that were part of the GraphQL query and map their
+		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
 		 *
 		 * @since 0.0.5
 		 */
 		$input_fields = [];
-		if ( ! empty( $this->args['where'] ) ) {
-			$input_fields = $this->sanitize_input_fields( $this->args['where'] );
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = $this->sanitize_input_fields( $args['where'] );
 		}
 
 		/**
-		 * Merge the default $query_args with the $this->args that were entered
+		 * Merge the default $query_args with the $args that were entered
 		 * in the query.
 		 *
 		 * @since 0.0.5
@@ -113,14 +106,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['graphql_before_cursor'] = $this->get_before_offset();
 
 		/**
-		 * Pass the graphql $this->args to the WP_Query
+		 * Pass the graphql $args to the WP_Query
 		 */
-		$query_args['graphql_args'] = $this->args;
+		$query_args['graphql_args'] = $args;
 
 		// encode the graphql args as a cache domain to ensure the
 		// graphql_args are used to identify different queries.
 		// see: https://core.trac.wordpress.org/ticket/35075
-		$encoded_args               = wp_json_encode( $this->args );
+		$encoded_args               = wp_json_encode( $args );
 		$query_args['cache_domain'] = ! empty( $encoded_args ) ? 'graphql:' . md5( $encoded_args ) : 'graphql';
 
 		/**
@@ -130,8 +123,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$query_args['fields'] = 'ids';
 
 		/**
-		 * Filter the query_args that should be applied to the query. This filter is applied AFTER the input args from
-		 * the GraphQL Query have been applied and has the potential to override the GraphQL Query Input Args.
+		 * Filters the query args used by the connection.
 		 *
 		 * @param array<string,mixed>                  $query_args array of query_args being passed to the
 		 * @param mixed                                $source     source passed down from the resolve tree
@@ -141,17 +133,14 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.6
 		 */
-		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
+		return apply_filters( 'graphql_comment_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return \WP_Comment_Query
-	 * @throws \Exception
 	 */
-	public function get_query() {
-		return new WP_Comment_Query( $this->query_args );
+	protected function query_class(): string {
+		return \WP_Comment_Query::class;
 	}
 
 	/**
@@ -165,11 +154,19 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried  = isset( $this->query ) ? $this->query : $this->get_query();
+		$comments = $queried->get_comments();
+
 		/** @var int[]|string[] $ids */
-		$ids = ! empty( $this->query->get_comments() ) ? $this->query->get_comments() : [];
+		$ids = ! empty( $comments ) ? $comments : [];
 
 		// If we're going backwards, we need to reverse the array.
-		if ( ! empty( $this->args['last'] ) ) {
+		$args = $this->get_args();
+
+		if ( ! empty( $args['last'] ) ) {
 			$ids = array_reverse( $ids );
 		}
 
@@ -177,13 +174,9 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 	}
 
 	/**
-	 * Filters the GraphQL args before they are used in get_query_args().
-	 *
-	 * @return array<string,mixed>
+	 * {@inheritDoc}
 	 */
-	public function get_args(): array {
-		$args = $this->get_unfiltered_args();
-
+	protected function prepare_args( array $args ): array {
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
 			foreach ( $args['where'] as $input_key => $input_value ) {
@@ -238,8 +231,8 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array<string,mixed>                                  $args                The GraphQL args passed to the resolver.
-		 * @param \WPGraphQL\Data\Connection\CommentConnectionResolver $connection_resolver Instance of the ConnectionResolver
+		 * @param array<string,mixed> $args     The GraphQL args passed to the resolver.
+		 * @param self                $resolver Instance of the ConnectionResolver
 		 *
 		 * @since 1.11.0
 		 */
@@ -298,7 +291,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->args, $this->context, $this->info );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_comment_query', $query_args, $args, $this->source, $this->get_args(), $this->context, $this->info );
 
 		return ! empty( $query_args ) && is_array( $query_args ) ? $query_args : [];
 	}

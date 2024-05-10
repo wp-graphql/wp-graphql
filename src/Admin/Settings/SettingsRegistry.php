@@ -493,7 +493,6 @@ class SettingsRegistry {
 		echo wp_kses( $html, Utils::get_allowed_wp_kses_html() );
 	}
 
-
 	/**
 	 * Displays a select box for creating the pages select box
 	 *
