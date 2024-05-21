@@ -58,7 +58,7 @@ class SettingsRegistry {
 	 */
 	public function admin_enqueue_scripts( string $hook_suffix ) {
 
-        // if the page is not the GraphQL Settings page, bail
+		// if the page is not the GraphQL Settings page, bail
 		if ( 'graphql_page_graphql-settings' !== $hook_suffix && 'toplevel_page_graphql-settings' !== $hook_suffix ) {
 			return;
 		}
