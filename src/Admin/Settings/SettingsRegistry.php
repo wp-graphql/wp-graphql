@@ -678,7 +678,7 @@ class SettingsRegistry {
 	/**
 	 * Tabbable JavaScript codes & Initiate Color Picker
 	 *
-	 * This code uses localstorage for displaying active tabs
+	 * This code uses query arguments and localstorage for displaying active tabs
 	 *
 	 * @return void
 	 */
@@ -686,22 +686,22 @@ class SettingsRegistry {
 		?>
 		<script>
 			jQuery(document).ready(function ($) {
-				//Initiate Color Picker
+				// Initiate Color Picker
 				$('.wp-color-picker-field').wpColorPicker();
 
 				// Switches option sections
 				$('.group').hide();
 				var activetab = '';
-				if (typeof (localStorage) != 'undefined') {
-					activetab = localStorage.getItem("activetab");
-				}
+				var urlParams = new URLSearchParams(window.location.search);
+				var queryTab = urlParams.get('tab');
 
-				//if url has section id as hash then set it as active or override the current local storage value
-				if (window.location.hash) {
-					activetab = window.location.hash;
+				if (queryTab) {
+					activetab = '#' + queryTab;
 					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", activetab);
 					}
+				} else if (typeof (localStorage) != 'undefined') {
+					activetab = localStorage.getItem("activetab");
 				}
 
 				if (activetab != '' && $(activetab).length) {
@@ -709,6 +709,7 @@ class SettingsRegistry {
 				} else {
 					$('.group:first').fadeIn();
 				}
+
 				$('.group .collapsed').each(function () {
 					$(this).find('input:checked').parent().parent().parent().nextAll().each(
 						function () {
@@ -725,13 +726,16 @@ class SettingsRegistry {
 				} else {
 					$('.nav-tab-wrapper a:first').addClass('nav-tab-active');
 				}
+
 				$('.nav-tab-wrapper a').click(function (evt) {
 					$('.nav-tab-wrapper a').removeClass('nav-tab-active');
 					$(this).addClass('nav-tab-active').blur();
 					var clicked_group = $(this).attr('href');
 					if (typeof (localStorage) != 'undefined') {
-						localStorage.setItem("activetab", $(this).attr('href'));
+						localStorage.setItem("activetab", clicked_group);
 					}
+					urlParams.set('tab', clicked_group.substring(1));
+					history.replaceState(null, '', '?' + urlParams.toString());
 					$('.group').hide();
 					$(clicked_group).fadeIn();
 					evt.preventDefault();
