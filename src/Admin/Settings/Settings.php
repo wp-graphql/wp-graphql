@@ -83,11 +83,11 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function register_settings() {
+	public function register_settings(): void {
 		$this->settings_api->register_section(
 			'graphql_general_settings',
 			[
-				'title' => __( 'WPGraphQL General Settings', 'wp-graphql' ),
+				'title' => __( '️WPGraphQL General Settings', 'wp-graphql' ),
 			]
 		);
 

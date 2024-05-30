@@ -33,7 +33,7 @@ class Admin {
 		register_graphql_settings_section(
 			self::$option_group,
 			[
-				'title' => __( 'Experiments 🧪', 'wp-graphql' ),
+				'title' => __( 'Experiments 🚧️', 'wp-graphql' ),
 				'desc'  => __( 'WPGraphQL Experiments are experimental features that are under active development. They may change, break, or disappear at any time.', 'wp-graphql' ),
 			]
 		);

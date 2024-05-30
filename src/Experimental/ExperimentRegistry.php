@@ -9,7 +9,7 @@
 namespace WPGraphQL\Experimental;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
-use WPGraphQL\Experimental\Experiment\TestExperiment;
+use WPGraphQL\Experimental\Experiment\WPGraphQLIDE;
 
 /**
  * Class - ExperimentRegistry
@@ -140,7 +140,7 @@ final class ExperimentRegistry {
 	 */
 	protected function register_experiments(): void {
 		$registry = [
-			TestExperiment::get_slug() => TestExperiment::class,
+			WPGraphQLIDE::get_slug() => WPGraphQLIDE::class,
 		];
 
 		/**
