@@ -678,7 +678,7 @@ class SettingsRegistry {
 	/**
 	 * Tabbable JavaScript codes & Initiate Color Picker
 	 *
-	 * This code uses query arguments and localstorage for displaying active tabs
+	 * This code uses URL hash fragments and localStorage for displaying active tabs
 	 *
 	 * @return void
 	 */
@@ -692,11 +692,10 @@ class SettingsRegistry {
 				// Switches option sections
 				$('.group').hide();
 				var activetab = '';
-				var urlParams = new URLSearchParams(window.location.search);
-				var queryTab = urlParams.get('tab');
+				var urlHash = window.location.hash;
 
-				if (queryTab) {
-					activetab = '#' + queryTab;
+				if (urlHash) {
+					activetab = urlHash;
 					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", activetab);
 					}
@@ -734,8 +733,7 @@ class SettingsRegistry {
 					if (typeof (localStorage) != 'undefined') {
 						localStorage.setItem("activetab", clicked_group);
 					}
-					urlParams.set('tab', clicked_group.substring(1));
-					history.replaceState(null, '', '?' + urlParams.toString());
+					history.replaceState(null, '', clicked_group);
 					$('.group').hide();
 					$(clicked_group).fadeIn();
 					evt.preventDefault();
