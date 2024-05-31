@@ -58,7 +58,16 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function register_admin_bar_menu( WP_Admin_Bar $admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || 'off' === get_graphql_setting( 'show_graphiql_link_in_admin_bar' ) ) {
+
+		if ( 'off' === get_graphql_setting( 'graphiql_enabled' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( 'off' === get_graphql_setting( 'show_graphiql_link_in_admin_bar' ) ) {
 			return;
 		}
 

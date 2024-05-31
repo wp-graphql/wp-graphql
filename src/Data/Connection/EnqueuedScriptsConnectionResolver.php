@@ -5,6 +5,7 @@ namespace WPGraphQL\Data\Connection;
  * Class EnqueuedScriptsConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
@@ -28,17 +29,15 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection
 		return [];
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
+	protected function query( array $query_args ) {
 		return $this->source->enqueuedScriptsQueue ? $this->source->enqueuedScriptsQueue : [];
 	}
 
@@ -71,12 +70,5 @@ class EnqueuedScriptsConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		global $wp_scripts;
 		return isset( $wp_scripts->registered[ $offset ] );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
 	}
 }

@@ -1,5 +1,46 @@
 # Changelog
 
+= 1.26.0 =
+
+## New Features
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+    - new: `graphql_connection_pre_get_query` filter
+    - new: `AbstractConnectionResolver::is_valid_query_class()`
+    - new: `AbstractConnectionResolver::get_query()`
+    - new: `AbstractConnectionResolver::get_query_class()`
+    - new: `AsbtractConnectionResolver::query_class()`
+    - new: `AbstractConnectionResolver::$query_class`
+- [#3124](https://github.com/wp-graphql/wp-graphql/pull/3124): refactor: split `AbstractConnectionResolver::get_args()` and `::get_query_args()` into `::prepare_*()` methods
+- [#3123](https://github.com/wp-graphql/wp-graphql/pull/3123): refactor: split `AbstractConnectionResolver::get_ids()` into `::prepare_ids()`
+- [#3121](https://github.com/wp-graphql/wp-graphql/pull/3121): refactor: split `AbstractConnectionResolver::get_nodes()` and `get_edges()` into `prepare_*()` methods
+- [#3120](https://github.com/wp-graphql/wp-graphql/pull/3120): refactor: wrap `AbstractConnectionResolver::is_valid_model()` in `::get_is_valid_model()`
+
+### Chores / Bugfixes
+
+- [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
+    - Implement PHPStan Generic Type
+    - Update generic Exceptions to InvariantViolation
+- [#3127](https://github.com/wp-graphql/wp-graphql/pull/3127): chore: update references to the WPGraphQL Slack Community to point to the new WPGraphQL Discord community instead.
+- [#3122](https://github.com/wp-graphql/wp-graphql/pull/3122): chore: relocate `AbstractConnectionResolver::is_valid_offset()` with other abstract methods.
+- 
+## 1.25.0
+
+### Upgrade Notice
+
+This release includes a fix to a regression in the v1.24.0. Users impacted by the regression in 1.24.0 included, but are not necessarily limited to, users of the WPGraphQL for WooCommerce extension.
+
+### New Features
+
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): feat: add `AbsractConnectionResolver::pre_should_execute()`. Thanks @justlevine!
+
+### Chores / Bugfixes
+- [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): refactor: `AbstractConnectionResolver::should_execute()` Thanks @justlevine!
+- [#3112](https://github.com/wp-graphql/wp-graphql/pull/3104): fix: fixes a regression from v1.24.0 relating to field arguments defined on Interfaces not being properly merged onto Object Types that implement the interface. Thanks @kidunot89!
+- [#3114](https://github.com/wp-graphql/wp-graphql/pull/3114): fix: node IDs not showing in the Query Analyzer / X-GraphQL-Keys when using DataLoader->load_many()
+- [#3116](https://github.com/wp-graphql/wp-graphql/pull/3116): chore: Update WPGraphQLTestCase to v3. Thanks @kidunot89!
+
+
 ## 1.24.0
 
 ### Upgrade Notice
@@ -10,7 +51,7 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 - `getContext` -> `get_context`
 - `getInfo` -> `get_info`
 - `getShouldExecute` -> `get_should_execute`
-- `getLoader` -> `getLoader`
+- `getLoader` -> `get_loader`
 
 ### New Features
 

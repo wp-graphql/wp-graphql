@@ -1,14 +1,14 @@
 <?php
 
-class InterfaceTest extends \Codeception\TestCase\WPTestCase {
+class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 	}
 
 	public function tearDown(): void {
-		WPGraphQL::clear_schema();
+		$this->clearSchema();
 		parent::tearDown();
 	}
 
@@ -93,30 +93,24 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$query = '
-		{
+		$query = 'query {
 			tester {
-            id
-            testInt
-            testString
-            interfaceOnlyField
-           }
-		}
-		';
+				id
+				testInt
+				testString
+				interfaceOnlyField
+			}
+		}';
 
-		$actual = graphql(
-			[
-				'query' => $query,
-			]
-		);
+		$actual = $this->graphql( [ 'query' => $query ] );
+		$expected = [
+			$this->expectedField( 'tester.id', $test['id'] ),
+			$this->expectedField( 'tester.testInt', $test['testInt'] ),
+			$this->expectedField( 'tester.testString', $test['testString'] ),
+			$this->expectedField( 'tester.interfaceOnlyField', $test['interfaceOnlyField'] ),
+		];
 
-		codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertEquals( $test['id'], $actual['data']['tester']['id'] );
-		$this->assertEquals( $test['testInt'], $actual['data']['tester']['testInt'] );
-		$this->assertEquals( $test['testString'], $actual['data']['tester']['testString'] );
-		$this->assertEquals( $test['interfaceOnlyField'], $actual['data']['tester']['interfaceOnlyField'] );
+		$this->assertQuerySuccessful( $actual, $expected );
 	}
 
 	// Validate schema.
@@ -205,17 +199,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		// the Interfaces registered to implement each other
 		$this->testSchemaIsValid();
 
-		$query = '
-		{
-			testTypeWithInterfaces {
-				...One
-				...Two
-				...Three
-				four
-			}
-		}
-		
-		fragment One on TestInterfaceOne {
+		$query = 'fragment One on TestInterfaceOne {
 			one
 		}
 		
@@ -229,30 +213,31 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			two
 			three
 		}
-		';
+		
+		query {
+			testTypeWithInterfaces {
+				...One
+				...Two
+				...Three
+				four
+			}
+		}';
 
-		$actual = graphql(
-			[
-				'query' => $query,
-			]
-		);
-
-		codecept_debug( $actual );
-
+		$actual = $this->graphql( [ 'query' => $query ] );
 		$expected = [
-			'testTypeWithInterfaces' => [
-				'one'   => 'one value',
-				'two'   => 'two value',
-				'three' => 'three value',
-				'four'  => 'four value',
-			],
+			$this->expectedObject(
+				'testTypeWithInterfaces',
+				[
+					$this->expectedField( 'one', 'one value' ),
+					$this->expectedField( 'two', 'two value' ),
+					$this->expectedField( 'three', 'three value' ),
+					$this->expectedField( 'four', 'four value' ),
+				]
+			),
 		];
+		$this->assertQuerySuccessful( $actual, $expected );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( $expected, $actual['data'] );
-
-		$query = '
-		query GetType($name:String!){
+		$query = 'query GetType($name:String!){
 			__type(name: $name) {
 				name
 				interfaces {
@@ -262,10 +247,9 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 					name
 				}
 			}
-		}
-		';
+		}';
 
-		$actual = graphql(
+		$actual = $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -274,18 +258,13 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		codecept_debug( $actual );
+		$expected = [
+			$this->expectedField( '__type.name', 'TestInterfaceTwo' ),
+			$this->expectedField( '__type.interfaces.#.name', 'TestInterfaceOne' ),
+		];
+		$this->assertQuerySuccessful( $actual, $expected );
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 'TestInterfaceTwo', $actual['data']['__type']['name'] );
-
-		$interfaces = wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
-
-		codecept_debug( $interfaces );
-
-		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
-
-		$actual = graphql(
+		$actual = $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -294,22 +273,14 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertSame( 'TestInterfaceThree', $actual['data']['__type']['name'] );
-
-		$interfaces = wp_list_pluck( $actual['data']['__type']['interfaces'], 'name' );
-
-		codecept_debug( $interfaces );
-
-		$this->assertTrue( in_array( 'TestInterfaceOne', $interfaces ) );
-		$this->assertTrue( in_array( 'TestInterfaceTwo', $interfaces ) );
-
-		$fields = wp_list_pluck( $actual['data']['__type']['fields'], 'name' );
-
-		codecept_debug( $fields );
-
-		$this->assertTrue( in_array( 'one', $fields ) );
-		$this->assertTrue( in_array( 'two', $fields ) );
+		$expected = [
+			$this->expectedField( '__type.name', 'TestInterfaceThree' ),
+			$this->expectedField( '__type.interfaces.#.name', 'TestInterfaceOne' ),
+			$this->expectedField( '__type.interfaces.#.name', 'TestInterfaceTwo' ),
+			$this->expectedField( '__type.fields.#.name', 'one' ),
+			$this->expectedField( '__type.fields.#.name', 'two' ),
+		];
+		$this->assertQuerySuccessful( $actual, $expected );
 	}
 
 	/**
@@ -358,8 +329,7 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$query = '
-		query GetType($name:String!){
+		$query = 'query GetType($name:String!){
 			__type(name: $name) {
 				kind
 				name
@@ -370,10 +340,9 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 					name
 				}
 			}
-		}
-		';
+		}';
 
-		$actual = graphql(
+		$actual = $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -483,5 +452,257 @@ class InterfaceTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
+	}
+
+	public function testArgsOnInterfaceFieldAreAppliedToObjectField() {
+
+		register_graphql_interface_type(
+			'InterfaceWithArgs',
+			[
+				'fields' => [
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'args'    => [
+							'interfaceArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'parent'
+							],
+						],
+						'resolve' => function( $source, $args ) {
+							return implode( ' ', array_keys( $args ) );
+						}
+					],
+				]
+			]
+		);
+
+		register_graphql_object_type(
+			'ObjectTypeImplementingInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields'     => [
+					'fieldWithArgs' => [
+						'args'    => [
+							'objectArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'child'
+							],
+						],
+						'type'    => 'String',
+					],
+				],
+			]
+		);
+
+		register_graphql_object_type(
+			'AnotherObjectTypeImplementingInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields'     => [
+					'fieldWithArgs' => [
+						'resolve' => function( $_, $args ) {
+							return implode( ',', array_keys( $args ) );
+						}
+					],
+				],
+			]
+		);
+
+		register_graphql_fields(
+			'RootQuery',
+			[
+				'interfaceArgsTest'      => [
+					'type'    => 'ObjectTypeImplementingInterfaceWithArgs',
+					'resolve' => function() {
+						return true;
+					},
+				],
+				'interfaceArgsTest2' => [
+					'type'    => 'AnotherObjectTypeImplementingInterfaceWithArgs',
+					'resolve' => function() {
+						return true;
+					},
+				]
+			]
+		);
+
+		$query = 'query {
+			interfaceArgsTest {
+				fieldWithArgs
+			}
+			interfaceArgsTest2 {
+				fieldWithArgs
+			}
+		}';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+		$expected = [
+			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
+			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
+		];
+		$this->assertQuerySuccessful( $actual, $expected, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
+	}
+
+	public function testInvalidArgsOnInheritedObjectFieldsAreCaptured() {
+		register_graphql_interface_type(
+			'InterfaceWithArgs',
+			[
+				'fields' => [
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'args'    => [
+							'interfaceArg' => [ 'type' => 'String' ],
+						],
+						'resolve' => function( $source, $args ) {
+							return $args['arg'];
+						}
+					],
+				]
+
+			] 
+
+		);
+
+		register_graphql_object_type(
+			'BadObjectTypeImplementingInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields'     => [
+					'fieldWithArgs' => [
+						'args' => [
+							'interfaceArg' => [ 'type' => 'Number' ],
+						],
+						'type'    => 'String',
+						'resolve' => function() {
+							return 'object value';
+						}
+					],
+				],
+			]
+		);
+
+		register_graphql_object_type(
+			'BadObjectTypeImplementingInterfaceWithArgs2',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields' => [
+					'fieldWithArgs' => [
+						'args' => [
+							'interfaceArg' => [
+								'type' => [ 'list_of' => 'Number' ],
+							],
+						],
+						'type' => 'String',
+						'resolve' => function() {
+							return 'object value';
+						}
+					],
+				],
+			]
+		);
+
+		register_graphql_fields(
+			'RootQuery',
+			[
+				'interfaceArgsTest'  => [
+					'type' => 'BadObjectTypeImplementingInterfaceWithArgs',
+					'resolve' => function() {
+						return true;
+					},
+				],
+				'interfaceArgsTest2' => [
+					'type' => 'BadObjectTypeImplementingInterfaceWithArgs2',
+					'resolve' => function() {
+						return true;
+					},
+				],
+			]
+		);
+
+		$query = 'query {
+			interfaceArgsTest {
+				fieldWithArgs(interfaceArg: 2)
+			}
+			interfaceArgsTest2 {
+				fieldWithArgs(interfaceArg: [2, 4, 5])
+			}
+		}';
+
+		$actual = $this->graphql( [ 'query' => $query ]);
+		$this->assertQuerySuccessful( $actual, [], 'Invalid field arguments should be flagged' );
+	}
+	
+	public function testInterfaceWithNonNullableArg() {
+		register_graphql_interface_type( 'InterfaceWithNonNullableArg', [
+			'fields' => [
+				'fieldWithNonNullableArg' => [
+					'type' => 'String',
+					'args' => [
+						'nonNullableArg' => [
+							'type' => [ 'non_null' => 'String' ],
+							'defaultValue' => 'nonNullableArg',
+						],
+						'listOfArg' => [
+							'type' => [ 'list_of' => 'String' ],
+							'defaultValue' => [ 'listOfArg', 'listOfArg 2' ],
+						],
+						'nonNullListOfString' => [
+							'type' => [ 'non_null' => [ 'list_of' => 'String' ] ],
+							'defaultValue' => [ 'nonNullListOfString', 'nonNullListOfString 2' ],
+						],
+						'listOfNonNullString' => [
+							'type' => [ 'list_of' => [ 'non_null' => 'String' ] ],
+							'defaultValue' => [ 'listOfNonNullString', 'listOfNonNullString 2' ],
+						],
+					],
+					'resolve' => function( $source, $args ) {
+						return null;
+					},
+				],
+			],
+		] );
+
+		register_graphql_object_type( 'TestTypeWithNonNullableArg', [
+			'interfaces' => [ 'InterfaceWithNonNullableArg' ],
+			'fields' => [
+				'testField' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					},
+				],
+			],
+		] );
+
+		register_graphql_fields( 'RootQuery', [
+			'testField' => [
+				'type' => 'TestTypeWithNonNullableArg',
+				'resolve' => function() {
+					return true;
+				},
+			],
+		] );
+
+		$query = 'query {
+			testField {
+				fieldWithNonNullableArg(
+					nonNullableArg: "test" 
+					listOfArg: ["test"] 
+					nonNullListOfString: ["test"]
+					listOfNonNullString: ["test"]
+				)
+				testField
+			}
+		}';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[ $this->expectedField( 'testField.fieldWithNonNullableArg',self::IS_NULL ) ],
+			'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type'
+		);
 	}
 }

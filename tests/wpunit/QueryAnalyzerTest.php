@@ -495,4 +495,50 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertContains( 'list:post', $types );
 	}
+
+	public function testNodeIdsAreInQueryAnalyzerWhenLoadManyIsUsed() {
+
+		$post_id_1 = $this->factory()->post->create();
+		$post_id_2 = $this->factory()->post->create();
+		register_graphql_field( 'RootQuery', 'testLoadmany', [
+			'type' => [ 'list_of' => 'Post' ],
+			'resolve' => function( $source, $args, $context, $info ) use ( $post_id_1, $post_id_2 ) {
+				$post_ids = [ $post_id_1, $post_id_2 ];
+				return $context->get_loader( 'post' )->load_many( $post_ids );
+			}
+		] );
+
+		$query = '
+		query TestLoadMany {
+		  testLoadmany {
+		    databaseId
+		  }
+		}
+		';
+
+		$request = $this->graphql( [ 'query' => $query ], true );
+		$actual = $request->execute();
+
+		codecept_debug( [
+			'actual' => $actual,
+		]);
+
+		self::assertQuerySuccessful( $actual, [
+			$this->expectedObject( 'testLoadmany', [
+				'databaseId' => $post_id_1,
+			] ),
+			$this->expectedObject( 'testLoadmany', [
+				'databaseId' => $post_id_2,
+			] ),
+		] );
+
+		$node_ids = $request->get_query_analyzer()->get_runtime_nodes();
+
+		codecept_debug( $node_ids );
+
+		$this->assertNotEmpty( $node_ids );
+		$this->assertContains( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id_1 ), $node_ids );
+		$this->assertContains( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id_2 ), $node_ids );
+
+	}
 }
