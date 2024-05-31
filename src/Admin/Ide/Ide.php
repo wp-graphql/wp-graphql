@@ -248,15 +248,15 @@ class Ide {
 			}
 		}
 
-		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/ide.asset.php';
-		$render_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/render.asset.php';
-		$graphql_asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/graphql.asset.php';
+		$asset_file = include WPGRAPHQL_PLUGIN_DIR . '/src/admin/IDE/build/index.asset.php';
+		$render_asset_file = include WPGRAPHQL_PLUGIN_DIR . '/src/admin/IDE/build/render.asset.php';
+		$graphql_asset_file = include WPGRAPHQL_PLUGIN_DIR . '/src/admin/IDE/build/graphql.asset.php';
 
 		$app_context = $this->get_app_context();
 
 		wp_register_script(
 			'graphql',
-			plugins_url( 'build/graphql.js', WPGRAPHQL_PLUGIN_FILE ),
+			plugins_url( 'build/graphql.js', __FILE__ ),
 			$graphql_asset_file['dependencies'],
 			$graphql_asset_file['version'],
 			false
@@ -264,7 +264,7 @@ class Ide {
 
 		wp_enqueue_script(
 			'wpgraphql-ide',
-			plugins_url( 'build/ide.js', WPGRAPHQL_PLUGIN_FILE ),
+			plugins_url( 'build/index.js', __FILE__ ),
 			array_merge( $asset_file['dependencies'], [ 'graphql' ] ),
 			$asset_file['version'],
 			false
@@ -291,17 +291,17 @@ class Ide {
 
 		wp_enqueue_script(
 			'wpgraphql-ide-render',
-			plugins_url( 'build/render.js', WPGRAPHQL_PLUGIN_FILE ),
+			plugins_url( 'build/render.js', __FILE__ ),
 			array_merge( $asset_file['dependencies'], [ 'wpgraphql-ide', 'graphql' ] ),
 			$render_asset_file['version'],
 			false
 		);
 
-		wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/ide.css', WPGRAPHQL_PLUGIN_FILE ), [], $asset_file['version'] );
-		wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/render.css', WPGRAPHQL_PLUGIN_FILE ), [], $asset_file['version'] );
+		wp_enqueue_style( 'wpgraphql-ide-app', plugins_url( 'build/index.css', __FILE__ ), [], $asset_file['version'] );
+		wp_enqueue_style( 'wpgraphql-ide-render', plugins_url( 'build/render.css', __FILE__ ), [], $asset_file['version'] );
 
 		// Avoid running custom styles through a build process for an improved developer experience.
-		wp_enqueue_style( 'wpgraphql-ide', plugins_url( 'styles/wpgraphql-ide.css', WPGRAPHQL_PLUGIN_FILE ), [], $asset_file['version'] );
+		wp_enqueue_style( 'wpgraphql-ide', plugins_url( 'styles/wpgraphql-ide.css', __FILE__ ), [], $asset_file['version'] );
 	}
 
 	/**
