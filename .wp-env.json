@@ -1,6 +1,9 @@
 {
   "core": "WordPress/WordPress",
-  "plugins": [ "." ],
+  "plugins": [
+    "./tests/e2e/plugins/settings-page-spec/",
+    "."
+  ],
   "themes": [],
   "port": 8888,
   "config": {
