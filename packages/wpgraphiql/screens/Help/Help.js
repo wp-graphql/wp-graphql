@@ -227,19 +227,18 @@ const Help = () => {
         <Col xs={24} sm={24} md={24} lg={8} xl={8}>
           <Card
             style={{ height: "100%" }}
-            title="Join us in Slack"
+            title="Join us in Discord"
             actions={[
               <a
-                href="https://join.slack.com/t/wp-graphql/shared_invite/zt-3vloo60z-PpJV2PFIwEathWDOxCTTLA"
+                href="https://discord.gg/AGVBqqyaUY"
                 target="_blank"
               >
-                <Button type="primary">Join us in Slack</Button>
+                <Button type="primary">Join us in Discord</Button>
               </a>,
             ]}
           >
             <p>
-              There are more than 2,000 people in the WPGraphQL Slack community
-              asking questions and helping each other. Join us today!
+              Join the WPGraphQL Community in Discord where you can ask questions, show off projects and help other WPGraphQL users. Join us today!
             </p>
           </Card>
         </Col>

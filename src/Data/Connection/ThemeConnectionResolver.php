@@ -6,21 +6,19 @@ namespace WPGraphQL\Data\Connection;
  *
  * @package WPGraphQL\Data\Resolvers
  * @since 0.5.0
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
-
-	/**
-	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		$ids     = [];
-		$queried = ! empty( $this->query ) ? $this->query : [];
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried = isset( $this->query ) ? $this->query : $this->get_query();
+
+		$ids = [];
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -36,7 +34,7 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		return [
 			'allowed' => null,
 		];
@@ -44,12 +42,8 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
-		$query_args = $this->query_args;
-
+	protected function query( array $query_args ) {
 		return array_keys( wp_get_themes( $query_args ) );
 	}
 
@@ -66,12 +60,5 @@ class ThemeConnectionResolver extends AbstractConnectionResolver {
 	public function is_valid_offset( $offset ) {
 		$theme = wp_get_theme( $offset );
 		return $theme->exists();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
 	}
 }

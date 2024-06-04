@@ -471,7 +471,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$expected = $actual['data']['users']['nodes'][2];
 		$actual   = $this->usersQuery( $variables );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['users']['nodes'][0] );
 
@@ -490,7 +490,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->usersQuery( $variables );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['users']['nodes'][0] );
 	}
@@ -503,7 +503,7 @@ class UserConnectionPaginationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['users']['edges'] ) );

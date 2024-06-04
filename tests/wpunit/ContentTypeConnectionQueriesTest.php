@@ -278,7 +278,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		$expected = $actual['data']['contentTypes']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['contentTypes']['nodes'][0] );
 
@@ -297,7 +297,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['contentTypes']['nodes'][0] );
 	}
@@ -309,7 +309,7 @@ class ContentTypeConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraph
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['contentTypes']['edges'] ) );

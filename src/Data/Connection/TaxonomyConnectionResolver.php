@@ -5,21 +5,20 @@ namespace WPGraphQL\Data\Connection;
  * Class TaxonomyConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<string[]>
  */
 class TaxonomyConnectionResolver extends AbstractConnectionResolver {
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var string[]
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		$ids     = [];
-		$queried = $this->query;
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$queried = isset( $this->query ) ? $this->query : $this->get_query();
+
+		$ids = [];
 
 		if ( empty( $queried ) ) {
 			return $ids;
@@ -35,27 +34,23 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		// If any args are added to filter/sort the connection.
 		return [];
 	}
 
-
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return string[]
 	 */
-	public function get_query() {
-		if ( isset( $this->query_args['name'] ) ) {
-			return [ $this->query_args['name'] ];
+	protected function query( array $query_args ) {
+		if ( isset( $query_args['name'] ) ) {
+			return [ $query_args['name'] ];
 		}
 
-		if ( isset( $this->query_args['in'] ) ) {
-			return is_array( $this->query_args['in'] ) ? $this->query_args['in'] : [ $this->query_args['in'] ];
+		if ( isset( $query_args['in'] ) ) {
+			return is_array( $query_args['in'] ) ? $query_args['in'] : [ $query_args['in'] ];
 		}
 
-		$query_args = $this->query_args;
 		return \WPGraphQL::get_allowed_taxonomies( 'names', $query_args );
 	}
 
@@ -73,12 +68,5 @@ class TaxonomyConnectionResolver extends AbstractConnectionResolver {
 	 */
 	public function is_valid_offset( $offset ) {
 		return (bool) get_taxonomy( $offset );
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function should_execute() {
-		return true;
 	}
 }

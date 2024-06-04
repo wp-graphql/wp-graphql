@@ -29,7 +29,6 @@ class PostObject {
 		\WPGraphQL\Registry\Utils\PostObject::register_types( $post_type_object );
 	}
 
-
 	/**
 	 * Registers common post type fields on schema type corresponding to provided post type object.
 	 *

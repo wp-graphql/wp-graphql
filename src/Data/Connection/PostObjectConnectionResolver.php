@@ -12,6 +12,7 @@ use WPGraphQL\Utils\Utils;
  * Class PostObjectConnectionResolver
  *
  * @package WPGraphQL\Data\Connection
+ * @extends \WPGraphQL\Data\Connection\AbstractConnectionResolver<\WP_Query>
  */
 class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
@@ -21,13 +22,6 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * @var mixed|string|string[]
 	 */
 	protected $post_type;
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @var \WP_Query|object
-	 */
-	protected $query;
 
 	/**
 	 * {@inheritDoc}
@@ -75,18 +69,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @return \WP_Query|object
+	 */
+	protected function query_class(): string {
+		return \WP_Query::class;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation If the query has been modified to suppress_filters.
 	 */
-	public function get_query() {
-		// Get query class.
-		$queryClass = ! empty( $this->context->queryClass )
-			? $this->context->queryClass
-			: '\WP_Query';
-
-		$query = new $queryClass( $this->query_args );
+	protected function query( array $query_args ) {
+		$query = parent::query( $query_args );
 
 		if ( isset( $query->query_vars['suppress_filters'] ) && true === $query->query_vars['suppress_filters'] ) {
 			throw new InvariantViolation( esc_html__( 'WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver.', 'wp-graphql' ) );
@@ -99,10 +93,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function get_ids_from_query() {
-		$ids = ! empty( $this->query->posts ) ? $this->query->posts : [];
+		/**
+		 * @todo This is for b/c. We can just use $this->get_query().
+		 */
+		$query = isset( $this->query ) ? $this->query : $this->get_query();
+
+		/** @var int[] */
+		$ids = ! empty( $query->posts ) ? $query->posts : [];
 
 		// If we're going backwards, we need to reverse the array.
-		if ( ! empty( $this->args['last'] ) ) {
+		$args = $this->get_args();
+
+		if ( ! empty( $args['last'] ) ) {
 			$ids = array_reverse( $ids );
 		}
 
@@ -113,43 +115,40 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	 * {@inheritDoc}
 	 */
 	public function should_execute() {
-		if ( false === $this->should_execute ) {
-			return false;
+		/**
+		 * If the post_type is not revision we can just return the parent::should_execute().
+		 *
+		 * @todo This works because AbstractConnectionResolver::pre_should_execute does a permission check on the `Post` model )
+		 */
+		if ( ! isset( $this->post_type ) || 'revision' !== $this->post_type ) {
+			return parent::should_execute();
 		}
 
-		/**
-		 * For revisions, we only want to execute the connection query if the user
-		 * has access to edit the parent post.
-		 *
-		 * If the user doesn't have permission to edit the parent post, then we shouldn't
-		 * even execute the connection
-		 */
-		if ( isset( $this->post_type ) && 'revision' === $this->post_type ) {
-			if ( $this->source instanceof Post ) {
-				$parent_post_type_obj = get_post_type_object( $this->source->post_type );
-				if ( ! isset( $parent_post_type_obj->cap->edit_post ) || ! current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
-					$this->should_execute = false;
-				}
-				/**
-				 * If the connection is from the RootQuery, check if the user
-				 * has the 'edit_posts' capability
-				 */
-			} elseif ( ! current_user_can( 'edit_posts' ) ) {
-					$this->should_execute = false;
+		// If the connection is from the RootQuery (i.e. it doesn't have a `Post` source), check if the user has the 'edit_posts' capability.
+		if ( ! $this->source instanceof Post && current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+
+		// For revisions, we only want to execute the connection query if the user has access to edit the parent post.
+		if ( $this->source instanceof Post ) {
+			$parent_post_type_obj = get_post_type_object( $this->source->post_type );
+
+			if ( isset( $parent_post_type_obj->cap->edit_post ) && current_user_can( $parent_post_type_obj->cap->edit_post, $this->source->ID ) ) {
+				return true;
 			}
 		}
 
-		return $this->should_execute;
+		return false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_query_args() {
+	protected function prepare_query_args( array $args ): array {
 		/**
 		 * Prepare for later use
 		 */
-		$last = ! empty( $this->args['last'] ) ? $this->args['last'] : null;
+		$last = ! empty( $args['last'] ) ? $args['last'] : null;
 
 		$query_args = [];
 		/**
@@ -193,14 +192,14 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Pass the graphql $args to the WP_Query
 		 */
-		$query_args['graphql_args'] = $this->args;
+		$query_args['graphql_args'] = $args;
 
 		/**
 		 * Collect the input_fields and sanitize them to prepare them for sending to the WP_Query
 		 */
 		$input_fields = [];
-		if ( ! empty( $this->args['where'] ) ) {
-			$input_fields = $this->sanitize_input_fields( $this->args['where'] );
+		if ( ! empty( $args['where'] ) ) {
+			$input_fields = $this->sanitize_input_fields( $args['where'] );
 		}
 
 		/**
@@ -246,7 +245,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			$query_args['order']                = isset( $last ) ? 'ASC' : 'DESC';
 		}
 
-		if ( empty( $this->args['where']['orderby'] ) && ! empty( $query_args['post__in'] ) ) {
+		if ( empty( $args['where']['orderby'] ) && ! empty( $query_args['post__in'] ) ) {
 			$post_in = $query_args['post__in'];
 			// Make sure the IDs are integers
 			$post_in = array_map(
@@ -257,11 +256,11 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 			);
 
 			// If we're coming backwards, let's reverse the IDs
-			if ( ! empty( $this->args['last'] ) || ! empty( $this->args['before'] ) ) {
+			if ( ! empty( $args['last'] ) || ! empty( $args['before'] ) ) {
 				$post_in = array_reverse( $post_in );
 			}
 
-			$cursor_offset = $this->get_offset_for_cursor( $this->args['after'] ?? ( $this->args['before'] ?? 0 ) );
+			$cursor_offset = $this->get_offset_for_cursor( $args['after'] ?? ( $args['before'] ?? 0 ) );
 
 			if ( ! empty( $cursor_offset ) ) {
 				// Determine if the offset is in the array
@@ -282,10 +281,10 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Map the orderby inputArgs to the WP_Query
 		 */
-		if ( isset( $this->args['where']['orderby'] ) && is_array( $this->args['where']['orderby'] ) ) {
+		if ( isset( $args['where']['orderby'] ) && is_array( $args['where']['orderby'] ) ) {
 			$query_args['orderby'] = [];
 
-			foreach ( $this->args['where']['orderby'] as $orderby_input ) {
+			foreach ( $args['where']['orderby'] as $orderby_input ) {
 				// Create a type hint for orderby_input. This is an array with a field and order key.
 				/** @var array<string,string> $orderby_input */
 				if ( empty( $orderby_input['field'] ) ) {
@@ -358,7 +357,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 * @param \WPGraphQL\AppContext                $context    The AppContext passed down the GraphQL tree
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info       The ResolveInfo passed down the GraphQL tree
 		 */
-		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $this->args, $this->context, $this->info );
+		return apply_filters( 'graphql_post_object_connection_query_args', $query_args, $this->source, $args, $this->context, $this->info );
 	}
 
 	/**
@@ -429,7 +428,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @since 0.0.5
 		 */
-		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->args, $this->context, $this->info, $this->post_type );
+		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
 
 		/**
 		 * Return the Query Args
@@ -531,9 +530,7 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_args(): array {
-		$args = $this->get_unfiltered_args();
-
+	protected function prepare_args( array $args ): array {
 		if ( ! empty( $args['where'] ) ) {
 			// Ensure all IDs are converted to database IDs.
 			foreach ( $args['where'] as $input_key => $input_value ) {
@@ -573,9 +570,9 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @param array<string,mixed>                                     $args                The GraphQL args passed to the resolver.
-		 * @param \WPGraphQL\Data\Connection\PostObjectConnectionResolver $connection_resolver Instance of the ConnectionResolver.
-		 * @param array<string,mixed>                                     $unfiltered_args     Array of arguments input in the field as part of the GraphQL query.
+		 * @param array<string,mixed> $args            The GraphQL args passed to the resolver.
+		 * @param self                $resolver        Instance of the ConnectionResolver.
+		 * @param array<string,mixed> $unfiltered_args Array of arguments input in the field as part of the GraphQL query.
 		 *
 		 * @since 1.11.0
 		 */

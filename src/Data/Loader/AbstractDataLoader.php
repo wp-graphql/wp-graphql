@@ -272,7 +272,7 @@ abstract class AbstractDataLoader {
 	private function generate_many( array $keys, array $result ) {
 		foreach ( $keys as $key ) {
 			$key = $this->key_to_scalar( $key );
-			yield isset( $result[ $key ] ) ? $this->get_model( $result[ $key ], $key ) : null;
+			yield isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
 		}
 	}
 

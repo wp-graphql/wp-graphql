@@ -430,7 +430,6 @@ class PostObject {
 		return $fields;
 	}
 
-
 	/**
 	 * Register fields to the Type used for attachments (MediaItem).
 	 *

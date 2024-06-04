@@ -19,10 +19,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function tearDown(): void {
 		// your tear down methods here
+		$this->clearSchema();
 
 		// then
 		parent::tearDown();
-		$this->clearSchema();
 	}
 
 	public function testGraphQLPhpVersion() {
@@ -1306,7 +1306,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		// Ensure Post-related types have been removed.
@@ -1372,7 +1372,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Ensure Post is removed from interfaces.
@@ -1387,7 +1387,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
 
@@ -1404,7 +1404,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'Post', array_column( $actual['data']['__type']['possibleTypes'], 'name' ) );
 
@@ -1435,7 +1435,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
 		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
 		$this->assertNull( $actual['data']['contentNodes'] );
@@ -1459,7 +1459,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'ContentTypeEnum', array_column( $actual['data']['__schema']['types'], 'name' ) );
 
@@ -1478,7 +1478,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'contentType', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
 
@@ -1502,7 +1502,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['contentNodes']['nodes'] );
 	}
@@ -1523,7 +1523,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'DateQueryInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
 
@@ -1539,7 +1539,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'dateQuery', array_column( $actual['data']['__type']['inputFields'], 'name' ) );
 
@@ -1563,7 +1563,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 	}
@@ -1584,7 +1584,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__schema']['types'], 'name' ) );
 
@@ -1600,7 +1600,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'NodeWithTitle', array_column( $actual['data']['__type']['interfaces'], 'name' ) );
 
@@ -1623,7 +1623,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['posts']['nodes'] );
 	}
@@ -1644,7 +1644,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'MenuItemObjectUnion', array_column( $actual['data']['__schema']['types'], 'name' ) );
 
@@ -1660,7 +1660,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'connectedObject', array_column( $actual['data']['__type']['fields'], 'name' ) );
 	}
@@ -1681,7 +1681,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'createPost', array_column( $actual['data']['__schema']['mutationType'], 'name' ) );
 
@@ -1702,7 +1702,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNotContains( 'createPost', array_column( $actual['data']['__type']['fields'], 'name' ) );
 		$this->assertNotContains( 'CreatePostInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
@@ -2002,7 +2002,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'UC_First', $field_names );
 	}
 
-	public function testRegisterGraphqlFieldWithAllowedUndercores() {
+	public function testRegisterGraphqlFieldWithAllowedUnderscores() {
 
 		$expected_value = uniqid( 'test value: ', true );
 
@@ -2036,7 +2036,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 	}
 
-	public function testDeRegisterGraphqlFieldWithAllowedUndercores() {
+	public function testDeRegisterGraphqlFieldWithAllowedUnderscores() {
 
 		$expected_value = uniqid( 'test value: ', true );
 
@@ -2048,8 +2048,8 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'allowFieldUnderscores' => true,
 		];
 
-		deregister_graphql_field( 'RootQuery', 'underscore_test_field' );
 		register_graphql_field( 'RootQuery', 'underscore_test_field', $config, true );
+		deregister_graphql_field( 'RootQuery', 'underscore_test_field' );
 
 		$query = '
 		{
@@ -2063,7 +2063,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		self::assertQueryError( $actual, [] );
+		self::assertQueryError( $actual );
 	}
 
 	public function testRegisterInputType(): void {
@@ -2118,7 +2118,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertSame( 'TestInput', $actual['data']['__type']['name'] );
@@ -2232,8 +2232,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testDeRegisterConnectionWithUnderscores() {
-
-		deregister_graphql_connection( 'test_field_with_underscores' );
+		deregister_graphql_connection( 'Test_Connection_With_Underscores' );
 
 		register_graphql_connection(
 			[
@@ -2241,6 +2240,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'toType'                => 'Post',
 				'fromFieldName'         => 'test_field_with_underscores',
 				'allowFieldUnderscores' => true,
+				'connectionTypeName'    => 'Test_Connection_With_Underscores',
+				'resolve' 			 => static function () {
+					return [
+						'nodes' => [],
+						'edges' => [],
+					];
+				},
 			]
 		);
 
