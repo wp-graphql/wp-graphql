@@ -1,23 +1,34 @@
-/.git
-/.github
-/.idea
-/.log
-/.vscode
-/.wordpress-org
-/bin
-/github
-/plugin-build
-/documentation
-/docs
-/img
-/phpstan
-/tests
-/docker
-/docker-output
-/tests
-/node_modules
-/packages
-/artifacts
+.git
+.github
+.idea
+.log
+.vscode
+.wordpress-org
+.husky
+.editorconfig
+bin
+github
+plugin-build
+documentation
+docs
+img
+phpstan
+tests
+docker
+docker-output
+tests
+node_modules
+packages
+artifacts
+
+
+## Ignore all src directories except the root src directory.
+## The root src directory is the main plugin source.
+## Nested src directories are ignored as they typically are used for JS source code.
+src/**/src
+.zip
+*.zip
+
 
 .DS_Store
 .coveralls.yml

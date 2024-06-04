@@ -15,7 +15,9 @@
   "scripts": {
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
-    "start": "wp-scripts start",
+    "postbuild": "cd src/Experimental/Experiment/WPGraphQLIDE && npm run build",
+    "start": "concurrently \"wp-scripts start\" && \"cd src/Experimental/Experiment/WPGraphQLIDE && npm run start\"",
+    "postinstall": "cd src/Experimental/Experiment/WPGraphQLIDE && npm install",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
     "test:unit": "wp-scripts test-unit-js --config tests/js-unit/jest.config.js",
