@@ -140,7 +140,7 @@ final class ExperimentRegistry {
 	 */
 	protected function register_experiments(): void {
 		$registry = [
-			WPGraphQLIDE::get_slug() => WPGraphQLIDE::class,
+			WPGraphQLIDE\InitExperiment::get_slug() => WPGraphQLIDE\InitExperiment::class,
 		];
 
 		/**

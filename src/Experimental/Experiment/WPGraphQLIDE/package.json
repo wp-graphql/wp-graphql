@@ -1,0 +1,71 @@
+{
+	"name": "wpgraphql-ide",
+	"version": "2.1.1",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wpgraphql/wpgraphql-ide.git"
+	},
+	"scripts": {
+		"check-engines": "wp-scripts check-engines",
+		"build": "wp-scripts build && npm run build:third-party-plugin && npm run build:zip",
+		"build:third-party-plugin": "wp-scripts build --webpack-src-dir=plugins/third-party-plugin",
+		"build:zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start",
+		"start:third-party-plugin": "wp-scripts start --webpack-src-dir=plugins/third-party-plugin",
+		"pretest:e2e": "npm run wp-env start",
+		"pretest:e2e:ui": "npm run wp-env start",
+		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
+		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
+		"test:unit": "jest --config tests/unit/jest.config.js",
+		"format": "wp-scripts format",
+		"format:src": "wp-scripts format ./src",
+		"lint:js": "wp-scripts lint-js ./src",
+		"lint:js:fix": "wp-scripts lint-js --fix ./src",
+		"lint:js:src": "wp-scripts lint-js ./src",
+		"wp-env": "wp-env",
+		"changeset": "changeset",
+		"version": "changeset version && node bin/versionPlugin.js",
+		"release": "npm run build && changeset publish",
+		"prepare": "husky install"
+	},
+	"devDependencies": {
+		"@babel/preset-env": "^7.23.9",
+		"@babel/preset-react": "^7.23.3",
+		"@playwright/test": "^1.41.2",
+		"@testing-library/jest-dom": "^6.4.2",
+		"@testing-library/react": "^14.2.1",
+		"@types/node": "^20.11.16",
+		"@wordpress/e2e-test-utils-playwright": "^0.19.0",
+		"@wordpress/env": "^9.2.0",
+		"@wordpress/scripts": "^27.3.0",
+		"babel-jest": "^29.7.0",
+		"chalk": "^5.3.0",
+		"clsx": "^2.0.0",
+		"concurrently": "^8.2.2",
+		"docker-compose": "^0.24.6",
+		"dotenv": "^16.4.4",
+		"husky": "^9.0.11",
+		"lint-staged": "^15.2.2",
+		"sort-package-json": "^2.7.0"
+	},
+	"dependencies": {
+		"@changesets/cli": "^2.27.1",
+		"@graphiql/plugin-explorer": "^1.0.3",
+		"@wordpress/components": "^27.0.0",
+		"@wordpress/data": "^9.22.0",
+		"@wordpress/element": "^5.23.0",
+		"@wordpress/hooks": "^3.49.0",
+		"@wordpress/icons": "^9.43.0",
+		"copy-to-clipboard": "^3.3.3",
+		"graphiql": "^3.0.10",
+		"graphql": "^16.8.1",
+		"graphql-ws": "^5.14.2",
+		"lz-string": "^1.5.0",
+		"react": "^18.2.0",
+		"vaul": "^0.9.0"
+	},
+	"lint-staged": {
+		"package.json": "sort-package-json"
+	}
+}

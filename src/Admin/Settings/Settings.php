@@ -80,8 +80,6 @@ class Settings {
 
 	/**
 	 * Registers the initial settings for WPGraphQL
-	 *
-	 * @return void
 	 */
 	public function register_settings(): void {
 		$this->settings_api->register_section(
