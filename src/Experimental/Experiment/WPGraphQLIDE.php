@@ -27,6 +27,7 @@ class WPGraphQLIDE extends AbstractExperiment {
 		return [
 			'title'       => __( 'WPGraphQL IDE', 'wp-graphql' ),
 			'description' => __( 'Enable the re-vamped WPGraphQL IDE which can be opened from the admin bar on any page, and includes new themes (light/dark mode) and more.', 'wp-graphql' ),
+			'deprecationMessage' => 'Yo!'
 		];
 	}
 
