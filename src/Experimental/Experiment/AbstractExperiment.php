@@ -130,6 +130,15 @@ abstract class AbstractExperiment {
 			$setting_key = static::get_slug() . '_enabled';
 
 			$is_active = 'on' === get_graphql_setting( $setting_key, 'off', Admin::$option_group );
+
+			/**
+			 * Filters whether the experiment is active.
+			 *
+			 * @param bool   $is_active Whether the experiment is active.
+			 * @param string $slug      The experiment's slug.
+			 */
+			$is_active = apply_filters( 'wp_graphql_experiment_enabled', $is_active, static::get_slug() );
+			$is_active = apply_filters( 'wp_graphql_experiment_' . static::get_slug() . '_enabled', $is_active );
 		}
 
 		$this->is_active = $is_active;

@@ -34,3 +34,18 @@ Experiments can be disabled altogether by setting the `GRAPHQL_EXPERIMENTAL_FEAT
 ```php
 define( 'GRAPHQL_EXPERIMENTAL_FEATURES', false );
 ```
+
+You can also manually enable a specific experiment with the `wp_graphql_experiment_enabled` or `wp_graphql_experiment_{$slug}_enabled` filters
+
+```php
+add_filter( 'wp_graphql_experiment_my-experiment_enabled', '__return_true' );
+
+// Or
+add_filter( 'wp_graphql_experiment_enabled' , function( $enabled, $slug ) {
+	if ( 'test-experiment' === $slug ) {
+		return true;
+	}
+	return $enabled;
+}, 10, 2 );
+
+```
