@@ -22,10 +22,11 @@ abstract class AbstractExperiment {
 	 * @var ?string
 	 */
 	protected static $slug;
+
 	/**
 	 * The experiment's configuration.
 	 *
-	 * @var ?array{title:string,description:string}
+	 * @var ?array{title:string,description:string,deprecationMessage?:?string}
 	 */
 	protected $config;
 
@@ -44,7 +45,7 @@ abstract class AbstractExperiment {
 	/**
 	 * Defines the experiment configuration.
 	 *
-	 * @return array{title:string,description:string}
+	 * @return array{title:string,description:string,deprecationMessage?:?string}
 	 */
 	abstract protected function config(): array;
 
@@ -67,6 +68,19 @@ abstract class AbstractExperiment {
 
 		$this->init();
 
+		// Log a warning if the experiment is deprecated.
+		$deprecated_message = $this->get_deprecation_message();
+		if ( ! empty( $deprecated_message ) ) {
+			graphql_debug(
+				sprintf(
+				// translators: %1$s: The experiment's slug, %2$s: The deprecation message.
+					__( 'The experiment %1$s is deprecated: %2$s', 'wp-graphql' ),
+					esc_html( static::get_slug() ),
+					esc_html( $deprecated_message )
+				)
+			);
+		}
+
 		/**
 		 * Fires after the experiment is loaded.
 		 *
@@ -78,7 +92,7 @@ abstract class AbstractExperiment {
 	/**
 	 * Gets the experiment's configuration array.
 	 *
-	 * @return array{title:string,description:string}
+	 * @return array{title:string,description:string,deprecationMessage?:?string}
 	 */
 	public function get_config(): array {
 		if ( ! isset( $this->config ) ) {
@@ -147,9 +161,25 @@ abstract class AbstractExperiment {
 	}
 
 	/**
+	 * Gets the deprecation message, if it exists.
+	 */
+	public function get_deprecation_message(): ?string {
+		$config = $this->get_config();
+
+		return isset( $config['deprecationMessage'] ) ? $config['deprecationMessage'] : null;
+	}
+
+	/**
+	 * Checks whether the experiment has been deprecated.
+	 */
+	public function is_deprecated(): bool {
+		return ! empty( $this->get_deprecation_message() );
+	}
+
+	/**
 	 * Prepares the configuration.
 	 *
-	 * @return array{title:string,description:string}
+	 * @return array{title:string,description:string,deprecationMessage?:?string}
 	 *
 	 * @throws \Exception If the experiment is missing a slug.
 	 */
@@ -205,6 +235,16 @@ abstract class AbstractExperiment {
 				sprintf(
 					/* translators: %s: The experiment's class name. */
 					esc_html__( 'The experiment %s is missing a description in the configuration. Ensure a valid `description` is defined in the ::config() method.', 'wp-graphql' ),
+					static::class
+				)
+			);
+		}
+
+		if ( isset( $config['deprecationMessage'] ) && ( ! is_string( $config['deprecationMessage'] ) || empty( $config['deprecationMessage'] ) ) ) {
+			throw new \Exception(
+				sprintf(
+					/* translators: %s: The experiment's class name. */
+					esc_html__( 'The experiment %s has an invalid deprecation message in the configuration. If you are trying to deprecate the Experiment, ensure a valid `deprecationMessage` is defined in the ::config() method. Otherwise remove the `deprecationMessage` from the array', 'wp-graphql' ),
 					static::class
 				)
 			);
