@@ -222,3 +222,35 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
     } );
 
 }
+
+/**
+ * Activates the specified plugin in WordPress admin.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page object.
+ * @param {string} slug - The slug of the plugin to activate.
+ * @returns {Promise<void>}
+ */
+export async function activatePlugin(page, slug) {
+    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+    if (!isPluginActive) {
+        await pluginRow.locator('.activate a').click();
+    }
+}
+
+/**
+ * Deactivates the specified plugin in WordPress admin.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page object.
+ * @param {string} slug - The slug of the plugin to deactivate.
+ * @returns {Promise<void>}
+ */
+export async function deactivatePlugin(page, slug) {
+    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+    if (isPluginActive) {
+        await pluginRow.locator('.deactivate a').click();
+    }
+}

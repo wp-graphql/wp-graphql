@@ -335,6 +335,24 @@ final class WPGraphQL {
 			10,
 			3
 		);
+
+		/**
+		 * Prevent WPML from redirecting within WPGraphQL requests
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/1626#issue-769089073
+		 * @since @todo
+		 */
+		add_filter(
+			'wpml_is_redirected',
+			static function ( bool $is_redirect ) {
+				if ( is_graphql_request() ) {
+					return false;
+				}
+				return $is_redirect;
+			},
+			10,
+			1
+		);
 	}
 
 	/**

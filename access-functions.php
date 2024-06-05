@@ -813,21 +813,24 @@ function register_graphql_settings_fields( string $group, array $fields ) {
  * @since 0.13.0
  */
 function get_graphql_setting( string $option_name, $default_value = '', $section_name = 'graphql_general_settings' ) {
-	$section_fields = get_option( $section_name );
+	$section_fields = get_option( $section_name, [] );
 
 	/**
 	 * Filter the section fields
-
+	 *
 	 * @param array<string,mixed> $section_fields The values of the fields stored for the section
 	 * @param string              $section_name   The name of the section
 	 * @param mixed               $default_value  The default value for the option being retrieved
 	 */
 	$section_fields = apply_filters( 'graphql_get_setting_section_fields', $section_fields, $section_name, $default_value );
 
+	// ensure the filtered sections fields are an array before proceeding
+	$section_fields = is_array( $section_fields ) ? $section_fields : [];
+
 	/**
 	 * Get the value from the stored data, or return the default
 	 */
-	$value = isset( $section_fields[ $option_name ] ) ? $section_fields[ $option_name ] : $default_value;
+	$value = $section_fields[ $option_name ] ?? $default_value;
 
 	/**
 	 * Filter the value before returning it
