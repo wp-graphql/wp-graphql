@@ -4,7 +4,7 @@ Tags: GraphQL, JSON, API, Gatsby, Faust, Headless, Decoupled, Svelte, React, Nex
 Requires at least: 5.0
 Tested up to: 6.5
 Requires PHP: 7.1
-Stable tag: 1.26.0
+Stable tag: 1.27.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -269,6 +269,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.27.0 =
+
+**New Features**
+
+- [#3143](https://github.com/wp-graphql/wp-graphql/pull/3143): feat: Enhance tab state management with query arguments and localStorage fallback
+
+**Chores / Bugfixes**
+
+- [#3139](https://github.com/wp-graphql/wp-graphql/pull/3139): fix: `$settings_fields` param on "graphql_get_setting_section_field_value" filter not passing the correct type
+- [#3137](https://github.com/wp-graphql/wp-graphql/pull/3137): fix: WPGraphQL Settings page fails to load when "graphiql_enabled" setting is "off"
+- [#3133](https://github.com/wp-graphql/wp-graphql/pull/3133): build: clean up dist
+- [#3146](https://github.com/wp-graphql/wp-graphql/pull/3146): test: add e2e test coverage for tabs in the settings page
 
 = 1.26.0 =
 

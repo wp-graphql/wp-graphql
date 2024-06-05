@@ -43,6 +43,7 @@ phpstan.neon.dist
 phpunit.xml.dist
 README.md
 schema.graphql
-
-
-
+webpack.config.js
+phpcs.xml.dist
+.wp-env.json
+.codeclimate.yml

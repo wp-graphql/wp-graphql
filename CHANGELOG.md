@@ -1,8 +1,21 @@
 # Changelog
 
-= 1.26.0 =
+## 1.27.0 =
 
-## New Features
+### New Features
+
+- [#3143](https://github.com/wp-graphql/wp-graphql/pull/3143): feat: Enhance tab state management with query arguments and localStorage fallback
+
+### Chores / Bugfixes
+
+- [#3139](https://github.com/wp-graphql/wp-graphql/pull/3139): fix: `$settings_fields` param on "graphql_get_setting_section_field_value" filter not passing the correct type
+- [#3137](https://github.com/wp-graphql/wp-graphql/pull/3137): fix: WPGraphQL Settings page fails to load when "graphiql_enabled" setting is "off"
+- [#3133](https://github.com/wp-graphql/wp-graphql/pull/3133): build: clean up dist
+- [#3146](https://github.com/wp-graphql/wp-graphql/pull/3146): test: add e2e test coverage for tabs in the settings page
+
+## 1.26.0 =
+
+### New Features
 
 - [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
     - new: `graphql_connection_pre_get_query` filter
