@@ -411,8 +411,20 @@ class PostObject {
 				],
 				true
 			) ) {
-			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
+			$fields['ancestors']                   = [
+				'type'              => [ 'list_of' => 'PostObject' ],
+				'deprecationReason' => __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' ),
+				'resolve'           => static function () {
+					return [];
+				},
+			];
+			$fields['parent']                      = [
+				'type'              => 'PostObject',
+				'deprecationReason' => __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' ),
+				'resolve'           => static function () {
+					return null;
+				},
+			];
 		}
 
 		// Merge with fields set in register_post_type.
