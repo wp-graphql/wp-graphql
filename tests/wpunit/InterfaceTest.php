@@ -584,7 +584,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
+
 		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+
 		$expected = [
 			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
 			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
@@ -679,7 +681,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ]);
-		$this->assertQuerySuccessful( $actual, [], 'Invalid field arguments should be flagged' );
+		$this->assertResponseIsValid( $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
+		$this->assertNotEmpty( $actual['errors'], 'Invalid field arguments should be flagged' );
+		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found 2.', $actual['errors'][0]['message'] );
+		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found [2, 4, 5].', $actual['errors'][1]['message'] );
+
+		$this->assertNotEmpty( $actual['extensions']['debug'], 'The interface should be implemented with debug messages.' );
+		$this->assertStringStartsWith( 'Interface field argument "BadObjectTypeImplementingInterfaceWithArgs.fieldWithArgs(interfaceArg:)" expected to be of type "String" but got "Number".', $actual['extensions']['debug'][0]['message'] );
+		$this->assertStringStartsWith( 'Interface field argument "BadObjectTypeImplementingInterfaceWithArgs2.fieldWithArgs(interfaceArg:)" expected to be of type "String" but got "[Number]".', $actual['extensions']['debug'][1]['message'] );
 	}
 	
 	public function testInterfaceWithNonNullableArg() {
