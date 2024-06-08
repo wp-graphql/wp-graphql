@@ -201,16 +201,16 @@ trait WPInterfaceTrait {
 			graphql_debug(
 				sprintf(
 					// translators: %1$s is the field name, %2$s is the type name.
-					__( 'Invalid Interface field registered to the "%s" Type. Fields must be registered a valid GraphQL `type`.', 'wp-graphql' ),
+					__( 'Invalid Interface field %1$s registered to the "%2$s" Type. Fields must be registered a valid GraphQL `type`.', 'wp-graphql' ),
 					$field_name,
-					$this->name
+					$this->config['name']
 				)
 			);
 
 			return null;
 		}
 
-		// Inherit the field type from the interface if it's not set on the field.
+		// Inherit the field config from the interface if it's not set on the field.
 		foreach ( $interface_field as $key => $config ) {
 			// Inherit the field config from the interface if it's not set on the field.
 			if ( empty( $field[ $key ] ) ) {
