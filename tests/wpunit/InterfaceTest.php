@@ -476,6 +476,27 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		register_graphql_interface_type(
+			'AnotherInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields' => [
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'args'    => [
+							'interfaceArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'another parent'
+							],
+						],
+						'resolve' => function( $source, $args ) {
+							return implode( ' ', array_keys( $args ) );
+						}
+					],
+				]
+			]
+		);
+
 		register_graphql_object_type(
 			'ObjectTypeImplementingInterfaceWithArgs',
 			[
@@ -508,6 +529,24 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		register_graphql_object_type(
+			'ObjectTypeImplementingAnotherInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' , 'AnotherInterfaceWithArgs' ],
+				'fields'     => [
+					'fieldWithArgs' => [
+						'args'    => [
+							'objectArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'child'
+							],
+						],
+						'type'    => 'String',
+					],
+				],
+			]
+		);
+
 		register_graphql_fields(
 			'RootQuery',
 			[
@@ -522,7 +561,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'resolve' => function() {
 						return true;
 					},
-				]
+				],
+				'interfaceArgsTest3' => [
+					'type'    => 'ObjectTypeImplementingAnotherInterfaceWithArgs',
+					'resolve' => function() {
+						return true;
+					},
+				],
 			]
 		);
 
@@ -533,6 +578,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			interfaceArgsTest2 {
 				fieldWithArgs
 			}
+			interfaceArgsTest3 {
+				fieldWithArgs
+			}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
@@ -540,6 +588,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$expected = [
 			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
 			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
+			$this->expectedField( 'interfaceArgsTest3.fieldWithArgs', 'interfaceArg objectArg' ),
 		];
 		$this->assertQuerySuccessful( $actual, $expected, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
 	}
