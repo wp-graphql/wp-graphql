@@ -248,8 +248,8 @@ trait WPInterfaceTrait {
 			}
 
 			// Check if the interface arg type is different from the new field arg type.
-			$field_arg_type     = $this->field_arg_type_to_string( $config['type'] );
-			$interface_arg_type = $merged_args[ $arg_name ]['type']();
+			$field_arg_type     = $this->normalize_type_name( $config['type'] );
+			$interface_arg_type = $this->normalize_type_name( $merged_args[ $arg_name ]['type'] );
 
 			if ( ! empty( $field_arg_type ) && $interface_arg_type !== $field_arg_type ) {
 				graphql_debug(
@@ -281,14 +281,26 @@ trait WPInterfaceTrait {
 	 *
 	 * This is used for optimistic comparison of the arg types.
 	 *
-	 * @param string|array<string,mixed>|mixed $type A GraphQL Type
+	 * @param string|array<string,mixed>|callable|\GraphQL\Type\Definition\Type $type The type to normalize.
 	 */
-	private function field_arg_type_to_string( $type ): string {
-		// Bail if the type is empty.
+	private function normalize_type_name( $type ): string {
+		// Bail early if the type is empty.
 		if ( empty( $type ) ) {
 			return '';
-		} elseif ( is_string( $type ) ) {
-			// If the type is already a string, return it as is.
+		}
+
+		// If the type is a callable, we need to resolve it.
+		if ( is_callable( $type ) ) {
+			$type = $type();
+		}
+
+		// If the type is an instance of a Type, we can get the name.
+		if ( $type instanceof \GraphQL\Type\Definition\Type ) {
+			$type = $type->name;
+		}
+
+		// If the type is *now* a string, we can return it.
+		if ( is_string( $type ) ) {
 			return $type;
 		} elseif ( ! is_array( $type ) ) {
 			// If the type is not an array, we can't do anything with it.
@@ -299,12 +311,14 @@ trait WPInterfaceTrait {
 		$output   = '';
 		$modifier = array_keys( $type )[0];
 		$type     = $type[ $modifier ];
+
+		// Convert the type wrappers to a string, and recursively get the internals.
 		switch ( $modifier ) {
 			case 'list_of':
-				$output = '[' . $this->field_arg_type_to_string( $type ) . ']';
+				$output = '[' . $this->normalize_type_name( $type ) . ']';
 				break;
 			case 'non_null':
-				$output = '!' . $this->field_arg_type_to_string( $type );
+				$output = '!' . $this->normalize_type_name( $type );
 				break;
 		}
 
