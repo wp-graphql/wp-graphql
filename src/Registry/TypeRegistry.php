@@ -55,6 +55,7 @@ use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\PostStatusEnum;
 use WPGraphQL\Type\Enum\RelationEnum;
 use WPGraphQL\Type\Enum\ScriptLoadingStrategyEnum;
+use WPGraphQL\Type\Enum\ScriptLoadingGroupEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
 use WPGraphQL\Type\Enum\TermNodeIdTypeEnum;
@@ -356,6 +357,7 @@ class TypeRegistry {
 		PostStatusEnum::register_type();
 		RelationEnum::register_type();
 		ScriptLoadingStrategyEnum::register_type();
+		ScriptLoadingGroupEnum::register_type();
 		TaxonomyEnum::register_type();
 		TaxonomyIdTypeEnum::register_type();
 		TermNodeIdTypeEnum::register_type();

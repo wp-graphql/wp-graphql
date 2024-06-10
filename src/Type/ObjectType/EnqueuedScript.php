@@ -31,8 +31,11 @@ class EnqueuedScript {
 						},
 					],
 					'dependencies' => [
-						'type'        => [ 'list_of' => 'EnqueuedScript' ],
-						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+						'type'        => [ 'list_of' => 'String' ],
+						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
+						'resolve'     => static function ( $asset ) {
+							return $asset->deps;
+						}
 					],
 					'extraData'    => [
 						'type'        => 'String',
@@ -54,6 +57,17 @@ class EnqueuedScript {
 							}
 
 							return $script->extra['strategy'];
+						},
+					],
+					'group'     => [
+						'type'        => 'ScriptLoadingGroupEnum',
+						'description' => __( 'The loading strategy to use on the script tag', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
+							if ( ! isset( $script->extra['group'] ) ) {
+								return 0;
+							}
+
+							return absint( $script->extra['group'] );
 						},
 					],
 					'version'      => [

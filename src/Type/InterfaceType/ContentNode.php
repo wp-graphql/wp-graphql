@@ -10,6 +10,65 @@ use WPGraphQL\Registry\TypeRegistry;
 class ContentNode {
 
 	/**
+	 * Get the handles of all scripts enqueued for a given post
+	 *
+	 * @param array $queue
+	 *
+	 * @return array
+	 */
+	public static function get_enqueued_scripts_handles( $queue ) {
+		global $wp_scripts;
+		$registered_scripts = $wp_scripts->registered;
+		$handles = [];
+		foreach ( $queue as $handle ) {
+			if ( empty( $registered_scripts[ $handle ] ) ) {
+				continue;
+			}
+			$script = $registered_scripts[ $handle ];
+			if ( ! empty( $script->src ) ) {
+				$handles[] = $script->handle;
+			}
+
+			$dependencies = self::get_enqueued_scripts_handles( $script->deps );
+			if ( empty( $dependencies ) ) {
+				continue;
+			}
+	
+			//$dependencies = array_reverse( $dependencies );
+			array_unshift( $handles, ...$dependencies );
+		}
+
+		return array_values( array_unique( $handles ) );
+	}
+
+	public static function get_enqueued_styles_handles( $queue ) {
+		global $wp_styles;
+		$registered_scripts = $wp_styles->registered;
+		$handles = [];
+		foreach ( $queue as $handle ) {
+			if ( empty( $registered_scripts[ $handle ] ) ) {
+				continue;
+			}
+			$script = $registered_scripts[ $handle ];
+			if ( ! empty( $script->src ) ) {
+				$handles[] = $script->handle;
+			}
+
+			$dependencies = self::get_enqueued_styles_handles( $script->deps );
+			if ( empty( $dependencies ) ) {
+				continue;
+			}
+	
+			//$dependencies = array_reverse( $dependencies );
+			array_unshift( $handles, ...$dependencies );
+		}
+
+		return array_values( array_unique( $handles ) );
+	}
+
+
+
+	/**
 	 * Adds the ContentNode Type to the WPGraphQL Registry
 	 *
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
@@ -52,6 +111,17 @@ class ContentNode {
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => static function ( $source, $args, $context, $info ) {
+							global $wp_scripts;
+							$source->contentRendered;
+							do_action( 'enqueue_block_assets' );
+							do_action( 'wp_enqueue_scripts' );
+
+							ob_start();
+							wp_head();
+							wp_footer();
+							ob_get_clean();
+							$queue = self::get_enqueued_scripts_handles( $source->enqueuedScriptsQueue ?? [] );
+							$source = (object) [ 'enqueuedScriptsQueue' => $queue ];
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -60,6 +130,17 @@ class ContentNode {
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
 						'resolve' => static function ( $source, $args, $context, $info ) {
+							$source->contentRendered;
+							do_action( 'enqueue_block_assets' );
+							do_action( 'wp_enqueue_scripts' );
+
+							ob_start();
+							wp_head();
+							wp_footer();
+							ob_get_clean();
+							$queue = self::get_enqueued_styles_handles( $source->enqueuedStylesheetsQueue ?? [] );
+							$source = (object) [ 'enqueuedStylesheetsQueue' => $queue ];
+
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
 						},

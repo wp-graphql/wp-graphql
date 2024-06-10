@@ -31,8 +31,8 @@ class EnqueuedStylesheet {
 						},
 					],
 					'dependencies' => [
-						'type'        => [ 'list_of' => 'EnqueuedStylesheet' ],
-						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+						'type'        => [ 'list_of' => 'String' ],
+						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
 					],
 					'isRtl'        => [
 						'type'        => 'Boolean',
