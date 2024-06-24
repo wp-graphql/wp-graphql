@@ -2,9 +2,9 @@
 
 namespace WPGraphQL\Admin;
 
+use WPGraphQL\Admin\Extensions\Extensions;
 use WPGraphQL\Admin\GraphiQL\GraphiQL;
 use WPGraphQL\Admin\Settings\Settings;
-use WPGraphQL\Admin\Extensions\Extensions;
 
 /**
  * Class Admin

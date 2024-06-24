@@ -1,4 +1,4 @@
-import { render, useState, useEffect } from '@wordpress/element';
+import { render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, CardBody, CardHeader } from '@wordpress/components';
 
@@ -8,40 +8,7 @@ import { Button, Card, CardBody, CardHeader } from '@wordpress/components';
  * @return {JSX.Element} The Extensions component
  */
 const Extensions = () => {
-	const [ extensions, setExtensions ] = useState( [] );
-	const [ isLoading, setIsLoading ] = useState( true );
-
-	useEffect( () => {
-		const query = `
-			query {
-				wpgraphqlExtensions {
-					extensions {
-						id
-						name
-						description
-					}
-				}
-			}
-		`;
-
-		fetch( wpgraphqlExtensions.graphqlUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-WP-Nonce': wpgraphqlExtensions.nonce,
-			},
-			body: JSON.stringify({ query }),
-		} )
-			.then( ( response ) => response.json() )
-			.then( ( data ) => {
-				setExtensions( data.data.wpgraphqlExtensions.extensions );
-				setIsLoading( false );
-			} );
-	}, [] );
-
-	if ( isLoading ) {
-		return <p>{ __( 'Loading...', 'wp-graphql' ) }</p>;
-	}
+	const { extensions } = window.wpgraphqlExtensions;
 
 	return (
 		<div className="wpgraphql-extensions">
@@ -52,7 +19,7 @@ const Extensions = () => {
 					</CardHeader>
 					<CardBody>
 						<p>{ extension.description }</p>
-						<Button isPrimary>{ __( 'Install', 'wp-graphql' ) }</Button>
+						<Button variant='primary'>{ __( 'Install', 'wp-graphql' ) }</Button>
 					</CardBody>
 				</Card>
 			) ) }
