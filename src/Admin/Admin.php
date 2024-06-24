@@ -4,6 +4,7 @@ namespace WPGraphQL\Admin;
 
 use WPGraphQL\Admin\GraphiQL\GraphiQL;
 use WPGraphQL\Admin\Settings\Settings;
+use WPGraphQL\Admin\Extensions\Extensions;
 
 /**
  * Class Admin
@@ -30,6 +31,11 @@ class Admin {
 	 * @var \WPGraphQL\Admin\Settings\Settings
 	 */
 	protected $settings;
+
+	/**
+	 * @var \WPGraphQL\Admin\Extensions\Extensions
+	 */
+	protected $extensions;
 
 	/**
 	 * Initialize Admin functionality for WPGraphQL
@@ -69,5 +75,8 @@ class Admin {
 			$graphiql = new GraphiQL();
 			$graphiql->init();
 		}
+
+		$this->extensions = new Extensions();
+		$this->extensions->init();
 	}
 }
