@@ -67,7 +67,12 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		}
 
 		// Assign menu to location.
-		set_theme_mod( 'nav_menu_locations', [ $location => $menu_id ] );
+		if( ! empty( $location ) ) {
+			$menus = get_theme_mod( 'nav_menu_locations' );
+			$menus[ $location ] = $menu_id;
+
+			set_theme_mod( 'nav_menu_locations', $menus );
+		}
 
 		// Make sure menu items were created.
 		$this->assertEquals( $count, count( $menu_item_ids ) );
@@ -373,7 +378,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		$expected = $actual['data']['menuItems']['nodes'][2];
 		$actual   = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 
@@ -392,7 +397,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		// Get 5 items, but between the bounds of a before and after cursor.
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['menuItems']['nodes'][0] );
 	}
@@ -411,7 +416,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 
 		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
 		$this->compareResults( [ $menu_item_id ], [ $post_id ], $actual );
@@ -423,9 +428,13 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		$menu_location = 'my-menu-items-location';
 		register_nav_menu( $menu_location, 'My MenuItems' );
-		WPGraphQL::clear_schema();
 
-		$created = $this->create_menu_items( 'menu-for-location-test', $menu_location, 1 );
+		// // These should be filtered out.
+		$ignored_location = 'ignored-menu-items-location';
+		$ignored = $this->create_menu_items( 'ignored-menu-for-test', $ignored_location, 3 );
+		register_nav_menu( $ignored_location, 'Ignored MenuItems' );
+
+		WPGraphQL::clear_schema();
 
 		$query = $this->getQuery();
 
@@ -435,10 +444,29 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			],
 		];
 
+		// Test with no menu assigned.
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertEmpty( $actual['data']['menuItems']['edges'], 'An empty menuItem location should return empty' );
+
+		// Test with menu assigned.
+		$created = $this->create_menu_items( 'menu-for-location-test', $menu_location, 1 );
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		// The returned menu items have the expected number.
-		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ) );
+		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ), 'The menu items should only return for the location' );
+
+		// Perform some common assertions.
+		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
+
+		// Test as authenticated user still returns the same number of menu items.
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// The returned menu items have the expected number.
+		$this->assertEquals( 1, count( $actual['data']['menuItems']['edges'] ), 'The menu items should only return for the location' );
 
 		// Perform some common assertions.
 		$this->compareResults( $created['menu_item_ids'], $created['post_ids'], $actual );
@@ -723,7 +751,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		 * @param array $actual The GraphQL results.
 		 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertIsValidQueryResponse( $actual );
+		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$this->assertEquals( 2, count( $actual['data']['menuItems']['edges'] ) );

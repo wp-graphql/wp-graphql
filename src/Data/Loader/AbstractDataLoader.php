@@ -95,7 +95,7 @@ abstract class AbstractDataLoader {
 					static::class . '::buffer expects all keys to be scalars, but key ' .
 					'at position ' . esc_html( $index ) . ' is ' . esc_html(
 						Utils::printSafe( $keys ) . '. ' .
-						$this->get_scalar_key_hint( $key ) 
+						$this->get_scalar_key_hint( $key )
 					)
 				);
 			}
@@ -120,7 +120,7 @@ abstract class AbstractDataLoader {
 			throw new Exception(
 				static::class . '::load expects key to be scalar, but got ' . esc_html(
 					Utils::printSafe( $key ) .
-					$this->get_scalar_key_hint( $key ) 
+					$this->get_scalar_key_hint( $key )
 				)
 			);
 		}
@@ -150,7 +150,7 @@ abstract class AbstractDataLoader {
 			throw new Exception(
 				static::class . '::prime is expecting scalar $key, but got ' . esc_html(
 					Utils::printSafe( $key )
-					. $this->get_scalar_key_hint( $key ) 
+					. $this->get_scalar_key_hint( $key )
 				)
 			);
 		}
@@ -272,7 +272,7 @@ abstract class AbstractDataLoader {
 	private function generate_many( array $keys, array $result ) {
 		foreach ( $keys as $key ) {
 			$key = $this->key_to_scalar( $key );
-			yield isset( $result[ $key ] ) ? $this->get_model( $result[ $key ], $key ) : null;
+			yield isset( $result[ $key ] ) ? $this->normalize_entry( $result[ $key ], $key ) : null;
 		}
 	}
 

@@ -144,7 +144,6 @@ class TypeRegistry {
 	 */
 	protected $types;
 
-
 	/**
 	 * The loaders needed to register types
 	 *
@@ -170,7 +169,6 @@ class TypeRegistry {
 	 * @var string[]
 	 */
 	protected $excluded_types = null;
-
 
 	/**
 	 * Stores a list of mutation names that should be excluded from the schema, along with their generated input and payload types.
@@ -1089,7 +1087,28 @@ class TypeRegistry {
 					return $fields;
 				}
 
+				// if a field has already been registered with the same name output a debug message
 				if ( isset( $fields[ $field_name ] ) ) {
+
+					// if the existing field is a connection type
+					// and the new field is also a connection type
+					// and the toType is the same for both
+					// then we can allow the duplicate field
+					if (
+						isset(
+							$fields[ $field_name ]['isConnectionField'],
+							$config['isConnectionField'],
+							$fields[ $field_name ]['toType'],
+							$config['toType'],
+							$fields[ $field_name ]['connectionTypeName'],
+							$config['connectionTypeName']
+						) &&
+						$fields[ $field_name ]['toType'] === $config['toType'] &&
+						$fields[ $field_name ]['connectionTypeName'] === $config['connectionTypeName']
+					) {
+						return $fields;
+					}
+
 					graphql_debug(
 						sprintf(
 							// translators: %1$s is the field name, %2$s is the type name.
@@ -1098,9 +1117,11 @@ class TypeRegistry {
 							$type_name
 						),
 						[
-							'type'       => 'DUPLICATE_FIELD',
-							'field_name' => $field_name,
-							'type_name'  => $type_name,
+							'type'            => 'DUPLICATE_FIELD',
+							'field_name'      => $field_name,
+							'type_name'       => $type_name,
+							'existing_field'  => $fields[ $field_name ],
+							'duplicate_field' => $config,
 						]
 					);
 					return $fields;

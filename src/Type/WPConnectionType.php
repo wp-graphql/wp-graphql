@@ -515,6 +515,7 @@ class WPConnectionType {
 				'type'                  => true === $this->one_to_one ? $this->connection_name . 'Edge' : $this->connection_name,
 				'args'                  => array_merge( $this->get_pagination_args(), $this->where_args ),
 				'auth'                  => $this->auth,
+				'isConnectionField'     => true,
 				'deprecationReason'     => ! empty( $this->config['deprecationReason'] ) ? $this->config['deprecationReason'] : null,
 				'description'           => ! empty( $this->config['description'] )
 					? $this->config['description']
@@ -561,7 +562,6 @@ class WPConnectionType {
 				]
 			);
 		}
-
 
 		if ( ! $this->type_registry->has_type( $connection_edge_type ) ) {
 			$this->type_registry->register_interface_type(

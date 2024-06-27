@@ -12,7 +12,7 @@ class TaxonomyLoader extends AbstractDataLoader {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param mixed|\WP_Taxonomy $entry The Taxonomy Object
 	 *
 	 * @return \WPGraphQL\Model\Taxonomy

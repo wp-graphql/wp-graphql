@@ -360,6 +360,22 @@ class PostObject {
 					return absint( $post->ID );
 				},
 			],
+			'hasPassword'       => [
+				'type'        => 'Boolean',
+				'description' => sprintf(
+					// translators: %s: custom post-type name.
+					__( 'Whether the %s object is password protected.', 'wp-graphql' ),
+					$post_type_object->name
+				),
+			],
+			'password'          => [
+				'type'        => 'String',
+				'description' => sprintf(
+					// translators: %s: custom post-type name.
+					__( 'The password for the %s object.', 'wp-graphql' ),
+					$post_type_object->name
+				),
+			],
 		];
 
 		if ( 'page' === $post_type_object->name ) {
@@ -413,7 +429,6 @@ class PostObject {
 
 		return $fields;
 	}
-
 
 	/**
 	 * Register fields to the Type used for attachments (MediaItem).

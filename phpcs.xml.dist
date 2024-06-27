@@ -115,6 +115,17 @@
 	<!-- Enforce short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
+	<!-- Check for superfluous whitespace - These are suppressed in VIP-GO.-->
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
+		<severity>5</severity>
+	</rule>
+
 	<!-- Slevomat Coding Standards-->
 	<rule ref="SlevomatCodingStandard.Arrays">
 		<!-- Conflicts with WPCS -->

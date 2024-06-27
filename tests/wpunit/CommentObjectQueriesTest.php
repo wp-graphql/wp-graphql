@@ -131,12 +131,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				dateGmt
 				id
 				karma
+				link
 				parent {
 					node {
 						id
 					}
 				}
 				status
+				uri
 			}
 		}';
 
@@ -178,8 +180,10 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				'dateGmt'     => $this->current_date_gmt,
 				'id'          => $global_id,
 				'karma'       => null,
+				'link'        => get_comment_link( $comment_id ),
 				'parent'      => null,
 				'status'      => 'APPROVE',
+				'uri'         => str_ireplace( home_url(), '', get_comment_link( $comment_id ) ),
 			],
 		];
 
@@ -484,6 +488,8 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				karma
 				content
 				status
+				link
+				uri
 				commentedOn{
 					node {
 						... on Post{
@@ -515,6 +521,10 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$this->assertEquals( apply_filters( 'comment_text', $subscriber_args['comment_content'] ), $subscriber_actual['data']['comment']['content'] );
 		$this->assertEquals( apply_filters( 'comment_text', $admin_args['comment_content'] ), $admin_actual['data']['comment']['content'] );
+
+		$expected_link = get_comment_link( $admin_comment );
+		$this->assertEquals( $expected_link, $admin_actual['data']['comment']['link'] );
+		$this->assertEquals( str_ireplace( home_url(), '', $expected_link ), $admin_actual['data']['comment']['uri'] );
 
 		if ( true === $should_display ) {
 			$this->assertNotNull( $admin_actual['data']['comment']['authorIp'] );

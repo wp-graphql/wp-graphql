@@ -205,7 +205,7 @@ class Config {
 		$key    = $cursor->get_cursor_id_key();
 
 		// If there is a cursor compare in the arguments, use it as the stablizer for cursors.
-		return "{$orderby}, {$key} {$order}";
+		return ( $orderby ? "{$orderby}, " : '' ) . "{$key} {$order}";
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Config {
 		$cursor = new UserCursor( $query->query_vars );
 		$key    = $cursor->get_cursor_id_key();
 
-		return "{$orderby}, {$key} {$order}";
+		return ( $orderby ? "{$orderby}, " : '' ) . "{$key} {$order}";
 	}
 
 	/**
@@ -420,7 +420,7 @@ class Config {
 			$pieces['where'] = $pieces['where'] . $before_cursor->get_where();
 		}
 
-		// Check the cursor compare order
+		// Check the cursor compare order.
 		$order = '>' === $args['graphql_cursor_compare'] ? 'ASC' : 'DESC';
 
 		// Get Cursor ID key.
@@ -428,8 +428,13 @@ class Config {
 		$key    = $cursor->get_cursor_id_key();
 
 		// If there is a cursor compare in the arguments, use it as the stabilizer for cursors.
-		$pieces['orderby'] = "{$pieces['orderby']} {$pieces['order']}, {$key} {$order}";
-		$pieces['order']   = '';
+		if ( ! empty( $pieces['orderby'] ) ) {
+			$pieces['orderby'] = "{$pieces['orderby']} {$pieces['order']}, {$key} {$order}";
+		} else {
+			$pieces['orderby'] = "ORDER BY {$key} {$order}";
+		}
+
+		$pieces['order'] = '';
 
 		return $pieces;
 	}

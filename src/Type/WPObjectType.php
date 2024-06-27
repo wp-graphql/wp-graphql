@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Type;
 
-use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Registry\TypeRegistry;
@@ -43,6 +42,16 @@ class WPObjectType extends ObjectType {
 	public $config;
 
 	/**
+	 * @var array<string, array<string, mixed>>
+	 */
+	public $fields;
+
+	/**
+	 * @var array<\GraphQL\Type\Definition\InterfaceType>
+	 */
+	public $interfaces;
+
+	/**
 	 * WPObjectType constructor.
 	 *
 	 * @param array<string,mixed>              $config
@@ -79,47 +88,7 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @return array<string, array<string, mixed>> $fields
 		 */
-		$config['fields'] = function () use ( $config ) {
-			$fields = $config['fields'];
-
-			/**
-			 * Get the fields of interfaces and ensure they exist as fields of this type.
-			 *
-			 * Types are still responsible for ensuring the fields resolve properly.
-			 */
-			if ( ! empty( $this->getInterfaces() ) && is_array( $this->getInterfaces() ) ) {
-				$interface_fields = [];
-
-				foreach ( $this->getInterfaces() as $interface_type ) {
-					if ( ! $interface_type instanceof InterfaceType ) {
-						$interface_type = $this->type_registry->get_type( $interface_type );
-					}
-
-					if ( ! $interface_type instanceof InterfaceType ) {
-						continue;
-					}
-
-					$interface_config_fields = $interface_type->getFields();
-
-					if ( empty( $interface_config_fields ) ) {
-						continue;
-					}
-
-					foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
-						$interface_fields[ $interface_field_name ] = $interface_field->config;
-					}
-				}
-			}
-
-			if ( ! empty( $interface_fields ) ) {
-				$fields = array_replace_recursive( $interface_fields, $fields );
-			}
-
-			$fields = $this->prepare_fields( $fields, $config['name'], $config );
-			$fields = $this->type_registry->prepare_fields( $fields, $config['name'] );
-
-			return $fields;
-		};
+		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
 
 		/**
 		 * Run an action when the WPObjectType is instantiating
@@ -138,7 +107,11 @@ class WPObjectType extends ObjectType {
 	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	public function getInterfaces(): array {
-		return $this->get_implemented_interfaces();
+		if ( ! empty( $this->interfaces ) ) {
+			return $this->interfaces;
+		}
+		$this->interfaces = $this->get_implemented_interfaces();
+		return $this->interfaces;
 	}
 
 	/**
@@ -164,7 +137,7 @@ class WPObjectType extends ObjectType {
 	 * extending/modifying the shape of the Schema for the type.
 	 *
 	 * @param array<string,mixed> $fields    The array of fields for the object config
-	 * @param string              $type_name
+	 * @param string              $type_name The name of the type to prepare fields for
 	 * @param array<string,mixed> $config    The config for the Object Type
 	 *
 	 * @return array<string,mixed>

@@ -1264,8 +1264,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'graphql_post_object_connection_query_args',
 			static function ( $query_args, $source, $input ) {
 
-				global $wpdb;
-
 				if ( isset( $input['where']['orderby'] ) && is_array( $input['where']['orderby'] ) ) {
 					$new_orderby = isset( $query_args['orderby'] ) ? $query_args['orderby'] : [];
 

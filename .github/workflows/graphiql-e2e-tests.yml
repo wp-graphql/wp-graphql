@@ -1,54 +1,67 @@
 name: GraphiQL End-to-End Tests
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - '**.js'
+      - '.github/workflows/*.yml'
+      - '!docs/**'
+
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  # Group workflow runs by workflow name, along with the head branch ref of the pull request
+  # or otherwise the branch or tag ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  admin:
-    name: GraphiQL E2E Tests
-    runs-on: ubuntu-latest
-    if: ${{ github.repository == 'wp-graphql/wp-graphql' || github.event_name == 'pull_request' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['16.13.0']
+    e2e-tests:
+        name: E2E tests on Node ${{ matrix.node-version }}
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Cancel previous runs of this workflow (pull requests only)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Checkout
-        uses: actions/checkout@v3
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
 
-      - name: Use desired version of NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: npm
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: 8.2
+                extensions: mbstring, intl
+                tools: composer
 
-      - name: Setup PHP w/ Composer & WP-CLI
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 7.3
-          extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
-          coverage: none
-          tools: composer, wp-cli
+            - name: Install dependencies
+              uses: ramsey/composer-install@v3
+              with:
+                composer-options: "--no-progress"
 
-      - name: Install Composer Dependencies
-        run: |
-          composer install --no-dev
+            - name: Install JavaScript dependencies
+              run: npm ci
 
-      - name: Install NPM Dependencies and Build the GraphiQL App
-        id: install-and-build
-        run: |
-          npm ci && npm run build
+            - name: Build Assets
+              run: npm run build
 
-      - name: Install WordPress
-        run: |
-          npm run wp-env start
-      - name: Running the tests
-        run: |
-          npm run test-e2e
+            - name: Install Playwright dependencies
+              run: |
+                  npx playwright install chromium firefox webkit --with-deps
+
+            - name: Start WordPress Environment
+              run: npm run wp-env -- start
+
+            - name: Run E2E tests
+              run: npm run test:e2e
+
+            - name: Stop WordPress Environment
+              run: npm run wp-env -- stop
