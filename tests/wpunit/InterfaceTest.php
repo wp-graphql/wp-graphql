@@ -771,8 +771,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'type' => 'String',
 					'args' => [
 						'interfaceArg' => [
-							'type' => 'String',
-							'defaultValue' => 'interfaceArg',
+							'type' => 'Boolean',
 						],
 					],
 					'resolve' => function() {
@@ -794,12 +793,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				// so it should inherit the arguments from the interface
 				'fieldWithArgs' => [
 					'type' => 'String',
-					'args' => [
-						'anotherInterfaceArg' => [
-							'type' => 'String',
-							'defaultValue' => 'anotherInterfaceArg',
-						],
-					],
 					'resolve' => function() {
 						return null;
 					},
@@ -831,13 +824,11 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$query = 'query {
 			testField {
-				fieldWithArgs(interfaceArg: "test")
+				fieldWithArgs(interfaceArg: true )
 			}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
-
-
 
 		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
 		$this->assertQuerySuccessful(
