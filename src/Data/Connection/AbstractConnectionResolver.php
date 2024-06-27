@@ -832,7 +832,7 @@ abstract class AbstractConnectionResolver {
 	 * @return static
 	 */
 	public function set_query_arg( $key, $value ) {
-    if ( ! empty( $this->query_args[ $key ] ) && is_array( $this->query_args[ $key ] ) ) {
+		if ( ! empty( $this->query_args[ $key ] ) && is_array( $this->query_args[ $key ] ) ) {
 			if ( ! is_array( $value ) ) {
 				$value = [ $value ];
 			}
