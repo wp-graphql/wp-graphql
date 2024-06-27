@@ -476,6 +476,27 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		register_graphql_interface_type(
+			'AnotherInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' ],
+				'fields' => [
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'args'    => [
+							'interfaceArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'another parent'
+							],
+						],
+						'resolve' => function( $source, $args ) {
+							return implode( ' ', array_keys( $args ) );
+						}
+					],
+				]
+			]
+		);
+
 		register_graphql_object_type(
 			'ObjectTypeImplementingInterfaceWithArgs',
 			[
@@ -508,6 +529,24 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+		register_graphql_object_type(
+			'ObjectTypeImplementingAnotherInterfaceWithArgs',
+			[
+				'interfaces' => [ 'InterfaceWithArgs' , 'AnotherInterfaceWithArgs' ],
+				'fields'     => [
+					'fieldWithArgs' => [
+						'args'    => [
+							'objectArg' => [
+								'type'         => 'String',
+								'defaultValue' => 'child'
+							],
+						],
+						'type'    => 'String',
+					],
+				],
+			]
+		);
+
 		register_graphql_fields(
 			'RootQuery',
 			[
@@ -522,7 +561,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					'resolve' => function() {
 						return true;
 					},
-				]
+				],
+				'interfaceArgsTest3' => [
+					'type'    => 'ObjectTypeImplementingAnotherInterfaceWithArgs',
+					'resolve' => function() {
+						return true;
+					},
+				],
 			]
 		);
 
@@ -533,13 +578,19 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			interfaceArgsTest2 {
 				fieldWithArgs
 			}
+			interfaceArgsTest3 {
+				fieldWithArgs
+			}
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ] );
+
 		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+
 		$expected = [
 			$this->expectedField( 'interfaceArgsTest.fieldWithArgs', 'interfaceArg objectArg' ),
 			$this->expectedField( 'interfaceArgsTest2.fieldWithArgs', 'interfaceArg' ),
+			$this->expectedField( 'interfaceArgsTest3.fieldWithArgs', 'interfaceArg objectArg' ),
 		];
 		$this->assertQuerySuccessful( $actual, $expected, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
 	}
@@ -560,7 +611,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					],
 				]
 
-			] 
+			]
 
 		);
 
@@ -630,9 +681,16 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}';
 
 		$actual = $this->graphql( [ 'query' => $query ]);
-		$this->assertQuerySuccessful( $actual, [], 'Invalid field arguments should be flagged' );
+		$this->assertResponseIsValid( $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
+		$this->assertNotEmpty( $actual['errors'], 'Invalid field arguments should be flagged' );
+		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found 2.', $actual['errors'][0]['message'] );
+		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found [2, 4, 5].', $actual['errors'][1]['message'] );
+
+		$this->assertNotEmpty( $actual['extensions']['debug'], 'The interface should be implemented with debug messages.' );
+		$this->assertStringStartsWith( 'Interface field argument "BadObjectTypeImplementingInterfaceWithArgs.fieldWithArgs(interfaceArg:)" expected to be of type "String" but got "Number".', $actual['extensions']['debug'][0]['message'] );
+		$this->assertStringStartsWith( 'Interface field argument "BadObjectTypeImplementingInterfaceWithArgs2.fieldWithArgs(interfaceArg:)" expected to be of type "String" but got "[Number]".', $actual['extensions']['debug'][1]['message'] );
 	}
-	
+
 	public function testInterfaceWithNonNullableArg() {
 		register_graphql_interface_type( 'InterfaceWithNonNullableArg', [
 			'fields' => [
@@ -703,6 +761,80 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$actual,
 			[ $this->expectedField( 'testField.fieldWithNonNullableArg',self::IS_NULL ) ],
 			'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type'
+		);
+	}
+
+	public function testDebugMessageNotShownIfInterfaceFieldHasArgs() {
+		register_graphql_interface_type( 'InterfaceFieldWithArgs', [
+			'fields' => [
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'args' => [
+						'interfaceArg' => [
+							'type' => 'Boolean',
+						],
+					],
+					'resolve' => function() {
+						return null;
+					},
+				],
+			],
+			'resolveType' => static function () {
+				return 'TestType';
+			},
+		] );
+
+		// Register an interface that implements the other one, but does not define
+		// any arguments for the field.
+		register_graphql_interface_type( 'AnotherInterface', [
+			'interfaces' => [ 'InterfaceFieldWithArgs' ],
+			'fields' => [
+				// this field does not define any arguments,
+				// so it should inherit the arguments from the interface
+				'fieldWithArgs' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return null;
+					},
+				],
+			],
+			'resolveType' => static function () {
+				return 'TestType';
+			},
+		] );
+
+		register_graphql_object_type( 'TestType', [
+			'interfaces' => [ 'AnotherInterface' ],
+			'fields' => [
+				'testField' => [
+					'type' => 'String',
+					'resolve' => function() {
+						return 'object value';
+					},
+				],
+			],
+		]);
+
+		register_graphql_field( 'RootQuery', 'testField', [
+			'type' => 'AnotherInterface',
+			'resolve' => function() {
+				return true;
+			},
+		] );
+
+		$query = 'query {
+			testField {
+				fieldWithArgs(interfaceArg: true )
+			}
+		}';
+
+		$actual = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[ $this->expectedField( 'testField.fieldWithNoArgs', self::IS_NULL ) ],
+			'The query should be valid as the interface field has no arguments'
 		);
 	}
 }
