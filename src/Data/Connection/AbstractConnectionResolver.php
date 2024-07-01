@@ -829,9 +829,27 @@ abstract class AbstractConnectionResolver {
 	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
 	 *
+	 * @deprecated Deprecated since v1.28.0 in favor of $this->get_args();
+	 *
 	 * @return static
 	 */
-	public function set_query_arg( $key, $value ) {
+	public function set_query_arg( string $key, $value ) {
+		_deprecated_function( __METHOD__, '1.28.0', static::class . '::override_query_arg()' );
+		$this->query_args[ $key ] = $value;
+		return $this;
+	}
+
+	/**
+	 * Given a key and value, this adds a query_arg which will modify the query_args used by ::get_query();
+	 *
+	 * Unlike ::override_query_arg(), this method will append the value to the query arg if the query arg is an array.
+	 *
+	 * @param string $key   The key of the query arg to set
+	 * @param mixed  $value The value of the query arg to set
+	 *
+	 * @return static
+	 */
+	public function add_query_arg( string $key, $value ) {
 		if ( ! empty( $this->query_args[ $key ] ) && is_array( $this->query_args[ $key ] ) ) {
 			if ( ! is_array( $value ) ) {
 				$value = [ $value ];
@@ -840,6 +858,23 @@ abstract class AbstractConnectionResolver {
 		} else {
 			$this->query_args[ $key ] = $value;
 		}
+		return $this;
+	}
+
+	/**
+	 * Given a key and value, this sets a query_arg which will modify the query_args used by ::get_query();
+	 *
+	 * This overrides any existing value for the query arg, including values filtered by plugins, rather than appending to it.
+	 *
+	 * This method can be used by resolvers to ensure the query args set by the resolver are used, rather than any filtered values or values input by the user as "$where" args.
+	 *
+	 * @param string $key   The key of the query arg to set
+	 * @param mixed  $value The value of the query arg to set
+	 *
+	 * @return static
+	 */
+	public function override_query_arg( string $key, $value ) {
+		$this->query_args[ $key ] = $value;
 		return $this;
 	}
 

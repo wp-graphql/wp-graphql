@@ -70,7 +70,7 @@ class User {
 							}
 
 							// Only get roles matching the slugs of the roles belonging to the user
-							$resolver->set_query_arg( 'slugIn', $user->roles );
+							$resolver->override_query_arg( 'slugIn', $user->roles );
 							return $resolver->get_connection();
 						},
 					],

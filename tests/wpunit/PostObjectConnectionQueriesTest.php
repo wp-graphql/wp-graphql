@@ -1877,6 +1877,95 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		add_action( 'graphql_map_input_fields_to_wp_query', function($query_args, $input_args) {
 			if ( isset( $input_args['postsWithoutTags'] ) ) {
 
+				$tax_query = $query_args['tax_query'] ?? null;
+
+				if ( ! empty( $tax_query ) && is_array( $tax_query ) ) {
+
+					$query_args['tax_query'] = array_merge( $tax_query, [
+						[
+							'taxonomy' => 'post_tag',
+							'field'    => 'slug',
+							'terms'    => [ 'test' ],
+						],
+					] );
+				}
+			}
+			return $query_args;
+		}, 10 , 2 );
+
+		$query_args = [];
+
+		register_graphql_connection([
+			'fromType' => 'Category',
+			'toType' => 'Post',
+			'fromFieldName' => 'testMergedArgs',
+			'connectionArgs' => [
+				'postsWithoutTags' => [
+					'type' => 'Boolean',
+				],
+			],
+			'resolve' => function( \WPGraphQL\Model\Term $term, $args, $context, $info ) use ( &$query_args ) {
+				$args['where']['tax_query'] = [
+					[
+						'taxonomy'         => $term->taxonomyName,
+						'terms'            => [ $term->term_id ],
+						'field'            => 'term_id',
+						'include_children' => false,
+					],
+				];
+				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $term, $args, $context, $info, 'post' );
+//				$resolver->set_query_arg(
+//					'tax_query',
+//					[
+//						[
+//							'taxonomy'         => $term->taxonomyName,
+//							'terms'            => [ $term->term_id ],
+//							'field'            => 'term_id',
+//							'include_children' => false,
+//						],
+//					]
+//				);
+				$query_args = $resolver->get_query_args();
+				return $resolver->get_connection();
+			},
+		]);
+
+		$query = '
+		query TestMergedArgs( $id: ID! ) {
+		 category(id: $id idType: DATABASE_ID) {
+		    testMergedArgs( where: { postsWithoutTags: true } ) {
+		      nodes {
+		        id
+		        databaseId
+		      }
+		    }
+		 }
+		}
+		';
+
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $categoryId,
+			],
+		] );
+
+		$this->assertNotEmpty( $query_args['tax_query'] );
+		$this->assertCount( 2, $query_args['tax_query'] );
+
+		wp_delete_post( $postId, true );
+		wp_delete_term( $categoryId, 'category' );
+
+	}
+
+	public function testConnectionArgsAsArrayAreAddedProperly() {
+
+		$categoryId = $this->factory()->category->create( [ 'name' => 'Test Category' ] );
+		$postId = $this->factory()->post->create( [ 'post_title' => 'Test Post', 'post_category' => [ $categoryId ] ] );
+
+		add_action( 'graphql_map_input_fields_to_wp_query', function($query_args, $input_args) {
+			if ( isset( $input_args['postsWithoutTags'] ) ) {
+
 				$query_args['tax_query'] = [
 					[
 						'taxonomy' => 'post_tag',
@@ -1900,8 +1989,9 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 				],
 			],
 			'resolve' => function( \WPGraphQL\Model\Term $term, $args, $context, $info ) use ( &$query_args ) {
+
 				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $term, $args, $context, $info, 'post' );
-				$resolver->set_query_arg(
+				$resolver->add_query_arg(
 					'tax_query',
 					[
 						[
@@ -1939,6 +2029,88 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertNotEmpty( $query_args['tax_query'] );
 		$this->assertCount( 2, $query_args['tax_query'] );
+
+		wp_delete_post( $postId, true );
+		wp_delete_term( $categoryId, 'category' );
+
+	}
+
+	public function testConnectionArgsAsArrayAreOverriddenProperly() {
+
+		$categoryId = $this->factory()->category->create( [ 'name' => 'Test Category' ] );
+		$postId = $this->factory()->post->create( [ 'post_title' => 'Test Post', 'post_category' => [ $categoryId ] ] );
+
+		add_action( 'graphql_map_input_fields_to_wp_query', function($query_args, $input_args) {
+			if ( isset( $input_args['postsWithoutTags'] ) ) {
+
+				$tax_query = $query_args['tax_query'] ?? null;
+
+				if ( ! empty( $tax_query ) && is_array( $tax_query ) ) {
+
+					$query_args['tax_query'] = array_merge( $tax_query, [
+						[
+							'taxonomy' => 'post_tag',
+							'field'    => 'slug',
+							'terms'    => [ 'test' ],
+						],
+					] );
+				}
+			}
+			return $query_args;
+		}, 10 , 2 );
+
+		$query_args = [];
+
+		register_graphql_connection([
+			'fromType' => 'Category',
+			'toType' => 'Post',
+			'fromFieldName' => 'testMergedArgs',
+			'connectionArgs' => [
+				'postsWithoutTags' => [
+					'type' => 'Boolean',
+				],
+			],
+			'resolve' => function( \WPGraphQL\Model\Term $term, $args, $context, $info ) use ( &$query_args ) {
+
+				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $term, $args, $context, $info, 'post' );
+				$resolver->override_query_arg(
+					'tax_query',
+					[
+						[
+							'taxonomy'         => $term->taxonomyName,
+							'terms'            => [ $term->term_id ],
+							'field'            => 'term_id',
+							'include_children' => false,
+						],
+					]
+				);
+				$query_args = $resolver->get_query_args();
+				return $resolver->get_connection();
+			},
+		]);
+
+		$query = '
+		query TestMergedArgs( $id: ID! ) {
+		 category(id: $id idType: DATABASE_ID) {
+		    testMergedArgs( where: { postsWithoutTags: true } ) {
+		      nodes {
+		        id
+		        databaseId
+		      }
+		    }
+		 }
+		}
+		';
+
+		$actual = $this->graphql( [
+			'query' => $query,
+			'variables' => [
+				'id' => $categoryId,
+			],
+		] );
+
+		$this->assertNotEmpty( $query_args['tax_query'] );
+		$this->assertCount( 1, $query_args['tax_query'] );
 
 		wp_delete_post( $postId, true );
 		wp_delete_term( $categoryId, 'category' );

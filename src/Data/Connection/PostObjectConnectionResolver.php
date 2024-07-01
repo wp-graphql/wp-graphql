@@ -430,6 +430,8 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args = apply_filters( 'graphql_map_input_fields_to_wp_query', $query_args, $where_args, $this->source, $this->get_args(), $this->context, $this->info, $this->post_type );
 
+		codecept_debug( [ '$query_args' => $query_args ] );
+
 		/**
 		 * Return the Query Args
 		 */

@@ -116,7 +116,7 @@ class TermObject {
 					return null;
 				}
 				$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-				$resolver->set_query_arg( 'name', $source->taxonomyName );
+				$resolver->override_query_arg( 'name', $source->taxonomyName );
 				return $resolver->one_to_one()->get_connection();
 			},
 		];
@@ -135,7 +135,7 @@ class TermObject {
 				'queryClass'     => 'WP_Term_Query',
 				'resolve'        => static function ( Term $term, $args, AppContext $context, $info ) {
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
-					$resolver->set_query_arg( 'parent', $term->term_id );
+					$resolver->override_query_arg( 'parent', $term->term_id );
 
 					return $resolver->get_connection();
 				},
@@ -157,7 +157,7 @@ class TermObject {
 					}
 
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
-					$resolver->set_query_arg( 'include', $term->parentDatabaseId );
+					$resolver->override_query_arg( 'include', $term->parentDatabaseId );
 
 					return $resolver->one_to_one()->get_connection();
 				},
@@ -176,8 +176,8 @@ class TermObject {
 					}
 
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info, $tax_object->name );
-					$resolver->set_query_arg( 'include', $ancestor_ids );
-					$resolver->set_query_arg( 'orderby', 'include' );
+					$resolver->override_query_arg( 'include', $ancestor_ids );
+					$resolver->add_query_arg( 'orderby', 'include' );
 
 					return $resolver->get_connection();
 				},
@@ -200,19 +200,18 @@ class TermObject {
 					[
 						'toType'  => 'ContentNode',
 						'resolve' => static function ( Term $term, $args, $context, $info ) {
-							$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
-							$resolver->set_query_arg(
-								'tax_query',
-								[
-									[
-										'taxonomy'         => $term->taxonomyName,
-										'terms'            => [ $term->term_id ],
-										'field'            => 'term_id',
-										'include_children' => false,
-									],
-								]
-							);
 
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+							$args['where']['tax_query'] = [
+								[
+									'taxonomy'         => $term->taxonomyName,
+									'terms'            => [ $term->term_id ],
+									'field'            => 'term_id',
+									'include_children' => false,
+								],
+							];
+
+							$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
 							return $resolver->get_connection();
 						},
 					]
@@ -230,7 +229,7 @@ class TermObject {
 					'queryClass' => 'WP_Query',
 					'resolve'    => static function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
-						$resolver->set_query_arg(
+						$resolver->add_query_arg(
 							'tax_query',
 							[
 								[

@@ -29,7 +29,7 @@ class Taxonomy {
 						'resolve'     => static function ( TaxonomyModel $taxonomy, $args, AppContext $context, ResolveInfo $info ) {
 							$connected_post_types = ! empty( $taxonomy->object_type ) ? $taxonomy->object_type : [];
 							$resolver             = new ContentTypeConnectionResolver( $taxonomy, $args, $context, $info );
-							$resolver->set_query_arg( 'contentTypeNames', $connected_post_types );
+							$resolver->add_query_arg( 'contentTypeNames', $connected_post_types );
 							return $resolver->get_connection();
 						},
 					],
