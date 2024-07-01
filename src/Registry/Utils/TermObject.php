@@ -201,17 +201,20 @@ class TermObject {
 						'toType'  => 'ContentNode',
 						'resolve' => static function ( Term $term, $args, $context, $info ) {
 
-						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-							$args['where']['tax_query'] = [
-								[
-									'taxonomy'         => $term->taxonomyName,
-									'terms'            => [ $term->term_id ],
-									'field'            => 'term_id',
-									'include_children' => false,
-								],
-							];
-
 							$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
+
+							// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+							$resolver->add_query_arg(
+								'tax_query',
+								[
+									[
+										'taxonomy'         => $term->taxonomyName,
+										'terms'            => [ $term->term_id ],
+										'field'            => 'term_id',
+										'include_children' => false,
+									],
+								]
+							);
 							return $resolver->get_connection();
 						},
 					]

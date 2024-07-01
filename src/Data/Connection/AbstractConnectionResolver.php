@@ -824,22 +824,6 @@ abstract class AbstractConnectionResolver {
 	 */
 
 	/**
-	 * Given a key and value, this sets a query_arg which will modify the query_args used by ::get_query();
-	 *
-	 * @param string $key   The key of the query arg to set
-	 * @param mixed  $value The value of the query arg to set
-	 *
-	 * @deprecated Deprecated since v1.28.0 in favor of $this->get_args();
-	 *
-	 * @return static
-	 */
-	public function set_query_arg( string $key, $value ) {
-		_deprecated_function( __METHOD__, '1.28.0', static::class . '::override_query_arg()' );
-		$this->query_args[ $key ] = $value;
-		return $this;
-	}
-
-	/**
 	 * Given a key and value, this adds a query_arg which will modify the query_args used by ::get_query();
 	 *
 	 * Unlike ::override_query_arg(), this method will append the value to the query arg if the query arg is an array.
@@ -1599,6 +1583,23 @@ abstract class AbstractConnectionResolver {
 		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' );
 
 		return $this->set_query_arg( $key, $value );
+	}
+
+	/**
+	 * Given a key and value, this sets a query_arg which will modify the query_args used by ::get_query();
+	 *
+	 * @param string $key   The key of the query arg to set
+	 * @param mixed  $value The value of the query arg to set
+	 *
+	 * @deprecated 1.28.0
+	 *
+	 * @return static
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function set_query_arg( string $key, $value ) {
+		_deprecated_function( __METHOD__, '1.28.0', static::class . '::override_query_arg()' );
+		return $this->override_query_arg( $key, $value );
 	}
 
 	/**
