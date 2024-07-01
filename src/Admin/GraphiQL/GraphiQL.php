@@ -98,7 +98,7 @@ class GraphiQL {
 	public function register_admin_page() {
 		$svg_file = file_get_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
 
-		if ( $svg_file === false ) {
+		if ( false === $svg_file ) {
 			return;
 		}
 
