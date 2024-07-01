@@ -98,7 +98,7 @@ class GraphiQL {
 	public function register_admin_page() {
 		$svg_file   = file_get_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
 		$svg_base64 = base64_encode( $svg_file );
-	
+
 		// Top level menu page should be labeled GraphQL
 		add_menu_page(
 			__( 'GraphQL', 'wp-graphql' ),
@@ -106,7 +106,7 @@ class GraphiQL {
 			'manage_options',
 			'graphiql-ide',
 			[ $this, 'render_graphiql_admin_page' ],
-			'data:image/svg+xml;base64,'. $svg_base64
+			'data:image/svg+xml;base64,' . $svg_base64
 		);
 
 		// Sub menu  should be labeled GraphiQL IDE
