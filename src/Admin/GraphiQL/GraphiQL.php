@@ -96,7 +96,12 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function register_admin_page() {
-		$svg_file   = file_get_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
+		$svg_file = file_get_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
+
+		if ( $svg_file === false ) {
+			return;
+		}
+
 		$svg_base64 = base64_encode( $svg_file );
 
 		// Top level menu page should be labeled GraphQL
