@@ -45,9 +45,9 @@ class MenuItems {
 						}
 
 						$resolver = new MenuItemConnectionResolver( $menu_item, $args, $context, $info );
-						$resolver->set_query_arg( 'nav_menu', $menu_item->menuId );
-						$resolver->set_query_arg( 'meta_key', '_menu_item_menu_item_parent' );
-						$resolver->set_query_arg( 'meta_value', (int) $menu_item->databaseId );
+						$resolver->override_query_arg( 'nav_menu', $menu_item->menuId );
+						$resolver->override_query_arg( 'meta_key', '_menu_item_menu_item_parent' );
+						$resolver->override_query_arg( 'meta_value', (int) $menu_item->databaseId );
 						return $resolver->get_connection();
 					},
 				]
@@ -64,7 +64,7 @@ class MenuItems {
 					'toType'   => 'MenuItem',
 					'resolve'  => static function ( Menu $menu, $args, AppContext $context, ResolveInfo $info ) {
 						$resolver = new MenuItemConnectionResolver( $menu, $args, $context, $info );
-						$resolver->set_query_arg(
+						$resolver->add_query_arg(
 							'tax_query',
 							[
 								[

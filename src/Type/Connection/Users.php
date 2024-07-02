@@ -67,7 +67,7 @@ class Users {
 					}
 
 					$resolver = new UserConnectionResolver( $source, $args, $context, $info );
-					$resolver->one_to_one()->set_query_arg( 'include', [ absint( $source->editLock[1] ) ] );
+					$resolver->one_to_one()->override_query_arg( 'include', [ absint( $source->editLock[1] ) ] );
 
 					return $resolver->get_connection();
 				},
@@ -88,7 +88,7 @@ class Users {
 					}
 
 					$resolver = new UserConnectionResolver( $source, $args, $context, $info );
-					$resolver->set_query_arg( 'include', [ absint( $source->editLastId ) ] );
+					$resolver->override_query_arg( 'include', [ absint( $source->editLastId ) ] );
 					return $resolver->one_to_one()->get_connection();
 				},
 			]
@@ -106,7 +106,7 @@ class Users {
 					}
 
 					$resolver = new UserConnectionResolver( $post, $args, $context, $info );
-					$resolver->set_query_arg( 'include', [ absint( $post->authorDatabaseId ) ] );
+					$resolver->override_query_arg( 'include', [ absint( $post->authorDatabaseId ) ] );
 					return $resolver->one_to_one()->get_connection();
 				},
 			]

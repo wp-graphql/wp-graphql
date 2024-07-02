@@ -61,16 +61,16 @@ class MenuItem {
 								// Post object
 								case 'post_type':
 									$resolver = new PostObjectConnectionResolver( $menu_item, $args, $context, $info, 'any' );
-									$resolver->set_query_arg( 'p', $object_id );
+									$resolver->override_query_arg( 'p', $object_id );
 
 									// connected objects to menu items can be any post status
-									$resolver->set_query_arg( 'post_status', 'any' );
+									$resolver->add_query_arg( 'post_status', 'any' );
 									break;
 
 								// Taxonomy term
 								case 'taxonomy':
 									$resolver = new TermObjectConnectionResolver( $menu_item, $args, $context, $info );
-									$resolver->set_query_arg( 'include', $object_id );
+									$resolver->override_query_arg( 'include', $object_id );
 									break;
 								default:
 									$resolver = null;
@@ -86,7 +86,7 @@ class MenuItem {
 						'oneToOne'    => true,
 						'resolve'     => static function ( MenuItemModel $menu_item, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
-							$resolver->set_query_arg( 'include', $menu_item->menuDatabaseId );
+							$resolver->override_query_arg( 'include', $menu_item->menuDatabaseId );
 
 							return $resolver->one_to_one()->get_connection();
 						},

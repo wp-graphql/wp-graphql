@@ -33,7 +33,7 @@ class NodeWithFeaturedImage {
 							}
 
 							$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'attachment' );
-							$resolver->set_query_arg( 'p', absint( $post->featuredImageDatabaseId ) );
+							$resolver->override_query_arg( 'p', absint( $post->featuredImageDatabaseId ) );
 
 							return $resolver->one_to_one()->get_connection();
 						},

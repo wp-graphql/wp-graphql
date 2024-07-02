@@ -185,7 +185,7 @@ class MenuItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Filter the resolver.
 		add_filter( 'graphql_pre_resolve_menu_item_connected_node', static function ( $deferred_connection, $source, $args, $context, $info ) use ( $post_id ) {
 			$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, [], $context, $info, 'any' );
-			$resolver->set_query_arg( 'p', $post_id );
+			$resolver->override_query_arg( 'p', $post_id );
 
 			return $resolver->one_to_one()->get_connection();
 		}, 10, 7 );

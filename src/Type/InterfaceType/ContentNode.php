@@ -45,7 +45,7 @@ class ContentNode {
 
 							$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 
-							return $resolver->one_to_one()->set_query_arg( 'name', $post_type )->get_connection();
+							return $resolver->one_to_one()->override_query_arg( 'name', $post_type )->get_connection();
 						},
 						'oneToOne' => true,
 					],

@@ -39,7 +39,7 @@ class PostObjects {
 				'queryClass'     => 'WP_Query',
 				'resolve'        => static function ( PostType $post_type, $args, AppContext $context, ResolveInfo $info ) {
 					$resolver = new PostObjectConnectionResolver( $post_type, $args, $context, $info );
-					$resolver->set_query_arg( 'post_type', $post_type->name );
+					$resolver->override_query_arg( 'post_type', $post_type->name );
 
 					return $resolver->get_connection();
 				},
@@ -60,7 +60,7 @@ class PostObjects {
 					$id       = absint( $comment->comment_post_ID );
 					$resolver = new PostObjectConnectionResolver( $comment, $args, $context, $info, 'any' );
 
-					return $resolver->one_to_one()->set_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
+					return $resolver->one_to_one()->override_query_arg( 'p', $id )->set_query_arg( 'post_parent', null )->get_connection();
 				},
 			]
 		);
@@ -78,7 +78,7 @@ class PostObjects {
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-					$resolver->set_query_arg( 'p', $post->parentDatabaseId );
+					$resolver->override_query_arg( 'p', $post->parentDatabaseId );
 
 					return $resolver->one_to_one()->get_connection();
 				},
@@ -114,7 +114,7 @@ class PostObjects {
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-					$resolver->set_query_arg( 'p', $post->parentDatabaseId );
+					$resolver->override_query_arg( 'p', $post->parentDatabaseId );
 
 					return $resolver->one_to_one()->get_connection();
 				},
@@ -137,7 +137,7 @@ class PostObjects {
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
-					$resolver->set_query_arg( 'post_parent', $id );
+					$resolver->override_query_arg( 'post_parent', $id );
 
 					return $resolver->get_connection();
 				},
@@ -159,8 +159,8 @@ class PostObjects {
 						return null;
 					}
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info );
-					$resolver->set_query_arg( 'post__in', $ancestors );
-					$resolver->set_query_arg( 'orderby', 'post__in' );
+					$resolver->override_query_arg( 'post__in', $ancestors );
+					$resolver->override_query_arg( 'orderby', 'post__in' );
 
 					return $resolver->get_connection();
 				},
@@ -212,7 +212,7 @@ class PostObjects {
 							'fromType' => 'User',
 							'resolve'  => static function ( User $user, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 								$resolver = new PostObjectConnectionResolver( $user, $args, $context, $info, $post_type_object->name );
-								$resolver->set_query_arg( 'author', $user->userId );
+								$resolver->override_query_arg( 'author', $user->userId );
 
 								return $resolver->get_connection();
 							},

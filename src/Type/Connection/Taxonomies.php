@@ -35,7 +35,7 @@ class Taxonomies {
 						return null;
 					}
 					$resolver = new TaxonomyConnectionResolver( $source, $args, $context, $info );
-					$resolver->set_query_arg( 'in', $source->taxonomies );
+					$resolver->add_query_arg( 'in', $source->taxonomies );
 					return $resolver->get_connection();
 				},
 			]

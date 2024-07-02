@@ -57,7 +57,7 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 					$resolver = new CommentConnectionResolver( $source, $args, $context, $info );
 
-					$resolver->set_query_arg( 'post_id', absint( $id ) );
+					$resolver->override_query_arg( 'post_id', absint( $id ) );
 
 					// Get cursor node
 					$cursor     = $args['after'] ?? null;
@@ -68,7 +68,7 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 					// Get order.
 					$order = ! empty( $args['last'] ) ? 'ASC' : 'DESC';
 
-					$resolver->set_query_arg(
+					$resolver->add_query_arg(
 						'graphql_cursor_threshold_fields',
 						[
 							[
@@ -82,11 +82,11 @@ class CommentObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 					// Set default ordering.
 					if ( empty( $args['where']['orderby'] ) ) {
-						$resolver->set_query_arg( 'orderby', 'comment_author_email' );
+						$resolver->add_query_arg( 'orderby', 'comment_author_email' );
 					}
 
 					if ( empty( $args['where']['order'] ) ) {
-						$resolver->set_query_arg( 'order', $order );
+						$resolver->add_query_arg( 'order', $order );
 					}
 
 					return $resolver->get_connection();

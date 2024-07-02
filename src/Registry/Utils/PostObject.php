@@ -124,7 +124,7 @@ class PostObject {
 
 					$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
 
-					return $resolver->set_query_arg( 'post_id', absint( $id ) )->get_connection();
+					return $resolver->override_query_arg( 'post_id', absint( $id ) )->get_connection();
 				},
 			];
 		}
@@ -151,7 +151,7 @@ class PostObject {
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-					$resolver->set_query_arg( 'p', $post->previewRevisionDatabaseId );
+					$resolver->override_query_arg( 'p', $post->previewRevisionDatabaseId );
 
 					return $resolver->one_to_one()->get_connection();
 				},
@@ -167,7 +167,7 @@ class PostObject {
 				'connectionArgs'     => PostObjects::get_connection_args( [], $post_type_object ),
 				'resolve'            => static function ( Post $post, $args, $context, $info ) {
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-					$resolver->set_query_arg( 'post_parent', $post->ID );
+					$resolver->override_query_arg( 'post_parent', $post->ID );
 
 					return $resolver->get_connection();
 				},
@@ -204,7 +204,7 @@ class PostObject {
 							return null;
 						}
 						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-						$resolver->set_query_arg( 'include', $terms );
+						$resolver->override_query_arg( 'include', $terms );
 
 						return $resolver->get_connection();
 					},
@@ -227,7 +227,7 @@ class PostObject {
 					}
 
 					$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $tax_object->name );
-					$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+					$resolver->override_query_arg( 'object_ids', absint( $object_id ) );
 
 					return $resolver->get_connection();
 				},
