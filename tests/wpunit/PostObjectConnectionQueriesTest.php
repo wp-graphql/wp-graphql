@@ -1901,17 +1901,15 @@ class PostObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			],
 			'resolve' => function( \WPGraphQL\Model\Term $term, $args, $context, $info ) use ( &$query_args ) {
 				$resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $term, $args, $context, $info, 'post' );
-				$resolver->set_query_arg(
-					'tax_query',
-					[
-						[
-							'taxonomy'         => $term->taxonomyName,
-							'terms'            => [ $term->term_id ],
-							'field'            => 'term_id',
-							'include_children' => false,
-						],
-					]
-				);
+				$current_args = $resolver->get_query_args();
+				$tax_query = $current_args['tax_query'] ?? [];
+				$tax_query[] = [
+					'taxonomy'         => $term->taxonomyName,
+					'terms'            => [ $term->term_id ],
+					'field'            => 'term_id',
+					'include_children' => false,
+				];
+				$resolver->set_query_arg( 'tax_query', $tax_query );
 				$query_args = $resolver->get_query_args();
 				return $resolver->get_connection();
 			},
