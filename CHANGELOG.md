@@ -9,6 +9,8 @@
 - [#3152](https://github.com/wp-graphql/wp-graphql/pull/3152): fix: handle regression when implementing interface with identical args.
 - [#3153](https://github.com/wp-graphql/wp-graphql/pull/3153): chore(deps-dev): bump composer/composer from 2.7.6 to 2.7.7 in the composer group across 1 directory
 - [#3155](https://github.com/wp-graphql/wp-graphql/pull/3155): chore(deps-dev): bump the npm_and_yarn group across 1 directory with 2 updates
+- [#3160](https://github.com/wp-graphql/wp-graphql/pull/3160): chore: Update branding assets
+- [#3162](https://github.com/wp-graphql/wp-graphql/pull/3162): fix: set_query_arg should not merge args
 
 ## 1.27.0
 
