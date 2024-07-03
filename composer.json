@@ -41,7 +41,7 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
 		"phpstan/extension-installer": "^1.1",
-		"phpstan/phpstan": "~1.10.18",
+		"phpstan/phpstan": "~1.11.4",
 		"phpunit/phpunit": "^9.5",
 		"php-coveralls/php-coveralls": "^2.5",
 		"slevomat/coding-standard": "^8.9",
@@ -90,7 +90,7 @@
 			"php ./vendor/bin/phpcbf"
 		],
 		"phpstan": [
-			"phpstan analyze --ansi --memory-limit=2G"
+			"phpstan analyze --ansi --memory-limit=2G -v"
 		],
 		"build-plugin": [
 			"composer install --no-dev && composer run-script zip && composer install"

@@ -234,6 +234,35 @@ class PostObject {
 			];
 		}
 
+		// Deprecated connections.
+		if ( ! $post_type_object->hierarchical &&
+			! in_array(
+				$post_type_object->name,
+				[
+					'attachment',
+					'revision',
+				],
+				true
+			) ) {
+			$connections['ancestors'] = [
+				'toType'            => $post_type_object->graphql_single_name,
+				'description'       => __( 'The ancestors of the content node.', 'wp-graphql' ),
+				'deprecationReason' => __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' ),
+				'resolve'           => static function () {
+					return null;
+				},
+			];
+			$connections['parent']    = [
+				'toType'            => $post_type_object->graphql_single_name,
+				'oneToOne'          => true,
+				'description'       => __( 'The parent of the content node.', 'wp-graphql' ),
+				'deprecationReason' => __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' ),
+				'resolve'           => static function () {
+					return null;
+				},
+			];
+		}
+
 		// Merge with connections set in register_post_type.
 		if ( ! empty( $post_type_object->graphql_connections ) ) {
 			$connections = array_merge( $connections, $post_type_object->graphql_connections );
@@ -400,19 +429,6 @@ class PostObject {
 				'type'        => [ 'non_null' => 'Bool' ],
 				'description' => __( 'Whether this page is sticky', 'wp-graphql' ),
 			];
-		}
-
-		if ( ! $post_type_object->hierarchical &&
-			! in_array(
-				$post_type_object->name,
-				[
-					'attachment',
-					'revision',
-				],
-				true
-			) ) {
-			$fields['ancestors']['deprecationReason'] = __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
-			$fields['parent']['deprecationReason']    = __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
 		}
 
 		// Merge with fields set in register_post_type.
