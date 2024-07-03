@@ -1,4 +1,4 @@
-![alt text](./img/logo.png "WPGraphQL Logo")
+<img src="./img/logo.png" alt="WPGraphQL Logo" width="96" height="96" style="max-width: 96px; max-height: 96px;">
 
 # WPGraphQL
 

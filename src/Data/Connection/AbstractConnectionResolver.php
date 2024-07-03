@@ -833,7 +833,6 @@ abstract class AbstractConnectionResolver {
 	 */
 	public function set_query_arg( $key, $value ) {
 		$this->query_args[ $key ] = $value;
-
 		return $this;
 	}
 
