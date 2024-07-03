@@ -230,17 +230,15 @@ class TermObject {
 					'queryClass' => 'WP_Query',
 					'resolve'    => static function ( Term $term, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 						$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, $post_type_object->name );
-						$resolver->set_query_arg(
-							'tax_query',
-							[
-								[
-									'taxonomy'         => $term->taxonomyName,
-									'terms'            => [ $term->term_id ],
-									'field'            => 'term_id',
-									'include_children' => false,
-								],
-							]
-						);
+						$current_args = $resolver->get_query_args();
+						$tax_query = $current_args['tax_query'] ?? [];
+						$tax_query[] = [
+							'taxonomy'         => $term->taxonomyName,
+							'terms'            => [ $term->term_id ],
+							'field'            => 'term_id',
+							'include_children' => false,
+						];
+						$resolver->set_query_arg( 'tax_query', $tax_query );
 
 						return $resolver->get_connection();
 					},
