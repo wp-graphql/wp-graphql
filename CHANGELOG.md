@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.27.2
+
+### Chores / Bugfixes
+
+- [#3167](https://github.com/wp-graphql/wp-graphql/pull/3167): fix: missing .svg causing admin_menu not to be registered
+
 ## 1.27.1
 
 ### Chores / Bugfixes
