@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Admin\GraphiQL;
 
+use WPGraphQL\Utils\Utils;
 use WP_Admin_Bar;
 
 /**
@@ -96,13 +97,10 @@ class GraphiQL {
 	 * @return void
 	 */
 	public function register_admin_page() {
-		$svg_file = file_get_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
 
-		if ( false === $svg_file ) {
-			return;
-		}
+		$svg_file = Utils::get_image_asset_contents( WPGRAPHQL_PLUGIN_DIR . '/img/wpgraphql-elephant.svg' );
 
-		$svg_base64 = base64_encode( $svg_file );
+		$svg_base64 = ! empty( $svg_file ) ? base64_encode( $svg_file ) : '';
 
 		// Top level menu page should be labeled GraphQL
 		add_menu_page(

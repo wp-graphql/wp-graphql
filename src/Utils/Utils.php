@@ -387,4 +387,40 @@ class Utils {
 
 		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
 	}
+
+	/**
+	 * Get the file contents of an image asset in the plugin.
+	 *
+	 * This is most commonly used to get the contents of an SVG file, like the WPGraphQL logo.
+	 *
+	 * @param string $filename The filename of the image asset, relative to the plugin directory.
+	 *
+	 * @return string The contents of the image asset. Empty string if the asset doesn't exist.
+	 */
+	public static function get_image_asset_contents( string $filename ): string {
+		// Try to get the asset from the cache.
+		$cached_asset = wp_cache_get( $filename, 'wp-graphql-image-assets' );
+
+		if ( false !== $cached_asset ) {
+			return (string) $cached_asset;
+		}
+
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . '/img/' . $filename;
+
+		if ( ! file_exists( $asset_path ) ) {
+			return '';
+		}
+
+		$asset_contents = file_get_contents( $asset_path ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+
+		// Set the asset contents to an empty string if it's false so we can cache it.
+		if ( false === $asset_contents ) {
+			$asset_contents = '';
+		}
+
+		// Cache the asset contents.
+		wp_cache_set( $filename, $asset_contents, 'wp-graphql-image-assets' );
+
+		return $asset_contents;
+	}
 }
