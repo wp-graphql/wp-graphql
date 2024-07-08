@@ -38,6 +38,10 @@ class TermObjectsConnectionOrderbyEnum {
 						'value'       => 'description',
 						'description' => __( 'Order the connection by description.', 'wp-graphql' ),
 					],
+					'MENU_ORDER'    => [
+						'value'       => 'menu_order',
+						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
+					],
 					'COUNT'       => [
 						'value'       => 'count',
 						'description' => __( 'Order the connection by item count.', 'wp-graphql' ),
