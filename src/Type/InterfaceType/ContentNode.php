@@ -111,17 +111,19 @@ class ContentNode {
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => static function ( $source, $args, $context, $info ) {
-							global $wp_scripts;
-							$source->contentRendered;
-							do_action( 'enqueue_block_assets' );
-							do_action( 'wp_enqueue_scripts' );
-
+							// Simulate WP template rendering
 							ob_start();
 							wp_head();
+							$source->contentRendered;
 							wp_footer();
 							ob_get_clean();
 							$queue = self::get_enqueued_scripts_handles( $source->enqueuedScriptsQueue ?? [] );
 							$source = (object) [ 'enqueuedScriptsQueue' => $queue ];
+							
+							// Reset the scripts queue to avoid conflicts with other queries
+							global $wp_scripts;
+							$wp_scripts->reset();
+					
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
 							return $resolver->get_connection();
@@ -130,16 +132,19 @@ class ContentNode {
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
 						'resolve' => static function ( $source, $args, $context, $info ) {
-							$source->contentRendered;
-							do_action( 'enqueue_block_assets' );
-							do_action( 'wp_enqueue_scripts' );
-
+							// Simulate WP template rendering
 							ob_start();
 							wp_head();
+							$source->contentRendered;
+							do_action( 'get_sidebar', null, [] );
 							wp_footer();
 							ob_get_clean();
 							$queue = self::get_enqueued_styles_handles( $source->enqueuedStylesheetsQueue ?? [] );
 							$source = (object) [ 'enqueuedStylesheetsQueue' => $queue ];
+
+							// Reset the styles queue to avoid conflicts with other queries
+							global $wp_styles;
+							$wp_styles->reset();
 
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
