@@ -787,12 +787,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$page_id = $this->factory()->post->create( $args );
 
 		$query = '
-		mutation deletePostWithPageIdShouldFail{
-			deletePost( $id:ID! ){
-				post{
-					id
-				}
-			}
+		mutation deletePostWithPageIdShouldFail($id: ID!) {
+		  deletePost(input: {id: $id}) {
+		    post {
+		      id
+		    }
+		  }
 		}
 		';
 

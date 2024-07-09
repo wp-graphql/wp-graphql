@@ -2376,13 +2376,17 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->expectedField( 'users', self::NOT_NULL ),
 		] );
 
-		// The third query should throw a GraphQL\Error calling out the fact that the field is referencing a non-existent type
-		$this->expectException( GraphQL\Error\Error::class );
-		$this->expectExceptionMessageMatches( "/non-existent/" );
 
 		$actual_three = $this->graphql([
 			'query' => $query_three
 		]);
 
+		self::assertQueryError( $actual_three, [
+			$this->expectedErrorMessage( 'non-existent', self::MESSAGE_CONTAINS ),
+		] );
+
+		codecept_debug( [
+			'$actual_three' => $actual_three,
+		]);
 	}
 }

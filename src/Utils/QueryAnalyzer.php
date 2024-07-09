@@ -137,7 +137,6 @@ class QueryAnalyzer {
 	 */
 	public function __construct( Request $request ) {
 		$this->request       = $request;
-		$this->schema        = $request->schema;
 		$this->runtime_nodes = [];
 		$this->models        = [];
 		$this->list_types    = [];
