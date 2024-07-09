@@ -799,15 +799,18 @@ final class WPGraphQL {
 	/**
 	 * Return the static schema if there is one
 	 *
-	 * @return string|null
+	 * @return ?string
 	 */
 	public static function get_static_schema() {
-		$schema = null;
-		if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) && ! empty( file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' ) ) ) {
-			$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
+		$schema_file = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
+
+		if ( ! file_exists( $schema_file ) ) {
+			return null;
 		}
 
-		return $schema;
+		$schema = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schema.graphql' );
+
+		return ! empty( $schema ) ? $schema : null;
 	}
 
 	/**
