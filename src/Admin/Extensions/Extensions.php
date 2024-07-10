@@ -204,22 +204,22 @@ class Extensions {
 		$extensions = [
 			[
 				'plugin_url'   => 'https://github.com/wp-graphql/wpgraphql-ide/',
-				'support_link' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new',
+				'support_link' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
 				'plugin_path'  => 'wpgraphql-ide/wpgraphql-ide.php',
 			],
 			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-acf/',
-				'support_link' => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new',
+				'support_link' => 'https://acf.wpgraphql.com/support/',
 				'plugin_path'  => 'wpgraphql-acf/wpgraphql-acf.php',
 			],
 			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
-				'support_link' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new',
+				'support_link' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
 				'plugin_path'  => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
 			],
 			[
 				'plugin_url'   => 'https://github.com/wpengine/wp-graphql-content-blocks',
-				'support_link' => 'https://github.com/wpengine/wp-graphql-content-blocks/issues',
+				'support_link' => 'https://github.com/wpengine/wp-graphql-content-blocks/issues/new/choose',
 				'name'         => 'WPGraphQL Content Blocks',
 				'description'  => 'Content Blocks for WPGraphQL.',
 				'author'       => 'WP Engine',
