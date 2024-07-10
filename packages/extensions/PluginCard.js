@@ -16,14 +16,27 @@ const PluginCard = ({ plugin }) => {
     }, [plugin]);
 
     const handleButtonClick = async () => {
-        if (!isInstalled) {
-            await installPlugin();
-        } else {
-            await activatePlugin();
-        }
+        const prevInstalled = isInstalled;
+        const prevActive = isActive;
 
-        setIsInstalled(true);
-        setIsActive(true);
+        try {
+            if (!isInstalled) {
+                await installPlugin();
+                setIsInstalled(true);
+                setIsActive(true);  // Assume successful activation after installation
+            } else {
+                await activatePlugin();
+                setIsActive(true);
+            }
+        } catch (err) {
+            setIsInstalled(prevInstalled);
+            setIsActive(prevActive);
+        } finally {
+            // Ensure the extension status in the global window object is updated
+            window.wpgraphqlExtensions.extensions = window.wpgraphqlExtensions.extensions.map((extension) =>
+                extension.plugin_url === plugin.plugin_url ? { ...extension, installed: isInstalled, active: isActive } : extension
+            );
+        }
     };
 
     const host = new URL(plugin.plugin_url).host;
