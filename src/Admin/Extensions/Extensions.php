@@ -2,8 +2,8 @@
 
 namespace WPGraphQL\Admin\Extensions;
 
-use WP_REST_Response;
 use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Class Extensions
@@ -122,8 +122,8 @@ class Extensions {
 	/**
 	 * Activate a plugin.
 	 *
-	 * @param WP_REST_Request $request The REST request.
-	 * @return WP_REST_Response The REST response.
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response The REST response.
 	 */
 	public function activate_plugin( WP_REST_Request $request ) {
 		$plugin = $request->get_param( 'plugin' );
@@ -205,17 +205,17 @@ class Extensions {
 			[
 				'plugin_url'   => 'https://github.com/wp-graphql/wpgraphql-ide/',
 				'support_link' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new',
-				'plugin_path'  => 'wpgraphql-ide/wpgraphql-ide.php'
+				'plugin_path'  => 'wpgraphql-ide/wpgraphql-ide.php',
 			],
 			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-acf/',
 				'support_link' => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new',
-				'plugin_path'  => 'wpgraphql-acf/wpgraphql-acf.php'
+				'plugin_path'  => 'wpgraphql-acf/wpgraphql-acf.php',
 			],
 			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
 				'support_link' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new',
-				'plugin_path'  => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php'
+				'plugin_path'  => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
 			],
 			[
 				'plugin_url'   => 'https://github.com/wpengine/wp-graphql-content-blocks',
@@ -223,7 +223,7 @@ class Extensions {
 				'name'         => 'WPGraphQL Content Blocks',
 				'description'  => 'Content Blocks for WPGraphQL.',
 				'author'       => 'WP Engine',
-				'plugin_path'  => 'wp-graphql-content-blocks/wp-graphql-content-blocks.php'
+				'plugin_path'  => 'wp-graphql-content-blocks/wp-graphql-content-blocks.php',
 			],
 		];
 
@@ -259,15 +259,18 @@ class Extensions {
 			}
 		}
 
-		usort($extensions, function ($a, $b) {
-			if (strpos($a['plugin_url'], 'wordpress.org') !== false && strpos($b['plugin_url'], 'wordpress.org') === false) {
-				return -1;
+		usort(
+			$extensions,
+			static function ( $a, $b ) {
+				if ( strpos( $a['plugin_url'], 'wordpress.org' ) !== false && strpos( $b['plugin_url'], 'wordpress.org' ) === false ) {
+					return -1;
+				}
+				if ( strpos( $a['plugin_url'], 'wordpress.org' ) === false && strpos( $b['plugin_url'], 'wordpress.org' ) !== false ) {
+					return 1;
+				}
+				return strcmp( $a['name'], $b['name'] );
 			}
-			if (strpos($a['plugin_url'], 'wordpress.org') === false && strpos($b['plugin_url'], 'wordpress.org') !== false) {
-				return 1;
-			}
-			return strcmp($a['name'], $b['name']);
-		});
+		);
 
 		return apply_filters( 'wpgraphql_extensions', $extensions );
 	}
