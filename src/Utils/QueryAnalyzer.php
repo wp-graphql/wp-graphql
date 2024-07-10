@@ -147,7 +147,7 @@ class QueryAnalyzer {
 	 * Get the GraphQL Schema.
 	 * If the schema is not set, it will be set.
 	 *
-	 * @return Schema|WPSchema|null
+	 * @return \GraphQL\Type\Schema|\WPGraphQL\WPSchema|null
 	 * @throws \Exception
 	 */
 	public function get_schema() {
