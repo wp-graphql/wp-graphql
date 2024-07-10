@@ -176,7 +176,6 @@ class Request {
 		// to return in headers and debug messages to help developers understand
 		// what was resolved, how to cache it, etc.
 		$this->query_analyzer->init();
-
 	}
 
 	/**
