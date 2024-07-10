@@ -1694,13 +1694,15 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 			$schema = WPGraphQL::get_schema();
 
-			// clean up
-			unregister_post_type( 'with_underscore' );
+			$this->assertTrue( $schema->hasType( 'With_underscore' ) );
 
 			$schema->assertValid();
 
 			// Assert true upon success.
 			$this->assertTrue( true );
+
+			// clean up
+			unregister_post_type( 'with_underscore' );
 	}
 
 	public function testRegisterPostTypeWithoutGraphqlPluralNameIsValid() {
