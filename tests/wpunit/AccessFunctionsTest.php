@@ -2376,17 +2376,11 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->expectedField( 'users', self::NOT_NULL ),
 		] );
 
+		$this->expectException( GraphQL\Error\Error::class );
+		$this->expectExceptionMessageMatches( "/non-existent/" );
 
 		$actual_three = $this->graphql([
 			'query' => $query_three
-		]);
-
-		self::assertQueryError( $actual_three, [
-			$this->expectedErrorMessage( 'non-existent', self::MESSAGE_CONTAINS ),
-		] );
-
-		codecept_debug( [
-			'$actual_three' => $actual_three,
 		]);
 	}
 }
