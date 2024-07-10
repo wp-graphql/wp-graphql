@@ -65,19 +65,19 @@ class Extensions {
 
 		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/extensions.asset.php';
 
+		wp_enqueue_style(
+			'wpgraphql-extensions',
+			WPGRAPHQL_PLUGIN_URL . 'build/extensions.css',
+			[ 'wp-components' ],
+			$asset_file['version']
+		);
+
 		wp_enqueue_script(
 			'wpgraphql-extensions',
 			WPGRAPHQL_PLUGIN_URL . 'build/extensions.js',
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true
-		);
-
-		wp_enqueue_style(
-			'wpgraphql-extensions',
-			WPGRAPHQL_PLUGIN_URL . 'build/extensions.css',
-			[ 'wp-components' ],
-			$asset_file['version']
 		);
 
 		wp_localize_script(
