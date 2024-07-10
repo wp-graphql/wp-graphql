@@ -1,1 +1,28 @@
-.graphiql-fullscreen #wp-graphiql-wrapper{inset:0;padding:0;position:fixed;z-index:99999}#graphiql-fullscreen-toggle{align-items:center;display:flex;height:30px;justify-content:center;padding:8px}#wp-graphiql-wrapper .contract-icon,.graphiql-fullscreen #wp-graphiql-wrapper .expand-icon{display:none}.graphiql-fullscreen #wp-graphiql-wrapper .contract-icon{display:block}
+/*!***********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./packages/graphiql-fullscreen-toggle/index.scss ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************/
+.graphiql-fullscreen #wp-graphiql-wrapper {
+  position: fixed;
+  z-index: 99999;
+  inset: 0;
+  padding: 0;
+}
+
+#graphiql-fullscreen-toggle {
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.graphiql-fullscreen #wp-graphiql-wrapper .expand-icon,
+#wp-graphiql-wrapper .contract-icon {
+  display: none;
+}
+
+.graphiql-fullscreen #wp-graphiql-wrapper .contract-icon {
+  display: block;
+}
+
+/*# sourceMappingURL=graphiqlFullscreenToggle.css.map*/
