@@ -13,6 +13,7 @@
 
     h2 {
         margin: 0;
+
     }
 }
 
@@ -29,6 +30,7 @@
 }
 
 @media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
+
     .plugin-card .action-links {
         margin-left: auto;
     }
@@ -39,25 +41,4 @@
         border-left: solid 1px;
         padding-left: 2ex;
     }
-}
-
-
-
-.debug-panel {
-    margin: 20px 0;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-}
-
-.debug-panel summary {
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.debug-panel pre {
-    background-color: #fff;
-    padding: 10px;
-    border: 1px solid #ccc;
-    overflow: auto;
 }

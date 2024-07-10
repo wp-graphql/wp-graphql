@@ -84,10 +84,10 @@ class Extensions {
 			'wpgraphql-extensions',
 			'wpgraphqlExtensions',
 			[
-				'nonce'           => wp_create_nonce( 'wp_rest' ),
-				'graphqlEndpoint' => trailingslashit( site_url() ) . 'index.php?' . graphql_get_endpoint(),
-				'extensions'      => $this->get_extensions(),
-				'pluginsInstalled'=> $this->get_installed_plugins(),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'graphqlEndpoint'  => trailingslashit( site_url() ) . 'index.php?' . graphql_get_endpoint(),
+				'extensions'       => $this->get_extensions(),
+				'pluginsInstalled' => $this->get_installed_plugins(),
 			]
 		);
 	}
@@ -98,21 +98,25 @@ class Extensions {
 	 * @return void
 	 */
 	public function register_rest_routes() {
-		register_rest_route( 'wp/v2', '/plugins/(?P<slug>[a-zA-Z0-9-]+)', [
-			'methods'             => 'PUT',
-			'callback'            => [ $this, 'activate_plugin' ],
-			'permission_callback' => function () {
-				return current_user_can( 'activate_plugins' );
-			},
-			'args'                => [
-				'slug' => [
-					'required' => true,
-					'validate_callback' => function ( $param, $request, $key ) {
-						return is_string( $param );
-					},
+		register_rest_route(
+			'wp/v2',
+			'/plugins/(?P<plugin>.+)',
+			[
+				'methods'             => 'PUT',
+				'callback'            => [ $this, 'activate_plugin' ],
+				'permission_callback' => static function () {
+					return current_user_can( 'activate_plugins' );
+				},
+				'args'                => [
+					'plugin' => [
+						'required'          => true,
+						'validate_callback' => static function ( $param, $request, $key ) {
+							return is_string( $param );
+						},
+					],
 				],
-			],
-		] );
+			]
+		);
 	}
 
 	/**
@@ -121,25 +125,27 @@ class Extensions {
 	 * @param WP_REST_Request $request The REST request.
 	 * @return WP_REST_Response The REST response.
 	 */
-	public function activate_plugin( $request ) {
-		$slug = $request->get_param( 'slug' );
-		if ( $slug === 'wpgraphql-smart-cache' ) {
-			$slug = 'wp-graphql-smart-cache';
-		}
-
-		$result = activate_plugin( "$slug/$slug.php" );
+	public function activate_plugin( WP_REST_Request $request ) {
+		$plugin = $request->get_param( 'plugin' );
+		$result = activate_plugin( $plugin );
 
 		if ( is_wp_error( $result ) ) {
-			return new WP_REST_Response( [
-				'status'  => 'error',
-				'message' => $result->get_error_message(),
-			], 500 );
+			return new WP_REST_Response(
+				[
+					'status'  => 'error',
+					'message' => $result->get_error_message(),
+				],
+				500
+			);
 		}
 
-		return new WP_REST_Response( [
-			'status'  => 'active',
-			'slug'    => $slug,
-		], 200 );
+		return new WP_REST_Response(
+			[
+				'status' => 'active',
+				'plugin' => $plugin,
+			],
+			200
+		);
 	}
 
 	/**
@@ -152,20 +158,18 @@ class Extensions {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugins          = get_plugins();
-		$active_plugins   = get_option( 'active_plugins' );
+		$plugins           = get_plugins();
+		$active_plugins    = get_option( 'active_plugins' );
 		$installed_plugins = [];
 
 		foreach ( $plugins as $plugin_path => $plugin_info ) {
 			$slug = dirname( $plugin_path );
-			if ( $slug === 'wp-graphql-smart-cache' ) {
-				$slug = 'wpgraphql-smart-cache';
-			}
+
 			$installed_plugins[ $slug ] = [
-				'is_active'    => in_array( $plugin_path, $active_plugins, true ),
-				'name'         => $plugin_info['Name'],
-				'description'  => $plugin_info['Description'],
-				'author'       => $plugin_info['Author'],
+				'is_active'   => in_array( $plugin_path, $active_plugins, true ),
+				'name'        => $plugin_info['Name'],
+				'description' => $plugin_info['Description'],
+				'author'      => $plugin_info['Author'],
 			];
 		}
 
@@ -199,12 +203,19 @@ class Extensions {
 	public function get_extensions() {
 		$extensions = [
 			[
+				'plugin_url'   => 'https://github.com/wp-graphql/wpgraphql-ide/',
+				'support_link' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new',
+				'plugin_path'  => 'wpgraphql-ide/wpgraphql-ide.php'
+			],
+			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-acf/',
-				'support_link' => 'https://acf.wpgraphql.com/support/',
+				'support_link' => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new',
+				'plugin_path'  => 'wpgraphql-acf/wpgraphql-acf.php'
 			],
 			[
 				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
 				'support_link' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new',
+				'plugin_path'  => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php'
 			],
 			[
 				'plugin_url'   => 'https://github.com/wpengine/wp-graphql-content-blocks',
@@ -212,33 +223,51 @@ class Extensions {
 				'name'         => 'WPGraphQL Content Blocks',
 				'description'  => 'Content Blocks for WPGraphQL.',
 				'author'       => 'WP Engine',
+				'plugin_path'  => 'wp-graphql-content-blocks/wp-graphql-content-blocks.php'
 			],
 		];
 
 		$installed_plugins = $this->get_installed_plugins();
 
 		foreach ( $extensions as &$extension ) {
-			$host = parse_url( $extension['plugin_url'], PHP_URL_HOST );
+			$host = wp_parse_url( $extension['plugin_url'], PHP_URL_HOST );
 
 			if ( 'wordpress.org' === $host ) {
 				$plugin_info = $this->fetch_plugin_info( $extension['plugin_url'] );
-				$extension   = array_merge( $extension, [
-					'name'         => $plugin_info['name'] ?? '',
-					'description'  => $plugin_info['short_description'] ?? '',
-					'author'       => $plugin_info['author'] ?? '',
-					'installed'    => false,
-					'active'       => false,
-				] );
+				$extension   = array_merge(
+					$extension,
+					[
+						'name'        => $plugin_info['name'] ?? '',
+						'description' => $plugin_info['short_description'] ?? '',
+						'author'      => $plugin_info['author'] ?? '',
+						'installed'   => false,
+						'active'      => false,
+					]
+				);
 			}
 
 			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
 			if ( isset( $installed_plugins[ $slug ] ) ) {
-				$extension = array_merge( $extension, $installed_plugins[ $slug ], [
-					'installed'    => true,
-					'active'       => $installed_plugins[ $slug ]['is_active'],
-				] );
+				$extension = array_merge(
+					$extension,
+					$installed_plugins[ $slug ],
+					[
+						'installed' => true,
+						'active'    => $installed_plugins[ $slug ]['is_active'],
+					]
+				);
 			}
 		}
+
+		usort($extensions, function ($a, $b) {
+			if (strpos($a['plugin_url'], 'wordpress.org') !== false && strpos($b['plugin_url'], 'wordpress.org') === false) {
+				return -1;
+			}
+			if (strpos($a['plugin_url'], 'wordpress.org') === false && strpos($b['plugin_url'], 'wordpress.org') !== false) {
+				return 1;
+			}
+			return strcmp($a['name'], $b['name']);
+		});
 
 		return apply_filters( 'wpgraphql_extensions', $extensions );
 	}
