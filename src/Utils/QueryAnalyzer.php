@@ -108,6 +108,17 @@ class QueryAnalyzer {
 	protected $is_enabled_for_query;
 
 	/**
+	 * @param \WPGraphQL\Request $request The GraphQL request being executed
+	 */
+	public function __construct( Request $request ) {
+		$this->request       = $request;
+		$this->runtime_nodes = [];
+		$this->models        = [];
+		$this->list_types    = [];
+		$this->queried_types = [];
+	}
+
+	/**
 	 * Checks whether the Query Analyzer is enabled on the site.
 	 *
 	 * @uses `graphql_query_analyzer_enabled` filter.
@@ -133,14 +144,18 @@ class QueryAnalyzer {
 	}
 
 	/**
-	 * @param \WPGraphQL\Request $request The GraphQL request being executed
+	 * Get the GraphQL Schema.
+	 * If the schema is not set, it will be set.
+	 *
+	 * @return Schema|WPSchema|null
+	 * @throws \Exception
 	 */
-	public function __construct( Request $request ) {
-		$this->request       = $request;
-		$this->runtime_nodes = [];
-		$this->models        = [];
-		$this->list_types    = [];
-		$this->queried_types = [];
+	public function get_schema() {
+		if ( ! $this->schema ) {
+			$this->schema = WPGraphQL::get_schema();
+		}
+
+		return $this->schema;
 	}
 
 	/**
@@ -255,9 +270,9 @@ class QueryAnalyzer {
 
 		// if there's a query (either saved or part of the request params)
 		// get the GraphQL Types being asked for by the query
-		$this->list_types    = $this->set_list_types( $this->schema, $query );
-		$this->queried_types = $this->set_query_types( $this->schema, $query );
-		$this->models        = $this->set_query_models( $this->schema, $query );
+		$this->list_types    = $this->set_list_types( $this->get_schema(), $query );
+		$this->queried_types = $this->set_query_types( $this->get_schema(), $query );
+		$this->models        = $this->set_query_models( $this->get_schema(), $query );
 
 		/**
 		 * @param \WPGraphQL\Utils\QueryAnalyzer $query_analyzer The instance of the query analyzer
@@ -351,7 +366,7 @@ class QueryAnalyzer {
 		}
 
 		if ( $type instanceof NonNull || $type instanceof ListOfType ) {
-			if ( $type instanceof ListOfType && isset( $parent_type->name ) ) {
+			if ( $type instanceof ListOfType && ! empty( $parent_type->name ) ) {
 				$is_list_type = true;
 			}
 
