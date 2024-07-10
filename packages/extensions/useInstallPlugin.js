@@ -8,10 +8,23 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
     const [status, setStatus] = useState('');
     const [error, setError] = useState('');
 
+    // Helper function to update the status and error states
+    const updateStatus = (newStatus, newError = '') => {
+        setStatus(newStatus);
+        setError(newError);
+    };
+
+    // Helper function to update the plugin's activation state in wpgraphqlExtensions
+    const updateExtensionStatus = (isActive) => {
+        window.wpgraphqlExtensions.extensions = window.wpgraphqlExtensions.extensions.map((extension) =>
+            extension.plugin_url === pluginUrl ? { ...extension, installed: true, active: isActive } : extension
+        );
+    };
+
+    // Function to handle the plugin installation
     const installPlugin = async () => {
         setInstalling(true);
-        setStatus(__('Installing...', 'wp-graphql'));
-        setError('');
+        updateStatus(__('Installing...', 'wp-graphql'));
 
         let slug = new URL(pluginUrl).pathname.split('/').filter(Boolean).pop();
 
@@ -37,17 +50,16 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
             if (err.message.includes('destination folder already exists')) {
                 await activatePlugin(pluginPath);
             } else {
-                setStatus(__('Installation failed', 'wp-graphql'));
-                setError(err.message || __('Installation failed', 'wp-graphql'));
+                updateStatus(__('Installation failed', 'wp-graphql'), err.message || __('Installation failed', 'wp-graphql'));
                 setInstalling(false);
             }
         }
     };
 
+    // Function to handle the plugin activation
     const activatePlugin = async (path = null) => {
         setActivating(true);
-        setStatus(__('Activating...', 'wp-graphql'));
-        setError('');
+        updateStatus(__('Activating...', 'wp-graphql'));
 
         if (!path) {
             let slug = new URL(pluginUrl).pathname.split('/').filter(Boolean).pop();
@@ -67,23 +79,16 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
             const jsonResponse = activateResult;
 
             if (jsonResponse.status === 'active') {
-                setStatus(__('Active', 'wp-graphql'));
-                window.wpgraphqlExtensions.extensions = window.wpgraphqlExtensions.extensions.map((extension) =>
-                    extension.plugin_url === pluginUrl ? { ...extension, installed: true, active: true } : extension
-                );
+                updateStatus(__('Active', 'wp-graphql'));
+                updateExtensionStatus(true);
             } else if (jsonResponse.message.includes('Plugin file does not exist')) {
-                // The plugin is already activated
-                setStatus(__('Active', 'wp-graphql'));
-                setError('');
-                window.wpgraphqlExtensions.extensions = window.wpgraphqlExtensions.extensions.map((extension) =>
-                    extension.plugin_url === pluginUrl ? { ...extension, installed: true, active: true } : extension
-                );
+                updateStatus(__('Active', 'wp-graphql'));
+                updateExtensionStatus(true);
             } else {
                 throw new Error(__('Activation failed', 'wp-graphql'));
             }
         } catch (err) {
-            setStatus(__('Activation failed', 'wp-graphql'));
-            setError(err.message || __('Activation failed', 'wp-graphql'));
+            updateStatus(__('Activation failed', 'wp-graphql'), err.message || __('Activation failed', 'wp-graphql'));
         } finally {
             setInstalling(false);
             setActivating(false);
