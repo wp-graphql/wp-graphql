@@ -151,7 +151,7 @@ class Extensions {
 	/**
 	 * Get the list of installed plugins.
 	 *
-	 * @return array List of installed plugin slugs.
+	 * @return array<int, array<string, mixed>> List of installed plugins.
 	 */
 	private function get_installed_plugins() {
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -181,10 +181,11 @@ class Extensions {
 	 *
 	 * @param string $plugin_url The plugin URL.
 	 *
-	 * @return array The plugin information.
+	 * @return array<string, mixed> Plugin info.
 	 */
-	private function fetch_plugin_info( $plugin_url ) {
-		$slug     = basename( rtrim( $plugin_url, '/' ) );
+	private function fetch_plugin_info( $plugin_url ): array {
+		$slug = basename( rtrim( $plugin_url, '/' ) );
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get( "https://api.wordpress.org/plugins/info/1.0/{$slug}.json" );
 
 		if ( is_wp_error( $response ) ) {
@@ -198,9 +199,9 @@ class Extensions {
 	/**
 	 * Define the default WPGraphQL extensions.
 	 *
-	 * @return array<mixed,string> The modified list of extensions.
+	 * @return array<string, array<string, mixed>> List of installed plugins.
 	 */
-	public function get_extensions() {
+	public function get_extensions(): array {
 		$extensions = [
 			[
 				'plugin_url'   => 'https://github.com/wp-graphql/wpgraphql-ide/',
