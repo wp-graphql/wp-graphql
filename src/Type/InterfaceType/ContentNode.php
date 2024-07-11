@@ -10,63 +10,36 @@ use WPGraphQL\Registry\TypeRegistry;
 class ContentNode {
 
 	/**
-	 * Get the handles of all scripts enqueued for a given post
+	 * Get the handles of all scripts enqueued for a given content node
 	 *
-	 * @param array $queue
+	 * @param array<string, string> $queue      List of scripts for a given content node.
+	 * @param \WP_Dependencies      $wp_assets  A Global assets object.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	public static function get_enqueued_scripts_handles( $queue ) {
-		global $wp_scripts;
-		$registered_scripts = $wp_scripts->registered;
-		$handles = [];
+	public static function get_enqueued_asset_handles( array $queue, $wp_assets ) {
+		$registered_scripts = $wp_assets->registered;
+		$handles            = [];
 		foreach ( $queue as $handle ) {
 			if ( empty( $registered_scripts[ $handle ] ) ) {
 				continue;
 			}
+			/** @var \_WP_Dependency $script */
 			$script = $registered_scripts[ $handle ];
 			if ( ! empty( $script->src ) ) {
 				$handles[] = $script->handle;
 			}
 
-			$dependencies = self::get_enqueued_scripts_handles( $script->deps );
+			$dependencies = self::get_enqueued_asset_handles( $script->deps, $wp_assets );
 			if ( empty( $dependencies ) ) {
 				continue;
 			}
-	
-			//$dependencies = array_reverse( $dependencies );
+
 			array_unshift( $handles, ...$dependencies );
 		}
 
 		return array_values( array_unique( $handles ) );
 	}
-
-	public static function get_enqueued_styles_handles( $queue ) {
-		global $wp_styles;
-		$registered_scripts = $wp_styles->registered;
-		$handles = [];
-		foreach ( $queue as $handle ) {
-			if ( empty( $registered_scripts[ $handle ] ) ) {
-				continue;
-			}
-			$script = $registered_scripts[ $handle ];
-			if ( ! empty( $script->src ) ) {
-				$handles[] = $script->handle;
-			}
-
-			$dependencies = self::get_enqueued_styles_handles( $script->deps );
-			if ( empty( $dependencies ) ) {
-				continue;
-			}
-	
-			//$dependencies = array_reverse( $dependencies );
-			array_unshift( $handles, ...$dependencies );
-		}
-
-		return array_values( array_unique( $handles ) );
-	}
-
-
 
 	/**
 	 * Adds the ContentNode Type to the WPGraphQL Registry
@@ -111,39 +84,54 @@ class ContentNode {
 					'enqueuedScripts'     => [
 						'toType'  => 'EnqueuedScript',
 						'resolve' => static function ( $source, $args, $context, $info ) {
-							// Simulate WP template rendering
+							global $wp_scripts;
+
+							// Simulate WP template rendering.
 							ob_start();
 							wp_head();
-							$source->contentRendered;
+							/**
+							 * We only need to call "$source->contentRendered;" for the simulation,
+							 * however it is being assigned to a variable to quiet phpstan.
+							 */
+							$content = $source->contentRendered;
+							unset( $content );
 							wp_footer();
 							ob_get_clean();
-							$queue = self::get_enqueued_scripts_handles( $source->enqueuedScriptsQueue ?? [] );
-							$source = (object) [ 'enqueuedScriptsQueue' => $queue ];
-							
-							// Reset the scripts queue to avoid conflicts with other queries
-							global $wp_scripts;
-							$wp_scripts->reset();
-					
-							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 
+							// Sort and organize the enqueued scripts.
+							$queue  = self::get_enqueued_asset_handles( $source->enqueuedScriptsQueue ?? [], $wp_scripts );
+							$source = (object) [ 'enqueuedScriptsQueue' => $queue ];
+
+							// Reset the scripts queue to avoid conflicts with other queries.
+							$wp_scripts->reset();
+
+							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
 							return $resolver->get_connection();
 						},
 					],
 					'enqueuedStylesheets' => [
 						'toType'  => 'EnqueuedStylesheet',
 						'resolve' => static function ( $source, $args, $context, $info ) {
-							// Simulate WP template rendering
+							global $wp_styles;
+
+							// Simulate WP template rendering.
 							ob_start();
 							wp_head();
-							$source->contentRendered;
+							/**
+							 * We only need to call "$source->contentRendered;" for the simulation,
+							 * however it is being assigned to a variable to quiet phpstan.
+							 */
+							$content = $source->contentRendered;
+							unset( $content );
 							do_action( 'get_sidebar', null, [] );
 							wp_footer();
 							ob_get_clean();
-							$queue = self::get_enqueued_styles_handles( $source->enqueuedStylesheetsQueue ?? [] );
+
+							// Sort and organize the enqueued stylesheets.
+							$queue  = self::get_enqueued_asset_handles( $source->enqueuedStylesheetsQueue ?? [], $wp_styles );
 							$source = (object) [ 'enqueuedStylesheetsQueue' => $queue ];
 
-							// Reset the styles queue to avoid conflicts with other queries
-							global $wp_styles;
+							// Reset the styles queue to avoid conflicts with other queries.
 							$wp_styles->reset();
 
 							$resolver = new EnqueuedStylesheetConnectionResolver( $source, $args, $context, $info );

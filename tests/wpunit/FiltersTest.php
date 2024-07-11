@@ -141,7 +141,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'users.nodes', self::NOT_NULL ),
+				$this->expectedField( 'users.nodes', static::NOT_NULL ),
 			]
 		);
 	}
@@ -183,7 +183,7 @@ class FiltersTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'posts.nodes', self::NOT_NULL ),
+				$this->expectedField( 'posts.nodes', static::NOT_NULL ),
 			]
 		);
 	}

@@ -943,7 +943,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
+				$this->expectedField( 'graphqlInResolver', static::NOT_NULL ),
 			]
 		);
 	}
@@ -1003,7 +1003,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->assertQuerySuccessful(
 				$response,
 				[
-					$this->expectedField( 'graphqlInResolver', self::NOT_NULL ),
+					$this->expectedField( 'graphqlInResolver', static::NOT_NULL ),
 				]
 			);
 		}
@@ -2365,7 +2365,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'posts', self::NOT_NULL ),
+			$this->expectedField( 'posts', static::NOT_NULL ),
 		] );
 
 		$actual_two = $this->graphql([
@@ -2373,7 +2373,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		]);
 
 		self::assertQuerySuccessful( $actual_two, [
-			$this->expectedField( 'users', self::NOT_NULL ),
+			$this->expectedField( 'users', static::NOT_NULL ),
 		] );
 
 		$this->expectException( GraphQL\Error\Error::class );

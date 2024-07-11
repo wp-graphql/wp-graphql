@@ -2243,7 +2243,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				// the query should return a null value as the uri
 				// cannot be found
-				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+				$this->expectedField( 'nodeByUri', static::IS_NULL ),
 			]
 		);
 	}
@@ -2289,7 +2289,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			[
 				// the query should return a null value as the uri
 				// cannot be found
-				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+				$this->expectedField( 'nodeByUri', static::IS_NULL ),
 			]
 		);
 
