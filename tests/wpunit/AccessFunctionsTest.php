@@ -2226,7 +2226,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'test_field_with_underscores', self::IS_FALSY ),
+				$this->expectedField( 'test_field_with_underscores', static::IS_FALSY ),
 			]
 		);
 	}
