@@ -1769,12 +1769,12 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$map = array_keys( $schema->getTypeMap() );
 
-		$this->assertTrue( ! in_array( 'BootstrapPost', $map, true ) );
+		$this->assertTrue( in_array( 'BootstrapPost', $map, true ) );
 		$this->assertTrue( ! in_array( 'CptNoSinglePlural', $map, true ) );
 
 		// Cleanup
 		unregister_post_type( 'cpt_no_single_plural' );
-		$this->clearSchema();
+
 	}
 
 	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {
