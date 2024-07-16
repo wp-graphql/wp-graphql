@@ -21,7 +21,7 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
         );
     };
 
-    const activatePlugin = async (path = null) => {
+    const activatePlugin = async (path = pluginPath) => {
         setActivating(true);
         updateStatus(__('Activating...', 'wp-graphql'));
     
