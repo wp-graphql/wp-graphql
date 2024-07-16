@@ -18,14 +18,14 @@ const PluginCard = ({ plugin }) => {
     const handleButtonClick = async () => {
         const prevInstalled = isInstalled;
         const prevActive = isActive;
-
+    
         try {
             if (!isInstalled) {
                 await installPlugin();
                 setIsInstalled(true);
-                setIsActive(true);  // Assume successful activation after installation
+                setIsActive(true); // Assume successful activation after installation
             } else {
-                await activatePlugin();
+                await activatePlugin(plugin.plugin_path);
                 setIsActive(true);
             }
         } catch (err) {
