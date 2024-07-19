@@ -151,9 +151,6 @@ class Request {
 		// Get the Type Registry
 		$this->type_registry = \WPGraphQL::get_type_registry();
 
-		// Get the Schema
-		$this->schema = \WPGraphQL::get_schema();
-
 		// Get the App Context
 		$this->app_context = \WPGraphQL::get_app_context();
 
@@ -291,6 +288,9 @@ class Request {
 		} else {
 			$this->do_action( $this->params );
 		}
+
+		// Get the Schema
+		$this->schema = \WPGraphQL::get_schema();
 
 		/**
 		 * This action runs before execution of a GraphQL request (regardless if it's a single or batch request)

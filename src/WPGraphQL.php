@@ -62,7 +62,12 @@ final class WPGraphQL {
 	/**
 	 * @var bool
 	 */
-	protected static $is_graphql_request;
+	protected static $is_graphql_request = false;
+
+	/**
+	 * @var bool
+	 */
+	protected static $is_introspection_query = false;
 
 	/**
 	 * The instance of the WPGraphQL object
@@ -140,10 +145,30 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * @return bool
+	 * Whether the request is a graphql request or not
 	 */
-	public static function is_graphql_request() {
+	public static function is_graphql_request(): bool {
 		return self::$is_graphql_request;
+	}
+
+	/**
+	 * Set whether the request is an introspection query or not
+	 *
+	 * @param bool $is_introspection_query
+	 *
+	 * @since todo
+	 */
+	public static function set_is_introspection_query( bool $is_introspection_query = false ): void {
+		self::$is_introspection_query = $is_introspection_query;
+	}
+
+	/**
+	 * Whether the request is an introspection query or not (query for __type or __schema)
+	 *
+	 * @since todo
+	 */
+	public static function is_introspection_query(): bool {
+		return self::$is_introspection_query;
 	}
 
 	/**
@@ -203,6 +228,7 @@ final class WPGraphQL {
 
 		// Throw an exception
 		add_action( 'do_graphql_request', [ $this, 'min_php_version_check' ] );
+		add_action( 'do_graphql_request', [ $this, 'introspection_check' ], 10, 4 );
 
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
@@ -220,6 +246,41 @@ final class WPGraphQL {
 	}
 
 	/**
+	 * @param ?string                         $query     The GraphQL query
+	 * @param ?string                         $operation The name of the operation
+	 * @param ?array<mixed>                   $variables Variables to be passed to your GraphQL
+	 *                                                   request
+	 * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any
+	 *                                                   extra params,
+	 *
+	 * @throws \GraphQL\Error\SyntaxError
+	 * @throws \Exception
+	 */
+	public function introspection_check( ?string $query, ?string $operation, ?array $variables, \GraphQL\Server\OperationParams $params ): void {
+
+		if ( empty( $query ) ) {
+			return;
+		}
+
+		$ast              = \GraphQL\Language\Parser::parse( $query );
+		$is_introspection = false;
+
+		\GraphQL\Language\Visitor::visit(
+			$ast,
+			[
+				'Field' => static function ( \GraphQL\Language\AST\FieldNode $node ) use ( &$is_introspection ) {
+					if ( '__schema' === $node->name->value || '__type' === $node->name->value ) {
+						$is_introspection = true;
+						return \GraphQL\Language\Visitor::stop();
+					}
+				},
+			]
+		);
+
+		self::set_is_introspection_query( $is_introspection );
+	}
+
+	/**
 	 * Check if the minimum PHP version requirement is met before execution begins.
 	 *
 	 * If the server is running a lower version than required, throw an exception and prevent
@@ -233,7 +294,7 @@ final class WPGraphQL {
 			throw new \Exception(
 				esc_html(
 					sprintf(
-						// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
+					// translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
 						__( 'The server\'s current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s', 'wp-graphql' ),
 						PHP_VERSION,
 						GRAPHQL_MIN_PHP_VERSION
