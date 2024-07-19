@@ -32,7 +32,7 @@ use WPGraphQL\WPSchema;
 class QueryAnalyzer {
 
 	/**
-	 * @var \GraphQL\Type\Schema
+	 * @var \WPGraphQL\WPSchema|null
 	 */
 	protected $schema;
 
@@ -147,10 +147,9 @@ class QueryAnalyzer {
 	 * Get the GraphQL Schema.
 	 * If the schema is not set, it will be set.
 	 *
-	 * @return \GraphQL\Type\Schema|\WPGraphQL\WPSchema|null
 	 * @throws \Exception
 	 */
-	public function get_schema() {
+	public function get_schema(): ?WPSchema {
 		if ( ! $this->schema ) {
 			$this->schema = WPGraphQL::get_schema();
 		}

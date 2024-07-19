@@ -156,14 +156,16 @@ final class WPGraphQL {
 	 *
 	 * @param bool $is_introspection_query
 	 *
-	 * @return void
+	 * @since todo
 	 */
-	public static function set_is_introspection_query( bool $is_introspection_query = false ) {
+	public static function set_is_introspection_query( bool $is_introspection_query = false ): void {
 		self::$is_introspection_query = $is_introspection_query;
 	}
 
 	/**
 	 * Whether the request is an introspection query or not (query for __type or __schema)
+	 *
+	 * @since todo
 	 */
 	public static function is_introspection_query(): bool {
 		return self::$is_introspection_query;
