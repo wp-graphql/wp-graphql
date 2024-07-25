@@ -76,10 +76,10 @@ const PluginCard = ({ plugin }) => {
                                 </a>
                             </li>
                         )}
-                        {plugin.support_link && (
+                        {plugin.support_url && (
                             <li>
                                 <a
-                                    href={plugin.support_link}
+                                    href={plugin.support_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="thickbox open-plugin-details-modal"

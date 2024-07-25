@@ -13,6 +13,63 @@ use WP_REST_Response;
 class Extensions {
 
 	/**
+	 * The list of default WPGraphQL extensions.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private $extensions = [
+		[
+			'name'        => 'WPGraphQL IDE',
+			'description' => 'A next-gen query editor for WPGraphQL.',
+			'plugin_url'  => 'https://github.com/wp-graphql/wpgraphql-ide/',
+			'support_url' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
+		],
+		[
+			'name'        => 'WPGraphQL for ACF',
+			'description' => 'Adds ACF Fields and Field Groups to the WPGraphQL Schema.',
+			'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-acf/',
+			'support_url' => 'https://acf.wpgraphql.com/support/',
+		],
+		[
+			'name'        => 'WPGraphQL Smart Cache',
+			'description' => 'Smart Caching & Cache Invalidation for WPGraphQL.',
+			'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
+			'support_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
+			'plugin_path' => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
+		],
+		[
+			'name'        => 'Faust.js',
+			'description' => 'WordPress plugin for working with Faust.js, the Headless WordPress Framework.',
+			'plugin_url'  => 'https://wordpress.org/plugins/faustwp/',
+			'support_url' => 'https://github.com/wpengine/faustjs/issues/new/choose',
+		],
+		[
+			'name'        => 'WPGraphQL Content Blocks',
+			'description' => 'Content Blocks for WPGraphQL.',
+			'plugin_url'  => 'https://github.com/wpengine/wp-graphql-content-blocks',
+			'support_url' => 'https://github.com/wpengine/wp-graphql-content-blocks/issues/new/choose',
+		],
+		[
+			'name'        => 'WPGraphQL WooCommerce (WooGraphQL)',
+			'description' => 'Add WooCommerce support and functionality to your WPGraphQL server.',
+			'plugin_url'  => 'https://github.com/wp-graphql/wp-graphql-woocommerce',
+			'support_url' => 'https://github.com/wp-graphql/wp-graphql-woocommerce/issues/new/choose',
+		],
+		[
+			'name'        => 'WPGraphQL for Gravity Forms',
+			'description' => 'GraphQL API for interacting with Gravity Forms.',
+			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-gravity-forms',
+			'support_url' => 'https://github.com/AxeWP/wp-graphql-gravity-forms/issues/new/choose',
+		],
+		[
+			'name'        => 'Headless Login for WPGraphQL',
+			'description' => 'A WordPress plugin that provides Headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OpenID Connect, JWT, and more.',
+			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-headless-login',
+			'support_url' => 'https://github.com/AxeWP/wp-graphql-headless-login/issues/new/choose',
+		],
+	];
+
+	/**
 	 * Initialize Extensions functionality for WPGraphQL.
 	 *
 	 * @return void
@@ -177,98 +234,28 @@ class Extensions {
 	}
 
 	/**
-	 * Fetch plugin information from WordPress.org.
+	 * Get the list of WPGraphQL extensions.
 	 *
-	 * @param string $plugin_url The plugin URL.
-	 *
-	 * @return array<string, mixed> Plugin info.
-	 */
-	private function fetch_plugin_info( $plugin_url ): array {
-		$slug = basename( rtrim( $plugin_url, '/' ) );
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
-		$response = wp_remote_get( "https://api.wordpress.org/plugins/info/1.0/{$slug}.json" );
-
-		if ( is_wp_error( $response ) ) {
-			return [];
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		return json_decode( $body, true );
-	}
-
-	/**
-	 * Define the default WPGraphQL extensions.
-	 *
-	 * @return array<string, array<string, mixed>> List of installed plugins.
+	 * @return array<string, array<string, mixed>> List of extensions.
 	 */
 	public function get_extensions(): array {
-		$extensions = [
-			[
-				'plugin_url'   => 'https://github.com/wp-graphql/wpgraphql-ide/',
-				'support_link' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
-			],
-			[
-				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-acf/',
-				'support_link' => 'https://acf.wpgraphql.com/support/',
-			],
-			[
-				'plugin_url'   => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
-				'support_link' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
-				'plugin_path'  => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
-			],
-			[
-				'plugin_url'   => 'https://wordpress.org/plugins/faustwp/',
-				'support_link' => 'https://github.com/wpengine/faustjs/issues/new/choose',
-			],
-			[
-				'plugin_url'   => 'https://github.com/wpengine/wp-graphql-content-blocks',
-				'support_link' => 'https://github.com/wpengine/wp-graphql-content-blocks/issues/new/choose',
-				'name'         => 'WPGraphQL Content Blocks',
-				'description'  => 'Content Blocks for WPGraphQL.',
-				'author'       => 'WP Engine',
-			],
-			[
-				'plugin_url'   => 'https://github.com/wp-graphql/wp-graphql-woocommerce',
-				'name'         => 'WPGraphQL WooCommerce (WooGraphQL)',
-				'description'  => 'Add WooCommerce support and functionality to your WPGraphQL server.',
-				'support_link' => 'https://github.com/wp-graphql/wp-graphql-woocommerce/issues/new/choose',
-			],
-		];
-
 		$installed_plugins = $this->get_installed_plugins();
 
-		foreach ( $extensions as &$extension ) {
-			$host = wp_parse_url( $extension['plugin_url'], PHP_URL_HOST );
-
-			if ( 'wordpress.org' === $host ) {
-				$plugin_info = $this->fetch_plugin_info( $extension['plugin_url'] );
-				$extension   = array_merge(
-					$extension,
-					[
-						'name'        => $plugin_info['name'] ?? '',
-						'description' => $plugin_info['short_description'] ?? '',
-						'author'      => $plugin_info['author'] ?? '',
-						'installed'   => false,
-						'active'      => false,
-					]
-				);
-			}
-
+		foreach ( $this->extensions as &$extension ) {
 			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
 			if ( isset( $installed_plugins[ $slug ] ) ) {
-				$extension = array_merge(
-					$extension,
-					$installed_plugins[ $slug ],
-					[
-						'installed' => true,
-						'active'    => $installed_plugins[ $slug ]['is_active'],
-					]
-				);
+				// Merge only specific data from installed plugins, avoiding override of descriptions, etc.
+				$extension['installed'] = true;
+				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
+				$extension['author']    = $installed_plugins[ $slug ]['author'];
+			} else {
+				$extension['installed'] = false;
+				$extension['active']    = false;
 			}
 		}
 
 		usort(
-			$extensions,
+			$this->extensions,
 			static function ( $a, $b ) {
 				if ( strpos( $a['plugin_url'], 'wordpress.org' ) !== false && strpos( $b['plugin_url'], 'wordpress.org' ) === false ) {
 					return -1;
@@ -280,6 +267,6 @@ class Extensions {
 			}
 		);
 
-		return apply_filters( 'wpgraphql_extensions', $extensions );
+		return apply_filters( 'wpgraphql_extensions', $this->extensions );
 	}
 }
