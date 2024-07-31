@@ -39,7 +39,7 @@ const PluginCard = ({ plugin }) => {
         }
     };
 
-    const host = new URL(plugin.plugin_url).host;
+    const domain = new URL(plugin.plugin_url).hostname.toLowerCase();
     const { buttonText, buttonDisabled } = getButtonDetails(host, plugin.plugin_url, isInstalled, isActive, installing, activating);
 
     return (
@@ -51,7 +51,7 @@ const PluginCard = ({ plugin }) => {
                 </div>
                 <div className="action-links">
                     <ul className="plugin-action-buttons">
-                        {host.includes('wordpress.org') && (
+                        {domain.endsWith('wordpress.org') && (
                             <li>
                                 <button
                                     type="button"
@@ -64,7 +64,7 @@ const PluginCard = ({ plugin }) => {
                                 </button>
                             </li>
                         )}
-                        {host.includes('github.com') && (
+                        {domain.endsWith('github.com') && (
                             <li>
                                 <a
                                     href={plugin.plugin_url}
