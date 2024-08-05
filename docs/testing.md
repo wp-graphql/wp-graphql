@@ -273,13 +273,13 @@ PHP_VERSION=8.1 WP_VERSION=6.0 SUITES=acceptance composer run-test
 Log into the docker shell prompt:
 
 ```shell
-docker-compose run --entrypoint bash -- testing
+docker compose run --entrypoint bash -- testing
 ```
 
 Specify the PHP and/or WordPress versions to use that environment. Environment must have been built previously using instructions above.
 
 ```shell
-PHP_VERSION=8.1 WP_VERSION=6.0 docker-compose run --entrypoint bash -- testing
+PHP_VERSION=8.1 WP_VERSION=6.0 docker compose run --entrypoint bash -- testing
 ```
 
 Run the setup script, which also runs the test suite.  This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.

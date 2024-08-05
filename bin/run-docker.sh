@@ -4,7 +4,7 @@ set -eu
 
 ##
 # Use this script through Composer scripts in the package.json.
-# To quickly build and run the docker-compose scripts for an app or automated testing
+# To quickly build and run the `docker compose` scripts for an app or automated testing
 # run the command below after run `composer install --no-dev` with the respectively
 # flag for what you need.
 ##
@@ -82,7 +82,7 @@ case "$subcommand" in
                 WP_VERSION=${WP_VERSION} PHP_VERSION=${PHP_VERSION} docker compose up app
                     ;;
                 t )
-                docker-compose run --rm \
+                docker compose run --rm \
                     -e COVERAGE=${COVERAGE-} \
                     -e USING_XDEBUG=${USING_XDEBUG-} \
                     -e DEBUG=${DEBUG-} \
