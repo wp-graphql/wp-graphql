@@ -72,14 +72,13 @@ class UserLoader extends AbstractDataLoader {
 		$public_only = true;
 
 		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
-		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
+		$ids   = implode( ', ', $keys );
 
 		global $wpdb;
 
-		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
-				"SELECT DISTINCT `post_author` FROM $wpdb->posts INNER JOIN $wpdb->users ON $wpdb->posts.post_author = $wpdb->users.ID $where AND `post_author` IN ( $ids )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				$keys
+				"SELECT DISTINCT `post_author` FROM $wpdb->posts INNER JOIN $wpdb->users ON $wpdb->posts.post_author = $wpdb->users.ID $where AND `post_author` IN ( $ids )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 			)
 		);
 
