@@ -73,7 +73,6 @@ class UserLoader extends AbstractDataLoader {
 
 		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
 		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
-		$count = count( $keys );
 
 		global $wpdb;
 
