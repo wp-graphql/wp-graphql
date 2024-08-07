@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\ObjectType;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class EnqueuedScript
@@ -34,8 +35,8 @@ class EnqueuedScript {
 						'type'        => [ 'list_of' => 'EnqueuedScript' ],
 						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
-							return $asset->deps;
-						},
+							return ! empty( $asset->deps ) ? DataSource::resolve_enqueued_assets( 'script', $asset->deps ) : [];
+						}
 					],
 					'extraData'    => [
 						'type'        => 'String',

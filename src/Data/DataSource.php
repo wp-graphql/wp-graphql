@@ -728,4 +728,35 @@ class DataSource {
 
 		return $node_resolver->resolve_uri( $uri );
 	}
+
+	/**
+	 * Resolve the enqueued assets for an list of handles
+	 * 
+	 * @param string $type The type of asset to resolve
+	 * @param string[] $asset_handles The list of asset handles to resolve
+	 * 
+	 * @return string[]
+	 */
+	public static function resolve_enqueued_assets( $type, $asset_handles ) {
+		switch ( $type ) {
+			case 'script':
+				global $wp_scripts;
+				$enqueued_assets = $wp_scripts->registered;
+				break;
+			case 'style':
+				global $wp_styles;
+				$enqueued_assets = $wp_styles->registered;
+				break;
+			default:
+				/* translators: %s is the asset type */
+				throw new UserError( sprintf( __( '%s Invalid asset type', 'wp-graphql' ), $type ) );
+		}
+
+		return array_filter(
+			$enqueued_assets,
+			static function( $asset ) use ( $asset_handles ) {
+				return in_array( $asset->handle, $asset_handles, true );
+			}
+		);
+	}
 }

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\ObjectType;
 
 use GraphQLRelay\Relay;
+use WPGraphQL\Data\DataSource;
 
 /**
  * Class EnqueuedStylesheet
@@ -32,7 +33,10 @@ class EnqueuedStylesheet {
 					],
 					'dependencies' => [
 						'type'        => [ 'list_of' => 'EnqueuedStylesheet' ],
-						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
+						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+						'resolve'     => static function ( $asset ) {
+							return ! empty( $asset->deps ) ? DataSource::resolve_enqueued_assets( 'style', $asset->deps ) : [];
+						}
 					],
 					'isRtl'        => [
 						'type'        => 'Boolean',
