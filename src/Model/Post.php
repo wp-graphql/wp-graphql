@@ -702,8 +702,6 @@ class Post extends Model {
 				'enqueuedScriptsQueue'      => function () {
 					global $wp_scripts;
 
-					require_once get_stylesheet_directory() . '/functions.php';
-
 					// Simulate WP template rendering.
 					ob_start();
 					do_action( 'wp_head' );
@@ -728,8 +726,6 @@ class Post extends Model {
 				},
 				'enqueuedStylesheetsQueue'  => function () {
 					global $wp_styles;
-
-					require_once get_stylesheet_directory() . '/functions.php';
 
 					// Simulate WP template rendering.
 					ob_start();
