@@ -139,6 +139,9 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		fragment EnqueuedScriptFragment on EnqueuedScript {
 			handle
 			src
+			dependencies {
+				handle
+			}
 		}
 		';
 	}
@@ -168,7 +171,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -203,7 +206,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -238,7 +241,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -273,7 +276,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -308,7 +311,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -343,7 +346,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -378,7 +381,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -413,7 +416,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -448,16 +451,18 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		);
 
-		$actual = $this->get_page_query( $this->page_id );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
-		$this->assertTrue( in_array( $handle, $handles, true ) );
-		// codecept_debug( $sources );
-		$this->assertTrue( in_array( $src, $sources, true ) );
+		$this->assertQuerySuccessful(
+			$this->get_page_query( $this->page_id ),
+			[
+				$this->expectedNode(
+					'page.enqueuedScripts.nodes',
+					[
+						$this->expectedField( 'handle', $handle ),
+						$this->expectedField( 'src', $src ),
+					]
+				),
+			]
+		);
 
 		// Make sure the script is NOT connected to another page
 		$another_page_id = $this->factory()->post->create(
@@ -468,43 +473,28 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$actual = $this->get_page_query( $another_page_id );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		// codecept_debug( $actual );
-		$scripts = $actual['data']['page']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
-		$this->assertFalse( in_array( $handle, $handles, true ) );
-		// codecept_debug( $sources );
-		$this->assertFalse( in_array( $src, $sources, true ) );
+		$this->assertQuerySuccessful(
+			$this->get_page_query( $another_page_id ),
+			[
+				$this->expectedField( 'page.enqueuedScripts.nodes', static::IS_FALSY ),
+			]
+		);
 
 		// Make sure the script is NOT enqueued on POSTS
-		$actual = $this->get_post_query( $this->post_id );
-
-		// codecept_debug( $actual );
-
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		// codecept_debug( $actual );
-		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
-
-		// codecept_debug( $scripts );
-
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
-		$this->assertFalse( in_array( $handle, $handles, true ) );
-		$this->assertFalse( in_array( $src, $sources, true ) );
+		$this->assertQuerySuccessful(
+			$this->get_post_query( $this->post_id ),
+			[
+				$this->expectedField( 'post.enqueuedScripts.nodes', static::IS_FALSY ),
+			]
+		);
 
 		// Make sure the script is NOT enqueued on Tags
-		$actual = $this->get_tag_query( $this->tag_id );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		// codecept_debug( $actual );
-		$scripts = $actual['data']['tag']['enqueuedScripts']['nodes'];
-		$handles = wp_list_pluck( $scripts, 'handle' );
-		$sources = wp_list_pluck( $scripts, 'src' );
-
-		$this->assertFalse( in_array( $handle, $handles, true ) );
-		$this->assertFalse( in_array( $src, $sources, true ) );
+		$this->assertQuerySuccessful(
+			$this->get_tag_query( $this->tag_id ),
+			[
+				$this->expectedField( 'tag.enqueuedScripts.nodes', static::IS_FALSY ),
+			]
+		);
 
 		wp_delete_post( $another_page_id, true );
 	}
@@ -1684,5 +1674,81 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
+	}
+
+	public function testEnqueuedScriptsHas_Dependencies() {
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test Page for EnqueuedScriptsTest',
+				'post_excerpt' => '',
+			]
+		);
+
+		$handle = 'test-script-with-dependencies';
+		$src    = 'test-script-with-dependencies.js';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src, $page_id ) {
+				wp_register_script( $handle, $src, [ 'jquery' ] );
+				if ( is_page( $page_id ) ) {
+					wp_enqueue_script( $handle );
+				}
+			}
+		);
+
+		$this->assertQuerySuccessful(
+			$this->get_page_query( $page_id ),
+			[
+				$this->expectedNode(
+					'page.enqueuedScripts.nodes',
+					[
+						$this->expectedField( 'handle', 'jquery-migrate' ),
+						$this->expectedField( 'src', static::NOT_FALSY ),
+					]
+				),
+				$this->expectedNode(
+					'page.enqueuedScripts.nodes',
+					[
+						$this->expectedField( 'handle', 'jquery-core' ),
+						$this->expectedField( 'src', static::NOT_FALSY ),
+					]
+				),
+				$this->expectedNode(
+					'page.enqueuedScripts.nodes',
+					[
+						$this->expectedField( 'handle', 'jquery' ),
+						$this->expectedField( 'src', static::IS_NULL ),
+						$this->expectedObject(
+							'dependencies.0',
+							[
+								$this->expectedField( 'handle', 'jquery-core' ),
+							]
+						),
+						$this->expectedObject(
+							'dependencies.1',
+							[
+								$this->expectedField( 'handle', 'jquery-migrate' ),
+							]
+						),
+					]
+				),
+				$this->expectedNode(
+					'page.enqueuedScripts.nodes',
+					[
+						$this->expectedField( 'handle', $handle ),
+						$this->expectedField( 'src', $src ),
+						$this->expectedObject(
+							'dependencies.0',
+							[
+								$this->expectedField( 'handle', 'jquery' ),
+							]
+						),
+					]
+				),
+			]
+		);
 	}
 }

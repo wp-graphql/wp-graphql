@@ -699,19 +699,55 @@ class Post extends Model {
 
 					return ! empty( $thumbnail_id ) ? absint( $thumbnail_id ) : null;
 				},
-				'enqueuedScriptsQueue'      => static function () {
+				'enqueuedScriptsQueue'      => function () {
 					global $wp_scripts;
-					do_action( 'wp_enqueue_scripts' );
-					$queue = $wp_scripts->queue;
+
+					require_once get_stylesheet_directory() . '/functions.php';
+
+					// Simulate WP template rendering.
+					ob_start();
+					do_action( 'wp_head' );
+					/**
+					 * We only need to call "$source->contentRendered;" for the simulation,
+					 * however it is being assigned to a variable to quiet phpstan.
+					 */
+					$content = $this->contentRendered;
+					unset( $content );
+					do_action( 'get_sidebar', null, [] );
+					do_action( 'wp_footer' );
+					ob_get_clean();
+
+					// Sort and organize the enqueued scripts.
+					$queue = Utils::flatten_enqueued_assets_list( $wp_scripts->queue ?? [], $wp_scripts );
+
+					// Reset the scripts queue to avoid conflicts with other queries.
 					$wp_scripts->reset();
 					$wp_scripts->queue = [];
 
 					return $queue;
 				},
-				'enqueuedStylesheetsQueue'  => static function () {
+				'enqueuedStylesheetsQueue'  => function () {
 					global $wp_styles;
-					do_action( 'wp_enqueue_scripts' );
-					$queue = $wp_styles->queue;
+
+					require_once get_stylesheet_directory() . '/functions.php';
+
+					// Simulate WP template rendering.
+					ob_start();
+					wp_head();
+					/**
+					 * We only need to call "$source->contentRendered;" for the simulation,
+					 * however it is being assigned to a variable to quiet phpstan.
+					 */
+					$content = $this->contentRendered;
+					unset( $content );
+					do_action( 'get_sidebar', null, [] );
+					wp_footer();
+					ob_get_clean();
+
+					// Sort and organize the enqueued stylesheets.
+					$queue = Utils::flatten_enqueued_assets_list( $wp_styles->queue ?? [], $wp_styles );
+
+
 					$wp_styles->reset();
 					$wp_styles->queue = [];
 
