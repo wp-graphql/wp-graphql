@@ -36,7 +36,7 @@ class EnqueuedScript {
 						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
 							return ! empty( $asset->deps ) ? DataSource::resolve_enqueued_assets( 'script', $asset->deps ) : [];
-						}
+						},
 					],
 					'extraData'    => [
 						'type'        => 'String',

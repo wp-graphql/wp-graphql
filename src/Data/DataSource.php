@@ -731,10 +731,11 @@ class DataSource {
 
 	/**
 	 * Resolve the enqueued assets for an list of handles
-	 * 
-	 * @param string $type The type of asset to resolve
+	 *
+	 * @param string   $type The type of asset to resolve
 	 * @param string[] $asset_handles The list of asset handles to resolve
-	 * 
+	 * @throws \GraphQL\Error\UserError If the asset type is invalid.
+	 *
 	 * @return string[]
 	 */
 	public static function resolve_enqueued_assets( $type, $asset_handles ) {
@@ -749,12 +750,12 @@ class DataSource {
 				break;
 			default:
 				/* translators: %s is the asset type */
-				throw new UserError( sprintf( __( '%s Invalid asset type', 'wp-graphql' ), $type ) );
+				throw new UserError( sprintf( __( '%s Invalid asset type', 'wp-graphql' ), $type ) ); //phpcs:ignore
 		}
 
 		return array_filter(
 			$enqueued_assets,
-			static function( $asset ) use ( $asset_handles ) {
+			static function ( $asset ) use ( $asset_handles ) {
 				return in_array( $asset->handle, $asset_handles, true );
 			}
 		);

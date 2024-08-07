@@ -36,7 +36,7 @@ class EnqueuedStylesheet {
 						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
 							return ! empty( $asset->deps ) ? DataSource::resolve_enqueued_assets( 'style', $asset->deps ) : [];
-						}
+						},
 					],
 					'isRtl'        => [
 						'type'        => 'Boolean',
