@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.28.0
+
+### Upgrade Notice
+
+This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users. 
+
+While there are no intentional breaking changes, because this change impacts every user we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
+
+### New Features
+
+- [#3172](https://github.com/wp-graphql/wp-graphql/pull/3172): feat: only `eagerlyLoadType` on introspection requests.
+
+### Chores / Bugfixes
+
+- [#3181](https://github.com/wp-graphql/wp-graphql/pull/3181): ci: replace `docker-compose` commands with `docker compose`
+- [#3182](https://github.com/wp-graphql/wp-graphql/pull/3182): ci: test against WP 6.6
+- [#3183](https://github.com/wp-graphql/wp-graphql/pull/3183): fix: improve performance of SQL query in the user loader
+
 ## 1.27.2
 
 ### Chores / Bugfixes
