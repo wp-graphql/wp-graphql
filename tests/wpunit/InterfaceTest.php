@@ -117,7 +117,8 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testSchemaIsValid() {
 		try {
 			$request = new \WPGraphQL\Request();
-			$request->schema->assertValid();
+			$schema  = WPGraphQL::get_schema();
+			$schema->assertValid();
 
 			// Assert true upon success.
 			$this->assertTrue( true );
