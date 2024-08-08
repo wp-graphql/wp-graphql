@@ -139,6 +139,9 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		fragment EnqueuedStyleFragment on EnqueuedStylesheet {
 			handle
 			src
+			dependencies {
+				handle
+			}
 		}
 		';
 	}
@@ -168,7 +171,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -203,7 +206,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -238,7 +241,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -273,7 +276,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -308,7 +311,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -343,7 +346,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -378,7 +381,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -413,7 +416,7 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		}
 		' . $fragment;
 
-		return graphql(
+		return $this->graphql(
 			[
 				'query'     => $query,
 				'variables' => [
@@ -1686,5 +1689,59 @@ class EnqueuedStylesheetsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
+	}
+
+	public function testEnqueuedStylesheetsHas_Dependencies() {
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test Page for EnqueuedScriptsTest',
+				'post_excerpt' => '',
+			]
+		);
+
+		$handle = 'test-style-with-dependencies';
+		$src    = 'test-style-with-dependencies.css';
+
+		$dependency_handle = 'test-style-dependency';
+		$dependency_src    = 'test-style-dependency.css';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src, $page_id, $dependency_handle, $dependency_src ) {
+				wp_register_style( $dependency_handle, $dependency_src );
+				wp_register_style( $handle, $src, [ $dependency_handle ] );
+				if ( is_page( $page_id ) ) {
+					wp_enqueue_style( $handle );
+				}
+			}
+		);
+
+		$this->assertQuerySuccessful(
+			$this->get_page_query( $page_id ),
+			[
+				$this->expectedNode(
+					'page.enqueuedStylesheets.nodes',
+					[
+						$this->expectedField( 'handle', $dependency_handle ),
+						$this->expectedField( 'src', $dependency_src ),
+					]
+				),
+				$this->expectedNode(
+					'page.enqueuedStylesheets.nodes',
+					[
+						$this->expectedField( 'handle', $handle ),
+						$this->expectedField( 'src', $src ),
+						$this->expectedObject(
+							'dependencies.0',
+							[
+								$this->expectedField( 'handle', $dependency_handle ),
+							]
+						),
+					]
+				),
+			]
+		);
 	}
 }

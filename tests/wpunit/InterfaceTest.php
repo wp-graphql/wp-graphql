@@ -760,7 +760,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
 		$this->assertQuerySuccessful(
 			$actual,
-			[ $this->expectedField( 'testField.fieldWithNonNullableArg',self::IS_NULL ) ],
+			[ $this->expectedField( 'testField.fieldWithNonNullableArg',static::IS_NULL ) ],
 			'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type'
 		);
 	}

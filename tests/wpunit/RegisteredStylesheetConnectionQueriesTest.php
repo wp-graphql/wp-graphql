@@ -45,6 +45,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 						suffix
 						title
 						version
+						group
 					}
 				}
 			}
@@ -66,25 +67,38 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		);
 
 		// Confirm it's valid.
-		$this->assertResponseIsValid( $actual );
-		$this->assertNotEmpty( $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
+		$this->assertQuerySuccessful(
+			$actual,
+			[ $this->expectedField( 'registeredStylesheets.edges.0.node.handle', static::NOT_NULL ) ]
+		);
 
 		// Test fields for first asset.
 		global $wp_styles;
-		do_action( 'wp_enqueue_scripts' );
+		$expected_handle = $actual['data']['registeredStylesheets']['nodes'][0]['handle'];
+		$expected = $wp_styles->registered[ $expected_handle ];
 
-		$expected = $wp_styles->registered[ $actual['data']['registeredStylesheets']['nodes'][0]['handle'] ];
-
-		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['conditional'] );
-		$this->assertEquals( $expected->handle, $actual['data']['registeredStylesheets']['nodes'][0]['handle'] );
-		$this->assertEquals( ! empty( $expected->extra['rtl'] ), $actual['data']['registeredStylesheets']['nodes'][0]['isRtl'] );
-		$this->assertEquals( $expected->args ?: 'all', $actual['data']['registeredStylesheets']['nodes'][0]['media'] );
-		$this->assertEquals( ! empty( $expected->extra['path'] ) ? $expected->extra['path'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['path'] );
-		$this->assertEquals( ! empty( $expected->extra['alt'] ) ? 'alternate stylesheet' : 'stylesheet', $actual['data']['registeredStylesheets']['nodes'][0]['rel'] );
-		$this->assertEquals( is_string( $expected->src ) ? $expected->src : null, $actual['data']['registeredStylesheets']['nodes'][0]['src'] );
-		$this->assertEquals( ! empty( $expected->extra['suffix'] ) ? $expected->extra['suffix'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['suffix'] );
-		$this->assertEquals( ! empty( $expected->extra['title'] ) ? $expected->extra['title'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['title'] );
-		$this->assertEquals( $expected->ver ?: $wp_styles->default_version, $actual['data']['registeredStylesheets']['nodes'][0]['version'] );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'registeredStylesheets.nodes',
+					[
+						$this->expectedField( 'conditional', ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : static::IS_NULL ),
+						$this->expectedField( 'handle', $expected->handle ),
+						$this->expectedField( 'isRtl', ! empty( $expected->extra['rtl'] ) ? static::NOT_FALSY : static::IS_FALSY ),
+						$this->expectedField( 'media', $expected->args ?: 'all' ),
+						$this->expectedField( 'path', ! empty( $expected->extra['path'] ) ? $expected->extra['path'] : static::IS_NULL ),
+						$this->expectedField( 'rel', ! empty( $expected->extra['alt'] ) ? 'alternate stylesheet' : 'stylesheet' ),
+						$this->expectedField( 'src', is_string( $expected->src ) ? $expected->src : static::IS_NULL ),
+						$this->expectedField( 'suffix', ! empty( $expected->extra['suffix'] ) ? $expected->extra['suffix'] : static::IS_NULL ),
+						$this->expectedField( 'title', ! empty( $expected->extra['title'] ) ? $expected->extra['title'] : static::IS_NULL ),
+						$this->expectedField( 'version', $expected->ver ?: $wp_styles->default_version ),
+						$this->expectedField( 'group', $expected->extra['group'] ?? 0 ),
+					],
+					0
+				)
+			]
+		);
 
 		// Store for use by $expected.
 		$wp_query = $actual['data']['registeredStylesheets'];
@@ -323,24 +337,48 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 	 * @param array $actual The GraphQL results.
 	 */
 	public function assertValidPagination( $expected, $actual ) {
-		$this->assertResponseIsValid( $actual );
-		$this->assertArrayNotHasKey( 'errors', $actual );
-
-		$this->assertEquals( 2, count( $actual['data']['registeredStylesheets']['edges'] ) );
-
-		$first_plugin_handle  = $expected['nodes'][0]['handle'];
-		$second_plugin_handle = $expected['nodes'][1]['handle'];
-
+		$first_plugin_handle  = $this->lodashGet( $expected, 'nodes.0.handle' );
+		$second_plugin_handle = $this->lodashGet( $expected, 'nodes.1.handle' );
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first_plugin_handle );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $second_plugin_handle );
-
-		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredStylesheets']['edges'][0]['node']['handle'] );
-		$this->assertEquals( $first_plugin_handle, $actual['data']['registeredStylesheets']['nodes'][0]['handle'] );
-		$this->assertEquals( $start_cursor, $actual['data']['registeredStylesheets']['edges'][0]['cursor'] );
-		$this->assertEquals( $second_plugin_handle, $actual['data']['registeredStylesheets']['edges'][1]['node']['handle'] );
-		$this->assertEquals( $second_plugin_handle, $actual['data']['registeredStylesheets']['nodes'][1]['handle'] );
-		$this->assertEquals( $end_cursor, $actual['data']['registeredStylesheets']['edges'][1]['cursor'] );
-		$this->assertEquals( $start_cursor, $actual['data']['registeredStylesheets']['pageInfo']['startCursor'] );
-		$this->assertEquals( $end_cursor, $actual['data']['registeredStylesheets']['pageInfo']['endCursor'] );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'registeredStylesheets.pageInfo.startCursor', $start_cursor ),
+				$this->expectedField( 'registeredStylesheets.pageInfo.endCursor', $end_cursor ),
+				$this->expectedNode(
+					'registeredStylesheets.edges',
+					[
+						$this->expectedField( 'cursor', $start_cursor ),
+						$this->expectedField( 'node.handle', $first_plugin_handle ),
+					],
+					0
+				),
+				$this->expectedNode(
+					'registeredStylesheets.edges',
+					[
+						$this->expectedField( 'cursor', $end_cursor ),
+						$this->expectedField( 'node.handle', $second_plugin_handle ),
+					],
+					1
+				),
+				$this->not()->expectedField( 'registeredStylesheets.edges.2', static::NOT_FALSY ),
+				$this->expectedNode(
+					'registeredStylesheets.nodes',
+					[
+						$this->expectedField( 'handle', $first_plugin_handle ),
+					],
+					0
+				),
+				$this->expectedNode(
+					'registeredStylesheets.nodes',
+					[
+						$this->expectedField( 'handle', $second_plugin_handle ),
+					],
+					1
+				),
+				$this->not()->expectedField( 'registeredStylesheets.nodes.2', static::NOT_FALSY )
+			]
+		);
 	}
 }
