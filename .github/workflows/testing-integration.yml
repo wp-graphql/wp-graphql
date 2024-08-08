@@ -58,11 +58,9 @@ jobs:
             php: '7.4'
           - wordpress: '5.9'
             php: '8.1'
+          # Minimum plugin requirement:
           - wordpress: '5.9'
             php: '7.3'
-          # Minimum plugin requirement:
-          - wordpress: '5.5' # Keeps compatibility with our test env.
-            php: '7.3' # Our build script requires PHP 7.3+.
 
     steps:
       - name: Checkout
