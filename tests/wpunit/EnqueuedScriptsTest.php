@@ -1689,10 +1689,14 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$handle = 'test-script-with-dependencies';
 		$src    = 'test-script-with-dependencies.js';
 
+		$dependency_handle = 'test-script-dependency';
+		$dependency_src    = 'test-script-dependency.js';
+
 		add_action(
 			'wp_enqueue_scripts',
-			static function () use ( $handle, $src, $page_id ) {
-				wp_register_script( $handle, $src, [ 'jquery' ] );
+			static function () use ( $handle, $src, $page_id, $dependency_handle, $dependency_src ) {
+				wp_register_script( $dependency_handle, $dependency_src );
+				wp_register_script( $handle, $src, [ $dependency_handle ] );
 				if ( is_page( $page_id ) ) {
 					wp_enqueue_script( $handle );
 				}
@@ -1705,34 +1709,8 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				$this->expectedNode(
 					'page.enqueuedScripts.nodes',
 					[
-						$this->expectedField( 'handle', 'jquery-migrate' ),
-						$this->expectedField( 'src', static::NOT_FALSY ),
-					]
-				),
-				$this->expectedNode(
-					'page.enqueuedScripts.nodes',
-					[
-						$this->expectedField( 'handle', 'jquery-core' ),
-						$this->expectedField( 'src', static::NOT_FALSY ),
-					]
-				),
-				$this->expectedNode(
-					'page.enqueuedScripts.nodes',
-					[
-						$this->expectedField( 'handle', 'jquery' ),
-						$this->expectedField( 'src', static::IS_NULL ),
-						$this->expectedObject(
-							'dependencies.0',
-							[
-								$this->expectedField( 'handle', 'jquery-core' ),
-							]
-						),
-						$this->expectedObject(
-							'dependencies.1',
-							[
-								$this->expectedField( 'handle', 'jquery-migrate' ),
-							]
-						),
+						$this->expectedField( 'handle', $dependency_handle ),
+						$this->expectedField( 'src', $dependency_src ),
 					]
 				),
 				$this->expectedNode(
@@ -1743,7 +1721,7 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						$this->expectedObject(
 							'dependencies.0',
 							[
-								$this->expectedField( 'handle', 'jquery' ),
+								$this->expectedField( 'handle', $dependency_handle ),
 							]
 						),
 					]

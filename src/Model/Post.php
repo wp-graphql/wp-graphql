@@ -702,11 +702,6 @@ class Post extends Model {
 				'enqueuedScriptsQueue'      => function () {
 					global $wp_scripts;
 
-					$functions_file = get_stylesheet_directory() . '/functions.php';
-					if ( file_exists( $functions_file ) ) {
-						require_once get_stylesheet_directory() . '/functions.php';
-					}
-
 					// Simulate WP template rendering.
 					ob_start();
 					do_action( 'wp_head' );
@@ -731,11 +726,6 @@ class Post extends Model {
 				},
 				'enqueuedStylesheetsQueue'  => function () {
 					global $wp_styles;
-
-					$functions_file = get_stylesheet_directory() . '/functions.php';
-					if ( file_exists( $functions_file ) ) {
-						require_once get_stylesheet_directory() . '/functions.php';
-					}
 
 					// Simulate WP template rendering.
 					ob_start();
