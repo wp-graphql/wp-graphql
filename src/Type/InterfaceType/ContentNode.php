@@ -53,7 +53,7 @@ class ContentNode {
 						'toType'  => 'EnqueuedScript',
 						'resolve' => static function ( $source, $args, $context, $info ) {
 							$resolver = new EnqueuedScriptsConnectionResolver( $source, $args, $context, $info );
-							
+
 							return $resolver->get_connection();
 						},
 					],

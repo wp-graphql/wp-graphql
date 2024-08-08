@@ -743,7 +743,6 @@ class Post extends Model {
 					// Sort and organize the enqueued stylesheets.
 					$queue = Utils::flatten_enqueued_assets_list( $wp_styles->queue ?? [], $wp_styles );
 
-
 					$wp_styles->reset();
 					$wp_styles->queue = [];
 
