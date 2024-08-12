@@ -88,9 +88,9 @@ const PluginCard = ({ plugin }) => {
                                 </a>
                             </li>
                         )}
-                        {plugin.settings_link && (
+                        {plugin.settings_url && (
                             <li>
-                                <a href={plugin.settings_link}>{__('Settings', 'wp-graphql')}</a>
+                                <a href={plugin.settings_url}>{__('Settings', 'wp-graphql')}</a>
                             </li>
                         )}
                     </ul>

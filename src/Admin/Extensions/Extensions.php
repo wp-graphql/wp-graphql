@@ -38,10 +38,11 @@ class Extensions {
 			'plugin_path' => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
 		],
 		[
-			'name'        => 'Faust.js',
-			'description' => 'WordPress plugin for working with Faust.js, the Headless WordPress Framework.',
-			'plugin_url'  => 'https://wordpress.org/plugins/faustwp/',
-			'support_url' => 'https://github.com/wpengine/faustjs/issues/new/choose',
+			'name'          => 'Faust.js',
+			'description'   => 'WordPress plugin for working with Faust.js, the Headless WordPress Framework.',
+			'plugin_url'    => 'https://wordpress.org/plugins/faustwp/',
+			'support_url'   => 'https://github.com/wpengine/faustjs/issues/new/choose',
+			'settings_path' => 'options-general.php?page=faustwp-settings',
 		],
 		[
 			'name'        => 'WPGraphQL Content Blocks',
@@ -251,6 +252,14 @@ class Extensions {
 			} else {
 				$extension['installed'] = false;
 				$extension['active']    = false;
+			}
+
+			if ( isset( $extension['settings_path'] ) && true === $extension['active'] ) {
+				if ( is_multisite() && is_network_admin() ) {
+					$extension['settings_url'] = network_admin_url( $extension['settings_path'] );
+				} else {
+					$extension['settings_url'] = admin_url( $extension['settings_path'] );
+				}
 			}
 		}
 
