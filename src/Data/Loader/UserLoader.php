@@ -78,7 +78,7 @@ class UserLoader extends AbstractDataLoader {
 
 		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
-				"SELECT DISTINCT $wpdb->users.ID FROM $wpdb->posts INNER JOIN $wpdb->users ON post_author = $wpdb->users.ID $where AND post_author IN ( %s ) ORDER BY FIELD( $wpdb->users.ID, %s )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+				"SELECT DISTINCT $wpdb->users.ID FROM $wpdb->posts INNER JOIN $wpdb->users ON post_author = $wpdb->users.ID $where AND post_author IN ( %s ) ORDER BY FIELD( $wpdb->users.ID, %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 				$ids,
 				$ids
 			)
