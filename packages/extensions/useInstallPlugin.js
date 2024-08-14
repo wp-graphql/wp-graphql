@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { doAction } from '@wordpress/hooks';
 
 const useInstallPlugin = (pluginUrl, pluginPath) => {
     const [installing, setInstalling] = useState(false);
@@ -45,6 +46,7 @@ const useInstallPlugin = (pluginUrl, pluginPath) => {
             if (jsonResponse.status === 'active') {
                 updateStatus(__('Active', 'wp-graphql'));
                 updateExtensionStatus(true);
+                doAction('pluginActivated', pluginUrl);
                 return true;  // Indicate success
             } else if (jsonResponse.message.includes('Plugin file does not exist')) {
                 throw new Error(__('Plugin file does not exist', 'wp-graphql'));
