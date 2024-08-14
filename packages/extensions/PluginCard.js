@@ -49,7 +49,7 @@ const PluginCard = ({ plugin }) => {
 
         return (
             <>
-                <em>by </em>
+                <em>By </em>
                 {authors.map((author, index) => {
                     return (
                         <cite key={author.homepage}>
