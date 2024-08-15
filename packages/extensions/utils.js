@@ -65,7 +65,3 @@ export const getButtonDetails = (host, plugin_url, isInstalled, isActive, instal
 
     return { buttonText, buttonDisabled, buttonOnClick };
 };
-
-export const getPluginByURL = (url) => {
-    return window.wpgraphqlExtensions.extensions.find((extension) => extension.plugin_url === url);
-}
