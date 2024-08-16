@@ -64,9 +64,7 @@ class EnqueuedScript {
 						'type'        => 'ScriptLoadingGroupEnum',
 						'description' => __( 'The location where this script should be loaded', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
-							if ( isset( $script->args ) && 1 === $script->args ) {
-                                return 1;
-                            } elseif ( ! isset( $script->extra['group'] ) ) {
+							if ( ! isset( $script->extra['group'] ) ) {
                                 return 0;
                             }
                             // graphql_debug([$script->handle => $script]);
