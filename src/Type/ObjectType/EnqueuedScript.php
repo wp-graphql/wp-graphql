@@ -65,10 +65,10 @@ class EnqueuedScript {
 						'description' => __( 'The location where this script should be loaded', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
 							if ( ! isset( $script->extra['group'] ) ) {
-                                return 0;
-                            }
-                            // graphql_debug([$script->handle => $script]);
-                            return absint( $script->extra['group'] );
+								return 0;
+							}
+							
+							return absint( $script->extra['group'] );
 						},
 					],
 					'version'      => [
