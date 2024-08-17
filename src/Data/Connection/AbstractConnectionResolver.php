@@ -1360,11 +1360,7 @@ abstract class AbstractConnectionResolver {
 			 * @param array<string,mixed> $edge     The edge within the connection
 			 * @param self                $resolver Instance of the connection resolver class
 			 */
-			$edge = apply_filters(
-				'graphql_connection_edge',
-				$edge,
-				$this
-			);
+			$edge = apply_filters( 'graphql_connection_edge', $edge, $this );
 
 			$edges[] = $edge;
 		}
