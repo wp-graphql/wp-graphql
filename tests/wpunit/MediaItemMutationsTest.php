@@ -1266,7 +1266,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$expected = [
 			$this->expectedErrorPath( 'createMediaItem' ),
 			$this->expectedErrorMessage( 'Invalid filePath', self::MESSAGE_STARTS_WITH ),
-			$this->expectedField( 'createMediaItem', static::IS_NULL ),
+			$this->expectedField( 'createMediaItem', self::IS_NULL ),
 		];
 
 		$this->assertQueryError( $actual, $expected );
@@ -1307,7 +1307,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$expected = [
 			$this->expectedErrorPath( 'createMediaItem' ),
 			$this->expectedErrorMessage( 'Invalid filePath', self::MESSAGE_STARTS_WITH ),
-			$this->expectedField( 'createMediaItem', static::IS_NULL ),
+			$this->expectedField( 'createMediaItem', self::IS_NULL ),
 		];
 
 		$this->assertQueryError( $actual, $expected );

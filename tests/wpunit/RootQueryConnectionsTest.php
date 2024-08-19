@@ -95,7 +95,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				/**
 				 * @todo 'nodes' should return null.
 				 */
-				$this->expectedField( 'plugins.nodes', static::IS_FALSY ),
+				$this->expectedField( 'plugins.nodes', self::IS_FALSY ),
 			]
 		);
 	}
@@ -203,7 +203,7 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 				/**
 				 * @todo 'nodes' should return null.
 				 */
-				$this->expectedField( 'userRoles.nodes', static::IS_FALSY ),
+				$this->expectedField( 'userRoles.nodes', self::IS_FALSY ),
 			]
 		);
 	}

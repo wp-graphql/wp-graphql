@@ -1741,7 +1741,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'allNoPlural.nodes', static::IS_FALSY ),
+				$this->expectedField( 'allNoPlural.nodes', self::IS_FALSY ),
 			]
 		);
 

@@ -67,7 +67,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$response,
 			[
-				$this->expectedField( 'example.example', static::IS_NULL ),
+				$this->expectedField( 'example.example', self::IS_NULL ),
 			]
 		);
 		$this->assertNotEmpty( $this->lodashGet( $response, 'extensions.debug' ) );
@@ -105,7 +105,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$response,
 			[
-				$this->expectedField( 'posts.nodes', static::NOT_NULL ),
+				$this->expectedField( 'posts.nodes', self::NOT_NULL ),
 			]
 		);
 
@@ -383,7 +383,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertQuerySuccessful(
 			$response,
 			[
-				$this->expectedField( 'customTestConnection.nodes', static::IS_NULL ),
+				$this->expectedField( 'customTestConnection.nodes', self::IS_NULL ),
 			]
 		);
 	}

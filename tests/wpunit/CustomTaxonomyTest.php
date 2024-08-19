@@ -1270,7 +1270,7 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'allTaxNoPlural.nodes', static::IS_FALSY ),
+				$this->expectedField( 'allTaxNoPlural.nodes', self::IS_FALSY ),
 			]
 		);
 

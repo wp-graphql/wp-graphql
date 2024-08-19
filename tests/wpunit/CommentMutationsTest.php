@@ -698,7 +698,7 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'updateComment.success', static::IS_FALSY ),
+				$this->expectedField( 'updateComment.success', self::IS_FALSY ),
 				$this->expectedField( 'updateComment.comment.databaseId', (int) $comment['comment_ID'] ),
 				$this->expectedField( 'updateComment.comment.content', apply_filters( 'comment_text', $comment['comment_content'] ) ),
 			]

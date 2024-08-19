@@ -939,8 +939,8 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'user', $this->admin ) ),
 					$this->expectedField( 'databaseId', $this->admin ),
-					$this->expectedField( 'email', static::NOT_NULL ),
-					$this->expectedField( 'username', static::NOT_NULL ),
+					$this->expectedField( 'email', self::NOT_NULL ),
+					$this->expectedField( 'username', self::NOT_NULL ),
 				],
 				0
 			),
@@ -1099,7 +1099,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				[
 					$this->expectedField( 'id', $this->toRelayId( 'user', 1 ) ),
 					$this->expectedField( 'databaseId', 1 ),
-					$this->expectedField( 'email', static::NOT_NULL ),
+					$this->expectedField( 'email', self::NOT_NULL ),
 					$this->expectedField( 'username', 'admin' ),
 				],
 				4

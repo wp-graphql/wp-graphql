@@ -156,21 +156,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::IS_NULL ),
+				$this->expectedField( 'post.preview', self::IS_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::IS_NULL ),
+				$this->expectedField( 'post.preview', self::IS_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::IS_NULL ),
+				$this->expectedField( 'post.preview', self::IS_NULL ),
 			]
 		);
 	}
@@ -213,21 +213,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
@@ -278,21 +278,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 	}
@@ -334,21 +334,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
@@ -404,21 +404,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 	}
@@ -460,21 +460,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
@@ -530,21 +530,21 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 			]
 		);
 	}
@@ -586,7 +586,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
 				$this->expectedField( 'post.author.node.databaseId', $this->admin ),
 			]
@@ -595,7 +595,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
 				$this->expectedField( 'post.author.node.databaseId', $this->admin ),
 			]
@@ -604,7 +604,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedField( 'post.preview.node.author.node.databaseId', $this->admin ),
 				$this->expectedField( 'post.author.node.databaseId', $this->admin ),
 			]
@@ -648,7 +648,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.categories.nodes',
 					[
@@ -667,7 +667,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.categories.nodes',
 					[
@@ -686,7 +686,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.categories.nodes',
 					[
@@ -740,7 +740,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_database_id,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.featuredImage.node',
 					[
@@ -759,7 +759,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_uri,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.featuredImage.node',
 					[
@@ -778,7 +778,7 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		self::assertQuerySuccessful(
 			$actual_by_slug,
 			[
-				$this->expectedField( 'post.preview', static::NOT_NULL ),
+				$this->expectedField( 'post.preview', self::NOT_NULL ),
 				$this->expectedNode(
 					'post.preview.node.featuredImage.node',
 					[
