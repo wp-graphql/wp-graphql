@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.28.1
+
+### Chores / Bugfixes
+
+- [#3189](https://github.com/wp-graphql/wp-graphql/pull/3189): fix: [regression] missing placeholder in $wpdb->prepare() call
+
 ## 1.28.0
 
 ### Upgrade Notice
