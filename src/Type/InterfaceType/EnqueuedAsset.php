@@ -125,14 +125,10 @@ class EnqueuedAsset {
 						},
 					],
 					'group'        => [
-						'type'        => 'Integer',
+						'type'        => 'Int',
 						'description' => __( 'The loading group to which this asset belongs.', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
-							if ( ! isset( $asset->extra['group'] ) ) {
-								return 0;
-							}
-
-							return absint( $asset->extra['group'] );
+							return isset( $asset->extra['group'] ) ? (int) $asset->extra['group'] : null;
 						},
 					],
 				],

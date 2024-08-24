@@ -22,15 +22,15 @@ class ScriptLoadingGroupEnum {
 		register_graphql_enum_type(
 			'ScriptLoadingGroupEnum',
 			[
-				'description' => __( 'Locations for script to be loaded', 'wp-graphql' ),
+				'description' => __( 'Location in the document where the script to be loaded', 'wp-graphql' ),
 				'values'      => [
 					'HEADER' => [
 						'value'       => 0,
-						'description' => __( 'Script to be loaded in document `<head>` tags', 'wp-graphql' ),
+						'description' => __( 'A script to be loaded in document `<head>` tag', 'wp-graphql' ),
 					],
 					'FOOTER' => [
 						'value'       => 1,
-						'description' => __( 'Script to be loaded in document at right before the closing `<body>` tag', 'wp-graphql' ),
+						'description' => __( 'A script to be loaded in document at right before the closing `<body>` tag', 'wp-graphql' ),
 					],
 				],
 			]
