@@ -56,6 +56,17 @@ class EnqueuedScript {
 							return $script->extra['strategy'];
 						},
 					],
+					'location'     => [
+						'type'        => 'ScriptLoadingGroupEnum',
+						'description' => __( 'The location where this script should be loaded', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
+							if ( ! isset( $script->extra['group'] ) ) {
+								return 0;
+							}
+
+							return absint( $script->extra['group'] );
+						},
+					],
 					'version'      => [
 						'description' => __( 'The version of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
