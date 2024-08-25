@@ -1,6 +1,6 @@
 <?php
 /**
- * Register the ScriptLoadingGroupEnum Type to the Schema
+ * Register the ScriptLoadingGroupLocationEnum Type to the Schema
  *
  * @package WPGraphQL\Type\Enum
  * @since TBD
@@ -9,9 +9,9 @@
 namespace WPGraphQL\Type\Enum;
 
 /**
- * Class ScriptLoadingGroupEnum
+ * Class ScriptLoadingGroupLocationEnum
  */
-class ScriptLoadingGroupEnum {
+class ScriptLoadingGroupLocationEnum {
 
 	/**
 	 * Register the ScriptLoadingStrategy Enum Type to the Schema
@@ -20,7 +20,7 @@ class ScriptLoadingGroupEnum {
 	 */
 	public static function register_type() {
 		register_graphql_enum_type(
-			'ScriptLoadingGroupEnum',
+			'ScriptLoadingGroupLocationEnum',
 			[
 				'description' => __( 'Location in the document where the script to be loaded', 'wp-graphql' ),
 				'values'      => [

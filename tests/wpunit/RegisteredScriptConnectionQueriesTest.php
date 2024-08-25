@@ -54,7 +54,7 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 	}
 
 	public function testForwardPagination() {
-		// Mocks the values of the ScriptLoadingGroupEnum.
+		// Mocks the values of the ScriptLoadingGroupLocationEnum.
 		$location_enum_mock = [
 			0 => 'HEADER',
 			1 => 'FOOTER',
