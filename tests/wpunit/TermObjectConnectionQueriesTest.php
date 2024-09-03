@@ -109,6 +109,62 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		';
 	}
 
+	public function testConnectedTermsConnectionReturnsTermNodesOfExpectedTaxonomies() {
+		$term_one_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'name'     => 'Term One',
+			]
+		);
+
+		$term_two_id = self::factory()->term->create(
+			[
+				'taxonomy' => 'post_tag',
+				'name'     => 'Term Two',
+			]
+		);
+
+		$query = '
+		query GetConnectedTerms {
+			taxonomies {
+				nodes {
+					name
+					connectedTerms {
+						nodes {
+							__typename
+							databaseId
+							name
+							uri
+						}
+					}
+				}
+			} 
+		}
+		';
+
+		$actual = $this->graphql([
+			'query' => $query
+		]);
+
+		// codecept_debug( [ '$actual' => $actual ]);
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// map over the connected terms nodes and assert that all of them are category
+		$connected_categories = $actual['data']['taxonomies']['nodes'][0]['connectedTerms']['nodes'];
+		foreach ( $connected_categories as $connected_category ) {
+			$this->assertEquals( 'Category', $connected_category['__typename'] );
+		}
+
+		// map over the connected terms nodes and assert that all of them are tags
+		$connected_tags = $actual['data']['taxonomies']['nodes'][1]['connectedTerms']['nodes'];
+		foreach ( $connected_tags as $connected_tag ) {
+			$this->assertEquals( 'Tag', $connected_tag['__typename'] );			
+		}
+
+		wp_delete_term( $term_one_id, 'category' );
+		wp_delete_term( $term_two_id, 'post_tag' );
+	}
+
 	public function testForwardPagination() {
 		$query    = $this->getQuery();
 		$wp_query = new WP_Term_Query();
@@ -945,4 +1001,5 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_delete_term( $parent_category, 'category' );
 	}
+
 }
