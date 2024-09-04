@@ -35,7 +35,12 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	 */
 	protected function prepare_query_args( array $args ): array {
 		$all_taxonomies = \WPGraphQL::get_allowed_taxonomies();
-		$taxonomy       = ! empty( $this->taxonomy ) && in_array( $this->taxonomy, $all_taxonomies, true ) ? [ $this->taxonomy ] : $all_taxonomies;
+
+		if ( ! is_array( $this->taxonomy ) ) {
+			$taxonomy = ! empty( $this->taxonomy ) && in_array( $this->taxonomy, $all_taxonomies, true ) ? [ $this->taxonomy ] : $all_taxonomies;
+		} else {
+			$taxonomy = $this->taxonomy;
+		}
 
 		if ( ! empty( $args['where']['taxonomies'] ) ) {
 			/**
