@@ -31,7 +31,7 @@ class Extensions {
 				[
 					'name'     => 'Joseph Fusco',
 					'homepage' => 'https://github.com/josephfusco',
-				]
+				],
 			],
 		],
 		[
@@ -43,7 +43,7 @@ class Extensions {
 				[
 					'name'     => 'WPGraphQL',
 					'homepage' => 'https://www.wpgraphql.com',
-				]
+				],
 			],
 		],
 		[
@@ -56,7 +56,7 @@ class Extensions {
 				[
 					'name'     => 'WPGraphQL',
 					'homepage' => 'https://www.wpgraphql.com',
-				]
+				],
 			],
 		],
 		[
@@ -65,11 +65,11 @@ class Extensions {
 			'plugin_url'    => 'https://wordpress.org/plugins/faustwp/',
 			'support_url'   => 'https://github.com/wpengine/faustjs/issues/new/choose',
 			'settings_path' => 'options-general.php?page=faustwp-settings',
-			'authors'     => [
+			'authors'       => [
 				[
 					'name'     => 'WP Engine',
 					'homepage' => 'https://wpengine.com/headless-wordpress/',
-				]
+				],
 			],
 		],
 		[
@@ -81,7 +81,7 @@ class Extensions {
 				[
 					'name'     => 'WP Engine',
 					'homepage' => 'https://wpengine.com/headless-wordpress/',
-				]
+				],
 			],
 		],
 		[
@@ -93,7 +93,7 @@ class Extensions {
 				[
 					'name'     => 'Geoff Taylor',
 					'homepage' => 'https://github.com/kidunot89',
-				]
+				],
 			],
 		],
 		[
@@ -105,7 +105,7 @@ class Extensions {
 				[
 					'name'     => 'AxePress',
 					'homepage' => 'https://github.com/AxeWP',
-				]
+				],
 			],
 		],
 		[
@@ -117,7 +117,7 @@ class Extensions {
 				[
 					'name'     => 'AxePress',
 					'homepage' => 'https://github.com/AxeWP',
-				]
+				],
 			],
 		],
 		[
@@ -129,7 +129,7 @@ class Extensions {
 				[
 					'name'     => 'AxePress',
 					'homepage' => 'https://github.com/AxeWP',
-				]
+				],
 			],
 		],
 		[
@@ -141,7 +141,7 @@ class Extensions {
 				[
 					'name'     => 'AxePress',
 					'homepage' => 'https://github.com/AxeWP',
-				]
+				],
 			],
 		],
 	];
