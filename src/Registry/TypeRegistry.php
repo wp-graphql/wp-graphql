@@ -4,6 +4,7 @@ namespace WPGraphQL\Registry;
 
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\Type;
+use WPGraphQL;
 use WPGraphQL\Data\DataSource;
 use WPGraphQL\Mutation\CommentCreate;
 use WPGraphQL\Mutation\CommentDelete;
@@ -407,10 +408,10 @@ class TypeRegistry {
 		 *
 		 * @var \WP_Post_Type[] $allowed_post_types
 		 */
-		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
+		$allowed_post_types = WPGraphQL::get_allowed_post_types( 'objects' );
 
 		/** @var \WP_Taxonomy[] $allowed_taxonomies */
-		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
+		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
 			PostObject::register_types( $post_type_object );
@@ -714,7 +715,7 @@ class TypeRegistry {
 			return $this->prepare_type( $type_name, $config );
 		};
 
-		if ( is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
+		if ( WPGraphQL::is_introspection_query() && is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
 			$this->eager_type_map[ $this->format_key( $type_name ) ] = $this->format_key( $type_name );
 		}
 	}

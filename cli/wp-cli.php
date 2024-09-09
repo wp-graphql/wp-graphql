@@ -39,7 +39,15 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		 * Generate the Schema
 		 */
 		WP_CLI::line( 'Getting the Schema...' );
+
+		// Set the introspection query flag
+		WPGraphQL::set_is_introspection_query( true );
+
+		// Get the schema
 		$schema = WPGraphQL::get_schema();
+
+		// Reset the introspection query flag
+		WPGraphQL::set_is_introspection_query( false );
 
 		/**
 		 * Format the Schema
