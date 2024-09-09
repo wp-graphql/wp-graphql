@@ -974,11 +974,6 @@ function register_graphql_admin_notice( string $slug, array $config ): void {
  * @return array|mixed[][] An array of admin notices
  */
 function get_graphql_admin_notices() {
-
-	if ( ! is_admin() ) {
-		return [];
-	}
-
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
 	return $admin_notices->get_admin_notices();
 }

@@ -48,6 +48,30 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertSame($config, $notices[$slug]);
 	}
 
+    /**
+     * Test adding and retrieving admin notices.
+     */
+    public function testGetAdminNotices(): void {
+        $adminNotices = AdminNotices::get_instance();
+
+        $slug = 'test-notice';
+        $config = [
+            'message' => 'Test Notice Message',
+            'type' => 'warning',
+            'is_dismissable' => true
+        ];
+
+        $adminNotices->add_admin_notice($slug, $config);
+
+        $notices = $adminNotices->get_admin_notices();
+        $this->assertArrayHasKey($slug, $notices);
+        $this->assertSame($config, $notices[$slug]);
+
+        $get_admin_notices = get_graphql_admin_notices();
+
+        $this->assertSame($get_admin_notices, $notices);
+    }
+
 	/**
 	 * Test removing admin notices.
 	 */
