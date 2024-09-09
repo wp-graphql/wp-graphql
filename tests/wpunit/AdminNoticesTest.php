@@ -21,8 +21,7 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test initialization of admin notices.
 	 */
 	public function testInit(): void {
-		$adminNotices = new AdminNotices();
-		$adminNotices->init();
+		AdminNotices::get_instance();
 
 		// Assertions to ensure actions are hooked correctly
 		// This might require functional testing or integration testing setup
@@ -33,7 +32,7 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test adding and retrieving admin notices.
 	 */
 	public function testAddAndGetAdminNotices(): void {
-		$adminNotices = new AdminNotices();
+		$adminNotices = AdminNotices::get_instance();
 
 		$slug = 'test-notice';
 		$config = [
@@ -53,7 +52,7 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test removing admin notices.
 	 */
 	public function testRemoveAdminNotices(): void {
-		$adminNotices = new AdminNotices();
+        $adminNotices = AdminNotices::get_instance();
 
 		$slug = 'test-notice';
 		$config = ['message' => 'Test Notice Message'];

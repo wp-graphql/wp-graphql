@@ -44,12 +44,12 @@ class AdminNotices {
 	/**
 	 * Prevent cloning the instance
 	 */
-	private function __clone() {}
+	public function __clone() {}
 
 	/**
 	 * Prevent unserializing the instance
 	 */
-	private function __wakeup() {}
+	public function __wakeup() {}
 
 	/**
 	 * Get the singleton instance of the class
