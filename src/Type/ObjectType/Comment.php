@@ -29,6 +29,29 @@ class Comment {
 						'toType'      => 'Commenter',
 						'description' => __( 'The author of the comment', 'wp-graphql' ),
 						'oneToOne'    => true,
+						'edgeFields'  => [
+							'name'  => [
+								'type'        => 'String',
+								'description' => __( 'The display name of the comment author for this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthor;
+								},
+							],
+							'email' => [
+								'type'        => 'String',
+								'description' => __( 'The email address representing the author for this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthorEmail ?: null;
+								},
+							],
+							'url'   => [
+								'type'        => 'String',
+								'description' => __( 'The url entered for the comment author on this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthorUrl ?: null;
+								},
+							],
+						],
 						'resolve'     => static function ( $comment, $_args, AppContext $context ) {
 							$node = null;
 
