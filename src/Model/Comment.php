@@ -17,6 +17,8 @@ use WP_Comment;
  * @property string $authorIp
  * @property string $comment_author
  * @property string $comment_author_url
+ * @property string $commentAuthor
+ * @property string $commentAuthorUrl
  * @property string $commentAuthorEmail
  * @property string $contentRaw
  * @property string $contentRendered
@@ -60,6 +62,9 @@ class Comment extends Model {
 			'type',
 			'commentedOnId',
 			'comment_post_ID',
+			'commentAuthorUrl',
+			'commentAuthorEmail',
+			'commentAuthor',
 			'approved',
 			'status',
 			'comment_parent_id',
@@ -122,7 +127,7 @@ class Comment extends Model {
 					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
 				},
 				'commentAuthorEmail' => function () {
-					return ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : 0;
+					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'comment_ID'         => function () {
 					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
@@ -140,10 +145,16 @@ class Comment extends Model {
 					return ! empty( $this->comment_parent_id ) ? Relay::toGlobalId( 'comment', $this->data->comment_parent ) : null;
 				},
 				'comment_author'     => function () {
-					return ! empty( $this->data->comment_author ) ? absint( $this->data->comment_author ) : null;
+					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
 				},
 				'comment_author_url' => function () {
-					return ! empty( $this->data->comment_author_url ) ? absint( $this->data->comment_author_url ) : null;
+					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
+				},
+				'commentAuthor'      => function () {
+					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
+				},
+				'commentAuthorUrl'   => function () {
+					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
 				},
 				'authorIp'           => function () {
 					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
