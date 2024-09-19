@@ -401,7 +401,7 @@ final class WPGraphQL {
 		 * Prevent WPML from redirecting within WPGraphQL requests
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/1626#issue-769089073
-		 * @since @todo
+		 * @since 1.27.0
 		 */
 		add_filter(
 			'wpml_is_redirected',
