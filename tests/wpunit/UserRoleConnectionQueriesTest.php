@@ -102,7 +102,7 @@ class UserRoleConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		self::assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'user.roles', self::IS_NULL ),
+				$this->expectedField( 'user.roles', static::IS_NULL ),
 			]
 		);
 
