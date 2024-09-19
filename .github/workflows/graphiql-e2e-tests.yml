@@ -10,6 +10,9 @@ on:
       - develop
       - master
     paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'packages/**'
       - '**.js'
       - '.github/workflows/*.yml'
       - '!docs/**'

@@ -29,6 +29,36 @@ class Comment {
 						'toType'      => 'Commenter',
 						'description' => __( 'The author of the comment', 'wp-graphql' ),
 						'oneToOne'    => true,
+						'edgeFields'  => [
+							'email'     => [
+								'type'        => 'String',
+								'description' => __( 'The email address representing the author for this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthorEmail ?: null;
+								},
+							],
+							'ipAddress' => [
+								'type'        => 'String',
+								'description' => __( 'IP address of the author at the time of making this comment. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->authorIp ?: null;
+								},
+							],
+							'name'      => [
+								'type'        => 'String',
+								'description' => __( 'The display name of the comment author for this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthor;
+								},
+							],
+							'url'       => [
+								'type'        => 'String',
+								'description' => __( 'The url entered for the comment author on this particular comment', 'wp-graphql' ),
+								'resolve'     => static function ( $edge ) {
+									return $edge['source']->commentAuthorUrl ?: null;
+								},
+							],
+						],
 						'resolve'     => static function ( $comment, $_args, AppContext $context ) {
 							$node = null;
 
@@ -64,8 +94,9 @@ class Comment {
 						},
 					],
 					'authorIp'         => [
-						'type'        => 'String',
-						'description' => __( 'IP address for the author. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' ),
+						'type'              => 'String',
+						'deprecationReason' => __( 'Use the ipAddress field on the edge between the comment and author', 'wp-graphql' ),
+						'description'       => __( 'IP address for the author at the time of commenting. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' ),
 					],
 					'commentId'        => [
 						'type'              => 'Int',
