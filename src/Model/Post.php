@@ -35,12 +35,12 @@ use WP_Post;
  * @property string  $pingStatus
  * @property string  $slug
  * @property array   $template
- * @property bool $isFrontPage
- * @property bool $isPrivacyPage
- * @property bool $isPostsPage
- * @property bool $isPreview
- * @property bool $isRevision
- * @property bool $isSticky
+ * @property bool    $isFrontPage
+ * @property bool    $isPrivacyPage
+ * @property bool    $isPostsPage
+ * @property bool    $isPreview
+ * @property bool    $isRevision
+ * @property bool    $isSticky
  * @property string  $toPing
  * @property string  $pinged
  * @property string  $modified
@@ -68,11 +68,10 @@ use WP_Post;
  * @property string  $descriptionRaw
  * @property string  $descriptionRendered
  * @property string  $mediaType
+ * @property ?string $mediaItemUrl
  * @property string  $sourceUrl
  * @property string  $mimeType
  * @property array   $mediaDetails
- *
- * @package WPGraphQL\Model
  */
 class Post extends Model {
 
@@ -103,6 +102,17 @@ class Post extends Model {
 	 * @var \WP_Query
 	 */
 	protected $wp_query;
+
+	/**
+	 * Stores the resolved image `sourceUrl`s keyed by size.
+	 *
+	 * This is used to prevent multiple calls to `wp_get_attachment_image_src`.
+	 *
+	 * If no source URL is found for a size, the value will be `null`.
+	 *
+	 * @var array<string,?string>
+	 */
+	protected $source_urls_by_size = [];
 
 	/**
 	 * Post constructor.
@@ -794,14 +804,18 @@ class Post extends Model {
 						return wp_attachment_is_image( $this->data->ID ) ? 'image' : 'file';
 					},
 					'mediaItemUrl'        => function () {
-						return wp_get_attachment_url( $this->data->ID );
+						return wp_get_attachment_url( $this->data->ID ) ?: null;
 					},
 					'sourceUrl'           => function () {
-						$source_url = wp_get_attachment_image_src( $this->data->ID, 'full' );
-
-						return ! empty( $source_url ) ? $source_url[0] : null;
+						return $this->get_source_url_by_size( 'full' );
 					},
 					'sourceUrlsBySize'    => function () {
+						_doing_it_wrong(
+							__METHOD__,
+							'`sourceUrlsBySize` is deprecated. Use the `sourceUrlBySize` callable instead.',
+							'@todo'
+						);
+
 						/**
 						 * This returns an empty array on the VIP Go platform.
 						 */
@@ -809,8 +823,7 @@ class Post extends Model {
 						$urls  = [];
 						if ( ! empty( $sizes ) && is_array( $sizes ) ) {
 							foreach ( $sizes as $size ) {
-								$img_src       = wp_get_attachment_image_src( $this->data->ID, $size );
-								$urls[ $size ] = ! empty( $img_src ) ? $img_src[0] : null;
+								$urls[ $size ] = $this->get_source_url_by_size( $size );
 							}
 						}
 
@@ -844,5 +857,28 @@ class Post extends Model {
 				};
 			}
 		}
+	}
+
+	/**
+	 * Gets the source URL for an image attachment by size.
+	 *
+	 * This method caches the source URL for a given size to prevent multiple calls to `wp_get_attachment_image_src`.
+	 *
+	 * @param ?string $size The size of the image to get the source URL for. `full` by default.
+	 */
+	public function get_source_url_by_size( ?string $size = 'full' ): ?string {
+		// If size is not set, default to 'full'.
+		if ( ! $size ) {
+			$size = 'full';
+		}
+
+		// Resolve the source URL for the size if it hasn't been resolved yet.
+		if ( ! array_key_exists( $size, $this->source_urls_by_size ) ) {
+			$src = wp_get_attachment_image_src( $this->data->ID, $size );
+
+			$this->source_urls_by_size[ $size ] = ! empty( $src ) ? $src[0] : null;
+		}
+
+		return $this->source_urls_by_size[ $size ];
 	}
 }
