@@ -70,7 +70,7 @@ WPGraphQL will establish a **beta period** of approximately 30 days for major re
 - Report any bugs or issues not already covered by the testing matrix (PHP and WordPress versions).
 
 ## Support Policy
-WPGraphQL will support the **last 2 major versions** to reduce version fragmentation. This means that older versions beyond this window will no longer receive official support, and users will be encouraged to upgrade to the latest version.
+WPGraphQL will support the **last 3 major versions** to reduce version fragmentation. This means that older versions beyond this window will no longer receive official support, and users will be encouraged to upgrade to the latest version.
 
 While older versions may still function, the quality and speed of support will be higher for those using the latest versions.
 
