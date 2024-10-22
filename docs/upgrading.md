@@ -46,7 +46,7 @@ Breaking changes will be communicated through multiple channels to ensure broad 
 - WPGraphQL Discord
 - Headless WordPress Discord
 - Twitter (X)
-- Mailchimp Email
+- Email
 
 ## Changelog and Upgrade Guide
 For any version containing breaking changes, the changelog will include:
