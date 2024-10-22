@@ -46,7 +46,6 @@ Breaking changes will be communicated through multiple channels to ensure broad 
 - WPGraphQL Discord
 - Headless WordPress Discord
 - Twitter (X)
-- Facebook Advanced WordPress group
 - Mailchimp Email
 
 ## Changelog and Upgrade Guide
