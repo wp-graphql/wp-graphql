@@ -9,7 +9,7 @@ This guide outlines the key steps and policies for upgrading WPGraphQL, includin
 
 ## Semantic Versioning
 
-WPGraphQL follows **Semantic Versioning** (SemVer) to communicate the meaning of each release and the nature of changes introduced. This ensures that users can easily understand the potential impact of any given release. Semantic Versioning uses the format **MAJOR.MINOR.PATCH**:
+WPGraphQL follows [**Semantic Versioning** (SemVer)](https://semver.org/) to communicate the meaning of each release and the nature of changes introduced. This ensures that users can easily understand the potential impact of any given release. Semantic Versioning uses the format **MAJOR.MINOR.PATCH**:
 
 1. **MAJOR** (e.g., `2.0.0`):
     - A major version increment indicates a breaking change. Something in this release requires users to take action to remain compatible. Examples include changes to the API schema, function signatures, or other critical changes that could disrupt compatibility.
