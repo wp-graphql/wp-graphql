@@ -85,7 +85,6 @@ WPGraphQL takes an approach of **smaller, more frequent releases**. This means:
 - **Clear Communication**: Each breaking change will be categorized by **Impact Scope** and **Effort to Upgrade**, enabling users to make informed decisions about when to upgrade.
 - **Limited Version Support**: WPGraphQL will support only the last 2 major versions to reduce fragmentation, ensuring that users have clear expectations regarding version support.
 
-
 ## Deprecations
 
 WPGraphQL may deprecate certain functionality before fully removing or changing it in a future release. Deprecated features will continue to function for a specified period but will trigger warnings, allowing users to transition before breaking changes are introduced.
