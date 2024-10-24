@@ -83,7 +83,7 @@ The **Upgrade Guide** will provide:
 WPGraphQL takes an approach of **smaller, more frequent releases**. This means:
 - **Incremental Changes**: Breaking changes will be released in smaller increments, allowing users to upgrade more easily and manage the impact with minimal disruption.
 - **Clear Communication**: Each breaking change will be categorized by **Impact Scope** and **Effort to Upgrade**, enabling users to make informed decisions about when to upgrade.
-- **Limited Version Support**: WPGraphQL will support only the last 2 major versions to reduce fragmentation, ensuring that users have clear expectations regarding version support.
+- **Targeted Version Support**: WPGraphQL will support the _last 2 major versions_ to reduce fragmentation, ensuring that users have clear expectations regarding version support.
 
 ## Deprecations
 
