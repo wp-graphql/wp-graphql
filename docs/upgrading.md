@@ -32,13 +32,13 @@ Breaking changes will be categorized based on two main factors: **Type of Change
 ### Type of Change:
 
 - **PHP API Changes**: Changes to the underlying PHP codebase, which will affect plugins and custom code interacting with WPGraphQL internal APIs.
-  - ex: Changes to action hooks, filters, or internal WPGraphQL PHP functions.
+    - ex: Changes to action hooks, filters, or internal WPGraphQL PHP functions.
 - **GraphQL API Changes**: Changes that impact how the API is consumed by clients and front-end applications.
-  - ex: Modifications to the GraphQL schema, such as field removals or type changes, changes in GraphQL response structures, return codes, headers, or other external behavior, or new required arguments.
+    - ex: Modifications to the GraphQL schema, such as field removals or type changes, changes in GraphQL response structures, return codes, headers, or other external behavior, or new required arguments.
 
 ### Impact and Effort:
 
-Breaking changes are further classified by **Impact Scope** and **Effort to Upgrade**. 
+Breaking changes are further classified by **Impact Scope** and **Effort to Upgrade**.
 
 - **Impact Scope**:
     - Low: Affects few users (niche use cases or specific extensions).
@@ -57,7 +57,7 @@ Each breaking change will be classified using these dimensions (e.g., "Type: PHP
 
 ## Communication of Breaking Changes
 
-Breaking changes will be documented centrally and then shared before and after release through multiple channels to ensure broad community awareness. 
+Breaking changes will be documented centrally and then shared before and after release through multiple channels to ensure broad community awareness.
 
 These channels include:
 
@@ -89,11 +89,17 @@ WPGraphQL takes an approach of **smaller, more frequent releases**. This means:
 
 WPGraphQL may deprecate certain functionality before fully removing or changing it in a future release. Deprecated features will continue to function for a specified period but will trigger warnings, allowing users to transition before breaking changes are introduced.
 
+> [!TIP]
+> Deprecations are intended to give you time to adjust your code before a feature is fully removed or changed. Keep an eye on deprecation warnings to ensure smooth upgrades.
+
 Deprecations will be clearly communicated in release notes and upgrade guides, providing users with sufficient time to adapt their projects before the feature is fully removed or changed.
 
 ## Support Policy
 
 WPGraphQL will support only the latest `minor.patch` version of the **last 2 major versions**. This means that older versions within a major release (e.g., `1.1.x` if `1.2.x` exists) and versions beyond this window will no longer receive official support, and users will be encouraged to upgrade to the latest version.
+
+> [!NOTE]
+> Only the latest `minor.patch` of each of the last 2 major versions is supported. Versions within a major release (e.g., `1.1.x` if `1.2.x` exists) or beyond the last 2 major versions will not receive support.
 
 ### What Does "Support" Mean?
 
@@ -103,6 +109,9 @@ WPGraphQL will support only the latest `minor.patch` version of the **last 2 maj
 - **Security Updates**: General and critical security fixes will be backported to the latest `minor.patch` within the last 2 major versions, ensuring that these versions remain secure.
 - **Compatibility**: Supported versions will be tested against newer versions of WordPress core to ensure continued functionality. While WPGraphQL may be tested with certain versions of PHP and popular extensions, compatibility with these cannot be guaranteed.
 - **Documentation**: Clear documentation and upgrade guides will be provided for supported versions, including guidance on adapting to new features or breaking changes.
+
+> [!NOTE]
+> Compatibility testing is primarily focused on WordPress core updates. WPGraphQL may also be tested with certain PHP versions and popular extensions, but compatibility with these is not guaranteed.
 
 ### Unsupported Versions
 
@@ -121,14 +130,6 @@ WPGraphQL will establish a **beta period** of approximately 30 days for major re
 - Provide feedback and report bugs by participating in the Pull Request (PR) discussion opened for the specific beta release.
 
 By gathering feedback in the beta PR, we ensure all discussions and issues are centralized and visible to the community.
-
-## Support Policy
-
-WPGraphQL will support the latest `minor.patch` of the last 2 major versions to reduce version fragmentation. This means that older versions beyond this window will no longer receive official support, and users will be encouraged to upgrade to the latest version.
-
-- **Security Updates**: General and critical security updates will be backported to the latest `minor.patch` of the last 2 major versions when possible, in a non-breaking way. Any versions older than the last 2 typically will not receive security patches, so we strongly encourage users to stay within the supported versions to ensure the safety of their projects.
-
-While older versions may still function, the quality and speed of support will be higher for those using the latest versions.
 
 ## Process for Releasing Breaking Changes
 
@@ -159,6 +160,9 @@ If you encounter issues after upgrading, we recommend:
 - Reviewing the release notes for any breaking changes that might apply to your setup.
 - Searching the WPGraphQL Discord or GitHub Discussions to see if others have encountered similar issues.
 - If the problem persists, open a GitHub Issue or ask for help in the WPGraphQL Discord.
+
+> [!TIP]
+> For best results, review the upgrade guide and release notes, and consider reaching out to the community on Discord or GitHub Discussions if issues persist.
 
 ### 3. **How can I test new versions before upgrading my production environment?**
 
@@ -193,4 +197,4 @@ At this time, WPGraphQL does not offer long-term support for specific versions. 
 
 ### 9. **Are security updates backported to older versions?**
 
-General and critical security updates are only backported to the latest `minor.patch` of the last 2 major versions when possible in a non-breaking way. If you are using an older version of WPGraphQL, we recommend upgrading to a supported version to ensure your site remains secure.orted to the **last 2 major versions**. If you are using an older version of WPGraphQL, we recommend upgrading to a supported version to ensure your site remains secure.
+General and critical security updates are only backported to the latest `minor.patch` of the last 2 major versions when possible in a non-breaking way. If you are using an older version of WPGraphQL, we recommend upgrading to a supported version to ensure your site remains secure.
