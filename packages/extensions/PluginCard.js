@@ -42,24 +42,19 @@ const PluginCard = ({ plugin }) => {
     const host = new URL(plugin.plugin_url).host;
     const { buttonText, buttonDisabled } = getButtonDetails(host, plugin.plugin_url, isInstalled, isActive, installing, activating);
 
-    const PluginAuthors = ({ authors }) => {
-        if (!authors || !authors.length) { 
+    const PluginAuthor = ({ author }) => {
+        if (!author || !author.name || !author.homepage) {
             return null;
         }
 
         return (
             <>
                 <em>By </em>
-                {authors.map((author, index) => {
-                    return (
-                        <cite key={author.homepage}>
-                            <a href={author.homepage} target="_blank" rel="noopener noreferrer">
-                                {author.name}
-                            </a>
-                            {index < authors.length - 1 && ', '}
-                        </cite>
-                    );
-                })}
+                <cite key={author.homepage}>
+                    <a href={author.homepage} target="_blank" rel="noopener noreferrer">
+                        {author.name}
+                    </a>
+                </cite>
             </>
         )
     }
@@ -69,7 +64,7 @@ const PluginCard = ({ plugin }) => {
             <div className="plugin-card-top">
                 <div className="name column-name">
                     <h2>{plugin.name}</h2>
-                    <PluginAuthors authors={plugin.authors} />
+                    <PluginAuthor author={plugin.author}/>
                     {plugin.experiment && <em className="plugin-experimental">(experimental)</em>}
                 </div>
                 <div className="action-links">

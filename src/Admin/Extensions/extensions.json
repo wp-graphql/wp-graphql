@@ -4,28 +4,20 @@
     "description": "A next-gen query editor for WPGraphQL.",
     "plugin_url": "https://github.com/wp-graphql/wpgraphql-ide/",
     "support_url": "https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose",
-    "authors": [
-      {
-        "name": "WPGraphQL",
-        "homepage": "https://www.wpgraphql.com"
-      },
-      {
-        "name": "Joseph Fusco",
-        "homepage": "https://github.com/josephfusco"
-      }
-    ]
+    "author": {
+      "name": "WPGraphQL",
+      "homepage": "https://www.wpgraphql.com"
+    }
   },
   {
     "name": "WPGraphQL for ACF",
     "description": "Adds ACF Fields and Field Groups to the WPGraphQL Schema.",
     "plugin_url": "https://wordpress.org/plugins/wpgraphql-acf/",
     "support_url": "https://acf.wpgraphql.com/support/",
-    "authors": [
-      {
-        "name": "WPGraphQL",
-        "homepage": "https://www.wpgraphql.com"
-      }
-    ]
+    "author": {
+      "name": "WPGraphQL",
+      "homepage": "https://www.wpgraphql.com"
+    }
   },
   {
     "name": "WPGraphQL Smart Cache",
@@ -33,12 +25,10 @@
     "plugin_url": "https://wordpress.org/plugins/wpgraphql-smart-cache/",
     "support_url": "https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose",
     "plugin_path": "wpgraphql-smart-cache/wp-graphql-smart-cache.php",
-    "authors": [
-      {
-        "name": "WPGraphQL",
-        "homepage": "https://www.wpgraphql.com"
-      }
-    ]
+    "author": {
+      "name": "WPGraphQL",
+      "homepage": "https://www.wpgraphql.com"
+    }
   },
   {
     "name": "Faust.js",
@@ -46,83 +36,69 @@
     "plugin_url": "https://wordpress.org/plugins/faustwp/",
     "support_url": "https://github.com/wpengine/faustjs/issues/new/choose",
     "settings_path": "options-general.php?page=faustwp-settings",
-    "authors": [
-      {
-        "name": "WP Engine",
-        "homepage": "https://wpengine.com/headless-wordpress/"
-      }
-    ]
+    "author": {
+      "name": "WP Engine",
+      "homepage": "https://wpengine.com/headless-wordpress/"
+    }
   },
   {
     "name": "WPGraphQL Content Blocks",
     "description": "Content Blocks for WPGraphQL.",
     "plugin_url": "https://github.com/wpengine/wp-graphql-content-blocks",
     "support_url": "https://github.com/wpengine/wp-graphql-content-blocks/issues/new/choose",
-    "authors": [
-      {
+    "author": {
         "name": "WP Engine",
         "homepage": "https://wpengine.com/headless-wordpress/"
-      }
-    ]
+    }
   },
   {
     "name": "WPGraphQL WooCommerce (WooGraphQL)",
     "description": "Add WooCommerce support and functionality to your WPGraphQL server.",
     "plugin_url": "https://github.com/wp-graphql/wp-graphql-woocommerce",
     "support_url": "https://github.com/wp-graphql/wp-graphql-woocommerce/issues/new/choose",
-    "authors": [
-      {
-        "name": "Geoff Taylor",
-        "homepage": "https://github.com/kidunot89"
-      }
-    ]
+    "author": {
+      "name": "Geoff Taylor",
+      "homepage": "https://github.com/kidunot89"
+    }
   },
   {
     "name": "WPGraphQL for Gravity Forms",
     "description": "GraphQL API for interacting with Gravity Forms.",
     "plugin_url": "https://github.com/AxeWP/wp-graphql-gravity-forms",
     "support_url": "https://github.com/AxeWP/wp-graphql-gravity-forms/issues/new/choose",
-    "authors": [
-      {
-        "name": "AxePress",
-        "homepage": "https://github.com/AxeWP"
-      }
-    ]
+    "author": {
+      "name": "AxePress",
+      "homepage": "https://github.com/AxeWP"
+    }
   },
   {
     "name": "Headless Login for WPGraphQL",
     "description": "A WordPress plugin that provides Headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OpenID Connect, JWT, and more.",
     "plugin_url": "https://github.com/AxeWP/wp-graphql-headless-login",
     "support_url": "https://github.com/AxeWP/wp-graphql-headless-login/issues/new/choose",
-    "authors": [
-      {
-        "name": "AxePress",
-        "homepage": "https://github.com/AxeWP"
-      }
-    ]
+    "author": {
+      "name": "AxePress",
+      "homepage": "https://github.com/AxeWP"
+    }
   },
   {
     "name": "WPGraphQL for Rank Math SEO",
     "description": "Adds WPGraphQL support for Rank Math SEO.",
     "plugin_url": "https://github.com/AxeWP/wp-graphql-rank-math",
     "support_url": "https://github.com/AxeWP/wp-graphql-rank-math/issues/new/choose",
-    "authors": [
-      {
-        "name": "AxePress",
-        "homepage": "https://github.com/AxeWP"
-      }
-    ]
+    "author": {
+      "name": "AxePress",
+      "homepage": "https://github.com/AxeWP"
+    }
   },
   {
     "name": "WPGraphQL for FacetWP",
     "description": "WPGraphQL FacetWP integration plugin.",
     "plugin_url": "https://github.com/AxeWP/wp-graphql-facetwp",
     "support_url": "https://github.com/AxeWP/wp-graphql-facetwp/issues/new/choose",
-    "authors": [
-      {
-        "name": "AxePress",
-        "homepage": "https://github.com/AxeWP"
-      }
-    ]
+    "author": {
+      "name": "AxePress",
+      "homepage": "https://github.com/AxeWP"
+    }
   }
 ]

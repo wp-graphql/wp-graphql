@@ -208,6 +208,15 @@ class Extensions {
 			return null;
 		}
 
+		// check if the extensions exist in cache, using the file's last modified time as the cache key
+		$cache_group          = 'wpgraphql_extensions';
+		$extensions_cache_key = 'wpgraphql_extensions_' . filemtime( $this->extensions_file_path );
+		$cached_extensions    = wp_cache_get( $extensions_cache_key, $cache_group );
+
+		if ( false !== $cached_extensions ) {
+			return $cached_extensions;
+		}
+
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$contents = file_get_contents( $this->extensions_file_path );
 
@@ -221,6 +230,9 @@ class Extensions {
 		if ( JSON_ERROR_NONE !== json_last_error() ) {
 			return null;
 		}
+
+		// Cache the extensions data
+		wp_cache_set( $extensions_cache_key, $data, $cache_group );
 
 		return $data;
 	}
@@ -258,16 +270,25 @@ class Extensions {
 			}
 		}
 
+		// Sort criteria is currently as follows:
+		// 1. Plugins grouped by WordPress.org plugins first, non WordPress.org plugins after
+		// 2. Sort by plugin name in alphabetical order within the above groups, prioritizing "WPGraphQL" authored plugins
 		usort(
 			$this->extensions,
 			static function ( $a, $b ) {
-				if ( strpos( $a['plugin_url'], 'wordpress.org' ) !== false && strpos( $b['plugin_url'], 'wordpress.org' ) === false ) {
+				if ( false !== strpos( $a['plugin_url'], 'wordpress.org' ) && false === strpos( $b['plugin_url'], 'wordpress.org' ) ) {
 					return -1;
 				}
-				if ( strpos( $a['plugin_url'], 'wordpress.org' ) === false && strpos( $b['plugin_url'], 'wordpress.org' ) !== false ) {
+				if ( false === strpos( $a['plugin_url'], 'wordpress.org' ) && false !== strpos( $b['plugin_url'], 'wordpress.org' ) ) {
 					return 1;
 				}
-				return strcmp( $a['name'], $b['name'] );
+				if ( 'WPGraphQL' === $a['author']['name'] && 'WPGraphQL' !== $b['author']['name'] ) {
+					return -1;
+				}
+				if ( 'WPGraphQL' !== $a['author']['name'] && 'WPGraphQL' === $b['author']['name'] ) {
+					return 1;
+				}
+				return strcasecmp( $a['name'], $b['name'] );
 			}
 		);
 
