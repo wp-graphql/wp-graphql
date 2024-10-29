@@ -148,11 +148,11 @@ By gathering feedback in the beta PR, we ensure all discussions and issues are c
 
 ## Frequently Asked Questions (FAQ)
 
-### **How do I know if a release contains breaking changes?**
+### How do I know if a release contains breaking changes?
 
 Breaking changes will be clearly communicated in the release notes, changelog, and upgrade guide for each version. Each breaking change is categorized by Impact Scope and Effort to Upgrade so you can quickly understand the potential impact on your project.
 
-### **What should I do if I experience issues after upgrading?**
+### What should I do if I experience issues after upgrading?
 
 If you encounter issues after upgrading, we recommend:
 
@@ -164,19 +164,19 @@ If you encounter issues after upgrading, we recommend:
 > [!TIP]
 > For best results, review the upgrade guide and release notes, and consider reaching out to the community on Discord or GitHub Discussions if issues persist.
 
-### **How can I test new versions before upgrading my production environment?**
+### How can I test new versions before upgrading my production environment?
 
 We offer a **beta period** of approximately 30 days for major releases, where you can test the upcoming version on a specific **release branch**. During this period, you can help identify any issues and provide feedback. We recommend setting up a staging environment for testing major upgrades before deploying to production.
 
-### **What are the supported versions of WPGraphQL?**
+### What are the supported versions of WPGraphQL?
 
 WPGraphQL supports the latest `minor.patch` of the last 2 major versions. If you're on an older version, we encourage you to upgrade to one of the latest supported versions to ensure continued support, access to new features, and security patches.
 
-### **How are deprecations handled?**
+### How are deprecations handled?
 
 Before we remove or change a feature that could break backward compatibility, we may deprecate the functionality first. Deprecations are communicated in release notes, and deprecated features will continue to function for a specified period but will trigger warnings. This gives you time to adjust your code before the feature is fully removed or changed.
 
-### **How do I stay informed about new releases and breaking changes?**
+### How do I stay informed about new releases and breaking changes?
 
 You can stay informed by following these communication channels:
 
@@ -187,14 +187,14 @@ You can stay informed by following these communication channels:
 
 We also publish detailed release notes and upgrade guides with each new version.
 
-### **What should I do if I am using a deprecated feature?**
+### What should I do if I am using a deprecated feature?
 
 If you're using a deprecated feature, we recommend reviewing the release notes for the deprecation details. You’ll usually have a specified period during which the deprecated feature will continue to function. Use this time to update your code to the newer methods before the feature is fully removed.
 
-### **Does WPGraphQL provide long-term support (LTS) for specific versions?**
+### Does WPGraphQL provide long-term support (LTS) for specific versions?
 
 At this time, WPGraphQL does not offer long-term support for specific versions. We recommend staying up to date with the latest version to ensure compatibility and support.
 
-### **Are security updates backported to older versions?**
+### Are security updates backported to older versions?
 
 General and critical security updates are only backported to the latest `minor.patch` of the last 2 major versions when possible in a non-breaking way. If you are using an older version of WPGraphQL, we recommend upgrading to a supported version to ensure your site remains secure.
