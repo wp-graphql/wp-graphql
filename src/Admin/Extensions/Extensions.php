@@ -13,138 +13,25 @@ use WP_REST_Response;
 class Extensions {
 
 	/**
-	 * The list of default WPGraphQL extensions.
+	 * Path to the JSON file with the extensions' data.
 	 *
+	 * @var string
+	 */
+	private $extensions_file_path;
+
+	/**
 	 * @var array<string, array<string, mixed>>
 	 */
-	private $extensions = [
-		[
-			'name'        => 'WPGraphQL IDE',
-			'description' => 'A next-gen query editor for WPGraphQL.',
-			'plugin_url'  => 'https://github.com/wp-graphql/wpgraphql-ide/',
-			'support_url' => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'WPGraphQL',
-					'homepage' => 'https://www.wpgraphql.com',
-				],
-				[
-					'name'     => 'Joseph Fusco',
-					'homepage' => 'https://github.com/josephfusco',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL for ACF',
-			'description' => 'Adds ACF Fields and Field Groups to the WPGraphQL Schema.',
-			'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-acf/',
-			'support_url' => 'https://acf.wpgraphql.com/support/',
-			'authors'     => [
-				[
-					'name'     => 'WPGraphQL',
-					'homepage' => 'https://www.wpgraphql.com',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL Smart Cache',
-			'description' => 'Smart Caching & Cache Invalidation for WPGraphQL.',
-			'plugin_url'  => 'https://wordpress.org/plugins/wpgraphql-smart-cache/',
-			'support_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
-			'plugin_path' => 'wpgraphql-smart-cache/wp-graphql-smart-cache.php',
-			'authors'     => [
-				[
-					'name'     => 'WPGraphQL',
-					'homepage' => 'https://www.wpgraphql.com',
-				],
-			],
-		],
-		[
-			'name'          => 'Faust.js',
-			'description'   => 'WordPress plugin for working with Faust.js, the Headless WordPress Framework.',
-			'plugin_url'    => 'https://wordpress.org/plugins/faustwp/',
-			'support_url'   => 'https://github.com/wpengine/faustjs/issues/new/choose',
-			'settings_path' => 'options-general.php?page=faustwp-settings',
-			'authors'       => [
-				[
-					'name'     => 'WP Engine',
-					'homepage' => 'https://wpengine.com/headless-wordpress/',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL Content Blocks',
-			'description' => 'Content Blocks for WPGraphQL.',
-			'plugin_url'  => 'https://github.com/wpengine/wp-graphql-content-blocks',
-			'support_url' => 'https://github.com/wpengine/wp-graphql-content-blocks/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'WP Engine',
-					'homepage' => 'https://wpengine.com/headless-wordpress/',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL WooCommerce (WooGraphQL)',
-			'description' => 'Add WooCommerce support and functionality to your WPGraphQL server.',
-			'plugin_url'  => 'https://github.com/wp-graphql/wp-graphql-woocommerce',
-			'support_url' => 'https://github.com/wp-graphql/wp-graphql-woocommerce/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'Geoff Taylor',
-					'homepage' => 'https://github.com/kidunot89',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL for Gravity Forms',
-			'description' => 'GraphQL API for interacting with Gravity Forms.',
-			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-gravity-forms',
-			'support_url' => 'https://github.com/AxeWP/wp-graphql-gravity-forms/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'AxePress',
-					'homepage' => 'https://github.com/AxeWP',
-				],
-			],
-		],
-		[
-			'name'        => 'Headless Login for WPGraphQL',
-			'description' => 'A WordPress plugin that provides Headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OpenID Connect, JWT, and more.',
-			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-headless-login',
-			'support_url' => 'https://github.com/AxeWP/wp-graphql-headless-login/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'AxePress',
-					'homepage' => 'https://github.com/AxeWP',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL for Rank Math SEO',
-			'description' => 'Adds WPGraphQL support for Rank Math SEO.',
-			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-rank-math',
-			'support_url' => 'https://github.com/AxeWP/wp-graphql-rank-math/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'AxePress',
-					'homepage' => 'https://github.com/AxeWP',
-				],
-			],
-		],
-		[
-			'name'        => 'WPGraphQL for FacetWP',
-			'description' => 'WPGraphQL FacetWP integration plugin.',
-			'plugin_url'  => 'https://github.com/AxeWP/wp-graphql-facetwp',
-			'support_url' => 'https://github.com/AxeWP/wp-graphql-facetwp/issues/new/choose',
-			'authors'     => [
-				[
-					'name'     => 'AxePress',
-					'homepage' => 'https://github.com/AxeWP',
-				],
-			],
-		],
-	];
+	protected $extensions;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $file_path Path to the JSON file.
+	 */
+	public function __construct( string $file_path = __DIR__ . '/extensions.json' ) {
+		$this->extensions_file_path = $file_path;
+	}
 
 	/**
 	 * Initialize Extensions functionality for WPGraphQL.
@@ -256,10 +143,10 @@ class Extensions {
 	/**
 	 * Activate a plugin.
 	 *
-	 * @param \WP_REST_Request $request The REST request.
+	 * @param \WP_REST_Request<array<string, mixed>> $request The REST request.
 	 * @return \WP_REST_Response The REST response.
 	 */
-	public function activate_plugin( WP_REST_Request $request ) {
+	public function activate_plugin( WP_REST_Request $request ): WP_REST_Response {
 		$plugin = $request->get_param( 'plugin' );
 		$result = activate_plugin( $plugin );
 
@@ -285,7 +172,7 @@ class Extensions {
 	/**
 	 * Get the list of installed plugins.
 	 *
-	 * @return array<int, array<string, mixed>> List of installed plugins.
+	 * @return array<string, array<string, mixed>> List of installed plugins.
 	 */
 	private function get_installed_plugins() {
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -311,17 +198,51 @@ class Extensions {
 	}
 
 	/**
+	 * Load the list of WPGraphQL extensions from a JSON file.
+	 *
+	 * @return array<string, array<string, mixed>>|null The list of extensions, or null if the file can't be read.
+	 */
+	private function load_extensions_from_file(): ?array {
+		// Check if the file exists and is readable
+		if ( ! file_exists( $this->extensions_file_path ) || ! is_readable( $this->extensions_file_path ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+		$contents = file_get_contents( $this->extensions_file_path );
+
+		if ( false === $contents ) {
+			return null; // Handle case where file_get_contents fails
+		}
+
+		$data = json_decode( $contents, true );
+
+		// Check for JSON decoding errors
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			return null;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Get the list of WPGraphQL extensions.
 	 *
 	 * @return array<string, array<string, mixed>> List of extensions.
 	 */
 	public function get_extensions(): array {
+
+		$pre_filtered_extensions = apply_filters( 'graphql_pre_get_extensions', null );
+		if ( null !== $pre_filtered_extensions ) {
+			return $pre_filtered_extensions;
+		}
+
+		$this->extensions  = $this->load_extensions_from_file() ?? [];
 		$installed_plugins = $this->get_installed_plugins();
 
 		foreach ( $this->extensions as &$extension ) {
 			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
 			if ( isset( $installed_plugins[ $slug ] ) ) {
-				// Merge only specific data from installed plugins, avoiding override of descriptions, etc.
 				$extension['installed'] = true;
 				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
 				$extension['author']    = $installed_plugins[ $slug ]['author'];
@@ -331,11 +252,9 @@ class Extensions {
 			}
 
 			if ( isset( $extension['settings_path'] ) && true === $extension['active'] ) {
-				if ( is_multisite() && is_network_admin() ) {
-					$extension['settings_url'] = network_admin_url( $extension['settings_path'] );
-				} else {
-					$extension['settings_url'] = admin_url( $extension['settings_path'] );
-				}
+				$extension['settings_url'] = is_multisite() && is_network_admin()
+					? network_admin_url( $extension['settings_path'] )
+					: admin_url( $extension['settings_path'] );
 			}
 		}
 
@@ -352,6 +271,6 @@ class Extensions {
 			}
 		);
 
-		return apply_filters( 'wpgraphql_extensions', $this->extensions );
+		return apply_filters( 'graphql_get_extensions', $this->extensions );
 	}
 }
