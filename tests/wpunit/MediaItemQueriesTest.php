@@ -662,4 +662,101 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertCount( 1, $actual_sizes );
 		$this->assertEquals( 'thumbnail', $actual_sizes[0]['name'] );
 	}
+
+	public function testSourceUrlSizes() {
+
+		// upload large attachment that will be resized to medium and thumbnail
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment = get_post( $attachment_id );
+		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
+
+		$query = '
+		{
+		  mediaItems(first:1) {
+		    nodes {
+		      id
+		      med: sourceUrl(size: MEDIUM)
+		      large: sourceUrl(size: LARGE)
+		      thumb: sourceUrl(size: THUMBNAIL)
+		      fileMed: fileSize(size: MEDIUM)
+		      fileLarge: fileSize(size: LARGE)
+		      fileThumb: fileSize(size: THUMBNAIL)
+		    }
+		  }
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$mediaItems = $actual['data']['mediaItems']['nodes'];
+
+		$this->assertCount( 1, $mediaItems );
+
+		// get the attachment image sizes
+		$expected_sizes = [
+			'med' => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
+			'large' => wp_get_attachment_image_src( $attachment_id, 'large' )[0],
+			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]
+		];
+
+		$expected_filesizes = [
+			'med' => $this->_getFilesize( $expected_sizes['med'], $media_item_model ),
+			'large' => $this->_getFilesize( $expected_sizes['large'], $media_item_model ),
+			'thumb' => $this->_getFilesize( $expected_sizes['thumb'], $media_item_model )
+		];
+
+		$this->assertEquals( $expected_sizes['med'], $mediaItems[0]['med'] );
+		$this->assertEquals( $expected_sizes['large'], $mediaItems[0]['large'] );
+		$this->assertEquals( $expected_sizes['thumb'], $mediaItems[0]['thumb'] );
+		$this->assertEquals( $expected_filesizes['med'], $mediaItems[0]['fileMed'] );
+		$this->assertEquals( $expected_filesizes['large'], $mediaItems[0]['fileLarge'] );
+		$this->assertEquals( $expected_filesizes['thumb'], $mediaItems[0]['fileThumb'] );
+
+	}
+
+	public function _getFilesize($source_url, $image_model ) {
+		$path_parts    = pathinfo( $source_url );
+		$original_file = get_attached_file( absint( $image_model->databaseId ) );
+		$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
+
+		return ! empty( $filesize_path ) ? filesize( $filesize_path ) : null;
+	}
+
+	public function testGetSourceUrlBySize() {
+
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment = get_post( $attachment_id );
+		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
+
+		$expected_sizes = [
+			'full' => wp_get_attachment_image_src( $attachment_id, 'full' )[0],
+			'med' => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
+			'large' => wp_get_attachment_image_src( $attachment_id, 'large' )[0],
+			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]
+		];
+
+		$full = $media_item_model->get_source_url_by_size();
+		$large = $media_item_model->get_source_url_by_size( 'large' );
+		$med = $media_item_model->get_source_url_by_size( 'medium' );
+		$thumb = $media_item_model->get_source_url_by_size( 'thumbnail' );
+
+		codecept_debug( [
+			'$expected_sizes' => $expected_sizes,
+			'$full' => $full,
+			'$large' => $large,
+			'$med' => $med,
+			'$thumb' => $thumb
+		]);
+
+		$this->assertEquals( $expected_sizes['med'], $med );
+		$this->assertEquals( $expected_sizes['large'], $large );
+		$this->assertEquals( $expected_sizes['thumb'], $thumb );
+		$this->assertEquals( $expected_sizes['full'], $full );
+
+	}
+
 }
