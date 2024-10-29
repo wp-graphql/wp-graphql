@@ -715,6 +715,8 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected_filesizes['large'], $mediaItems[0]['fileLarge'] );
 		$this->assertEquals( $expected_filesizes['thumb'], $mediaItems[0]['fileThumb'] );
 
+		wp_delete_attachment( $attachment_id, true );
+
 	}
 
 	public function _getFilesize($source_url, $image_model ) {
@@ -756,6 +758,8 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected_sizes['large'], $large );
 		$this->assertEquals( $expected_sizes['thumb'], $thumb );
 		$this->assertEquals( $expected_sizes['full'], $full );
+
+		wp_delete_attachment( $attachment_id, true );
 
 	}
 
