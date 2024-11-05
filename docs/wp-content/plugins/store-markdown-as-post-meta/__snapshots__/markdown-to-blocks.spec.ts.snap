@@ -1,0 +1,263 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`markdownToBlocks should transform a markdown page 1`] = `
+[
+  {
+    "attributes": {
+      "content": "Block Editor Handbook",
+      "level": 1,
+    },
+    "innerBlocks": [],
+    "name": "core/heading",
+  },
+  {
+    "attributes": {
+      "content": "Welcome to the Block Editor Handbook.",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+  {
+    "attributes": {
+      "content": "The <a href="https://wordpress.org/gutenberg/"><strong>Block Editor</strong></a> is a modern paradigm for WordPress site building and publishing. It uses a modular system of <strong>blocks</strong> to compose and format content and is designed to create rich and flexible layouts for websites and digital products.",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+  {
+    "attributes": {
+      "content": "The Block Editor consists of several primary elements, as shown in the following figure:",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+  {
+    "attributes": {
+      "alt": "Quick view of the Block Editor",
+      "url": "https://raw.githubusercontent.com/WordPress/gutenberg/trunk/docs/assets/overview-block-editor-2023.png",
+    },
+    "innerBlocks": [],
+    "name": "core/image",
+  },
+  {
+    "attributes": {
+      "content": "The elements highlighted are:",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+  {
+    "attributes": {
+      "ordered": true,
+    },
+    "innerBlocks": [
+      {
+        "attributes": {
+          "content": "<strong>Inserter:</strong> A panel for inserting blocks into the content canvas",
+        },
+        "innerBlocks": [],
+        "name": "core/list-item",
+      },
+      {
+        "attributes": {
+          "content": "<strong>Content canvas:</strong> The content editor, which holds content created with blocks",
+        },
+        "innerBlocks": [],
+        "name": "core/list-item",
+      },
+      {
+        "attributes": {
+          "content": "<strong>Settings Panel</strong> A panel for configuring a block’s settings when selected or the settings of the post",
+        },
+        "innerBlocks": [],
+        "name": "core/list-item",
+      },
+    ],
+    "name": "core/list",
+  },
+]
+`;
+
+exports[`markdownToBlocks should transform a markdown table 1`] = `
+[
+  {
+    "attributes": {
+      "content": "Generally speaking, <a href="https://github.com/WordPress/gutenberg/labels">the following labels</a> are very useful:",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+  {
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "<code>[Type] Bug</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When an intended feature is broken.",
+              "tag": "td",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": "<code>[Type] Enhancement</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When someone is suggesting an enhancement to a current feature.",
+              "tag": "td",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": "<code>[Type] Help Request</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When someone is asking for general help with setup/implementation.",
+              "tag": "td",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": "<code>Needs Technical Feedback</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When you see new features or API changes proposed.",
+              "tag": "td",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": "<code>Needs More Info</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When it’s not clear what the issue is or it would help to provide additional details.",
+              "tag": "td",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": "<code>Needs Testing</code>",
+              "tag": "td",
+            },
+            {
+              "content": "When a new issue needs to be confirmed or old bugs seem like they are no longer relevant.",
+              "tag": "td",
+            },
+          ],
+        },
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": [
+        {
+          "cells": [
+            {
+              "content": "Label",
+              "tag": "th",
+            },
+            {
+              "content": "Reason",
+              "tag": "th",
+            },
+          ],
+        },
+      ],
+    },
+    "innerBlocks": [],
+    "name": "core/table",
+  },
+  {
+    "attributes": {
+      "content": "<a href="https://www.nvaccess.org/about-nvda/">NVDA</a> is a free screen reader for Windows.",
+    },
+    "innerBlocks": [],
+    "name": "core/paragraph",
+  },
+]
+`;
+
+exports[`markdownToBlocks should parse a simple markdown table 1`] = `
+[
+  {
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Value",
+              "tag": "td",
+            },
+          ],
+        },
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": [
+        {
+          "cells": [
+            {
+              "content": "Label",
+              "tag": "th",
+            },
+          ],
+        },
+      ],
+    },
+    "innerBlocks": [],
+    "name": "core/table",
+  },
+]
+`;
+
+exports[`markdownToBlocks should parse formats in a simple markdown table 1`] = `
+[
+  {
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "V <strong>a<em>l</em>u</strong> e",
+              "tag": "td",
+            },
+          ],
+        },
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": [
+        {
+          "cells": [
+            {
+              "content": "<strong>Label</strong>",
+              "tag": "th",
+            },
+          ],
+        },
+      ],
+    },
+    "innerBlocks": [],
+    "name": "core/table",
+  },
+]
+`;

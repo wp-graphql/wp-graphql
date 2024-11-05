@@ -1,0 +1,40 @@
+body.playground-markdown-loading::before {
+	content: 'Importing markdown...';
+	display: flex;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: white;
+	z-index: 999999999998;
+	justify-content: center;
+	align-items: center;
+	font-weight: 400;
+	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 1.1rem;
+}
+
+body.playground-markdown-loading::after {
+	content: '';
+	position: fixed;
+	bottom: 50%;
+	left: 50%;
+	width: 100%;
+	background: #3858e9;
+	max-width: 512px;
+	height: 4px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	border-radius: 10px;
+	z-index: 999999999999;
+	margin: 4px auto;
+	transform: translate(-50%, 30px);
+}
+
+/* Hide everything else while importing Markdown */
+body.playground-markdown-loading > :not(body::after, body::before) {
+	display: none;
+	pointer-events: none;
+}
