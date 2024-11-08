@@ -24,7 +24,6 @@
     "description": "Smart Caching & Cache Invalidation for WPGraphQL.",
     "plugin_url": "https://wordpress.org/plugins/wpgraphql-smart-cache/",
     "support_url": "https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose",
-    "plugin_path": "wpgraphql-smart-cache/wp-graphql-smart-cache.php",
     "author": {
       "name": "WPGraphQL",
       "homepage": "https://www.wpgraphql.com"
