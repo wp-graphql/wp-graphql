@@ -482,7 +482,7 @@ class Post extends Model {
 				],
 				'titleRendered'             => function () {
 					$id    = ! empty( $this->data->ID ) ? $this->data->ID : null;
-					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : null;
+					$title = ! empty( $this->data->post_title ) ? $this->data->post_title : '';
 
 					return $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered', true );
 				},
