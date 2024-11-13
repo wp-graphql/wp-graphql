@@ -357,6 +357,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		wp_set_current_user( $this->author );
 		$actual = graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( [
+			'$actual' => $actual,
+			'$variables' => $variables
+		]);
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Test with permissions
@@ -365,9 +371,12 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// test with database Id
 		$variables['input']['authorId'] = $this->author;
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = graphql( compact( 'query', 'variables' ) );
 
-		codecept_debug( $actual );
+		codecept_debug( [
+			'$actual' => $actual,
+			'$variables' => $variables
+		]);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
@@ -642,7 +651,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		codecept_debug( $actual );
-		
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
