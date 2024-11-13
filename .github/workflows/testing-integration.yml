@@ -104,6 +104,7 @@ jobs:
           PHP_VERSION: ${{ matrix.php }}
           WP_VERSION: ${{ matrix.wordpress }}
           MULTISITE: ${{ matrix.multisite }}
+          SUITES: wpunit:MediaItemMutationsTest.php
         run: composer run-test
 
       - name: Push Codecoverage to Coveralls.io
