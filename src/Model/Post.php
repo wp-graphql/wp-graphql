@@ -486,7 +486,7 @@ class Post extends Model {
 
 					$processedTitle = ! empty( $title ) ? $this->html_entity_decode( apply_filters( 'the_title', $title, $id ), 'titleRendered', true ) : '';
 
-					return $processedTitle === '' ? null : $processedTitle;
+					return empty( $processedTitle ) ? null : $processedTitle;
 				},
 				'titleRaw'                  => [
 					'callback'   => function () {
