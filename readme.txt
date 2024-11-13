@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.1
-Stable tag: 1.28.1
+Stable tag: 1.29.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -281,6 +281,17 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 1.29.1 =
+
+**Chores / Bugfixes**
+
+- [#3226](https://github.com/wp-graphql/wp-graphql/pull/3226): chore: add blueprint.json so WPGraphQL can be demo'd with a live preview on WordPress.org
+- [#3218](https://github.com/wp-graphql/wp-graphql/pull/3218): docs: update upgrading.md to highlight how breaking change releases will be handled
+- [#3214](https://github.com/wp-graphql/wp-graphql/pull/3214): fix: lazy-resolve Post.sourceUrl and deprecate Post.sourceUrlsBySize
+- [#3224](https://github.com/wp-graphql/wp-graphql/pull/3224): chore(deps-dev): bump symfony/process from 5.4.40 to 5.4.46 in the composer group
+- [#3219](https://github.com/wp-graphql/wp-graphql/pull/3219): test: add tests for querying different sizes of media items
+
 
 = 1.29.0 =
 
