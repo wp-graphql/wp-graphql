@@ -82,7 +82,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->date          = '2017-08-01T15:00:00';
 		$this->dateGmt       = '2017-08-01T21:00:00';
 		$this->description   = 'This is a magic description.';
-		$this->filePath      = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
+		$this->filePath      = 'https://raw.githubusercontent.com/wp-graphql/wp-graphql/refs/heads/release/v1.29.1/tests/_data/images/mgc.gif';
 		$this->fileType      = 'IMAGE_GIF';
 		$this->slug          = 'magic-shia';
 		$this->status        = 'INHERIT';
