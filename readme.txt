@@ -291,6 +291,7 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 - [#3214](https://github.com/wp-graphql/wp-graphql/pull/3214): fix: lazy-resolve Post.sourceUrl and deprecate Post.sourceUrlsBySize
 - [#3224](https://github.com/wp-graphql/wp-graphql/pull/3224): chore(deps-dev): bump symfony/process from 5.4.40 to 5.4.46 in the composer group
 - [#3219](https://github.com/wp-graphql/wp-graphql/pull/3219): test: add tests for querying different sizes of media items
+- [#3229](https://github.com/wp-graphql/wp-graphql/pull/3229): fix: Deprecated null value warning in titleRendered callback
 
 
 = 1.29.0 =
