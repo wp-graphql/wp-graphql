@@ -21,6 +21,7 @@ Below are some links to help you get started with WPGraphQL
 [![License](https://poser.pugx.org/wp-graphql/wp-graphql/license)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22) [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
 [![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg)](https://coveralls.io/github/wp-graphql/wp-graphql)
+[![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20WPGraphQL%20Guru-006BFF)](https://gurubase.io/g/wpgraphql)
 -----
 
 ## Install
