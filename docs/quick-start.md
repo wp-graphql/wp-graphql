@@ -36,7 +36,7 @@ WPGraphQL is available for installing with Composer from [packagist.org](https:/
 The most straight forward way to install WPGraphQL with composer would be to run the following command:
 
 ```shell
-composer require wp-graphql/wp-graphql
+composer require wpackagist-plugin/wp-graphql
 ```
 
 This would add WPGraphQL as a dependency for your project.
