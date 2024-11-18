@@ -9,7 +9,7 @@
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
 
-**Power your WordPress site with GraphQL.**  
+**Unlock the power of WordPress data with GraphQL**  
 
 WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development possibilities.  
 
