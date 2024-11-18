@@ -19,10 +19,11 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 ### 🚀 **Get Started**
 
-1. Install WPGraphQL: `wp plugin install wp-graphql --activate`
-2. Try it out: [Live Demo](https://repl.wpgraphql.com)
-3. Read the [Quick Start Guide](https://wpgraphql.com/docs/quick-start).
-4. Join the [Community on Discord](https://discord.gg/AGVBqqyaUY) and [Star the Repo](https://github.com/wp-graphql/wp-graphql)!
+1. 📦 Install WPGraphQL: `wp plugin install wp-graphql --activate`
+2. 👩‍💻 Try it out: [Live Demo](https://repl.wpgraphql.com)
+3. 📖 Read the [Quick Start Guide](https://wpgraphql.com/docs/quick-start).
+4. 💬 Join the [Community on Discord](https://wpgraphql.com/discord)
+5. ⭐ [Star the Repo](https://github.com/wp-graphql/wp-graphql) on GitHub 😉
 
 ---
 
@@ -51,13 +52,17 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 ### 🤝 **Community Support**
 
-[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](https://opencollective.com/wp-graphql#backer) [![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](https://opencollective.com/wp-graphql#sponsor)
-
 WPGraphQL is powered by a passionate community of contributors, backers, and sponsors.
 
-- **Contributors**: See the [full list of contributors](https://github.com/wp-graphql/wp-graphql/graphs/contributors) and learn how to [get involved](.github/CONTRIBUTING.md).
+<a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
 
-Want to help maintain and grow WPGraphQL? [Support the project on Open Collective](https://opencollective.com/wp-graphql).
+[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](https://opencollective.com/wp-graphql#backer) [![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](https://opencollective.com/wp-graphql#sponsor)
+
+Want to help maintain and grow WPGraphQL? 
+
+- [Support the project on Open Collective](https://opencollective.com/wp-graphql)
+- [Join the Community on Discord](https://wpgraphql.com/discord)
+- [Contribute to the project on GitHub](https://github.com/wp-graphql/wp-graphql)
 
 ---
 
@@ -78,7 +83,7 @@ Thank you to all these organizations and individuals for their efforts in shapin
 
 ---
 
-### 📌 **Canonical Plugin**
+### 🔌 **Canonical Plugin**
 
 WPGraphQL is becoming a [Canonical Plugin on WordPress.org](https://wordpress.org/news/2024/10/wpgraphql/), ensuring long-term support and a growing community of users and contributors.
 
