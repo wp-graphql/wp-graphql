@@ -11,7 +11,7 @@
 
 **Unlock the power of WordPress data with GraphQL**  
 
-WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development possibilities.  
+WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.  
 
 Whether you're a WordPress developer exploring GraphQL or a GraphQL expert diving into WordPress, WPGraphQL simplifies data interaction and empowers your development workflow.
 
@@ -41,10 +41,11 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 ### 📖 **Documentation**
 
+- [Quick Start](https://www.wpgraphql.com/docs/quick-start)
 - [Intro to GraphQL](https://wpgraphql.com/docs/intro-to-graphql)
 - [Intro to WordPress](https://wpgraphql.com/docs/intro-to-wordpress)
-- [Plugin Usage & Extensions](https://wpgraphql.com/docs/interacting-with-wpgraphql)
-- [Advanced Topics](https://wpgraphql.com/docs)
+- [Extensions](https://www.wpgraphql.com/extensions)
+- [Advanced Topics](https://www.wpgraphql.com/docs/wpgraphql-concepts)
 
 ---
 
