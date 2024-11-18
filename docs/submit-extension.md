@@ -38,17 +38,18 @@ We are exploring additional submission methods:
 
 ## Validation and Review
 
-- **JSON Schema**: Submissions must adhere to the `extensions.json.schema` format for consistency.
+- **JSON Schema**: Submissions must adhere to the `./schemas/extensions.json` to ensure required fields are included.
 - **GitHub Actions**: Automated workflows will validate JSON files and flag issues for maintainers.
 - **Basic Smoke-testing**: An approving maintainer will perform basic smoke-tests to ensure the extension integrates with WPGraphQL as expected. Documentation of this testing will be added to the PR for internal records.
 
 ---
 
-## extensions.json Schema
+## Example Extension Submission
 
 ```jsonc
 {
    "extensions": [
+      // ... other extensions
       {
          "name": "Plugin Name",                         // Required: Name of the plugin
          "description": "Short description here",       // Required: Brief description (limit: 150 characters)
@@ -69,7 +70,7 @@ We are exploring additional submission methods:
 
 ## Enforcement and Maintenance
 
-1. **Ongoing Validation**: We will periodically review extensions for activity and compatibility. Extensions failing to meet criteria may be removed after attempts to contact the author.
+1. **Ongoing Validation**: We may periodically review extensions for activity and compatibility. Extensions failing to meet criteria may be removed, with or without notice of the author.
 2. **Community Reporting**: Users are encouraged to report issues or suggest the removal of extensions that no longer meet criteria.
 3. **Version Compatibility**: Future updates to WPGraphQL may require extensions to specify version compatibility headers.
 
@@ -77,4 +78,4 @@ We are exploring additional submission methods:
 
 ## Community Feedback
 
-We welcome feedback on this policy and suggestions for improvement. Please share your ideas in the WPGraphQL GitHub Discussions or via our contact form on wpgraphql.com.
+We welcome feedback on this policy and suggestions for improvement. Please share your ideas in the [WPGraphQL GitHub Discussions](https://github.com/wp-graphql/wp-graphql/discussions) or [WPGraphQL Discord](https://wpgraphql.com/discord).
