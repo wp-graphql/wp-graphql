@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Spinner, Notice } from '@wordpress/components';
+import { Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import useInstallPlugin from './useInstallPlugin';
 import { getButtonDetails } from './utils';

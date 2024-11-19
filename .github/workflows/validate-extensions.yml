@@ -1,0 +1,34 @@
+# Description: This workflow validates the extensions.json file using AJV.
+# Trigger: This workflow runs on pull requests that modify the extensions.json file.
+# Why: This workflow ensures that the extensions.json file is valid and adheres to the schema defined in schemas/extensions.json.
+name: Validate extensions.json
+
+on:
+  pull_request:
+    paths:
+      - 'extensions.json'
+      - 'schemas/extensions.json'
+
+jobs:
+  validate-extensions:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Step 3: Install AJV CLI and AJV Formats
+      - name: Install AJV CLI and Formats
+        run: |
+          npm install -g ajv-cli ajv-formats
+
+      # Step 4: Validate extensions.json
+      - name: Validate extensions.json
+        run: ajv validate -s schemas/extensions.json -d extensions.json -c ajv-formats

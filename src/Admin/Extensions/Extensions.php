@@ -20,7 +20,14 @@ class Extensions {
 	private $extensions_file_path;
 
 	/**
-	 * @var array<string, array<string, mixed>>
+	 * The schema for the extensions data defined in ./schemas/extensions.json.
+	 *
+	 * @var object
+	 */
+	private $schema;
+
+	/**
+	 * @var array<int, array<string, mixed>>
 	 */
 	protected $extensions;
 
@@ -227,32 +234,88 @@ class Extensions {
 		$data = json_decode( $contents, true );
 
 		// Check for JSON decoding errors
-		if ( JSON_ERROR_NONE !== json_last_error() ) {
+		if ( empty( $data['extensions'] ) || JSON_ERROR_NONE !== json_last_error() ) {
 			return null;
 		}
 
 		// Cache the extensions data
-		wp_cache_set( $extensions_cache_key, $data, $cache_group );
+		wp_cache_set( $extensions_cache_key, $data['extensions'], $cache_group );
 
-		return $data;
+		return $data['extensions'];
+	}
+
+	/**
+	 * Validate an extension based on the schemas/extensions.json schema.
+	 *
+	 * @param array<string, array<string, mixed>> $extension The extension to validate.
+	 *
+	 * @return mixed|bool|string True if the extension is valid, otherwise an error message.
+	 */
+	public function is_valid_extension( array $extension ) {
+
+		// convert the extension to an object for validation
+		$extension         = (object) $extension;
+		$extension->author = isset( $extension->author ) ? (object) $extension->author : null;
+
+		// Load the schema if it hasn't been loaded yet
+		if ( null === $this->schema ) {
+			$schema_file = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schemas/single-extension.json' );
+			if ( ! $schema_file ) {
+				return false;
+			}
+			$this->schema = json_decode( $schema_file );
+		}
+
+		// Validate the extension data based on the loaded schema
+		$validator = new \JsonSchema\Validator();
+		$validator->validate( $extension, $this->schema );
+
+		if ( ! $validator->isValid() ) {
+			return $validator->getErrors()[0]['message'] ?? 'Unknown error';
+		}
+
+		return true;
 	}
 
 	/**
 	 * Get the list of WPGraphQL extensions.
 	 *
-	 * @return array<string, array<string, mixed>> List of extensions.
+	 * @return array<int, array<string, mixed>> List of extensions.
 	 */
 	public function get_extensions(): array {
 
-		$pre_filtered_extensions = apply_filters( 'graphql_pre_get_extensions', null );
-		if ( null !== $pre_filtered_extensions ) {
-			return $pre_filtered_extensions;
+		$valid_extensions = [];
+
+		if ( null === $this->extensions ) {
+
+			// Allow filtering the extensions before they are loaded
+			$pre_filtered_extensions = apply_filters( 'graphql_pre_get_extensions', null );
+			if ( null !== $pre_filtered_extensions ) {
+				$extensions = $pre_filtered_extensions;
+			} else {
+				$extensions = $this->load_extensions_from_file() ?? [];
+			}
+
+			$installed_plugins = $this->get_installed_plugins();
+
+			// Filter the list of extensions, allowing other plugins to add their own extensions
+			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
+
+			foreach ( $extensions as $extension ) {
+				if ( true === $this->is_valid_extension( $extension ) ) {
+					$valid_extensions[] = $extension;
+				}
+			}
+
+			// Validate and remove invalid extensions
+			$this->extensions = ! empty( $valid_extensions ) ? $valid_extensions : [];
 		}
 
-		$this->extensions  = $this->load_extensions_from_file() ?? [];
-		$installed_plugins = $this->get_installed_plugins();
+		if ( empty( $this->extensions ) ) {
+			return [];
+		}
 
-		foreach ( $this->extensions as &$extension ) {
+		foreach ( $this->extensions as $extension ) {
 			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
 			if ( isset( $installed_plugins[ $slug ] ) ) {
 				$extension['installed'] = true;
@@ -292,6 +355,6 @@ class Extensions {
 			}
 		);
 
-		return apply_filters( 'graphql_get_extensions', $this->extensions );
+		return $this->extensions;
 	}
 }
