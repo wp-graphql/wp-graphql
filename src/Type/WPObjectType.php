@@ -39,7 +39,7 @@ class WPObjectType extends ObjectType {
 	/**
 	 * @var array<string,mixed>
 	 */
-	public $config;
+	public array $config;
 
 	/**
 	 * @var array<string, array<string, mixed>>
@@ -49,7 +49,7 @@ class WPObjectType extends ObjectType {
 	/**
 	 * @var array<\GraphQL\Type\Definition\InterfaceType>
 	 */
-	public $interfaces;
+	public $interfaces = [];
 
 	/**
 	 * WPObjectType constructor.
@@ -91,6 +91,11 @@ class WPObjectType extends ObjectType {
 		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
 
 		/**
+		 * Setup the Interfaces
+		 */
+		$config['interfaces'] = $this->getInterfaces();
+
+		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
 		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
@@ -126,7 +131,7 @@ class WPObjectType extends ObjectType {
 	public static function node_interface() {
 		if ( null === self::$node_interface ) {
 			$node_interface       = DataSource::get_node_definition();
-			self::$node_interface = $node_interface['nodeInterface'];
+			self::$node_interface = $node_interface['Node'];
 		}
 
 		return self::$node_interface;

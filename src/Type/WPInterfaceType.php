@@ -19,7 +19,7 @@ class WPInterfaceType extends InterfaceType {
 	/**
 	 * @var array<string,mixed>
 	 */
-	public $config;
+	public array $config;
 
 	/**
 	 * @var array<string, array<string, mixed>>
@@ -29,7 +29,7 @@ class WPInterfaceType extends InterfaceType {
 	/**
 	 * @var array<string, array<string, mixed>>
 	 */
-	public $interfaces;
+	public $interfaces = [];
 
 	/**
 	 * WPInterfaceType constructor.
@@ -47,7 +47,7 @@ class WPInterfaceType extends InterfaceType {
 		$name             = ucfirst( $config['name'] );
 		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
 		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
-
+		$config['interfaces'] = $this->getInterfaces();
 		$config['resolveType'] = function ( $obj ) use ( $config ) {
 			$type = null;
 			if ( is_callable( $config['resolveType'] ) ) {
@@ -76,12 +76,16 @@ class WPInterfaceType extends InterfaceType {
 	}
 
 	/**
-	 * Get interfaces implemented by this Interface
+	 * Get the interfaces implemented by the ObjectType
 	 *
 	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	public function getInterfaces(): array {
-		return $this->get_implemented_interfaces();
+		if ( ! empty( $this->interfaces ) ) {
+			return $this->interfaces;
+		}
+		$this->interfaces = $this->get_implemented_interfaces();
+		return $this->interfaces;
 	}
 
 	/**
