@@ -511,10 +511,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				],
 				'path'       => [
 					'category',
-				],
-				'extensions' => [
-					'category' => 'user',
-				],
+				]
 			],
 		];
 
