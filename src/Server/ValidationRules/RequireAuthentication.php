@@ -21,7 +21,7 @@ class RequireAuthentication extends QuerySecurityRule {
 	 *
 	 * @return bool
 	 */
-	protected function isEnabled() {
+	protected function isEnabled(): bool {
 		$restrict_endpoint = null;
 
 		/**
@@ -65,7 +65,7 @@ class RequireAuthentication extends QuerySecurityRule {
 	 *
 	 * @return callable[]
 	 */
-	public function getVisitor( ValidationContext $context ) {
+	public function getVisitor( ValidationContext $context ): array {
 		$allowed_root_fields = [];
 
 		/**

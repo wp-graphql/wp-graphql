@@ -44,7 +44,7 @@ class QueryDepth extends QuerySecurityRule {
 	 *
 	 * @return callable[]
 	 */
-	public function getVisitor( ValidationContext $context ) {
+	public function getVisitor( ValidationContext $context ): array {
 		return $this->invokeIfNeeded(
 			$context,
 			// @phpstan-ignore-next-line
@@ -163,7 +163,7 @@ class QueryDepth extends QuerySecurityRule {
 	 *
 	 * @return bool
 	 */
-	protected function isEnabled() {
+	protected function isEnabled(): bool {
 		$is_enabled = false;
 
 		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );
