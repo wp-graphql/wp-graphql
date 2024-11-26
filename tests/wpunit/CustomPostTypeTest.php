@@ -1683,7 +1683,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'query_var'           => true,
 				'rewrite'             => [ 'slug' => 'casinos' ],
 				'supports'            => [ 'editor', 'thumbnail', 'title' ],
-				'label'               => _( 'With Underscores' ),
+				'label'               => __( 'With Underscores' ),
 				'map_meta_cap'        => true,
 			];
 
