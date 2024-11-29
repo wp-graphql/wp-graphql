@@ -614,7 +614,7 @@ class PostObject {
 							return null;
 						}
 						// allow to get filesize from other sources, like database or offloaded file
-						$filesize = apply_filter('graphql_get_filesize', $image->databaseId);
+						$filesize = apply_filters('graphql_get_filesize', $image->databaseId);
 						if(!empty($filesize)) {
 							return $filesize;
 						}
