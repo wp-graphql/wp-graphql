@@ -613,6 +613,11 @@ class PostObject {
 						if ( empty( $source_url ) ) {
 							return null;
 						}
+						// allow to get filesize from other sources, like database or offloaded file
+						$filesize = apply_filter('graphql_get_filesize', $image->databaseId);
+						if(!empty($filesize)) {
+							return $filesize;
+						}
 
 						$path_parts    = pathinfo( $source_url );
 						$original_file = get_attached_file( absint( $image->databaseId ) );
