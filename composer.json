@@ -64,7 +64,10 @@
 		"files": [],
 		"psr-4": {
 			"WPGraphQL\\": "src/"
-		}
+		},
+		"classmap": [
+			"src/WPGraphQL.php"
+		]
 	},
 	"scripts": {
 		"install-test-env": "bash bin/install-test-env.sh",
