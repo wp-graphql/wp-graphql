@@ -167,17 +167,28 @@ function graphql_init_appsero_telemetry() {
 		return;
 	}
 
-	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
-	$insights = $client->insights();
+	// Wrap the Appsero client in a try/catch block to prevent fatal errors
+	try {
+		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
 
-	// If the Appsero client has the add_plugin_data method, use it
-	if ( method_exists( $insights, 'add_plugin_data' ) ) {
-		// @phpstan-ignore-next-line
-		$insights->add_plugin_data();
+		/** @var \Appsero\Insights $insights */
+		$insights = $client->insights();
+
+		// If the Appsero client has the add_plugin_data method, use it
+		if ( method_exists( $insights, 'add_plugin_data' ) ) {
+			$insights->add_plugin_data();
+		}
+
+		$insights->init();
+	} catch ( \Throwable $e ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
+			sprintf(
+			// translators: %s is the error message
+				__( 'Error initializing Appsero: %s', 'wp-graphql' ),
+				$e->getMessage()
+			)
+		);
 	}
-
-	// @phpstan-ignore-next-line
-	$insights->init();
 }
 
 graphql_init_appsero_telemetry();

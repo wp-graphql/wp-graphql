@@ -4,24 +4,32 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "361b51bbe7e98f10cadfd07b4fc0c472",
+    "content-hash": "44de4e5f0aa4b88b3af8f8f2bf13a294",
     "packages": [
         {
             "name": "appsero/client",
-            "version": "v1.2.1",
+            "version": "v2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Appsero/client.git",
-                "reference": "d110c537f4ca92ac7f3398eee67cc6bdf506a4fb"
+                "reference": "12ff65b9770286d21edf314e7acfcd26fdde3315"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Appsero/client/zipball/d110c537f4ca92ac7f3398eee67cc6bdf506a4fb",
-                "reference": "d110c537f4ca92ac7f3398eee67cc6bdf506a4fb",
+                "url": "https://api.github.com/repos/Appsero/client/zipball/12ff65b9770286d21edf314e7acfcd26fdde3315",
+                "reference": "12ff65b9770286d21edf314e7acfcd26fdde3315",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3"
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+                "phpcompatibility/phpcompatibility-wp": "dev-master",
+                "phpunit/phpunit": "^8.5.31",
+                "squizlabs/php_codesniffer": "^3.7",
+                "tareq1988/wp-php-cs-fixer": "dev-master",
+                "wp-coding-standards/wpcs": "dev-develop"
             },
             "type": "library",
             "autoload": {
@@ -48,9 +56,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Appsero/client/issues",
-                "source": "https://github.com/Appsero/client/tree/v1.2.1"
+                "source": "https://github.com/Appsero/client/tree/v2.0.4"
             },
-            "time": "2022-06-30T12:01:38+00:00"
+            "time": "2024-11-25T05:58:23+00:00"
         },
         {
             "name": "ivome/graphql-relay-php",
@@ -3875,12 +3883,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "a3f21217f9a86f3c5d27412451c002121a70dc0f"
+                "reference": "839e180c17e969bf8deeefe3bd7a42f12da1f596"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/a3f21217f9a86f3c5d27412451c002121a70dc0f",
-                "reference": "a3f21217f9a86f3c5d27412451c002121a70dc0f",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/839e180c17e969bf8deeefe3bd7a42f12da1f596",
+                "reference": "839e180c17e969bf8deeefe3bd7a42f12da1f596",
                 "shasum": ""
             },
             "require": {
@@ -3957,7 +3965,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-11-29T23:42:16+00:00"
+            "time": "2024-11-30T11:41:33+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
