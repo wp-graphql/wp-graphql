@@ -163,20 +163,20 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  */
 function graphql_init_appsero_telemetry() {
 	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on.
-	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
+	if ( ! class_exists( 'WPGraphQL\Vendor\Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
 		return;
 	}
 
-	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
+	$client = new \WPGraphQL\Vendor\Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
+
+	/** @var \WPGraphQL\Vendor\Appsero\Insights $insights */
 	$insights = $client->insights();
 
 	// If the Appsero client has the add_plugin_data method, use it
 	if ( method_exists( $insights, 'add_plugin_data' ) ) {
-		// @phpstan-ignore-next-line
 		$insights->add_plugin_data();
 	}
 
-	// @phpstan-ignore-next-line
 	$insights->init();
 }
 

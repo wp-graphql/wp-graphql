@@ -25,7 +25,7 @@
 		"php": "^7.1 || ^8.0",
 		"webonyx/graphql-php": "14.11.10",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "1.2.1"
+		"appsero/client": "^2.0.0"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
@@ -50,23 +50,42 @@
 		"wp-cli/wp-cli-bundle": "^2.8"
 	},
 	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
+		},
 		"platform": {
 			"php": "7.3"
 		},
 		"optimize-autoloader": true,
-		"process-timeout": 0,
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"phpstan/extension-installer": true
+		"preferred-install": "dist",
+		"process-timeout": 0
+	},
+	"extra": {
+		"strauss": {
+			"target_directory": "vendor-prefixed",
+			"namespace_prefix": "WPGraphQL\\Vendor\\",
+			"classmap_prefix": "WPGraphQL_",
+			"constant_prefix": "WPGRAPHQL_",
+			"delete_vendor_files": true,
+			"delete_vendor_packages": true,
+			"update_call_sites": false,
+			"include_modified_date": false,
+			"packages": [
+				"appsero/client"
+			],
+			"exclude_from_prefix": {
+				"file_patterns": []
+			}
 		}
 	},
 	"autoload": {
-		"files": [],
 		"psr-4": {
 			"WPGraphQL\\": "src/"
 		},
 		"classmap": [
-			"src/WPGraphQL.php"
+			"src/WPGraphQL.php",
+			"vendor-prefixed/"
 		]
 	},
 	"scripts": {
@@ -103,6 +122,23 @@
 			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
 			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
 			"rm -rf plugin-build/wp-graphql/"
+		],
+		"prefix-namespaces": [
+			"sh -c 'test -f ./bin/strauss.phar || curl -o bin/strauss.phar -L -C - https://github.com/BrianHenryIE/strauss/releases/download/0.17.0/strauss.phar'",
+			"@php bin/strauss.phar",
+			"@php composer dump-autoload"
+		],
+		"post-install-cmd": [
+			"@prefix-namespaces"
+		],
+		"post-update-cmd": [
+			"@post-install-cmd"
+		],
+		"pre-install-cmd": [
+			"test -d vendor-prefixed || mkdir vendor-prefixed"
+		],
+		"pre-update-cmd": [
+			"@pre-install-cmd"
 		]
 	}
 }

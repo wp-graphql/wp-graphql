@@ -10,6 +10,10 @@
 # Composer dependencies. These should be installed on the users machine
 vendor
 
+# Strauss namespaces Composer dependencies. These should be installed on the users machine
+vendor-prefixed
+bin/strauss.phar
+
 # We _do_ want to version our tests!
 !/tests
 

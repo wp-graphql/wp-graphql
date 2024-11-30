@@ -26,8 +26,6 @@ parameters:
         - phpstan/constants.php
         - wp-graphql.php
         - access-functions.php
-        - activation.php
-        - deactivation.php
         - constants.php
     paths:
         - wp-graphql.php
@@ -36,7 +34,8 @@ parameters:
         - deactivation.php
         - src/
     excludePaths:
+      analyse:
+        - vendor-prefixed/
       analyseAndScan:
         - */node_modules/*
-        - */vendor/*
     ignoreErrors:
