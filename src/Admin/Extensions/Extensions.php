@@ -9,36 +9,35 @@ use WP_REST_Response;
  * Class Extensions
  *
  * @package WPGraphQL\Admin\Extensions
+ *
+ * @phpstan-import-type Extension from \WPGraphQL\Admin\Extensions\Registry
+ *
+ * @phpstan-type PopulatedExtension array{
+ *   name: non-empty-string,
+ *   description: non-empty-string,
+ *   plugin_url: non-empty-string,
+ *   support_url: non-empty-string,
+ *   documentation_url: non-empty-string,
+ *   repo_url?: string,
+ *   author: array{
+ *     name: non-empty-string,
+ *     homepage?: string,
+ *   },
+ *   installed: bool,
+ *   active: bool,
+ *   settings_path?: string,
+ *   settings_url?: string,
+ * }
  */
-class Extensions {
-
+final class Extensions {
 	/**
-	 * Path to the JSON file with the extensions' data.
+	 * The list of extensions.
 	 *
-	 * @var string
-	 */
-	private $extensions_file_path;
-
-	/**
-	 * The schema for the extensions data defined in ./schemas/extensions.json.
+	 * Filtered by `graphql_get_extensions`.
 	 *
-	 * @var object
+	 * @var ?PopulatedExtension[]
 	 */
-	private $schema;
-
-	/**
-	 * @var array<int, array<string, mixed>>
-	 */
-	protected $extensions;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param string $file_path Path to the JSON file.
-	 */
-	public function __construct( string $file_path = __DIR__ . '/extensions.json' ) {
-		$this->extensions_file_path = $file_path;
-	}
+	private $extensions;
 
 	/**
 	 * Initialize Extensions functionality for WPGraphQL.
@@ -205,139 +204,114 @@ class Extensions {
 	}
 
 	/**
-	 * Load the list of WPGraphQL extensions from a JSON file.
+	 * Sanitizes extension values before they are used.
 	 *
-	 * @return array<string, array<string, mixed>>|null The list of extensions, or null if the file can't be read.
+	 * @param array<string,mixed> $extension The extension to sanitize.
+	 * @return array<string,mixed> The sanitized extension.
 	 */
-	private function load_extensions_from_file(): ?array {
-		// Check if the file exists and is readable
-		if ( ! file_exists( $this->extensions_file_path ) || ! is_readable( $this->extensions_file_path ) ) {
-			return null;
-		}
-
-		// check if the extensions exist in cache, using the file's last modified time as the cache key
-		$cache_group          = 'wpgraphql_extensions';
-		$extensions_cache_key = 'wpgraphql_extensions_' . filemtime( $this->extensions_file_path );
-		$cached_extensions    = wp_cache_get( $extensions_cache_key, $cache_group );
-
-		if ( false !== $cached_extensions ) {
-			return $cached_extensions;
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
-		$contents = file_get_contents( $this->extensions_file_path );
-
-		if ( false === $contents ) {
-			return null; // Handle case where file_get_contents fails
-		}
-
-		$data = json_decode( $contents, true );
-
-		// Check for JSON decoding errors
-		if ( empty( $data['extensions'] ) || JSON_ERROR_NONE !== json_last_error() ) {
-			return null;
-		}
-
-		// Cache the extensions data
-		wp_cache_set( $extensions_cache_key, $data['extensions'], $cache_group );
-
-		return $data['extensions'];
+	private function sanitize_extension( array $extension ) {
+		return [
+			'name'        => ! empty( $extension['name'] ) ? sanitize_text_field( $extension['name'] ) : null,
+			'description' => ! empty( $extension['description'] ) ? sanitize_text_field( $extension['description'] ) : null,
+			'plugin_url'  => ! empty( $extension['plugin_url'] ) ? esc_url_raw( $extension['plugin_url'] ) : null,
+			'support_url' => ! empty( $extension['support_url'] ) ? esc_url_raw( $extension['support_url'] ) : null,
+			'documentation_url' => ! empty( $extension['documentation_url'] ) ? esc_url_raw( $extension['documentation_url'] ) : null,
+			'repo_url'    => ! empty( $extension['repo_url'] ) ? esc_url_raw( $extension['repo_url'] ) : null,
+			'author'      => [
+				'name'     => ! empty( $extension['author']['name'] ) ? sanitize_text_field( $extension['author']['name'] ) : null,
+				'homepage' => ! empty( $extension['author']['homepage'] ) ? esc_url_raw( $extension['author']['homepage'] ) : null,
+			],
+		];
 	}
 
 	/**
 	 * Validate an extension based on the schemas/extensions.json schema.
 	 *
-	 * @param array<string, array<string, mixed>> $extension The extension to validate.
+	 * Sanitization ensures that the values are correctly types, so we just need to check if the required fields are present.
 	 *
-	 * @return mixed|bool|string True if the extension is valid, otherwise an error message.
+	 * @param array<string,mixed> $extension The extension to validate.
+	 *
+	 * @return true|\WP_Error True if the extension is valid, otherwise an error.
+	 *
+	 * @phpstan-assert-if-true Extension $extension
 	 */
 	public function is_valid_extension( array $extension ) {
+		$error_code    = 'invalid_extension';
+		$error_message = __( 'Invalid extension %1$s is missing a valid value for %2$s.', 'wp-graphql' );
 
-		// convert the extension to an object for validation
-		$extension         = (object) $extension;
-		$extension->author = isset( $extension->author ) ? (object) $extension->author : null;
-
-		// Load the schema if it hasn't been loaded yet
-		if ( null === $this->schema ) {
-			$schema_file = file_get_contents( WPGRAPHQL_PLUGIN_DIR . 'schemas/single-extension.json' );
-			if ( ! $schema_file ) {
-				return false;
-			}
-			$this->schema = json_decode( $schema_file );
+		// First handle the name field, since we'll use it in other error messages.
+		if ( empty( $extension['name'] ) ) {
+			return new \WP_Error( $error_code, esc_html__( 'Invalid extension. All extensions must have a `name`.', 'wp-graphql' ) );
 		}
 
-		// Validate the extension data based on the loaded schema
-		$validator = new \JsonSchema\Validator();
-		$validator->validate( $extension, $this->schema );
+		// Handle the Top-Level fields.
+		$required_fields = [
+			'description',
+			'plugin_url',
+			'support_url',
+			'documentation_url',
+		];
+		foreach ( $required_fields as $property ) {
+			if ( empty( $extension[ $property ] ) ) {
+				return new \WP_Error(
+					$error_code,
+					sprintf( $error_message, $extension['name'], $property )
+				);
+			}
+		}
 
-		if ( ! $validator->isValid() ) {
-			return $validator->getErrors()[0]['message'] ?? 'Unknown error';
+		// Ensure Author has the required name field.
+		if ( empty( $extension['author']['name'] ) ) {
+			return new \WP_Error(
+				$error_code,
+				sprintf( $error_message, $extension['name'], 'author.name' )
+			);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Get the list of WPGraphQL extensions.
+	 * Populate the extensions list with installation data.
 	 *
-	 * @return array<int, array<string, mixed>> List of extensions.
+	 * @param Extension[] $extensions The extensions to populate.
+	 *
+	 * @return PopulatedExtension[] The populated extensions.
 	 */
-	public function get_extensions(): array {
+	private function populate_installation_data( $extensions ) {
+		$installed_plugins = $this->get_installed_plugins();
 
-		$valid_extensions = [];
+		$populated_extensions = [];
 
-		if ( null === $this->extensions ) {
-
-			// Allow filtering the extensions before they are loaded
-			$pre_filtered_extensions = apply_filters( 'graphql_pre_get_extensions', null );
-			if ( null !== $pre_filtered_extensions ) {
-				$extensions = $pre_filtered_extensions;
-			} else {
-				$extensions = $this->load_extensions_from_file() ?? [];
-			}
-
-			$installed_plugins = $this->get_installed_plugins();
-
-			// Filter the list of extensions, allowing other plugins to add their own extensions
-			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
-
-			foreach ( $extensions as $extension ) {
-				if ( true === $this->is_valid_extension( $extension ) ) {
-					$valid_extensions[] = $extension;
-				}
-			}
-
-			// Validate and remove invalid extensions
-			$this->extensions = ! empty( $valid_extensions ) ? $valid_extensions : [];
-		}
-
-		if ( empty( $this->extensions ) ) {
-			return [];
-		}
-
-		foreach ( $this->extensions as $extension ) {
+		foreach ( $extensions as $extension ) {
 			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
+			$extension['installed'] = false;
+			$extension['active']    = false;
+
+			// If the plugin is installed, populate the installation data.
 			if ( isset( $installed_plugins[ $slug ] ) ) {
 				$extension['installed'] = true;
 				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
 				$extension['author']    = $installed_plugins[ $slug ]['author'];
-			} else {
-				$extension['installed'] = false;
-				$extension['active']    = false;
 			}
 
+			// @todo Where does this come from?
 			if ( isset( $extension['settings_path'] ) && true === $extension['active'] ) {
 				$extension['settings_url'] = is_multisite() && is_network_admin()
 					? network_admin_url( $extension['settings_path'] )
 					: admin_url( $extension['settings_path'] );
 			}
+
+			$populated_extensions[] = $extension;
 		}
 
-		// Sort criteria is currently as follows:
-		// 1. Plugins grouped by WordPress.org plugins first, non WordPress.org plugins after
-		// 2. Sort by plugin name in alphabetical order within the above groups, prioritizing "WPGraphQL" authored plugins
+		/**
+		 * Sort the extensions by the following criteria:
+		 * 1. Plugins grouped by WordPress.org plugins first, non WordPress.org plugins after
+		 * 2. Sort by plugin name in alphabetical order within the above groups, prioritizing "WPGraphQL" authored plugins
+		 */
 		usort(
-			$this->extensions,
+			$populated_extensions,
 			static function ( $a, $b ) {
 				if ( false !== strpos( $a['plugin_url'], 'wordpress.org' ) && false === strpos( $b['plugin_url'], 'wordpress.org' ) ) {
 					return -1;
@@ -354,6 +328,45 @@ class Extensions {
 				return strcasecmp( $a['name'], $b['name'] );
 			}
 		);
+
+		return $populated_extensions;
+	}
+
+	/**
+	 * Get the list of WPGraphQL extensions.
+	 *
+	 * @return PopulatedExtension[] The list of extensions.
+	 */
+	public function get_extensions(): array {
+		if ( ! isset( $this->extensions ) ) {
+			// @todo Replace with a call to the WPGraphQL server.
+			$extensions = Registry::get_extenions();
+
+			/**
+			 * Filter the list of extensions, allowing other plugins to add or remove extensions.
+			 *
+			 * @see Admin\Extensions\Registry::get_extensions() for the correct format of the extensions.
+			 *
+			 * @param array<string,mixed> $extensions The list of extensions.
+			 */
+			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
+
+			$valid_extensions = [];
+			foreach ( $extensions as $extension ) {
+				$sanitized = $this->sanitize_extension( $extension );
+
+				if ( true === $this->is_valid_extension( $sanitized ) ) {
+					$valid_extensions[] = $sanitized;
+				}
+			}
+
+			// If we have valid extensions, populate the installation data.
+			if ( ! empty( $valid_extensions ) ) {
+				$valid_extensions = $this->populate_installation_data( $valid_extensions );
+			}
+
+			$this->extensions = $valid_extensions;
+		}
 
 		return $this->extensions;
 	}
