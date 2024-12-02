@@ -18,8 +18,6 @@ class RequireAuthentication extends QuerySecurityRule {
 
 	/**
 	 * Whether the rule is enabled or not.
-	 *
-	 * @return bool
 	 */
 	protected function isEnabled(): bool {
 		$restrict_endpoint = null;

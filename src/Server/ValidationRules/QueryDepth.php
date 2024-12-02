@@ -160,8 +160,6 @@ class QueryDepth extends QuerySecurityRule {
 
 	/**
 	 * Determine whether the rule should be enabled
-	 *
-	 * @return bool
 	 */
 	protected function isEnabled(): bool {
 		$is_enabled = false;

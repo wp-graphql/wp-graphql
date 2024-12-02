@@ -11,8 +11,6 @@ class DisableIntrospection extends \GraphQL\Validator\Rules\DisableIntrospection
 
 	/**
 	 * Whether the rule is enabled or not.
-	 *
-	 * @return bool
 	 */
 	public function isEnabled(): bool {
 		$enabled = false;
