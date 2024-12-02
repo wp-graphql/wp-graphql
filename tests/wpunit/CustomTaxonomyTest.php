@@ -1247,8 +1247,9 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$request = new \WPGraphQL\Request();
+		// $request = new \WPGraphQL\Request();
 		$schema = WPGraphQL::get_schema();
+		unregister_taxonomy( 'tax_no_plural' );
 		$schema->assertValid();
 
 		$query = '
@@ -1267,7 +1268,6 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		unregister_taxonomy( 'tax_no_plural' );
 
 		self::assertQuerySuccessful(
 			$actual,

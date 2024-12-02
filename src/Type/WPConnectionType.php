@@ -126,7 +126,7 @@ class WPConnectionType {
 	 *
 	 * @var array<string,array<string,mixed>>
 	 */
-	protected $where_args;
+	protected $where_args = [];
 
 	/**
 	 * WPConnectionType constructor.
@@ -267,40 +267,46 @@ class WPConnectionType {
 	 * If the connection includes connection args in the config, this registers the input args
 	 * for the connection
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
-	protected function register_connection_input() {
+	protected function register_connection_input(): void {
+
 		if ( empty( $this->connection_args ) ) {
+			$input_fields = null;
+		} else {
+			$input_fields = $this->connection_args;
+		}
+
+		// If there are no input fields, bail.
+		if ( empty( $input_fields ) || ! is_array( $input_fields ) ) {
 			return;
 		}
 
 		$input_name = $this->connection_name . 'WhereArgs';
 
-		if ( $this->type_registry->has_type( $input_name ) ) {
-			return;
+		if ( ! $this->type_registry->has_type( $input_name ) ) {
+			$this->type_registry->register_input_type(
+				$input_name,
+				[
+					'description' => sprintf(
+					// translators: %s is the name of the connection
+						__( 'Arguments for filtering the %s connection', 'wp-graphql' ),
+						$this->connection_name
+					),
+					'fields'      => $input_fields,
+					'queryClass'  => $this->query_class,
+				]
+			);
 		}
 
-		$this->type_registry->register_input_type(
-			$input_name,
-			[
-				'description' => sprintf(
-					// translators: %s is the name of the connection
-					__( 'Arguments for filtering the %s connection', 'wp-graphql' ),
-					$this->connection_name
-				),
-				'fields'      => $this->connection_args,
-				'queryClass'  => $this->query_class,
-			]
-		);
-
-		$this->where_args = [
-			'where' => [
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-				'type'        => $this->connection_name . 'WhereArgs',
-			],
-		];
+		if ( ! empty( $input_fields ) ) {
+			$this->where_args = [
+				'where' => [
+					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+					'type'        => $input_name,
+				],
+			];
+		}
 	}
 
 	/**
@@ -421,7 +427,7 @@ class WPConnectionType {
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
 		$interfaces[] = Utils::format_type_name( $this->to_type . 'Connection' );
 
-		// Only include the default interfaces if the user hasnt explicitly opted out.
+		// Only include the default interfaces if the user has not explicitly opted out.
 		if ( false !== $this->include_default_interfaces ) {
 			$interfaces[] = 'Connection';
 		}
