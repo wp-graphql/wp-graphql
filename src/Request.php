@@ -201,7 +201,7 @@ class Request {
 		$validation_rules = GraphQL::getStandardValidationRules();
 
 		$validation_rules['require_authentication'] = new RequireAuthentication();
-		$validation_rules['disable_introspection']  = new DisableIntrospection(1);
+		$validation_rules['disable_introspection']  = new DisableIntrospection( 1 );
 		$validation_rules['query_depth']            = new QueryDepth();
 
 		/**
