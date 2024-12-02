@@ -296,7 +296,7 @@ trait WPInterfaceTrait {
 
 		// If the type is an instance of a Type, we can get the name.
 		if ( $type instanceof \GraphQL\Type\Definition\Type ) {
-			$type = $type->name;
+			$type = $type->name ?? $type->toString();
 		}
 
 		// If the type is *now* a string, we can return it.

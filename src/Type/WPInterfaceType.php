@@ -44,10 +44,10 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->config = $config;
 
-		$name             = ucfirst( $config['name'] );
-		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
-		$config['interfaces'] = $this->getInterfaces();
+		$name                  = ucfirst( $config['name'] );
+		$config['name']        = apply_filters( 'graphql_type_name', $name, $config, $this );
+		$config['fields']      = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		$config['interfaces']  = $this->getInterfaces();
 		$config['resolveType'] = function ( $obj ) use ( $config ) {
 			$type = null;
 			if ( is_callable( $config['resolveType'] ) ) {

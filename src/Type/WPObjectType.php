@@ -84,14 +84,14 @@ class WPObjectType extends ObjectType {
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		/**
-		 * Setup the fields
+		 * Set up the fields
 		 *
 		 * @return array<string, array<string, mixed>> $fields
 		 */
 		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
 
 		/**
-		 * Setup the Interfaces
+		 * Set up the Interfaces
 		 */
 		$config['interfaces'] = $this->getInterfaces();
 
