@@ -25,12 +25,19 @@ class InstrumentSchema {
 			return $type;
 		}
 
-		$fields = $type->getFields();
+		if ( ! empty( $type->name ) ) {
+			$type->name = ucfirst( esc_html( $type->name ) );
+		}
 
-		$fields                 = ! empty( $fields ) ? self::wrap_fields( $fields, $type->name ) : [];
-		$type->name             = ucfirst( esc_html( $type->name ) );
-		$type->description      = ! empty( $type->description ) ? esc_html( $type->description ) : '';
-		$type->config['fields'] = $fields;
+		if ( ! empty( $type->description ) ) {
+			$type->description = esc_html( $type->description );
+		}
+
+		if ( ! empty( $type->config ) ) {
+			$fields                 = $type->getFields();
+			$fields                 = ! empty( $fields ) && isset( $type->name ) ? self::wrap_fields( $fields, $type->name ) : [];
+			$type->config['fields'] = $fields;
+		}
 
 		return $type;
 	}
