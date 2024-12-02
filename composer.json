@@ -23,7 +23,7 @@
 	],
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"webonyx/graphql-php": "v15.0.0",
+		"webonyx/graphql-php": "v15.18.1",
 		"ivome/graphql-relay-php": "0.7.0",
 		"appsero/client": "1.2.1"
 	},
