@@ -1,7 +1,6 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
@@ -121,32 +120,31 @@ class WPInputObjectType extends InputObjectType {
 	 * Validates type config and throws if one of type options is invalid.
 	 * Note: this method is shallow, it won't validate object fields and their arguments.
 	 *
-	 * @throws Error
-	 * @throws InvariantViolation
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
-	public function assertValid(): void
-	{
-		Utils::assertValidName($this->name);
-
+	public function assertValid(): void {
+		Utils::assertValidName( $this->name );
 
 		$fields = $this->config['fields'] ?? null;
-		if (\is_callable($fields)) {
+		if ( \is_callable( $fields ) ) {
 			$fields = $fields();
 		}
 
 		/**
 		 * @todo: This is a temporary fix to prevent the InvariantViolation from being thrown
-		 * 	  when the fields are not iterable. This is a temporary fix until the issue is resolved.
+		 *    when the fields are not iterable. This is a temporary fix until the issue is resolved.
 		 */
-		if (! \is_iterable($fields) && ! $fields instanceof InputObjectField ) {
-			$invalidFields = Utils::printSafe($fields);
-			throw new InvariantViolation("{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}.");
+		if ( ! \is_iterable( $fields ) && ! $fields instanceof InputObjectField ) {
+			$invalidFields = Utils::printSafe( $fields );
+
+			// translators: %1$s is the name of the type and %2$s is the invalid fields
+			throw new InvariantViolation( sprintf( esc_html__( '%1$s fields must be an iterable or a callable which returns an iterable, got: %2$s.', 'wp-graphql' ), esc_html( $this->name ), esc_html( $invalidFields ) ) );
 		}
 
 		$resolvedFields = $this->getFields();
 
-		foreach ($resolvedFields as $field) {
-			$field->assertValid($this);
+		foreach ( $resolvedFields as $field ) {
+			$field->assertValid( $this );
 		}
 	}
 }
