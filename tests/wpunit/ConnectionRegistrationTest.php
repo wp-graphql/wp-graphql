@@ -800,7 +800,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertStringEndsWith( 'should not use a query class, but is attempting to use the WP_Query query class.', $actual['errors'][0]['debugMessage'] );
+		$this->assertStringEndsWith( 'should not use a query class, but is attempting to use the WP_Query query class.', $actual['errors'][0]['extensions']['debugMessage'] );
 	}
 
 	public function testWithCustomSetQueryClass() : void {
@@ -919,7 +919,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertEquals( 'The query class NonExistentQueryClass does not exist.', $actual['errors'][0]['debugMessage'] );
+		$this->assertEquals( 'The query class NonExistentQueryClass does not exist.', $actual['errors'][0]['extensions']['debugMessage'] );
 	}
 
 	public function testWithIncompatibleSetQueryClass() : void {
@@ -954,7 +954,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertStringStartsWith( 'The query class WP_Query_Incompatible is not compatible with', $actual['errors'][0]['debugMessage'] );
+		$this->assertStringStartsWith( 'The query class WP_Query_Incompatible is not compatible with', $actual['errors'][0]['extensions']['debugMessage'] );
 	}
 
 	protected function assertValidTypes( $actual ): void {

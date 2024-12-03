@@ -161,10 +161,7 @@ class ThemeObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 				],
 				'path'       => [
 					'theme',
-				],
-				'extensions' => [
-					'category' => 'user',
-				],
+				]
 			],
 		];
 

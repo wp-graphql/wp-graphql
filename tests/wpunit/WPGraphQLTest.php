@@ -1,17 +1,19 @@
 <?php
 
-class WPGraphQLTest extends \Codeception\TestCase\WPTestCase {
+class WPGraphQLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public $instance;
 
 	public function setUp(): void {
 		parent::setUp();
-
+		$this->clearSchema();
 		$this->instance = graphql_init();
 	}
 
 	public function tearDown(): void {
 		// your tear down methods here
+
+		$this->clearSchema();
 
 		// then
 		parent::tearDown();

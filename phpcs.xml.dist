@@ -46,7 +46,7 @@
 		Tests for PHP version compatibility.
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#Recomended-additional-rulesets
 	-->
-	<config name="testVersion" value="7.1-"/>
+	<config name="testVersion" value="7.4-"/>
 
 	<!--
 		Tests for WordPress version compatibility.
