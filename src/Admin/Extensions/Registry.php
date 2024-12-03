@@ -52,7 +52,7 @@ final class Registry {
 			'wp-graphql/wp-graphql-smart-cache' => [
 				'name'        => 'WPGraphQL Smart Cache',
 				'description' => 'A smart cache for WPGraphQL that caches only the data you need.',
-				'documentation_url' => 'https://docs.wpgraphql.com/extensions/smart-cache/', // @todo.
+				'documentation_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache',
 				'plugin_url'  => 'https://wordpress.org/plugins/wp-graphql-smart-cache/',
 				'support_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
 				'author'      => [
