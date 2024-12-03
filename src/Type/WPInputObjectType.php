@@ -1,7 +1,11 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Utils\Utils;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -111,5 +115,38 @@ class WPInputObjectType extends InputObjectType {
 		 * @since 0.0.5
 		 */
 		return $fields;
+	}
+
+	/**
+	 * Validates type config and throws if one of type options is invalid.
+	 * Note: this method is shallow, it won't validate object fields and their arguments.
+	 *
+	 * @throws Error
+	 * @throws InvariantViolation
+	 */
+	public function assertValid(): void
+	{
+		Utils::assertValidName($this->name);
+
+
+		$fields = $this->config['fields'] ?? null;
+		if (\is_callable($fields)) {
+			$fields = $fields();
+		}
+
+		/**
+		 * @todo: This is a temporary fix to prevent the InvariantViolation from being thrown
+		 * 	  when the fields are not iterable. This is a temporary fix until the issue is resolved.
+		 */
+		if (! \is_iterable($fields) && ! $fields instanceof InputObjectField ) {
+			$invalidFields = Utils::printSafe($fields);
+			throw new InvariantViolation("{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}.");
+		}
+
+		$resolvedFields = $this->getFields();
+
+		foreach ($resolvedFields as $field) {
+			$field->assertValid($this);
+		}
 	}
 }
