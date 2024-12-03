@@ -623,6 +623,9 @@ class QueryAnalyzer {
 		} catch ( SyntaxError $error ) {
 			return [];
 		}
+		/**
+		 * @var array<string> $type_map
+		 */
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
 		Visitor::visit(
@@ -660,7 +663,17 @@ class QueryAnalyzer {
 				]
 			)
 		);
-		$map = array_values( array_unique( array_filter( $type_map ) ) );
+
+		/**
+		 * @var string[] $filtered
+		 */
+		$filtered = array_filter( $type_map );
+
+		/** @var string[] $unique */
+		$unique = array_unique( $filtered );
+
+		/** @var string[] $map */
+		$map = array_values( $unique );
 
 		return apply_filters( 'graphql_cache_collection_get_query_models', $map, $schema, $query, $type_info );
 	}

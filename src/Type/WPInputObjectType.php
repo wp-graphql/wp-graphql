@@ -46,14 +46,17 @@ class WPInputObjectType extends InputObjectType {
 		 *     extensionASTNodes: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
 		 * } $config
 		 */
-		$config = array_merge( [
-			'name'        => null,
-			'description' => null,
-			'fields'      => [],
-			'parseValue'  => null,
-			'astNode'     => null,
-			'extensionASTNodes' => [],
-		], $config );
+		$config = array_merge(
+			[
+				'name'              => null,
+				'description'       => null,
+				'fields'            => [],
+				'parseValue'        => null,
+				'astNode'           => null,
+				'extensionASTNodes' => [],
+			],
+			$config
+		);
 
 		$name           = $config['name'];
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );

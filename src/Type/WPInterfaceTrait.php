@@ -42,7 +42,7 @@ trait WPInterfaceTrait {
 		$new_interfaces = [];
 
 		foreach ( $interfaces as $interface ) {
-			if ( $interface instanceof InterfaceType && $interface->name !== ( $this->config['name'] ?? null ) ) {
+			if ( $interface instanceof InterfaceType && ( $this->config['name'] ?? null ) !== $interface->name ) {
 				$new_interfaces[ $interface->name ] = $interface;
 				continue;
 			}
