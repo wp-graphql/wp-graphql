@@ -69,7 +69,7 @@ class WPUnionType extends UnionType {
 		 *     name?: string|null,
 		 *     description?: string|null,
 		 *     types: callable(): array<\GraphQL\Type\Definition\ObjectType>,
-		 *     resolveType?: callable(mixed, mixed, \WPGraphQL\Type\ResolveInfo): (\GraphQL\Type\Definition\ObjectType|string|null)|null
+		 *     resolveType?: callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (\GraphQL\Type\Definition\ObjectType|string|null)|null
 		 * } */
 		$config = apply_filters( 'graphql_wp_union_type_config', $config, $this );
 
