@@ -1,7 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Exception\InvalidArgument;
+use GraphQL\Error\UserError;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Type\InterfaceType\PageInfo;
 use WPGraphQL\Utils\Utils;
@@ -203,19 +203,19 @@ class WPConnectionType {
 	 *
 	 * @param array<string,mixed> $config The config array for the connection.
 	 *
-	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
+	 * @throws \GraphQL\Error\UserError If the config is invalid.
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 	}
 
@@ -270,15 +270,15 @@ class WPConnectionType {
 	 * @throws \Exception
 	 */
 	protected function register_connection_input(): void {
-
+		// If there are no connection args, bail
 		if ( empty( $this->connection_args ) ) {
-			$input_fields = null;
-		} else {
-			$input_fields = $this->connection_args;
+			return;
 		}
 
-		// If there are no input fields, bail.
-		if ( empty( $input_fields ) || ! is_array( $input_fields ) ) {
+		$input_fields = $this->connection_args;
+
+		// If input fields not array, bail
+		if ( ! is_array( $input_fields ) ) {
 			return;
 		}
 
@@ -299,14 +299,12 @@ class WPConnectionType {
 			);
 		}
 
-		if ( ! empty( $input_fields ) ) {
-			$this->where_args = [
-				'where' => [
-					'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-					'type'        => $input_name,
-				],
-			];
-		}
+		$this->where_args = [
+			'where' => [
+				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				'type'        => $input_name,
+			],
+		];
 	}
 
 	/**
