@@ -41,7 +41,7 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
 		"phpstan/extension-installer": "^1.1",
-		"phpstan/phpstan": "~1.11.4",
+		"phpstan/phpstan": "1.12.*",
 		"phpunit/phpunit": "^9.5",
 		"php-coveralls/php-coveralls": "^2.5",
 		"slevomat/coding-standard": "^8.9",
