@@ -15,8 +15,8 @@ To submit a WPGraphQL extension for review:
 
 1. **Fork** the [WPGraphQL GitHub repository](https://github.com/wp-graphql/wp-graphql).
 2. **Create a new branch** for your extension submission.
-3. **Modify** the `extensions.json` file: Add your plugin's details (see JSON schema below for required fields).
-4. **Validate** your JSON file against the provided `extensions.json.schema`.
+3. **Modify** the `./src/Admin/Extensions/Registry.php` file: Add your plugin's details to the array returned by the `Registry::get_extensions()` method.
+4. **Validate** your change by ensuring `composer check-cs` and `composer phpstan` pass.
 5. **Submit a Pull Request (PR)** for review.
 
 ### Alternate Submission Methods
@@ -38,31 +38,31 @@ We are exploring additional submission methods:
 
 ## Validation and Review
 
-- **JSON Schema**: Submissions must adhere to the `./schemas/extensions.json` to ensure required fields are included.
-- **GitHub Actions**: Automated workflows will validate JSON files and flag issues for maintainers.
 - **Basic Smoke-testing**: An approving maintainer will perform basic smoke-tests to ensure the extension integrates with WPGraphQL as expected. Documentation of this testing will be added to the PR for internal records.
 
 ---
 
 ## Example Extension Submission
 
-```jsonc
-{
-   "extensions": [
-      // ... other extensions
-      {
-         "name": "Plugin Name",                         // Required: Name of the plugin
-         "description": "Short description here",       // Required: Brief description (limit: 150 characters)
-         "plugin_url": "https://plugin-url.com",        // Required: URL to the plugin repository or download
-         "support_url": "https://support-url.com",      // Required: URL for user support
-         "repo_url": "https://repo-url.com",            // Optional: URL to the plugin's source repository
-         "documentation_url": "https://docs-url.com",   // Required: URL to the plugin's documentation
-         "author": {
-            "name": "Author Name",                     // Required: Author or maintainer name
-            "homepage": "https://author-homepage.com"  // Required: URL to the author's profile or homepage
-         }
-      }
-   ]
+```php
+// ./src/Admin/Extensions/Registry.php
+public static function get_extenions(): array {
+	return [
+		// ... other extensions
+		'my-unique-prefix/my-new-extension' => [ // Unique identifier for the extension, this should be placed alphabetically in the list.
+			'name' => 'My New Extension', // Required: Name of the plugin
+			'description' => 'This is a new extension that I created.', // Required: Brief description (limit: 150 characters)
+			'plugin_url' => 'https://example.com/my-new-extension', // Required: URL to the plugin repository or download
+			'repo_url' => 'https://wordpress.org/plugins/my-new-extension', // Optional: URL to the plugin's source repository
+			'support_url' => 'https://example.com/my-new-extension/support', // Required: URL for user support
+			'documentation_url' => 'https://example.com/my-new-extension/docs', // Required: URL to the plugin's documentation
+			'author' => [
+				'name' => 'My Name', // Required: Author or maintainer name
+				'homepage' => 'https://example.com/my-homepage', // Optional: URL to the author's profile or homepage
+			],
+		],
+		// ... other extensions
+	];
 }
 ```
 

@@ -25,8 +25,7 @@
 		"php": "^7.1 || ^8.0",
 		"webonyx/graphql-php": "14.11.10",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "1.2.1",
-		"justinrainbow/json-schema": "^5.2"
+		"appsero/client": "1.2.1"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
