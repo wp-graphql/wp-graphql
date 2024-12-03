@@ -225,7 +225,7 @@ final class Extensions {
 	}
 
 	/**
-	 * Validate an extension based on the schemas/extensions.json schema.
+	 * Validate an extension.
 	 *
 	 * Sanitization ensures that the values are correctly types, so we just need to check if the required fields are present.
 	 *
