@@ -21,10 +21,40 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array<string,mixed>              $config
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @param array<string,mixed>              $config The Config to set up an Input Type
+	 * @phpstan-param array{
+	 *     name?: string|null,
+	 *     description?: string|null,
+	 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
+	 *     parseValue?: callable(array<string, mixed>): mixed,
+	 *     astNode?: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+	 *     extensionASTNodes?: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
+	 * } $config
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
+
+		/**
+		 * Merge the config with the default config
+		 *
+		 * @var array{
+		 *     name: string|null,
+		 *     description: string|null,
+		 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
+		 *     parseValue: callable(array<string, mixed>): mixed,
+		 *     astNode: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+		 *     extensionASTNodes: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
+		 * } $config
+		 */
+		$config = array_merge( [
+			'name'        => null,
+			'description' => null,
+			'fields'      => [],
+			'parseValue'  => null,
+			'astNode'     => null,
+			'extensionASTNodes' => [],
+		], $config );
+
 		$name           = $config['name'];
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
