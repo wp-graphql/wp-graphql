@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.30.0
+
+- 
+
 ## 1.29.2
 
 - fix: move assets/blueprint.json under .wordpress-org directory
