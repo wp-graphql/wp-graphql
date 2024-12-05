@@ -40,6 +40,8 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 							handle
 						}
 						extraData
+						group
+						groupLocation
 						handle
 						id
 						src
@@ -52,6 +54,12 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 	}
 
 	public function testForwardPagination() {
+		// Mocks the values of the ScriptLoadingGroupLocationEnum.
+		$location_enum_mock = [
+			0 => 'HEADER',
+			1 => 'FOOTER',
+		];
+
 		wp_set_current_user( $this->admin );
 		$query = $this->getQuery();
 
@@ -76,11 +84,14 @@ class RegisteredScriptConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WP
 		$expected_after  = ! empty( $expected->extra['after'] ) ? ( array_filter( $expected->extra['after'], 'is_string' ) ?: null ) : null;
 		$expected_before = ! empty( $expected->extra['before'] ) ? ( array_filter( $expected->extra['before'], 'is_string' ) ?: null ) : null;
 
+
 		$this->assertEquals( $expected_after, $actual['data']['registeredScripts']['nodes'][0]['after'] );
 		$this->assertEquals( $expected_before, $actual['data']['registeredScripts']['nodes'][0]['before'] );
 		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredScripts']['nodes'][0]['conditional'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredScripts']['nodes'][0]['handle'] );
 		$this->assertEquals( ! empty( $expected->extra['data'] ) ? $expected->extra['data'] : null, $actual['data']['registeredScripts']['nodes'][0]['extraData'] );
+		$this->assertEquals( isset( $expected->extra['group'] ) ? (int) $expected->extra['group'] : 0, $actual['data']['registeredScripts']['nodes'][0]['group'] );
+		$this->assertEquals( $location_enum_mock[ isset( $expected->extra['group'] ) ? (int) $expected->extra['group'] : 0 ], $actual['data']['registeredScripts']['nodes'][0]['groupLocation'] );
 		$this->assertEquals( $expected->src, $actual['data']['registeredScripts']['nodes'][0]['src'] );
 		$this->assertEquals( ! empty( $expected->extra['strategy'] ) ? WPEnumType::get_safe_name( $expected->extra['strategy'] ) : null, $actual['data']['registeredScripts']['nodes'][0]['strategy'] );
 		$this->assertEquals( $expected->ver ?: $wp_scripts->default_version, $actual['data']['registeredScripts']['nodes'][0]['version'] );
