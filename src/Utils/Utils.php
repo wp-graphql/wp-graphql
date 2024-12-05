@@ -387,4 +387,35 @@ class Utils {
 
 		return is_object( $post_id ) ? (int) $post_id->ID : (int) $post_id;
 	}
+
+	/**
+	 * Get the handles of all scripts enqueued for a given content node
+	 *
+	 * @param array<string, string> $queue      List of scripts for a given content node.
+	 * @param \WP_Dependencies      $wp_assets  A Global assets object.
+	 *
+	 * @return string[]
+	 */
+	public static function flatten_enqueued_assets_list( array $queue, $wp_assets ) {
+		$registered_scripts = $wp_assets->registered;
+		$handles            = [];
+		foreach ( $queue as $handle ) {
+			if ( empty( $registered_scripts[ $handle ] ) ) {
+				continue;
+			}
+
+			/** @var \_WP_Dependency $script */
+			$script    = $registered_scripts[ $handle ];
+			$handles[] = $script->handle;
+
+			$dependencies = self::flatten_enqueued_assets_list( $script->deps, $wp_assets );
+			if ( empty( $dependencies ) ) {
+				continue;
+			}
+
+			array_unshift( $handles, ...$dependencies );
+		}
+
+		return array_values( array_unique( $handles ) );
+	}
 }
