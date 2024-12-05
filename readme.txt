@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.1
-Stable tag: 1.29.2
+Stable tag: 1.30.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,38 +16,21 @@ WPGraphQL adds a flexible and powerful GraphQL API to WordPress, enabling effici
 
 WPGraphQL is a free, open-source WordPress plugin that provides an extendable GraphQL schema and API for any WordPress site.
 
-Below are some links to help you get started with WPGraphQL
+**Get Started**
 
-- <a href="https://www.wpgraphql.com" target="_blank">WPGraphQL.com</a>
-- <a href="https://wpgraphql.com/docs/quick-start" target="_blank">Quick Start Guide</a>
-- <a href="https://wpgraphql.com/docs/intro-to-graphql" target="_blank">Intro to GraphQL</a>
-- <a href="https://wpgraphql.com/docs/intro-to-wordpress" target="_blank">Intro to WordPress</a>
-- <a href="https://discord.gg/AGVBqqyaUY" target="_blank">Join the WPGraphQL community on Discord</a>
+1. Install WPGraphQL: `wp plugin install wp-graphql --activate`
+2. Try it out: [Live Demo](https://repl.wpgraphql.com)
+3. Read the [Quick Start Guide](https://wpgraphql.com/docs/quick-start).
+4. Join the [Community on Discord](https://discord.gg/AGVBqqyaUY) and [Star the Repo](https://github.com/wp-graphql/wp-graphql)!
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/TiDD8k-_gzo?si=DIfA4HKRFHfZ2STu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+**Key Features**
 
-= Build rich JavaScript applications with WordPress and GraphQL =
+- **Flexible API**: Query posts, pages, custom post types, taxonomies, users, and more.
+- **Extendable Schema**: Easily add functionality with WPGraphQL’s API, enabling custom integrations.
+- **Compatible with Modern Frameworks**: Works seamlessly with [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Astro](https://docs.astro.build/en/guides/cms/wordpress/), [SvelteKit](https://www.okupter.com/blog/headless-wordpress-graphql-sveltekit), and more.
+- **Optimized Performance**: Fetch exactly the data you need in a single query. Boost performance with [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache).
 
-WPGraphQL allows you to separate your CMS from your presentation layer. Content creators can use the CMS they know, while developers can use the frameworks and tools they love.
-
-WPGraphQL works great with:
-
-- [Gatsby](https://gatsbyjs.com)
-- [Apollo Client](https://www.apollographql.com/docs/react/)
-- [NextJS](https://nextjs.org/)
-- ...and more
-
-= Query what you need. Get exactly that. =
-
-With GraphQL, the client makes declarative queries, asking for the exact data needed, and in exactly what was asked for is given in response, nothing more. This allows the client have control over their application, and allows the GraphQL server to perform more efficiently by only fetching the resources requested.
-
-= Fetch many resources in a single request. =
-
-GraphQL queries allow access to multiple root resources, and also smoothly follow references between connected resources. While typical a REST API would require round-trip requests to many endpoints, GraphQL APIs can get all the data your app needs in a single request. Apps using GraphQL can be quick even on slow mobile network connections.
-
-= Powerful Debugging Tools =
-
-WPGraphQL ships with GraphiQL in your WordPress dashboard, allowing you to browse your site's GraphQL Schema and test Queries and Mutations.
+WPGraphQL is becoming a [Canonical Plugin](https://wordpress.org/news/2024/10/wpgraphql/) on WordPress.org, ensuring long-term support and a growing community of users and contributors.
 
 = Upgrading =
 
@@ -65,29 +48,27 @@ You can read more about the details of Semver at semver.org
 
 == Frequently Asked Questions ==
 
-= Can I use WPGraphQL with xx JavaScript Framework? =
+= How is WPGraphQL funded? =
+WPGraphQL is free and open-source. It is supported by contributors, backers, and sponsors, including Automattic, which provides significant support as WPGraphQL becomes a Canonical Plugin.
 
-WPGraphQL turns your WordPress site into a GraphQL API. Any client that can make http requests to the GraphQL endpoint can be used to interact with WPGraphQL.
+Learn more about supporting WPGraphQL on [Open Collective](https://opencollective.com/wp-graphql).
 
-= Where do I get WPGraphQL Swag? =
+= Can I use WPGraphQL with xx JavaScript framework? =
+Yes! WPGraphQL works with any client that can make HTTP requests to the GraphQL endpoint. It integrates seamlessly with frameworks like [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Gatsby](https://gatsbyjs.com), [Astro](https://docs.astro.build/en/guides/cms/wordpress/), and more.
 
-WPGraphQL Swag is available on the Gatsby Swag store.
+= Where can I get support? =
+You can join the WPGraphQL [Discord community](https://discord.gg/AGVBqqyaUY) for support, discussions, and announcements.
 
-= What's the relationship between Gatsby, WP Engine, and WPGraphQL? =
-
-[WP Engine](https://wpengine.com/) is the employer of Jason Bahl, the creator and maintainer of WPGraphQL. He was previously employed by [Gatsby](https://gatsbyjs.com).
-
-You can read more about this [here](https://www.wpgraphql.com/2021/02/07/whats-next-for-wpgraphql/).
-
-Gatsby and WP Engine both believe that a strong GraphQL API for WordPress is a benefit for the web. Neither Gatsby or WP Engine are required to be used with WPGraphQL, however it's important to acknowledge and understand what's possible because of their investments into WPGraphQL and the future of headless WordPress!
+= How does WPGraphQL handle privacy and telemetry? =
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**. This helps improve the plugin while respecting user privacy.
 
 == Privacy Policy ==
 
-WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster & make product improvements.
+WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster and make product improvements.
 
-Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**. We collect the data to ensure a great user experience for all our users.
+Appsero SDK **does not gather any data by default.** The SDK starts gathering basic telemetry data **only when a user allows it via the admin notice**.
 
-Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without confirmation from users in any case.**
+Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
@@ -282,7 +263,20 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 1.29.3 =
+
+**Chores / Bugfixes**
+
+- [#3245](https://github.com/wp-graphql/wp-graphql/pull/3245): fix: update appsero/client to v2.0.4 to prevent conflicts with WP6.7
+- [#3243](https://github.com/wp-graphql/wp-graphql/pull/3243): chore: fix Composer autoloader for WPGraphQL.php
+- [#3242](https://github.com/wp-graphql/wp-graphql/pull/3242): chore: update Composer dev deps
+- [#3235](https://github.com/wp-graphql/wp-graphql/pull/3235): chore: general updates to README.md and readme.txt
+- [#3234](https://github.com/wp-graphql/wp-graphql/pull/3234): chore: update quick-start.md to provide more clarity around using wpackagist
+
+
 = 1.29.2 =
+
+**Chores / Bugfixes**
 
 - fix: move assets/blueprint.json under .wordpress-org directory
 
