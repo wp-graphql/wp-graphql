@@ -2508,4 +2508,74 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 	}
+
+	/**
+	 * @see: https://github.com/wp-graphql/wp-graphql/issues/3240
+	 * @return void
+	 */
+	public function testQueryPostWithCustomPermalinkStructure() {
+
+		$post_id = $this->factory()->post->create([
+			'post_type'   => 'post',
+			'post_status' => 'publish',
+			'post_name'   => 'test-post',
+		]);
+
+		$this->set_permalink_structure( '/news/%postname%/' );
+
+		$query = '
+		query GetNodeByUri($uri: String!) {
+		  nodeByUri(uri: $uri) {
+		    __typename
+		    ... on Page {
+		      id
+		      title
+		      slug
+		    }
+		    ... on Post {
+		      id
+		      title
+		      slug
+		    }
+		    uri
+		  }
+		}
+		';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => '/news/test-post',
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertQuerySuccessful( $actual, [
+			$this->expectedField( 'nodeByUri.__typename', 'Post' ),
+			$this->expectedField( 'nodeByUri.slug', 'test-post' ),
+		] );
+
+		// query again with just the slug instead of full uri
+		$query2 = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => 'test-post',
+				],
+			]
+		);
+
+		// The query should succeed, but should return null as no post should have been found.
+		// WordPress will 404 here as there is no post at `/test` due to the permalink configuration,
+		// so we should return null
+		$this->assertArrayNotHasKey( 'errors', $query2 );
+		$this->assertQuerySuccessful( $query2, [
+			$this->expectedField( 'nodeByUri', self::IS_NULL ),
+		] );
+
+		wp_delete_post( $post_id, true );
+
+	}
 }
