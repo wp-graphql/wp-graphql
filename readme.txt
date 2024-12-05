@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 5.0
 Tested up to: 6.6
 Requires PHP: 7.1
-Stable tag: 1.29.2
+Stable tag: 1.30.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -263,7 +263,20 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 1.29.3 =
+
+**Chores / Bugfixes**
+
+- [#3245](https://github.com/wp-graphql/wp-graphql/pull/3245): fix: update appsero/client to v2.0.4 to prevent conflicts with WP6.7
+- [#3243](https://github.com/wp-graphql/wp-graphql/pull/3243): chore: fix Composer autoloader for WPGraphQL.php
+- [#3242](https://github.com/wp-graphql/wp-graphql/pull/3242): chore: update Composer dev deps
+- [#3235](https://github.com/wp-graphql/wp-graphql/pull/3235): chore: general updates to README.md and readme.txt
+- [#3234](https://github.com/wp-graphql/wp-graphql/pull/3234): chore: update quick-start.md to provide more clarity around using wpackagist
+
+
 = 1.29.2 =
+
+**Chores / Bugfixes**
 
 - fix: move assets/blueprint.json under .wordpress-org directory
 
