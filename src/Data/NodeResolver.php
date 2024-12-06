@@ -213,7 +213,6 @@ class NodeResolver {
 		// Resolve Post Objects.
 		if ( $queried_object instanceof WP_Post ) {
 
-
 			// If Page for Posts is set, we need to return the Page archive, not the page.
 			if ( $query->is_posts_page ) {
 				// If were intentionally querying for a something other than a ContentType, we need to return null instead of the archive.
@@ -501,7 +500,6 @@ class NodeResolver {
 			}
 		}
 
-
 		/**
 		 * Filters the query variables allowed before processing.
 		 *
@@ -604,8 +602,6 @@ class NodeResolver {
 
 		// We don't need the GraphQL args anymore.
 		unset( $this->wp->query_vars['graphql'] );
-
-
 
 		do_action_ref_array( 'parse_request', [ &$this->wp ] );
 
