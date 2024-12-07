@@ -29,17 +29,19 @@ jobs:
       fail-fast: false
       matrix:
         php: [ '8.2', '8.1' ]
-        wordpress: [ '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
+        wordpress: [ '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
         multisite: [ false ]
         include:
           # Latest WordPress + PHP.
-          - wordpress: '6.6'
+          - wordpress: '6.7'
             php: '8.3'
             coverage: 1
-          - wordpress: '6.6'
+          - wordpress: '6.7'
             php: '8.3'
             multisite: true
           # WordPress versions above the PHP testing matrix.
+          - wordpress: '6.6'
+            php: '8.3'
           - wordpress: '6.5'
             php: '8.3'
           # Lowest PHP version for WordPress versions in matrix.
