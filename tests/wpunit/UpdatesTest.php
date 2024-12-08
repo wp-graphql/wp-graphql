@@ -14,6 +14,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'plugin-with-headers',
 			'plugin-with-requires',
 			'plugin-with-meta',
+			'plugin-incompatible-version',
 		];
 
 		// Cleanup any test plugins that may have been left behind.
@@ -50,8 +51,11 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	private function cleanup_test_plugin( string $plugin ) {
 		$plugin_dir = WP_PLUGIN_DIR . '/' . $plugin;
+
 		@unlink( $plugin_dir . '/' . $plugin . '.php' );
 		@rmdir( $plugin_dir );
+
+		$this->deactivate_plugin( $plugin . '/' . $plugin . '.php' );
 	}
 
 
@@ -60,8 +64,6 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testPluginHeaders(): void {
 		$actual = get_plugins();
-
-		codecept_debug( print_r( $actual, true ) );
 
 		$this->assertArrayHasKey( 'wp-graphql/wp-graphql.php', $actual, 'WPGraphQL Plugin not found.' );
 
@@ -159,6 +161,11 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test updating with a `Requires Plugin` dependency.
 	 */
 	public function testUpdateWithRequiresPluginDep(): void {
+		// Only test on WP 6.5+.
+		if ( ! is_wp_version_compatible( '6.5' ) ) {
+			$this->markTestSkipped( 'Requires Plugin header does not exist prior to < 6.5.' );
+		}
+
 		$this->install_test_plugin( 'plugin-with-requires' );
 		wp_cache_delete( 'plugins', 'plugins' );
 
@@ -264,6 +271,67 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup.
 		$this->cleanup_test_plugin( 'plugin-with-meta' );
+		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+	}
+
+	/**
+	 * Test updating with an incompatible plugin.
+	 */
+	public function testUpdateWithIncompatiblePlugin(): void {
+		$this->install_test_plugin( 'plugin-incompatible-version' );
+
+		add_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
+
+		// Test with a deactivated incompatible version.
+		$updates = new Updates();
+		$updates->init();
+
+		$plugin_data = $this->get_plugin_update_data( '90.0.0' );
+
+		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
+
+		$this->assertTrue( $actual, 'maybe_allow_autoupdates should return true if the incompatible plugin is deactivated.' );
+
+		// Test with an active incompatible version.
+		$this->activate_plugin( 'plugin-incompatible-version/plugin-incompatible-version.php' );
+
+		$updates = new Updates();
+		$updates->init();
+
+		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
+
+		$this->assertFalse( $actual, 'maybe_allow_autoupdates should return false if the incompatible plugin is active.' );
+
+		// Test with an incompatible minor update.
+		$updates = new Updates();
+		$updates->init();
+
+		$plugin_data = $this->get_plugin_update_data( '99.0.0' );
+
+		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
+
+		$this->assertFalse( $actual, 'maybe_allow_autoupdates should return false if the incompatible plugin is active.' );
+
+		// Test with an incompatible patch update.
+		$plugin_data = $this->get_plugin_update_data( '99.2.0' );
+
+		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
+
+		$this->assertFalse( $actual, 'maybe_allow_autoupdates should return false if the incompatible plugin is active.' );
+
+		// Test with compatible minor update.
+		$updates = new Updates();
+		$updates->init();
+
+		$plugin_data = $this->get_plugin_update_data( '99.99.99' );
+
+		$actual = $updates->maybe_allow_autoupdates( true, $plugin_data );
+
+		$this->assertTrue( $actual, 'maybe_allow_autoupdates should return true since the plugin is compatible.' );
+
+		// Cleanup.
+		$this->cleanup_test_plugin( 'plugin-incompatible-version' );
+		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
 	}
 
 	/**
@@ -277,5 +345,45 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'plugin'      => 'wp-graphql/wp-graphql.php',
 			'new_version' => $version,
 		];
+	}
+
+	/**
+	 * Activates a plugin based on its dir/filename
+	 *
+	 * @param string $plugin
+	 */
+	private function activate_plugin( $plugin ): void {
+		$current = get_option( 'active_plugins' );
+		if ( ! in_array( $plugin, $current, true ) ) {
+			$current[] = $plugin;
+			sort( $current );
+			$success = update_option( 'active_plugins', $current );
+
+			$GLOBALS['wp_tests_options']['active_plugins'] = $current;
+
+			if ( ! $success ) {
+				codecept_debug( 'Failed to activate plugin.' );
+			}
+		}
+	}
+
+	/**
+	 * Deactivates a plugin based on its dir/filename
+	 *
+	 * @param string $plugin
+	 */
+	private function deactivate_plugin( $plugin ): void {
+		$current = get_option( 'active_plugins' );
+		if ( in_array( $plugin, $current, true ) ) {
+			$current = array_diff( $current, [ $plugin ] );
+			sort( $current );
+			$success = update_option( 'active_plugins', $current );
+
+			$GLOBALS['wp_tests_options']['active_plugins'] = $current;
+
+			if ( ! $success ) {
+				codecept_debug( 'Failed to deactivate plugin.' );
+			}
+		}
 	}
 }
