@@ -26,6 +26,20 @@ class UpdateChecker {
 	public const TESTED_UP_TO_HEADER = 'WPGraphQL tested up to';
 
 	/**
+	 * The current version of the plugin.
+	 *
+	 * @var string
+	 */
+	public $current_version = WPGRAPHQL_VERSION;
+
+	/**
+	 * The new version of the available.
+	 *
+	 * @var string
+	 */
+	public $new_version;
+
+	/**
 	 * The local cache of _all_ plugins.
 	 *
 	 * @var ?array<string,array<string,mixed>>
@@ -53,12 +67,6 @@ class UpdateChecker {
 	 */
 	private $plugin_data;
 
-	/**
-	 * The new version of WPGraphQL available.
-	 *
-	 * @var string
-	 */
-	public $new_version;
 
 	/**
 	 * The release type of the new version of WPGraphQL.
@@ -75,7 +83,7 @@ class UpdateChecker {
 	public function __construct( $plugin_data ) {
 		$this->plugin_data  = $plugin_data;
 		$this->new_version  = property_exists( $plugin_data, 'new_version' ) ? $plugin_data->new_version : '';
-		$this->release_type = SemVer::get_release_type( WPGRAPHQL_VERSION, $this->new_version );
+		$this->release_type = SemVer::get_release_type( $this->current_version, $this->new_version );
 	}
 
 	/**
@@ -89,14 +97,20 @@ class UpdateChecker {
 			return false;
 		}
 
+		// If there are active incompatible plugins, don't allow the update.
+		$incompatible_plugins = $this->get_incompatible_plugins( $this->new_version, true );
+
+		if ( ! empty( $incompatible_plugins ) ) {
+			return false;
+		}
+
 		// If allow untested autoupdates enabled, allow the update.
 		if ( $this->should_allow_untested_autoupdates() ) {
 			return $default_value;
 		}
 
 		$untested_release_type = $this->get_untested_release_type();
-
-		$untested_plugins = $this->get_untested_plugins( $untested_release_type );
+		$untested_plugins      = $this->get_untested_plugins( $untested_release_type );
 
 		if ( ! empty( $untested_plugins ) ) {
 			return false;
@@ -104,9 +118,96 @@ class UpdateChecker {
 
 		return $default_value;
 	}
+	/**
+	 * Gets a list of plugins that use WPGraphQL as a dependency and are not tested with the current version of WPGraphQL.
+	 *
+	 * @param string $release_type The release type of the current version of WPGraphQL.
+	 *
+	 * @return array<string,array<string,mixed>> The array of untested plugin data.
+	 * @throws \InvalidArgumentException If the WPGraphQL version is invalid.
+	 */
+	public function get_untested_plugins( string $release_type ): array {
+		$version = SemVer::parse( $this->new_version );
+
+		if ( null === $version ) {
+			throw new \InvalidArgumentException( esc_html__( 'Invalid WPGraphQL version', 'wp-graphql' ) );
+		}
+
+		$dependents = array_merge(
+			$this->get_dependents(),
+			$this->get_possible_dependents()
+		);
+
+		$untested_plugins = [];
+		foreach ( $dependents as $file => $plugin ) {
+			// If the plugin doesn't have a version header, it's compatibility is unknown.
+			if ( empty( $plugin[ self::TESTED_UP_TO_HEADER ] ) ) {
+				$plugin[ self::TESTED_UP_TO_HEADER ] = __( 'Unknown', 'wp-graphql' );
+
+				$untested_plugins[ $file ] = $plugin;
+				continue;
+			}
+
+			// Parse the tested version.
+			$tested_version = SemVer::parse( $plugin[ self::TESTED_UP_TO_HEADER ] );
+			if ( null === $tested_version ) {
+				continue;
+			}
+
+			// If the major version is greater, the plugin is untested.
+			if ( $version['major'] > $tested_version['major'] ) {
+				$untested_plugins[ $file ] = $plugin;
+				continue;
+			}
+
+			// If the minor version is greater, the plugin is untested.
+			if ( 'major' !== $release_type && $version['minor'] > $tested_version['minor'] ) {
+				$untested_plugins[ $file ] = $plugin;
+				continue;
+			}
+
+			// If the patch version is greater, the plugin is untested.
+			if ( 'major' !== $release_type && 'minor' !== $release_type && $version['patch'] > $tested_version['patch'] ) {
+				$untested_plugins[ $file ] = $plugin;
+				continue;
+			}
+		}
+
+		return $untested_plugins;
+	}
+
+	/**
+	 * Get incompatible plugins.
+	 *
+	 * @param string $version The current plugin version.
+	 * @param bool   $active_only Whether to only return active plugins. Default false.
+	 *
+	 * @return array<string,array<string,mixed>> The array of incompatible plugins.
+	 */
+	public function get_incompatible_plugins( string $version = WPGRAPHQL_VERSION, bool $active_only = false ): array {
+		$dependents = $this->get_dependents();
+		$plugins    = [];
+
+		foreach ( $dependents as $file => $plugin ) {
+			// Skip if the plugin is not active or is not incompatible.
+			if ( ! $this->is_incompatible_dependent( $file, $version ) ) {
+				continue;
+			}
+
+			// If we only want active plugins, skip if the plugin is not active.
+			if ( $active_only && ! is_plugin_active( $file ) ) {
+				continue;
+			}
+
+			$plugins[ $file ] = $plugin;
+		}
+
+		return $plugins;
+	}
 
 	/**
 	 * Returns whether to allow major plugin autoupdates.
+	 *
 	 * Defaults to false.
 	 *
 	 * @uses 'wpgraphql_enable_major_autoupdates' filter.
@@ -120,7 +221,7 @@ class UpdateChecker {
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
 		 */
-		return apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, WPGRAPHQL_VERSION, $this->plugin_data );
+		return apply_filters( 'wpgraphql_enable_major_autoupdates', false, $this->new_version, $this->current_version, $this->plugin_data );
 	}
 
 	/**
@@ -142,7 +243,7 @@ class UpdateChecker {
 		 * @param string $current_version The current WPGraphQL version number.
 		 * @param object $plugin_data     The plugin data object.
 		 */
-		return apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, WPGRAPHQL_VERSION, $this->plugin_data );
+		return apply_filters( 'wpgraphql_enable_untested_autoupdates', $should_allow, $this->release_type, $this->new_version, $this->current_version, $this->plugin_data );
 	}
 
 	/**
@@ -165,65 +266,6 @@ class UpdateChecker {
 
 		return $release_type;
 	}
-
-	/**
-	 * Gets a list of plugins that use WPGraphQL as a dependency and are not tested with the current version of WPGraphQL.
-	 *
-	 * @param string $release_type The release type of the current version of WPGraphQL.
-	 *
-	 * @return array<string,array<string,mixed>> The array of untested plugin data.
-	 * @throws \InvalidArgumentException If the WPGraphQL version is invalid.
-	 */
-	public function get_untested_plugins( string $release_type ): array {
-		$version = SemVer::parse( $this->new_version );
-
-		if ( null === $version ) {
-			throw new \InvalidArgumentException( esc_html__( 'Invalid WPGraphQL version', 'wp-graphql' ) );
-		}
-
-		$dependents       = array_merge(
-			$this->get_dependents(),
-			$this->get_possible_dependents()
-		);
-		$untested_plugins = [];
-
-		foreach ( $dependents as $file => $plugin ) {
-			// If the plugin doesn't have a version header, it's compatibility is unknown.
-			if ( empty( $plugin[ self::TESTED_UP_TO_HEADER ] ) ) {
-				$plugin[ self::TESTED_UP_TO_HEADER ] = __( 'Unknown', 'wp-graphql' );
-
-				$untested_plugins[ $file ] = $plugin;
-				continue;
-			}
-
-			// Parse the tested version.
-			$plugin_version = SemVer::parse( $plugin[ self::TESTED_UP_TO_HEADER ] );
-			if ( null === $plugin_version ) {
-				continue;
-			}
-
-			// If the major version is greater, the plugin is untested.
-			if ( $version['major'] <=> $plugin_version['major'] ) {
-				$untested_plugins[ $file ] = $plugin;
-				continue;
-			}
-
-			// If the minor version is greater, the plugin is untested.
-			if ( 'major' !== $release_type && $version['minor'] <=> $plugin_version['minor'] ) {
-				$untested_plugins[ $file ] = $plugin;
-				continue;
-			}
-
-			// If the patch version is greater, the plugin is untested.
-			if ( 'major' !== $release_type && 'minor' !== $release_type && $version['patch'] <=> $plugin_version['patch'] ) {
-				$untested_plugins[ $file ] = $plugin;
-				continue;
-			}
-		}
-
-		return $untested_plugins;
-	}
-
 	/**
 	 * Gets the plugins that use WPGraphQL as a dependency.
 	 *
@@ -311,6 +353,56 @@ class UpdateChecker {
 	}
 
 	/**
+	 * Checks whether a dependency is incompatible with a specific version of WPGraphQL.
+	 *
+	 * @param string $plugin_path The plugin path used as the key in the plugins array.
+	 * @param string $version     The current version to check against.
+	 */
+	private function is_incompatible_dependent( string $plugin_path, string $version = WPGRAPHQL_VERSION ): bool {
+		$current_version = SemVer::parse( $version );
+
+		if ( null === $current_version ) {
+			return false;
+		}
+
+		$all_plugins = $this->get_all_plugins();
+		$plugin_data = $all_plugins[ $plugin_path ] ?? null;
+
+		// Bail early if the plugin doesn't exist.
+		if ( empty( $plugin_data ) ) {
+			return false;
+		}
+
+		// If the plugin doesn't have a version header, it's compatibility is unknown.
+		if ( empty( $plugin_data[ self::VERSION_HEADER ] ) ) {
+			return false;
+		}
+
+		// Parse the version.
+		$minimum_version = SemVer::parse( $plugin_data[ self::VERSION_HEADER ] );
+
+		if ( null === $minimum_version ) {
+			return false;
+		}
+
+		// Check if the plugin is incompatible.
+		if ( $minimum_version['major'] > $current_version['major'] ) {
+			return true;
+		}
+
+		if ( $minimum_version['minor'] > $current_version['minor'] ) {
+			return true;
+		}
+
+		if ( $minimum_version['patch'] > $current_version['patch'] ) {
+			return true;
+		}
+
+		// The plugin is compatible.
+		return false;
+	}
+
+	/**
 	 * Checks whether the plugin is "possibly" using WPGraphQL as a dependency.
 	 *
 	 * I.e if it's in the plugin name or description.
@@ -370,5 +462,18 @@ class UpdateChecker {
 		);
 
 		return in_array( 'wp-graphql', $required_plugins, true );
+	}
+
+	/**
+	 * Outputs the shared modal JS for the update checkers.
+	 *
+	 * @todo WIP.
+	 */
+	public function modal_js(): void {
+		?>
+		<script>
+			// @todo WIP.
+		</script>
+		<?php
 	}
 }

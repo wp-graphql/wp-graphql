@@ -26,6 +26,11 @@ final class Updates {
 		// Load the Update Checker for the current screen.
 		add_action( 'current_screen', [ $this, 'load_screen_checker' ] );
 
+		// Disable incompatible plugins.
+		add_action( 'admin_init', [ $this, 'disable_incompatible_plugins' ] );
+		add_action( 'graphql_activate', [ $this, 'disable_incompatible_plugins' ] );
+		add_action( 'admin_notices', [ $this, 'disable_incompatible_plugins_notice' ] );
+
 		// @todo Remove.
 		$this->temp_stub_update_available();
 	}
@@ -135,5 +140,64 @@ final class Updates {
 		}
 
 		set_site_transient( 'update_plugins', $update_plugins );
+	}
+
+	/**
+	 * Disables plugins that don't meet the minimum `Requires WPGraphQL` version.
+	 */
+	public function disable_incompatible_plugins(): void {
+		// Initialize the Update Checker.
+		$update_checker = new UpdateChecker( (object) get_plugins()['wp-graphql/wp-graphql.php'] );
+
+		// Get the incompatible plugins.
+		$incompatible_plugins = $update_checker->get_incompatible_plugins( WPGRAPHQL_VERSION, true );
+
+		// Deactivate the incompatible plugins.
+		$notice_data = [];
+		foreach ( $incompatible_plugins as $plugin ) {
+			$notice_data[] = [
+				'name'    => $plugin['Name'],
+				'version' => $plugin[ UpdateChecker::VERSION_HEADER ],
+			];
+			deactivate_plugins( $plugin['plugin'] );
+		}
+
+		// Display a notice to the user.
+		if ( ! empty( $notice_data ) ) {
+			set_transient( 'wpgraphql_incompatible_plugins', $notice_data );
+		}
+	}
+
+	/**
+	 * Displays a notice to the user if incompatible plugins were deactivated.
+	 *
+	 * When the notice is dismissed, the transient is deleted.
+	 */
+	public function disable_incompatible_plugins_notice(): void {
+		$incompatible_plugins = get_transient( 'wpgraphql_incompatible_plugins' );
+
+		if ( empty( $incompatible_plugins ) ) {
+			return;
+		}
+
+		$notice = sprintf(
+			'<p>%s</p>',
+			__( 'The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a higher version to reactivate these plugins.', 'wp-graphql' )
+		);
+
+		$notice .= '<ul>';
+		foreach ( $incompatible_plugins as $plugin ) {
+			$notice .= sprintf(
+				'<li>%s (requires at least WPGraphQL: v%s)</li>',
+				esc_html( $plugin['name'] ),
+				esc_html( $plugin['version'] )
+			);
+		}
+		$notice .= '</ul>';
+
+		echo wp_kses( '<div class="notice notice-error is-dismissable">%s</div>', $notice );
+
+		// Delete once the notice is displayed.
+		delete_transient( 'wpgraphql_incompatible_plugins' );
 	}
 }
