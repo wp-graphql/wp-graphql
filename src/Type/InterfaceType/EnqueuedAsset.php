@@ -95,7 +95,7 @@ class EnqueuedAsset {
 					],
 					'dependencies' => [
 						'type'        => [ 'list_of' => 'EnqueuedAsset' ],
-						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+						'description' => __( 'Handles of dependencies needed to use this asset', 'wp-graphql' ),
 					],
 					'id'           => [
 						'type'        => [ 'non_null' => 'ID' ],
@@ -122,6 +122,17 @@ class EnqueuedAsset {
 						'deprecationReason' => __( 'Use `EnqueuedScript.extraData` instead.', 'wp-graphql' ),
 						'resolve'           => static function ( $asset ) {
 							return isset( $asset->extra['data'] ) ? $asset->extra['data'] : null;
+						},
+					],
+					'group'        => [
+						'type'        => 'Integer',
+						'description' => __( 'The loading group to which this asset belongs.', 'wp-graphql' ),
+						'resolve'     => static function ( $asset ) {
+							if ( ! isset( $asset->extra['group'] ) ) {
+								return 0;
+							}
+
+							return absint( $asset->extra['group'] );
 						},
 					],
 				],
