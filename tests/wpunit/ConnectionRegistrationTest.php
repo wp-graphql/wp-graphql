@@ -125,7 +125,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'testTypeConnection', self::IS_NULL ),
+				$this->expectedField( 'testTypeConnection', static::IS_NULL ),
 			]
 		);
 	}
@@ -190,7 +190,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertQuerySuccessful(
 			$actual,
 			[
-				$this->expectedField( 'test', self::IS_NULL ),
+				$this->expectedField( 'test', static::IS_NULL ),
 			]
 		);
 	}
@@ -270,7 +270,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$expected = [
 			$this->expectedErrorPath( 'secretConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the type-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedField( 'secretConnection', self::IS_NULL ),
+			$this->expectedField( 'secretConnection', static::IS_NULL ),
 		];
 
 		$this->assertQueryError( $response, $expected );
@@ -306,7 +306,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$expected = [
 			$this->expectedErrorPath( 'failingAuthConnection' ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
-			$this->expectedField( 'failingAuthConnection', self::IS_NULL ),
+			$this->expectedField( 'failingAuthConnection', static::IS_NULL ),
 		];
 		$this->assertQueryError( $response, $expected );
 
@@ -319,8 +319,8 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$response = $this->graphql( compact( 'query' ) );
 		$expected = [
 			$this->expectedField( 'failingAuthConnection.nodes.0.test', 'test' ),
-			$this->expectedField( 'failingAuthConnection.nodes.1.test', self::IS_NULL ),
-			$this->expectedField( 'failingAuthConnection.nodes.2.test', self::IS_NULL ),
+			$this->expectedField( 'failingAuthConnection.nodes.1.test', static::IS_NULL ),
+			$this->expectedField( 'failingAuthConnection.nodes.2.test', static::IS_NULL ),
 			$this->expectedErrorMessage( 'Blocked on the field-level!!!', self::MESSAGE_EQUALS ),
 			$this->expectedErrorPath( 'failingAuthConnection.nodes.1.test' ),
 			$this->expectedErrorPath( 'failingAuthConnection.nodes.2.test' ),
@@ -765,7 +765,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			[
 				$this->expectedErrorPath( 'connectionWithConfig' ),
 				$this->expectedErrorMessage( $expected, self::MESSAGE_EQUALS ),
-				$this->expectedField( 'connectionWithConfig', self::IS_NULL ),
+				$this->expectedField( 'connectionWithConfig', static::IS_NULL ),
 			]
 		);
 	}
