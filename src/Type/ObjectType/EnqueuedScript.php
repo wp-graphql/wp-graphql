@@ -23,18 +23,18 @@ class EnqueuedScript {
 				'description' => __( 'Script enqueued by the CMS', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'EnqueuedAsset' ],
 				'fields'      => [
-					'id'           => [
+					'id'            => [
 						'type'        => [ 'non_null' => 'ID' ],
 						'description' => __( 'The global ID of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( $asset ) {
 							return isset( $asset->handle ) ? Relay::toGlobalId( 'enqueued_script', $asset->handle ) : null;
 						},
 					],
-					'dependencies' => [
+					'dependencies'  => [
 						'type'        => [ 'list_of' => 'EnqueuedScript' ],
 						'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
 					],
-					'extraData'    => [
+					'extraData'     => [
 						'type'        => 'String',
 						'description' => __( 'Extra data supplied to the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
@@ -45,7 +45,7 @@ class EnqueuedScript {
 							return $script->extra['data'];
 						},
 					],
-					'strategy'     => [
+					'strategy'      => [
 						'type'        => 'ScriptLoadingStrategyEnum',
 						'description' => __( 'The loading strategy to use on the script tag', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
@@ -56,7 +56,14 @@ class EnqueuedScript {
 							return $script->extra['strategy'];
 						},
 					],
-					'version'      => [
+					'groupLocation' => [
+						'type'        => 'ScriptLoadingGroupLocationEnum',
+						'description' => __( 'The location where this script should be loaded', 'wp-graphql' ),
+						'resolve'     => static function ( \_WP_Dependency $script ) {
+							return isset( $script->extra['group'] ) ? (int) $script->extra['group'] : 0;
+						},
+					],
+					'version'       => [
 						'description' => __( 'The version of the enqueued script', 'wp-graphql' ),
 						'resolve'     => static function ( \_WP_Dependency $script ) {
 							/** @var \WP_Scripts $wp_scripts */
