@@ -62,7 +62,7 @@ function graphql_require_bootstrap_files(): void {
  *
  * Bedrock
  *  - WPGRAPHQL_AUTOLOAD: not defined
- *  - composer deps installed outside of the plugin
+ *  - composer deps installed outside the plugin
  *
  * Normal (.org repo install)
  * - WPGRAPHQL_AUTOLOAD: not defined
