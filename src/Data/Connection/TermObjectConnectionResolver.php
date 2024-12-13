@@ -16,14 +16,14 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 	/**
 	 * The name of the Taxonomy the resolver is intended to be used for
 	 *
-	 * @var string
+	 * @var array<string>|string
 	 */
 	protected $taxonomy;
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param mixed|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for.
+	 * @param mixed|array<string>|string|null $taxonomy The name of the Taxonomy the resolver is intended to be used for.
 	 */
 	public function __construct( $source, array $args, AppContext $context, ResolveInfo $info, $taxonomy = null ) {
 		$this->taxonomy = $taxonomy;
@@ -226,7 +226,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		 *
 		 * @param array<string,mixed>                  $query_args Array of mapped query args
 		 * @param array<string,mixed>                  $where_args Array of query "where" args
-		 * @param string                               $taxonomy   The name of the taxonomy
+		 * @param array<string>|string                 $taxonomy   The name of the taxonomy
 		 * @param mixed                                $source     The query results
 		 * @param array<string,mixed>                  $all_args   All of the query arguments (not just the "where" args)
 		 * @param \WPGraphQL\AppContext                $context   The AppContext object
