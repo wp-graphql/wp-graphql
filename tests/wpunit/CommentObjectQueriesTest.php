@@ -965,14 +965,12 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 	public function testCommentStatusFiltering() {
 		wp_set_current_user($this->admin); // Ensure we have permission to see all comments
-	
-		$post_id = $this->factory()->post->create(
-			[
-				'post_content' => 'Post object',
-				'post_author'  => $this->admin,
-				'post_status'  => 'publish',
-			]
-		);
+
+		$post_id = $this->factory()->post->create([
+			'post_content' => 'Post object',
+			'post_author'  => $this->admin,
+			'post_status'  => 'publish',
+		]);
 		
 		// Create approved comment
 		$approved_id = $this->factory()->comment->create([
@@ -981,11 +979,18 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			'comment_approved' => 1,
 		]);
 	
-		// Create pending comment
+		// Create spam comment
 		$spam_comment_id = $this->factory()->comment->create([
-			'comment_post_ID' => $this->post_id,
-			'comment_content' => 'Pending comment',
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Spam comment',
 			'comment_approved' => 'spam',
+		]);
+	
+		// Create pending comment
+		$pending_comment_id = $this->factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Pending comment',
+			'comment_approved' => '0',
 		]);
 	
 		$query = '
@@ -1000,19 +1005,46 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		}
 		';
 	
-		// Test APPROVE status
-		$variables = ['status' => [ 'APPROVE' ] ];
+		// Test APPROVE status only
+		$variables = ['status' => ['APPROVE']];
 		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
-
-		wp_delete_comment( $spam_comment_id );
-		wp_delete_comment( $approved_id );
-		wp_delete_post( $post_id, true );
-
-		codecept_debug( $actual );
 	
 		$this->assertArrayNotHasKey('errors', $actual);
 		$this->assertCount(1, $actual['data']['comments']['nodes']);
-		$this->assertEquals( apply_filters( 'comment_text', 'Approved comment' ), $actual['data']['comments']['nodes'][0]['content']);
+		$this->assertEquals(apply_filters('comment_text', 'Approved comment'), $actual['data']['comments']['nodes'][0]['content']);
+	
+		// Test multiple statuses (APPROVE and SPAM)
+		$variables = ['status' => ['APPROVE', 'SPAM']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(2, $actual['data']['comments']['nodes']);
+	
+		// Test all statuses
+		$variables = ['status' => ['APPROVE', 'SPAM', 'HOLD']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(3, $actual['data']['comments']['nodes']);
+
+		// Set the current user to be public
+		wp_set_current_user( 0 );
+
+		// Test all statuses as a public user
+		$variables = ['status' => ['APPROVE', 'SPAM', 'HOLD']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+
+		// only 1 comment should be returned as the public user can only see the approved comment, not the SPAM or pending/HOLD
+		$this->assertCount(1, $actual['data']['comments']['nodes']);
+	
+		// Clean up
+		wp_delete_comment($spam_comment_id);
+		wp_delete_comment($approved_id);
+		wp_delete_comment($pending_comment_id);
+		wp_delete_post($post_id, true);
+
 	}
 
 	// Pseudo test, not actually implemented. Holding for: https://github.com/wp-graphql/wp-graphql/issues/3259
