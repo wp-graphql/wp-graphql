@@ -727,7 +727,6 @@ class TermNodeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		);
 
-
 		$link      = get_term_link( $cat->term_id );
 		$parsed    = parse_url( $link );
 		$term_uri  = $parsed['path'] ?? '';

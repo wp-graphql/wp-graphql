@@ -25,7 +25,7 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Assertions to ensure actions are hooked correctly
 		// This might require functional testing or integration testing setup
-		$this->assertTrue( has_action('admin_notices' ) );
+		$this->assertTrue( has_action( 'admin_notices' ) );
 	}
 
 	/**
@@ -34,57 +34,57 @@ class AdminNoticesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testAddAndGetAdminNotices(): void {
 		$adminNotices = AdminNotices::get_instance();
 
-		$slug = 'test-notice';
+		$slug   = 'test-notice';
 		$config = [
-			'message' => 'Test Notice Message',
-			'type' => 'warning',
-			'is_dismissable' => true
+			'message'        => 'Test Notice Message',
+			'type'           => 'warning',
+			'is_dismissable' => true,
 		];
 
-		$adminNotices->add_admin_notice($slug, $config);
+		$adminNotices->add_admin_notice( $slug, $config );
 
 		$notices = $adminNotices->get_admin_notices();
-		$this->assertArrayHasKey($slug, $notices);
-		$this->assertSame($config, $notices[$slug]);
+		$this->assertArrayHasKey( $slug, $notices );
+		$this->assertSame( $config, $notices[ $slug ] );
 	}
 
-    /**
-     * Test adding and retrieving admin notices.
-     */
-    public function testGetAdminNotices(): void {
-        $adminNotices = AdminNotices::get_instance();
+	/**
+	 * Test adding and retrieving admin notices.
+	 */
+	public function testGetAdminNotices(): void {
+		$adminNotices = AdminNotices::get_instance();
 
-        $slug = 'test-notice';
-        $config = [
-            'message' => 'Test Notice Message',
-            'type' => 'warning',
-            'is_dismissable' => true
-        ];
+		$slug   = 'test-notice';
+		$config = [
+			'message'        => 'Test Notice Message',
+			'type'           => 'warning',
+			'is_dismissable' => true,
+		];
 
-        $adminNotices->add_admin_notice($slug, $config);
+		$adminNotices->add_admin_notice( $slug, $config );
 
-        $notices = $adminNotices->get_admin_notices();
-        $this->assertArrayHasKey($slug, $notices);
-        $this->assertSame($config, $notices[$slug]);
+		$notices = $adminNotices->get_admin_notices();
+		$this->assertArrayHasKey( $slug, $notices );
+		$this->assertSame( $config, $notices[ $slug ] );
 
-        $get_admin_notices = get_graphql_admin_notices();
+		$get_admin_notices = get_graphql_admin_notices();
 
-        $this->assertSame($get_admin_notices, $notices);
-    }
+		$this->assertSame( $get_admin_notices, $notices );
+	}
 
 	/**
 	 * Test removing admin notices.
 	 */
 	public function testRemoveAdminNotices(): void {
-        $adminNotices = AdminNotices::get_instance();
+		$adminNotices = AdminNotices::get_instance();
 
-		$slug = 'test-notice';
-		$config = ['message' => 'Test Notice Message'];
+		$slug   = 'test-notice';
+		$config = [ 'message' => 'Test Notice Message' ];
 
-		$adminNotices->add_admin_notice($slug, $config);
-		$adminNotices->remove_admin_notice($slug);
+		$adminNotices->add_admin_notice( $slug, $config );
+		$adminNotices->remove_admin_notice( $slug );
 
 		$notices = $adminNotices->get_admin_notices();
-		$this->assertArrayNotHasKey($slug, $notices);
+		$this->assertArrayNotHasKey( $slug, $notices );
 	}
 }

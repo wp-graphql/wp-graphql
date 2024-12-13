@@ -653,7 +653,7 @@ class TermObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		unregister_taxonomy( 'news' );
 	}
 
-	
+
 	public function testQueryNonCategoryAsCategoryReturnsNull() {
 		$query = '
 		query CategoryByUri($uri: ID!) {

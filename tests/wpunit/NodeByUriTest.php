@@ -57,7 +57,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->clearSchema();
 		$this->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
 
-
 		parent::tearDown();
 	}
 
@@ -101,27 +100,27 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$comment_one_id = $this->factory()->comment->create(
 			[
-				'comment_post_ID' => $post_one_id,
-				'comment_content' => 'Test comment 1',
-				'comment_author'  => 'Test Author 1',
+				'comment_post_ID'      => $post_one_id,
+				'comment_content'      => 'Test comment 1',
+				'comment_author'       => 'Test Author 1',
 				'comment_author_email' => 'info@test-comment-author1.test',
 			]
 		);
 
 		$comment_two_id = $this->factory()->comment->create(
 			[
-				'comment_post_ID' => $post_one_id,
-				'comment_content' => 'Test comment 2',
-				'comment_author'  => 'Test Author 2',
+				'comment_post_ID'      => $post_one_id,
+				'comment_content'      => 'Test comment 2',
+				'comment_author'       => 'Test Author 2',
 				'comment_author_email' => 'info@test-comment-author2.test',
 			]
 		);
 
 		$comment_three_id = $this->factory()->comment->create(
 			[
-				'comment_post_ID' => $post_two_id,
-				'comment_content' => 'Test comment 3',
-				'comment_author'  => 'Test Author 3',
+				'comment_post_ID'      => $post_two_id,
+				'comment_content'      => 'Test comment 3',
+				'comment_author'       => 'Test Author 3',
 				'comment_author_email' => 'info@test-comment-author3.test',
 			]
 		);
@@ -682,7 +681,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertValidURIResolution( $uri, $expected_graphql_type, $page_id, $actual );
 
-
 		// Test original uri should fail.
 		codecept_debug( $original_uri );
 
@@ -894,7 +892,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				],
 			]
 		);
-
 
 		$this->assertValidURIResolution( $uri, 'Post', $post_id, $actual );
 
@@ -1206,8 +1203,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'post_status'  => 'publish',
 			]
 		);
-
-
 
 		$query = $this->getQuery();
 
@@ -1670,7 +1665,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-
 
 		$this->assertSame( $uri, $actual['data']['nodeByUri']['uri'] );
 		$this->assertSame( 'TestHierarchicalType', $actual['data']['nodeByUri']['__typename'] );
@@ -2380,7 +2374,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
 		$query = '
 		query GetPostsBySlug( $id: ID! ) {
 			post(id: $id, idType: SLUG) {
@@ -2515,11 +2508,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testQueryPostWithCustomPermalinkStructure() {
 
-		$post_id = $this->factory()->post->create([
-			'post_type'   => 'post',
-			'post_status' => 'publish',
-			'post_name'   => 'test-post',
-		]);
+		$post_id = $this->factory()->post->create(
+			[
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'test-post',
+			]
+		);
 
 		$this->set_permalink_structure( '/news/%postname%/' );
 
@@ -2552,10 +2547,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertQuerySuccessful( $actual, [
-			$this->expectedField( 'nodeByUri.__typename', 'Post' ),
-			$this->expectedField( 'nodeByUri.slug', 'test-post' ),
-		] );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri.__typename', 'Post' ),
+				$this->expectedField( 'nodeByUri.slug', 'test-post' ),
+			]
+		);
 
 		// query again with just the slug instead of full uri
 		$query2 = $this->graphql(
@@ -2571,11 +2569,13 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// WordPress will 404 here as there is no post at `/test` due to the permalink configuration,
 		// so we should return null
 		$this->assertArrayNotHasKey( 'errors', $query2 );
-		$this->assertQuerySuccessful( $query2, [
-			$this->expectedField( 'nodeByUri', self::IS_NULL ),
-		] );
+		$this->assertQuerySuccessful(
+			$query2,
+			[
+				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+			]
+		);
 
 		wp_delete_post( $post_id, true );
-
 	}
 }

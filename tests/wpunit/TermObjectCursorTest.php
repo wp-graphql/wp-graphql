@@ -345,16 +345,26 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testWpTermQueryCursorPaginationSupport() {
 
-		$category = self::factory()->term->create( [ 'taxonomy' => 'category' ] );
-		$child_category = self::factory()->term->create( [ 'taxonomy' => 'category', 'parent' => $category ] );
+		$category       = self::factory()->term->create( [ 'taxonomy' => 'category' ] );
+		$child_category = self::factory()->term->create(
+			[
+				'taxonomy' => 'category',
+				'parent'   => $category,
+			]
+		);
 
 		$actual_pieces = null;
 
 		// hook into the terms_clauses filter after WPGraphQL hooks in
-		add_filter( 'terms_clauses', function( $pieces, $taxonomies, $args ) use ( &$actual_pieces ) {
-			$actual_pieces = $pieces;
-			return $pieces;
-		} , 99, 3 );
+		add_filter(
+			'terms_clauses',
+			static function ( $pieces, $taxonomies, $args ) use ( &$actual_pieces ) {
+				$actual_pieces = $pieces;
+				return $pieces;
+			},
+			99,
+			3
+		);
 
 		$query = '
 		query terms ($parent: Int) {
@@ -369,45 +379,49 @@ class TermObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query,
-			'variables' => [
-				'parent' => $category
-			]
-		]);
-
-//		This is a note of what the "pieces" looked like in v1.22.0 before
-//      this fix: https://github.com/wp-graphql/wp-graphql/pull/3063
-//
-//      The "where" arg was empty, but now it's not empty.
-//
-//		$prev_pieces = [
-//			'fields' => 't.term_id',
-//			'join' => 'INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id',
-//			'where' => '',
-//			'distinct' => null,
-//			'order_by' => 'ORDER BY FIELD( t.term_id, 29 )',
-//			'order' => 'ASC',
-//			'limits' => null,
-//		];
-
-//		codecept_debug( [
-//			'$actual' => $actual,
-//			'$actual_pieces' => $actual_pieces,
-//		]);
-
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedNode(
-				'categories.nodes',
-				[
-					$this->expectedField( '__typename', 'Category' ),
-					$this->expectedField( 'databaseId', $child_category ),
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'parent' => $category,
 				],
-				0
-			),
-		] );
+			]
+		);
+
+		// This is a note of what the "pieces" looked like in v1.22.0 before
+		// this fix: https://github.com/wp-graphql/wp-graphql/pull/3063
+		//
+		// The "where" arg was empty, but now it's not empty.
+		//
+		// $prev_pieces = [
+		// 'fields' => 't.term_id',
+		// 'join' => 'INNER JOIN wp_term_taxonomy AS tt ON t.term_id = tt.term_id',
+		// 'where' => '',
+		// 'distinct' => null,
+		// 'order_by' => 'ORDER BY FIELD( t.term_id, 29 )',
+		// 'order' => 'ASC',
+		// 'limits' => null,
+		// ];
+
+		// codecept_debug( [
+		// '$actual' => $actual,
+		// '$actual_pieces' => $actual_pieces,
+		// ]);
+
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedNode(
+					'categories.nodes',
+					[
+						$this->expectedField( '__typename', 'Category' ),
+						$this->expectedField( 'databaseId', $child_category ),
+					],
+					0
+				),
+			]
+		);
 
 		$this->assertNotEmpty( $actual_pieces['where'] );
-
 	}
 }

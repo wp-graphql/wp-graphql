@@ -102,7 +102,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql( [ 'query' => $query ] );
+		$actual   = $this->graphql( [ 'query' => $query ] );
 		$expected = [
 			$this->expectedField( 'tester.id', $test['id'] ),
 			$this->expectedField( 'tester.testInt', $test['testInt'] ),
@@ -224,7 +224,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql( [ 'query' => $query ] );
+		$actual   = $this->graphql( [ 'query' => $query ] );
 		$expected = [
 			$this->expectedObject(
 				'testTypeWithInterfaces',
@@ -466,14 +466,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'args'    => [
 							'interfaceArg' => [
 								'type'         => 'String',
-								'defaultValue' => 'parent'
+								'defaultValue' => 'parent',
 							],
 						],
-						'resolve' => function( $source, $args ) {
+						'resolve' => static function ( $source, $args ) {
 							return implode( ' ', array_keys( $args ) );
-						}
+						},
 					],
-				]
+				],
 			]
 		);
 
@@ -481,20 +481,20 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'AnotherInterfaceWithArgs',
 			[
 				'interfaces' => [ 'InterfaceWithArgs' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithArgs' => [
 						'type'    => 'String',
 						'args'    => [
 							'interfaceArg' => [
 								'type'         => 'String',
-								'defaultValue' => 'another parent'
+								'defaultValue' => 'another parent',
 							],
 						],
-						'resolve' => function( $source, $args ) {
+						'resolve' => static function ( $source, $args ) {
 							return implode( ' ', array_keys( $args ) );
-						}
+						},
 					],
-				]
+				],
 			]
 		);
 
@@ -504,13 +504,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'interfaces' => [ 'InterfaceWithArgs' ],
 				'fields'     => [
 					'fieldWithArgs' => [
-						'args'    => [
+						'args' => [
 							'objectArg' => [
 								'type'         => 'String',
-								'defaultValue' => 'child'
+								'defaultValue' => 'child',
 							],
 						],
-						'type'    => 'String',
+						'type' => 'String',
 					],
 				],
 			]
@@ -522,9 +522,9 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'interfaces' => [ 'InterfaceWithArgs' ],
 				'fields'     => [
 					'fieldWithArgs' => [
-						'resolve' => function( $_, $args ) {
+						'resolve' => static function ( $_, $args ) {
 							return implode( ',', array_keys( $args ) );
-						}
+						},
 					],
 				],
 			]
@@ -536,13 +536,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'interfaces' => [ 'InterfaceWithArgs' , 'AnotherInterfaceWithArgs' ],
 				'fields'     => [
 					'fieldWithArgs' => [
-						'args'    => [
+						'args' => [
 							'objectArg' => [
 								'type'         => 'String',
-								'defaultValue' => 'child'
+								'defaultValue' => 'child',
 							],
 						],
-						'type'    => 'String',
+						'type' => 'String',
 					],
 				],
 			]
@@ -551,21 +551,21 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		register_graphql_fields(
 			'RootQuery',
 			[
-				'interfaceArgsTest'      => [
+				'interfaceArgsTest'  => [
 					'type'    => 'ObjectTypeImplementingInterfaceWithArgs',
-					'resolve' => function() {
+					'resolve' => static function () {
 						return true;
 					},
 				],
 				'interfaceArgsTest2' => [
 					'type'    => 'AnotherObjectTypeImplementingInterfaceWithArgs',
-					'resolve' => function() {
+					'resolve' => static function () {
 						return true;
 					},
 				],
 				'interfaceArgsTest3' => [
 					'type'    => 'ObjectTypeImplementingAnotherInterfaceWithArgs',
-					'resolve' => function() {
+					'resolve' => static function () {
 						return true;
 					},
 				],
@@ -606,14 +606,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 						'args'    => [
 							'interfaceArg' => [ 'type' => 'String' ],
 						],
-						'resolve' => function( $source, $args ) {
+						'resolve' => static function ( $source, $args ) {
 							return $args['arg'];
-						}
+						},
 					],
-				]
+				],
 
 			]
-
 		);
 
 		register_graphql_object_type(
@@ -622,13 +621,13 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'interfaces' => [ 'InterfaceWithArgs' ],
 				'fields'     => [
 					'fieldWithArgs' => [
-						'args' => [
+						'args'    => [
 							'interfaceArg' => [ 'type' => 'Number' ],
 						],
 						'type'    => 'String',
-						'resolve' => function() {
+						'resolve' => static function () {
 							return 'object value';
-						}
+						},
 					],
 				],
 			]
@@ -638,17 +637,17 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'BadObjectTypeImplementingInterfaceWithArgs2',
 			[
 				'interfaces' => [ 'InterfaceWithArgs' ],
-				'fields' => [
+				'fields'     => [
 					'fieldWithArgs' => [
-						'args' => [
+						'args'    => [
 							'interfaceArg' => [
 								'type' => [ 'list_of' => 'Number' ],
 							],
 						],
-						'type' => 'String',
-						'resolve' => function() {
+						'type'    => 'String',
+						'resolve' => static function () {
 							return 'object value';
-						}
+						},
 					],
 				],
 			]
@@ -658,14 +657,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'RootQuery',
 			[
 				'interfaceArgsTest'  => [
-					'type' => 'BadObjectTypeImplementingInterfaceWithArgs',
-					'resolve' => function() {
+					'type'    => 'BadObjectTypeImplementingInterfaceWithArgs',
+					'resolve' => static function () {
 						return true;
 					},
 				],
 				'interfaceArgsTest2' => [
-					'type' => 'BadObjectTypeImplementingInterfaceWithArgs2',
-					'resolve' => function() {
+					'type'    => 'BadObjectTypeImplementingInterfaceWithArgs2',
+					'resolve' => static function () {
 						return true;
 					},
 				],
@@ -681,7 +680,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}';
 
-		$actual = $this->graphql( [ 'query' => $query ]);
+		$actual = $this->graphql( [ 'query' => $query ] );
 		$this->assertResponseIsValid( $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
 		$this->assertNotEmpty( $actual['errors'], 'Invalid field arguments should be flagged' );
 		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found 2.', $actual['errors'][0]['message'] );
@@ -693,55 +692,64 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testInterfaceWithNonNullableArg() {
-		register_graphql_interface_type( 'InterfaceWithNonNullableArg', [
-			'fields' => [
-				'fieldWithNonNullableArg' => [
-					'type' => 'String',
-					'args' => [
-						'nonNullableArg' => [
-							'type' => [ 'non_null' => 'String' ],
-							'defaultValue' => 'nonNullableArg',
+		register_graphql_interface_type(
+			'InterfaceWithNonNullableArg',
+			[
+				'fields' => [
+					'fieldWithNonNullableArg' => [
+						'type'    => 'String',
+						'args'    => [
+							'nonNullableArg'      => [
+								'type'         => [ 'non_null' => 'String' ],
+								'defaultValue' => 'nonNullableArg',
+							],
+							'listOfArg'           => [
+								'type'         => [ 'list_of' => 'String' ],
+								'defaultValue' => [ 'listOfArg', 'listOfArg 2' ],
+							],
+							'nonNullListOfString' => [
+								'type'         => [ 'non_null' => [ 'list_of' => 'String' ] ],
+								'defaultValue' => [ 'nonNullListOfString', 'nonNullListOfString 2' ],
+							],
+							'listOfNonNullString' => [
+								'type'         => [ 'list_of' => [ 'non_null' => 'String' ] ],
+								'defaultValue' => [ 'listOfNonNullString', 'listOfNonNullString 2' ],
+							],
 						],
-						'listOfArg' => [
-							'type' => [ 'list_of' => 'String' ],
-							'defaultValue' => [ 'listOfArg', 'listOfArg 2' ],
-						],
-						'nonNullListOfString' => [
-							'type' => [ 'non_null' => [ 'list_of' => 'String' ] ],
-							'defaultValue' => [ 'nonNullListOfString', 'nonNullListOfString 2' ],
-						],
-						'listOfNonNullString' => [
-							'type' => [ 'list_of' => [ 'non_null' => 'String' ] ],
-							'defaultValue' => [ 'listOfNonNullString', 'listOfNonNullString 2' ],
-						],
+						'resolve' => static function ( $source, $args ) {
+							return null;
+						},
 					],
-					'resolve' => function( $source, $args ) {
-						return null;
-					},
 				],
-			],
-		] );
+			]
+		);
 
-		register_graphql_object_type( 'TestTypeWithNonNullableArg', [
-			'interfaces' => [ 'InterfaceWithNonNullableArg' ],
-			'fields' => [
+		register_graphql_object_type(
+			'TestTypeWithNonNullableArg',
+			[
+				'interfaces' => [ 'InterfaceWithNonNullableArg' ],
+				'fields'     => [
+					'testField' => [
+						'type'    => 'String',
+						'resolve' => static function () {
+							return 'object value';
+						},
+					],
+				],
+			]
+		);
+
+		register_graphql_fields(
+			'RootQuery',
+			[
 				'testField' => [
-					'type' => 'String',
-					'resolve' => function() {
-						return 'object value';
+					'type'    => 'TestTypeWithNonNullableArg',
+					'resolve' => static function () {
+						return true;
 					},
 				],
-			],
-		] );
-
-		register_graphql_fields( 'RootQuery', [
-			'testField' => [
-				'type' => 'TestTypeWithNonNullableArg',
-				'resolve' => function() {
-					return true;
-				},
-			],
-		] );
+			]
+		);
 
 		$query = 'query {
 			testField {
@@ -760,68 +768,81 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEmpty( $actual['extensions']['debug'], 'The interface should be implemented with no debug messages.' );
 		$this->assertQuerySuccessful(
 			$actual,
-			[ $this->expectedField( 'testField.fieldWithNonNullableArg',self::IS_NULL ) ],
+			[ $this->expectedField( 'testField.fieldWithNonNullableArg', self::IS_NULL ) ],
 			'The query should be valid as the list of and non null arguments defined on the interface are valid when querying the field that returns the object type'
 		);
 	}
 
 	public function testDebugMessageNotShownIfInterfaceFieldHasArgs() {
-		register_graphql_interface_type( 'InterfaceFieldWithArgs', [
-			'fields' => [
-				'fieldWithArgs' => [
-					'type' => 'String',
-					'args' => [
-						'interfaceArg' => [
-							'type' => 'Boolean',
+		register_graphql_interface_type(
+			'InterfaceFieldWithArgs',
+			[
+				'fields'      => [
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'args'    => [
+							'interfaceArg' => [
+								'type' => 'Boolean',
+							],
 						],
+						'resolve' => static function () {
+							return null;
+						},
 					],
-					'resolve' => function() {
-						return null;
-					},
 				],
-			],
-			'resolveType' => static function () {
-				return 'TestType';
-			},
-		] );
+				'resolveType' => static function () {
+					return 'TestType';
+				},
+			]
+		);
 
 		// Register an interface that implements the other one, but does not define
 		// any arguments for the field.
-		register_graphql_interface_type( 'AnotherInterface', [
-			'interfaces' => [ 'InterfaceFieldWithArgs' ],
-			'fields' => [
-				// this field does not define any arguments,
-				// so it should inherit the arguments from the interface
-				'fieldWithArgs' => [
-					'type' => 'String',
-					'resolve' => function() {
-						return null;
-					},
+		register_graphql_interface_type(
+			'AnotherInterface',
+			[
+				'interfaces'  => [ 'InterfaceFieldWithArgs' ],
+				'fields'      => [
+					// this field does not define any arguments,
+					// so it should inherit the arguments from the interface
+					'fieldWithArgs' => [
+						'type'    => 'String',
+						'resolve' => static function () {
+							return null;
+						},
+					],
 				],
-			],
-			'resolveType' => static function () {
-				return 'TestType';
-			},
-		] );
+				'resolveType' => static function () {
+					return 'TestType';
+				},
+			]
+		);
 
-		register_graphql_object_type( 'TestType', [
-			'interfaces' => [ 'AnotherInterface' ],
-			'fields' => [
-				'testField' => [
-					'type' => 'String',
-					'resolve' => function() {
-						return 'object value';
-					},
+		register_graphql_object_type(
+			'TestType',
+			[
+				'interfaces' => [ 'AnotherInterface' ],
+				'fields'     => [
+					'testField' => [
+						'type'    => 'String',
+						'resolve' => static function () {
+							return 'object value';
+						},
+					],
 				],
-			],
-		]);
+			]
+		);
 
-		register_graphql_field( 'RootQuery', 'testField', [
-			'type' => 'AnotherInterface',
-			'resolve' => function() {
-				return true;
-			},
-		] );
+		register_graphql_field(
+			'RootQuery',
+			'testField',
+			[
+				'type'    => 'AnotherInterface',
+				'resolve' => static function () {
+					return true;
+				},
+			]
+		);
 
 		$query = 'query {
 			testField {

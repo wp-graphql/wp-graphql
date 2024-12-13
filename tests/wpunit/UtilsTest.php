@@ -5,7 +5,6 @@ class UtilsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testGetQueryId() {
 
-
 		$query_without_spaces   = '{posts{nodes{id,title}}}';
 		$query_with_spaces      = '{ posts { nodes { id, title } } }';
 		$query_with_line_breaks = '
