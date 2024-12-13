@@ -48,6 +48,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['orderby'] = 'comment_date';
 
+		
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
@@ -73,7 +74,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * If the current user cannot moderate comments, do not include unapproved comments
 		 */
 		if ( ! current_user_can( 'moderate_comments' ) ) {
-			$query_args['status']             = [ 'approve' ];
 			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
 			if ( empty( $query_args['include_unapproved'] ) ) {
 				unset( $query_args['include_unapproved'] );
@@ -275,6 +275,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'includeUnapproved'  => 'include_unapproved',
 			'parentIn'           => 'parent__in',
 			'parentNotIn'        => 'parent__not_in',
+			'statusIn'           => 'status',
 			'userId'             => 'user_id',
 		];
 
@@ -282,6 +283,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Map and sanitize the input args to the WP_Comment_Query compatible args
 		 */
 		$query_args = Utils::map_input( $args, $arg_mapping );
+
 
 		/**
 		 * Filter the input fields
