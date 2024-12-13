@@ -461,14 +461,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$post_id = $this->factory->post->create();
 
-		$admin_args         = [
+		$admin_args = [
 			'comment_post_ID'      => $post_id,
 			'comment_content'      => 'Admin Comment',
 			'comment_author_email' => 'admin@test.com',
-            'comment_author_url'   => 'https://example.com',
+			'comment_author_url'   => 'https://example.com',
 			'comment_author_IP'    => '127.0.0.1',
 			'comment_agent'        => 'Admin Agent',
-            'comment_author'       => 'Admin Name',
+			'comment_author'       => 'Admin Name',
 
 		];
 		$admin_comment      = $this->createCommentObject( $admin_args );
@@ -476,10 +476,10 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 			'comment_post_ID'      => $post_id,
 			'comment_content'      => 'Subscriber Comment',
 			'comment_author_email' => 'subscriber@example.com',
-            'comment_author_url'   => 'https://example.com',
+			'comment_author_url'   => 'https://example.com',
 			'comment_author_IP'    => '127.0.0.1',
 			'comment_agent'        => 'Subscriber Agent',
-            'comment_author'       => 'Subscriber Name',
+			'comment_author'       => 'Subscriber Name',
 		];
 		$subscriber_comment = $this->createCommentObject( $subscriber_args );
 
@@ -526,9 +526,11 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		];
 		$subscriber_actual = $this->graphql( compact( 'query', 'variables' ) );
 
-        codecept_debug( [
-            '$subscriber_actual' => $subscriber_actual,
-        ]);
+		codecept_debug(
+			[
+				'$subscriber_actual' => $subscriber_actual,
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $admin_actual );
 		$this->assertArrayNotHasKey( 'errors', $subscriber_actual );
@@ -543,17 +545,17 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertEquals( $expected_link, $admin_actual['data']['comment']['link'] );
 		$this->assertEquals( str_ireplace( home_url(), '', $expected_link ), $admin_actual['data']['comment']['uri'] );
 
-        $this->assertEquals( $subscriber_args['comment_author'], $subscriber_actual['data']['comment']['author']['name'] );
-        $this->assertEquals( $subscriber_args['comment_author_url'], $subscriber_actual['data']['comment']['author']['url'] );
+		$this->assertEquals( $subscriber_args['comment_author'], $subscriber_actual['data']['comment']['author']['name'] );
+		$this->assertEquals( $subscriber_args['comment_author_url'], $subscriber_actual['data']['comment']['author']['url'] );
 
 		if ( true === $should_display ) {
 			$this->assertNotNull( $admin_actual['data']['comment']['authorIp'] );
 			$this->assertNotNull( $admin_actual['data']['comment']['agent'] );
-            $this->assertSame( $subscriber_args['comment_author_email'], $subscriber_actual['data']['comment']['author']['email'] );
+			$this->assertSame( $subscriber_args['comment_author_email'], $subscriber_actual['data']['comment']['author']['email'] );
 		} else {
 			$this->assertNull( $admin_actual['data']['comment']['authorIp'] );
 			$this->assertNull( $admin_actual['data']['comment']['agent'] );
-            $this->assertNull( $subscriber_actual['data']['comment']['author']['email'] );
+			$this->assertNull( $subscriber_actual['data']['comment']['author']['email'] );
 		}
 	}
 

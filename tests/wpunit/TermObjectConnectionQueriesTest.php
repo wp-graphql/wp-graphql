@@ -142,9 +142,11 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		}
 		';
 
-		$actual = $this->graphql([
-			'query' => $query
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query,
+			]
+		);
 
 		// codecept_debug( [ '$actual' => $actual ]);
 		$this->assertArrayNotHasKey( 'errors', $actual );
@@ -158,7 +160,7 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		// map over the connected terms nodes and assert that all of them are tags
 		$connected_tags = $actual['data']['taxonomies']['nodes'][1]['connectedTerms']['nodes'];
 		foreach ( $connected_tags as $connected_tag ) {
-			$this->assertEquals( 'Tag', $connected_tag['__typename'] );			
+			$this->assertEquals( 'Tag', $connected_tag['__typename'] );
 		}
 
 		wp_delete_term( $term_one_id, 'category' );
@@ -738,7 +740,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 		$second = $expected[1];
 		$last   = end( $expected );
 
-
 		$start_cursor = $this->toRelayId( 'arrayconnection', $first->term_id );
 		$end_cursor   = $this->toRelayId( 'arrayconnection', $last->term_id );
 
@@ -884,8 +885,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			]
 		);
 
-
-
 		$expected = [
 			$child_categories[0],
 			$child_categories[1],
@@ -947,7 +946,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		$this->assertValidPagination( $expected, $actual );
 
-
 		$actual = $this->graphql(
 			[
 				'query'     => $this->getQuery(),
@@ -968,7 +966,6 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 			$child_categories[9],
 			$child_categories[10],
 		];
-
 
 		$this->assertValidPagination( $expected, $actual );
 
@@ -1001,5 +998,4 @@ class TermObjectConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQ
 
 		wp_delete_term( $parent_category, 'category' );
 	}
-
 }

@@ -1100,7 +1100,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
 		// Test with union, where a resolve type is set, but no graphql_union_types.
 		register_post_type(
 			'with_union_kind_two',
@@ -1401,7 +1400,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testExcludeDeleteMutation() {
 
-
 		register_post_type(
 			'without_delete',
 			[
@@ -1443,7 +1441,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testExcludeUpdateMutation() {
-
 
 		register_post_type(
 			'without_update',
@@ -1774,7 +1771,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Cleanup
 		unregister_post_type( 'cpt_no_single_plural' );
-
 	}
 
 	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {

@@ -170,7 +170,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 		$this->assertEquals( 'HOLD', $actual['data']['createComment']['comment']['status'] );
 
-
 		// Test logged in user different than author.
 		wp_set_current_user( $this->admin );
 

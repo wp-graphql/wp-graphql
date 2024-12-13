@@ -32,7 +32,7 @@ class WP_Query_Custom {
 
 	/**
 	 * Returns the query.
-	 * 
+	 *
 	 * (This is what AbstractConnectionResolver::is_valid_query_class() checks for by default.)
 	 */
 	public function query( $args = [] ) {
@@ -40,13 +40,13 @@ class WP_Query_Custom {
 	}
 
 		/**
-	 * Magic method to re-map the isset check on the child class looking for properties when
-	 * resolving the fields
-	 *
-	 * @param string $key The name of the field you are trying to retrieve
-	 *
-	 * @return bool
-	 */
+		 * Magic method to re-map the isset check on the child class looking for properties when
+		 * resolving the fields
+		 *
+		 * @param string $key The name of the field you are trying to retrieve
+		 *
+		 * @return bool
+		 */
 	public function __isset( $key ) {
 		return isset( $this->query->$key );
 	}
@@ -63,21 +63,21 @@ class WP_Query_Custom {
 	}
 
 		/**
-	 * Forwards function calls to WP_Query instance.
-	 *
-	 * @param string $method - function name.
-	 * @param array $args   - function call arguments.
-	 *
-	 * @return mixed
-	 *
-	 * @throws \BadMethodCallException Method not found on WP_Query object.
-	 */
+		 * Forwards function calls to WP_Query instance.
+		 *
+		 * @param string $method - function name.
+		 * @param array  $args   - function call arguments.
+		 *
+		 * @return mixed
+		 *
+		 * @throws \BadMethodCallException Method not found on WP_Query object.
+		 */
 	public function __call( $method, $args ) {
 		if ( \is_callable( [ $this->query, $method ] ) ) {
 			return $this->query->$method( ...$args );
 		}
 
-		$class = __CLASS__;
+		$class = self::class;
 		throw new BadMethodCallException( "Call to undefined method {$method} on the {$class}" );
 	}
 }

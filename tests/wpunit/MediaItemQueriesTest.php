@@ -369,7 +369,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testQueryMediaItemsByMimeType() {
-		
+
 		$png_filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$png_attachment_id = $this->factory()->attachment->create_upload_object( $png_filename );
 
@@ -666,9 +666,9 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testSourceUrlSizes() {
 
 		// upload large attachment that will be resized to medium and thumbnail
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
-		$attachment = get_post( $attachment_id );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
 
 		$query = '
@@ -697,15 +697,15 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// get the attachment image sizes
 		$expected_sizes = [
-			'med' => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
+			'med'   => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
 			'large' => wp_get_attachment_image_src( $attachment_id, 'large' )[0],
-			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]
+			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 		];
 
 		$expected_filesizes = [
-			'med' => $this->_getFilesize( $expected_sizes['med'], $media_item_model ),
+			'med'   => $this->_getFilesize( $expected_sizes['med'], $media_item_model ),
 			'large' => $this->_getFilesize( $expected_sizes['large'], $media_item_model ),
-			'thumb' => $this->_getFilesize( $expected_sizes['thumb'], $media_item_model )
+			'thumb' => $this->_getFilesize( $expected_sizes['thumb'], $media_item_model ),
 		];
 
 		$this->assertEquals( $expected_sizes['med'], $mediaItems[0]['med'] );
@@ -716,10 +716,9 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected_filesizes['thumb'], $mediaItems[0]['fileThumb'] );
 
 		wp_delete_attachment( $attachment_id, true );
-
 	}
 
-	public function _getFilesize($source_url, $image_model ) {
+	public function _getFilesize( $source_url, $image_model ) {
 		$path_parts    = pathinfo( $source_url );
 		$original_file = get_attached_file( absint( $image_model->databaseId ) );
 		$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
@@ -729,30 +728,32 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testGetSourceUrlBySize() {
 
-		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
-		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
-		$attachment = get_post( $attachment_id );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
+		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
 
 		$expected_sizes = [
-			'full' => wp_get_attachment_image_src( $attachment_id, 'full' )[0],
-			'med' => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
+			'full'  => wp_get_attachment_image_src( $attachment_id, 'full' )[0],
+			'med'   => wp_get_attachment_image_src( $attachment_id, 'medium' )[0],
 			'large' => wp_get_attachment_image_src( $attachment_id, 'large' )[0],
-			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]
+			'thumb' => wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0],
 		];
 
-		$full = $media_item_model->get_source_url_by_size();
+		$full  = $media_item_model->get_source_url_by_size();
 		$large = $media_item_model->get_source_url_by_size( 'large' );
-		$med = $media_item_model->get_source_url_by_size( 'medium' );
+		$med   = $media_item_model->get_source_url_by_size( 'medium' );
 		$thumb = $media_item_model->get_source_url_by_size( 'thumbnail' );
 
-		codecept_debug( [
-			'$expected_sizes' => $expected_sizes,
-			'$full' => $full,
-			'$large' => $large,
-			'$med' => $med,
-			'$thumb' => $thumb
-		]);
+		codecept_debug(
+			[
+				'$expected_sizes' => $expected_sizes,
+				'$full'           => $full,
+				'$large'          => $large,
+				'$med'            => $med,
+				'$thumb'          => $thumb,
+			]
+		);
 
 		$this->assertEquals( $expected_sizes['med'], $med );
 		$this->assertEquals( $expected_sizes['large'], $large );
@@ -760,7 +761,5 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected_sizes['full'], $full );
 
 		wp_delete_attachment( $attachment_id, true );
-
 	}
-
 }

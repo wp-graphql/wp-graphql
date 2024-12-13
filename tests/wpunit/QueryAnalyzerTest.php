@@ -54,7 +54,7 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = QueryAnalyzer::is_enabled();
 		$this->assertTrue( $actual, 'Query Analyzer should be enabled when turned "on"' );
 
-		$request = graphql( ['query' => $query ], true );
+		$request         = graphql( [ 'query' => $query ], true );
 		$actual_response = $request->execute();
 		$actual_analyzer = $request->get_query_analyzer();
 
@@ -67,7 +67,7 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = QueryAnalyzer::is_enabled();
 		$this->assertFalse( $actual, 'Query Analyzer should be disabled when turned "off".' );
 
-		$request = graphql( ['query' => $query ], true );
+		$request         = graphql( [ 'query' => $query ], true );
 		$actual_response = $request->execute();
 		$actual_analyzer = $request->get_query_analyzer();
 
@@ -80,7 +80,7 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = QueryAnalyzer::is_enabled();
 		$this->assertTrue( $actual, 'Query Analyzer should be enabled when the "graphql_debug_enabled" filter is set to true.' );
 
-		$request = graphql( ['query' => $query ], true );
+		$request         = graphql( [ 'query' => $query ], true );
 		$actual_response = $request->execute();
 		$actual_analyzer = $request->get_query_analyzer();
 
@@ -107,7 +107,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
-
 
 		// execute the query
 		$request->execute();
@@ -154,7 +153,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 			true
 		);
-
 
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_query_types() );
@@ -221,7 +219,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				);
 			}
 		);
-
 
 		$query = '
 		{
@@ -296,7 +293,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			true
 		);
 
-
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
 
@@ -342,7 +338,6 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			],
 			true
 		);
-
 
 		// before execution, this should be null
 		$this->assertEmpty( $request->get_query_analyzer()->get_list_types() );
@@ -500,13 +495,17 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$post_id_1 = $this->factory()->post->create();
 		$post_id_2 = $this->factory()->post->create();
-		register_graphql_field( 'RootQuery', 'testLoadmany', [
-			'type' => [ 'list_of' => 'Post' ],
-			'resolve' => function( $source, $args, $context, $info ) use ( $post_id_1, $post_id_2 ) {
-				$post_ids = [ $post_id_1, $post_id_2 ];
-				return $context->get_loader( 'post' )->load_many( $post_ids );
-			}
-		] );
+		register_graphql_field(
+			'RootQuery',
+			'testLoadmany',
+			[
+				'type'    => [ 'list_of' => 'Post' ],
+				'resolve' => static function ( $source, $args, $context, $info ) use ( $post_id_1, $post_id_2 ) {
+					$post_ids = [ $post_id_1, $post_id_2 ];
+					return $context->get_loader( 'post' )->load_many( $post_ids );
+				},
+			]
+		);
 
 		$query = '
 		query TestLoadMany {
@@ -517,20 +516,31 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		$request = $this->graphql( [ 'query' => $query ], true );
-		$actual = $request->execute();
+		$actual  = $request->execute();
 
-		codecept_debug( [
-			'actual' => $actual,
-		]);
+		codecept_debug(
+			[
+				'actual' => $actual,
+			]
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedObject( 'testLoadmany', [
-				'databaseId' => $post_id_1,
-			] ),
-			$this->expectedObject( 'testLoadmany', [
-				'databaseId' => $post_id_2,
-			] ),
-		] );
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedObject(
+					'testLoadmany',
+					[
+						'databaseId' => $post_id_1,
+					]
+				),
+				$this->expectedObject(
+					'testLoadmany',
+					[
+						'databaseId' => $post_id_2,
+					]
+				),
+			]
+		);
 
 		$node_ids = $request->get_query_analyzer()->get_runtime_nodes();
 
@@ -539,6 +549,5 @@ class QueryAnalyzerTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotEmpty( $node_ids );
 		$this->assertContains( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id_1 ), $node_ids );
 		$this->assertContains( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id_2 ), $node_ids );
-
 	}
 }

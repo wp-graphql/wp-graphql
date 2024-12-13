@@ -67,8 +67,8 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 		}
 
 		// Assign menu to location.
-		if( ! empty( $location ) ) {
-			$menus = get_theme_mod( 'nav_menu_locations' );
+		if ( ! empty( $location ) ) {
+			$menus              = get_theme_mod( 'nav_menu_locations' );
 			$menus[ $location ] = $menu_id;
 
 			set_theme_mod( 'nav_menu_locations', $menus );
@@ -431,7 +431,7 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// // These should be filtered out.
 		$ignored_location = 'ignored-menu-items-location';
-		$ignored = $this->create_menu_items( 'ignored-menu-for-test', $ignored_location, 3 );
+		$ignored          = $this->create_menu_items( 'ignored-menu-for-test', $ignored_location, 3 );
 		register_nav_menu( $ignored_location, 'Ignored MenuItems' );
 
 		WPGraphQL::clear_schema();
