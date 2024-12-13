@@ -198,14 +198,15 @@ class PostObject {
 					),
 					'resolve'        => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
-						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+						$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
-						if ( empty( $terms ) || is_wp_error( $terms ) ) {
+						if ( empty( $object_id ) || ! absint( $object_id ) ) {
 							return null;
 						}
-						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-						$resolver->set_query_arg( 'include', $terms );
 
+						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+						$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
+						$resolver->set_query_arg( 'taxonomies', $taxonomies );
 						return $resolver->get_connection();
 					},
 				];
