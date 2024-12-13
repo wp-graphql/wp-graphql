@@ -48,7 +48,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 */
 		$query_args['orderby'] = 'comment_date';
 
-		
 		/**
 		 * Take any of the $args that were part of the GraphQL query and map their
 		 * GraphQL names to the WP_Term_Query names to be used in the WP_Term_Query
@@ -283,7 +282,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * Map and sanitize the input args to the WP_Comment_Query compatible args
 		 */
 		$query_args = Utils::map_input( $args, $arg_mapping );
-
 
 		/**
 		 * Filter the input fields
