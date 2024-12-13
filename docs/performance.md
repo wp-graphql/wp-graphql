@@ -41,6 +41,107 @@ While it's convenient to be able to query nested relationships and fields, unles
 
 While you might think that it's best to query fields "just in case" you might need it at some point, you're just creating more load on the server. Only request what you actually need, and change your queries and fragments as your needs change. 
 
+### Include Global IDs in Queries and Fragments
+
+While it's not a requirement to query for global IDs on nodes, it can provide benefits.
+
+When using client-side GraphQL libraries like Apollo Client or Relay, including the `id` and `databaseId` fields in your queries can improve caching and data management:
+
+```graphql
+query GetPosts {
+  posts {
+    nodes {
+      # Including both IDs helps with caching
+      id        # Global ID used by GraphQL clients
+      databaseId # WordPress database ID
+      title
+      # ... other fields
+    }
+  }
+}
+```
+
+Many GraphQL clients use these IDs for:
+- Query result caching and deduplication
+- Automatic cache updates
+- Entity normalization
+- Optimistic updates
+
+### Minimize Connection Nesting
+
+While WPGraphQL's connection model allows for deep nesting of related data, excessive nesting can lead to performance issues due to multiple database joins.
+
+Consider these strategies:
+
+#### Split or Conditionally Load Nested Data
+
+For data that's only needed sometimes, consider:
+
+- Using `@skip` and `@include` directive for conditional loading
+- Splitting into separate queries
+
+```graphql
+query GetPostsWithOptionalAuthorPosts($includeAuthorPosts: Boolean!) {
+  posts {
+    nodes {
+      id
+      title
+      author {
+        node {
+          name
+          # Only load author's posts when needed. 
+          # Application state can determine the boolean value to send to the variable.
+          posts @include(if: $includeAuthorPosts) {
+            nodes {
+              title
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+or
+
+```
+query GetPostsWithOptionalAuthorPosts($includeAuthorPosts: Boolean!) {
+  posts {
+    nodes {
+      id
+      title
+      author {
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+Get the results of the first query and execute the next query only as needed:
+
+```graphql
+query GetPostsByAuthor($authorId: Int) {
+  posts(where: {author: $authorId}) {
+    nodes {
+      id
+      title
+      author {
+        node {
+          databaseId
+          id
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+
 ## Pagination
 
 WPGraphQL implements Relay-style cursor-based pagination, which is more efficient than offset-based pagination for large datasets.
