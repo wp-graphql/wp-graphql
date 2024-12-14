@@ -31,6 +31,9 @@ final class Updates {
 		add_action( 'graphql_activate', [ $this, 'disable_incompatible_plugins' ] );
 		add_action( 'admin_notices', [ $this, 'disable_incompatible_plugins_notice' ] );
 
+		// Register admin assets.
+		add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ] );
+
 		// @todo Remove.
 		$this->temp_stub_update_available();
 	}
@@ -57,11 +60,8 @@ final class Updates {
 	 * @return bool Whether the plugin should autoupdate.
 	 */
 	public function maybe_allow_autoupdates( $should_update, $plugin ) {
-		if ( ! isset( $plugin->plugin ) || ! isset( $plugin->new_version ) ) {
-			return $should_update;
-		}
-
-		if ( 'wp-graphql/wp-graphql.php' !== $plugin->plugin ) {
+		// Bail if it's not our plugin.
+		if ( ! isset( $plugin->plugin ) || ! isset( $plugin->new_version ) || 'wp-graphql/wp-graphql.php' !== $plugin->plugin ) {
 			return $should_update;
 		}
 
@@ -111,6 +111,31 @@ final class Updates {
 	}
 
 	/**
+	 * Registers the admin assets.
+	 */
+	public function register_assets(): void {
+		$screen          = get_current_screen();
+		$allowed_screens = [
+			'plugins',
+			'update-core',
+		];
+
+		// Bail if we're not on a screen.
+		if ( ! $screen || ! in_array( $screen->id, $allowed_screens, true ) ) {
+			return;
+		}
+
+		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/updates.asset.php';
+
+		wp_enqueue_style(
+			'wp-graphql-admin-updates',
+			WPGRAPHQL_PLUGIN_URL . 'build/updates.css',
+			$asset_file['dependencies'],
+			$asset_file['version']
+		);
+	}
+
+	/**
 	 * Temporary stub to simulate an update being available.
 	 *
 	 * @todo Remove before committing.
@@ -154,12 +179,12 @@ final class Updates {
 
 		// Deactivate the incompatible plugins.
 		$notice_data = [];
-		foreach ( $incompatible_plugins as $plugin ) {
+		foreach ( $incompatible_plugins as $file => $plugin ) {
 			$notice_data[] = [
 				'name'    => $plugin['Name'],
 				'version' => $plugin[ UpdateChecker::VERSION_HEADER ],
 			];
-			deactivate_plugins( $plugin['plugin'] );
+			deactivate_plugins( $file );
 		}
 
 		// Display a notice to the user.
@@ -169,9 +194,7 @@ final class Updates {
 	}
 
 	/**
-	 * Displays a notice to the user if incompatible plugins were deactivated.
-	 *
-	 * When the notice is dismissed, the transient is deleted.
+	 * Displays a one-time notice to the user if incompatible plugins were deactivated.
 	 */
 	public function disable_incompatible_plugins_notice(): void {
 		$incompatible_plugins = get_transient( 'wpgraphql_incompatible_plugins' );
@@ -182,7 +205,7 @@ final class Updates {
 
 		$notice = sprintf(
 			'<p>%s</p>',
-			__( 'The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a higher version to reactivate these plugins.', 'wp-graphql' )
+			__( 'The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins.', 'wp-graphql' )
 		);
 
 		$notice .= '<ul>';

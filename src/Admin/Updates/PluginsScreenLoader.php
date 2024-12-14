@@ -52,6 +52,7 @@ class PluginsScreenLoader {
 
 		if ( ! empty( $untested_plugins ) ) {
 			$update_message .= $this->get_untested_plugins_message( $untested_plugins );
+			$update_message .= $this->update_checker->get_untested_plugins_modal( $untested_plugins );
 		}
 
 		// Handle dangling <p> tags from the default update message.
@@ -91,26 +92,28 @@ class PluginsScreenLoader {
 
 		ob_start();
 		?>
-		
-		<p>
-			<strong><?php echo esc_html__( 'Incompatible Plugins', 'wp-graphql' ); ?></strong>
-			<?php echo esc_html( $message ); ?>
-		</p>
 
-		<ul>
-			<?php foreach ( $plugins as $plugin ) : ?>
-				<li>
-					<?php
-					printf(
-						// translators: %1$s - The plugin name, %2$s - The plugin version.
-						esc_html__( '%1$s (requires at least WPGraphQL: v%2$s)', 'wp-graphql' ),
-						esc_html( $plugin['name'] ),
-						esc_html( $plugin['version'] )
-					);
-					?>
-				</li>
-			<?php endforeach; ?>
-		</ul>
+		<div class="wp-graphql-update-notice">
+			<p class="warning"><strong><?php echo esc_html__( 'Incompatible Plugins:', 'wp-graphql' ); ?></strong></p>
+			<p><?php echo esc_html( $message ); ?></p>
+
+			<table>
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
+						<th><?php esc_html_e( 'Version', 'wp-graphql' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $plugins as $plugin ) : ?>
+						<tr>
+							<td><?php echo esc_html( $plugin['name'] ); ?></td>
+							<td><?php echo esc_html( $plugin['version'] ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 
 		<?php
 
@@ -135,24 +138,24 @@ class PluginsScreenLoader {
 		}
 
 		$message = sprintf(
-			// translators: %s - The WPGraphQL version.
-			__( 'The installed versions of the following plugins have not been tested with WPGraphQL v%s. Please update them or confirm compatibility before updating WPGraphQL, or you may experience issues:', 'wp-graphql' ),
-			$this->update_checker->new_version
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'The following active plugin(s) have not been tested with %s. Please update them or confirm compatibility before updating WPGraphQL, or you may experience issues:', 'wp-graphql' ),
+			// translators: %s: The WPGraphQL version.
+			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
 		);
 
 		ob_start();
 		?>
-			<p>
-				<strong><?php echo esc_html__( 'Untested Plugins', 'wp-graphql' ); ?></strong>
-				<?php echo esc_html( $message ); ?>
-			</p>
-				
-			<table cellspacing="0">
+		<div class="wp-graphql-update-notice">
+			<p class="warning"><strong><?php echo esc_html__( 'Untested Plugins:', 'wp-graphql' ); ?></strong></p>
+			<p><?php echo wp_kses_post( $message ); ?></p>
+
+			<table>
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Version', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Tested Up To', 'wp-graphql' ); ?></th>
+						<th><?php esc_html_e( 'Current Version', 'wp-graphql' ); ?></th>
+						<th><?php esc_html_e( 'WPGraphQL Tested Up To', 'wp-graphql' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -179,7 +182,31 @@ class PluginsScreenLoader {
 	public function modal_js(): void {
 		?>
 		<script>
-			// @todo
+			( function( $ ) {
+				var $update_box = $( '#wp-graphql-update' );
+				var $update_link = $update_box.find('a.update-link').first();
+				var update_url = $update_link.attr( 'href' );
+
+				// Set up thickbox.
+				$update_link.removeClass( 'update-link' );
+				$update_link.addClass( 'wp-graphql-thickbox' );
+				$update_link.attr( 'href', '#TB_inline?height=600&width=550&inlineId=wp-graphql-update-modal' );
+
+				// Trigger the update if the user accepts the modal's warning.
+				$( '#wp-graphql-update-modal .accept' ).on( 'click', function( evt ) {
+					evt.preventDefault();
+					tb_remove();
+					$update_link.removeClass( 'wc-thickbox open-plugin-details-modal' );
+					$update_link.addClass( 'update-link' );
+					$update_link.attr( 'href', update_url );
+					$update_link.trigger( 'click' );
+				});
+
+				$( '#wp-graphql-update-modal .cancel' ).on( 'click', function( evt ) {
+					evt.preventDefault();
+					tb_remove();
+				});
+			})( jQuery );
 		</script>
 		<?php
 		$this->update_checker->modal_js();

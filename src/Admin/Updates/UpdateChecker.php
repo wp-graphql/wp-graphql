@@ -206,6 +206,122 @@ class UpdateChecker {
 	}
 
 	/**
+	 * Get the shared modal HTML for the update checkers.
+	 *
+	 * @param array<string,array<string,mixed>> $untested_plugins The untested plugins.
+	 */
+	public function get_untested_plugins_modal( array $untested_plugins ): string {
+		$plugins = array_map(
+			static function ( $plugin ) {
+				return $plugin['Name'];
+			},
+			$untested_plugins
+		);
+
+		if ( empty( $plugins ) ) {
+			return '';
+		}
+
+		ob_start();
+
+		$message = sprintf(
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'The following active plugin(s) have not yet declared compatibility with %s and should be updated and examined further before proceeding:', 'wp-graphql' ),
+			// translators: %s: The WPGraphQL version.
+			sprintf( '<strong>WPGraphQL v%s</strong>', $this->new_version )
+		);
+		?>
+
+		<div id="wp-graphql-update-modal">
+			<div class="wp-graphql-update-modal__content">
+
+				<h1><?php esc_html_e( 'Are you sure you\'re ready to update?', 'wp-graphql' ); ?></h1>
+
+				<div class="wp-graphql-update-notice">
+					<p><?php echo wp_kses_post( $message ); ?></p>
+
+					<div class="plugin-details-table-container">
+						<table class="plugin-details-table" cellspacing="0">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
+									<th><?php esc_html_e( 'WPGraphQL Tested Up To', 'wp-graphql' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $untested_plugins as $plugin ) : ?>
+									<tr>
+										<td><?php echo esc_html( $plugin['Name'] ); ?></td>
+										<td><?php echo esc_html( $plugin[ self::TESTED_UP_TO_HEADER ] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong><?php esc_html_e( 'We strongly recommend creating a backup of your site before updating.', 'wp-graphql' ); ?></strong></p>
+
+					<?php if ( current_user_can( 'update_plugins' ) ) : ?>
+						<div class="actions">
+							<a href="#" class="button button-secondary cancel"><?php esc_html_e( 'Cancel', 'wp-graphql' ); ?></a>
+							<a class="button button-primary accept" href="#"><?php esc_html_e( 'Update now', 'wp-graphql' ); ?></a>
+						</div>
+					<?php endif ?>
+				</div>
+			</div>
+		</div>
+
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Outputs the shared modal JS for the update checkers.
+	 *
+	 * @todo WIP.
+	 */
+	public function modal_js(): void {
+		?>
+		<script>
+			( function( $ ) {
+				// Initialize thickbox.
+				tb_init( '.wp-graphql-thickbox' );
+
+				var old_tb_position = false;
+
+				// Make the WC thickboxes look good when opened.
+				$( '.wp-graphql-thickbox' ).on( 'click', function( evt ) {
+					var $overlay = $( '#TB_overlay' );
+					if ( ! $overlay.length ) {
+						$( 'body' ).append( '<div id="TB_overlay"></div><div id="TB_window" class="wp-graphql-update-modal__container"></div>' );
+					} else {
+						$( '#TB_window' ).removeClass( 'thickbox-loading' ).addClass( 'wp-graphql-update-modal__container' );
+					}
+
+					// WP overrides the tb_position function. We need to use a different tb_position function than that one.
+					// This is based on the original tb_position.
+					if ( ! old_tb_position ) {
+						old_tb_position = tb_position;
+					}
+					tb_position = function() {
+						$( '#TB_window' ).css( { marginLeft: '-' + parseInt( ( TB_WIDTH / 2 ), 10 ) + 'px', width: TB_WIDTH + 'px' } );
+						$( '#TB_window' ).css( { marginTop: '-' + parseInt( ( TB_HEIGHT / 2 ), 10 ) + 'px' } );
+					};
+				});
+
+				// Reset tb_position to WP default when modal is closed.
+				$( 'body' ).on( 'thickbox:removed', function() {
+					if ( old_tb_position ) {
+						tb_position = old_tb_position;
+					}
+				});
+			}
+		) ( jQuery );
+		</script>
+		<?php
+	}
+
+	/**
 	 * Returns whether to allow major plugin autoupdates.
 	 *
 	 * Defaults to false.
@@ -368,11 +484,6 @@ class UpdateChecker {
 		$all_plugins = $this->get_all_plugins();
 		$plugin_data = $all_plugins[ $plugin_path ] ?? null;
 
-		// Bail early if the plugin doesn't exist.
-		if ( empty( $plugin_data ) ) {
-			return false;
-		}
-
 		// If the plugin doesn't have a version header, it's compatibility is unknown.
 		if ( empty( $plugin_data[ self::VERSION_HEADER ] ) ) {
 			return false;
@@ -462,18 +573,5 @@ class UpdateChecker {
 		);
 
 		return in_array( 'wp-graphql', $required_plugins, true );
-	}
-
-	/**
-	 * Outputs the shared modal JS for the update checkers.
-	 *
-	 * @todo WIP.
-	 */
-	public function modal_js(): void {
-		?>
-		<script>
-			// @todo WIP.
-		</script>
-		<?php
 	}
 }

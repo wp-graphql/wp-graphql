@@ -74,7 +74,8 @@
     "dotenv": "^16.4.4",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "sort-package-json": "^2.7.0"
+    "sort-package-json": "^2.7.0",
+    "webpack-remove-empty-scripts": "^1.0.4"
   },
   "lint-staged": {
     "package.json": "sort-package-json"
