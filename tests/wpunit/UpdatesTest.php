@@ -4,11 +4,14 @@ use WPGraphQL\Admin\Updates\Updates;
 
 class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	private $test_plugins = [];
+	private $old_current_screen;
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function setUp(): void {
+		global $current_screen;
+		$this->old_current_screen = $current_screen;
 
 		$this->test_plugins = [
 			'plugin-with-headers',
@@ -38,7 +41,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		set_current_screen( '' );
+		$this->reset_current_screen();
 
 		parent::tearDown();
 	}
@@ -105,7 +108,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$updates->init();
 
 		// On a non-allowed screen.
-		set_current_screen( '' );
+		$this->reset_current_screen();
 		$updates->register_assets();
 
 		$this->assertArrayNotHasKey( 'wp-graphql-admin-updates', wp_styles()->registered, 'wp-graphql-admin-updates style should not be registered.' );
@@ -562,18 +565,10 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Sets a site transient
-	 *
-	 * @param string $transient
-	 * @param mixed  $value
+	 * Reset the current screen.
 	 */
-	private function set_site_transient( $transient, $value ): void {
-		$success = update_option( '_site_transient_' . $transient, $value );
-
-		$GLOBALS['wp_tests_options'][ '_site_transient_' . $transient ] = $value;
-
-		if ( ! $success ) {
-			codecept_debug( 'Failed to set site transient.' );
-		}
+	private function reset_current_screen(): void {
+		global $current_screen;
+		$current_screen = $this->old_current_screen;
 	}
 }
