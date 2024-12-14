@@ -173,10 +173,10 @@ final class Updates {
 			__( 'The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins.', 'wp-graphql' )
 		);
 
-		$notice .= '<ul>';
+		$notice .= '<ul class="ul-disc">';
 		foreach ( $incompatible_plugins as $plugin ) {
 			$notice .= sprintf(
-				'<li>%s (requires at least WPGraphQL: v%s)</li>',
+				'<li><strong>%s</strong> (requires at least WPGraphQL: v%s)</li>',
 				esc_html( $plugin['name'] ),
 				esc_html( $plugin['version'] )
 			);
