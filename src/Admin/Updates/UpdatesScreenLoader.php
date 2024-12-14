@@ -39,9 +39,7 @@ class UpdatesScreenLoader {
 
 		$this->update_checker = new UpdateChecker( $updateable_plugins['wp-graphql/wp-graphql.php']->update );
 
-		$should_update = $this->update_checker->should_autoupdate( true );
-
-		if ( $should_update ) {
+		if ( $this->update_checker->should_autoupdate( true ) ) {
 			return;
 		}
 

@@ -40,13 +40,8 @@ class PluginsScreenLoader {
 			return;
 		}
 
+		// @todo - maybe show upgrade notice?
 		$update_message = '';
-
-		$incompatible_plugins = $this->update_checker->get_incompatible_plugins( $this->update_checker->new_version, true );
-
-		if ( ! empty( $incompatible_plugins ) ) {
-			$update_message .= $this->get_incompatible_plugins_message( $incompatible_plugins );
-		}
 
 		$untested_plugins = $this->update_checker->get_untested_plugins( 'major' );
 
@@ -62,62 +57,6 @@ class PluginsScreenLoader {
 		add_action( 'admin_print_footer_scripts', [ $this, 'modal_js' ] );
 
 		echo wp_kses_post( $update_message );
-	}
-
-	/**
-	 * Gets the incompatible plugins warning message.
-	 *
-	 * @param array<string,array<string,mixed>> $incompatible_plugins The incompatible plugins.
-	 */
-	private function get_incompatible_plugins_message( array $incompatible_plugins ): string {
-		$plugins = array_map(
-			static function ( $plugin ) {
-				return [
-					'name'    => $plugin['Name'],
-					'version' => $plugin[ UpdateChecker::VERSION_HEADER ],
-				];
-			},
-			$incompatible_plugins
-		);
-
-		if ( empty( $plugins ) ) {
-			return '';
-		}
-
-		$message = sprintf(
-			// translators: %s - The WPGraphQL version.
-			__( 'The following plugins are incompatible with WPGraphQL v%s and will be disabled upon updating:', 'wp-graphql' ),
-			$this->update_checker->new_version
-		);
-
-		ob_start();
-		?>
-
-		<div class="wp-graphql-update-notice">
-			<p class="warning"><strong><?php echo esc_html__( 'Incompatible Plugins:', 'wp-graphql' ); ?></strong></p>
-			<p><?php echo esc_html( $message ); ?></p>
-
-			<table>
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Version', 'wp-graphql' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $plugins as $plugin ) : ?>
-						<tr>
-							<td><?php echo esc_html( $plugin['name'] ); ?></td>
-							<td><?php echo esc_html( $plugin['version'] ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
-
-		<?php
-
-		return (string) ob_get_clean();
 	}
 
 	/**

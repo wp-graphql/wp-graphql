@@ -33,9 +33,6 @@ final class Updates {
 
 		// Register admin assets.
 		add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ] );
-
-		// @todo Remove.
-		$this->temp_stub_update_available();
 	}
 
 	/**
@@ -133,38 +130,6 @@ final class Updates {
 			$asset_file['dependencies'],
 			$asset_file['version']
 		);
-	}
-
-	/**
-	 * Temporary stub to simulate an update being available.
-	 *
-	 * @todo Remove before committing.
-	 */
-	public function temp_stub_update_available(): void {
-		$update_plugins = get_site_transient( 'update_plugins' );
-
-		if ( ! $update_plugins ) {
-			return;
-		}
-
-		// Prime.
-		if ( empty( $update_plugins->response ) ) {
-			$update_plugins->response = [];
-		}
-
-		if ( isset( $update_plugins->no_update['wp-graphql/wp-graphql.php'] ) ) {
-			$update_plugins->response['wp-graphql/wp-graphql.php'] = $update_plugins->no_update['wp-graphql/wp-graphql.php'];
-
-			unset( $update_plugins->no_update['wp-graphql/wp-graphql.php'] );
-		}
-
-		// Stub new version.
-		if ( isset( $update_plugins->response['wp-graphql/wp-graphql.php'] ) ) {
-			// Ensure array.
-			$update_plugins->response['wp-graphql/wp-graphql.php']->new_version = '4.0.0';
-		}
-
-		set_site_transient( 'update_plugins', $update_plugins );
 	}
 
 	/**
