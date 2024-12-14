@@ -176,8 +176,6 @@ class PluginsScreenLoader {
 
 	/**
 	 * The modal JS for the plugin update message.
-	 *
-	 * @todo WIP.
 	 */
 	public function modal_js(): void {
 		?>
@@ -208,6 +206,7 @@ class PluginsScreenLoader {
 				});
 			})( jQuery );
 		</script>
+
 		<?php
 		$this->update_checker->modal_js();
 	}
