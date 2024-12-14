@@ -183,7 +183,7 @@ final class Updates {
 		}
 		$notice .= '</ul>';
 
-		echo wp_kses( '<div class="notice notice-error is-dismissable">%s</div>', $notice );
+		echo wp_kses_post( sprintf( '<div class="notice notice-error is-dismissable">%s</div>', $notice ) );
 
 		// Delete once the notice is displayed.
 		delete_transient( 'wpgraphql_incompatible_plugins' );

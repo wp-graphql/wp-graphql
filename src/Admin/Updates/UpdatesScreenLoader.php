@@ -33,6 +33,7 @@ class UpdatesScreenLoader {
 	public function update_screen_modal(): void {
 		// Bail if the plugin is not on the update list.
 		$updateable_plugins = get_plugin_updates();
+
 		if ( empty( $updateable_plugins['wp-graphql/wp-graphql.php']->update->new_version ) ) {
 			return;
 		}
