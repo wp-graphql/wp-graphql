@@ -3,6 +3,7 @@
  * Handles plugin update checks and notifications on the plugins screen.
  *
  * Code is inspired by and adapted from WooCommerce's WC_Updates_Screen_Updates class.
+ *
  * @see https://github.com/woocommerce/woocommerce/blob/5f04212f8188e0f7b09f6375d1a6c610fac8a631/plugins/woocommerce/includes/admin/plugin-updates/class-wc-updates-screen-updates.php
  *
  * @package WPGraphQL\Admin\Updates

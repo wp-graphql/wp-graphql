@@ -3,7 +3,7 @@
  * Handle the plugin update checks and notifications.
  *
  * @internal This class is for internal use only. It may change in the future without warning.
- * 
+ *
  * Code is inspired by and adapted from WooCommerce's WC_Plugin_Updates class.
  * @see https://github.com/woocommerce/woocommerce/blob/5f04212f8188e0f7b09f6375d1a6c610fac8a631/plugins/woocommerce/includes/admin/plugin-updates/class-wc-plugin-updates.php
  *
