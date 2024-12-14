@@ -38,6 +38,8 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
+		set_current_screen( '' );
+
 		parent::tearDown();
 	}
 
@@ -76,10 +78,11 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * Test load_screen_checker does not throw an error.
 	 */
 	public function testLoadScreenChecker(): void {
-		// Test against a non-plugin screen.
-		set_current_screen( 'test' );
 		$updates = new Updates();
 		$updates->init();
+
+		// Test against a non-plugin screen.
+		set_current_screen( 'test' );
 
 		$updates->load_screen_checker();
 
@@ -92,6 +95,38 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$updates->load_screen_checker();
 
 		$this->assertTrue( true, 'load_screen_checker did not throw an error.' );
+	}
+
+	/**
+	 * Test register_assets enqueues the correct styles.
+	 */
+	public function testRegisterAssets(): void {
+		$updates = new Updates();
+		$updates->init();
+
+		// On a non-allowed screen.
+		set_current_screen( '' );
+		$updates->register_assets();
+
+		$this->assertArrayNotHasKey( 'wp-graphql-admin-updates', wp_styles()->registered, 'wp-graphql-admin-updates style should not be registered.' );
+
+		// On the plugins screen.
+		set_current_screen( 'plugins' );
+		$updates->register_assets();
+
+		$actual = wp_styles()->registered['wp-graphql-admin-updates'];
+
+		$this->assertArrayHasKey( 'wp-graphql-admin-updates', wp_styles()->registered, 'wp-graphql-admin-updates style not registered.' );
+		$this->assertStringContainsString( 'wp-graphql/build/updates.css', $actual->src, 'wp-graphql-admin-updates style not enqueued.' );
+
+		// On the updates screen.
+		set_current_screen( 'update-core' );
+		$updates->register_assets();
+
+		$actual = wp_styles()->registered['wp-graphql-admin-updates'];
+
+		$this->assertArrayHasKey( 'wp-graphql-admin-updates', wp_styles()->registered, 'wp-graphql-admin-updates style not registered.' );
+		$this->assertStringContainsString( 'wp-graphql/build/updates.css', $actual->src, 'wp-graphql-admin-updates style not enqueued.' );
 	}
 
 	/**
@@ -156,6 +191,69 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Cleanup.
 		remove_filter( 'wpgraphql_enable_major_autoupdates', '__return_true' );
 	}
+
+	/**
+	 * Tests disabling incompatible plugins.
+	 */
+	public function testDisableIncompatiblePlugins(): void {
+		// Codeception doesn't deactivate plugins so we check if the hook was triggered.
+		$deactivated_plugin = false;
+		add_action(
+			'deactivate_plugin',
+			static function ( $plugin ) use ( &$deactivated_plugin ) {
+				if ( 'plugin-incompatible-version/plugin-incompatible-version.php' === $plugin ) {
+					$deactivated_plugin = true;
+				}
+			}
+		);
+
+		$updates = new Updates();
+		$updates->init();
+
+		// Test with no plugins installed.
+		$updates->disable_incompatible_plugins();
+
+		$this->assertFalse( $deactivated_plugin, 'Plugin should not exist.' );
+
+		// Test with an installed plugin.
+		$this->install_test_plugin( 'plugin-incompatible-version' );
+		wp_cache_delete( 'plugins', 'plugins' );
+
+		$updates->disable_incompatible_plugins();
+
+		$this->assertFalse( $deactivated_plugin, 'Plugin should already be deactivated.' );
+
+		// Test wih an active plugin.
+		$this->activate_plugin( 'plugin-incompatible-version/plugin-incompatible-version.php' );
+
+		// Confirm the plugin is active.
+		$this->assertTrue( is_plugin_active( 'plugin-incompatible-version/plugin-incompatible-version.php' ), 'Plugin is not active.' );
+
+		$updates->disable_incompatible_plugins();
+
+		$this->assertTrue( $deactivated_plugin, 'Plugin was not deactivated.' );
+
+		$actual_data = get_transient( 'wpgraphql_incompatible_plugins' );
+
+		$this->assertNotEmpty( $actual_data, 'Transient was not set.' );
+
+		ob_start();
+		do_action( 'admin_notices' );
+		$message = ob_get_clean();
+
+		$this->assertStringContainsString( 'The following plugins were deactivated', $message, 'Deactivation message not found.' );
+		$this->assertStringContainsString( 'Incompatible Version', $message, 'Deactivated plugin not found.' );
+
+		// Ensure transient is cleared.
+		$actual_data = get_transient( 'wpgraphql_incompatible_plugins' );
+
+		$this->assertEmpty( $actual_data, 'Transient was not cleared.' );
+
+		// Cleanup.
+		$this->cleanup_test_plugin( 'plugin-incompatible-version' );
+		remove_all_actions( 'deactivate_plugin' );
+	}
+
 
 	/**
 	 * Test updating with a `Requires Plugin` dependency.
@@ -275,6 +373,82 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test the Plugin Screen inline messsage and modal.
+	 */
+	public function testPluginScreenLoader(): void {
+		$this->install_test_plugin( 'plugin-with-headers' );
+		$this->activate_plugin( 'plugin-with-headers/plugin-with-headers.php' );
+
+		$loader = new \WPGraphQL\Admin\Updates\PluginsScreenLoader();
+
+		ob_start();
+		$loader->in_plugin_update_message( [], (object) [ 'new_version' => '99.0.0' ] );
+		$message = ob_get_clean();
+
+		// Test the inline message
+		$this->assertStringContainsString( 'The following active plugin(s) have not been tested with <strong>WPGraphQL v99.0.0</strong>.', $message, 'Plugin screen message not found.' );
+		// Test the modal message.
+		$this->assertStringContainsString( 'The following active plugin(s) have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong> and should be updated and examined further before proceeding:', $message, 'Plugin screen message not found.' );
+		// Test the plugin name.
+		$this->assertStringContainsString( 'Test Plugin With Headers', $message, 'Plugin name not found.' );
+
+		// Ensure the modal js is output.
+		ob_start();
+		$loader->modal_js();
+		$expected = ob_get_clean();
+
+		ob_start();
+		do_action( 'admin_print_footer_scripts' );
+		$actual = ob_get_clean();
+
+		$this->assertStringContainsString( $expected, $actual, 'Modal JS not output.' );
+
+		// Cleanup.
+		$this->cleanup_test_plugin( 'plugin-with-headers' );
+	}
+
+	/**
+	 * Test the update screen modal.
+	 */
+	public function testUpdateScreenLoader(): void {
+		$this->install_test_plugin( 'plugin-with-headers' );
+		$this->activate_plugin( 'plugin-with-headers/plugin-with-headers.php' );
+
+		$loader = new \WPGraphQL\Admin\Updates\UpdatesScreenLoader();
+
+		// Test with no plugin update.
+		ob_start();
+		$loader->update_screen_modal();
+		$message = ob_get_clean();
+
+		$this->assertEmpty( $message, 'Plugin screen message should be empty.' );
+
+		// Stub a plugin update.
+		add_filter(
+			'pre_site_transient_update_plugins',
+			function () {
+				return (object) [
+					'response' => [
+						'wp-graphql/wp-graphql.php' => $this->get_plugin_update_data( '99.0.0' ),
+					],
+				];
+			},
+			PHP_INT_MAX
+		);
+
+		ob_start();
+		$loader->update_screen_modal();
+		$message = ob_get_clean();
+
+		$this->assertStringContainsString( 'The following active plugin(s) have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong> and should be updated and examined further before proceeding:', $message, 'Plugin screen message not found.' );
+		$this->assertStringContainsString( 'Test Plugin With Headers', $message, 'Plugin name not found.' );
+
+		// Cleanup.
+		$this->cleanup_test_plugin( 'plugin-with-headers' );
+		remove_all_filters( 'pre_site_transient_update_plugins' );
+	}
+
+	/**
 	 * Test updating with an incompatible plugin.
 	 */
 	public function testUpdateWithIncompatiblePlugin(): void {
@@ -384,6 +558,22 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			if ( ! $success ) {
 				codecept_debug( 'Failed to deactivate plugin.' );
 			}
+		}
+	}
+
+	/**
+	 * Sets a site transient
+	 *
+	 * @param string $transient
+	 * @param mixed  $value
+	 */
+	private function set_site_transient( $transient, $value ): void {
+		$success = update_option( '_site_transient_' . $transient, $value );
+
+		$GLOBALS['wp_tests_options'][ '_site_transient_' . $transient ] = $value;
+
+		if ( ! $success ) {
+			codecept_debug( 'Failed to set site transient.' );
 		}
 	}
 }
