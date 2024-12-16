@@ -36,6 +36,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 						dependencies {
 							handle
 						}
+						group
 						handle
 						isRtl
 						media
@@ -76,6 +77,7 @@ class RegisteredStylesheetConnectionQueriesTest extends \Tests\WPGraphQL\TestCas
 		$expected = $wp_styles->registered[ $actual['data']['registeredStylesheets']['nodes'][0]['handle'] ];
 
 		$this->assertEquals( ! empty( $expected->extra['conditional'] ) ? $expected->extra['conditional'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['conditional'] );
+		$this->assertEquals( isset( $expected->extra['group'] ) ? $expected->extra['group'] : null, $actual['data']['registeredStylesheets']['nodes'][0]['group'] );
 		$this->assertEquals( $expected->handle, $actual['data']['registeredStylesheets']['nodes'][0]['handle'] );
 		$this->assertEquals( ! empty( $expected->extra['rtl'] ), $actual['data']['registeredStylesheets']['nodes'][0]['isRtl'] );
 		$this->assertEquals( $expected->args ?: 'all', $actual['data']['registeredStylesheets']['nodes'][0]['media'] );
