@@ -199,7 +199,6 @@ class ModelUserTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNotEmpty( $actual['data']['users']['nodes'] );
 
-
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['id'] );
 		$this->assertTrue( in_array( $actual['data']['users']['nodes'][0]['userId'], $this->userIds, true ) );
 		$this->assertNotEmpty( $actual['data']['users']['nodes'][0]['firstName'] );

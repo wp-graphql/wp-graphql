@@ -251,8 +251,13 @@ class Comments {
 				'description' => __( 'Search term(s) to retrieve matching comments for.', 'wp-graphql' ),
 			],
 			'status'             => [
-				'type'        => 'String',
-				'description' => __( 'Comment status to limit results by.', 'wp-graphql' ),
+				'type'              => 'String',
+				'description'       => __( 'Comment status to limit results by.', 'wp-graphql' ),
+				'deprecationReason' => __( 'Deprecated in favor of statusIn which accepts a list of one or more CommentStatusEnum values instead of a string', 'wp-graphql' ),
+			],
+			'statusIn'           => [
+				'type'        => [ 'list_of' => 'CommentStatusEnum' ],
+				'description' => __( 'One or more Comment Statuses to limit results by', 'wp-graphql' ),
 			],
 			'userId'             => [
 				'type'        => 'ID',

@@ -4,7 +4,7 @@ $I = new FunctionalTester( $scenario );
 $I->wantTo( 'Test GraphQL Keys returned in headers' );
 
 // First test with Query_analyzer disabled
-$graphql_general_settings = get_option( 'graphql_general_settings' );
+$graphql_general_settings                           = get_option( 'graphql_general_settings' );
 $graphql_general_settings['query_analyzer_enabled'] = 'off';
 update_option( 'graphql_general_settings', $graphql_general_settings );
 
@@ -97,4 +97,3 @@ $I->assertContains( $list_post_key, explode( ' ', $x_graphql_keys ) );
 // cleanup
 $graphql_general_settings['query_analyzer_enabled'] = 'off';
 update_option( 'graphql_general_settings', $graphql_general_settings );
-

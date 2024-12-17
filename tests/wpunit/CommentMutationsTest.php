@@ -170,7 +170,6 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $this->subscriber, $actual['data']['createComment']['comment']['author']['node']['databaseId'] );
 		$this->assertEquals( 'HOLD', $actual['data']['createComment']['comment']['status'] );
 
-
 		// Test logged in user different than author.
 		wp_set_current_user( $this->admin );
 
@@ -704,4 +703,53 @@ class CommentMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 	}
+
+	public function testCommentStatusTransitions() {
+		// Create a post first
+		$post_id = $this->factory()->post->create();
+		
+		// Create the comment
+		$comment_id = $this->factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_approved' => '1',
+		]);
+	
+		$query = '
+		mutation UpdateCommentStatus( $id: ID!, $status: CommentStatusEnum! ) {
+			updateComment(
+				input: {
+					id: $id
+					status: $status
+				}
+			) {
+				comment {
+					id
+					databaseId
+					status
+				}
+			}
+		}
+		';
+	
+		// Test as subscriber (should fail)
+		wp_set_current_user($this->subscriber);
+		
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
+			'status' => 'SPAM'
+		];
+		
+		$actual = $this->graphql(compact('query', 'variables'));
+		
+		// Subscriber should get an error about capabilities
+		$this->assertArrayHasKey('errors', $actual);
+	
+		// Test as admin (should succeed)
+		wp_set_current_user($this->admin);
+		$actual = $this->graphql(compact('query', 'variables'));
+		
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertEquals('SPAM', $actual['data']['updateComment']['comment']['status']);
+	}
+
 }

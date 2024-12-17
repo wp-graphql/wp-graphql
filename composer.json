@@ -25,7 +25,7 @@
 		"php": "^7.1 || ^8.0",
 		"webonyx/graphql-php": "14.11.10",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "1.2.1"
+		"appsero/client": "2.0.4"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
@@ -41,7 +41,7 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
 		"phpstan/extension-installer": "^1.1",
-		"phpstan/phpstan": "~1.11.4",
+		"phpstan/phpstan": "~1.12.12",
 		"phpunit/phpunit": "^9.5",
 		"php-coveralls/php-coveralls": "^2.5",
 		"slevomat/coding-standard": "^8.9",
@@ -64,7 +64,10 @@
 		"files": [],
 		"psr-4": {
 			"WPGraphQL\\": "src/"
-		}
+		},
+		"classmap": [
+			"src/WPGraphQL.php"
+		]
 	},
 	"scripts": {
 		"install-test-env": "bash bin/install-test-env.sh",

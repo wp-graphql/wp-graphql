@@ -16,6 +16,13 @@ namespace WPGraphQL\Admin;
 class AdminNotices {
 
 	/**
+	 * Stores the singleton instance of the class
+	 *
+	 * @var self|null
+	 */
+	private static $instance = null;
+
+	/**
 	 * Stores the admin notices to display
 	 *
 	 * @var array<string,array<string,mixed>>
@@ -26,6 +33,34 @@ class AdminNotices {
 	 * @var array<string>
 	 */
 	protected $dismissed_notices = [];
+
+	/**
+	 * Private constructor to prevent direct instantiation
+	 */
+	private function __construct() {
+		// Initialize the class (can move code from init() here if desired)
+	}
+
+	/**
+	 * Prevent cloning the instance
+	 */
+	public function __clone() {}
+
+	/**
+	 * Prevent unserializing the instance
+	 */
+	public function __wakeup() {}
+
+	/**
+	 * Get the singleton instance of the class
+	 */
+	public static function get_instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+			self::$instance->init();
+		}
+		return self::$instance;
+	}
 
 	/**
 	 * Initialize the Admin Notices class
@@ -206,8 +241,8 @@ class AdminNotices {
 
 		foreach ( $menu as $key => $item ) {
 			if ( 'graphiql-ide' === $item[2] ) {
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $key ][0] .= ' <span class="update-plugins count-' . absint( $notice_count ) . '>"><span class="plugin-count">' . absint( $notice_count ) . '</span></span>';
+                // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $key ][0] .= ' <span class="update-plugins count-' . absint( $notice_count ) . '"><span class="plugin-count">' . absint( $notice_count ) . '</span></span>';
 				break;
 			}
 		}

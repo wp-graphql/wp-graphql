@@ -198,14 +198,14 @@ class PostObject {
 					),
 					'resolve'        => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
-						$terms      = wp_get_post_terms( $post->ID, $taxonomies, [ 'fields' => 'ids' ] );
+						$object_id  = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
 
-						if ( empty( $terms ) || is_wp_error( $terms ) ) {
+						if ( empty( $object_id ) ) {
 							return null;
 						}
-						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
-						$resolver->set_query_arg( 'include', $terms );
 
+						$resolver = new TermObjectConnectionResolver( $post, $args, $context, $info, $taxonomies );
+						$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
 						return $resolver->get_connection();
 					},
 				];
@@ -574,13 +574,15 @@ class PostObject {
 						],
 					],
 					'resolve'     => static function ( $image, $args ) {
-						// @codingStandardsIgnoreLine.
-						$size = null;
-						if ( isset( $args['size'] ) ) {
-							$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
+						if ( empty( $args['size'] ) ) {
+							return $image->sourceUrl;
 						}
 
-						return ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->sourceUrl;
+						// @todo why do we coerce full to large?
+						$size = 'full' === $args['size'] ? 'large' : $args['size'];
+
+						/** @var \WPGraphQL\Model\Post $image */
+						return $image->get_source_url_by_size( $size );
 					},
 				],
 				'fileSize'     => [
@@ -593,15 +595,26 @@ class PostObject {
 						],
 					],
 					'resolve'     => static function ( $image, $args ) {
+						/**
+						 * By default, use the mediaItemUrl.
+						 *
+						 * @var \WPGraphQL\Model\Post $image
+						 */
+						$source_url = $image->mediaItemUrl;
 
-						// @codingStandardsIgnoreLine.
-						$size = null;
-						if ( isset( $args['size'] ) ) {
+						// If there's a url for the provided size, use that instead.
+						if ( ! empty( $args['size'] ) ) {
 							$size = ( 'full' === $args['size'] ) ? 'large' : $args['size'];
+
+							$source_url = $image->get_source_url_by_size( $size ) ?: $source_url;
 						}
 
-						$sourceUrl     = ! empty( $size ) ? $image->sourceUrlsBySize[ $size ] : $image->mediaItemUrl;
-						$path_parts    = pathinfo( $sourceUrl );
+						// If there's no source_url, return null.
+						if ( empty( $source_url ) ) {
+							return null;
+						}
+
+						$path_parts    = pathinfo( $source_url );
 						$original_file = get_attached_file( absint( $image->databaseId ) );
 						$filesize_path = ! empty( $original_file ) ? path_join( dirname( $original_file ), $path_parts['basename'] ) : null;
 

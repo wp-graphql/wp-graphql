@@ -132,7 +132,6 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
 		$actual_by_uri = $this->graphql(
 			[
 				'query'     => $this->get_query(),
@@ -208,7 +207,6 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				],
 			]
 		);
-
 
 		self::assertQuerySuccessful(
 			$actual_by_database_id,

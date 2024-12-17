@@ -967,3 +967,13 @@ function register_graphql_admin_notice( string $slug, array $config ): void {
 		}
 	);
 }
+
+/**
+ * Get the admin notices registered for the WPGraphQL plugin screens
+ *
+ * @return array|mixed[][] An array of admin notices
+ */
+function get_graphql_admin_notices() {
+	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
+	return $admin_notices->get_admin_notices();
+}

@@ -72,8 +72,6 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
-
 		$actual = $this->graphql(
 			[
 				'query'     => $query,
@@ -94,7 +92,6 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testQueryPageForPostsByUriReturnsNull() {
-
 
 		$query = '
 		query GetPageByUri($id:ID!) {
@@ -123,7 +120,6 @@ class PageByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// set the page as the page_for_posts
 		update_option( 'page_for_posts', $this->page );
 		update_option( 'show_on_front', 'page' );
-
 
 		$actual = $this->graphql(
 			[

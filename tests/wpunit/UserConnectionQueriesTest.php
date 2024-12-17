@@ -131,7 +131,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		wp_delete_post( $post_id );
 
 		$actual = $this->graphql( compact( 'query' ) );
-		
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEmpty( $actual['data']['users']['edges'] );
 
@@ -183,7 +183,7 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$actual = $this->graphql( compact( 'query' ) );
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
-		
+
 		$this->assertCount( 3, $actual['data']['users']['edges'] );
 	}
 
@@ -983,8 +983,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test search by user_login
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => 'LOGIN'
+			'search'        => 'keyword',
+			'searchColumns' => 'LOGIN',
 		];
 
 		wp_set_current_user( $admin_id );
@@ -997,8 +997,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test search by user_email
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => 'EMAIL'
+			'search'        => 'keyword',
+			'searchColumns' => 'EMAIL',
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -1010,8 +1010,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test search by user_url
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => 'URL'
+			'search'        => 'keyword',
+			'searchColumns' => 'URL',
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -1023,8 +1023,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test search by all columns
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => [ 'LOGIN', 'EMAIL', 'URL' ]
+			'search'        => 'keyword',
+			'searchColumns' => [ 'LOGIN', 'EMAIL', 'URL' ],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -1038,8 +1038,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test search by two columns
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => [ 'LOGIN', 'EMAIL' ]
+			'search'        => 'keyword',
+			'searchColumns' => [ 'LOGIN', 'EMAIL' ],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -1052,8 +1052,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// And a different two columns
 		$variables = [
-			'search'         => 'keyword',
-			'searchColumns'  => [ 'NICENAME', 'URL' ]
+			'search'        => 'keyword',
+			'searchColumns' => [ 'NICENAME', 'URL' ],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
@@ -1066,8 +1066,8 @@ class UserConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Test bad keyword returns no results
 		$variables = [
-			'search'         => 'badkeyword',
-			'searchColumns'  => [ 'LOGIN', 'EMAIL', 'URL' ]
+			'search'        => 'badkeyword',
+			'searchColumns' => [ 'LOGIN', 'EMAIL', 'URL' ],
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
