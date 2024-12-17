@@ -4,5 +4,6 @@
  */
 
 define( 'WPGRAPHQL_PLUGIN_URL', true );
+define( 'WPGRAPHQL_PLUGIN_DIR', true );
 define( 'WPGRAPHQL_AUTOLOAD', false );
 define( 'PHPSTAN', true );
