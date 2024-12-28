@@ -230,7 +230,7 @@ class MediaItemCreate {
 				'type'     => ! empty( $input['fileType'] ) ? $input['fileType'] : wp_check_filetype( $temp_file ),
 				'tmp_name' => $temp_file,
 				'error'    => 0,
-				'size'     => filesize( $temp_file ),
+				'size'     => (int) filesize( $temp_file ),
 			];
 
 			/**
