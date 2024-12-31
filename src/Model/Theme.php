@@ -15,7 +15,7 @@ use GraphQLRelay\Relay;
  * @property string     $description
  * @property string     $author
  * @property string     $authorUri
- * @property array      $tags
+ * @property ?string[]  $tags
  * @property string|int $version
  *
  * @package WPGraphQL\Model

@@ -499,7 +499,7 @@ class QueryAnalyzer {
 		];
 
 		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
-		$map = array_values( array_unique( array_filter( $type_map ) ) );
+		$map = array_values( array_unique( $type_map ) );
 
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}
