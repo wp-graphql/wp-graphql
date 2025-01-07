@@ -105,8 +105,6 @@ class PluginsScreenLoader {
 		) . '</li>';
 		$message .= '</ol>';
 
-		$post_table_message = __( 'For more information, review each plugin\'s changelogs or contact the plugin\'s developers.', 'wp-graphql' );
-
 		ob_start();
 		?>
 		<div class="wp-graphql-update-notice">
@@ -131,7 +129,8 @@ class PluginsScreenLoader {
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-            <p><?php echo wp_kses_post( $post_table_message ); ?></p>
+			<p><?php echo wp_kses_post( __( 'For more information, review each plugin\'s changelogs or contact the plugin\'s developers.', 'wp-graphql' ) ); ?></p>
+			<p><strong><?php esc_html_e( 'We strongly recommend creating a backup of your site before updating.', 'wp-graphql' ); ?></strong></p>
 		</div>
 
 		<?php

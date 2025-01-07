@@ -228,11 +228,30 @@ class UpdateChecker {
 		ob_start();
 
 		$message = sprintf(
-			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__( 'The following active plugin(s) have not yet declared compatibility with %s and should be updated and examined further before proceeding:', 'wp-graphql' ),
+		// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__(
+				'The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with %s
+			. Before updating WPGraphQL, please:',
+				'wp-graphql'
+			),
 			// translators: %s: The WPGraphQL version.
 			sprintf( '<strong>WPGraphQL v%s</strong>', $this->new_version )
 		);
+
+		$message .= '<ol>';
+		$message .= '<li>' . sprintf(
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'Update these plugins to their latest versions that declare compatibility with %s, OR', 'wp-graphql' ),
+			// translators: %s: The WPGraphQL version.
+				sprintf( '<strong>WPGraphQL v%s</strong>', $this->new_version )
+		) . '</li>';
+		$message .= '<li>' . sprintf(
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'Confirm their compatibility with %s on your staging environment.', 'wp-graphql' ), // translators: %s: The WPGraphQL version.
+			sprintf( '<strong>WPGraphQL v%s</strong>', $this->new_version )
+		) . '</li>';
+		$message .= '</ol>';
+
 		?>
 
 		<div id="wp-graphql-update-modal">
@@ -261,6 +280,8 @@ class UpdateChecker {
 							</tbody>
 						</table>
 					</div>
+
+					<p><?php esc_html_e( 'For more information, review each plugin\'s changelogs or contact the plugin\'s developers.', 'wp-graphql' ); ?></p>
 
 					<p><strong><?php esc_html_e( 'We strongly recommend creating a backup of your site before updating.', 'wp-graphql' ); ?></strong></p>
 
