@@ -2,7 +2,7 @@
 /**
  * Handles plugin update checks and notifications on the plugins screen.
  *
- * Code is inspired by and adapted from WooCommerce's WC_Plugin_Screen_Updates class.
+ * Code is inspired by and adapted from WooCommerce's WC_Plugins_Screen_Updates class.
  *
  * @see https://github.com/woocommerce/woocommerce/blob/5f04212f8188e0f7b09f6375d1a6c610fac8a631/plugins/woocommerce/includes/admin/plugin-updates/class-wc-plugins-screen-updates.php
  * *
@@ -82,10 +82,30 @@ class PluginsScreenLoader {
 
 		$message = sprintf(
 			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__( 'The following active plugin(s) have not been tested with %s. Please update them or confirm compatibility before updating WPGraphQL, or you may experience issues:', 'wp-graphql' ),
+			__(
+				'The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with %s
+			. Before updating WPGraphQL, please:',
+				'wp-graphql'
+			),
 			// translators: %s: The WPGraphQL version.
 			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
 		);
+
+		$message .= '<ol>';
+		$message .= '<li>' . sprintf(
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'Update these plugins to their latest versions that declare compatibility with %s, OR', 'wp-graphql' ),
+			// translators: %s: The WPGraphQL version.
+				sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
+		) . '</li>';
+		$message .= '<li>' . sprintf(
+			// translators: %s: The WPGraphQL version wrapped in a strong tag.
+			__( 'Confirm their compatibility with %s on your staging environment.', 'wp-graphql' ), // translators: %s: The WPGraphQL version.
+			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
+		) . '</li>';
+		$message .= '</ol>';
+
+		$post_table_message = __( 'For more information, review each plugin\'s changelogs or contact the plugin\'s developers.', 'wp-graphql' );
 
 		ob_start();
 		?>
@@ -97,8 +117,8 @@ class PluginsScreenLoader {
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Current Version', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'WPGraphQL Tested Up To', 'wp-graphql' ); ?></th>
+						<th><?php esc_html_e( 'Plugin\'s Current Version', 'wp-graphql' ); ?></th>
+						<th><?php esc_html_e( 'WPGraphQL Version Tested Up To', 'wp-graphql' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -111,6 +131,7 @@ class PluginsScreenLoader {
 					<?php endforeach; ?>
 				</tbody>
 			</table>
+            <p><?php echo wp_kses_post( $post_table_message ); ?></p>
 		</div>
 
 		<?php
