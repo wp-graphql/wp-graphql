@@ -80,57 +80,11 @@ class PluginsScreenLoader {
 			return '';
 		}
 
-		$message = sprintf(
-			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__(
-				'The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with %s
-			. Before updating WPGraphQL, please:',
-				'wp-graphql'
-			),
-			// translators: %s: The WPGraphQL version.
-			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
-		);
-
-		$message .= '<ol>';
-		$message .= '<li>' . sprintf(
-			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__( 'Update these plugins to their latest versions that declare compatibility with %s, OR', 'wp-graphql' ),
-			// translators: %s: The WPGraphQL version.
-				sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
-		) . '</li>';
-		$message .= '<li>' . sprintf(
-			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__( 'Confirm their compatibility with %s on your staging environment.', 'wp-graphql' ), // translators: %s: The WPGraphQL version.
-			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
-		) . '</li>';
-		$message .= '</ol>';
-
 		ob_start();
 		?>
 		<div class="wp-graphql-update-notice">
 			<p class="warning"><strong><?php echo esc_html__( 'Untested Plugins:', 'wp-graphql' ); ?></strong></p>
-			<p><?php echo wp_kses_post( $message ); ?></p>
-
-			<table>
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Plugin\'s Current Version', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'WPGraphQL Version Tested Up To', 'wp-graphql' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $untested_plugins as $plugin ) : ?>
-						<tr>
-							<td><?php echo esc_html( $plugin['Name'] ); ?></td>
-							<td><?php echo esc_html( $plugin['Version'] ); ?></td>
-							<td><?php echo esc_html( $plugin[ UpdateChecker::TESTED_UP_TO_HEADER ] ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-			<p><?php echo wp_kses_post( __( 'For more information, review each plugin\'s changelogs or contact the plugin\'s developers.', 'wp-graphql' ) ); ?></p>
-			<p><strong><?php esc_html_e( 'We strongly recommend creating a backup of your site before updating.', 'wp-graphql' ); ?></strong></p>
+			<?php echo wp_kses_post( $this->update_checker->get_compatibility_warning_message( $untested_plugins ) ); ?>
 		</div>
 
 		<?php
