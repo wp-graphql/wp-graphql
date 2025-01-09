@@ -80,37 +80,11 @@ class PluginsScreenLoader {
 			return '';
 		}
 
-		$message = sprintf(
-			// translators: %s: The WPGraphQL version wrapped in a strong tag.
-			__( 'The following active plugin(s) have not been tested with %s. Please update them or confirm compatibility before updating WPGraphQL, or you may experience issues:', 'wp-graphql' ),
-			// translators: %s: The WPGraphQL version.
-			sprintf( '<strong>WPGraphQL v%s</strong>', $this->update_checker->new_version )
-		);
-
 		ob_start();
 		?>
 		<div class="wp-graphql-update-notice">
 			<p class="warning"><strong><?php echo esc_html__( 'Untested Plugins:', 'wp-graphql' ); ?></strong></p>
-			<p><?php echo wp_kses_post( $message ); ?></p>
-
-			<table>
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Plugin', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'Current Version', 'wp-graphql' ); ?></th>
-						<th><?php esc_html_e( 'WPGraphQL Tested Up To', 'wp-graphql' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $untested_plugins as $plugin ) : ?>
-						<tr>
-							<td><?php echo esc_html( $plugin['Name'] ); ?></td>
-							<td><?php echo esc_html( $plugin['Version'] ); ?></td>
-							<td><?php echo esc_html( $plugin[ UpdateChecker::TESTED_UP_TO_HEADER ] ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+			<?php echo wp_kses_post( $this->update_checker->get_compatibility_warning_message( $untested_plugins ) ); ?>
 		</div>
 
 		<?php
