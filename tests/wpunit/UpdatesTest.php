@@ -388,10 +388,8 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$loader->in_plugin_update_message( [], (object) [ 'new_version' => '99.0.0' ] );
 		$message = ob_get_clean();
 
-		// Test the inline message
-		$this->assertStringContainsString( 'The following active plugin(s) have not been tested with <strong>WPGraphQL v99.0.0</strong>.', $message, 'Plugin screen message not found.' );
 		// Test the modal message.
-		$this->assertStringContainsString( 'The following active plugin(s) have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong> and should be updated and examined further before proceeding:', $message, 'Plugin screen message not found.' );
+		$this->assertStringContainsString( 'The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong>', $message, 'Plugin screen message not found.' );
 		// Test the plugin name.
 		$this->assertStringContainsString( 'Test Plugin With Headers', $message, 'Plugin name not found.' );
 
@@ -443,7 +441,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$loader->update_screen_modal();
 		$message = ob_get_clean();
 
-		$this->assertStringContainsString( 'The following active plugin(s) have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong> and should be updated and examined further before proceeding:', $message, 'Plugin screen message not found.' );
+		$this->assertStringContainsString( 'The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with <strong>WPGraphQL v99.0.0</strong', $message, 'Plugin screen message not found.' );
 		$this->assertStringContainsString( 'Test Plugin With Headers', $message, 'Plugin name not found.' );
 
 		// Cleanup.
