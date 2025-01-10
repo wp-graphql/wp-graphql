@@ -38,5 +38,4 @@ parameters:
     excludePaths:
       analyseAndScan:
         - */node_modules/*
-        - */vendor/*
     ignoreErrors:

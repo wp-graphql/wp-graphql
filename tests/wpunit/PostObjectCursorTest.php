@@ -935,8 +935,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		';
 
-
-
 		/**
 		 * Assert that the query is successful.
 		 */
@@ -1100,7 +1098,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				4
 			),
 
-
 		];
 		$this->assertQuerySuccessful( $response, $expected );
 
@@ -1240,7 +1237,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			);
 		}
 
-
 		// filter WPGraphQL Schema
 		add_filter(
 			'graphql_PostObjectsConnectionOrderbyEnum_values',
@@ -1298,7 +1294,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 							'type'    => $type,
 						];
 
-
 						$new_orderby[ $orderby['field'] ] = $orderby['order'];
 
 						$query_args['orderby']    = $new_orderby;
@@ -1341,7 +1336,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$this->clearSchema();
-
 
 		$query = '
 		query GetPaginatedPosts( $after: String $before: String $first: Int = 10 $last: Int $where: RootQueryToCursorTestConnectionWhereArgs ) {
@@ -1828,7 +1822,6 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				),
 			]
 		);
-
 
 		// cleanup the created posts
 		foreach ( $created_posts as $created_post ) {

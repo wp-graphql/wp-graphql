@@ -987,7 +987,6 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testExcludeDeleteMutation() {
 
-
 		register_taxonomy(
 			'without_delete',
 			'post',
@@ -1030,7 +1029,6 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testExcludeUpdateMutation() {
-
 
 		register_taxonomy(
 			'without_update',
@@ -1247,9 +1245,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
+<<<<<<< HEAD
 		// $request = new \WPGraphQL\Request();
 		$schema = WPGraphQL::get_schema();
 		unregister_taxonomy( 'tax_no_plural' );
+=======
+		$request = new \WPGraphQL\Request();
+		$schema  = WPGraphQL::get_schema();
+>>>>>>> release/v2.0.0
 		$schema->assertValid();
 
 		$query = '
@@ -1296,8 +1299,14 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// assert that the schema is still valid, even though the tax
 		// didn't provide the single/plural name (it will be left out of the schema)
+<<<<<<< HEAD
 //		$request = new \WPGraphQL\Request();
 		$schema = WPGraphQL::get_schema();
+=======
+		$request = new \WPGraphQL\Request();
+		$schema  = WPGraphQL::get_schema();
+		$schema->assertValid();
+>>>>>>> release/v2.0.0
 
 		unregister_taxonomy( 'tax_no_single_plural' );
 

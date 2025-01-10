@@ -310,7 +310,6 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		];
 		$this->assertQueryError( $response, $expected );
 
-
 		/**
 		 * Expect adminstrator to bypass field-level auth due to caps but fail type-level auth for last to nodes because they have falsy root value.
 		 */
@@ -771,12 +770,12 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 
-	public function testWithSetQueryClassWhenNotSupported() : void {
+	public function testWithSetQueryClassWhenNotSupported(): void {
 		$config = [
 			'fromType'      => 'RootQuery',
 			'toType'        => 'ContentType',
 			'fromFieldName' => 'testConnection',
-			'resolve'       => function ( $source, $args, $context, $info ) {
+			'resolve'       => static function ( $source, $args, $context, $info ) {
 				$resolver = new ContentTypeConnectionResolver( $source, $args, $context, $info );
 
 				$resolver->set_query_class( 'WP_Query' );
@@ -803,7 +802,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertStringEndsWith( 'should not use a query class, but is attempting to use the WP_Query query class.', $actual['errors'][0]['extensions']['debugMessage'] );
 	}
 
-	public function testWithCustomSetQueryClass() : void {
+	public function testWithCustomSetQueryClass(): void {
 		require_once __DIR__ . '/../_data/classes/WP_Query_Custom.php';
 
 		$post_ids = $this->factory()->post->create_many( 2 );
@@ -824,7 +823,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'toType'             => 'Post',
 			'fromFieldName'      => 'testConnection',
 			'connectionTypeName' => 'CustomQueryClassConnection',
-			'resolve'            => function ( $source, $args, $context, $info ) {
+			'resolve'            => static function ( $source, $args, $context, $info ) {
 				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
 
 				$resolver->set_query_class( WP_Query_Custom::class );
@@ -840,14 +839,13 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 2, $actual['data']['testConnection']['nodes'] );
 
-
 		// cleanup
 		foreach ( $post_ids as $post_id ) {
 			wp_delete_post( $post_id, true );
 		}
 	}
 
-	public function testWithEmptySetQueryClass() : void {
+	public function testWithEmptySetQueryClass(): void {
 		$post_ids = $this->factory()->post->create_many( 2 );
 
 		$query = '
@@ -866,7 +864,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'toType'             => 'Post',
 			'fromFieldName'      => 'testConnection',
 			'connectionTypeName' => 'EmptyQueryClassConnection',
-			'resolve'            => function ( $source, $args, $context, $info ) {
+			'resolve'            => static function ( $source, $args, $context, $info ) {
 				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
 
 				$resolver->set_query_class( '' );
@@ -882,14 +880,13 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 2, $actual['data']['testConnection']['nodes'] );
 
-
 		// cleanup
 		foreach ( $post_ids as $post_id ) {
 			wp_delete_post( $post_id, true );
 		}
 	}
 
-	public function testWithNonExistentSetQueryClass() : void {
+	public function testWithNonExistentSetQueryClass(): void {
 		$query = '
 			query {
 				testConnection {
@@ -905,7 +902,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'toType'             => 'Post',
 			'fromFieldName'      => 'testConnection',
 			'connectionTypeName' => 'NonExistentQueryClassConnection',
-			'resolve'            => function ( $source, $args, $context, $info ) {
+			'resolve'            => static function ( $source, $args, $context, $info ) {
 				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
 
 				$resolver->set_query_class( 'NonExistentQueryClass' );
@@ -922,7 +919,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		$this->assertEquals( 'The query class NonExistentQueryClass does not exist.', $actual['errors'][0]['extensions']['debugMessage'] );
 	}
 
-	public function testWithIncompatibleSetQueryClass() : void {
+	public function testWithIncompatibleSetQueryClass(): void {
 		require_once __DIR__ . '/../_data/classes/WP_Query_Incompatible.php';
 
 		$query = '
@@ -940,7 +937,7 @@ class ConnectionRegistrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 			'toType'             => 'Post',
 			'fromFieldName'      => 'testConnection',
 			'connectionTypeName' => 'NonExistentQueryClassConnection',
-			'resolve'            => function ( $source, $args, $context, $info ) {
+			'resolve'            => static function ( $source, $args, $context, $info ) {
 				$resolver = new PostObjectConnectionResolver( $source, $args, $context, $info );
 
 				$resolver->set_query_class( WP_Query_Incompatible::class );

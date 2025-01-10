@@ -371,9 +371,10 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		MenuItemObjectUnion::register_type( $this );
-		PostObjectUnion::register_type( $this );
-		TermObjectUnion::register_type( $this );
+		// Deprecated types.
+		MenuItemObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
+		PostObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
+		TermObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
 
 		/**
 		 * Register core connections

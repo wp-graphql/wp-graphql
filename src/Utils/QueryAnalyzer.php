@@ -454,6 +454,7 @@ class QueryAnalyzer {
 							Visitor::skipNode();
 						}
 
+<<<<<<< HEAD
 						$type_info->enter( $node );
 						$field_def = $type_info->getFieldDef();
 
@@ -504,6 +505,10 @@ class QueryAnalyzer {
 			)
 		);
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
+=======
+		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
+		$map = array_values( array_unique( $type_map ) );
+>>>>>>> release/v2.0.0
 
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
 	}

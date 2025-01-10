@@ -2,95 +2,92 @@
 
 # WPGraphQL
 
-WPGraphQL is a free, open-source WordPress plugin that provides an extendable GraphQL schema and API for any WordPress site.
-
-Below are some links to help you get started with WPGraphQL
-
-- <a href="https://www.wpgraphql.com" target="_blank">WPGraphQL.com</a>
-- <a href="https://wpgraphql.com/docs/quick-start" target="_blank">Quick Start Guide</a>
-- <a href="https://wpgraphql.com/docs/intro-to-graphql" target="_blank">Intro to GraphQL</a>
-- <a href="https://wpgraphql.com/docs/intro-to-wordpress" target="_blank">Intro to WordPress</a>
-- <a href="https://discord.gg/AGVBqqyaUY" target="_blank">Join the WPGraphQL community on Discord</a>
-
------
-
 [![Total Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/downloads)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Monthly Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/monthly)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Daily Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/daily)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Latest Stable Version](https://poser.pugx.org/wp-graphql/wp-graphql/v/stable)](https://packagist.org/packages/wp-graphql/wp-graphql)
-[![License](https://poser.pugx.org/wp-graphql/wp-graphql/license)](https://packagist.org/packages/wp-graphql/wp-graphql)
-[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22) [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
-[![Coverage Status](https://coveralls.io/repos/github/wp-graphql/wp-graphql/badge.svg)](https://coveralls.io/github/wp-graphql/wp-graphql)
------
+[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
+[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
 
-## Install
+**Unlock the power of WordPress data with GraphQL**  
 
-- Requires PHP 7.1+
-- Requires WordPress 5.0+
+WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.  
 
-### Quick Install
+Whether you're a WordPress developer exploring GraphQL or a GraphQL expert diving into WordPress, WPGraphQL simplifies data interaction and empowers your development workflow.
 
-Follow the WPGraphQL Quick Start instructions to install and activate WPGraphQL
-[Details here](https://wpgraphql.com/docs/quick-start/)
+---
 
-## Additional Documentation
+### 🚀 **Get Started**
 
-- [Project Overview](https://www.wpgraphql.com/docs/introduction)
-- [Plugin Usage & Extension Documentation](https://www.wpgraphql.com/docs/interacting-with-wpgraphql)
-- [Development Testing & code Coverage](https://www.wpgraphql.com/docs/testing/#testing-locally-with-codeception)
-- [Using Docker](https://www.wpgraphql.com/docs/testing/#testing-with-docker)
+1. 📦 Install WPGraphQL: `wp plugin install wp-graphql --activate`
+2. 👩‍💻 Try it out: [Live Demo](https://repl.wpgraphql.com)
+3. 📖 Read the [Quick Start Guide](https://wpgraphql.com/docs/quick-start).
+4. 💬 Join the [Community on Discord](https://wpgraphql.com/discord)
+5. ⭐ [Star the Repo](https://github.com/wp-graphql/wp-graphql) on GitHub 😉
 
-## Shout Outs
+---
 
-- Special thanks to [Gatsby](http://gatsbyjs.com) and [WPEngine](https://wpengine.com) for allocating development resources to push the project forward!
-- This plugin brings the power of GraphQL (<http://graphql.org/>) to WordPress.
-- The plugin is built on top of the graphql-php library by Webonyx (<https://github.com/webonyx/graphql-php>) and makes use
-of the graphql-relay-php library by Ivome (<https://github.com/ivome/graphql-relay-php/>)
-- Some of the concepts and code are based on the WordPress Rest API. Much love to the folks (<https://github.com/orgs/WP-API/people>)
-that put their blood, sweat and tears into the WP-API project, as it's been huge in moving WordPress forward as a
-platform and helped inspire and direct the development of WPGraphQL.
-- Much love to Facebook® for open sourcing the GraphQL spec (<https://facebook.github.io/graphql/>), the amazing GraphiQL
-dev tools (<https://github.com/graphql/graphiql>), and maintaining the JavaScript GraphQL reference
-implementation (<https://github.com/graphql/graphql-js>)
-- Much love to Apollo (Meteor Development Group) for their work on driving GraphQL forward and providing a lot of insight
-into how to design GraphQL schemas, etc. Check them out: <http://www.apollodata.com/>
+### 🌟 **Key Features**
 
-## Contributors
+- **Flexible API**: Access posts, pages, custom post types, taxonomies, users, and more.
+- **Extendable Schema**: Easily add functionality with functions like `register_graphql_field` and `register_graphql_connection`.
+    - Plugins like [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache), [WPGraphQL for ACF](https://github.com/wp-graphql/wp-graphql-acf) and [other extension plugins](https://wpgraphql.com/extensions) demonstrate the power of extendability.
+- **Modern Framework Integration**: Works seamlessly with [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Svelte](https://www.okupter.com/blog/headless-wordpress-graphql-sveltekit), [Astro](https://docs.astro.build/en/guides/cms/wordpress/) and other frameworks.
+- **Optimized Performance**: Query only the data you need. Collect multiple resources in one request, reducing round-trips. Use [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache) for enhanced performance and network-level caching and cache-invalidation.
+- **Developer Tools**: Explore the schema with tools like the [GraphiQL IDE](https://www.wpgraphql.com/docs/wp-graphiql) and [WordPress Playground](https://wordpress.org/plugins/wp-graphql/?preview=1).
 
-This project exists thanks to all the people who contribute. [[Contribute](.github/CONTRIBUTING.md)].
+![graphiql-ide-example.gif](img/graphiql-ide-example.gif)
+
+---
+
+### 📖 **Documentation**
+
+- [Quick Start](https://www.wpgraphql.com/docs/quick-start)
+- [Intro to GraphQL](https://wpgraphql.com/docs/intro-to-graphql)
+- [Intro to WordPress](https://wpgraphql.com/docs/intro-to-wordpress)
+- [Extensions](https://www.wpgraphql.com/extensions)
+- [Advanced Topics](https://www.wpgraphql.com/docs/wpgraphql-concepts)
+
+---
+
+### 🤝 **Community Support**
+
+WPGraphQL is powered by a passionate community of contributors, backers, and sponsors.
+
 <a href="https://github.com/wp-graphql/wp-graphql/graphs/contributors"><img src="https://opencollective.com/wp-graphql/contributors.svg?width=890&button=false" /></a>
 
-## Backers
+[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](https://opencollective.com/wp-graphql#backer) [![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](https://opencollective.com/wp-graphql#sponsor)
 
-[![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](#backers)
+Want to help maintain and grow WPGraphQL? 
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/wp-graphql#backer)]
+- [Support the project on Open Collective](https://opencollective.com/wp-graphql)
+- [Join the Community on Discord](https://wpgraphql.com/discord)
+- [Contribute to the project on GitHub](https://github.com/wp-graphql/wp-graphql)
 
-<a href="https://opencollective.com/wp-graphql#backers" target="_blank"><img src="https://opencollective.com/wp-graphql/backers.svg?width=890"></a>
+---
 
-## Sponsors
+### 🙌 Shout Outs
 
-[![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](#sponsors)
+We extend our gratitude to the following projects and organizations for their contributions to the WordPress and GraphQL ecosystems:
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/wp-graphql#sponsor)]
+- **[Webonyx](https://github.com/webonyx/graphql-php)**: For the amazing `graphql-php` library that powers WPGraphQL's core functionality.
+- **[Ivome](https://github.com/ivome/graphql-relay-php)**: For the `graphql-relay-php` library used in relay connections.
+- **[Automattic](https://automattic.com)**: For supporting WPGraphQL's ongoing development as a canonical WordPress plugin.
+- **[Gatsby](https://www.gatsbyjs.com)**: For their contributions to the WPGraphQL ecosystem and support for headless WordPress development.
+- **[WPEngine](https://wpengine.com)**: For funding early development of WPGraphQL and supporting its growth.
+- **[Facebook](https://graphql.org)**: For open-sourcing the GraphQL spec, GraphiQL, and maintaining the JavaScript reference implementation.
+- **[Apollo](https://www.apollographql.com)**: For pushing GraphQL forward and inspiring schema design best practices.
+- **The WordPress REST API Contributors**: For paving the way with the WP-API project, inspiring WPGraphQL's architecture.
 
-<a href="https://opencollective.com/wp-graphql/sponsor/0/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/1/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/2/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/3/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/4/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/5/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/6/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/7/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/8/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/wp-graphql/sponsor/9/website" target="_blank"><img src="https://opencollective.com/wp-graphql/sponsor/9/avatar.svg"></a>
+Thank you to all these organizations and individuals for their efforts in shaping the tools we rely on today.
 
-## Privacy Policy
+---
 
-WPGraphQL uses [Appsero](https://appsero.com) SDK to collect some telemetry data upon user's confirmation. This helps us to troubleshoot problems faster & make product improvements.
+### 🔌 **Canonical Plugin**
 
-Appsero SDK **does not gather any data by default.** The SDK only starts gathering basic telemetry data **when a user allows it via the admin notice**. We collect the data to ensure a great user experience for all our users.
+WPGraphQL is becoming a [Canonical Plugin on WordPress.org](https://wordpress.org/news/2024/10/wpgraphql/), ensuring long-term support and a growing community of users and contributors.
 
-Integrating Appsero SDK **DOES NOT IMMEDIATELY** start gathering data, **without confirmation from users in any case.**
+---
 
-Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
+### 🛠 **Privacy & Telemetry**
+WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**, helping us improve the plugin responsibly.

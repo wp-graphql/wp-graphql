@@ -312,7 +312,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$user_id = $this->createUserObject( $user_args );
 		$user    = get_user_by( 'id', $user_id );
 
-
 		$post_id = $this->factory->post->create( [ 'post_author' => $user_id ] );
 
 		/**
@@ -946,7 +945,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		$this->assertSame( $expected_user, $actual['data']['userByUsername'] );
 	}
 
-	
+
 	public function testQueryNonUserAsUserReturnsNull() {
 		$query = '
 		query userByUri($uri: ID!) {

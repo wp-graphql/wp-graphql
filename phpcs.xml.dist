@@ -6,19 +6,12 @@
 	<file>./access-functions.php</file>
 	<file>./activation.php</file>
 	<file>./deactivation.php</file>
+	<file>./constants.php</file>
 	<file>./wp-graphql.php</file>
 	<file>./src</file>
 	<exclude-pattern>./phpstan/*</exclude-pattern>
-	<exclude-pattern>*/**/tests/</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
-
-	<!--
-	Prevent errors caused by WordPress Coding Standards not supporting PHP 8.0+.
-	See: https://github.com/WordPress/WordPress-Coding-Standards/issues/2035
-	See: https://github.com/WordPress/WordPress-Coding-Standards/issues/2035#issuecomment-1325532520
-	-->
-	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED" />
 
 	<!--How to scan: include CLI args so you don't need to pass them manually -->
 	<!--Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
@@ -53,25 +46,6 @@
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
 	-->
 	<config name="minimum_wp_version" value="5.0"/>
-
-	<!-- Individual rule configuration -->
-	<rule ref="WordPress.WP.I18n">
-		<properties>
-			<property name="text_domain" type="array">
-				<element value="wp-graphql" />
-			</property>
-		</properties>
-	</rule>
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
-		<properties>
-			<property name="blank_line_check" value="true"/>
-		</properties>
-	</rule>
-	<rule ref="Squiz.Commenting.FunctionComment">
-		<properties>
-			<property name="skipIfInheritdoc" value="true" />
-		</properties>
-	</rule>
 
 	<!-- Rules -->
 
@@ -194,4 +168,22 @@
 		</properties>
 	</rule>
 	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
+	<!-- Individual rule configuration -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-graphql" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+		<properties>
+			<property name="blank_line_check" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+	</rule>
 </ruleset>

@@ -50,12 +50,12 @@ class Menu extends Model {
 			return false;
 		}
 
-		$locations = get_theme_mod( 'nav_menu_locations' );
+		$locations = get_nav_menu_locations();
 		if ( empty( $locations ) ) {
 			return true;
 		}
 		$location_ids = array_values( $locations );
-		if ( empty( $location_ids ) || ! in_array( $this->data->term_id, array_values( $location_ids ), true ) ) {
+		if ( empty( $location_ids ) || ! in_array( $this->data->term_id, $location_ids, true ) ) {
 			return true;
 		}
 
