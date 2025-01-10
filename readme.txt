@@ -3,8 +3,8 @@ Contributors: jasonbahl, tylerbarnes1, ryankanner, chopinbach, kidunot89, justle
 Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 5.0
 Tested up to: 6.7.1
-Requires PHP: 7.1
-Stable tag: 1.29.3
+Requires PHP: 7.4
+Stable tag: 2.0.0-beta.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

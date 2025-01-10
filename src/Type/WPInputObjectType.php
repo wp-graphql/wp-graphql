@@ -1,7 +1,10 @@
 <?php
 namespace WPGraphQL\Type;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Utils\Utils;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
@@ -18,10 +21,43 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array<string,mixed>              $config
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @param array<string,mixed>              $config The Config to set up an Input Type
+	 * @phpstan-param array{
+	 *     name?: string|null,
+	 *     description?: string|null,
+	 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
+	 *     parseValue?: callable(array<string, mixed>): mixed,
+	 *     astNode?: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+	 *     extensionASTNodes?: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
+	 * } $config
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
+
+		/**
+		 * Merge the config with the default config
+		 *
+		 * @var array{
+		 *     name: string|null,
+		 *     description: string|null,
+		 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
+		 *     parseValue: callable(array<string, mixed>): mixed,
+		 *     astNode: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+		 *     extensionASTNodes: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null
+		 * } $config
+		 */
+		$config = array_merge(
+			[
+				'name'              => null,
+				'description'       => null,
+				'fields'            => [],
+				'parseValue'        => null,
+				'astNode'           => null,
+				'extensionASTNodes' => [],
+			],
+			$config
+		);
+
 		$name           = $config['name'];
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
@@ -111,5 +147,37 @@ class WPInputObjectType extends InputObjectType {
 		 * @since 0.0.5
 		 */
 		return $fields;
+	}
+
+	/**
+	 * Validates type config and throws if one of type options is invalid.
+	 * Note: this method is shallow, it won't validate object fields and their arguments.
+	 *
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public function assertValid(): void {
+		Utils::assertValidName( $this->name );
+
+		$fields = $this->config['fields'] ?? null;
+		if ( \is_callable( $fields ) ) {
+			$fields = $fields();
+		}
+
+		/**
+		 * @todo: This is a temporary fix to prevent the InvariantViolation from being thrown
+		 *    when the fields are not iterable. This is a temporary fix until the issue is resolved.
+		 */
+		if ( ! \is_iterable( $fields ) && ! $fields instanceof InputObjectField ) {
+			$invalidFields = Utils::printSafe( $fields );
+
+			// translators: %1$s is the name of the type and %2$s is the invalid fields
+			throw new InvariantViolation( sprintf( esc_html__( '%1$s fields must be an iterable or a callable which returns an iterable, got: %2$s.', 'wp-graphql' ), esc_html( $this->name ), esc_html( $invalidFields ) ) );
+		}
+
+		$resolvedFields = $this->getFields();
+
+		foreach ( $resolvedFields as $field ) {
+			$field->assertValid( $this );
+		}
 	}
 }

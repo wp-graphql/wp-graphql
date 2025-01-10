@@ -29,6 +29,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			$request = new \WPGraphQL\Request();
 
 			$schema = WPGraphQL::get_schema();
+			$this->clearSchema();
 			$schema->assertValid();
 
 			// Assert true upon success.
@@ -36,7 +37,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		} catch ( \GraphQL\Error\InvariantViolation $e ) {
 			// use --debug flag to view.
 			codecept_debug( $e->getMessage() );
-
+			$this->clearSchema();
 			// Fail upon throwing
 			$this->assertTrue( false );
 		}

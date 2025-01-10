@@ -1827,5 +1827,7 @@ class PostObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		foreach ( $created_posts as $created_post ) {
 			wp_delete_post( $created_post, true );
 		}
+
+		unregister_post_type( $post_type );
 	}
 }

@@ -12,6 +12,24 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
+	// Validate schema.
+	public function testSchemaIsValid() {
+		try {
+			$request = new \WPGraphQL\Request();
+			$schema  = WPGraphQL::get_schema();
+			$schema->assertValid();
+
+			// Assert true upon success.
+			$this->assertTrue( true );
+		} catch ( \GraphQL\Error\InvariantViolation $e ) {
+			// use --debug flag to view.
+			codecept_debug( $e->getMessage() );
+
+			// Fail upon throwing
+			$this->assertTrue( false );
+		}
+	}
+
 	/**
 	 * This tests that an interface can be registered, and that Types implementing them will inherit
 	 * the interface fields, but that Types can override resolvers
@@ -111,24 +129,6 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		];
 
 		$this->assertQuerySuccessful( $actual, $expected );
-	}
-
-	// Validate schema.
-	public function testSchemaIsValid() {
-		try {
-			$request = new \WPGraphQL\Request();
-			$schema  = WPGraphQL::get_schema();
-			$schema->assertValid();
-
-			// Assert true upon success.
-			$this->assertTrue( true );
-		} catch ( \GraphQL\Error\InvariantViolation $e ) {
-			// use --debug flag to view.
-			codecept_debug( $e->getMessage() );
-
-			// Fail upon throwing
-			$this->assertTrue( false );
-		}
 	}
 
 	public function testInterfaceCanImplementInterface() {
@@ -683,8 +683,8 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$actual = $this->graphql( [ 'query' => $query ] );
 		$this->assertResponseIsValid( $actual, 'The query should be valid as the Args from the Interface fields should be merged with the args from the object field' );
 		$this->assertNotEmpty( $actual['errors'], 'Invalid field arguments should be flagged' );
-		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found 2.', $actual['errors'][0]['message'] );
-		$this->assertEquals( 'Field "fieldWithArgs" argument "interfaceArg" requires type String, found [2, 4, 5].', $actual['errors'][1]['message'] );
+		$this->assertEquals( 'String cannot represent a non string value: 2', $actual['errors'][0]['message'] );
+		$this->assertEquals( 'String cannot represent a non string value: [2, 4, 5]', $actual['errors'][1]['message'] );
 
 		$this->assertNotEmpty( $actual['extensions']['debug'], 'The interface should be implemented with debug messages.' );
 		$this->assertStringStartsWith( 'Interface field argument "BadObjectTypeImplementingInterfaceWithArgs.fieldWithArgs(interfaceArg:)" expected to be of type "String" but got "Number".', $actual['extensions']['debug'][0]['message'] );
