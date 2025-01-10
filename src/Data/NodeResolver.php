@@ -658,10 +658,6 @@ class NodeResolver {
 		// look for a #comment-{$id} anywhere in the uri.
 		if ( preg_match( '/#comment-(\d+)/', $uri, $comment_match ) ) {
 			$comment_id = absint( $comment_match[1] );
-<<<<<<< HEAD
-=======
-
->>>>>>> release/v2.0.0
 			return ! empty( $comment_id ) ? $comment_id : null;
 		}
 
