@@ -355,9 +355,9 @@ class PostObjectMutation {
 						return;
 					}
 
-					if ( 'category' === $tax_object->name  ) {
+					if ( 'category' === $tax_object->name ) {
 						$default_category_id = absint( get_option( 'default_category' ) );
-						if ( ! in_array( $default_category_id, $terms_to_connect ) ) {
+						if ( ! in_array( $default_category_id, $terms_to_connect, true ) ) {
 							wp_remove_object_terms( $post_id, $default_category_id, 'category' );
 						}
 					}
