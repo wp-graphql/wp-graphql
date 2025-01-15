@@ -7,6 +7,14 @@
 # Hidden files for users using VSCode as their IDE.
 .vscode
 
+# Cursor files for users using the Cursor IDE
+
+# Ignore all files under the .cursor directory as users will use this directory for personal IDE configuration
+.cursor/*
+
+# Do not ignore the prd.md file as this helps cursor understand the project and requirements and the community can help maintain it
+!.cursor/prd.md
+
 # Composer dependencies. These should be installed on the users machine
 vendor
 

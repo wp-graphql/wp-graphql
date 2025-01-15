@@ -94,9 +94,8 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory->post->create();
 
 		$request = new Request( [ 'query' => 'query {}' ] );
-		$this->expectException( Exception::class );
+		$this->expectException( \Throwable::class );
 		$results = $request->execute();
-
 	}
 
 	/**

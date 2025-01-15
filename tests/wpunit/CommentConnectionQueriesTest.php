@@ -635,7 +635,6 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
 
-
 		// Test contentId with global Id
 		$expected = $actual['data']['comments']['nodes'];
 
@@ -687,7 +686,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 				'contentName' => $post_two->post_name,
 			],
 		];
-		
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertResponseIsValid( $actual );
@@ -849,7 +848,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		// test user with permissions
 
 		wp_set_current_user( $this->admin );
-		
+
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertResponseIsValid( $actual );
@@ -909,7 +908,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		
+
 		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 1, $actual['data']['comments']['nodes'] );
@@ -928,7 +927,7 @@ class CommentConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTe
 		];
 
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
-		
+
 		$this->assertResponseIsValid( $actual );
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertCount( 2, $actual['data']['comments']['nodes'] );
