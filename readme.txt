@@ -267,6 +267,12 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **Chores / Bugfixes**
 
+**New Features**
+
+= 1.29.3 =
+
+**Chores / Bugfixes**
+
 - [#3245](https://github.com/wp-graphql/wp-graphql/pull/3245): fix: update appsero/client to v2.0.4 to prevent conflicts with WP6.7
 - [#3243](https://github.com/wp-graphql/wp-graphql/pull/3243): chore: fix Composer autoloader for WPGraphQL.php
 - [#3242](https://github.com/wp-graphql/wp-graphql/pull/3242): chore: update Composer dev deps

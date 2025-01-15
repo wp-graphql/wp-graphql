@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.30.0
+
+### Chores / Bugfixes
+
+### New Features
+
 ## 1.29.3
 
 ### Chores / Bugfixes
