@@ -71,7 +71,7 @@ final class Registry {
 					'homepage' => 'https://wpgraphql.com',
 				],
 			],
-			'ashhitch/wp-graphql-yoast-seo'          => [
+			'ashhitch/wp-graphql-yoast-seo'     => [
 				'name'              => 'WPGraphQL Yoast SEO Addon',
 				'description'       => 'This plugin enables Yoast SEO Support for WPGraphQL',
 				'documentation_url' => 'https://github.com/ashhitch/wp-graphql-yoast-seo',
