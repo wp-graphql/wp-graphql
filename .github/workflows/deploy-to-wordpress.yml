@@ -2,6 +2,7 @@ name: Deploy to WordPress.org
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
 
 jobs:
   tag:
@@ -18,10 +19,10 @@ jobs:
           php-version: 8.2
           extensions: mbstring, intl
           tools: composer
-      
+
       - name: Install Subversion
         run: sudo apt-get update && sudo apt-get install -y subversion
-      
+
       - name: Install PHP dependencies
         run: |
           composer install --no-dev --optimize-autoloader
