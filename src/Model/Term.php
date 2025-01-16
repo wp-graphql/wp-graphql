@@ -22,7 +22,6 @@ use WP_Term;
  * @property string $link
  * @property string $parentId
  * @property int    $parentDatabaseId
- * @property array  $ancestors
  *
  * @package WPGraphQL\Model
  */

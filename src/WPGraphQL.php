@@ -244,6 +244,9 @@ final class WPGraphQL {
 				$query_log->init();
 			}
 		);
+
+		// Initialize Update functionality.
+		( new \WPGraphQL\Admin\Updates\Updates() )->init();
 	}
 
 	/**

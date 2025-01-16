@@ -307,7 +307,7 @@ abstract class AbstractCursor {
 	 *
 	 * This is cached internally so it should not generate additionl queries.
 	 *
-	 * @return mixed|null;
+	 * @return mixed|null
 	 */
 	abstract public function get_cursor_node();
 

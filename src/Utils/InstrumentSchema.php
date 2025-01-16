@@ -263,7 +263,7 @@ class InstrumentSchema {
 		if ( isset( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
 			$roles         = ! empty( wp_get_current_user()->roles ) ? wp_get_current_user()->roles : [];
 			$allowed_roles = array_values( $field->config['auth']['allowedRoles'] );
-			if ( empty( array_intersect( array_values( $roles ), array_values( $allowed_roles ) ) ) ) {
+			if ( empty( array_intersect( array_values( $roles ), $allowed_roles ) ) ) {
 				throw new UserError( esc_html( $auth_error ) );
 			}
 		}
