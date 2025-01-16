@@ -1,3 +1,15 @@
+name: Deploy to WordPress.org
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        default: 'latest'
+
 jobs:
   tag:
     name: New release
