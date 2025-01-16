@@ -211,13 +211,13 @@ final class Extensions {
 	 */
 	private function sanitize_extension( array $extension ) {
 		return [
-			'name'        => ! empty( $extension['name'] ) ? sanitize_text_field( $extension['name'] ) : null,
-			'description' => ! empty( $extension['description'] ) ? sanitize_text_field( $extension['description'] ) : null,
-			'plugin_url'  => ! empty( $extension['plugin_url'] ) ? esc_url_raw( $extension['plugin_url'] ) : null,
-			'support_url' => ! empty( $extension['support_url'] ) ? esc_url_raw( $extension['support_url'] ) : null,
+			'name'              => ! empty( $extension['name'] ) ? sanitize_text_field( $extension['name'] ) : null,
+			'description'       => ! empty( $extension['description'] ) ? sanitize_text_field( $extension['description'] ) : null,
+			'plugin_url'        => ! empty( $extension['plugin_url'] ) ? esc_url_raw( $extension['plugin_url'] ) : null,
+			'support_url'       => ! empty( $extension['support_url'] ) ? esc_url_raw( $extension['support_url'] ) : null,
 			'documentation_url' => ! empty( $extension['documentation_url'] ) ? esc_url_raw( $extension['documentation_url'] ) : null,
-			'repo_url'    => ! empty( $extension['repo_url'] ) ? esc_url_raw( $extension['repo_url'] ) : null,
-			'author'      => [
+			'repo_url'          => ! empty( $extension['repo_url'] ) ? esc_url_raw( $extension['repo_url'] ) : null,
+			'author'            => [
 				'name'     => ! empty( $extension['author']['name'] ) ? sanitize_text_field( $extension['author']['name'] ) : null,
 				'homepage' => ! empty( $extension['author']['homepage'] ) ? esc_url_raw( $extension['author']['homepage'] ) : null,
 			],
@@ -236,7 +236,8 @@ final class Extensions {
 	 * @phpstan-assert-if-true Extension $extension
 	 */
 	public function is_valid_extension( array $extension ) {
-		$error_code    = 'invalid_extension';
+		$error_code = 'invalid_extension';
+		// translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
 		$error_message = __( 'Invalid extension %1$s is missing a valid value for %2$s.', 'wp-graphql' );
 
 		// First handle the name field, since we'll use it in other error messages.
@@ -284,7 +285,7 @@ final class Extensions {
 		$populated_extensions = [];
 
 		foreach ( $extensions as $extension ) {
-			$slug = basename( rtrim( $extension['plugin_url'], '/' ) );
+			$slug                   = basename( rtrim( $extension['plugin_url'], '/' ) );
 			$extension['installed'] = false;
 			$extension['active']    = false;
 
@@ -319,10 +320,10 @@ final class Extensions {
 				if ( false === strpos( $a['plugin_url'], 'wordpress.org' ) && false !== strpos( $b['plugin_url'], 'wordpress.org' ) ) {
 					return 1;
 				}
-				if ( 'WPGraphQL' === $a['author']['name'] && 'WPGraphQL' !== $b['author']['name'] ) {
+				if ( ! empty( $a['author']['name'] ) && ( 'WPGraphQL' === $a['author']['name'] && ( ! empty( $b['author']['name'] ) && 'WPGraphQL' !== $b['author']['name'] ) ) ) {
 					return -1;
 				}
-				if ( 'WPGraphQL' !== $a['author']['name'] && 'WPGraphQL' === $b['author']['name'] ) {
+				if ( ! empty( $a['author']['name'] ) && 'WPGraphQL' !== $a['author']['name'] && ( ! empty( $b['author']['name'] ) && 'WPGraphQL' === $b['author']['name'] ) ) {
 					return 1;
 				}
 				return strcasecmp( $a['name'], $b['name'] );
