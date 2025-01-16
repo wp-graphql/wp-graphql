@@ -3,7 +3,7 @@
  * Initializes Plugin Update functionality.
  *
  * @package WPGraphQL\Admin\Updates
- * @since @todo
+ * @since 1.30.0
  */
 
 namespace WPGraphQL\Admin\Updates;
