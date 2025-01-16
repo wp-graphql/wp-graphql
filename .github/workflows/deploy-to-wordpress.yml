@@ -1,15 +1,3 @@
-name: Deploy to WordPress.org
-
-on:
-  release:
-    types: [ published ]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to deploy'
-        required: true
-        default: 'latest'
-
 jobs:
   tag:
     name: New release
@@ -19,7 +7,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -42,6 +30,10 @@ jobs:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
+
+      - name: Ensure correct directory structure
+        run: |
+          mkdir -p /home/runner/svn-wp-graphql/tags
 
       - name: Create Artifact
         run: |
