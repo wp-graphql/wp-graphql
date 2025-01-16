@@ -29,7 +29,7 @@ namespace WPGraphQL\Admin\Extensions;
 final class Registry {
 	/**
 	 * Gets the registry of WPGraphQL Extensions.
-	 * 
+	 *
 	 * @see docs/submit-extensions.md for more information on how to submit an extension.
 	 *
 	 * Fields:
@@ -50,12 +50,23 @@ final class Registry {
 	public static function get_extenions(): array {
 		return [
 			'wp-graphql/wp-graphql-smart-cache' => [
-				'name'        => 'WPGraphQL Smart Cache',
-				'description' => 'A smart cache for WPGraphQL that caches only the data you need.',
+				'name'              => 'WPGraphQL Smart Cache',
+				'description'       => 'A smart cache for WPGraphQL that caches only the data you need.',
 				'documentation_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache',
-				'plugin_url'  => 'https://wordpress.org/plugins/wp-graphql-smart-cache/',
-				'support_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
-				'author'      => [
+				'plugin_url'        => 'https://wordpress.org/plugins/wp-graphql-smart-cache/',
+				'support_url'       => 'https://github.com/wp-graphql/wp-graphql-smart-cache/issues/new/choose',
+				'author'            => [
+					'name'     => 'WPGraphQL',
+					'homepage' => 'https://wpgraphql.com',
+				],
+			],
+			'wp-graphql/wpgraphql-acf'          => [
+				'name'              => 'WPGraphQL for Advanced Custom Fields',
+				'description'       => 'WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends.',
+				'documentation_url' => 'https://acf.wpgraphql.com/',
+				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-acf/',
+				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose',
+				'author'            => [
 					'name'     => 'WPGraphQL',
 					'homepage' => 'https://wpgraphql.com',
 				],
