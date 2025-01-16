@@ -6,11 +6,11 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 1.29.3
+ * Version: 1.30.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 5.9
- * Tested up to: 6.6
+ * Tested up to: 6.7.1
  * Requires PHP: 7.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.29.3
+ * @version  1.30.0
  */
 
 // Exit if accessed directly.
@@ -62,7 +62,7 @@ function graphql_require_bootstrap_files(): void {
  *
  * Bedrock
  *  - WPGRAPHQL_AUTOLOAD: not defined
- *  - composer deps installed outside of the plugin
+ *  - composer deps installed outside the plugin
  *
  * Normal (.org repo install)
  * - WPGRAPHQL_AUTOLOAD: not defined

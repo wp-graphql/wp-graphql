@@ -208,7 +208,6 @@ class PreviewContentNodesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-
 		$this->assertArrayNotHasKey( 'errors', $not_database_id_preview );
 		$this->assertArrayNotHasKey( 'errors', $not_uri_preview );
 

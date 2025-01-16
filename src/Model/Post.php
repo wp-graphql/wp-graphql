@@ -695,7 +695,7 @@ class Post extends Model {
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
 				},
 				'commentCount'              => function () {
-					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : null;
+					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : 0;
 				},
 				'featuredImageId'           => function () {
 					return ! empty( $this->featuredImageDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->featuredImageDatabaseId ) : null;

@@ -5,11 +5,17 @@ title: "Categories and Tags"
 
 WPGraphQL provides support for querying Categories, Tags and Custom Taxonomies in various ways.
 
-This page will be most useful for users who are familiar with [GraphQL Concepts](/docs/intro-to-graphql/) and understand the basics of [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
+## Introduction
+Categories and Tags are WordPress taxonomies used to organize and classify content:
+- **Categories** are hierarchical (can have parent-child relationships)
+- **Tags** are flat (no hierarchy)
+- Both can be used to organize and filter content
+
+This guide assumes familiarity with [GraphQL Concepts](/docs/intro-to-graphql/) and [writing GraphQL Queries](/docs/intro-to-graphql/#queries-and-mutation).
 
 ## Querying Categories and Tags
 
-Categories and Tags are built-in post types in WordPress, and WPGraphQL supports querying them out of the box.
+Categories and Tags are built-in taxonomies in WordPress, and WPGraphQL supports querying them out of the box.
 
 Below are some common examples of querying Categories and Tags with WPGraphQL.
 
@@ -30,7 +36,7 @@ query GetCategoryEdges {
 }
 ```
 
-![Screenshot of a query for a list of Categories, edges and node](./images/categories-query-edges-nodes.png)
+![Screenshot of a query for a list of Categories, edges and nodes](./images/categories-query-edges-nodes.png)
 
 Below is the same query, but asking for nodes directly, skipping the `edges` field.
 
@@ -47,7 +53,7 @@ query GetCategoryNodes {
 
 ![Screenshot of a query for a list of Categories nodes](./images/categories-query-nodes.png)
 
-> **Edges? Nodes? Huh?** If you’re not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
+> **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
 
 ### Lists of Tags
 
@@ -96,6 +102,74 @@ query GetTagNodes {
 ```
 
 ![Screenshot of a GraphQL query filtering Tags by nameLike](./images/tags-query-by-name.png)
+
+## Available Fields
+Both Categories and Tags share these common fields:
+
+```graphql
+{
+  categories {
+    nodes {
+      id          # Global ID of the term
+      databaseId  # WordPress database ID
+      name        # Term name
+      slug        # URL-friendly slug
+      description # Term description
+      uri         # Full path to term archive
+      count       # Number of posts with this term
+      link        # Full URL to term archive
+    }
+  }
+}
+```
+
+Categories have additional hierarchical fields:
+```graphql
+{
+  categories {
+    nodes {
+      parentId    # Parent term's ID
+      ancestors   # List of ancestor terms
+      children    # List of child terms
+    }
+  }
+}
+```
+
+## Common Use Cases
+
+### Building Navigation Menus
+Fetch top-level categories with their children:
+```graphql
+{
+  categories(where: { parent: 0 }) {
+    nodes {
+      name
+      uri
+      children {
+        nodes {
+          name
+          uri
+        }
+      }
+    }
+  }
+}
+```
+
+### Tag Clouds
+Get the most-used tags:
+```graphql
+{
+  tags(first: 20, where: { orderby: COUNT, order: DESC }) {
+    nodes {
+      name
+      count
+      uri
+    }
+  }
+}
+```
 
 ## Single Term by Global ID
 
@@ -229,3 +303,15 @@ If the user making the request is authenticated and has proper capabilities to d
 If the user making the request is not authenticated, or does not have proper capabilities to delete Category terms, no data will change in WordPress and an error will be returned.
 
 ![Screenshot of an unsuccessful GraphQL Mutation to delete a Category](./images/categories-delete-not-allowed.png)
+
+## Performance Considerations
+When working with large sets of terms:
+- Use pagination with `first`/`after` or `last`/`before` arguments
+- Limit the fields you request to only what you need
+- Consider caching responses on the client side
+
+## Related Resources
+- [Querying Posts by Taxonomy Terms](/docs/posts/)
+- [Working with Custom Taxonomies](/docs/custom-taxonomies/)
+- [Pagination and Connections](/docs/connections/)
+- [Hierarchical Data in WPGraphQL](/docs/hierarchical-data/)

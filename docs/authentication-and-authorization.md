@@ -3,66 +3,76 @@ uri: "/docs/authentication-and-authorization/"
 title: "Authentication and Authorization"
 ---
 
-## A quick word about GraphQL Mutations vs Queries
+## Understanding GraphQL Operations
 
-From a technical perspective, the only differences between GraphQL Queries and Mutations is the `mutation` keyword, and the GraphQL spec requires mutations to be processed synchronously, where queries can be processed Async (in environments that support it).
+Before diving into authentication and authorization, it's important to understand how GraphQL operations work in WPGraphQL.
 
-Other than that, Queries and Mutations are the same, they’re both just strings that map to functions.
+GraphQL has two main operation types:
+- **Queries**: Used for fetching data
+- **Mutations**: Used for modifying data 
 
-Now that we’re clear on Queries vs. Mutations (both are just maps to functions), authentication & authorization is left up to the application layer, not the GraphQL API layer, although some mechanisms in GraphQL can help facilitate these processes.
+While mutations use the `mutation` keyword and must be processed synchronously (one after another), both queries and mutations are fundamentally similar - they map input to resolver functions that interact with WordPress.
 
-## Authentication & Authorization
 
-- **Authentication**: the process of verifying who you are (logging in)
-- **Authorization**: the process of verifying that you have access to something – (the ability to view/change private data)
+## Authentication & Authorization Concepts
 
-## Authentication with WPGraphQL
+- **Authentication**: The process of verifying a user's identity (logging in, validating credentials)
+- **Authorization**: The process of verifying what a user can access or modify (permissions)
 
-Since WPGraphQL is a WordPress plugin that adheres largely to common WordPress practices, there are many ways to make authenticated WPGraphQL requests.
+In WPGraphQL, these processes build on WordPress's existing user and capability systems.
 
-For remote HTTP requests to the `/graphql` endpoint, existing authentication plugins *should* work fine. These plugins make use of sending data in the Headers of requests and validating the credentials and setting the user before execution of the API request is returned:
+## Authentication Methods
 
-- https://github.com/wp-graphql/wp-graphql-jwt-authentication
-- https://github.com/WP-API/Basic-Auth (even though it’s labeled for the REST API, it works well with WPGraphQL – but not recommended for non-SSL connections)
-- https://github.com/WP-API/OAuth1 (labeled for use with the WP REST API, but works well with WPGraphQL)
-- https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/ (For WordPress 5.6 and above)
+WPGraphQL supports multiple authentication approaches depending on your use case:
 
-If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/82518eafa5f383c5929111431e4a641caace3b57/assets/app/src/App.js#L58-L75).
+### 1. Remote HTTP Requests
+For applications making requests to the `/graphql` endpoint, you can use:
 
-For non-remote requests (PHP function calls), if the context of the request is already authenticated, such as an Admin page in the WordPress dashboard, existing WordPress authentication can be used, taking advantage of the existing session. For example, if you wanted to use a GraphQL query to populate a dashboard page, you could send your query to the `do_graphql_request( $query )` function, and since the request is already authenticated, GraphQL will execute with the current user set, and will resolve fields that the users has permission to resolve.
+- **Application Passwords** (Recommended for WordPress 5.6+)
+  - Built into WordPress core
+  - Secure token-based authentication
+  - [Integration Guide](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/)
 
-## Authorization with WPGraphQL
+- **JWT Authentication** 
+  - Uses JSON Web Tokens
+  - Ideal for headless WordPress applications
+  - [WPGraphQL JWT Authentication Plugin](https://github.com/wp-graphql/wp-graphql-jwt-authentication)
 
-Since WPGraphQL is built as a WordPress plugin, it makes use of WordPress core methods to determine the current user for the request, and execute with that context.
+- **Basic Authentication**
+  - Simple username/password authentication
+  - [Basic Auth Plugin](https://github.com/WP-API/Basic-Auth)
+  - Note: Only use with SSL/HTTPS connections
 
-The mutations that WPGraphQL provide out of the box attempt to adhere to best practices in regards to respecting user roles and capabilities. Whether the mutation is creating, updating or deleting content, WPGraphQL checks for capabilities before executing the mutation.
+- **OAuth1**
+  - More complex but very secure
+  - [OAuth1 Plugin](https://github.com/WP-API/OAuth1)
 
-For example, any mutation that would create a `post` will first check to make sure the current user has proper capabilities to create a `post`.
+### 2. WordPress Admin Requests
+When making requests from within the WordPress admin (like WPGraphiQL):
+- Uses WordPress's nonce-based authentication
+- Automatically authenticated via the user's session
+- Example implementation in [WPGraphiQL](https://github.com/wp-graphql/wp-graphiql/blob/82518eafa5f383c5929111431e4a641caace3b57/assets/app/src/App.js#L58-L75)
 
-Mutations are not alone when it comes to checking capabilities. Some queries expose potentially sensitive data, such as the email address field in `generalSettings`. By default, this field will only resolve if the request is authenticated, meaning that the value of the email address is only exposed to logged in users.
+### 3. Direct PHP Function Calls
+When using WPGraphQL programmatically within WordPress:
+- Uses the current user's session
+- Call `graphql([ 'query' => $query ])` directly
+- Inherits WordPress authentication context
 
-A public, non-authenticated request would return a null value for the field and would return an error message in the GraphQL response. However, it wouldn’t block the execution of the entire GraphQL request, just that field. So, if the request had a mix of publicly allowed fields and private fields, GraphQL would still execute the public data.
+## Authorization in WPGraphQL
 
-For example, trying a query like:
+WPGraphQL implements a granular authorization system:
 
-```graphql
-{
-  generalSettings {
-    title
-    email
-  }
-}
-```
+### Field-Level Authorization
+- Each field can have its own authorization rules
+- Fields can return null if user lacks permission
+- Other fields in the same query still resolve if authorized
+- Examples: 
+  - `email` in `generalSettings` requires authentication
+  - `{ posts( where: { status: DRAFT } ) { nodes { id, title } } }` requires authentication (draft posts are not public)
 
-Will return:
-
-```graphql
-{
-  \"data\": {
-    \"generalSettings\": {
-      \"title\": \"WPGraphQL\",
-      \"email\": null
-    }
-  }
-}
-```
+### Mutation Authorization
+- Checks WordPress capabilities before executing
+- Respects WordPress roles and permissions
+- Examples: 
+  - Creating a post checks `publish_posts` capability

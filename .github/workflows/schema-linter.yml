@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - develop
+      - release/*
   pull_request:
     branches:
       - develop
       - master
+      - release/*
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:

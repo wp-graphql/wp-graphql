@@ -73,7 +73,6 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		 * If the current user cannot moderate comments, do not include unapproved comments
 		 */
 		if ( ! current_user_can( 'moderate_comments' ) ) {
-			$query_args['status']             = [ 'approve' ];
 			$query_args['include_unapproved'] = get_current_user_id() ? [ get_current_user_id() ] : [];
 			if ( empty( $query_args['include_unapproved'] ) ) {
 				unset( $query_args['include_unapproved'] );
@@ -160,7 +159,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 		$queried  = isset( $this->query ) ? $this->query : $this->get_query();
 		$comments = $queried->get_comments();
 
-		/** @var int[]|string[] $ids */
+		/** @var int[] $ids */
 		$ids = ! empty( $comments ) ? $comments : [];
 
 		// If we're going backwards, we need to reverse the array.
@@ -275,6 +274,7 @@ class CommentConnectionResolver extends AbstractConnectionResolver {
 			'includeUnapproved'  => 'include_unapproved',
 			'parentIn'           => 'parent__in',
 			'parentNotIn'        => 'parent__not_in',
+			'statusIn'           => 'status',
 			'userId'             => 'user_id',
 		];
 

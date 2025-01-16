@@ -82,6 +82,7 @@ final class WPGraphQL {
 			self::$instance->includes();
 			self::$instance->actions();
 			self::$instance->filters();
+			self::$instance->upgrade();
 		}
 
 		/**
@@ -177,7 +178,7 @@ final class WPGraphQL {
 	 */
 	private function actions(): void {
 		/**
-		 * Init WPGraphQL after themes have been setup,
+		 * Init WPGraphQL after themes have been set up,
 		 * allowing for both plugins and themes to register
 		 * things before graphql_init
 		 */
@@ -243,6 +244,9 @@ final class WPGraphQL {
 				$query_log->init();
 			}
 		);
+
+		// Initialize Update functionality.
+		( new \WPGraphQL\Admin\Updates\Updates() )->init();
 	}
 
 	/**
@@ -323,7 +327,7 @@ final class WPGraphQL {
 	 */
 	public function setup_types() {
 		/**
-		 * Setup the settings, post_types and taxonomies to show_in_graphql
+		 * Set up the settings, post_types and taxonomies to show_in_graphql
 		 */
 		self::show_in_graphql();
 	}
@@ -414,6 +418,78 @@ final class WPGraphQL {
 			10,
 			1
 		);
+	}
+
+	/**
+	 * Upgrade routine
+	 *
+	 * @return void
+	 */
+	public function upgrade() {
+		$version = get_option( 'wp_graphql_version', null );
+
+		// If the version is not set, this is a fresh install, not an update.
+		// set the version and return.
+		if ( ! $version ) {
+			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
+			return;
+		}
+
+		// If the version is less than the current version, run the update routine
+		if ( version_compare( $version, WPGRAPHQL_VERSION, '<' ) ) {
+			$this->run_update_routines( $version );
+			update_option( 'wp_graphql_version', WPGRAPHQL_VERSION );
+		}
+	}
+
+	/**
+	 * Executes update routines based on the previously stored version.
+	 *
+	 * This triggers an action that passes the previous version and new version and allows for specific actions or
+	 * modifications needed to bring installations up-to-date with the current plugin version.
+	 *
+	 * Each update routine (callback that hooks into "graphql_do_update_routine") should handle backward compatibility as gracefully as possible.
+	 *
+	 * @since 1.2.3
+	 * @param string|null $stored_version The version number currently stored in the database.
+	 *                                    Null if no version has been previously stored.
+	 */
+	public function run_update_routines( ?string $stored_version = null ): void {
+
+		// bail if the stored version is empty, or the WPGRAPHQL_VERSION constant is not set
+		if ( ! defined( 'WPGRAPHQL_VERSION' ) || ! $stored_version ) {
+			return;
+		}
+
+		// If the stored version is less than the current version, run the upgrade routine
+		if ( version_compare( $stored_version, WPGRAPHQL_VERSION, '<' ) ) {
+
+			// Clear the extensions cache
+			$this->clear_extensions_cache();
+
+			/**
+			 * Fires the update routine.
+			 *
+			 * @param string $stored_version The version number currently stored in the database.
+			 * @param string $new_version    The version number of the current plugin.
+			 */
+			do_action( 'graphql_do_update_routine', $stored_version, WPGRAPHQL_VERSION );
+		}
+	}
+
+	/**
+	 * Clear all caches in the "wpgraphql_extensions" cache group.
+	 *
+	 * @return void
+	 */
+	public function clear_extensions_cache() {
+		global $wp_object_cache;
+
+		if ( isset( $wp_object_cache->cache['wpgraphql_extensions'] ) ) {
+			foreach ( $wp_object_cache->cache['wpgraphql_extensions'] as $key => $value ) {
+				wp_cache_delete( $key, 'wpgraphql_extensions' );
+			}
+		}
 	}
 
 	/**

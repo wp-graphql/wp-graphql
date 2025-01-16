@@ -54,6 +54,7 @@ use WPGraphQL\Type\Enum\PostObjectsConnectionDateColumnEnum;
 use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\PostStatusEnum;
 use WPGraphQL\Type\Enum\RelationEnum;
+use WPGraphQL\Type\Enum\ScriptLoadingGroupLocationEnum;
 use WPGraphQL\Type\Enum\ScriptLoadingStrategyEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
@@ -356,6 +357,7 @@ class TypeRegistry {
 		PostStatusEnum::register_type();
 		RelationEnum::register_type();
 		ScriptLoadingStrategyEnum::register_type();
+		ScriptLoadingGroupLocationEnum::register_type();
 		TaxonomyEnum::register_type();
 		TaxonomyIdTypeEnum::register_type();
 		TermNodeIdTypeEnum::register_type();
@@ -371,9 +373,10 @@ class TypeRegistry {
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
 
-		MenuItemObjectUnion::register_type( $this );
-		PostObjectUnion::register_type( $this );
-		TermObjectUnion::register_type( $this );
+		// Deprecated types.
+		MenuItemObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
+		PostObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
+		TermObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
 
 		/**
 		 * Register core connections

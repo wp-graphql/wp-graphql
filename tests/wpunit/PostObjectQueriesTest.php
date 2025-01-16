@@ -15,7 +15,6 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->clearSchema();
 
-
 		$this->current_time     = strtotime( '- 1 day' );
 		$this->current_date     = date( 'Y-m-d H:i:s', $this->current_time );
 		$this->current_date_gmt = gmdate( 'Y-m-d H:i:s', $this->current_time );
@@ -2431,12 +2430,12 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$post = $this->factory()->post->create_and_get(
 			[
-				'post_type'   => 'post',
-				'post_status' => 'publish',
-				'post_password'    => 'mypassword',
-				'title'       => 'Password Protected post',
-				'content'     => 'Some content',
-				'post_author' => $post_author_one,
+				'post_type'     => 'post',
+				'post_status'   => 'publish',
+				'post_password' => 'mypassword',
+				'title'         => 'Password Protected post',
+				'content'       => 'Some content',
+				'post_author'   => $post_author_one,
 			]
 		);
 
@@ -2453,12 +2452,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		';
 
 		// Test password protected post as unauthenticated user.
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $post->ID,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post->ID,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when unauthenticated' );
@@ -2469,12 +2470,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// Test password protected post as a subscriber.
 		wp_set_current_user( $subscriber );
-		$actual = $this->graphql( [
-			'query' => $query,
-			'variables' => [
-				'id' => $post->ID,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post->ID,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when lacking permissions' );
@@ -2485,12 +2488,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// Test password protected post as different author.
 		wp_set_current_user( $post_author_two );
-		$actual = $this->graphql( [
-			'query' => $query,
-			'variables' => [
-				'id' => $post->ID,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post->ID,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when lacking permissions' );
@@ -2502,12 +2507,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test password protected post as current author.
 		wp_set_current_user( $post_author_one );
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $post->ID,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post->ID,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when authenticated' );
@@ -2519,12 +2526,14 @@ class PostObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		// Test password protected post as admin.
 		wp_set_current_user( $this->admin );
 
-		$actual = $this->graphql( [
-			'query'     => $query,
-			'variables' => [
-				'id' => $post->ID,
-			],
-		] );
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'id' => $post->ID,
+				],
+			]
+		);
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $post->post_title, $actual['data']['post']['title'], 'Title should be returned when authenticated' );
