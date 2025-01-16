@@ -71,6 +71,17 @@ final class Registry {
 					'homepage' => 'https://wpgraphql.com',
 				],
 			],
+			'ashhitch/wp-graphql-yoast-seo'          => [
+				'name'              => 'WPGraphQL Yoast SEO Addon',
+				'description'       => 'This plugin enables Yoast SEO Support for WPGraphQL',
+				'documentation_url' => 'https://github.com/ashhitch/wp-graphql-yoast-seo',
+				'plugin_url'        => 'https://wordpress.org/plugins/add-wpgraphql-seo/',
+				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose',
+				'author'            => [
+					'name'     => 'Ash Hitchcock',
+					'homepage' => 'https://www.ashleyhitchcock.com/',
+				],
+			],
 		];
 	}
 }
