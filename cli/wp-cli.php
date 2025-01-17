@@ -12,22 +12,36 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 	 * Defaults to creating a schema.graphql file in the IDL format at the root
 	 * of the plugin.
 	 *
-	 * @todo: Provide alternative formats (AST? INTROSPECTION JSON?) and options for output location/file-type?
+	 * [--output=<output>]
+	 * : The file path to save the schema to.
+	 *
+	 * @todo: Provide alternative formats (AST? INTROSPECTION JSON?) and options for output file-type?
 	 * @todo: Add Unit Tests
 	 *
 	 * ## EXAMPLE
 	 *
+	 *     # Generate a static schema
 	 *     $ wp graphql generate-static-schema
+	 *
+	 *     # Generate a static schema and save it to a specific file
+	 *     $ wp graphql generate-static-schema --output=/path/to/file.graphql
 	 *
 	 * @alias generate
 	 * @subcommand generate-static-schema
 	 */
 	public function generate_static_schema( $args, $assoc_args ) {
 
-		/**
-		 * Set the file path for where to save the static schema
-		 */
-		$file_path = get_temp_dir() . 'schema.graphql';
+		// Check if the output flag is set
+		if ( isset( $assoc_args['output'] ) ) {
+			// Check if the output file path is writable and its parent directory exists
+			if ( ! is_writable( dirname( $assoc_args['output'] ) ) ) {
+			WP_CLI::error( 'The output file path is not writable or its parent directory does not exist.' );
+				return;
+			}
+			$file_path = $assoc_args['output'];
+		} else {
+			$file_path = get_temp_dir() . 'schema.graphql';
+		}
 
 		if ( ! defined( 'GRAPHQL_REQUEST' ) ) {
 			define( 'GRAPHQL_REQUEST', true );
