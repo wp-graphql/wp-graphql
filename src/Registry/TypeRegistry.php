@@ -117,6 +117,7 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\Scalar\EmailAddress;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -281,6 +282,9 @@ class TypeRegistry {
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
+
+		// Register Scalars.
+		EmailAddress::register_scalar();
 
 		// Register Interfaces.
 		Node::register_type();
