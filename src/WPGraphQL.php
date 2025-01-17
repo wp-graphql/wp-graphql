@@ -79,6 +79,7 @@ final class WPGraphQL {
 		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof self ) ) {
 			self::$instance = new self();
 			self::$instance->setup_constants();
+			self::$instance->setup_experiments();
 			self::$instance->includes();
 			self::$instance->actions();
 			self::$instance->filters();
@@ -123,6 +124,14 @@ final class WPGraphQL {
 	 */
 	private function setup_constants() {
 		graphql_setup_constants();
+	}
+
+	/**
+	 * Setup Experiments.
+	 */
+	private function setup_experiments(): void {
+		$experimental = new \WPGraphQL\Experimental\Experimental();
+		$experimental->init();
 	}
 
 	/**
