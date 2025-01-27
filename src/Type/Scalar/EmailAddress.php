@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
 /**
