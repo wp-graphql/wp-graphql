@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.31.1
+
+- update stable tag
+
+### Chores / Bugfixes
+
 ## 1.31.0
 
 ### New Features
