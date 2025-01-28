@@ -136,8 +136,12 @@ final class Updates {
 	 * Disables plugins that don't meet the minimum `Requires WPGraphQL` version.
 	 */
 	public function disable_incompatible_plugins(): void {
+
+		// Get the plugin data.
+		$plugin_data = get_plugin_data( WPGRAPHQL_PLUGIN_DIR . '/wp-graphql.php' );
+
 		// Initialize the Update Checker.
-		$update_checker = new UpdateChecker( (object) get_plugins()['wp-graphql/wp-graphql.php'] );
+		$update_checker = new UpdateChecker( (object) $plugin_data );
 
 		// Get the incompatible plugins.
 		$incompatible_plugins = $update_checker->get_incompatible_plugins( WPGRAPHQL_VERSION, true );

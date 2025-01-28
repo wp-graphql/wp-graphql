@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.31.0
+
+### New Features
+
+- [#3278](https://github.com/wp-graphql/wp-graphql/pull/3278): feat: add option to provide custom file path for static schemas when using the `wp graphql generate-static-schema` command
+
+### Chores / Bugfixes
+
+- [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: fix: Updated docs link for example of hierarchical data
+- [#3283](https://github.com/wp-graphql/wp-graphql/pull/3283): fix: Error in update checker when WPGraphQL is active as an mu-plugin
+
 ## 1.30.0
 
 ### Chores / Bugfixes
