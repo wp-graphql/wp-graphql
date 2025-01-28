@@ -2,9 +2,9 @@
 
 ## 1.31.1
 
-- update stable tag
-
 ### Chores / Bugfixes
+
+- update stable tag
 
 ## 1.31.0
 
