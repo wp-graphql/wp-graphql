@@ -8,8 +8,6 @@ Stable tag: 1.31.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-=== Short Description ===
-
 WPGraphQL adds a flexible and powerful GraphQL API to WordPress, enabling efficient querying and interaction with your site's data.
 
 === Description ===
