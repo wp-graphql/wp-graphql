@@ -171,7 +171,11 @@ function graphql_init_appsero_telemetry() {
 	try {
 		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
 
-		/** @var \Appsero\Insights $insights */
+		/**
+		 * @var \Appsero\Insights $insights
+		 *
+		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
+		 */
 		$insights = $client->insights();
 
 		// If the Appsero client has the add_plugin_data method, use it

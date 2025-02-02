@@ -1,7 +1,5 @@
 parameters:
-    level: 8
-    dynamicConstantNames:
-        - WPGRAPHQL_AUTOLOAD
+    # Rules
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
     checkExplicitMixedMissingReturn: true
@@ -13,6 +11,14 @@ parameters:
     reportAlwaysTrueInLastCondition: true
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
+
+    # Configuration
+    level: 8
+    phpVersion:
+      min: 70400
+      max: 80300
+    dynamicConstantNames:
+        - WPGRAPHQL_AUTOLOAD
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php
@@ -34,6 +40,7 @@ parameters:
     excludePaths:
       analyseAndScan:
         - node_modules (?)
+
     ignoreErrors:
-      -
+      - # @TODO these should be restored
         identifier: missingType.iterableValue
