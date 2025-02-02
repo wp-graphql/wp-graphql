@@ -5,7 +5,7 @@
  * We don't need to do anything fancy here, just enough to compare versions.
  *
  * @package WPGraphQL\Admin\Updates
- * @since @todo
+ * @since 1.30.0
  */
 
 namespace WPGraphQL\Admin\Updates;
