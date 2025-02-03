@@ -1274,7 +1274,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type.
 	 *
-	 * @param \GraphQL\Type\Definition\Type\string $type The Type being wrapped.
+	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
 	 *
 	 * @phpstan-template T of \GraphQL\Type\Definition\Type
 	 * @phpstan-param T|string $type The Type being wrapped.
