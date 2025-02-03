@@ -355,6 +355,13 @@ class PostObjectMutation {
 						return;
 					}
 
+					if ( $append && 'category' === $tax_object->name ) {
+						$default_category_id = absint( get_option( 'default_category' ) );
+						if ( ! in_array( $default_category_id, $terms_to_connect, true ) ) {
+							wp_remove_object_terms( $post_id, $default_category_id, 'category' );
+						}
+					}
+
 					wp_set_object_terms( $post_id, $terms_to_connect, $tax_object->name, $append );
 				}
 			}
@@ -476,12 +483,11 @@ class PostObjectMutation {
 			return false;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/post.php';
-
-		if ( function_exists( 'wp_check_post_lock' ) ) {
-			return wp_check_post_lock( $post_id );
+		if ( ! function_exists( 'wp_check_post_lock' ) ) {
+			// @phpstan-ignore requireOnce.fileNotFound
+			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
 
-		return false;
+		return wp_check_post_lock( $post_id );
 	}
 }

@@ -54,6 +54,7 @@ use WPGraphQL\Type\Enum\PostObjectsConnectionDateColumnEnum;
 use WPGraphQL\Type\Enum\PostObjectsConnectionOrderbyEnum;
 use WPGraphQL\Type\Enum\PostStatusEnum;
 use WPGraphQL\Type\Enum\RelationEnum;
+use WPGraphQL\Type\Enum\ScriptLoadingGroupLocationEnum;
 use WPGraphQL\Type\Enum\ScriptLoadingStrategyEnum;
 use WPGraphQL\Type\Enum\TaxonomyEnum;
 use WPGraphQL\Type\Enum\TaxonomyIdTypeEnum;
@@ -356,6 +357,7 @@ class TypeRegistry {
 		PostStatusEnum::register_type();
 		RelationEnum::register_type();
 		ScriptLoadingStrategyEnum::register_type();
+		ScriptLoadingGroupLocationEnum::register_type();
 		TaxonomyEnum::register_type();
 		TaxonomyIdTypeEnum::register_type();
 		TermNodeIdTypeEnum::register_type();
@@ -1271,27 +1273,23 @@ class TypeRegistry {
 	 * Given a Type, this returns an instance of a listOf of that type.
 	 *
 	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
-	 * @phpstan-param T|string $type The Type being wrapped.
-	 * @phpstan-return \GraphQL\Type\Definition\ListOfType<T>
 	 *
 	 * @phpstan-template T of \GraphQL\Type\Definition\Type
+	 * @phpstan-param T|string $type The Type being wrapped.
+	 * @phpstan-return \GraphQL\Type\Definition\ListOfType<T>
 	 */
 	public function list_of( $type ): \GraphQL\Type\Definition\ListOfType {
 		if ( is_string( $type ) ) {
-			$type_def = $this->get_type( $type );
+			$resolved_type = $this->get_type( $type );
 
-			if ( is_null( $type_def ) ) {
-				/** @phpstan-var T $default_type */ // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation
-				$default_type = Type::string();
-				/** @phpstan-return \GraphQL\Type\Definition\ListOfType<T> */ // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation
-				return Type::listOf( $default_type );
+			if ( is_null( $resolved_type ) ) {
+				$resolved_type = Type::string();
 			}
 
-			/** @phpstan-var T $type_def */ // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation
-			return Type::listOf( $type_def );
+			/** @phpstan-var T $resolved_type */
+			$type = $resolved_type;
 		}
 
-		/** @phpstan-var T $type */ // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation
 		return Type::listOf( $type );
 	}
 
