@@ -9,6 +9,8 @@ use WPGraphQL\Registry\TypeRegistry;
 /**
  * Class WPUnionType
  *
+ * @phpstan-import-type UnionConfig from \GraphQL\Type\Definition\UnionType
+ *
  * Union Types should extend this class to take advantage of the helper methods
  * and consistent filters.
  *
@@ -28,12 +30,14 @@ class WPUnionType extends UnionType {
 	 * @param array<string,mixed>              $config The Config to set up a Union Type
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
+	 * @phpstan-param UnionConfig|array{typeNames?:array<string>} $config
+	 *
 	 * @since 0.0.30
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
 		$this->type_registry = $type_registry;
 
-		$name           = ucfirst( $config['name'] );
+		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		$config['types'] = function () use ( $config ): array {
@@ -52,25 +56,24 @@ class WPUnionType extends UnionType {
 			return $prepared_types;
 		};
 
-		$config['resolveType'] = function ( $obj ) use ( $config ): ?ObjectType {
+		$config['resolveType'] = function ( $obj, $context, $info ) use ( $config ) {
 			$type = null;
-			if ( is_callable( $config['resolveType'] ) ) {
-				$type = call_user_func( $config['resolveType'], $obj );
+			if ( isset( $config['resolveType'] ) && is_callable( $config['resolveType'] ) ) {
+				$type = call_user_func( $config['resolveType'], $obj, $context, $info );
 			}
 
 			return apply_filters( 'graphql_union_resolve_type', $type, $obj, $this );
 		};
 
-		/** @var callable(): array<\GraphQL\Type\Definition\ObjectType> $types */
 		$types           = apply_filters( 'graphql_union_possible_types', $config['types'], $config, $this );
 		$config['types'] = $types;
 
-		/** @var array{
-		 *     name?: string|null,
-		 *     description?: string|null,
-		 *     types: callable(): array<\GraphQL\Type\Definition\ObjectType>,
-		 *     resolveType?: callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (\GraphQL\Type\Definition\ObjectType|string|null)|null
-		 * } */
+		/**
+		 * Filter the config of WPUnionType
+		 *
+		 * @param UnionConfig                 $config Array of configuration options passed to the WPUnionType when instantiating a new type
+		 * @param \WPGraphQL\Type\WPUnionType $instance The instance of the WPUnionType class
+		 */
 		$config = apply_filters( 'graphql_wp_union_type_config', $config, $this );
 
 		do_action( 'graphql_wp_union_type', $config, $this );

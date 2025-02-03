@@ -284,6 +284,14 @@ class WPConnectionType {
 
 		$input_name = $this->connection_name . 'WhereArgs';
 
+		$this->where_args = [
+			'where' => [
+				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
+				'type'        => $input_name,
+			],
+		];
+
+		// Only register the input type if it hasn't already been registered.
 		if ( ! $this->type_registry->has_type( $input_name ) ) {
 			$this->type_registry->register_input_type(
 				$input_name,
@@ -298,13 +306,6 @@ class WPConnectionType {
 				]
 			);
 		}
-
-		$this->where_args = [
-			'where' => [
-				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-				'type'        => $input_name,
-			],
-		];
 	}
 
 	/**

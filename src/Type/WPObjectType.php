@@ -9,6 +9,8 @@ use WPGraphQL\Registry\TypeRegistry;
 /**
  * Class WPObjectType
  *
+ * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ *
  * Object Types should extend this class to take advantage of the helper methods
  * and consistent filters.
  *
@@ -37,21 +39,6 @@ class WPObjectType extends ObjectType {
 	public $type_registry;
 
 	/**
-	 * @var array{
-	 *      name?: string|null,
-	 *      description?: string|null,
-	 *      resolveField?: (callable(mixed, array<string, mixed>, mixed, \GraphQL\Type\Definition\ResolveInfo): mixed)|null,
-	 *      argsMapper?: (callable(array<string, mixed>, \GraphQL\Type\Definition\FieldDefinition, \GraphQL\Language\AST\FieldNode, mixed): mixed)|null,
-	 *      fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-	 *      interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-	 *      isTypeOf?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (bool|\GraphQL\Deferred|null))|null,
-	 *      astNode?: \GraphQL\Language\AST\ObjectTypeDefinitionNode|null,
-	 *      extensionASTNodes?: array<\GraphQL\Language\AST\ObjectTypeExtensionNode>|null
-	 *  }
-	 */
-	public array $config;
-
-	/**
 	 * @var array<string, array<string, mixed>>
 	 */
 	public $fields;
@@ -67,18 +54,9 @@ class WPObjectType extends ObjectType {
 	 * Sets up a WPObjectType instance with the given configuration and type registry.
 	 *
 	 * @param array<string, mixed>             $config The configuration array for setting up the WPObjectType.
-	 * @phpstan-param array{
-	 *    name?: string|null,
-	 *    description?: string|null,
-	 *    resolveField?: (callable(mixed, array<string, mixed>, mixed, \GraphQL\Type\Definition\ResolveInfo): mixed)|null,
-	 *    argsMapper?: (callable(array<string, mixed>, \GraphQL\Type\Definition\FieldDefinition, \GraphQL\Language\AST\FieldNode, mixed): mixed)|null,
-	 *    fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-	 *    interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-	 *    isTypeOf?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (bool|\GraphQL\Deferred|null))|null,
-	 *    astNode?: \GraphQL\Language\AST\ObjectTypeDefinitionNode|null,
-	 *    extensionASTNodes?: array<\GraphQL\Language\AST\ObjectTypeExtensionNode>|null
-	 * } $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The type registry to associate with the WPObjectType.
+	 *
+	 * @phpstan-param ObjectConfig $config
 	 *
 	 * @throws \Exception If there is an error during instantiation.
 	 * @since 0.0.5
@@ -93,45 +71,17 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Filter the config of WPObjectType
 		 *
-		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param ObjectConfig          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
 
-		$normalized_config = array_merge(
-			[
-				'name'              => null,
-				'description'       => null,
-				'resolveField'      => null,
-				'argsMapper'        => null,
-				'fields'            => [],
-				'interfaces'        => [],
-				'isTypeOf'          => null,
-				'astNode'           => null,
-				'extensionASTNodes' => [],
-			],
-			$config
-		);
-
-		// Explicitly assert that the return value matches the expected type
-		/** @var array{
-		 *     name?: string|null,
-		 *     description?: string|null,
-		 *     resolveField?: (callable(mixed, array<string, mixed>, mixed, \GraphQL\Type\Definition\ResolveInfo): mixed)|null,
-		 *     argsMapper?: (callable(array<string, mixed>, \GraphQL\Type\Definition\FieldDefinition, \GraphQL\Language\AST\FieldNode, mixed): mixed)|null,
-		 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-		 *     interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-		 *     isTypeOf?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (bool|\GraphQL\Deferred|null))|null,
-		 *     astNode?: \GraphQL\Language\AST\ObjectTypeDefinitionNode|null,
-		 *     extensionASTNodes?: array<\GraphQL\Language\AST\ObjectTypeExtensionNode>|null
-		 * } $normalized_config
-		 */
-		$this->config = $normalized_config;
+		$this->config = $config;
 
 		/**
 		 * Set the Types to start with capitals
 		 */
-		$name           = ucfirst( $config['name'] );
+		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		/**

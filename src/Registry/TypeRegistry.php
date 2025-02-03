@@ -135,6 +135,10 @@ use WPGraphQL\Utils\Utils;
  *
  * This class maintains the registry of Types used in the GraphQL Schema
  *
+ * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
+ * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
+ * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ *
  * @package WPGraphQL\Registry
  */
 class TypeRegistry {
@@ -789,7 +793,7 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Prepare the type for registration
+	 * Prepare the type for registration.
 	 *
 	 * @param string                                                  $type_name The name of the type to prepare
 	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
@@ -812,10 +816,8 @@ class TypeRegistry {
 					$prepared_type = new WPEnumType( $config );
 					break;
 				case 'input':
-					// Cast config to exact type expected
-					/** @var array{name?: string|null, description?: string|null, fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>, parseValue?: callable(array<string, mixed>): mixed, astNode?: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null, extensionASTNodes?: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null} $input_config */
-					$input_config  = $config;
-					$prepared_type = new WPInputObjectType( $input_config, $this );
+					/** @var InputObjectConfig $config */
+					$prepared_type = new WPInputObjectType( $config, $this );
 					break;
 				case 'scalar':
 					$prepared_type = new WPScalar( $config, $this );
@@ -824,15 +826,13 @@ class TypeRegistry {
 					$prepared_type = new WPUnionType( $config, $this );
 					break;
 				case 'interface':
-					/** @var array{name?: string|null, description?: string|null, fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>, interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<(callable(): \GraphQL\Type\Definition\InterfaceType)|\GraphQL\Type\Definition\InterfaceType>, resolveType?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (callable(): (\GraphQL\Type\Definition\ObjectType|string|null)|\GraphQL\Deferred|\GraphQL\Type\Definition\ObjectType|string|null))|null, astNode?: \GraphQL\Language\AST\InterfaceTypeDefinitionNode|null, extensionASTNodes?: array<\GraphQL\Language\AST\InterfaceTypeExtensionNode>|null} $interface_config */
-					$interface_config = $config;
-					$prepared_type    = new WPInterfaceType( $interface_config, $this );
+					/** @var InterfaceConfig $config */
+					$prepared_type = new WPInterfaceType( $config, $this );
 					break;
 				case 'object':
 				default:
-					/** @var array{name?: string|null, description?: string|null, resolveField?: (callable(mixed, array<string, mixed>, mixed, \GraphQL\Type\Definition\ResolveInfo): mixed)|null, fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>, interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<(callable(): \GraphQL\Type\Definition\InterfaceType)|\GraphQL\Type\Definition\InterfaceType>, isTypeOf?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (bool|\GraphQL\Deferred|null))|null, astNode?: \GraphQL\Language\AST\ObjectTypeDefinitionNode|null} $object_config */
-					$object_config = $config;
-					$prepared_type = new WPObjectType( $object_config, $this );
+					/** @var ObjectConfig $config */
+					$prepared_type = new WPObjectType( $config, $this );
 			}
 		}
 
@@ -888,7 +888,7 @@ class TypeRegistry {
 	 * @param array<string,mixed> $fields    Array of fields and their settings to register on a Type
 	 * @param string              $type_name Name of the Type to register the fields to
 	 *
-	 * @return array<string,array<string,mixed>>
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
@@ -1014,10 +1014,9 @@ class TypeRegistry {
 	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
 	 * not call before types are ready to be loaded.
 	 *
-	 * @template T of \GraphQL\Type\Definition\Type
-	 * @param T|string|array<string,mixed> $type The type definition to process.
+	 * @param \GraphQL\Type\Definition\Type|string|array<string,mixed> $type The type definition to process.
 	 *
-	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>|T
+	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function setup_type_modifiers( $type ) {
@@ -1026,15 +1025,16 @@ class TypeRegistry {
 		}
 
 		if ( isset( $type['non_null'] ) ) {
-			/** @var (\GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type)|string */
+			/** @var \GraphQL\Type\Definition\Type $inner_type */
 			$inner_type = $this->setup_type_modifiers( $type['non_null'] );
+
 			return $this->non_null( $inner_type );
 		}
 
 		if ( isset( $type['list_of'] ) ) {
-			/** @var \GraphQL\Type\Definition\Type */
-			$modified_type = $this->setup_type_modifiers( $type['list_of'] );
-			return $this->list_of( $modified_type );
+			/** @var \GraphQL\Type\Definition\Type $inner_type */
+			$inner_type = $this->setup_type_modifiers( $type['list_of'] );
+			return $this->list_of( $inner_type );
 		}
 
 		return $type;
@@ -1255,10 +1255,12 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Given a Type, this returns an instance of a NonNull of that type
+	 * Given a Type, this returns an instance of a NonNull of that type.
 	 *
-	 * @template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
-	 * @param T|string|(callable():T) $type The Type being wrapped
+	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
+	 *
+	 * @phpstan-template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
+	 * @phpstan-param T|string $type The Type being wrapped
 	 */
 	public function non_null( $type ): \GraphQL\Type\Definition\NonNull {
 		if ( is_string( $type ) ) {
@@ -1272,7 +1274,7 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type.
 	 *
-	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
+	 * @param \GraphQL\Type\Definition\Type\string $type The Type being wrapped.
 	 *
 	 * @phpstan-template T of \GraphQL\Type\Definition\Type
 	 * @phpstan-param T|string $type The Type being wrapped.

@@ -142,6 +142,8 @@
 		<properties>
 			<property name="ignoredAnnotationNames" type="array">
 				<element value="@phpstan-var" />
+				<element value="@phpstan-param" />
+				<element value="@phpstan-return" />
 			</property>
 		</properties>
 	</rule>
