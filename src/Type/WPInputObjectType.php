@@ -128,7 +128,7 @@ class WPInputObjectType extends InputObjectType {
 			$fields = $fields();
 		}
 
-		// Validate that fields is either an iterable or an InputObjectField
+		// Validate that $fields is either an iterable or an InputObjectField
 		if ( ! is_iterable( $fields ) && ! $fields instanceof InputObjectField ) {
 			$invalidFields = Utils::printSafe( $fields );
 
