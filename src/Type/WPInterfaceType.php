@@ -5,6 +5,11 @@ namespace WPGraphQL\Type;
 use GraphQL\Type\Definition\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class WPInterface
+ *
+ * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
+ */
 class WPInterfaceType extends InterfaceType {
 
 	use WPInterfaceTrait;
@@ -15,19 +20,6 @@ class WPInterfaceType extends InterfaceType {
 	 * @var \WPGraphQL\Registry\TypeRegistry
 	 */
 	public $type_registry;
-
-	/**
-	 * @var array{
-	 *     name?: string|null,
-	 *     description?: string|null,
-	 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-	 *     interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-	 *     resolveType?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (callable(): (\GraphQL\Type\Definition\ObjectType|string|null)|\GraphQL\Deferred|\GraphQL\Type\Definition\ObjectType|string|null))|null,
-	 *     astNode?: \GraphQL\Language\AST\InterfaceTypeDefinitionNode|null,
-	 *     extensionASTNodes?: array<\GraphQL\Language\AST\InterfaceTypeExtensionNode>|null
-	 * }
-	 */
-	public array $config;
 
 	/**
 	 * @var array<string, array<string, mixed>>
@@ -43,16 +35,9 @@ class WPInterfaceType extends InterfaceType {
 	 * WPInterfaceType constructor.
 	 *
 	 * @param array<string,mixed>              $config The configuration array for setting up the WPInterfaceType.
-	 * @phpstan-param array{
-	 *     name?: string|null,
-	 *     description?: string|null,
-	 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-	 *     interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-	 *     resolveType?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (callable(): (\GraphQL\Type\Definition\ObjectType|string|null)|\GraphQL\Deferred|\GraphQL\Type\Definition\ObjectType|string|null))|null,
-	 *     astNode?: \GraphQL\Language\AST\InterfaceTypeDefinitionNode|null,
-	 *     extensionASTNodes?: array<\GraphQL\Language\AST\InterfaceTypeExtensionNode>|null
-	 * } $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @phpstan-param InterfaceConfig $config
 	 *
 	 * @throws \Exception
 	 */
@@ -61,10 +46,11 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->config = $config;
 
-		$name                  = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
-		$config['name']        = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields']      = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
-		$config['interfaces']  = $this->getInterfaces();
+		$name                 = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		$config['name']       = apply_filters( 'graphql_type_name', $name, $config, $this );
+		$config['fields']     = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		$config['interfaces'] = $this->getInterfaces();
+
 		$config['resolveType'] = function ( $obj, $context, $info ) use ( $config ) {
 			$type = null;
 			if ( isset( $config['resolveType'] ) && is_callable( $config['resolveType'] ) ) {
@@ -84,33 +70,10 @@ class WPInterfaceType extends InterfaceType {
 		/**
 		 * Filter the config of WPInterfaceType
 		 *
-		 * @param array<string,mixed>             $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
+		 * @param InterfaceConfig                 $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The instance of the WPInterfaceType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
-
-		/** @var array{
-		 *     name?: string|null,
-		 *     description?: string|null,
-		 *     fields: (callable(): iterable<string, mixed>)|iterable<string, mixed>,
-		 *     interfaces?: (callable(): iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>)|iterable<callable(): \GraphQL\Type\Definition\InterfaceType|\GraphQL\Type\Definition\InterfaceType>,
-		 *     resolveType?: (callable(mixed, mixed, \GraphQL\Type\Definition\ResolveInfo): (callable(): (\GraphQL\Type\Definition\ObjectType|string|null)|\GraphQL\Deferred|\GraphQL\Type\Definition\ObjectType|string|null))|null,
-		 *     astNode?: \GraphQL\Language\AST\InterfaceTypeDefinitionNode|null,
-		 *     extensionASTNodes?: array<\GraphQL\Language\AST\InterfaceTypeExtensionNode>|null
-		 * } $config
-		 */
-		$config = array_merge(
-			[
-				'name'              => null,
-				'description'       => null,
-				'fields'            => [],
-				'interfaces'        => [],
-				'resolveType'       => null,
-				'astNode'           => null,
-				'extensionASTNodes' => [],
-			],
-			$config
-		);
 
 		parent::__construct( $config );
 	}
