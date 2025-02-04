@@ -132,9 +132,9 @@ class WPInputObjectType extends InputObjectType {
 		if ( ! is_iterable( $fields ) && ! $fields instanceof InputObjectField ) {
 			$invalidFields = Utils::printSafe( $fields );
 
-			// translators: %1$s is the name of the type and %2$s is the invalid fields
 			throw new InvariantViolation(
 				sprintf(
+					// translators: %1$s is the name of the type and %2$s is the invalid fields
 					esc_html__( '%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s', 'wp-graphql' ),
 					esc_html( $this->name ),
 					esc_html( $invalidFields )
