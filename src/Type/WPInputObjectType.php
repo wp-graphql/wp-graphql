@@ -133,11 +133,13 @@ class WPInputObjectType extends InputObjectType {
 			$invalidFields = Utils::printSafe( $fields );
 
 			// translators: %1$s is the name of the type and %2$s is the invalid fields
-			throw new InvariantViolation( sprintf( 
-				esc_html__( '%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s', 'wp-graphql' ),
-				esc_html( $this->name ),
-				esc_html( $invalidFields )
-			) );
+			throw new InvariantViolation(
+				sprintf(
+					esc_html__( '%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s', 'wp-graphql' ),
+					esc_html( $this->name ),
+					esc_html( $invalidFields )
+				)
+			);
 		}
 
 		$resolvedFields = $this->getFields();
