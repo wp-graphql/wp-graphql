@@ -128,15 +128,16 @@ class WPInputObjectType extends InputObjectType {
 			$fields = $fields();
 		}
 
-		/**
-		 * @todo: This is a temporary fix to prevent the InvariantViolation from being thrown
-		 *    when the fields are not iterable. This is a temporary fix until the issue is resolved.
-		 */
+		// Validate that fields is either an iterable or an InputObjectField
 		if ( ! is_iterable( $fields ) && ! $fields instanceof InputObjectField ) {
 			$invalidFields = Utils::printSafe( $fields );
 
 			// translators: %1$s is the name of the type and %2$s is the invalid fields
-			throw new InvariantViolation( sprintf( esc_html__( '%1$s fields must be an iterable or a callable which returns an iterable, got: %2$s.', 'wp-graphql' ), esc_html( $this->name ), esc_html( $invalidFields ) ) );
+			throw new InvariantViolation( sprintf( 
+				esc_html__( '%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s', 'wp-graphql' ),
+				esc_html( $this->name ),
+				esc_html( $invalidFields )
+			) );
 		}
 
 		$resolvedFields = $this->getFields();
