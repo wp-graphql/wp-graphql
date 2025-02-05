@@ -69,7 +69,7 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertSame( 'GraphQL introspection is not allowed, but the query contained __schema or __type', $actual['errors'][0]['message'] );
+		$this->assertSame( 'The query contained __schema or __type, however GraphQL introspection is not allowed for public requests by default. Public introspection can be enabled under the WPGraphQL Settings.', $actual['errors'][0]['message'] );
 	}
 
 	public function testIntrospectionQueriesByAdminWhenPublicIntrospectionIsDisabled() {
