@@ -13,20 +13,18 @@ class DisableIntrospection extends \GraphQL\Validator\Rules\DisableIntrospection
 	 * DisableIntrospection constructor.
 	 */
 	public function __construct() {
-		parent::__construct( $this->isEnabled() ? self::ENABLED : self::DISABLED );
+		$should_be_enabled = $this->should_be_enabled();
+		parent::__construct( $should_be_enabled ? self::ENABLED : self::DISABLED );
 	}
 
 	/**
-	 * Whether the rule is enabled or not.
+	 * Determines whether the DisableIntrospection rule should be disabled.
 	 */
-	public function isEnabled(): bool {
-		$enabled = false;
-
+	public function should_be_enabled(): bool {
 		if ( ! get_current_user_id() && ! \WPGraphQL::debug() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
-			$enabled = true;
+			return true;
 		}
-
-		return $enabled;
+		return false;
 	}
 
 	/**
