@@ -201,15 +201,8 @@ class Request {
 		$validation_rules = GraphQL::getStandardValidationRules();
 
 		$validation_rules['require_authentication'] = new RequireAuthentication();
-
-		// By default, introspection is disabled for non-logged-in users and when debug is off
-		$disable_introspection_rule_enabled = 0;
-		if ( ! get_current_user_id() && ! \WPGraphQL::debug() && 'off' === get_graphql_setting( 'public_introspection_enabled', 'off' ) ) {
-			$disable_introspection_rule_enabled = 1;
-		}
-
-		$validation_rules['disable_introspection'] = new DisableIntrospection( $disable_introspection_rule_enabled );
-		$validation_rules['query_depth']           = new QueryDepth();
+		$validation_rules['disable_introspection']  = new DisableIntrospection();
+		$validation_rules['query_depth']            = new QueryDepth();
 
 		/**
 		 * Return the validation rules to use in the request
