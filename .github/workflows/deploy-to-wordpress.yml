@@ -1,7 +1,14 @@
 name: Deploy to WordPress.org
+
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        default: 'latest'
 
 jobs:
   tag:
@@ -11,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -18,6 +27,9 @@ jobs:
           php-version: 8.2
           extensions: mbstring, intl
           tools: composer
+
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
 
       - name: Install PHP dependencies
         run: |
@@ -30,6 +42,10 @@ jobs:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
+
+      - name: Ensure correct directory structure
+        run: |
+          mkdir -p /home/runner/svn-wp-graphql/tags
 
       - name: Create Artifact
         run: |

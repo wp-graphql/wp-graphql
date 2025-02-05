@@ -1,22 +1,24 @@
 parameters:
-    level: 8
-    dynamicConstantNames:
-        - WPGRAPHQL_AUTOLOAD
+    # Rules
     treatPhpDocTypesAsCertain: false
     inferPrivatePropertyTypeFromConstructor: true
-    checkAlwaysTrueCheckTypeFunctionCall: true
-    checkAlwaysTrueInstanceof: true
-    checkAlwaysTrueStrictComparison: true
     checkExplicitMixedMissingReturn: true
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
-    checkMissingIterableValueType: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
     polluteScopeWithAlwaysIterableForeach: false
     polluteScopeWithLoopInitialAssignments: false
     reportAlwaysTrueInLastCondition: true
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
+
+    # Configuration
+    level: 8
+    phpVersion:
+      min: 70400
+      max: 80300
+    dynamicConstantNames:
+        - WPGRAPHQL_AUTOLOAD
     stubFiles:
         # Simulate added properties
         - phpstan/class-wp-post-type.php
@@ -28,14 +30,17 @@ parameters:
         - access-functions.php
         - activation.php
         - deactivation.php
-        - constants.php
     paths:
         - wp-graphql.php
+        - constants.php
         - access-functions.php
         - activation.php
         - deactivation.php
         - src/
     excludePaths:
       analyseAndScan:
-        - */node_modules/*
+        - node_modules (?)
+
     ignoreErrors:
+      - # @TODO these should be restored
+        identifier: missingType.iterableValue

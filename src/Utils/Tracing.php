@@ -147,7 +147,7 @@ class Tracing {
 			'path'           => $info->path,
 			'parentType'     => $info->parentType->name,
 			'fieldName'      => $info->fieldName,
-			'returnType'     => $info->returnType->name ? $info->returnType->name : $info->returnType,
+			'returnType'     => $info->returnType->name ?? $info->returnType,
 			'startOffset'    => $this->get_start_offset(),
 			'startMicrotime' => microtime( true ),
 		];
