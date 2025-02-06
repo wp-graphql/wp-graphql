@@ -9,6 +9,13 @@ $I->sendPOST('http://localhost/graphql', [
     'query' => '{posts{nodes{id}}}'
 ]);
 $I->seeResponseCodeIs(415);
+$I->seeResponseContainsJson([
+    'errors' => [
+        [
+            'message' => 'HTTP POST requests must have Content-Type: application/json header'
+        ]
+    ]
+]);
 
 // Test with incorrect content-type header
 $I->haveHttpHeader('Content-Type', 'text/plain');
@@ -16,6 +23,13 @@ $I->sendPOST('http://localhost/graphql', [
     'query' => '{posts{nodes{id}}}'
 ]);
 $I->seeResponseCodeIs(415);
+$I->seeResponseContainsJson([
+    'errors' => [
+        [
+            'message' => 'HTTP POST requests must have Content-Type: application/json header'
+        ]
+    ]
+]);
 
 // Verify that application/json content-type works correctly
 $I->haveHttpHeader('Content-Type', 'application/json');

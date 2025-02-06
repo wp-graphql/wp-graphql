@@ -678,6 +678,24 @@ class Request {
 	 * @throws \Exception
 	 */
 	public function execute_http() {
+		// Validate content-type header for POST requests
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+			$content_type = isset( $_SERVER['HTTP_CONTENT_TYPE'] ) ? sanitize_text_field( $_SERVER['HTTP_CONTENT_TYPE'] ) : '';
+			if ( empty( $content_type ) || 'application/json' !== $content_type ) {
+				// Send a 415 error (unsupported media type) with a JSON response and error message
+				wp_send_json(
+					[
+						'errors' => [
+							[
+								'message' => __( 'HTTP POST requests must have Content-Type: application/json header', 'wp-graphql' ),
+							],
+						],
+					],
+					415
+				);
+			}
+		}
+
 		/**
 		 * Parse HTTP request.
 		 */
