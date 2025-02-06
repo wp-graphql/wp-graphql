@@ -680,19 +680,24 @@ class Request {
 	public function execute_http() {
 		// Validate content-type header for POST requests
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-			$content_type = isset( $_SERVER['HTTP_CONTENT_TYPE'] ) ? sanitize_text_field( $_SERVER['HTTP_CONTENT_TYPE'] ) : '';
-			if ( empty( $content_type ) || 'application/json' !== $content_type ) {
-				// Send a 415 error (unsupported media type) with a JSON response and error message
-				wp_send_json(
-					[
-						'errors' => [
-							[
-								'message' => __( 'HTTP POST requests must have Content-Type: application/json header', 'wp-graphql' ),
-							],
+			// Check both possible content-type header locations
+			$content_type = '';
+			if ( isset( $_SERVER['CONTENT_TYPE'] ) ) {
+				$content_type = sanitize_text_field( $_SERVER['CONTENT_TYPE'] );
+			} elseif ( isset( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+				$content_type = sanitize_text_field( $_SERVER['HTTP_CONTENT_TYPE'] );
+			}
+
+			if ( empty( $content_type ) || 0 !== strpos( $content_type, 'application/json' ) ) {
+				// Set status code to 415 (Unsupported Media Type)
+				Router::$http_status_code = 415;
+				return [
+					'errors' => [
+						[
+							'message' => sprintf( esc_html__( 'HTTP POST requests must have Content-Type: application/json header. Received: %s', 'wp-graphql' ), $content_type ),
 						],
 					],
-					415
-				);
+				];
 			}
 		}
 
