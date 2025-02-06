@@ -694,6 +694,7 @@ class Request {
 				return [
 					'errors' => [
 						[
+							// translators: %s is the content type header value that was received 
 							'message' => sprintf( esc_html__( 'HTTP POST requests must have Content-Type: application/json header. Received: %s', 'wp-graphql' ), $content_type ),
 						],
 					],
