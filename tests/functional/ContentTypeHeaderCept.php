@@ -40,8 +40,8 @@ $I->seeResponseCodeIs(200);
 
 // Verify that application/json with charset works
 $I->haveHttpHeader('Content-Type', 'application/json; charset=utf-8');
-$I->sendPOST('http://localhost/graphql', [
+$I->sendPOST('http://localhost/graphql', json_encode([
     'query' => '{posts{nodes{id}}}'
-]);
+]));
 $I->seeResponseCodeIs(200);
 
