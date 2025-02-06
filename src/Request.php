@@ -689,8 +689,22 @@ class Request {
 			}
 
 			if ( empty( $content_type ) || 0 !== strpos( $content_type, 'application/json' ) ) {
-				// Set status code to 415 (Unsupported Media Type)
-				Router::$http_status_code = 415;
+
+
+				/**
+				 * Filter the status code to return when the content type is invalid
+				 *
+				 * @param int    $status_code The status code to return
+				 * @param string $content_type The content type header value that was received
+				 */
+				$filtered_status_code = apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
+
+				// validate that the status code is in valid http status code ranges (100-599)
+				if ( is_numeric( $filtered_status_code ) && ( $filtered_status_code > 100 && $filtered_status_code < 599 ) ) {
+					// Set status code to 415 (Unsupported Media Type)
+					Router::$http_status_code = $filtered_status_code;
+				}
+
 				return [
 					'errors' => [
 						[
