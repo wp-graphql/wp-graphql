@@ -7,7 +7,7 @@ $I->wantTo('Ensure 415 status code is returned when content-type header is missi
 // Test with no content-type header
 $I->sendPOST('http://localhost/graphql', json_encode([
     'query' => '{posts{nodes{id}}}'
-]);
+]));
 $I->seeResponseCodeIs(415);
 $I->seeResponseContainsJson([
     'errors' => [
@@ -21,7 +21,7 @@ $I->seeResponseContainsJson([
 $I->haveHttpHeader('Content-Type', 'text/plain');
 $I->sendPOST('http://localhost/graphql', json_encode([
     'query' => '{posts{nodes{id}}}'
-]);
+]));
 $I->seeResponseCodeIs(415);
 $I->seeResponseContainsJson([
     'errors' => [
