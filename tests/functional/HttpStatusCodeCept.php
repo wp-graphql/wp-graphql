@@ -12,7 +12,7 @@ $I->seeResponseCodeIs(415);
 $I->seeResponseContainsJson([
     'errors' => [
         [
-            'message' => 'HTTP POST requests must have Content-Type: application/json header'
+            'message' => 'HTTP POST requests must have Content-Type: application/json header. Received: application/x-www-form-urlencoded'
         ]
     ]
 ]);
@@ -26,7 +26,7 @@ $I->seeResponseCodeIs(415);
 $I->seeResponseContainsJson([
     'errors' => [
         [
-            'message' => 'HTTP POST requests must have Content-Type: application/json header'
+            'message' => 'HTTP POST requests must have Content-Type: application/json header. Received: text/plain'
         ]
     ]
 ]);
