@@ -678,6 +678,10 @@ class Request {
 	 * @throws \Exception
 	 */
 	public function execute_http() {
+		if ( ! $this->is_valid_http_content_type() ) {
+			return $this->get_invalid_content_type_response();
+		}
+
 		/**
 		 * Parse HTTP request.
 		 */
@@ -703,6 +707,69 @@ class Request {
 		}
 
 		return $this->after_execute( $response );
+	}
+
+	/**
+	 * Validates the content type for HTTP POST requests
+	 */
+	private function is_valid_http_content_type(): bool {
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+			return true;
+		}
+
+		$content_type = $this->get_content_type();
+		if ( empty( $content_type ) ) {
+			return false;
+		}
+
+		return 0 === stripos( $content_type, 'application/json' );
+	}
+
+	/**
+	 * Gets the content type from the request headers
+	 */
+	private function get_content_type(): string {
+		if ( isset( $_SERVER['CONTENT_TYPE'] ) ) {
+			return sanitize_text_field( $_SERVER['CONTENT_TYPE'] );
+		}
+
+		if ( isset( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+			return sanitize_text_field( $_SERVER['HTTP_CONTENT_TYPE'] );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Returns the error response for invalid content type
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_invalid_content_type_response(): array {
+		$content_type = $this->get_content_type();
+
+		/**
+		 * Filter the status code to return when the content type is invalid
+		 *
+		 * @param int    $status_code The status code to return
+		 * @param string $content_type The content type header value that was received
+		 */
+		$filtered_status_code = apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
+
+		// validate that the status code is in valid http status code ranges (100-599)
+		if ( is_numeric( $filtered_status_code ) && ( $filtered_status_code > 100 && $filtered_status_code < 599 ) ) {
+			// Set status code to 415 (Unsupported Media Type)
+			Router::$http_status_code = $filtered_status_code;
+		}
+
+		return [
+			'errors' => [
+				[
+					// translators: %s is the content type header value that was received
+					'message' => sprintf( esc_html__( 'HTTP POST requests must have Content-Type: application/json header. Received: %s', 'wp-graphql' ), $content_type ),
+				],
+			],
+		];
 	}
 
 	/**
