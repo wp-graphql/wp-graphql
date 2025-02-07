@@ -26,6 +26,9 @@ class MediaDetails {
 					'file'   => [
 						'type'        => 'String',
 						'description' => __( 'The filename of the mediaItem', 'wp-graphql' ),
+						'resolve'     => static function ( $media_details ) {
+							return ! empty( $media_details['file'] ) ? basename( $media_details['file'] ) : null;
+						},
 					],
 					'sizes'  => [
 						'type'        => [
