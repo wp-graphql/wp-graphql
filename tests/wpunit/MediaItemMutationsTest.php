@@ -494,7 +494,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -682,7 +682,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'parent'       => null,
 					'sourceUrl'    => $attachment_url,
 					'mediaDetails' => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -761,7 +761,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
