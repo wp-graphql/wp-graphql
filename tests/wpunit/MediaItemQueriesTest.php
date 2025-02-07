@@ -762,4 +762,44 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_attachment( $attachment_id, true );
 	}
+
+	/**
+	 * Test that MediaDetails.file returns just the filename without the path
+	 */
+	public function testMediaDetailsFile() {
+		// Upload a test image
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaDetailsFile($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				mediaDetails {
+					file
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		
+		// Get the metadata to verify filename
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['file'], 'Attachment metadata file should not be empty' );
+		
+		// Test that MediaDetails.file returns just the filename
+		$this->assertEquals( 
+			basename( $metadata['file'] ),
+			$actual['data']['mediaItem']['mediaDetails']['file'],
+			'MediaDetails.file should return just the filename without the path'
+		);
+
+		wp_delete_attachment( $attachment_id, true );
+	}
 }
