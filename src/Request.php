@@ -678,7 +678,7 @@ class Request {
 	 * @throws \Exception
 	 */
 	public function execute_http() {
-		if ( ! $this->validate_http_content_type() ) {
+		if ( ! $this->is_valid_http_content_type() ) {
 			return $this->get_invalid_content_type_response();
 		}
 
@@ -712,13 +712,17 @@ class Request {
 	/**
 	 * Validates the content type for HTTP POST requests
 	 */
-	private function validate_http_content_type(): bool {
+	private function is_valid_http_content_type(): bool {
 		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 			return true;
 		}
 
 		$content_type = $this->get_content_type();
-		return ! empty( $content_type ) && 0 === strpos( $content_type, 'application/json' );
+		if ( empty( $content_type ) ) {
+			return false;
+		}
+
+		return 'application/json' === trim( strtolower( $content_type ) );
 	}
 
 	/**
