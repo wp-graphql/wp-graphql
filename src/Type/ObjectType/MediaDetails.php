@@ -30,6 +30,21 @@ class MediaDetails {
 							return ! empty( $media_details['file'] ) ? basename( $media_details['file'] ) : null;
 						},
 					],
+					'filePath' => [
+						'type'        => 'String',
+						'description' => __( 'The path to the mediaItem relative to the uploads directory', 'wp-graphql' ),
+						'resolve'     => static function ( $media_details ) {
+							// Get the upload directory info
+							$upload_dir = wp_upload_dir();
+							$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+							
+							if ( ! empty( $media_details['file'] ) ) {
+								return path_join( $relative_upload_path, $media_details['file'] );
+							}
+							
+							return null;
+						},
+					],
 					'sizes'  => [
 						'type'        => [
 							'list_of' => 'MediaSize',

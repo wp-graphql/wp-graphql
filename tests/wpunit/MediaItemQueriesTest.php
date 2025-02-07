@@ -981,4 +981,56 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_attachment( $attachment_id, true );
 	}
+
+	/**
+	 * Test that MediaDetails.filePath returns the correct relative path
+	 */
+	public function testMediaDetailsFilePath() {
+		// Upload a test image
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaDetailsFilePath($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				mediaDetails {
+					file
+					filePath
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		
+		// Get the metadata to verify paths
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['file'], 'Attachment metadata file should not be empty' );
+		
+		// Test that MediaDetails.file returns just the filename
+		$this->assertEquals( 
+			basename( $metadata['file'] ),
+			$actual['data']['mediaItem']['mediaDetails']['file'],
+			'MediaDetails.file should return just the filename without the path'
+		);
+		
+		// Test that MediaDetails.filePath returns the full relative path
+		$upload_dir = wp_upload_dir();
+		$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+		$expected_path = path_join( $relative_upload_path, $metadata['file'] );
+		
+		$this->assertEquals(
+			$expected_path,
+			$actual['data']['mediaItem']['mediaDetails']['filePath'],
+			'MediaDetails.filePath should return the full path relative to uploads directory'
+		);
+
+		wp_delete_attachment( $attachment_id, true );
+	}
 }
