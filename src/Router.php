@@ -286,7 +286,7 @@ class Router {
 	 *
 	 * @return void
 	 */
-	protected static function set_status( $status_code = null ) {
+	protected static function set_status( ?int $status_code = null ) {
 		$status_code = null === $status_code ? self::$http_status_code : $status_code;
 
 		// validate that the status code is a valid http status code
