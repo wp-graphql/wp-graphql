@@ -722,7 +722,7 @@ class Request {
 			return false;
 		}
 
-		return 'application/json' === trim( strtolower( $content_type ) );
+		return 0 === stripos( $content_type, 'application/json' );
 	}
 
 	/**
