@@ -23,10 +23,10 @@ class MediaSize {
 						'type'        => 'String',
 						'description' => __( 'The filename of the referenced size', 'wp-graphql' ),
 					],
-					'filePath' => [
-						'type' => 'String',
+					'filePath'  => [
+						'type'        => 'String',
 						'description' => __( 'The path of the file for the referenced size (default size is full)', 'wp-graphql' ),
-						'resolve' => static function ( $image ) {
+						'resolve'     => static function ( $image ) {
 							if ( ! empty( $image['ID'] ) ) {
 								$original_file = get_attached_file( absint( $image['ID'] ) );
 								if ( ! empty( $original_file ) && ! empty( $image['file'] ) ) {
@@ -38,7 +38,7 @@ class MediaSize {
 							}
 
 							return null;
-						}
+						},
 					],
 					'width'     => [
 						'type'        => 'String',
