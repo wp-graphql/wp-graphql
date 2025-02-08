@@ -47,7 +47,7 @@ final class Registry {
 	 *
 	 * @return array<string,Extension>
 	 */
-	public static function get_extenions(): array {
+	public static function get_extensions(): array {
 		return [
 			'wp-graphql/wp-graphql-smart-cache' => [
 				'name'              => 'WPGraphQL Smart Cache',
