@@ -214,7 +214,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @todo We reinstantiate. this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
+		 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
 		 *
 		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
