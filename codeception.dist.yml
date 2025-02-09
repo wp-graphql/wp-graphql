@@ -16,10 +16,11 @@ coverage:
     remote: false
     c3_url: '%WP_URL%/wp-content/plugins/wp-graphql/wp-graphql.php'
     include:
-        - src/*
+        - src/*.php
     exclude:
         - wp-graphql.php
         - vendor/*
+        - packages/*
     show_only_summary: false
 extensions:
     enabled:
@@ -64,11 +65,11 @@ modules:
             uploads: '/wp-content/uploads'
         WPLoader:
             multisite: '%MULTISITE%'
-            wpRootFolder: '%TEST_WP_ROOT_FOLDER%'
-            dbName: '%TEST_DB_NAME%'
-            dbHost: '%TEST_DB_HOST%'
-            dbUser: '%TEST_DB_USER%'
-            dbPassword: '%TEST_DB_PASSWORD%'
+            wpRootFolder: '%WP_ROOT_FOLDER%'
+            dbName: '%DB_NAME%'
+            dbHost: '%DB_HOST%'
+            dbUser: '%DB_USER%'
+            dbPassword: '%DB_PASSWORD%'
             tablePrefix: '%WP_TABLE_PREFIX%'
             domain: '%WP_DOMAIN%'
             adminEmail: '%ADMIN_EMAIL%'
