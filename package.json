@@ -68,7 +68,7 @@
     "@wordpress/e2e-test-utils-playwright": "^1.15.0",
     "@wordpress/env": "^9.2.0",
     "@wordpress/jest-preset-default": "^11.25.0",
-    "@wordpress/scripts": "^30.8.1",
+    "@wordpress/scripts": "^27.9.0",
     "babel-jest": "^29.7.0",
     "babel-plugin-inline-json-import": "^0.3.2",
     "chalk": "^5.3.0",
