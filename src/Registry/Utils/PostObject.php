@@ -585,6 +585,70 @@ class PostObject {
 						return $image->get_source_url_by_size( $size );
 					},
 				],
+				'file'         => [
+					'type'        => 'String',
+					'description' => __( 'The filename of the mediaItem for the specified size (default size is full)', 'wp-graphql' ),
+					'args'        => [
+						'size' => [
+							'type'        => 'MediaItemSizeEnum',
+							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+						],
+					],
+					'resolve'     => static function ( $source, $args ) {
+						// If a size is specified, get the size-specific filename
+						if ( ! empty( $args['size'] ) ) {
+							$size = 'full' === $args['size'] ? 'large' : $args['size'];
+
+							// Get the metadata which contains size information
+							$metadata = wp_get_attachment_metadata( $source->databaseId );
+
+							if ( ! empty( $metadata['sizes'][ $size ]['file'] ) ) {
+								return $metadata['sizes'][ $size ]['file'];
+							}
+						}
+
+						// Default to original file
+						$attached_file = get_post_meta( $source->databaseId, '_wp_attached_file', true );
+						return ! empty( $attached_file ) ? basename( $attached_file ) : null;
+					},
+				],
+				'filePath'     => [
+					'type'        => 'String',
+					'description' => __( 'The path to the original file relative to the uploads directory', 'wp-graphql' ),
+					'args'        => [
+						'size' => [
+							'type'        => 'MediaItemSizeEnum',
+							'description' => __( 'Size of the MediaItem to return', 'wp-graphql' ),
+						],
+					],
+					'resolve'     => static function ( $source, $args ) {
+						// Get the upload directory info
+						$upload_dir           = wp_upload_dir();
+						$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+
+						// If a size is specified, get the size-specific path
+						if ( ! empty( $args['size'] ) ) {
+							$size = 'full' === $args['size'] ? 'large' : $args['size'];
+
+							// Get the metadata which contains size information
+							$metadata = wp_get_attachment_metadata( $source->databaseId );
+
+							if ( ! empty( $metadata['sizes'][ $size ]['file'] ) ) {
+								$file_path = $metadata['file'];
+								return path_join( $relative_upload_path, dirname( $file_path ) . '/' . $metadata['sizes'][ $size ]['file'] );
+							}
+						}
+
+						// Default to original file path
+						$attached_file = get_post_meta( $source->databaseId, '_wp_attached_file', true );
+
+						if ( empty( $attached_file ) ) {
+							return null;
+						}
+
+						return path_join( $relative_upload_path, $attached_file );
+					},
+				],
 				'fileSize'     => [
 					'type'        => 'Int',
 					'description' => __( 'The filesize in bytes of the resource', 'wp-graphql' ),
