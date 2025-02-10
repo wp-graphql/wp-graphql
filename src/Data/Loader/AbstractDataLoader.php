@@ -504,5 +504,5 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return array<int|string,mixed>
 	 */
-	abstract protected function loadKeys( array $keys );
+	abstract protected function loadKeys( array $keys ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- @todo deprecate for `::load_keys()`
 }
