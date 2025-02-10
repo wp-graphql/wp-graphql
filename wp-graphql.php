@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.31.1
+ * @version  @todo
  */
 
 // Exit if accessed directly.
