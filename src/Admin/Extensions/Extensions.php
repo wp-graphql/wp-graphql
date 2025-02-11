@@ -341,7 +341,7 @@ final class Extensions {
 	public function get_extensions(): array {
 		if ( ! isset( $this->extensions ) ) {
 			// @todo Replace with a call to the WPGraphQL server.
-			$extensions = Registry::get_extenions();
+			$extensions = Registry::get_extensions();
 
 			/**
 			 * Filter the list of extensions, allowing other plugins to add or remove extensions.

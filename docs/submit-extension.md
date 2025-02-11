@@ -46,7 +46,7 @@ We are exploring additional submission methods:
 
 ```php
 // ./src/Admin/Extensions/Registry.php
-public static function get_extenions(): array {
+public static function get_extensions(): array {
 	return [
 		// ... other extensions
 		'my-unique-prefix/my-new-extension' => [ // Unique identifier for the extension, this should be placed alphabetically in the list.

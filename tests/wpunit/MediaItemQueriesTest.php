@@ -666,7 +666,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testSourceUrlSizes() {
 
 		// upload large attachment that will be resized to medium and thumbnail
-		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-2000x1000.png' );
 		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
 		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
@@ -728,7 +728,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testGetSourceUrlBySize() {
 
-		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-2000x1000.png' );
 		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
 		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
@@ -759,6 +759,277 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $expected_sizes['large'], $large );
 		$this->assertEquals( $expected_sizes['thumb'], $thumb );
 		$this->assertEquals( $expected_sizes['full'], $full );
+
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test the filePath field returns the correct relative path for media items
+	 */
+	public function testMediaItemFilePath() {
+		// Upload a test image that will generate different sizes
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaItemFilePath($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				databaseId
+				# Original file path
+				filePath
+				# Size-specific paths
+				thumbnailPath: filePath(size: THUMBNAIL)
+				mediumPath: filePath(size: MEDIUM)
+				largePath: filePath(size: LARGE)
+				# FULL is not a valid size in the metadata, so we should use LARGE instead
+				fullSizePath: filePath(size: LARGE)
+				# Get metadata to verify paths
+				mediaDetails {
+					file
+					sizes {
+						name
+						file
+					}
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		
+		// Debug the errors if they exist
+		if ( isset( $actual['errors'] ) ) {
+			codecept_debug( $actual['errors'] );
+		}
+		
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		
+		// Get the expected relative path for original file
+		$attachment_path = get_post_meta( $attachment_id, '_wp_attached_file', true );
+		$this->assertNotEmpty( $attachment_path, 'Attachment path should not be empty' );
+		
+		// Get upload directory info
+		$upload_dir = wp_upload_dir();
+		$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+		
+		// Test original file path
+		$expected_path = path_join( $relative_upload_path, $attachment_path );
+		$this->assertEquals( $expected_path, $actual['data']['mediaItem']['filePath'] );
+		
+		// Get the metadata to test size-specific paths
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['sizes'], 'Image sizes should be generated' );
+		
+		// Test thumbnail path
+		if ( isset( $metadata['sizes']['thumbnail'] ) ) {
+			$expected_thumbnail_path = path_join( $relative_upload_path, dirname( $metadata['file'] ) . '/' . $metadata['sizes']['thumbnail']['file'] );
+			$this->assertEquals( $expected_thumbnail_path, $actual['data']['mediaItem']['thumbnailPath'] );
+		}
+		
+		// Test medium path
+		if ( isset( $metadata['sizes']['medium'] ) ) {
+			$expected_medium_path = path_join( $relative_upload_path, dirname( $metadata['file'] ) . '/' . $metadata['sizes']['medium']['file'] );
+			$this->assertEquals( $expected_medium_path, $actual['data']['mediaItem']['mediumPath'] );
+		}
+		
+		// Test large path
+		if ( isset( $metadata['sizes']['large'] ) ) {
+			$expected_large_path = path_join( $relative_upload_path, dirname( $metadata['file'] ) . '/' . $metadata['sizes']['large']['file'] );
+			$this->assertEquals( $expected_large_path, $actual['data']['mediaItem']['largePath'] );
+		}
+		
+		// Test full size (should be same as large)
+		if ( isset( $metadata['sizes']['large'] ) ) {
+			$expected_full_path = path_join( $relative_upload_path, dirname( $metadata['file'] ) . '/' . $metadata['sizes']['large']['file'] );
+			$this->assertEquals( $expected_full_path, $actual['data']['mediaItem']['fullSizePath'] );
+		}
+
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test the file field returns the correct filename for media items
+	 */
+	public function testMediaItemFile() {
+		// Upload a test image that will generate different sizes
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaItemFile($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				databaseId
+				# Original file name
+				file
+				# Size-specific filenames
+				thumbnailFile: file(size: THUMBNAIL)
+				mediumFile: file(size: MEDIUM)
+				largeFile: file(size: LARGE)
+				# FULL maps to LARGE in the resolver
+				fullSizeFile: file(size: LARGE)
+				# Test MediaDetails file field
+				mediaDetails {
+					file
+					sizes {
+						name
+						file
+					}
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		
+		// Get the metadata to verify filenames
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['sizes'], 'Image sizes should be generated' );
+		
+		// Get the original filename
+		$attached_file = get_post_meta( $attachment_id, '_wp_attached_file', true );
+		$this->assertNotEmpty( $attached_file, 'Attachment file should not be empty' );
+		
+		// Test original filename
+		$this->assertEquals( basename( $attached_file ), $actual['data']['mediaItem']['file'] );
+		
+		// Test MediaDetails.file returns just the filename
+		$this->assertEquals( 
+			basename( $metadata['file'] ),
+			$actual['data']['mediaItem']['mediaDetails']['file'],
+			'MediaDetails.file should return just the filename without the path'
+		);
+		
+		// Test thumbnail filename
+		if ( isset( $metadata['sizes']['thumbnail'] ) ) {
+			$this->assertEquals( 
+				$metadata['sizes']['thumbnail']['file'],
+				$actual['data']['mediaItem']['thumbnailFile']
+			);
+		}
+		
+		// Test medium filename
+		if ( isset( $metadata['sizes']['medium'] ) ) {
+			$this->assertEquals(
+				$metadata['sizes']['medium']['file'],
+				$actual['data']['mediaItem']['mediumFile']
+			);
+		}
+		
+		// Test large filename
+		if ( isset( $metadata['sizes']['large'] ) ) {
+			$this->assertEquals(
+				$metadata['sizes']['large']['file'],
+				$actual['data']['mediaItem']['largeFile']
+			);
+			
+			// Test full size (should be same as large)
+			$this->assertEquals(
+				$metadata['sizes']['large']['file'],
+				$actual['data']['mediaItem']['fullSizeFile']
+			);
+		}
+
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test that MediaDetails.file returns just the filename without the path
+	 */
+	public function testMediaDetailsFile() {
+		// Upload a test image
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaDetailsFile($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				mediaDetails {
+					file
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		// Get the metadata to verify filename
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['file'], 'Attachment metadata file should not be empty' );
+
+		// Test that MediaDetails.file returns just the filename
+		$this->assertEquals(
+			basename( $metadata['file'] ),
+			$actual['data']['mediaItem']['mediaDetails']['file'],
+			'MediaDetails.file should return just the filename without the path'
+		);
+
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test that MediaDetails.filePath returns the correct relative path
+	 */
+	public function testMediaDetailsFilePath() {
+		// Upload a test image
+		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		$query = '
+		query GetMediaDetailsFilePath($id: ID!) {
+			mediaItem(id: $id, idType: DATABASE_ID) {
+				mediaDetails {
+					file
+					filePath
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		
+		// Get the metadata to verify paths
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+		$this->assertNotEmpty( $metadata['file'], 'Attachment metadata file should not be empty' );
+		
+		// Test that MediaDetails.file returns just the filename
+		$this->assertEquals( 
+			basename( $metadata['file'] ),
+			$actual['data']['mediaItem']['mediaDetails']['file'],
+			'MediaDetails.file should return just the filename without the path'
+		);
+		
+		// Test that MediaDetails.filePath returns the full relative path
+		$upload_dir = wp_upload_dir();
+		$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+		$expected_path = path_join( $relative_upload_path, $metadata['file'] );
+		
+		$this->assertEquals(
+			$expected_path,
+			$actual['data']['mediaItem']['mediaDetails']['filePath'],
+			'MediaDetails.filePath should return the full path relative to uploads directory'
+		);
 
 		wp_delete_attachment( $attachment_id, true );
 	}
