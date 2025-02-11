@@ -5,7 +5,7 @@
  * @todo This will eventually be replaced with a server registry.
  *
  * @package WPGraphQL\Admin\Extensions
- * @since @todo
+ * @since 1.30.0
  */
 
 namespace WPGraphQL\Admin\Extensions;
