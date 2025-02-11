@@ -5,7 +5,7 @@
  * @todo This will eventually be replaced with a server registry.
  *
  * @package WPGraphQL\Admin\Extensions
- * @since @todo
+ * @since 1.30.0
  */
 
 namespace WPGraphQL\Admin\Extensions;
@@ -47,9 +47,9 @@ final class Registry {
 	 *
 	 * @return array<string,Extension>
 	 */
-	public static function get_extenions(): array {
+	public static function get_extensions(): array {
 		return [
-			'wp-graphql/wp-graphql-smart-cache' => [
+			'wp-graphql/wp-graphql-smart-cache'  => [
 				'name'              => 'WPGraphQL Smart Cache',
 				'description'       => 'A smart cache for WPGraphQL that caches only the data you need.',
 				'documentation_url' => 'https://github.com/wp-graphql/wp-graphql-smart-cache',
@@ -60,7 +60,7 @@ final class Registry {
 					'homepage' => 'https://wpgraphql.com',
 				],
 			],
-			'wp-graphql/wpgraphql-acf'          => [
+			'wp-graphql/wpgraphql-acf'           => [
 				'name'              => 'WPGraphQL for Advanced Custom Fields',
 				'description'       => 'WPGraphQL for ACF is a FREE, open source WordPress plugin that exposes ACF Field Groups and Fields to the WPGraphQL Schema, enabling powerful decoupled solutions with modern frontends.',
 				'documentation_url' => 'https://acf.wpgraphql.com/',
@@ -71,7 +71,7 @@ final class Registry {
 					'homepage' => 'https://wpgraphql.com',
 				],
 			],
-			'ashhitch/wp-graphql-yoast-seo'     => [
+			'ashhitch/wp-graphql-yoast-seo'      => [
 				'name'              => 'WPGraphQL Yoast SEO Addon',
 				'description'       => 'This plugin enables Yoast SEO Support for WPGraphQL',
 				'documentation_url' => 'https://github.com/ashhitch/wp-graphql-yoast-seo',
@@ -80,6 +80,39 @@ final class Registry {
 				'author'            => [
 					'name'     => 'Ash Hitchcock',
 					'homepage' => 'https://www.ashleyhitchcock.com/',
+				],
+			],
+			'axepress/wp-graphql-gravity-forms'  => [
+				'name'              => 'WPGraphQL for Gravity Forms',
+				'description'       => 'Adds Gravity Forms support to WPGraphQL',
+				'documentation_url' => 'https://github.com/axewp/wp-graphql-gravity-forms',
+				'plugin_url'        => 'https://github.com/axewp/wp-graphql-gravity-forms',
+				'support_url'       => 'https://github.com/axewp/wp-graphql-gravity-forms/issues/new/choose',
+				'author'            => [
+					'name'     => 'AxePress Development',
+					'homepage' => 'https://axepress.dev',
+				],
+			],
+			'axepress/wp-graphql-headless-login' => [
+				'name'              => 'Headless Login for WPGraphQL',
+				'description'       => 'A WordPress plugin that provides headless login and authentication for WPGraphQL, supporting traditional passwords, OAuth2/OIDC, JWT, cookies, header management, and more.',
+				'documentation_url' => 'https://github.com/axewp/wp-graphql-headless-login',
+				'plugin_url'        => 'https://github.com/axewp/wp-graphql-headless-login',
+				'support_url'       => 'https://github.com/axewp/wp-graphql-headless-login/issues/new/choose',
+				'author'            => [
+					'name'     => 'AxePress Development',
+					'homepage' => 'https://axepress.dev',
+				],
+			],
+			'axepress/wp-graphql-rank-math'      => [
+				'name'              => 'WPGraphQL for Rank Math SEO',
+				'description'       => 'Adds Rank Math SEO support to WPGraphQL',
+				'documentation_url' => 'https://github.com/axewp/wp-graphql-rank-math',
+				'plugin_url'        => 'https://github.com/axewp/wp-graphql-rank-math',
+				'support_url'       => 'https://github.com/axewp/wp-graphql-rank-math/issues',
+				'author'            => [
+					'name'     => 'AxePress Development',
+					'homepage' => 'https://axepress.dev',
 				],
 			],
 		];

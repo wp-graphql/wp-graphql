@@ -82,7 +82,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->date          = '2017-08-01T15:00:00';
 		$this->dateGmt       = '2017-08-01T21:00:00';
 		$this->description   = 'This is a magic description.';
-		$this->filePath      = 'https://raw.githubusercontent.com/wp-graphql/wp-graphql/refs/heads/master/tests/_data/images/mgc.gif';
+		$this->filePath      = 'https://raw.githubusercontent.com/wp-graphql/wp-graphql/refs/heads/master/tests/_data/images/test-mgc.gif';
 		$this->fileType      = 'IMAGE_GIF';
 		$this->slug          = 'magic-shia';
 		$this->status        = 'INHERIT';
@@ -494,7 +494,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -682,7 +682,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'parent'       => null,
 					'sourceUrl'    => $attachment_url,
 					'mediaDetails' => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -761,7 +761,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
