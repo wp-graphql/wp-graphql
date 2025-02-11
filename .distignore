@@ -20,7 +20,6 @@
 /artifacts
 
 .DS_Store
-.coveralls.yml
 .distignore
 .dockerignore
 .env

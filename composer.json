@@ -38,17 +38,16 @@
 		"codeception/module-webdriver": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"lucatume/wp-browser": "<3.5",
-		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/extension-installer": "^1.1",
+		"phpstan/phpstan-deprecation-rules": "^2.0.1",
 		"phpstan/phpstan": "~2.1.2",
 		"phpunit/phpunit": "^9.5",
-		"php-coveralls/php-coveralls": "^2.5",
 		"slevomat/coding-standard": "^8.9",
 		"szepeviktor/phpstan-wordpress": "~2.0.1",
-		"wp-graphql/wp-graphql-testcase": "^3.0",
 		"wp-cli/wp-cli-bundle": "^2.8",
-		"phpstan/phpstan-deprecation-rules": "^2.0.1"
+		"wp-graphql/wp-graphql-testcase": "^3.0"
 	},
 	"config": {
 		"platform": {

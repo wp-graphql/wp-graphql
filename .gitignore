@@ -51,9 +51,6 @@ node_modules
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
 
-# Used to send code coverage to Coveralls
-php-coveralls.phar
-
 # Log files
 .log
 
