@@ -72,7 +72,12 @@ class TermObjectCreate {
 			$fields['parentId'] = [
 				'type'        => 'ID',
 				// translators: The placeholder is the name of the taxonomy for the object being mutated
-				'description' => sprintf( __( 'The ID of the %1$s that should be set as the parent', 'wp-graphql' ), $taxonomy->name ),
+				'description' => sprintf( __( 'The ID of the %1$s that should be set as the parent. This field cannot be used in conjunction with parentDatabaseId', 'wp-graphql' ), $taxonomy->name ),
+			];
+			$fields['parentDatabaseId'] = [
+				'type'        => 'Int',
+				// translators: The placeholder is the name of the taxonomy for the object being mutated
+				'description' => sprintf( __( 'The database ID of the %1$s that should be set as the parent. This field cannot be used in conjunction with parentId', 'wp-graphql' ), $taxonomy->name ),
 			];
 		}
 
