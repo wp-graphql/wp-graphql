@@ -666,7 +666,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testSourceUrlSizes() {
 
 		// upload large attachment that will be resized to medium and thumbnail
-		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-2000x1000.png' );
 		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
 		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
@@ -728,7 +728,7 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testGetSourceUrlBySize() {
 
-		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/2000x1000.png' );
+		$filename         = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test-2000x1000.png' );
 		$attachment_id    = $this->factory()->attachment->create_upload_object( $filename );
 		$attachment       = get_post( $attachment_id );
 		$media_item_model = new \WPGraphQL\Model\Post( $attachment );
