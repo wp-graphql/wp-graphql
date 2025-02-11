@@ -15,19 +15,37 @@ class MediaDetails {
 			[
 				'description' => __( 'File details for a Media Item', 'wp-graphql' ),
 				'fields'      => [
-					'width'  => [
+					'width'    => [
 						'type'        => 'Int',
 						'description' => __( 'The width of the mediaItem', 'wp-graphql' ),
 					],
-					'height' => [
+					'height'   => [
 						'type'        => 'Int',
 						'description' => __( 'The height of the mediaItem', 'wp-graphql' ),
 					],
-					'file'   => [
+					'file'     => [
 						'type'        => 'String',
 						'description' => __( 'The filename of the mediaItem', 'wp-graphql' ),
+						'resolve'     => static function ( $media_details ) {
+							return ! empty( $media_details['file'] ) ? basename( $media_details['file'] ) : null;
+						},
 					],
-					'sizes'  => [
+					'filePath' => [
+						'type'        => 'String',
+						'description' => __( 'The path to the mediaItem relative to the uploads directory', 'wp-graphql' ),
+						'resolve'     => static function ( $media_details ) {
+							// Get the upload directory info
+							$upload_dir           = wp_upload_dir();
+							$relative_upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+
+							if ( ! empty( $media_details['file'] ) ) {
+								return path_join( $relative_upload_path, $media_details['file'] );
+							}
+
+							return null;
+						},
+					],
+					'sizes'    => [
 						'type'        => [
 							'list_of' => 'MediaSize',
 						],
@@ -69,7 +87,7 @@ class MediaDetails {
 							return ! empty( $sizes ) ? $sizes : null;
 						},
 					],
-					'meta'   => [
+					'meta'     => [
 						'type'        => 'MediaItemMeta',
 						'description' => __( 'Meta information associated with the mediaItem', 'wp-graphql' ),
 						'resolve'     => static function ( $media_details ) {

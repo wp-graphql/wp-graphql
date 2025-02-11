@@ -462,7 +462,7 @@ abstract class AbstractConnectionResolver {
 	 *
 	 * @return int|mixed
 	 */
-	public function get_offset_for_cursor( string $cursor = null ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam.Deprecated -- This is a breaking change to fix.
+	public function get_offset_for_cursor( string $cursor = null ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam.Deprecated,SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue -- This is a breaking change to fix.
 		$offset = false;
 
 		// We avoid using ArrayConnection::cursorToOffset() because it assumes an `int` offset.

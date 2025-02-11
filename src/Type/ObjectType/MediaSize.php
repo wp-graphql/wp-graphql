@@ -23,6 +23,25 @@ class MediaSize {
 						'type'        => 'String',
 						'description' => __( 'The filename of the referenced size', 'wp-graphql' ),
 					],
+					'filePath'  => [
+						'type'        => 'String',
+						'description' => __( 'The path of the file for the referenced size (default size is full)', 'wp-graphql' ),
+						'resolve'     => static function ( $image ) {
+							if ( ! empty( $image['ID'] ) ) {
+								$original_file  = get_attached_file( absint( $image['ID'] ) );
+								$attachment_url = wp_get_attachment_url( $image['ID'] );
+
+								if ( ! empty( $original_file ) && ! empty( $image['file'] ) && ! empty( $attachment_url ) ) {
+									// Return the relative path for the specific size
+									return path_join( dirname( wp_make_link_relative( $attachment_url ) ), $image['file'] );
+								}
+							} elseif ( ! empty( $image['file'] ) ) {
+								return wp_make_link_relative( $image['file'] );
+							}
+
+							return null;
+						},
+					],
 					'width'     => [
 						'type'        => 'String',
 						'description' => __( 'The width of the referenced size', 'wp-graphql' ),
