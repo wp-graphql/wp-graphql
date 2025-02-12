@@ -116,7 +116,12 @@ class WPInputObjectType extends InputObjectType {
 
 	/**
 	 * Validates type config and throws if one of type options is invalid.
-	 * Note: this method is shallow, it won't validate object fields and their arguments.
+	 *
+	 * This method is overridden from the parent GraphQL\Type\Definition\InputObjectType class
+	 * to support WPGraphQL's filter system. The parent implementation only accepts iterables
+	 * for fields, but WPGraphQL's filters (like graphql_input_fields and graphql_{type}_fields)
+	 * might return a single InputObjectField instance. This override allows for both iterables
+	 * and single InputObjectField instances to be valid field values.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation
 	 */
