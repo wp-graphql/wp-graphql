@@ -77,7 +77,6 @@ class TermObjectMutation {
 			}
 
 			$insert_args['parent'] = 0 !== $parent_id ? $parent_term->term_id : 0;
-
 		}
 
 		/**

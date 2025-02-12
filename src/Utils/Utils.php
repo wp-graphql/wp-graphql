@@ -345,7 +345,6 @@ class Utils {
 		$id_parts = Relay::fromGlobalId( $id );
 
 		return isset( $id_parts['id'] ) && is_numeric( $id_parts['id'] ) ? absint( $id_parts['id'] ) : false;
-
 	}
 
 	/**
