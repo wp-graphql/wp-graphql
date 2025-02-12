@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 1.31.1
+Stable tag: 2.0.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -269,7 +269,18 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
-= 1.31.1 =
+= 1.32.1 =
+
+**Chores / Bugfixes**
+
+- [#3308](https://github.com/wp-graphql/wp-graphql/pull/3308): fix: update term mutation was preventing terms from removing the parentId
+
+
+= 1.32.0 =
+
+**New Features**
+
+- [#3294](https://github.com/wp-graphql/wp-graphql/pull/3294): feat: introduce new fields for getting mediaItem files and filePaths
 
 **Chores / Bugfixes**
 
