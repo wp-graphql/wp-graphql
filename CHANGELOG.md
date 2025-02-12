@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.32.1
+
+### Chores / Bugfixes
+
+- [#3308](https://github.com/wp-graphql/wp-graphql/pull/3308): fix: update term mutation was preventing terms from removing the parentId
+
 ## 1.32.0
 
 ### Upgrade Notice
