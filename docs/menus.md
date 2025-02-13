@@ -41,7 +41,7 @@ Below is an example query for a list of Menus and the Menu Items associated with
 }
 ```
 
-![Screenshot of a query for Menus and their Menu Items](./images/menus-query-items.png)
+![Screenshot of a query for Menus and their Menu Items](/images/menus-query-items.png)
 
 ### Menu by ID
 
@@ -73,7 +73,7 @@ query {
 }
 ```
 
-![Screenshot of a GraphQL Query for a Menu by Global ID](./images/menus-query-by-global-id.png)
+![Screenshot of a GraphQL Query for a Menu by Global ID](/images/menus-query-by-global-id.png)
 
 ### Menu by Name
 
@@ -105,7 +105,7 @@ query GET_MENU_BY_NAME {
 }
 ```
 
-![Screenshot of a GraphQL Query for a Menu identified by its Name](./images/menus-query-by-name.png)
+![Screenshot of a GraphQL Query for a Menu identified by its Name](/images/menus-query-by-name.png)
 
 ### List of Menu Items
 
@@ -126,7 +126,7 @@ query MENU_ITEMS {
 }
 ```
 
-![Screenshot of a GraphQL Query for Menu Items, filtered by Menu Location](./images/menus-query-filter-location.png)
+![Screenshot of a GraphQL Query for Menu Items, filtered by Menu Location](/images/menus-query-filter-location.png)
 
 ### Hierarchical Data
 
@@ -134,7 +134,7 @@ One thing you may have noticed is that Menu Items will be returned in a flat-lis
 
 There's a good chance you might need to convert a flat list into a hierarchical list in the consumer application to be used in a component such as a Checkbox Tree or Dropdown Menu, for example.
 
-> You can see this technique in action in the codebase for the website you're reading [here](https://github.com/wp-graphql/wpgraphql.com/blob/master/src/components/Docs/DocsNav.js#L8-L39).
+> You can see this technique in action in the codebase for the website you're reading [here](https://github.com/wp-graphql/wpgraphql.com/blob/master/src/components/DocsSidebar.js#L8-L26).
 
 Given the query above, we might have a payload of data like so:
 

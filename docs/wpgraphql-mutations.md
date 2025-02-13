@@ -41,7 +41,7 @@ add_action( 'graphql_register_types', function() {
 
 This adds the field to the Schema and we can see it in the GraphiQL IDE: 
 
-![Screenshot of the GraphiQL IDE showing the color field int the Schema](./images/mutations-custom-input-field-example.png)
+![Screenshot of the GraphiQL IDE showing the color field int the Schema](/images/mutations-custom-input-field-example.png)
 
 However, if we execute the mutation at this point, the color that we input would do nothing. 
 
@@ -83,4 +83,4 @@ add_action( 'graphql_register_types', function() {
 
 And now, with all 3 snippets in place we can successfully execute a `createPost` mutation, inputting a "color" value that will save to the post_meta and will be queryable as "color" on the post. 
 
-![Screenshot of the GraphiQL IDE a createPost mutation with a color field input and the color value queried in response to the mutation](./images/mutations-create-post-with-custom-input-example.png)
+![Screenshot of the GraphiQL IDE a createPost mutation with a color field input and the color value queried in response to the mutation](/images/mutations-create-post-with-custom-input-example.png)

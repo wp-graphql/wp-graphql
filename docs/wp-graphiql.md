@@ -9,7 +9,7 @@ WPGraphiQL.
 When the word "WPGraphiQL" is referenced, it is referring to the tooling provided by WPGraphQL in
 the WordPress dashboard for interacting with the WPGraphQL Schema.
 
-![Screenshot of the GraphiQL IDE in the WordPress dashboard](./images/graphiql-ide-screenshot.png)
+![Screenshot of the GraphiQL IDE in the WordPress dashboard](/images/graphiql-ide-screenshot.png)
 
 Central to this tooling, is the [GraphiQL IDE](https://github.com/graphql/graphiql) (pronounced
 Graphical).
@@ -40,7 +40,7 @@ but other users might not).
 
 Below is a GIF screen recording showing this feature in action.
 
-![Screenshot of the GraphiQL IDE "Auth Switch" feature](./images/graphiql-auth-switch.gif)
+![Screenshot of the GraphiQL IDE "Auth Switch" feature](/images/graphiql-auth-switch.gif)
 
 In the screen recording we see a GraphQL query for the root "viewer" field being made and a `null` value is
 returned. A public user will get a `null` response for data they cannot access.
@@ -60,7 +60,7 @@ Naming is hard.
 
 Below is a GIF showing this feature in action.
 
-![Screenshot of the GraphiQL IDE "Full Window" feature](./images/graphiql-full-window-mode.gif)
+![Screenshot of the GraphiQL IDE "Full Window" feature](/images/graphiql-full-window-mode.gif)
 
 When the GraphiQL IDE is loaded, we see the WordPress admin bar, the WordPress dashboard menu, etc.
 
@@ -80,7 +80,7 @@ provide extension APIs for 3rd party plugin developers to hook into and modify t
 
 Below is a GIF showing this feature in action:
 
-![Screenshot of the GraphiQL IDE "Query Composer" feature](./images/graphiql-query-composer.gif)
+![Screenshot of the GraphiQL IDE "Query Composer" feature](/images/graphiql-query-composer.gif)
 
 In the screenshot, we see the button labeled "Query Composer" being clicked. When the button is
 clicked, a panel opens on the left with a list of fields. When the fields are clicked, they are added

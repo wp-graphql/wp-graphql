@@ -33,7 +33,7 @@ In GraphQL, Connections are a mechanism to facilitate relationships between Node
 
 The image below helps visualize WordPress "Nodes" and "Connections" in an application data graph. 
 
-![WordPress as an Application Data Graph](./images/application-data-graph.png)
+![WordPress as an Application Data Graph](/images/application-data-graph.png)
 
 There are "Post" nodes and "Category" nodes, each node has fields and connections to other nodes.
 

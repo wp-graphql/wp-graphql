@@ -34,13 +34,13 @@ Below is an example query to get a list of plugins.
 
 If a public user queries for plugins, nothing will be returned as Plugins are considered private and require "update\_plugins" capability to view.
 
-![Screenshot of a GraphQL Query for a list of plugins from an unauthenticated user](./images/plugins-query-unauthenticated.png)
+![Screenshot of a GraphQL Query for a list of plugins from an unauthenticated user](/images/plugins-query-unauthenticated.png)
 
 #### Query from Authenticated User
 
 If an authenticated user with "update\_plugins" capabilities queries for plugins, they will get a list of plugins in response. This can be helpful for developers or site administrators that need to get plugin information quickly.
 
-![Screenshot of a GraphQL Query for a list of plugins from an authenticated user](./images/plugins-query-authenticated.png)
+![Screenshot of a GraphQL Query for a list of plugins from an authenticated user](/images/plugins-query-authenticated.png)
 
 ### Plugin by ID
 
@@ -61,13 +61,13 @@ Individual plugins can be queried for using the plugins Global ID.
 
 If an authenticated user with "update\_plugins" capabilities queries for a plugin, they be able to see the plugin.
 
-![Screenshot of a query for a plugin using the global ID](./images/plugins-query-global-id.png)
+![Screenshot of a query for a plugin using the global ID](/images/plugins-query-global-id.png)
 
 #### Query from Public User
 
 If public user or user without "update\_plugins" capabilities queries for a plugin, they will not be able to see plugin data.
 
-![Image](./images/plugins-query-id-without-access.png)
+![Image](/images/plugins-query-id-without-access.png)
 
 ## Mutations
 
