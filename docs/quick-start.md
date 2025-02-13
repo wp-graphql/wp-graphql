@@ -105,11 +105,11 @@ WPGraphQL includes a helpful tool called Graph*i*QL [IDE](https://www.redhat.com
 
 Open the Graph*i*QL IDE by clicking the "GraphiQL IDE" button in your WordPress Admin Bar.
 
-![Screenshot of the GraphiQL IDE button in the WordPress Admin Bar](/images/quick-graphiql-ide.png)
+![Screenshot of the GraphiQL IDE button in the WordPress Admin Bar](./images/quick-graphiql-ide.png)
 
 This will take you to the GraphiQL IDE page.
 
-![Screenshot of GraphiQL IDE in the WordPress Dashboard](/images/quick-graphiql-ide-wordpress.png)
+![Screenshot of GraphiQL IDE in the WordPress Dashboard](./images/quick-graphiql-ide-wordpress.png)
 
 ### Search the Schema
 
@@ -121,7 +121,7 @@ Let's search the Schema for something WordPress is known for: "Posts"
 
 In the "Search Schema" field, enter the word "posts". You should see results similar to the below screen recording.
 
-![Screen recording showing a search for "posts" in GraphiQL Docs Explorer](/images/quick-graphiql-search-posts.gif)
+![Screen recording showing a search for "posts" in GraphiQL Docs Explorer](./images/quick-graphiql-search-posts.gif)
 
 ### Write Your First WPGraphQL Query
 
@@ -144,7 +144,7 @@ Then click the "Play" button to execute the query.
 
 Your Query will be sent to your site's WPGraphQL API endpoint and will return results that match the data that you asked for.
 
-![Screen Recording of GraphiQL IDE executing a GraphQL Query for a list of posts](/images/quick-wp-graphql-first-query.gif)
+![Screen Recording of GraphiQL IDE executing a GraphQL Query for a list of posts](./images/quick-wp-graphql-first-query.gif)
 
 ## Next Steps
 

@@ -29,7 +29,7 @@ Below is an example of querying a list of Themes.
 
 Authenticated users with the "edit\_themes" capability can query a list of Themes and see all available themes for the site.
 
-![Screenshot of a Query for a list of themes from an authenticated user](/images/themes-authenticated-user.png)
+![Screenshot of a Query for a list of themes from an authenticated user](./images/themes-authenticated-user.png)
 
 #### Query from Public User
 
@@ -37,7 +37,7 @@ A public user or a user without "edit\_themes" capability can make the same quer
 
 The active theme is considered a public entity in WordPress and can be publicly accessed and WPGraphQL respects this access control right.
 
-![Screenshot of a Query for a list of themes from a non-authenticated user](/images/themes-not-authenticated-user.png)
+![Screenshot of a Query for a list of themes from a non-authenticated user](./images/themes-not-authenticated-user.png)
 
 ## Mutations
 

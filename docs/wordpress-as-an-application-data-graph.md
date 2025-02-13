@@ -11,19 +11,19 @@ Posts, Pages, Comments, Terms, Users are all considered nodes. And Nodes can hav
 
 For example a "Post" node might have a "title" that resolves to the value "Hello World".
 
-![A circle with the word "Post" representing a Post node. A line connecting to the word "title" and a line connecting "title" to "hello world".](/images/data-graph-hello-world.png)
+![A circle with the word "Post" representing a Post node. A line connecting to the word "title" and a line connecting "title" to "hello world".](./images/data-graph-hello-world.png)
 
 The post might have connections to other Nodes in the Graph. For example, it might have a connection to a Featured Image node and some Category Term nodes.
 
-![A circle labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" circle to other circles labeled "Image", "Category" and "Category".](/images/data-graph-category-terms.png)
+![A circle labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" circle to other circles labeled "Image", "Category" and "Category".](./images/data-graph-category-terms.png)
 
 And each Category node might have fields, such as a name.
 
-![A circle representing a node labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" node to other nodes labeled "Image", "Category" and "Category". Each category with a name field.](/images/data-graph-category-term-connections.png)
+![A circle representing a node labeled "Post" with a "title" field with the value "hello world". And lines connecting the "Post" node to other nodes labeled "Image", "Category" and "Category". Each category with a name field.](./images/data-graph-category-term-connections.png)
 
 And those category nodes might have other connections to other nodes, with connections to other nodes, and so on.
 
-![](/images/data-graph-category-terms-connection-complex.png)
+![](./images/data-graph-category-terms-connection-complex.png)
 
 An application data graph doesn't have a beginning or an end. It has nodes with fields, and WPGraphQL provides entry points to pluck nodes out of the Graph using GraphQL Queries.
 
@@ -68,6 +68,6 @@ The Query would return results like the following:
 }
 ```
 
-![](/images/data-graph-query-filter.png)
+![](./images/data-graph-query-filter.png)
 
 Which, visually represented would look like the following, where the Post is returned, the 2 connected categories, and their names, but the request stops there, as it did not ask to traverse any deeper connections to the categories, or other connections of the Post, such as the connected Image.

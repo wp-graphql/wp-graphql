@@ -59,7 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 After adding this code, activate the plugin in your WordPress admin panel. You should see it listed in the plugins page.
 
-![Screenshot showing "My First WPGraphQL Extension" in the WordPress Plugins admin page](/images/extension-wordpress-admin-screen.png)
+![Screenshot showing "My First WPGraphQL Extension" in the WordPress Plugins admin page](./images/extension-wordpress-admin-screen.png)
 
 ## Understanding GraphQL Naming Conventions
 
