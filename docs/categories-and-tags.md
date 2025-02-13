@@ -36,7 +36,7 @@ query GetCategoryEdges {
 }
 ```
 
-![Screenshot of a query for a list of Categories, edges and nodes](./images/categories-query-edges-nodes.png)
+![Screenshot of a query for a list of Categories, edges and nodes](/images/categories-query-edges-nodes.png)
 
 Below is the same query, but asking for nodes directly, skipping the `edges` field.
 
@@ -51,9 +51,9 @@ query GetCategoryNodes {
 }
 ```
 
-![Screenshot of a query for a list of Categories nodes](./images/categories-query-nodes.png)
+![Screenshot of a query for a list of Categories nodes](/images/categories-query-nodes.png)
 
-> **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
+>[!TIP] **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
 
 ### Lists of Tags
 
@@ -72,7 +72,7 @@ query GetTagNodes {
 }
 ```
 
-![Screenshot of a query for Tags nodes](./images/tags-query-nodes.png)
+![Screenshot of a query for Tags nodes](/images/tags-query-nodes.png)
 
 ### Hierarchical vs Flat Taxonomies
 
@@ -82,7 +82,7 @@ One of the primary differences between Categories and Tags is that Categories ar
 
 ### Filtering a List of Terms
 
-> The following examples will use Categories and Tags interchangeable, as they operate largely the same. Behind the scenes, they are both Taxonomy Terms and WordPress and WPGraphQL both treat them nearly identically.
+>[!NOTE] The following examples will use Categories and Tags interchangeable, as they operate largely the same. Behind the scenes, they are both Taxonomy Terms and WordPress and WPGraphQL both treat them nearly identically.
 
 Queries for [Connections](/docs/connections/) (lists of nodes) can be filtered. Below are some examples of filtering using the `where` argument. There are many arguments available for filtering Terms.
 
@@ -101,7 +101,7 @@ query GetTagNodes {
 }
 ```
 
-![Screenshot of a GraphQL query filtering Tags by nameLike](./images/tags-query-by-name.png)
+![Screenshot of a GraphQL query filtering Tags by nameLike](/images/tags-query-by-name.png)
 
 ## Available Fields
 Both Categories and Tags share these common fields:
@@ -175,7 +175,7 @@ Get the most-used tags:
 
 Below is an example of querying a single term (of any Taxonomy) using the `termNode` field and passing the GraphQL [Global ID](/docs/wpgraphql-concepts/).
 
-> The `termNode` field returns a TermNode [Interface](/docs/interfaces/) Type, which allows for terms of *any* Taxonomy to be queried.
+>[!NOTE] The `termNode` field returns a TermNode [Interface](/docs/interfaces/) Type, which allows for terms of *any* Taxonomy to be queried.
 
 ```graphql
 {
@@ -192,7 +192,7 @@ Below is an example of querying a single term (of any Taxonomy) using the `termN
 }
 ```
 
-![Screenshot of a Query for a Category and a Tag using the termNode field](./images/categories-query-by-global-id.png)
+![Screenshot of a Query for a Category and a Tag using the termNode field](/images/categories-query-by-global-id.png)
 
 ### Single term by URI
 
@@ -209,7 +209,7 @@ The following example shows a query for a single Tag using the uri (the url path
 }
 ```
 
-![Screenshot of a GraphQL query for a tag using the URI](./images/tags-query-by-uri.png)
+![Screenshot of a GraphQL query for a tag using the URI](/images/tags-query-by-uri.png)
 
 ## Mutations
 
@@ -240,13 +240,13 @@ This mutation will only succeed for users with proper capabilities to create Ter
 
 If the user executing the mutation is authenticated and has proper capabilities to create a Category, the category will be created and the fields asked for in response will be returned.
 
-![Screenshot of a successful GraphQL Mutation to create a category](./images/categories-mutation-create-success.png)
+![Screenshot of a successful GraphQL Mutation to create a category](/images/categories-mutation-create-success.png)
 
 ### Unuccessful Mutation
 
 If the user executing the mutation is not authenticated, or does not have proper capabilities to create a Category, no data will change in WordPress and an error will be returned.
 
-![Screenshot of an unsuccessful GraphQL mutation to create a Category term](./images/categories-mutation-create-not-allowed.png)
+![Screenshot of an unsuccessful GraphQL mutation to create a Category term](/images/categories-mutation-create-not-allowed.png)
 
 ## Update Category
 
@@ -268,13 +268,13 @@ mutation {
 
 If the user making the request is authenticated and has proper capabilities to update the Category term, the term will be updated and the specified fields will be returned in the response.
 
-![Screenshot of a successful GraphQL mutation to update a Category](./images/categories-mutation-update-success.png)
+![Screenshot of a successful GraphQL mutation to update a Category](/images/categories-mutation-update-success.png)
 
 ### Unuccessful Mutation
 
 If the user making the request is not authenticated, or does not have proper capabilities to update Category terms, no data will change in WordPress and an error will be returned.
 
-![Screenshot of an unsuccessful GraphQL Mutation to update a category](./images/categories-mutation-update-not-allowed.png)
+![Screenshot of an unsuccessful GraphQL Mutation to update a category](/images/categories-mutation-update-not-allowed.png)
 
 ### Delete Category
 
@@ -296,13 +296,13 @@ mutation {
 
 If the user making the request is authenticated and has proper capabilities to delete the Category term, the term will be deleted from WordPress and the specified fields will be returned in the response.
 
-![](./images/categories-delete-success.png)
+![](/images/categories-delete-success.png)
 
 ### Unuccessful Mutation
 
 If the user making the request is not authenticated, or does not have proper capabilities to delete Category terms, no data will change in WordPress and an error will be returned.
 
-![Screenshot of an unsuccessful GraphQL Mutation to delete a Category](./images/categories-delete-not-allowed.png)
+![Screenshot of an unsuccessful GraphQL Mutation to delete a Category](/images/categories-delete-not-allowed.png)
 
 ## Performance Considerations
 When working with large sets of terms:
