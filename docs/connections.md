@@ -11,7 +11,7 @@ The concept of "edges" and "nodes" in GraphQL Schemas can be confusing at first.
 
 Below is an image that attempts to visualize what an "application data graph" might look like.
 
-![The graphql application data graph visualization](./images/connections-graph.png)
+![The graphql application data graph visualization](/images/connections-graph.png)
 
 In the image, the pink circles represent individual resources, or "nodes". The "nodes" have individual properties as well as connections to other resources. For example, a Post in WordPress can have properties such as Title, and can be connected to other "nodes" such as Images and Categories. The Image and Category nodes can have their own properties such as "name" and "sourceUrl", and can *also* have "connections" to other nodes. The yellow lines between the "nodes" represent the "edge" of the connection where contextual data can be represented.
 
