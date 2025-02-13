@@ -26,7 +26,7 @@ WPGraphQL itself doesn't include built-in authentication features. Authenticatio
      - JWT tokens
      - Application Passwords
      - Custom providers
-   
+
 3. **[WPGraphQL JWT Authentication](https://github.com/wp-graphql/wp-graphql-jwt-authentication)**
    - Lightweight JWT-based authentication
    - Good for simple authentication needs
@@ -162,7 +162,7 @@ Common type registration problems and solutions:
    ```php
    // ❌ Invalid: lowercase or special characters, or otherwise non-existing Type in the GraphQL Schema
    register_graphql_object_type('my-type', [ /* ... */ ]);
-   
+
    // ✅ Correct: PascalCase naming
    register_graphql_object_type('MyType', [ /* ... */ ]);
    ```
@@ -200,11 +200,11 @@ When fields aren't resolving as expected:
      'type' => 'String',
      'resolve' => function($post) {
         // note the $post is a WPGraphQL Post Model not a WordPress WP_Post object
-        // so you need to use the $post->databaseId property in resolvers instead of the $post->ID property 
+        // so you need to use the $post->databaseId property in resolvers instead of the $post->ID property
         // use graphql_debug() to log debug information in the "extensions" portion of the query response - requires GRAPHQL_DEBUG to be enabled
        graphql_debug('Resolving field for post: ' . $post->databaseId);
        $value = get_post_meta( $post->databaseId, 'my_field', true );
-       graphql_debug('Retrieved value: ' . [ 
+       graphql_debug('Retrieved value: ' . [
         '$value' => $value,
        ]);
        return $value;
@@ -213,7 +213,7 @@ When fields aren't resolving as expected:
    ```
 
 2. **Common Resolution Problems**
-   
+
    #### Incorrect Data Source Access
    ```php
    // ❌ Incorrect: Using WP_Post properties directly
@@ -414,7 +414,7 @@ For examples of implementing these patterns with custom data sources, see:
        }
      }
    }
-   
+
    # ✅ Better: Use pagination with reasonable limits
    {
      posts(first: 10) {
@@ -469,7 +469,7 @@ For examples of implementing these patterns with custom data sources, see:
        }
      }
    }
-   
+
    # ✅ Efficient: Request only required fields
    {
      posts {
@@ -501,7 +501,7 @@ For examples of implementing these patterns with custom data sources, see:
        'query' => 'query { users { nodes { id name } } }'
      ]
    ];
-   
+
    // Send as a single POST request
    $response = graphql( $batch_queries );
    ```
@@ -514,7 +514,7 @@ For examples of implementing these patterns with custom data sources, see:
    ```php
    // Log slow queries
    add_filter( 'graphql_debug_enabled', '__return_true' );
-   
+
    // Track query execution time
    add_action( 'graphql_execute', function( $response, $query ) {
      graphql_debug([
@@ -661,12 +661,12 @@ For more detailed debugging information, see:
 ### Common Plugin Issues
 
 1. **WPML (WordPress Multilingual)**
-   
+
    **Common Problems:**
    - Missing translations in GraphQL responses
    - Language switcher not working with GraphQL queries
    - Incorrect language context in resolvers
-   
+
    **Solutions:**
    - Use the [WPGraphQL WPML](https://github.com/valu-digital/wp-graphql-wpml) extension
    - Ensure proper language parameter passing in queries
@@ -675,12 +675,12 @@ For more detailed debugging information, see:
    - Contact the WPML plugin author for support.
 
 2. **Post/Term Ordering Plugins**
-   
+
    **Common Problems:**
    - Custom order not reflected in GraphQL queries
    - Ordering conflicts with WPGraphQL pagination
    - Performance issues with large datasets
-   
+
    **Solutions:**
    - Use WPGraphQL's built-in ordering capabilities where possible
    - Implement custom order field resolvers if needed
@@ -692,11 +692,11 @@ For more detailed debugging information, see:
    - WP Super Cache
    - W3 Total Cache
    - WP Rocket
-   
+
    **Common Problems:**
    - GraphQL responses being incorrectly cached
    - Not respecting GraphQL variables in cache keys
-   
+
    **Solution:**
    It might be necessary to exclude the GraphQL endpoint from caching for some caching plugins and use something specific like WPGraphQL Smart Cache on a supported host.
 
@@ -727,12 +727,12 @@ For more information about plugin compatibility and integration:
 ### Local Development Setup
 
 1. **Apache/Nginx Configuration**
-   
+
    **Common Problems:**
    - Permalink issues
    - ModRewrite not enabled
    - CORS issues in headless setups
-   
+
    **Solutions:**
    ```apache
    # Example Apache configuration
@@ -745,12 +745,12 @@ For more information about plugin compatibility and integration:
    ```
 
 2. **PHP Configuration**
-   
+
    **Common Issues:**
    - Insufficient memory limits
    - Short execution time
    - Missing required PHP extensions
-   
+
    **Solutions:**
    ```ini
    # php.ini or wp-config.php settings
@@ -763,12 +763,12 @@ For more information about plugin compatibility and integration:
 ### Docker Environment
 
 1. **Container Communication**
-   
+
    **Common Issues:**
    - Cross-container networking
    - Volume mounting permissions
    - PHP extensions missing in container
-   
+
    **Solutions:**
    ```yaml
    # Example docker-compose.yml adjustments
@@ -783,12 +783,12 @@ For more information about plugin compatibility and integration:
    ```
 
 2. **Development Tools Integration**
-   
+
    **Recommendations:**
    - Use xdebug for PHP debugging
    - Configure Query Monitor to track GraphQL queries
    - Enable WordPress and GraphQL debugging
-   
+
    ```php
    // wp-config.php for local Docker environment
    define( 'WP_DEBUG', true );
@@ -847,7 +847,7 @@ Common debugging approaches:
    - Enable Query Logging to see SQL queries in response
    - Enable Tracing to see resolver timing in response
    - Check the "extensions" portion of responses for debug data
-   
+
    Note: Debug information is only available in the response and is not persisted to logs.
 
 4. **Common Debug Steps**
@@ -867,9 +867,9 @@ For detailed information about each debugging method, examples, and troubleshoot
    - Default permalink structure can technically work with WPGraphQL, but is not recommended.
 
 2. **PHP Version**
-   - WPGraphQL v1.* requires PHP 7.1 or higher
-   - WPGraphQL v2.* requires PHP 7.4 or higher
-   - Some features require newer PHP versions
+   - WPGraphQL requires PHP 7.4 or higher
+   - Recommended to use latest stable PHP version (8.x)
+   - Some features may require newer PHP versions
 
 ### Server Configuration
 
@@ -935,4 +935,4 @@ For detailed information about each debugging method, examples, and troubleshoot
 
 For more detailed configuration information, see:
 - [Getting Started Guide](/docs/getting-started/)
-- [Security Guide](/docs/security/) 
+- [Security Guide](/docs/security/)
