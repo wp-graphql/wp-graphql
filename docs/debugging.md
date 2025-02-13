@@ -20,7 +20,7 @@ There are two ways to enable GraphQL Debug Mode:
 - Visit the GraphQL Settings page from the WordPress Admin Menu.
 - Check the box labeled "Enable Debug Mode" and save the settings.
 
-![Screenshot of the setting to enable GraphiQL IDE](./images/debugging-setting-enable-graphql.png)
+![Screenshot of the setting to enable GraphiQL IDE](/images/debugging-setting-enable-graphql.png)
 
 GraphQL requests will now execute in Debug Mode.
 
@@ -42,7 +42,7 @@ It should be added to the wp-config.php file, above the line that says:
 
 This force-enables debug mode, and the setting on the settings page will now be disabled and show that it's been enabled with code.
 
-![Screenshot of the WPGraphQL Setting to "Enable GraphQL Debug Mode"](./images/debugging-output-graphql-debug.png)
+![Screenshot of the WPGraphQL Setting to "Enable GraphQL Debug Mode"](/images/debugging-output-graphql-debug.png)
 
 ## graphql\_debug()
 
@@ -71,7 +71,7 @@ This adds a `myTestField` root query field with a String input argument named `t
 
 The function `graphql_debug( $args, [ 'type' => 'ARGS_BREAKPOINT' ] );` was added to the resolver, and in the debug log we can see the value of the arguments in the log.
 
-![Screenshot showing the output of graphql\_debug()](./images/debugging-output-graphql-debug.png)
+![Screenshot showing the output of graphql\_debug()](/images/debugging-output-graphql-debug.png)
 
 Various breakpoints can be added throughout resolution and tagged with a Type or other meta to help filter the logs and identify how things are resolving.
 
@@ -118,13 +118,13 @@ WPGraphQL allows you to enable GraphQL Tracing. Tracing tracks how long each res
 
 From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Tracing".
 
-![Screenshot of the WPGraphQL Setting to Enable GraphQL Tracing](./images/debugging-setting-graphql-enable-tracing.png)
+![Screenshot of the WPGraphQL Setting to Enable GraphQL Tracing](/images/debugging-setting-graphql-enable-tracing.png)
 
 ### Trace Data
 
 Next time you execute a request, you will see Trace data in the response, like so:
 
-![Screenshot showing GraphQL Trace log](./images/debugging-graphql-trace-log.png)
+![Screenshot showing GraphQL Trace log](/images/debugging-graphql-trace-log.png)
 
 The Trace logs include data for the entire request:
 
@@ -266,7 +266,7 @@ In any case, seeing the raw SQL queries and the path to the code that called it 
 
 From the WPGraphQL Settings page, check the box labeled "Enable GraphQL Query Logs".
 
-![Screenshot of the setting to enable GraphQL Query Logs](./images/debugging-setting-enable-graphql-query-logs.png)
+![Screenshot of the setting to enable GraphQL Query Logs](/images/debugging-setting-enable-graphql-query-logs.png)
 
 ### Query Log Data
 
@@ -278,7 +278,7 @@ Each SQL Query that is executed for the request, including Queries used to boots
 - **time**: The time the query took to complete
 - **stack**: The callstack leading up to the query
 
-![Screenshot of the GraphQL Query Logs](./images/debugging-graphql-query-logs.png)
+![Screenshot of the GraphQL Query Logs](/images/debugging-graphql-query-logs.png)
 
 ## Unexpected token < in JSON at position 0
 
@@ -288,7 +288,7 @@ If you execute a Query in GraphiQL and get the following response:
 SyntaxError: Unexpected token < in JSON at position 0
 ```
 
-![Screenshot of a query in GraphiQL IDE returning a SyntaxError](./images/debugging-graphql-unexpected-token.png)
+![Screenshot of a query in GraphiQL IDE returning a SyntaxError](/images/debugging-graphql-unexpected-token.png)
 
 This means that WPGraphQL was unable to return JSON for the query and therefore GraphiQL is unable to present the JSON in the JSON viewer of GraphiQL.
 
@@ -318,8 +318,8 @@ One way to check what the response is, is to use Google Chrome Developer Tools.
 - Select the GraphQL Request in the Network tab of Dev Tools
 - Select the "Response" tab of the selected GraphQL Request. At this point you should be able to see the response from the server and it should help you identify the issue.
 
-![Screenshot of debugging a GraphiQL request using Chrome Dev Tools](./images/debugging-graphql-response.png)
+![Screenshot of debugging a GraphiQL request using Chrome Dev Tools](/images/debugging-graphql-response.png)
 
 Below is a Gif showing the above steps in action.
 
-![Screen recording showing the steps to inspect the response of a GraphQL request in Chrome Dev Tools](./images/debugging-unexpected-token.gif)
+![Screen recording showing the steps to inspect the response of a GraphQL request in Chrome Dev Tools](/images/debugging-unexpected-token.gif)
