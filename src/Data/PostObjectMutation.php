@@ -483,12 +483,11 @@ class PostObjectMutation {
 			return false;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/post.php';
-
-		if ( function_exists( 'wp_check_post_lock' ) ) {
-			return wp_check_post_lock( $post_id );
+		if ( ! function_exists( 'wp_check_post_lock' ) ) {
+			// @phpstan-ignore requireOnce.fileNotFound
+			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
 
-		return false;
+		return wp_check_post_lock( $post_id );
 	}
 }

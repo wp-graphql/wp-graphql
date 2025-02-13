@@ -1,7 +1,7 @@
 <?php
 namespace WPGraphQL\Type;
 
-use GraphQL\Exception\InvalidArgument;
+use GraphQL\Error\UserError;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Type\InterfaceType\PageInfo;
 use WPGraphQL\Utils\Utils;
@@ -126,7 +126,7 @@ class WPConnectionType {
 	 *
 	 * @var array<string,array<string,mixed>>
 	 */
-	protected $where_args;
+	protected $where_args = [];
 
 	/**
 	 * WPConnectionType constructor.
@@ -203,19 +203,19 @@ class WPConnectionType {
 	 *
 	 * @param array<string,mixed> $config The config array for the connection.
 	 *
-	 * @throws \GraphQL\Exception\InvalidArgument If the config is invalid.
+	 * @throws \GraphQL\Error\UserError If the config is invalid.
 	 */
 	protected function validate_config( array $config ): void {
 		if ( ! array_key_exists( 'fromType', $config ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have at least a fromType defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'toType', $config ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have a "toType" defined', 'wp-graphql' ) );
 		}
 
 		if ( ! array_key_exists( 'fromFieldName', $config ) || ! is_string( $config['fromFieldName'] ) ) {
-			throw new InvalidArgument( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
+			throw new UserError( esc_html__( 'Connection config needs to have "fromFieldName" defined as a string value', 'wp-graphql' ) );
 		}
 	}
 
@@ -267,40 +267,45 @@ class WPConnectionType {
 	 * If the connection includes connection args in the config, this registers the input args
 	 * for the connection
 	 *
-	 * @return void
-	 *
 	 * @throws \Exception
 	 */
-	protected function register_connection_input() {
+	protected function register_connection_input(): void {
+		// If there are no connection args, bail
 		if ( empty( $this->connection_args ) ) {
+			return;
+		}
+
+		$input_fields = $this->connection_args;
+
+		// If input fields not array, bail
+		if ( ! is_array( $input_fields ) ) {
 			return;
 		}
 
 		$input_name = $this->connection_name . 'WhereArgs';
 
-		if ( $this->type_registry->has_type( $input_name ) ) {
-			return;
-		}
-
-		$this->type_registry->register_input_type(
-			$input_name,
-			[
-				'description' => sprintf(
-					// translators: %s is the name of the connection
-					__( 'Arguments for filtering the %s connection', 'wp-graphql' ),
-					$this->connection_name
-				),
-				'fields'      => $this->connection_args,
-				'queryClass'  => $this->query_class,
-			]
-		);
-
 		$this->where_args = [
 			'where' => [
 				'description' => __( 'Arguments for filtering the connection', 'wp-graphql' ),
-				'type'        => $this->connection_name . 'WhereArgs',
+				'type'        => $input_name,
 			],
 		];
+
+		// Only register the input type if it hasn't already been registered.
+		if ( ! $this->type_registry->has_type( $input_name ) ) {
+			$this->type_registry->register_input_type(
+				$input_name,
+				[
+					'description' => sprintf(
+					// translators: %s is the name of the connection
+						__( 'Arguments for filtering the %s connection', 'wp-graphql' ),
+						$this->connection_name
+					),
+					'fields'      => $input_fields,
+					'queryClass'  => $this->query_class,
+				]
+			);
+		}
 	}
 
 	/**
@@ -421,7 +426,7 @@ class WPConnectionType {
 		$interfaces   = ! empty( $this->connection_interfaces ) ? $this->connection_interfaces : [];
 		$interfaces[] = Utils::format_type_name( $this->to_type . 'Connection' );
 
-		// Only include the default interfaces if the user hasnt explicitly opted out.
+		// Only include the default interfaces if the user has not explicitly opted out.
 		if ( false !== $this->include_default_interfaces ) {
 			$interfaces[] = 'Connection';
 		}

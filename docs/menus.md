@@ -134,7 +134,7 @@ One thing you may have noticed is that Menu Items will be returned in a flat-lis
 
 There's a good chance you might need to convert a flat list into a hierarchical list in the consumer application to be used in a component such as a Checkbox Tree or Dropdown Menu, for example.
 
-> You can see this technique in action in the codebase for the website you're reading [here](https://github.com/wp-graphql/wpgraphql.com/blob/master/src/components/Docs/DocsNav.js#L8-L39).
+> You can see this technique in action in the codebase for the website you're reading [here](https://github.com/wp-graphql/wpgraphql.com/blob/master/src/components/DocsSidebar.js#L8-L26).
 
 Given the query above, we might have a payload of data like so:
 
