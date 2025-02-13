@@ -9,12 +9,13 @@ This guide outlines compatibility requirements and considerations when using WPG
 
 ## WordPress Compatibility
 
-While WPGraphQL may work with WordPress 5.0+, we [actively test](https://github.com/wp-graphql/wp-graphql/blob/master/.github/workflows/testing-integration.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
+WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.com/wp-graphql/wp-graphql/blob/master/.github/workflows/testing-integration.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
 
 ### Version Requirements
 
-- **Minimum**: WordPress 5.0+ (not actively tested, but may work)
+- **Minimum**: WordPress 6.0+
 - **Recommended**: Latest WordPress version
+- **Tested up to**: WordPress 6.7.1
 - **Testing**: WPGraphQL is actively tested against the latest WordPress version and one major version back. We may test with older versions but do not actively support them and _may_ drop testing for older versions at any time.
 
 ### WordPress Features
@@ -31,15 +32,14 @@ WPGraphQL works with both Classic Editor and Block Editor (Gutenberg) installati
 WPGraphQL works with WordPress Multisite installations with some considerations:
 
 - Each site in the network has its own GraphQL endpoint
-- Network admin functionality is not exposed in the GraphQL API by default. 
+- Network admin functionality is not exposed in the GraphQL API by default.
 - Each endpoint interacts with just the one site. There is no support for querying one endpoint and getting posts from different sites in the multisite network
 
 ## PHP Requirements
 
 ### Version Requirements
 
-- **WPGraphQL v1.x**: PHP 7.1 or higher
-- **WPGraphQL v2.x**: PHP 7.4 or higher
+- **Minimum**: PHP 7.4 or higher
 - **Recommended**: Latest stable PHP version (8.x)
 
 ### PHP Extensions
@@ -110,6 +110,7 @@ WPGraphQL works with the same database requirements as WordPress:
 
 - **MySQL**: Version 5.7 or greater
 - **MariaDB**: Version 10.3 or greater
+- **Recommended**: Latest stable version of MySQL 8.0+ or MariaDB 10.6+
 - **Character Set**: UTF-8 (utf8mb4)
 - **Collation**: utf8mb4_unicode_ci or utf8mb4_general_ci recommended
 
@@ -136,57 +137,81 @@ If your application uses custom database tables:
 
 ### Plugin Compatibility
 
-WPGraphQL is compatible with many WordPress plugins, but some considerations apply:
+WPGraphQL is compatible with many WordPress plugins through official and community extensions:
 
 1. **Official Extensions**
-   - [WPGraphQL for Advanced Custom Fields](https://www.wpgraphql.com/acf)
-   - [WPGraphQL for WooCommerce](https://www.wpgraphql.com/woocommerce)
-   - [WPGraphQL for Gravity Forms](https://www.wpgraphql.com/gravity-forms)
-   - And other [recommended extensions](/extensions)
+   - [WPGraphQL for Advanced Custom Fields](https://acf.wpgraphql.com)
+   - [WPGraphQL for WooCommerce](https://github.com/wp-graphql/wp-graphql-woocommerce)
+   - [WPGraphQL JWT Authentication](https://github.com/wp-graphql/wp-graphql-jwt-authentication)
+   - [WPGraphQL Content Blocks](https://github.com/wp-graphql/wp-graphql-content-blocks)
 
 2. **Common Plugin Types**
-   - **Custom Field Plugins**: May require extension plugins or custom code to expose fields in the GraphQL Schema
-   - **SEO Plugins**: Extensions available for popular SEO plugins like Yoast and RankMath
-   - **E-commerce Plugins**: WooCommerce supported via extension, others may require custom integration
-   - **Form Plugins**: Some form plugins have GraphQL extensions (i.e. [Gravity Forms](https://github.com/AxeWP/wp-graphql-gravity-forms))
+   - **Custom Field Plugins**:
+     - Advanced Custom Fields (via WPGraphQL for ACF)
+     - Custom Field Suite (via custom code)
+     - Meta Box (via custom code)
+   - **SEO Plugins**:
+     - Yoast SEO (via [wp-graphql-yoast-seo](https://github.com/ashhitch/wp-graphql-yoast-seo))
+     - RankMath (via [wp-graphql-rank-math](https://github.com/AxeWP/wp-graphql-rank-math))
+   - **E-commerce**:
+     - WooCommerce (via WPGraphQL for WooCommerce)
+     - Easy Digital Downloads (via community extensions)
+   - **Form Plugins**:
+     - Gravity Forms (via [wp-graphql-gravity-forms](https://github.com/harness-software/wp-graphql-gravity-forms))
+     - Contact Form 7 (via community extensions)
 
 3. **Plugin Development**
    - Follow [WPGraphQL extension development guidelines](/docs/build-your-first-wpgraphql-extension)
-   - Use proper hooks and filters
-   - Register custom types and fields appropriately
-   - Consider performance implications
-   - Consider user permissions and data access/visibility
+   - Use WordPress hooks and filters
+   - Register types and fields using WPGraphQL's registration API
+   - Consider data access and authorization
+   - Follow performance best practices
 
 ### Theme Compatibility
 
-WPGraphQL works with any WordPress theme, but there are special considerations:
+WPGraphQL works with any WordPress theme:
 
 1. **Headless WordPress**
-   - WPGraphQL is commonly used in headless WordPress setups
-   - Consider using a minimal theme for headless setups
-   - Frontend rendering typically happens outside of WordPress
+   - Commonly used in decoupled/headless WordPress setups
+   - Recommended to use a minimal theme
+   - Frontend typically built with:
+     - Next.js (via [FaustJS](https://faustjs.org/))
+     - Gatsby
+     - Other JavaScript frameworks
 
 2. **Traditional Themes**
-   - Can use WPGraphQL alongside traditional WordPress themes
-   - Useful for progressive enhancement
-   - Can power specific dynamic features via GraphQL
+   - Compatible with all traditional WordPress themes
+   - Can be used for:
+     - Dynamic features
+     - Custom admin interfaces
+     - Progressive enhancement
 
 3. **Block Theme Considerations**
-   - Full Site Editing (FSE) features exposed via GraphQL requires custom code at this time to expose the FSE features in the GraphQL Schema
-     - Block templates accessible through the API
-     - Theme.json data available through the schema
-     - We're considering looking into supporting this more formally in the future
+   - Compatible with Full Site Editing (FSE) themes, but many FSE features require custom code to expose in the GraphQL Schema
+   - Block templates and theme.json data are not exposed in the Schema by default and require custom code
+   - Block content is rendered as HTML by default when querying the `content` field
+   - Structured block data available via WPGraphQL Content Blocks extension
+   - Full FSE support is planned for future releases
 
 ## API Compatibility
 
 ### GraphQL Specification
 
-WPGraphQL follows the GraphQL specification:
+WPGraphQL follows the GraphQL specification through its core dependencies:
 
-- Compliant with the [GraphQL Specification](https://spec.graphql.org/)
-- Supports introspection queries
-- Implements standard GraphQL features (aliases, fragments, variables, etc.)
-- Follows GraphQL best practices for schema design, adhering to the [Relay spec](https://relay.dev/docs/guides/graphql-server-specification/) for GraphQL
+- Built on [graphql-php](https://github.com/webonyx/graphql-php) v15.19.1
+- Implements [Relay Specification](https://relay.dev/docs/guides/graphql-server-specification/) via [graphql-relay-php](https://github.com/ivome/graphql-relay-php) v0.7.0
+- Supports standard GraphQL features:
+  - Queries and Mutations
+  - Field Arguments
+  - Aliases
+  - Fragments
+  - Variables
+  - Directives
+  - Interfaces
+  - Unions
+  - Input Types
+  - Introspection
 
 ### Schema Versioning
 
@@ -202,11 +227,22 @@ WPGraphQL takes a stability-first approach to schema changes:
 
 The GraphQL endpoint follows standard HTTP conventions:
 
-- Accepts POST requests for queries and mutations
-- Accepts GET requests for queries
-- Returns JSON responses
-- Supports standard HTTP headers
-- Follows REST API authentication patterns
+- Endpoint: `/graphql`
+- Methods:
+  - GET: Recommended for queries to benefit from network-level caching (Varnish, Litespeed, Cloudflare, etc.)
+  - POST: Required for mutations, can be used for queries but won't benefit from network caching
+- Content-Type: `application/json`
+- Response Format: JSON
+- Authentication: Supports standard WordPress authentication methods
+  - Cookie Authentication
+  - Application Passwords
+  - JWT Authentication (via extension)
+- Batching: Supports multiple operations in a single request
+- File Uploads: Supported via multipart form data
+- Caching:
+  - GET requests can be cached at network level (CDN, reverse proxy)
+  - WPGraphQL Smart Cache provides additional caching capabilities
+  - Consider using object caching (Redis, Memcached) for better performance
 
 ### Client Compatibility
 
@@ -217,3 +253,11 @@ WPGraphQL works with any GraphQL client that follows the specification:
 - [Relay](https://relay.dev/) - Facebook's GraphQL client for React applications
 - [urql](https://formidable.com/open-source/urql/) - Highly customizable GraphQL client
 - And other standard GraphQL clients
+
+### Testing Coverage
+
+WPGraphQL is actively tested against:
+- PHP versions 7.4 through 8.3
+- WordPress versions 6.0 through 6.7
+- Both single site and multisite configurations
+- MariaDB 10.x
