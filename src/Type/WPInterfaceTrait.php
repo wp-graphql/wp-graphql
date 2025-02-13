@@ -42,7 +42,7 @@ trait WPInterfaceTrait {
 		$new_interfaces = [];
 
 		foreach ( $interfaces as $interface ) {
-			if ( $interface instanceof InterfaceType && $interface->name !== $this->config['name'] ) {
+			if ( $interface instanceof InterfaceType && ( $this->config['name'] ?? null ) !== $interface->name ) {
 				$new_interfaces[ $interface->name ] = $interface;
 				continue;
 			}
@@ -53,7 +53,7 @@ trait WPInterfaceTrait {
 					sprintf(
 						// translators: %s is the name of the GraphQL type.
 						__( 'Invalid Interface registered to the "%s" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType', 'wp-graphql' ),
-						$this->config['name']
+						$this->config['name'] ?? 'Unknown'
 					),
 					[ 'invalid_interface' => $interface ]
 				);
@@ -61,7 +61,7 @@ trait WPInterfaceTrait {
 			}
 
 			// Prevent an interface from implementing itself
-			if ( strtolower( $this->config['name'] ) === strtolower( $interface ) ) {
+			if ( ! empty( $this->config['name'] ) && strtolower( $this->config['name'] ) === strtolower( $interface ) ) {
 				graphql_debug(
 					sprintf(
 						// translators: %s is the name of the interface.
@@ -79,7 +79,7 @@ trait WPInterfaceTrait {
 						// translators: %1$s is the name of the interface, %2$s is the name of the type.
 						__( '"%1$s" is not a valid Interface Type and cannot be implemented as an Interface on the "%2$s" Type', 'wp-graphql' ),
 						$interface,
-						$this->config['name']
+						$this->config['name'] ?? 'Unknown'
 					)
 				);
 				continue;
@@ -203,7 +203,7 @@ trait WPInterfaceTrait {
 					// translators: %1$s is the field name, %2$s is the type name.
 					__( 'Invalid Interface field %1$s registered to the "%2$s" Type. Fields must be registered a valid GraphQL `type`.', 'wp-graphql' ),
 					$field_name,
-					$this->config['name']
+					$this->config['name'] ?? 'Unknown'
 				)
 			);
 
@@ -259,7 +259,7 @@ trait WPInterfaceTrait {
 							'Interface field argument "%1$s.%2$s(%3$s:)" expected to be of type "%4$s" but got "%5$s". Please ensure the field arguments match the interface field arguments or rename the argument.',
 							'wp-graphql'
 						),
-						$this->config['name'],
+						$this->config['name'] ?? 'Unknown',
 						$field_name,
 						$arg_name,
 						$interface_arg_type,
@@ -296,7 +296,7 @@ trait WPInterfaceTrait {
 
 		// If the type is an instance of a Type, we can get the name.
 		if ( $type instanceof \GraphQL\Type\Definition\Type ) {
-			$type = $type->name;
+			$type = $type->name ?? $type->toString();
 		}
 
 		// If the type is *now* a string, we can return it.

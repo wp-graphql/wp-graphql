@@ -60,11 +60,6 @@ jobs:
             php: '8.1'
           - wordpress: '6.0'
             php: '7.4'
-          - wordpress: '5.9'
-            php: '8.1'
-          # Minimum plugin requirement:
-          - wordpress: '5.9'
-            php: '7.3'
 
     steps:
       - name: Checkout
@@ -112,7 +107,9 @@ jobs:
 
       - name: Push Codecoverage to Coveralls.io
         if: ${{ matrix.coverage == 1 }}
-        env:
-          COVERALLS_RUN_LOCALLY: 1
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: vendor/bin/php-coveralls -v
+        uses: coverallsapp/github-action@v2
+        with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            file: tests/_output/coverage.xml
+            flag-name: wpunit
+            format: clover

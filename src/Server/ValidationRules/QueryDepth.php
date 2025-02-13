@@ -11,7 +11,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\Rules\QuerySecurityRule;
-use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
 /**
@@ -40,18 +39,21 @@ class QueryDepth extends QuerySecurityRule {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param \GraphQL\Validator\ValidationContext $context
+	 * @param \GraphQL\Validator\QueryValidationContext $context
 	 *
-	 * @return callable[]
+	 * @return array<string,array<string,callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null)>|(callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null))>
 	 */
-	public function getVisitor( ValidationContext $context ) {
+	public function getVisitor( \GraphQL\Validator\QueryValidationContext $context ): array {
 		return $this->invokeIfNeeded(
 			$context,
-			// @phpstan-ignore-next-line
 			[
 				NodeKind::OPERATION_DEFINITION => [
-					'leave' => function ( OperationDefinitionNode $operationDefinition ) use ( $context ): void {
-						$maxDepth = $this->fieldDepth( $operationDefinition );
+					'leave' => function ( Node $node ) use ( $context ): void {
+						if ( ! $node instanceof OperationDefinitionNode ) {
+							return;
+						}
+
+						$maxDepth = $this->fieldDepth( $node );
 
 						if ( $maxDepth <= $this->getMaxQueryDepth() ) {
 							return;
@@ -160,10 +162,8 @@ class QueryDepth extends QuerySecurityRule {
 
 	/**
 	 * Determine whether the rule should be enabled
-	 *
-	 * @return bool
 	 */
-	protected function isEnabled() {
+	protected function isEnabled(): bool {
 		$is_enabled = false;
 
 		$enabled = get_graphql_setting( 'query_depth_enabled', 'off' );

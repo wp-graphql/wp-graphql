@@ -135,6 +135,10 @@ use WPGraphQL\Utils\Utils;
  *
  * This class maintains the registry of Types used in the GraphQL Schema
  *
+ * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
+ * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
+ * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ *
  * @package WPGraphQL\Registry
  */
 class TypeRegistry {
@@ -789,19 +793,14 @@ class TypeRegistry {
 	}
 
 	/**
-	 * @param string                                                  $type_name The name of the type to register
-	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config he configuration of the type
+	 * Prepare the type for registration.
 	 *
-	 * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
-	 * @throws \Exception
+	 * @param string                                                  $type_name The name of the type to prepare
+	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
+	 *
+	 * @return mixed|\GraphQL\Type\Definition\Type|null The prepared type
 	 */
-	public function prepare_type( string $type_name, $config ) {
-		/**
-		 * Uncomment to help trace eagerly (not lazy) loaded types.
-		 *
-		 * Use: graphql_debug( "prepare_type: {$type_name}", [ 'type' => $type_name ] );.
-		 */
-
+	protected function prepare_type( string $type_name, $config ) {
 		if ( ! is_array( $config ) ) {
 			return $config;
 		}
@@ -817,6 +816,7 @@ class TypeRegistry {
 					$prepared_type = new WPEnumType( $config );
 					break;
 				case 'input':
+					/** @var InputObjectConfig $config */
 					$prepared_type = new WPInputObjectType( $config, $this );
 					break;
 				case 'scalar':
@@ -826,10 +826,12 @@ class TypeRegistry {
 					$prepared_type = new WPUnionType( $config, $this );
 					break;
 				case 'interface':
+					/** @var InterfaceConfig $config */
 					$prepared_type = new WPInterfaceType( $config, $this );
 					break;
 				case 'object':
 				default:
+					/** @var ObjectConfig $config */
 					$prepared_type = new WPObjectType( $config, $this );
 			}
 		}
@@ -886,7 +888,7 @@ class TypeRegistry {
 	 * @param array<string,mixed> $fields    Array of fields and their settings to register on a Type
 	 * @param string              $type_name Name of the Type to register the fields to
 	 *
-	 * @return array<string,array<string,mixed>>
+	 * @return array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
@@ -1012,9 +1014,9 @@ class TypeRegistry {
 	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
 	 * not call before types are ready to be loaded.
 	 *
-	 * @param mixed|string|array<string,mixed> $type The type definition to process.
+	 * @param \GraphQL\Type\Definition\Type|string|array<string,mixed> $type The type definition to process.
 	 *
-	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>|mixed
+	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>
 	 * @throws \Exception
 	 */
 	public function setup_type_modifiers( $type ) {
@@ -1023,15 +1025,16 @@ class TypeRegistry {
 		}
 
 		if ( isset( $type['non_null'] ) ) {
-			return $this->non_null(
-				$this->setup_type_modifiers( $type['non_null'] )
-			);
+			/** @var \GraphQL\Type\Definition\Type $inner_type */
+			$inner_type = $this->setup_type_modifiers( $type['non_null'] );
+
+			return $this->non_null( $inner_type );
 		}
 
 		if ( isset( $type['list_of'] ) ) {
-			return $this->list_of(
-				$this->setup_type_modifiers( $type['list_of'] )
-			);
+			/** @var \GraphQL\Type\Definition\Type $inner_type */
+			$inner_type = $this->setup_type_modifiers( $type['list_of'] );
+			return $this->list_of( $inner_type );
 		}
 
 		return $type;
@@ -1252,16 +1255,16 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Given a Type, this returns an instance of a NonNull of that type
+	 * Given a Type, this returns an instance of a NonNull of that type.
 	 *
-	 * @param string|callable|\GraphQL\Type\Definition\NullableType $type The Type being wrapped
+	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
 	 *
-	 * @return \GraphQL\Type\Definition\NonNull
+	 * @phpstan-template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
+	 * @phpstan-param T|string $type The Type being wrapped
 	 */
-	public function non_null( $type ) {
+	public function non_null( $type ): \GraphQL\Type\Definition\NonNull {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
-
 			return Type::nonNull( $type_def );
 		}
 
@@ -1269,21 +1272,24 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Given a Type, this returns an instance of a listOf of that type
+	 * Given a Type, this returns an instance of a listOf of that type.
 	 *
-	 * @param string|\GraphQL\Type\Definition\Type $type The Type being wrapped
+	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
 	 *
-	 * @return \GraphQL\Type\Definition\ListOfType
+	 * @phpstan-template T of \GraphQL\Type\Definition\Type
+	 * @phpstan-param T|string $type The Type being wrapped.
+	 * @phpstan-return \GraphQL\Type\Definition\ListOfType<T>
 	 */
-	public function list_of( $type ) {
+	public function list_of( $type ): \GraphQL\Type\Definition\ListOfType {
 		if ( is_string( $type ) ) {
-			$type_def = $this->get_type( $type );
+			$resolved_type = $this->get_type( $type );
 
-			if ( is_null( $type_def ) ) {
-				return Type::listOf( Type::string() );
+			if ( is_null( $resolved_type ) ) {
+				$resolved_type = Type::string();
 			}
 
-			return Type::listOf( $type_def );
+			/** @phpstan-var T $resolved_type */
+			$type = $resolved_type;
 		}
 
 		return Type::listOf( $type );

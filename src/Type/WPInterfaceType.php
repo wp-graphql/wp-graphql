@@ -5,6 +5,11 @@ namespace WPGraphQL\Type;
 use GraphQL\Type\Definition\InterfaceType;
 use WPGraphQL\Registry\TypeRegistry;
 
+/**
+ * Class WPInterface
+ *
+ * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
+ */
 class WPInterfaceType extends InterfaceType {
 
 	use WPInterfaceTrait;
@@ -17,25 +22,22 @@ class WPInterfaceType extends InterfaceType {
 	public $type_registry;
 
 	/**
-	 * @var array<string,mixed>
-	 */
-	public $config;
-
-	/**
 	 * @var array<string, array<string, mixed>>
 	 */
 	public $fields;
 
 	/**
-	 * @var array<string, array<string, mixed>>
+	 * @var \GraphQL\Type\Definition\InterfaceType[]
 	 */
-	public $interfaces;
+	public $interfaces = [];
 
 	/**
 	 * WPInterfaceType constructor.
 	 *
-	 * @param array<string,mixed>              $config
+	 * @param array<string,mixed>              $config The configuration array for setting up the WPInterfaceType.
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 *
+	 * @phpstan-param InterfaceConfig $config
 	 *
 	 * @throws \Exception
 	 */
@@ -44,14 +46,15 @@ class WPInterfaceType extends InterfaceType {
 
 		$this->config = $config;
 
-		$name             = ucfirst( $config['name'] );
-		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		$name                 = ! empty( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
+		$config['name']       = apply_filters( 'graphql_type_name', $name, $config, $this );
+		$config['fields']     = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		$config['interfaces'] = $this->getInterfaces();
 
-		$config['resolveType'] = function ( $obj ) use ( $config ) {
+		$config['resolveType'] = function ( $obj, $context, $info ) use ( $config ) {
 			$type = null;
-			if ( is_callable( $config['resolveType'] ) ) {
-				$type = call_user_func( $config['resolveType'], $obj );
+			if ( isset( $config['resolveType'] ) && is_callable( $config['resolveType'] ) ) {
+				$type = call_user_func( $config['resolveType'], $obj, $context, $info );
 			}
 
 			/**
@@ -67,7 +70,7 @@ class WPInterfaceType extends InterfaceType {
 		/**
 		 * Filter the config of WPInterfaceType
 		 *
-		 * @param array<string,mixed>             $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
+		 * @param InterfaceConfig                 $config Array of configuration options passed to the WPInterfaceType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPInterfaceType $wp_interface_type The instance of the WPInterfaceType class
 		 */
 		$config = apply_filters( 'graphql_wp_interface_type_config', $config, $this );
@@ -76,12 +79,16 @@ class WPInterfaceType extends InterfaceType {
 	}
 
 	/**
-	 * Get interfaces implemented by this Interface
+	 * Get the interfaces implemented by the ObjectType
 	 *
 	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	public function getInterfaces(): array {
-		return $this->get_implemented_interfaces();
+		if ( ! empty( $this->interfaces ) ) {
+			return $this->interfaces;
+		}
+		$this->interfaces = $this->get_implemented_interfaces();
+		return $this->interfaces;
 	}
 
 	/**

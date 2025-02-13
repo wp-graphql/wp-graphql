@@ -442,63 +442,68 @@ class QueryAnalyzer {
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
 
-		$visitor = [
-			'enter' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
-				$parent_type = $type_info->getParentType();
+		Visitor::visit(
+			$ast,
+			Visitor::visitWithTypeInfo(
+				$type_info,
+				[
+					'enter' => static function ( $node ) use ( $type_info, &$type_map, $schema ) {
+						$parent_type = $type_info->getParentType();
 
-				if ( 'Field' !== $node->kind ) {
-					Visitor::skipNode();
-				}
-
-				$type_info->enter( $node );
-				$field_def = $type_info->getFieldDef();
-
-				if ( ! $field_def instanceof FieldDefinition ) {
-					return;
-				}
-
-				// Determine the wrapped type, which also determines if it's a listOf
-				$field_type = $field_def->getType();
-				$field_type = self::get_wrapped_field_type( $field_type, $field_def, $parent_type );
-
-				if ( null === $field_type ) {
-					return;
-				}
-
-				if ( ! empty( $field_type ) && is_string( $field_type ) ) {
-					$field_type = $schema->getType( ucfirst( $field_type ) );
-				}
-
-				if ( ! $field_type ) {
-					return;
-				}
-
-				$field_type = $schema->getType( $field_type );
-
-				if ( ! $field_type instanceof ObjectType && ! $field_type instanceof InterfaceType ) {
-					return;
-				}
-
-				// If the type being queried is an interface (i.e. ContentNode) the publishing a new
-				// item of any of the possible types (post, page, etc) should invalidate
-				// this query, so we need to tag this query with `list:$possible_type` for each possible type
-				if ( $field_type instanceof InterfaceType ) {
-					$possible_types = $schema->getPossibleTypes( $field_type );
-					if ( ! empty( $possible_types ) ) {
-						foreach ( $possible_types as $possible_type ) {
-							$type_map[] = 'list:' . strtolower( $possible_type );
+						if ( 'Field' !== $node->kind ) {
+							Visitor::skipNode();
 						}
-					}
-				} else {
-					$type_map[] = 'list:' . strtolower( $field_type );
-				}
-			},
-			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
-				$type_info->leave( $node );
-			},
-		];
 
-		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
+						$type_info->enter( $node );
+						$field_def = $type_info->getFieldDef();
+
+						if ( ! $field_def instanceof FieldDefinition ) {
+							return;
+						}
+
+						// Determine the wrapped type, which also determines if it's a listOf
+						$field_type = $field_def->getType();
+						$field_type = self::get_wrapped_field_type( $field_type, $field_def, $parent_type );
+
+						if ( null === $field_type ) {
+							return;
+						}
+
+						if ( ! empty( $field_type ) && is_string( $field_type ) ) {
+							$field_type = $schema->getType( ucfirst( $field_type ) );
+						}
+
+						if ( ! $field_type ) {
+							return;
+						}
+
+						$field_type = $schema->getType( $field_type );
+
+						if ( ! $field_type instanceof ObjectType && ! $field_type instanceof InterfaceType ) {
+							return;
+						}
+
+						// If the type being queried is an interface (i.e. ContentNode) the publishing a new
+						// item of any of the possible types (post, page, etc) should invalidate
+						// this query, so we need to tag this query with `list:$possible_type` for each possible type
+						if ( $field_type instanceof InterfaceType ) {
+							$possible_types = $schema->getPossibleTypes( $field_type );
+							if ( ! empty( $possible_types ) ) {
+								foreach ( $possible_types as $possible_type ) {
+									$type_map[] = 'list:' . strtolower( $possible_type );
+								}
+							}
+						} else {
+							$type_map[] = 'list:' . strtolower( $field_type );
+						}
+					},
+					'leave' => static function ( $node ) use ( $type_info ): void {
+						$type_info->leave( $node );
+					},
+				]
+			)
+		);
+
 		$map = array_values( array_unique( $type_map ) );
 
 		return apply_filters( 'graphql_cache_collection_get_list_types', $map, $schema, $query, $type_info );
@@ -538,45 +543,50 @@ class QueryAnalyzer {
 		}
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
-		$visitor   = [
-			'enter' => function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
-				$type_info->enter( $node );
-				$type = $type_info->getType();
-				if ( ! $type ) {
-					return;
-				}
 
-				if ( empty( $this->root_operation ) ) {
-					if ( $type === $schema->getQueryType() ) {
-						$this->root_operation = 'Query';
-					}
+		Visitor::visit(
+			$ast,
+			Visitor::visitWithTypeInfo(
+				$type_info,
+				[
+					'enter' => function ( $node ) use ( $type_info, &$type_map, $schema ): void {
+						$type_info->enter( $node );
+						$type = $type_info->getType();
+						if ( ! $type ) {
+							return;
+						}
 
-					if ( $type === $schema->getMutationType() ) {
-						$this->root_operation = 'Mutation';
-					}
+						if ( empty( $this->root_operation ) ) {
+							if ( $type === $schema->getQueryType() ) {
+								$this->root_operation = 'Query';
+							}
 
-					if ( $type === $schema->getSubscriptionType() ) {
-						$this->root_operation = 'Subscription';
-					}
-				}
+							if ( $type === $schema->getMutationType() ) {
+								$this->root_operation = 'Mutation';
+							}
 
-				$named_type = Type::getNamedType( $type );
+							if ( $type === $schema->getSubscriptionType() ) {
+								$this->root_operation = 'Subscription';
+							}
+						}
 
-				if ( $named_type instanceof InterfaceType ) {
-					$possible_types = $schema->getPossibleTypes( $named_type );
-					foreach ( $possible_types as $possible_type ) {
-						$type_map[] = strtolower( $possible_type );
-					}
-				} elseif ( $named_type instanceof ObjectType ) {
-					$type_map[] = strtolower( $named_type );
-				}
-			},
-			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
-				$type_info->leave( $node );
-			},
-		];
+						$named_type = Type::getNamedType( $type );
 
-		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
+						if ( $named_type instanceof InterfaceType ) {
+							$possible_types = $schema->getPossibleTypes( $named_type );
+							foreach ( $possible_types as $possible_type ) {
+								$type_map[] = strtolower( $possible_type );
+							}
+						} elseif ( $named_type instanceof ObjectType ) {
+							$type_map[] = strtolower( $named_type );
+						}
+					},
+					'leave' => static function ( $node ) use ( $type_info ): void {
+						$type_info->leave( $node );
+					},
+				]
+			)
+		);
 		$map = array_values( array_unique( array_filter( $type_map ) ) );
 
 		return apply_filters( 'graphql_cache_collection_get_query_types', $map, $schema, $query, $type_info );
@@ -614,40 +624,58 @@ class QueryAnalyzer {
 		} catch ( SyntaxError $error ) {
 			return [];
 		}
+
+		/**
+		 * @var array<string> $type_map
+		 */
 		$type_map  = [];
 		$type_info = new TypeInfo( $schema );
-		$visitor   = [
-			'enter' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info, &$type_map, $schema ) {
-				$type_info->enter( $node );
-				$type = $type_info->getType();
-				if ( ! $type ) {
-					return;
-				}
-
-				$named_type = Type::getNamedType( $type );
-
-				if ( $named_type instanceof InterfaceType ) {
-					$possible_types = $schema->getPossibleTypes( $named_type );
-					foreach ( $possible_types as $possible_type ) {
-						if ( ! isset( $possible_type->config['model'] ) ) {
-							continue;
+		Visitor::visit(
+			$ast,
+			Visitor::visitWithTypeInfo(
+				$type_info,
+				[
+					'enter' => static function ( $node ) use ( $type_info, &$type_map, $schema ): void {
+						$type_info->enter( $node );
+						$type = $type_info->getType();
+						if ( ! $type ) {
+							return;
 						}
-						$type_map[] = $possible_type->config['model'];
-					}
-				} elseif ( $named_type instanceof ObjectType ) {
-					if ( ! isset( $named_type->config['model'] ) ) {
-						return;
-					}
-					$type_map[] = $named_type->config['model'];
-				}
-			},
-			'leave' => static function ( $node, $key, $_parent, $path, $ancestors ) use ( $type_info ) {
-				$type_info->leave( $node );
-			},
-		];
 
-		Visitor::visit( $ast, Visitor::visitWithTypeInfo( $type_info, $visitor ) );
-		$map = array_values( array_unique( array_filter( $type_map ) ) );
+						$named_type = Type::getNamedType( $type );
+
+						if ( $named_type instanceof InterfaceType ) {
+							$possible_types = $schema->getPossibleTypes( $named_type );
+							foreach ( $possible_types as $possible_type ) {
+								if ( ! isset( $possible_type->config['model'] ) ) {
+									continue;
+								}
+								$type_map[] = $possible_type->config['model'];
+							}
+						} elseif ( $named_type instanceof ObjectType ) {
+							if ( ! isset( $named_type->config['model'] ) ) {
+								return;
+							}
+							$type_map[] = $named_type->config['model'];
+						}
+					},
+					'leave' => static function ( $node ) use ( $type_info ): void {
+						$type_info->leave( $node );
+					},
+				]
+			)
+		);
+
+		/**
+		 * @var string[] $filtered
+		 */
+		$filtered = array_filter( $type_map );
+
+		/** @var string[] $unique */
+		$unique = array_unique( $filtered );
+
+		/** @var string[] $map */
+		$map = array_values( $unique );
 
 		return apply_filters( 'graphql_cache_collection_get_query_models', $map, $schema, $query, $type_info );
 	}

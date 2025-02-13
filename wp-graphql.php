@@ -6,19 +6,19 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 1.32.1
+ * Version: 2.0.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
- * Requires at least: 5.9
+ * Requires at least: 6.0
  * Tested up to: 6.7.1
- * Requires PHP: 7.1
+ * Requires PHP: 7.4
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.32.1
+ * @version  2.0.0
  */
 
 // Exit if accessed directly.
@@ -171,7 +171,11 @@ function graphql_init_appsero_telemetry() {
 	try {
 		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
 
-		/** @var \Appsero\Insights $insights */
+		/**
+		 * @var \Appsero\Insights $insights
+		 *
+		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
+		 */
 		$insights = $client->insights();
 
 		// If the Appsero client has the add_plugin_data method, use it

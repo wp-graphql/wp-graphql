@@ -282,10 +282,19 @@ class Router {
 	/**
 	 * Sends an HTTP status code.
 	 *
+	 * @param int|null $status_code The status code to send.
+	 *
 	 * @return void
 	 */
-	protected static function set_status() {
-		status_header( self::$http_status_code );
+	protected static function set_status( ?int $status_code = null ) {
+		$status_code = null === $status_code ? self::$http_status_code : $status_code;
+
+		// validate that the status code is a valid http status code
+		if ( ! is_numeric( $status_code ) || $status_code < 100 || $status_code > 599 ) {
+			$status_code = 500;
+		}
+
+		status_header( $status_code );
 	}
 
 	/**
@@ -365,7 +374,7 @@ class Router {
 			/**
 			 * Set the HTTP response status
 			 */
-			self::set_status();
+			self::set_status( self::$http_status_code );
 
 			/**
 			 * Get the response headers

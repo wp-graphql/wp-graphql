@@ -9,6 +9,8 @@ use WPGraphQL\Registry\TypeRegistry;
 /**
  * Class WPObjectType
  *
+ * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ *
  * Object Types should extend this class to take advantage of the helper methods
  * and consistent filters.
  *
@@ -37,11 +39,6 @@ class WPObjectType extends ObjectType {
 	public $type_registry;
 
 	/**
-	 * @var array<string,mixed>
-	 */
-	public $config;
-
-	/**
 	 * @var array<string, array<string, mixed>>
 	 */
 	public $fields;
@@ -49,18 +46,22 @@ class WPObjectType extends ObjectType {
 	/**
 	 * @var array<\GraphQL\Type\Definition\InterfaceType>
 	 */
-	public $interfaces;
+	public $interfaces = [];
 
 	/**
 	 * WPObjectType constructor.
 	 *
-	 * @param array<string,mixed>              $config
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * Sets up a WPObjectType instance with the given configuration and type registry.
 	 *
-	 * @throws \Exception
+	 * @param array<string, mixed>             $config The configuration array for setting up the WPObjectType.
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The type registry to associate with the WPObjectType.
+	 *
+	 * @phpstan-param ObjectConfig $config
+	 *
+	 * @throws \Exception If there is an error during instantiation.
 	 * @since 0.0.5
 	 */
-	public function __construct( $config, TypeRegistry $type_registry ) {
+	public function __construct( array $config, TypeRegistry $type_registry ) {
 
 		/**
 		 * Get the Type Registry
@@ -70,7 +71,7 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Filter the config of WPObjectType
 		 *
-		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param ObjectConfig          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
@@ -80,15 +81,20 @@ class WPObjectType extends ObjectType {
 		/**
 		 * Set the Types to start with capitals
 		 */
-		$name           = ucfirst( $config['name'] );
+		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
 		/**
-		 * Setup the fields
+		 * Set up the fields
 		 *
 		 * @return array<string, array<string, mixed>> $fields
 		 */
 		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+
+		/**
+		 * Set up the Interfaces
+		 */
+		$config['interfaces'] = $this->getInterfaces();
 
 		/**
 		 * Run an action when the WPObjectType is instantiating
@@ -126,7 +132,7 @@ class WPObjectType extends ObjectType {
 	public static function node_interface() {
 		if ( null === self::$node_interface ) {
 			$node_interface       = DataSource::get_node_definition();
-			self::$node_interface = $node_interface['nodeInterface'];
+			self::$node_interface = $node_interface['Node'];
 		}
 
 		return self::$node_interface;

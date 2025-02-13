@@ -272,8 +272,8 @@ final class WPGraphQL {
 		\GraphQL\Language\Visitor::visit(
 			$ast,
 			[
-				'Field' => static function ( \GraphQL\Language\AST\FieldNode $node ) use ( &$is_introspection ) {
-					if ( '__schema' === $node->name->value || '__type' === $node->name->value ) {
+				'Field' => static function ( \GraphQL\Language\AST\Node $node ) use ( &$is_introspection ) {
+					if ( $node instanceof \GraphQL\Language\AST\FieldNode && ( '__schema' === $node->name->value || '__type' === $node->name->value ) ) {
 						$is_introspection = true;
 						return \GraphQL\Language\Visitor::stop();
 					}

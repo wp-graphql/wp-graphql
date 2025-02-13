@@ -107,8 +107,6 @@ class SendPasswordResetEmail {
 			);
 
 			// wp_mail can return a wp_error, but the docblock for it in WP Core is incorrect.
-			// phpstan should ignore this check.
-			// @phpstan-ignore-next-line
 			if ( is_wp_error( $email_sent ) ) {
 				graphql_debug( __( 'The email could not be sent.', 'wp-graphql' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'wp-graphql' ) );
 
