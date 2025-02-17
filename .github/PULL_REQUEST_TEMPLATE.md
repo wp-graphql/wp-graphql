@@ -16,6 +16,22 @@ What does this implement/fix? Explain your changes.
 …
 
 
+Breaking Changes
+---------------
+<!--
+Does this PR introduce breaking changes? Please describe what breaks and any upgrade path for users.
+If there are no breaking changes, you can write "None".
+-->
+
+
+Upgrade Instructions
+------------------
+<!--
+If you indicated breaking changes above, please provide detailed upgrade instructions for users.
+If there are no breaking changes, you can write "N/A".
+-->
+
+
 Does this close any currently open issues?
 ------------------------------------------
 <!--
@@ -26,7 +42,7 @@ Does this close any currently open issues?
 
 Any relevant logs, error output, GraphiQL screenshots, etc?
 -------------------------------------
-<!-- (If it’s long, please paste to https://ghostbin.com/ and insert the link here.) -->
+<!-- (If it's long, please paste to https://ghostbin.com/ and insert the link here.) -->
 
 
 Any other comments?
