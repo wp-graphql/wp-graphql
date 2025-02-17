@@ -9,6 +9,7 @@ Changesets are automatically generated when PRs are merged based on:
 1. PR Title: Must follow conventional commit standards
    - `feat:` = minor version bump
    - `fix:` = patch version bump
+   - Optional scopes can be used: `feat(graphiql):`, `fix(core):`
    - Breaking changes can be indicated by:
      - Adding an exclamation mark: `feat!:` or `fix!:`
      - Note: Any valid scope can be used (e.g., `feat(graphiql):`), but breaking changes should use the `!` suffix

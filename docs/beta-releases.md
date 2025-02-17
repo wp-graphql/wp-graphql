@@ -22,7 +22,7 @@ git checkout next-major
 npm run changeset pre enter beta
 
 # Create first beta release
-npm run version-packages
+npm run version
 git push --follow-tags
 ```
 
@@ -33,7 +33,7 @@ git push --follow-tags
 git checkout next-major
 
 # Create next beta release
-npm run version-packages
+npm run version
 git push --follow-tags
 ```
 
@@ -44,7 +44,7 @@ git push --follow-tags
 npm run changeset pre exit
 
 # Create stable release
-npm run version-packages
+npm run version
 git push --follow-tags
 
 # Merge to develop
