@@ -41,3 +41,5 @@ jobs:
           # validation of the PR title and the pull request checks remain pending.
           # Note that a second check will be reported if this is enabled.
           wip: true
+          scopes: |
+            breaking
