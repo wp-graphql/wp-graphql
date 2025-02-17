@@ -1,5 +1,44 @@
 # Changelog
 
+## 2.0.0
+
+### BREAKING CHANGE UPDATE
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
+## 1.32.1
+
+# Release Notes
+
+## Chores / Bugfixes
+
+- [#3308](https://github.com/wp-graphql/wp-graphql/pull/3308): fix: update term mutation was preventing terms from removing the parentId
+
+
+## 1.32.0
+
+## New Features
+
+- [#3294](https://github.com/wp-graphql/wp-graphql/pull/3294): feat: introduce new fields for getting mediaItem files and filePaths
+
+## Chores / Bugfixes
+
+- [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293): fix: correct the resolver for the MediaDetails.file field to return the file name
+- [#3299](https://github.com/wp-graphql/wp-graphql/pull/3299): chore: restore excluded PHPCS rules
+- [#3301](https://github.com/wp-graphql/wp-graphql/pull/3301): fix: React backwards-compatibility with WP < 6.6
+- [#3302](https://github.com/wp-graphql/wp-graphql/pull/3302): chore: update NPM dependencies
+- [#3297](https://github.com/wp-graphql/wp-graphql/pull/3297): fix: typo in `Extensions\Registry\get_extensions()` method name
+- [#3303](https://github.com/wp-graphql/wp-graphql/pull/3303): chore: cleanup git cache
+- [#3298](https://github.com/wp-graphql/wp-graphql/pull/3298): chore: submit GF, Rank Math, and Headless Login plugins
+- [#3287](https://github.com/wp-graphql/wp-graphql/pull/3287): chore: fixes the syntax of the readme.txt so that the short description is shown on WordPress.org
+- [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: Updated docs link for example of hierarchical data
+
+
 ## 1.32.1
 
 ### Chores / Bugfixes
@@ -113,7 +152,7 @@ In [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293) a bug was fixed i
 
 ### Upgrade Notice
 
-This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users. 
+This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users.
 
 While there are no intentional breaking changes, because this change impacts every user we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
 
@@ -138,7 +177,7 @@ While there are no intentional breaking changes, because this change impacts eve
 ### Chores / Bugfixes
 
 - [#3066](https://github.com/wp-graphql/wp-graphql/pull/3066): fix: merge query arg arrays instead of overriding.
-- [#3151](https://github.com/wp-graphql/wp-graphql/pull/3151): fix: update dev-deps and fix `WPGraphQL::get_static_schema()` 
+- [#3151](https://github.com/wp-graphql/wp-graphql/pull/3151): fix: update dev-deps and fix `WPGraphQL::get_static_schema()`
 - [#3152](https://github.com/wp-graphql/wp-graphql/pull/3152): fix: handle regression when implementing interface with identical args.
 - [#3153](https://github.com/wp-graphql/wp-graphql/pull/3153): chore(deps-dev): bump composer/composer from 2.7.6 to 2.7.7 in the composer group across 1 directory
 - [#3155](https://github.com/wp-graphql/wp-graphql/pull/3155): chore(deps-dev): bump the npm_and_yarn group across 1 directory with 2 updates
@@ -181,7 +220,7 @@ While there are no intentional breaking changes, because this change impacts eve
     - Update generic Exceptions to InvariantViolation
 - [#3127](https://github.com/wp-graphql/wp-graphql/pull/3127): chore: update references to the WPGraphQL Slack Community to point to the new WPGraphQL Discord community instead.
 - [#3122](https://github.com/wp-graphql/wp-graphql/pull/3122): chore: relocate `AbstractConnectionResolver::is_valid_offset()` with other abstract methods.
-- 
+-
 ## 1.25.0
 
 ### Upgrade Notice
@@ -260,7 +299,7 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 
 ### Chores / Bugfixes
 
-- [#3062](https://github.com/wp-graphql/wp-graphql/pull/3062): ci: pin wp-browser to "<3.5" to allow automated tests to run properly 
+- [#3062](https://github.com/wp-graphql/wp-graphql/pull/3062): ci: pin wp-browser to "<3.5" to allow automated tests to run properly
 - [#3057](https://github.com/wp-graphql/wp-graphql/pull/3057): fix: `admin_enqueue_scripts` callback should expect a possible `null` value passed to it
 - [#3048](https://github.com/wp-graphql/wp-graphql/pull/3048): fix: `isPostsPage` on content type
 - [#3043](https://github.com/wp-graphql/wp-graphql/pull/3043): fix: return empty when filtering `menuItems` by a location with no assigned items
@@ -289,7 +328,7 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 ### Chores / Bugfixes
 
 - [#3022](https://github.com/wp-graphql/wp-graphql/pull/3022): chore: add @justlevine to list of contributors! 🙌 🥳
-- [#3011](https://github.com/wp-graphql/wp-graphql/pull/3011): chore: update composer dev-dependencies and use php-compatibility:develop branch to 8.0+ lints. Thanks @justlevine! 
+- [#3011](https://github.com/wp-graphql/wp-graphql/pull/3011): chore: update composer dev-dependencies and use php-compatibility:develop branch to 8.0+ lints. Thanks @justlevine!
 - [#3010](https://github.com/wp-graphql/wp-graphql/pull/3010): chore: implement stricter PHPDoc types. Thanks @justlevine!
 - [#3009](https://github.com/wp-graphql/wp-graphql/pull/3009): chore: implement stricter PHPStan config and clean up unnecessary type-guards. Thanks @justlevine!
 - [#3007](https://github.com/wp-graphql/wp-graphql/pull/3007): fix: call html_entity_decode() with explicit flags and decode single-quotes. Thanks @justlevine!
@@ -309,7 +348,7 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 
 - [#2989](https://github.com/wp-graphql/wp-graphql/pull/2989): fix: make User.url public
 - [#2990](https://github.com/wp-graphql/wp-graphql/pull/2990): chore: autolint tests with phpcbf
-- [#2992](https://github.com/wp-graphql/wp-graphql/pull/2992): fix: add polyfills for `str_starts_with()` and `str_ends_with()` to prevent fatal errors in `PHP < 8.0` 
+- [#2992](https://github.com/wp-graphql/wp-graphql/pull/2992): fix: add polyfills for `str_starts_with()` and `str_ends_with()` to prevent fatal errors in `PHP < 8.0`
 
 ## 1.18.2
 
@@ -381,18 +420,18 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 ### Upgrade Notice
 
 **WPGraphQL Smart Cache**
-For WPGraphQL Smart Cache users, you should update WPGraphQL Smart Cache to v1.2.0 when updating 
+For WPGraphQL Smart Cache users, you should update WPGraphQL Smart Cache to v1.2.0 when updating
 WPGraphQL to v1.16.0 to ensure caches continue to purge as expected.
 
 **Cursor Pagination Updates**
 This version fixes some behaviors of Cursor Pagination which _may_ lead to behavior changes in your application.
 
-As with any release, we recommend you test in staging environments. For this release, specifically any 
-queries you have using pagination arguments (`first`, `last`, `after`, `before`). 
+As with any release, we recommend you test in staging environments. For this release, specifically any
+queries you have using pagination arguments (`first`, `last`, `after`, `before`).
 
 ### New Features
 
-- [#2918](https://github.com/wp-graphql/wp-graphql/pull/2918): feat: Use graphql endpoint without scheme in url header. 
+- [#2918](https://github.com/wp-graphql/wp-graphql/pull/2918): feat: Use graphql endpoint without scheme in url header.
 - [#2882](https://github.com/wp-graphql/wp-graphql/pull/2882): feat: Config and Cursor Classes refactor
 
 ## 1.15.0
@@ -510,7 +549,7 @@ queries you have using pagination arguments (`first`, `last`, `after`, `before`)
 - [#2779](https://github.com/wp-graphql/wp-graphql/pull/2779): ci: test against WordPress 6.2. Thanks @justlevine!
 - [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostObjectUnion and TermObjectUnion. Thanks @justlevine!
 - [#2782](https://github.com/wp-graphql/wp-graphql/pull/2782): ci: fix deprecation warnings in Github workflows. Thanks @justlevine!
-- [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests. 
+- [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests.
 
 ## 1.14.0
 
