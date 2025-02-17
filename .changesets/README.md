@@ -11,7 +11,7 @@ Changesets are automatically generated when PRs are merged based on:
    - `fix:` = patch version bump
    - Breaking changes can be indicated by:
      - Adding an exclamation mark: `feat!:` or `fix!:`
-     - Using a breaking scope: `feat(breaking):` or `fix(breaking):`
+     - Note: Any valid scope can be used (e.g., `feat(graphiql):`), but breaking changes should use the `!` suffix
 
 2. PR Description Sections:
    - Breaking Changes: Used to identify major version bumps
