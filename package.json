@@ -16,6 +16,7 @@
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
     "start": "wp-scripts start",
+    "test:changesets": "jest scripts/__tests__",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
     "test:unit": "wp-scripts test-unit-js --config tests/js-unit/jest.config.js",
@@ -25,7 +26,10 @@
     "lint:js:fix": "wp-scripts lint-js --fix ./src",
     "lint:js:src": "wp-scripts lint-js ./src",
     "wp-env": "wp-env",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "repository": {
     "type": "git",
@@ -58,6 +62,7 @@
     "use-query-params": "1.2.3"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@babel/preset-env": "^7.26.8",
     "@babel/preset-react": "^7.26.3",
     "@playwright/test": "^1.50.1",
