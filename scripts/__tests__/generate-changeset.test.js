@@ -11,6 +11,13 @@ jest.mock('@changesets/cli', () => ({
     }))
 }));
 
+jest.mock('../scan-since-tags', () => ({
+    generateSinceTagsMetadata: jest.fn().mockResolvedValue({
+        sinceFiles: ['src/test.php'],
+        totalTags: 1
+    })
+}));
+
 describe('Changeset Generation', () => {
     describe('parseTitle', () => {
         test('parses feat type correctly', () => {
@@ -153,7 +160,9 @@ Update steps
             expect(result).toMatchObject({
                 type: 'major',
                 breaking: true,
-                pr: 123
+                pr: 123,
+                sinceFiles: ['src/test.php'],
+                totalSinceTags: 1
             });
         });
 

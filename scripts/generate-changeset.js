@@ -1,6 +1,7 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const { generateSinceTagsMetadata } = require('./scan-since-tags');
 
 /**
  * Parse PR title for type and breaking changes
@@ -34,6 +35,7 @@ function parsePRBody(body) {
 async function createChangeset({ title, body, prNumber }) {
     const { type, isBreaking } = parseTitle(title);
     const sections = parsePRBody(body);
+    const sinceMetadata = await generateSinceTagsMetadata();
 
     // Determine bump type
     const bumpType = isBreaking ? 'major' : (type === 'feat' ? 'minor' : 'patch');
@@ -47,13 +49,17 @@ async function createChangeset({ title, body, prNumber }) {
         major: isBreaking,
         links: prNumber ? [`[PR #${prNumber}](${process.env.PR_URL})`] : [],
         breakingChanges: sections.breaking,
-        upgradeInstructions: sections.upgrade
+        upgradeInstructions: sections.upgrade,
+        sinceFiles: sinceMetadata.sinceFiles,
+        totalSinceTags: sinceMetadata.totalTags
     });
 
     return {
         type: bumpType,
         breaking: Boolean(isBreaking || sections.breaking),
         pr: Number(prNumber) || undefined,
+        sinceFiles: sinceMetadata.sinceFiles,
+        totalSinceTags: sinceMetadata.totalTags,
         ...result
     };
 }
