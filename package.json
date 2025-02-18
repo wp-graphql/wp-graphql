@@ -16,6 +16,9 @@
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
     "start": "wp-scripts start",
+    "check-versions": "node --no-warnings scripts/check-versions.js",
+    "update-since": "node scripts/update-since-tags.js",
+    "simulate-release": "node scripts/simulate-release.js",
     "test:changesets": "jest scripts/__tests__",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
@@ -63,6 +66,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
+    "@changesets/get-github-info": "^0.6.0",
     "@babel/preset-env": "^7.26.8",
     "@babel/preset-react": "^7.26.3",
     "@playwright/test": "^1.50.1",
@@ -79,6 +83,7 @@
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "husky": "^9.1.7",
+    "glob": "^8.1.0",
     "lint-staged": "^15.4.3",
     "sort-package-json": "^2.14.0",
     "webpack-remove-empty-scripts": "^1.0.4"
