@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - master
-      - "1.x/master"  # For maintenance releases
   workflow_dispatch:
     inputs:
       tag:
@@ -29,8 +28,8 @@ jobs:
       - name: Validate Branch
         run: |
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          if [[ "$BRANCH" != "master" && "$BRANCH" != "1.x/master" ]]; then
-            echo "Error: Releases can only be created from master or 1.x/master"
+          if [[ "$BRANCH" != "master" ]]; then
+            echo "Error: Releases can only be created from master"
             exit 1
           fi
 

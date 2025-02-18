@@ -133,13 +133,12 @@ When a release is created:
 ## Branch Strategy
 
 ### Active Development (v2.x)
-- `master`: Current stable release (v2.x.x)
-- `develop`: Development branch for next v2.x release
+- `master`: Current stable release (2.x.x)
+- `develop`: Development branch for next 2.x release
 - All feature/bugfix PRs target `develop`
 
 ### Maintenance Mode (v1.x)
-- `1.x/master`: Stable v1.x release
-- `1.x/develop`: Development branch for v1.x bugfixes
+> **Note**: 1.x branch is in limited support mode with manual releases only.
 - Only critical bug fixes and security patches
 - Limited to latest minor.patch of v1.x series
 
@@ -172,24 +171,6 @@ npm run changeset publish
 # After release, merge to master
 git checkout master
 git merge develop
-```
-
-### Maintenance Release (v1.x)
-
-```bash
-# For critical bug fixes/security updates only
-git checkout 1.x/develop
-git pull origin 1.x/develop
-
-# Create patch release
-npm run changeset version
-
-# Review changes...
-npm run changeset publish
-
-# After release, merge to 1.x/master
-git checkout 1.x/master
-git merge 1.x/develop
 ```
 
 ### Beta Releases

@@ -62,9 +62,11 @@ flowchart TD
 
 ### 1. Standard Releases (`deploy-to-wordpress.yml`)
 Triggered by:
-- Push to `master` or `1.x/master`
+- Push to `master`
 - Manual workflow dispatch
 - Published GitHub release
+
+> **Note**: 1.x releases are handled manually and do not use this automation.
 
 Steps:
 1. Version Validation:
