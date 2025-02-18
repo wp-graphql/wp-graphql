@@ -1,0 +1,67 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - next-major
+
+jobs:
+  beta:
+    name: Create Beta Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Branch
+        run: |
+          if [[ "$(git rev-parse --abbrev-ref HEAD)" != "next-major" ]]; then
+            echo "Error: Beta releases can only be created from next-major branch"
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate No Stable Tag Update
+        run: |
+          if grep -q "Stable tag:" readme.txt; then
+            CURRENT_TAG=$(grep "Stable tag:" readme.txt | cut -d' ' -f3)
+            if [[ "$CURRENT_TAG" != $(git show origin/master:readme.txt | grep "Stable tag:" | cut -d' ' -f3) ]]; then
+              echo "Error: Beta releases should not update the stable tag"
+              exit 1
+            fi
+          fi
+
+      - name: Create Beta Release
+        run: |
+          # Only enter pre-release mode if not already in it
+          if ! grep -q "mode: pre" .changeset/config.json; then
+            npm run changeset pre enter beta
+          fi
+
+          # Run with error handling
+          if ! npm run version; then
+            echo "Error running version command"
+            exit 1
+          fi
+
+          if ! npm run release; then
+            echo "Error running release command"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Beta Version
+        run: |
+          if ! grep -q "beta" package.json; then
+            echo "Error: Version number does not contain beta suffix"
+            exit 1
+          fi

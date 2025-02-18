@@ -2,6 +2,8 @@
 
 WPGraphQL uses beta releases to test major changes and breaking features before they are released to the public.
 
+> **Note**: Beta releases are automated via GitHub Actions. See [GitHub Workflows](../.github/workflows/README.md) for technical details.
+
 ## Branch Strategy
 
 Beta releases are developed on the `next-major` branch:
@@ -10,47 +12,27 @@ Beta releases are developed on the `next-major` branch:
 - Regular features and fixes continue to target `develop`
 - Beta releases are not deployed to WordPress.org
 
-## Creating Beta Releases
+## Beta Release Process
 
-### Starting a Beta Cycle
+### Automated Process
+The beta release process is automated via GitHub Actions:
+1. PRs with breaking changes target the `next-major` branch
+2. When changes are merged:
+   - Version is automatically bumped with beta suffix
+   - Changelog is updated
+   - GitHub pre-release is created
+   - Stable tag in readme.txt remains unchanged
 
-```bash
-# Switch to next-major branch
-git checkout next-major
-
-# Enter pre-release mode
-npm run changeset pre enter beta
-
-# Create first beta release
-npm run version
-git push --follow-tags
-```
-
-### Creating Additional Beta Releases
-
-```bash
-# Ensure you're on next-major
-git checkout next-major
-
-# Create next beta release
-npm run version
-git push --follow-tags
-```
-
-### Promoting to Stable
-
-```bash
-# Exit pre-release mode
-npm run changeset pre exit
-
-# Create stable release
-npm run version
-git push --follow-tags
-
-# Merge to develop
-git checkout develop
-git merge next-major
-```
+### Manual Steps
+Some aspects require manual review:
+1. Before merging PRs:
+   - Ensure breaking changes are properly documented
+   - Verify upgrade instructions are included
+   - Check `@since todo` tags are present
+2. Before releasing:
+   - Review changelog entries
+   - Verify version numbers
+   - Test beta release
 
 ## Version Numbering
 - Beta releases: `v3.0.0-beta.1`, `v3.0.0-beta.2`, etc.
@@ -60,7 +42,14 @@ git merge next-major
 
 Beta releases can be tested by:
 1. Installing from the GitHub release assets
-2. Using Composer with the specific beta version
+2. Using Composer with the specific beta version:
+   ```json
+   {
+     "require": {
+       "wp-graphql/wp-graphql": "3.0.0-beta.1"
+     }
+   }
+   ```
 3. Cloning the repository and checking out the beta tag
 
 ## Providing Feedback
@@ -71,6 +60,7 @@ Feedback on beta releases can be provided through:
 3. WPGraphQL Discord
 
 ## Notes
-- The stable tag in readme.txt is not updated for beta releases
 - Beta releases are marked as pre-releases on GitHub
-- Breaking changes should include upgrade notes
+- The stable tag in readme.txt is not updated for beta releases
+- Breaking changes must include upgrade notes
+- Beta releases are not deployed to WordPress.org

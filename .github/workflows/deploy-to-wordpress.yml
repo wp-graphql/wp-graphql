@@ -2,7 +2,11 @@ name: Deploy to WordPress.org
 
 on:
   release:
-    types: [ published ]
+    types: [published]
+  push:
+    branches:
+      - master
+      - "1.x/master"  # For maintenance releases
   workflow_dispatch:
     inputs:
       tag:
@@ -11,11 +15,61 @@ on:
         default: 'latest'
 
 jobs:
-  tag:
-    name: New release
+  version:
+    name: Version and Release
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'ci skip')
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Branch
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [[ "$BRANCH" != "master" && "$BRANCH" != "1.x/master" ]]; then
+            echo "Error: Releases can only be created from master or 1.x/master"
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: npm run version
+          publish: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy to WordPress.org
+    needs: [version]
+    if: needs.version.outputs.published == 'true' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate Version Numbers
+        run: |
+          # Check version consistency
+          PHP_VERSION=$(grep "Version:" wp-graphql.php | cut -d' ' -f2)
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          CONSTANTS_VERSION=$(grep "WPGRAPHQL_VERSION" constants.php | cut -d"'" -f4)
+
+          if [ "$PHP_VERSION" != "$PACKAGE_VERSION" ] || [ "$PHP_VERSION" != "$CONSTANTS_VERSION" ]; then
+            echo "Error: Version numbers do not match across files"
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
