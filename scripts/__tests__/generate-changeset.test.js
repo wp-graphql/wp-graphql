@@ -1,5 +1,16 @@
 const { parseTitle, parsePRBody, createChangeset } = require('../generate-changeset');
 
+jest.mock('@changesets/cli', () => ({
+    createChangeset: jest.fn().mockImplementation(async (options) => ({
+        summary: options.summary || '',
+        releases: options.releases || [],
+        major: options.major || false,
+        links: options.links || [],
+        breakingChanges: options.breakingChanges || '',
+        upgradeInstructions: options.upgradeInstructions || ''
+    }))
+}));
+
 describe('Changeset Generation', () => {
     describe('parseTitle', () => {
         test('parses feat type correctly', () => {
@@ -130,7 +141,7 @@ Breaking details
 ### Upgrade Instructions
 Update steps
             `,
-            number: 123
+            prNumber: 123
         };
 
         beforeEach(() => {
@@ -148,11 +159,13 @@ Update steps
 
         test('handles missing PR sections', async () => {
             const result = await createChangeset({
-                ...mockPR,
-                body: 'Just a description'
+                title: 'fix: simple fix',
+                body: 'Just a description',
+                prNumber: 456
             });
             expect(result).toBeDefined();
             expect(result.breaking).toBe(false);
+            expect(result.type).toBe('patch');
         });
     });
 });

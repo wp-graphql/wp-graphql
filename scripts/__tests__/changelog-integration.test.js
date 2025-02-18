@@ -5,6 +5,13 @@ const fs = require('fs');
 jest.mock('fs');
 jest.mock('@changesets/get-github-info');
 
+jest.mock('@changesets/cli/changelog', () => ({
+    getReleaseLine: async (changeset) => `${changeset.summary} (${changeset.commit})`,
+    default: {
+        getReleaseLine: async (changeset) => `${changeset.summary} (${changeset.commit})`
+    }
+}));
+
 describe('Changelog Integration', () => {
     beforeEach(() => {
         jest.clearAllMocks();

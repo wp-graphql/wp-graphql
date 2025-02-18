@@ -2,10 +2,9 @@ require('dotenv').config();
 const { getCurrentVersions, updateVersions } = require('./version-management');
 const { updateAllSinceTags } = require('./update-since-tags');
 const { getReadmeTxtChangelog } = require('./changelog-formatters/readme-txt');
+const chalk = require('chalk');
 
 async function simulateRelease(newVersion, options = { beta: false }) {
-    const { default: chalk } = await import('chalk');
-
     try {
         // 1. Check current versions
         console.log(chalk.blue('\n1. Checking current versions...'));

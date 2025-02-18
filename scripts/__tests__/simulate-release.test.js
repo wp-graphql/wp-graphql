@@ -6,6 +6,12 @@ const { getReadmeTxtChangelog } = require('../changelog-formatters/readme-txt');
 jest.mock('../version-management');
 jest.mock('../update-since-tags');
 jest.mock('../changelog-formatters/readme-txt');
+jest.mock('chalk', () => ({
+    blue: (text) => text,
+    green: (text) => text,
+    yellow: (text) => text,
+    red: (text) => text
+}));
 
 describe('Release Simulation', () => {
     beforeEach(() => {

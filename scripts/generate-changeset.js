@@ -8,12 +8,12 @@ const fs = require('fs');
 function parseTitle(title) {
     const typeMatch = title.match(/^(feat|fix|build|chore|ci|docs|perf|refactor|revert|style|test)(?:\([^)]+\))?(!)?:/);
     if (!typeMatch) {
-        throw new Error('PR title does not match conventional commit format');
+        throw new Error('PR title does not follow conventional commit format');
     }
 
     return {
         type: typeMatch[1],
-        isBreaking: typeMatch[3] === '!'
+        isBreaking: typeMatch[2] === '!'
     };
 }
 
@@ -41,14 +41,21 @@ async function createChangeset({ title, body, prNumber }) {
     // Use changesets to create the changeset
     const { createChangeset } = require('@changesets/cli');
 
-    await createChangeset({
+    const result = await createChangeset({
         summary: sections.description,
         releases: [{ name: '@wp-graphql/wp-graphql', type: bumpType }],
         major: isBreaking,
-        links: [`[PR #${prNumber}](${process.env.PR_URL})`],
+        links: prNumber ? [`[PR #${prNumber}](${process.env.PR_URL})`] : [],
         breakingChanges: sections.breaking,
         upgradeInstructions: sections.upgrade
     });
+
+    return {
+        type: bumpType,
+        breaking: Boolean(isBreaking || sections.breaking),
+        pr: Number(prNumber) || undefined,
+        ...result
+    };
 }
 
 // When run directly from command line
