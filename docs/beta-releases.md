@@ -14,14 +14,54 @@ Beta releases are developed on the `next-major` branch:
 
 ## Beta Release Process
 
+> **Note**: Beta releases are deployed to WordPress.org but maintain the stable tag from the last stable release.
+> This allows users to explicitly install beta versions while keeping stable installations on the last stable release.
+
+```mermaid
+flowchart TD
+    %% PR and Changeset Process
+    PR[PR Merged] --> GC[Generate Changeset]
+    GC --> ST[Scan @since todo tags]
+    ST --> CPR[Create Changeset PR]
+    CPR --> |Merged to develop| DEV[develop branch]
+
+    %% Standard Release Flow
+    subgraph "Standard Release"
+        DEV --> |Merge to master| M[master branch]
+        M --> VB[Version Bump]
+        VB --> SV[Sync Versions<br/>package.json<br/>wp-graphql.php<br/>constants.php]
+        SV --> US[Update @since tags]
+        US --> CL[Generate Changelogs]
+
+        %% Changelog Generation
+        CL --> MD[CHANGELOG.md<br/>Developer Format]
+        CL --> RT[readme.txt<br/>WordPress.org Format]
+
+        MD & RT --> GR[Create GitHub Release]
+        GR --> WO[Deploy to WordPress.org<br/>Update Stable Tag]
+    end
+
+    %% Beta Release Flow
+    subgraph "Beta Release"
+        B[next-major branch] --> BV[Version Bump with Beta]
+        BV --> BSV[Sync Versions<br/>Keep Stable Tag]
+        BSV --> BUS[Update @since tags]
+        BUS --> BCL[Generate Changelogs]
+        BCL --> BGR[Create GitHub Pre-release]
+        BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
+    end
+```
+
 ### Automated Process
 The beta release process is automated via GitHub Actions:
 1. PRs with breaking changes target the `next-major` branch
 2. When changes are merged:
    - Version is automatically bumped with beta suffix
    - Changelog is updated
-   - GitHub pre-release is created
-   - Stable tag in readme.txt remains unchanged
+   - Git tag is created
+   - GitHub pre-release is created automatically
+   - Plugin is deployed to WordPress.org
+   - Stable tag remains pointing to last stable release
 
 ### Changeset Generation
 Breaking changes are tracked through changesets, which are automatically generated when PRs are merged. To indicate a breaking change:

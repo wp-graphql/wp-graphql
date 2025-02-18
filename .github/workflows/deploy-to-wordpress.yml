@@ -52,6 +52,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.changesets.outputs.version }}
+          release_name: v${{ steps.changesets.outputs.version }}
+          body: ${{ steps.changesets.outputs.publishedPackages }}
+          draft: false
+          prerelease: false
+
   deploy:
     name: Deploy to WordPress.org
     needs: [version]

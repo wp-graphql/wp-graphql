@@ -46,18 +46,8 @@ jobs:
             npm run changeset pre enter beta
           fi
 
-          # Run with error handling
-          if ! npm run version; then
-            echo "Error running version command"
-            exit 1
-          fi
-
-          if ! npm run release; then
-            echo "Error running release command"
-            exit 1
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npm run version
+          npm run release
 
       - name: Verify Beta Version
         run: |
@@ -65,3 +55,24 @@ jobs:
             echo "Error: Version number does not contain beta suffix"
             exit 1
           fi
+
+      - name: Create GitHub Pre-release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: v${{ steps.version.outputs.version }}
+          body: ${{ steps.version.outputs.changelog }}
+          draft: false
+          prerelease: true
+
+      # Deploy to WordPress.org (but don't update stable tag)
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wp-graphql

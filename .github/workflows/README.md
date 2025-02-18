@@ -23,6 +23,43 @@ Triggered when a PR is merged:
 
 ## Release Process
 
+> **Note**: All releases are deployed to WordPress.org, with different handling for stable vs beta releases.
+
+```mermaid
+flowchart TD
+    %% PR and Changeset Process
+    PR[PR Merged] --> GC[Generate Changeset]
+    GC --> ST[Scan @since todo tags]
+    ST --> CPR[Create Changeset PR]
+    CPR --> |Merged to develop| DEV[develop branch]
+
+    %% Standard Release Flow
+    subgraph "Standard Release"
+        DEV --> |Merge to master| M[master branch]
+        M --> VB[Version Bump]
+        VB --> SV[Sync Versions<br/>package.json<br/>wp-graphql.php<br/>constants.php]
+        SV --> US[Update @since tags]
+        US --> CL[Generate Changelogs]
+
+        %% Changelog Generation
+        CL --> MD[CHANGELOG.md<br/>Developer Format]
+        CL --> RT[readme.txt<br/>WordPress.org Format]
+
+        MD & RT --> GR[Create GitHub Release]
+        GR --> WO[Deploy to WordPress.org<br/>Update Stable Tag]
+    end
+
+    %% Beta Release Flow
+    subgraph "Beta Release"
+        B[next-major branch] --> BV[Version Bump with Beta]
+        BV --> BSV[Sync Versions<br/>Keep Stable Tag]
+        BSV --> BUS[Update @since tags]
+        BUS --> BCL[Generate Changelogs]
+        BCL --> BGR[Create GitHub Pre-release]
+        BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
+    end
+```
+
 ### 1. Standard Releases (`deploy-to-wordpress.yml`)
 Triggered by:
 - Push to `master` or `1.x/master`
@@ -37,10 +74,12 @@ Steps:
    - Collects all changesets
    - Updates version numbers
    - Generates changelogs
+   - Creates git tag
    - Creates GitHub release
 3. WordPress.org Deployment:
    - Builds plugin
    - Deploys to WordPress.org
+   - Updates stable tag to new version
    - Creates release artifacts
 
 ### 2. Beta Releases (`beta-release.yml`)
@@ -52,7 +91,7 @@ Triggered by push to `next-major` branch:
    - Enters pre-release mode if needed
    - Updates version with beta suffix
    - Creates GitHub pre-release
-   - Does not deploy to WordPress.org
+   - Deploys to WordPress.org (keeping existing stable tag)
 
 ## Changelog Generation
 
@@ -64,7 +103,8 @@ Two changelog formats are maintained:
 2. `readme.txt`:
    - WordPress.org compatible format
    - Groups changes by type
-   - Updates stable tag (non-beta only)
+   - Updates stable tag (standard releases only)
+   - Follows WordPress.org readme standards
 
 ## Version Management
 
