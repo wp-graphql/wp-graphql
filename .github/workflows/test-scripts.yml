@@ -42,11 +42,3 @@ jobs:
 
       - name: Run Tests
         run: npm run test:changesets
-
-      # Optional: Add coverage reporting
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: scripts
-          fail_ci_if_error: true
