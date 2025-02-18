@@ -96,6 +96,6 @@ Some steps require manual review:
    - Check WordPress.org readme format
 
 ## Related Documentation
-- [Changesets Guide](../../.changesets/README.md)
+- [Changesets Guide](../../.changeset/README.md)
 - [Beta Releases Guide](../../docs/beta-releases.md)
 - [Upgrade Guide](../../docs/upgrading.md)

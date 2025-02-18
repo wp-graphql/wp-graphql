@@ -2,7 +2,7 @@
 
 WPGraphQL uses beta releases to test major changes and breaking features before they are released to the public.
 
-> **Note**: Beta releases are automated via GitHub Actions. See [GitHub Workflows](../.github/workflows/README.md) for technical details.
+> **Note**: Beta releases are automated via GitHub Actions. See [GitHub Workflows](../.github/workflows/README.md) and [Changesets](../.changeset/README.md) for technical details.
 
 ## Branch Strategy
 
@@ -22,6 +22,18 @@ The beta release process is automated via GitHub Actions:
    - Changelog is updated
    - GitHub pre-release is created
    - Stable tag in readme.txt remains unchanged
+
+### Changeset Generation
+Breaking changes are tracked through changesets, which are automatically generated when PRs are merged. To indicate a breaking change:
+
+1. Add `!` suffix to your PR title: `feat!: breaking change`
+2. Document breaking changes in PR description
+3. Include upgrade instructions in PR description
+
+The automation will handle:
+- Version bumping
+- Changelog updates
+- @since tag updates
 
 ### Manual Steps
 Some aspects require manual review:

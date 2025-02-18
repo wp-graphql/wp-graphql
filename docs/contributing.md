@@ -5,11 +5,46 @@ title: "Contributing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run the docker container locally as well as utilize xdebug for debugging and tracing.
 
+## Requirements
+
+- Node.js >= 20 (LTS)
+- npm >= 8
+- Docker
+- Composer
+- PHP 7.4+
+
+> **Note**: WPGraphQL uses Node.js for development tooling, including testing, changelog generation, and release automation.
+
+## Development Workflow
+
+WPGraphQL uses several automated processes to maintain consistency and quality:
+
+1. **Conventional Commits**
+   - PR titles must follow the format (e.g., `feat:`, `fix:`)
+   - Breaking changes use `!` suffix (e.g., `feat!:`)
+   - See [Conventional Commits](https://www.conventionalcommits.org/) for more details
+
+2. **Automated Changesets**
+   - Generated automatically when PRs are merged
+   - Based on PR title and description
+   - Includes breaking changes and upgrade notes
+
+3. **Version Management**
+   - Automatically updates version numbers
+   - Updates `@since todo` tags
+   - Maintains changelog in multiple formats
+
+4. **Testing**
+   - Script tests for automation code
+   - E2E tests for GraphiQL
+   - Version management validation
+   - Release simulation
+
 In order to continue, you should follow steps to setup Docker running on your machine.
 
 ### Build the WordPress Site
 
-The `app` docker image starts a running WordPress site with the local wp-graphql directory installed and activated. Local changes to the source code is immediately reflects in the app.
+The `app` docker image starts a running WordPress site with the local wp-graphql directory installed and activated. Local changes to the source code is immediately reflects in the app.
 
 First step, clone the source for wp-graphql from github.
 
@@ -81,7 +116,7 @@ Use the environment variable SUITES to specify individual test files for quicker
 
 Create or add the following configuration to your `.vscode/launch.json` in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
-If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
+If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
 
 ```json
 {
@@ -106,3 +141,48 @@ If you have WordPress core files in a directory for local development, you can a
     ]
 }
 ```
+
+## Changesets and Releases
+
+WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and changelogs. When contributing:
+
+1. Your PR title must follow [conventional commits](https://www.conventionalcommits.org/) format:
+   - `feat:` for new features (minor version bump)
+   - `fix:` for bug fixes (patch version bump)
+   - Add `!` suffix for breaking changes: `feat!:` or `fix!:`
+
+2. Include in your PR description:
+   - Clear explanation of changes
+   - Breaking changes (if any)
+   - Upgrade instructions (if breaking)
+
+3. Add `@since todo` tags to new functions/classes
+   - These will be automatically updated during release
+
+## Testing
+
+### Script Tests
+```shell
+# Run tests for our automation scripts
+npm run test:changesets
+```
+
+### E2E Tests
+```shell
+# Run GraphiQL E2E tests
+npm run test:e2e
+```
+
+### Version Management
+```shell
+# Check current versions across files
+npm run check-versions
+
+# Simulate a release (dry-run)
+npm run simulate-release 2.0.0
+
+# Simulate a beta release
+npm run simulate-release 2.0.0-beta.1 --beta
+```
+
+> **Note**: The simulation commands help test the release process without actually creating releases.
