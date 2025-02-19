@@ -192,4 +192,5 @@
 			<property name="skipIfInheritdoc" value="true" />
 		</properties>
 	</rule>
+	<rule ref="./phpcs/WPGraphQL/PHPCS/Sniffs/Functions/VersionParameterSniff.php"/>
 </ruleset>

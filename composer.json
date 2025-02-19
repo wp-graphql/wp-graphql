@@ -29,6 +29,7 @@
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-cli": "^1.0",
 		"codeception/module-db": "^1.0",
@@ -47,7 +48,8 @@
 		"slevomat/coding-standard": "^8.9",
 		"szepeviktor/phpstan-wordpress": "~2.0.1",
 		"wp-cli/wp-cli-bundle": "^2.8",
-		"wp-graphql/wp-graphql-testcase": "^3.0"
+		"wp-graphql/wp-graphql-testcase": "^3.0",
+		"composer/semver": "^3.0"
 	},
 	"config": {
 		"platform": {
@@ -104,5 +106,10 @@
 			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
 			"rm -rf plugin-build/wp-graphql/"
 		]
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"WPGraphQL\\PHPCS\\": "phpcs/WPGraphQL/PHPCS/"
+		}
 	}
 }
