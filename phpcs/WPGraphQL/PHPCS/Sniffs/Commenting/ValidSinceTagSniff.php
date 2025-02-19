@@ -80,8 +80,7 @@ class ValidSinceTagSniff implements Sniff
                 );
 
                 if ($fix === true) {
-                    $newContent = str_replace($version, 'next-version', $tokens[$versionPtr]['content']);
-                    $phpcsFile->fixer->replaceToken($versionPtr, $newContent);
+                    $this->fixVersion($phpcsFile, $versionPtr, $version, 'next-version');
                 }
             }
             return;
@@ -89,13 +88,32 @@ class ValidSinceTagSniff implements Sniff
 
         // Validate semver
         if (!$this->isValidSemver($version)) {
-            $phpcsFile->addError(
+            $fix = $phpcsFile->addFixableError(
                 'Version for @since tag must be a valid semver version or "next-version" but got "%s"',
                 $versionPtr,
                 'InvalidVersion',
                 [$version]
             );
+
+            if ($fix === true) {
+                $this->fixVersion($phpcsFile, $versionPtr, $version, 'next-version');
+            }
         }
+    }
+
+    private function fixVersion(File $phpcsFile, $versionPtr, $oldVersion, $newVersion)
+    {
+        $tokens = $phpcsFile->getTokens();
+        $content = $tokens[$versionPtr]['content'];
+
+        // Replace just the version part, keeping any description that follows
+        $newContent = str_replace($oldVersion, $newVersion, $content);
+
+        $phpcsFile->fixer->beginChangeset();
+        $phpcsFile->fixer->replaceToken($versionPtr, $newContent);
+        $phpcsFile->fixer->endChangeset();
+
+        return true;
     }
 
     /**

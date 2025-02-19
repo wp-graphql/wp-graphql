@@ -84,27 +84,16 @@ class VersionParameterSniff implements Sniff
 
         // Find the version parameter
         $parameters = $this->getFunctionParameters($phpcsFile, $stackPtr);
+
         if (!isset($parameters[$paramPosition - 1])) {
             return;
         }
 
         $versionParam = $parameters[$paramPosition - 1]['raw'];
-
-        // Clean the version string more thoroughly
         $version = trim(str_replace(["'", '"'], '', $versionParam));
-
-        // For debugging
-        if (!$this->isValidSemver($version)) {
-            error_log(sprintf(
-                'Failed to validate version. Raw: "%s", Cleaned: "%s"',
-                $versionParam,
-                $version
-            ));
-        }
 
         // Check if it's a valid placeholder
         if (in_array($version, $this->validPlaceholders, true)) {
-            // If using old placeholders, suggest @since next-version
             if ($version !== '@since next-version') {
                 $fix = $phpcsFile->addFixableWarning(
                     'Please use "@since next-version" instead of "%s"',
@@ -114,10 +103,7 @@ class VersionParameterSniff implements Sniff
                 );
 
                 if ($fix === true) {
-                    $phpcsFile->fixer->replaceToken(
-                        $parameters[$paramPosition - 1]['start'],
-                        "'@since next-version'"
-                    );
+                    return $this->fixVersionParameter($phpcsFile, $parameters[$paramPosition - 1]);
                 }
             }
             return;
@@ -125,12 +111,16 @@ class VersionParameterSniff implements Sniff
 
         // Validate semver
         if (!$this->isValidSemver($version)) {
-            $phpcsFile->addError(
-                'Version parameter must be a valid semver version or "@since next-version" but got "%s"',
+            $fix = $phpcsFile->addFixableError(
+                'Invalid version "%s" in %s(). Must be a valid semver version or "@since next-version"',
                 $parameters[$paramPosition - 1]['start'],
                 'InvalidVersion',
-                [$version]
+                [$version, $functionName]
             );
+
+            if ($fix === true) {
+                return $this->fixVersionParameter($phpcsFile, $parameters[$paramPosition - 1]);
+            }
         }
     }
 
@@ -215,5 +205,28 @@ class VersionParameterSniff implements Sniff
         } catch (\UnexpectedValueException $e) {
             return false;
         }
+    }
+
+    private function fixVersionParameter(File $phpcsFile, array $parameter)
+    {
+        $tokens = $phpcsFile->getTokens();
+
+        // Get the full parameter content
+        $content = '';
+        for ($i = $parameter['start']; $i <= $parameter['end']; $i++) {
+            $content .= $tokens[$i]['content'];
+        }
+
+        $phpcsFile->fixer->beginChangeset();
+        $phpcsFile->fixer->replaceToken($parameter['start'], "'@since next-version'");
+
+        // Clear any remaining tokens
+        for ($i = $parameter['start'] + 1; $i <= $parameter['end']; $i++) {
+            $phpcsFile->fixer->replaceToken($i, '');
+        }
+
+        $phpcsFile->fixer->endChangeset();
+
+        return true;
     }
 }
