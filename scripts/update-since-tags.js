@@ -14,8 +14,8 @@ async function findSinceTodoFiles(pattern = 'src/**/*.php') {
  * Get all @since placeholders from a file
  */
 function getSincePlaceholders(content) {
-    // Update regex to only match specific patterns
-    const regex = /@since\s+(todo|next-version)|@next-version/g;
+    // Update regex to match all our valid placeholders
+    const regex = /@since\s+(todo|next-version|tbd)|@next-version/gi;
     const matches = content.match(regex);
     return matches ? matches.length : 0;
 }
@@ -28,10 +28,10 @@ function updateSinceTags(filePath, version) {
         let content = fs.readFileSync(filePath, 'utf8');
         const originalContent = content;
 
-        // Replace only specific patterns
+        // Replace placeholders with the actual version
         content = content.replace(
-            /@since\s+(todo|next-version)|@next-version/g,
-            `@since ${version}`
+            /@since\s+(todo|tbd|next-version)|@next-version/gi,
+            `@since ${version}`  // Use the provided version instead of 'next-version'
         );
 
         // Only write if content changed
@@ -122,9 +122,20 @@ if (require.main === module) {
     main();
 }
 
+/**
+ * Get count of @since todo tags in content
+ */
+function getSinceTodoTags(content) {
+    // Update to match all non-standard placeholders
+    const regex = /@since\s+(todo|tbd)|@next-version/gi;
+    const matches = content.match(regex);
+    return matches ? matches.length : 0;
+}
+
 module.exports = {
     findSinceTodoFiles,
     getSincePlaceholders,
     updateSinceTags,
-    updateAllSinceTags
+    updateAllSinceTags,
+    getSinceTodoTags
 };

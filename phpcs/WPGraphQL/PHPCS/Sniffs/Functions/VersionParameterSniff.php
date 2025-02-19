@@ -65,6 +65,20 @@ class VersionParameterSniff implements Sniff
      */
     public function process(File $phpcsFile, $stackPtr)
     {
+        // Skip files in certain directories
+        $file = $phpcsFile->getFilename();
+        $skipDirs = [
+            'scripts/__tests__',
+            '.changeset',
+            'docs',
+        ];
+
+        foreach ($skipDirs as $dir) {
+            if (strpos($file, $dir) !== false) {
+                return;
+            }
+        }
+
         $tokens = $phpcsFile->getTokens();
         $functionName = $tokens[$stackPtr]['content'];
 
