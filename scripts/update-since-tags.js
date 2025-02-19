@@ -11,24 +11,28 @@ async function findSinceTodoFiles(pattern = 'src/**/*.php') {
 }
 
 /**
- * Get all @since todo tags from a file
+ * Get all @since placeholders from a file
  */
-function getSinceTodoTags(content) {
-    const regex = /@since\s+todo/g;
+function getSincePlaceholders(content) {
+    // Update regex to only match specific patterns
+    const regex = /@since\s+(todo|next-version)|@next-version/g;
     const matches = content.match(regex);
     return matches ? matches.length : 0;
 }
 
 /**
- * Update @since todo tags in a file
+ * Update @since placeholders in a file
  */
 function updateSinceTags(filePath, version) {
     try {
         let content = fs.readFileSync(filePath, 'utf8');
         const originalContent = content;
 
-        // Replace @since todo with @since {version}
-        content = content.replace(/@since\s+todo/g, `@since ${version}`);
+        // Replace only specific patterns
+        content = content.replace(
+            /@since\s+(todo|next-version)|@next-version/g,
+            `@since ${version}`
+        );
 
         // Only write if content changed
         if (content !== originalContent) {
@@ -57,7 +61,7 @@ async function updateAllSinceTags(version, pattern = 'src/**/*.php') {
         for (const file of files) {
             try {
                 const content = fs.readFileSync(file, 'utf8');
-                if (getSinceTodoTags(content) > 0) {
+                if (getSincePlaceholders(content) > 0) {
                     const updated = updateSinceTags(file, version);
                     if (updated) {
                         results.updated.push(file);
@@ -120,7 +124,7 @@ if (require.main === module) {
 
 module.exports = {
     findSinceTodoFiles,
-    getSinceTodoTags,
+    getSincePlaceholders,
     updateSinceTags,
     updateAllSinceTags
 };

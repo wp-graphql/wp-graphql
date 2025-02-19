@@ -37,7 +37,6 @@ class VersionParameterSniff implements Sniff
     private $validPlaceholders = [
         '@since next-version',
         '@since todo',
-        'next-version',
         '@next-version',
     ];
 

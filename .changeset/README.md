@@ -40,7 +40,7 @@ A changeset is a file that describes changes made in a PR. It includes:
 - Whether it contains breaking changes
 - Description of changes
 - Upgrade notes (if any)
-- Files containing `@since todo` that need updating
+- Files containing `@since next-version` that need updating
 
 ## Example Changeset
 
@@ -61,7 +61,7 @@ Adds a new GraphQL field `customField` to the Post type that exposes custom meta
 #### Upgrade Notes
 Users implementing the PostType interface will need to implement this new field.
 
-#### Files with @since todo
+#### Files with @since next-version
 - src/Type/ObjectType/PostType.php
 ```
 
@@ -75,7 +75,7 @@ Users implementing the PostType interface will need to implement this new field.
 flowchart TD
     %% PR and Changeset Process
     PR[PR Merged] --> GC[Generate Changeset]
-    GC --> ST[Scan @since todo tags]
+    GC --> ST[Scan @since next-version tags]
     ST --> CPR[Create Changeset PR]
     CPR --> |Merged to develop| DEV[develop branch]
 
@@ -84,7 +84,7 @@ flowchart TD
         DEV --> |Merge to master| M[master branch]
         M --> VB[Version Bump]
         VB --> SV[Sync Versions<br/>package.json<br/>wp-graphql.php<br/>constants.php]
-        SV --> US[Update @since tags]
+        SV --> US[Update @since next-version tags]
         US --> CL[Generate Changelogs]
 
         %% Changelog Generation
@@ -99,7 +99,7 @@ flowchart TD
     subgraph "Beta Release"
         B[next-major branch] --> BV[Version Bump with Beta]
         BV --> BSV[Sync Versions<br/>Keep Stable Tag]
-        BSV --> BUS[Update @since tags]
+        BSV --> BUS[Update @since next-version tags]
         BUS --> BCL[Generate Changelogs]
         BCL --> BGR[Create GitHub Pre-release]
         BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
@@ -123,7 +123,7 @@ When a release is created:
    - constants.php
    - package.json
    - wp-graphql.php
-5. `@since todo` tags are replaced with new version
+5. `@since next-version` tags are replaced with new version
 6. Changes are committed and pushed
 7. GitHub release is created
 8. Plugin is deployed to WordPress.org:
@@ -163,7 +163,7 @@ npm run changeset version
 # - Version numbers in constants.php, package.json, wp-graphql.php
 # - Changelog entries in CHANGELOG.md and readme.txt
 # - Stable tag in readme.txt
-# - @since todo tags replaced with new version
+# - @since next-version tags replaced with new version
 
 # Create release
 npm run changeset publish
@@ -185,4 +185,4 @@ WPGraphQL uses some custom changeset behaviors:
 2. Multi-file version updates (constants.php, wp-graphql.php, etc)
 3. Dual changelog generation (CHANGELOG.md and readme.txt)
 4. WordPress.org deployment integration
-5. `@since todo` tag replacement
+5. `@since next-version` tag replacement
