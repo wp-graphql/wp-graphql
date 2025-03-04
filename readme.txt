@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -283,6 +283,19 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.1.0 =
+
+**New Features**
+
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
+
+**Chores / Bugfixes**
+
+- [#3314](https://github.com/wp-graphql/wp-graphql/pull/3314): fix: use version_compare to simplify incompatible dependent check
+- [#3316](https://github.com/wp-graphql/wp-graphql/pull/3316): docs: update changelog and upgrade notice
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): docs: update quick-start.md
+
 
 = 2.0.0 =
 
