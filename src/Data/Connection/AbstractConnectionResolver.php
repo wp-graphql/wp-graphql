@@ -214,7 +214,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Filters the GraphQL args before they are used in get_query_args().
 		 *
-		 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
+		 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_args().
 		 *
 		 * @param array<string,mixed>                                   $args                The GraphQL args passed to the resolver.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver.
@@ -230,7 +230,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Filters the query args before they are used in the query.
 		 *
-		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
+		 *  @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
 		 *
 		 * @param array<string,mixed>                                   $query_args          The query args to be used with the executable query to get data.
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the ConnectionResolver
@@ -338,7 +338,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Used to determine whether the connection query should be executed. This is useful for short-circuiting the connection resolver before executing the query.
 	 *
-	 * When `pre_should_excecute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
+	 * When `pre_should_execute()` returns false, that's a sign the Resolver shouldn't execute the query. Otherwise, the more expensive logic logic in `should_execute()` will run later in the lifecycle.
 	 *
 	 * @param mixed                                $source  Source passed down from the resolve tree
 	 * @param array<string,mixed>                  $args    Array of arguments input in the field as part of the GraphQL query.
@@ -437,7 +437,7 @@ abstract class AbstractConnectionResolver {
 	/**
 	 * Determine whether or not the query should execute.
 	 *
-	 * Return true to exeucte, return false to prevent execution.
+	 * Return true to execute, return false to prevent execution.
 	 *
 	 * Various criteria can be used to determine whether a Connection Query should be executed.
 	 *
@@ -787,7 +787,7 @@ abstract class AbstractConnectionResolver {
 			 *
 			 * This filter allows for additional fields to be filtered into the pageInfo
 			 * of a connection, such as "totalCount", etc, because the filter has enough
-			 * context of the query, args, request, etc to be able to calcuate and return
+			 * context of the query, args, request, etc to be able to calculate and return
 			 * that information.
 			 *
 			 * example:
@@ -874,7 +874,7 @@ abstract class AbstractConnectionResolver {
 		/**
 		 * Filters whether or not the query should execute, BEFORE any data is fetched or altered.
 		 *
-		 * This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for shortcircuiting the Connection Resolver before any heavy logic is executed.
+		 * This is evaluated based solely on the values passed to the constructor, before any data is fetched or altered, and is useful for short-circuiting the Connection Resolver before any heavy logic is executed.
 		 *
 		 * For more in-depth checks, use the `graphql_connection_should_execute` filter instead.
 		 *
@@ -996,7 +996,7 @@ abstract class AbstractConnectionResolver {
 				 *
 				 * Filters the nodes in the connection
 				 *
-				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
+				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_nodes().
 				 *
 				 * @param \WPGraphQL\Model\Model[]|mixed[]|null $nodes   The nodes in the connection
 				 * @param self                                 $resolver Instance of the Connection Resolver
@@ -1006,14 +1006,14 @@ abstract class AbstractConnectionResolver {
 				/**
 				 * Filters the edges in the connection.
 				 *
-				 * @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
+				 * @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_edges().
 				 *
 				 * @param array<string,mixed> $edges    The edges in the connection
 				 * @param self                $resolver Instance of the Connection Resolver
 				 */
 				$this->edges = apply_filters( 'graphql_connection_edges', $this->get_edges(), $this );
 
-				// @todo: we should also shortcircuit fetching/populating the actual nodes/edges if we only need one result.
+				// @todo: we should also short-circuit fetching/populating the actual nodes/edges if we only need one result.
 				if ( true === $this->one_to_one ) {
 					// For one to one connections, return the first edge.
 					$first_edge_key = array_key_first( $this->edges );
@@ -1084,7 +1084,7 @@ abstract class AbstractConnectionResolver {
 		 * the query to that instead of a native WP_Query class. You could override this with a
 		 * query to that datasource instead.
 		 *
-		 *  @todo We reinstantate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
+		 *  @todo We reinstantiate this here for b/c. Once that is not a concern, we should relocate this filter to ::get_query_args().
 		 *
 		 * @param mixed                      $query               Instance of the Query for the resolver
 		 * @param \WPGraphQL\Data\Connection\AbstractConnectionResolver $connection_resolver Instance of the Connection Resolver
@@ -1360,11 +1360,7 @@ abstract class AbstractConnectionResolver {
 			 * @param array<string,mixed> $edge     The edge within the connection
 			 * @param self                $resolver Instance of the connection resolver class
 			 */
-			$edge = apply_filters(
-				'graphql_connection_edge',
-				$edge,
-				$this
-			);
+			$edge = apply_filters( 'graphql_connection_edge', $edge, $this );
 
 			$edges[] = $edge;
 		}

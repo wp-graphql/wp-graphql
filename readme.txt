@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -72,6 +72,21 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.0.0 =
+
+**BREAKING CHANGE UPDATE**
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
+= 1.32.0 =
+
+In <a href="https://github.com/wp-graphql/wp-graphql/pull/3293">#3293</a> a bug was fixed in how the `MediaDetails.file` field resolves. The previous behavior was a bug, but might have been used as a feature. If you need the field to behave the same as it did prior to this bugfix, you can [follow the instructions here](https://github.com/wp-graphql/wp-graphql/pull/3293) to override the field's resolver to how it worked before.
+
 = 1.30.0 =
 
 This release includes a new feature to implement a SemVer-compliant update checker, which will prevent auto-updates for major releases that include breaking changes.
@@ -84,7 +99,7 @@ There are no known breaking changes in this release, however, we recommend testi
 
 This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users.
 
-While there are no intentional breaking changes, because this change impacts every suser we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
+While there are no intentional breaking changes, because this change impacts every user we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
 
 = 1.26.0 =
 
@@ -269,6 +284,29 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.1.0 =
+
+**New Features**
+
+- [#3320](https://github.com/wp-graphql/wp-graphql/pull/3320): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
+**Chores / Bugfixes**
+
+- [#3314](https://github.com/wp-graphql/wp-graphql/pull/3314): fix: use version_compare to simplify incompatible dependent check
+- [#3316](https://github.com/wp-graphql/wp-graphql/pull/3316): docs: update changelog and upgrade notice
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): docs: update quick-start.md
+- [#3190](https://github.com/wp-graphql/wp-graphql/pull/3190): docs: add developer docs for `AbstractConnectionResolver`
+
+= 2.0.0 =
+
+**BREAKING CHANGE UPDATE**
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
 = 1.32.1 =
 
 **Chores / Bugfixes**
@@ -296,7 +334,15 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 - [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: fix: Updated docs link for example of hierarchical data
 - [#3283](https://github.com/wp-graphql/wp-graphql/pull/3283): fix: Error in update checker when WPGraphQL is active as an mu-plugin
-
+- [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293): fix: correct the resolver for the MediaDetails.file field to return the file name
+- [#3299](https://github.com/wp-graphql/wp-graphql/pull/3299): chore: restore excluded PHPCS rules
+- [#3301](https://github.com/wp-graphql/wp-graphql/pull/3301): fix: React backwards-compatibility with WP < 6.6
+- [#3302](https://github.com/wp-graphql/wp-graphql/pull/3302): chore: update NPM dependencies
+- [#3297](https://github.com/wp-graphql/wp-graphql/pull/3297): fix: typo in `Extensions\Registry\get_extensions()` method name
+- [#3303](https://github.com/wp-graphql/wp-graphql/pull/3303): chore: cleanup git cache
+- [#3298](https://github.com/wp-graphql/wp-graphql/pull/3298): chore: submit GF, Rank Math, and Headless Login plugins
+- [#3287](https://github.com/wp-graphql/wp-graphql/pull/3287): chore: fixes the syntax of the readme.txt so that the short description is shown on WordPress.org
+- [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: Updated docs link for example of hierarchical data
 
 = 1.30.0 =
 

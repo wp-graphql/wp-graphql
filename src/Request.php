@@ -722,7 +722,17 @@ class Request {
 			return false;
 		}
 
-		return 0 === stripos( $content_type, 'application/json' );
+		$is_valid = 0 === stripos( $content_type, 'application/json' );
+
+		/**
+		 * Allow graphql to validate custom content types for HTTP POST requests
+		 *
+		 * @param bool $is_valid Whether the content type is valid
+		 * @param string $content_type The content type header value that was received
+		 *
+		 * @since todo
+		 */
+		return (bool) apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
 	}
 
 	/**

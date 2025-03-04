@@ -450,12 +450,6 @@ class UpdateChecker {
 	 * @param string $version     The current version to check against.
 	 */
 	private function is_incompatible_dependent( string $plugin_path, string $version = WPGRAPHQL_VERSION ): bool {
-		$current_version = SemVer::parse( $version );
-
-		if ( null === $current_version ) {
-			return false;
-		}
-
 		$all_plugins = $this->get_all_plugins();
 		$plugin_data = $all_plugins[ $plugin_path ] ?? null;
 
@@ -464,28 +458,8 @@ class UpdateChecker {
 			return false;
 		}
 
-		// Parse the version.
-		$minimum_version = SemVer::parse( $plugin_data[ self::VERSION_HEADER ] );
-
-		if ( null === $minimum_version ) {
-			return false;
-		}
-
-		// Check if the plugin is incompatible.
-		if ( $minimum_version['major'] > $current_version['major'] ) {
-			return true;
-		}
-
-		if ( $minimum_version['minor'] > $current_version['minor'] ) {
-			return true;
-		}
-
-		if ( $minimum_version['patch'] > $current_version['patch'] ) {
-			return true;
-		}
-
-		// The plugin is compatible.
-		return false;
+		// The version is incompatible if the current version is less than the required version.
+		return version_compare( $version, $plugin_data[ self::VERSION_HEADER ], '<' );
 	}
 
 	/**

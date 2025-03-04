@@ -31,12 +31,12 @@ If you prefer not to install WPGraphQL from the WordPress.org repository, you ca
 
 Installing plugins with [Composer](https://getcomposer.org/), a PHP dependency manager, allows you to avoid committing plugin code into your project's version control.
 
-WPGraphQL is available for installing with Composer from [packagist.org](https://packagist.org/packages/wp-graphql/wp-graphql) and [wpackagist.org](https://wpackagist.org/search?q=wp-graphql\&type=any\&search=).
+WPGraphQL is available for installing with Composer from [wpackagist.org](https://wpackagist.org/search?q=wp-graphql\&type=any\&search=).
 
 You can add WPGraphQL as a dependency to your project with the following command: 
 
 ```bash
-composer require wp-graphql/wp-graphql
+composer require wpackagist-plugin/wp-graphql
 ```
 
 Below is an example of a composer.json file with WPGraphQL added as as a plugin dependency:
