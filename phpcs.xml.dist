@@ -64,6 +64,9 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
+		<!-- Conflicts with PHP <8.3 compatibility -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
+
 		<!-- This would be a breaking change to fix-->
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	</rule>
