@@ -64,7 +64,7 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
 
-		<!-- Conflicts with PHP <8.3 compatibility -->
+		<!-- Include only once we support PHP 8.3 and above -->
 		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
 
 		<!-- This would be a breaking change to fix-->
