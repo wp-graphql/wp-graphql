@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 
 const { createChangeset } = require('./generate-changeset');
-const simulateRelease = require('./simulate-release');
-const chalk = require('chalk');
+const { updateVersions, getCurrentVersions } = require('./version-management');
+const { updateAllSinceTags } = require('./update-since-tags');
 const fs = require('fs');
 const path = require('path');
+
+// Import chalk dynamically
+let chalk;
+(async () => {
+    const { default: chalkModule } = await import('chalk');
+    chalk = chalkModule;
+})();
 
 /**
  * Simulate PR merge and changeset generation
@@ -16,10 +23,10 @@ async function simulatePRMerge(options = {}) {
 ---
 This is a test feature
 
-### Breaking Changes
+## Breaking Changes
 ${options.breaking || ''}
 
-### Upgrade Instructions
+## Upgrade Instructions
 ${options.upgrade || ''}`,
         prNumber: options.prNumber || '999',
         prUrl: options.prUrl || 'https://github.com/wp-graphql/wp-graphql/pull/999'
@@ -41,18 +48,45 @@ ${options.upgrade || ''}`,
 }
 
 /**
- * Simulate release preparation
+ * Simulate version update
  */
-async function simulateRelease(version, options = {}) {
-    console.log(chalk.blue('\nSimulating Release:'));
-    console.log('Version:', version);
+async function simulateVersionUpdate(version, options = {}) {
+    console.log(chalk.blue('\nSimulating Version Update:'));
+    console.log('New Version:', version);
     console.log('Options:', options);
 
     try {
-        await simulateRelease(version, options);
-        console.log(chalk.green('\n✓ Release simulation completed'));
+        // Show current versions
+        console.log(chalk.blue('\nCurrent versions:'));
+        const beforeVersions = getCurrentVersions();
+        Object.entries(beforeVersions).forEach(([file, ver]) => {
+            console.log(`${file}: ${ver}`);
+        });
+
+        // Update versions
+        await updateVersions(version, options.beta);
+        console.log(chalk.green('\n✓ Version numbers updated'));
+
+        // Show new versions
+        console.log(chalk.blue('\nUpdated versions:'));
+        const afterVersions = getCurrentVersions();
+        Object.entries(afterVersions).forEach(([file, ver]) => {
+            const changed = beforeVersions[file] !== ver;
+            console.log(`${file}: ${chalk[changed ? 'green' : 'gray'](ver)}`);
+        });
+
+        // Show @since tag updates
+        const sinceResults = await updateAllSinceTags(version);
+        if (sinceResults.updated.length > 0) {
+            console.log(chalk.green(`\n✓ Updated ${sinceResults.updated.length} files with @since tags:`));
+            sinceResults.updated.forEach(file => {
+                console.log(chalk.gray(`  - ${file}`));
+            });
+        }
+
+        return true;
     } catch (error) {
-        console.error(chalk.red('\n❌ Error simulating release:'), error.message);
+        console.error(chalk.red('\n❌ Error updating versions:'), error.message);
         throw error;
     }
 }
@@ -61,6 +95,7 @@ async function simulateRelease(version, options = {}) {
  * CLI interface
  */
 async function main() {
+    const { default: chalk } = await import('chalk');
     const args = process.argv.slice(2);
     const command = args[0];
 
@@ -76,9 +111,9 @@ async function main() {
                 });
                 break;
 
-            case 'release':
-                // Simulate release
-                await simulateRelease(args[1], {
+            case 'version':
+                // Simulate version update
+                await simulateVersionUpdate(args[1], {
                     beta: args.includes('--beta')
                 });
                 break;
@@ -87,23 +122,23 @@ async function main() {
                 console.log(`
 Usage:
   Simulate PR merge:
-    node scripts/simulate-workflow.js pr "feat: New feature" 123 "Breaking change" "Upgrade steps"
+    npm run simulate pr "feat: New feature" 123 "Breaking change" "Upgrade steps"
 
-  Simulate release:
-    node scripts/simulate-workflow.js release 2.1.0 [--beta]
+  Simulate version update:
+    npm run simulate version 2.1.0 [--beta]
 
 Examples:
   # Simulate regular feature PR
-  node scripts/simulate-workflow.js pr "feat: Add new feature" 123
+  npm run simulate pr "feat: Add new feature" 123
 
   # Simulate breaking change PR
-  node scripts/simulate-workflow.js pr "feat!: Breaking change" 124 "This breaks something" "Follow these steps"
+  npm run simulate pr "feat!: Breaking change" 124 "This breaks something" "Follow these steps"
 
-  # Simulate minor release
-  node scripts/simulate-workflow.js release 2.1.0
+  # Simulate minor version update
+  npm run simulate version 2.1.0
 
   # Simulate beta release
-  node scripts/simulate-workflow.js release 2.1.0-beta.1 --beta
+  npm run simulate version 2.1.0-beta.1 --beta
 `);
                 process.exit(1);
         }
@@ -120,5 +155,5 @@ if (require.main === module) {
 
 module.exports = {
     simulatePRMerge,
-    simulateRelease
+    simulateVersionUpdate
 };

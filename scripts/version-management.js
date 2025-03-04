@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { updateAllSinceTags } = require('./update-since-tags');
 
 /**
  * Files that contain version numbers
@@ -51,7 +52,7 @@ function validateVersions(versions) {
     const versionSet = new Set(Object.values(versions).filter(Boolean));
 
     // For beta releases, readme.txt stable tag should not match other versions
-    const isBeta = versions.package && versions.package.includes('-beta');
+    const isBeta = versions.package && versions.package.includes('-');
     const versionsToCompare = isBeta ?
         { php: versions.php, constants: versions.constants, package: versions.package } :
         versions;
@@ -76,7 +77,7 @@ function validateVersions(versions) {
 /**
  * Update version numbers across all files
  */
-function updateVersions(newVersion, isBeta = false) {
+async function updateVersions(newVersion, isBeta = false) {
     try {
         // Update wp-graphql.php
         let content = fs.readFileSync(VERSION_FILES.php, 'utf8');
@@ -99,6 +100,9 @@ function updateVersions(newVersion, isBeta = false) {
             content = content.replace(/(Stable tag:\s*).+/, `$1${newVersion}`);
             fs.writeFileSync(VERSION_FILES.readme, content);
         }
+
+        // Update @since tags
+        await updateAllSinceTags(newVersion);
 
         // Validate the updates
         const versions = getCurrentVersions();
