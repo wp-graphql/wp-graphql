@@ -3,6 +3,7 @@
 const { createChangeset } = require('./generate-changeset');
 const { updateVersions, getCurrentVersions, resetVersions } = require('./version-management');
 const { updateAllSinceTags } = require('./update-since-tags');
+const { generateSinceTagsMetadata } = require('./scan-since-tags');
 const { formatChangelogMd } = require('./changelog-formatters/changelog-md');
 const { formatReadmeTxt } = require('./changelog-formatters/readme-txt');
 const fs = require('fs');
@@ -244,6 +245,22 @@ async function simulateVersionUpdate(version, options = {}) {
         console.log('Next Version:  ', chalk.green(nextVersion));
         console.log('Version Jump:  ', chalk.cyan(`${currentVersion} → ${nextVersion}`));
         console.log('Reason:', getVersionBumpReason(changesets));
+
+        // Scan for @since tags before version check
+        console.log(chalk.blue('\nScanning for @since tags to update:'));
+        try {
+            const metadata = await generateSinceTagsMetadata();
+            if (metadata.totalTags > 0) {
+                console.log(chalk.yellow(`Found ${metadata.totalTags} @since tags to update in ${metadata.sinceFiles.length} files:`));
+                metadata.sinceFiles.forEach(file => {
+                    console.log(chalk.gray(`  - ${file}`));
+                });
+            } else {
+                console.log(chalk.gray('No @since tags found that need updating'));
+            }
+        } catch (error) {
+            console.warn(chalk.yellow('Warning: Error scanning for @since tags:'), error.message);
+        }
 
         // If it's a major version bump, add extra warning
         if (nextVersion.split('.')[0] > currentVersion.split('.')[0]) {

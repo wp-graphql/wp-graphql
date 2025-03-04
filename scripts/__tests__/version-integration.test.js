@@ -25,9 +25,20 @@ describe('Version Integration', () => {
         };
 
         // Mock file system operations
-        fs.readFileSync.mockImplementation((file) => mockFiles[file.split('/').pop()]);
+        fs.readFileSync.mockImplementation((file) => {
+            const fileName = file.split('/').pop();
+            if (mockFiles[fileName]) {
+                return mockFiles[fileName];
+            }
+            throw new Error(`ENOENT: no such file or directory, open '${file}'`);
+        });
+        fs.existsSync.mockImplementation((file) => {
+            const fileName = file.split('/').pop();
+            return !!mockFiles[fileName];
+        });
         fs.writeFileSync.mockImplementation((file, content) => {
-            mockFiles[file.split('/').pop()] = content;
+            const fileName = file.split('/').pop();
+            mockFiles[fileName] = content;
         });
 
         // Mock @since tag updates

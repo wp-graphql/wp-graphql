@@ -7,7 +7,7 @@ const { glob } = require('glob');
 function scanFileForSinceTags(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
-        const regex = /@since\s+todo/g;
+        const regex = /@since\s+(todo|next-version|tbd)|@next-version/g;
         const matches = content.match(regex);
         return matches ? matches.length : 0;
     } catch (error) {
@@ -21,12 +21,12 @@ function scanFileForSinceTags(filePath) {
  */
 async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
     try {
-        // Use glob.sync for synchronous operation, or await the async glob
-        const files = await glob(pattern, { ignore: 'node_modules/**' });
+        // Use glob.sync for synchronous operation
+        const files = await glob(pattern);
         const results = [];
 
         // Ensure files is treated as an array
-        const fileArray = Array.isArray(files) ? files : Array.from(files);
+        const fileArray = Array.isArray(files) ? files : [files];
 
         for (const file of fileArray) {
             const count = scanFileForSinceTags(file);
@@ -43,7 +43,7 @@ async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
 }
 
 /**
- * Generate changeset metadata for @since todo files
+ * Generate metadata about files containing @since tags
  */
 async function generateSinceTagsMetadata() {
     try {

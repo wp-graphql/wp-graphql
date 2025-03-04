@@ -30,7 +30,7 @@
     "check-versions": "node scripts/check-versions.js",
     "update-since": "node scripts/update-since-tags.js",
     "simulate-workflow": "node scripts/simulate-workflow.js",
-    "test:changesets": "jest scripts/__tests__",
+    "test:changesets": "jest scripts/__tests__ --verbose --detectOpenHandles --forceExit",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
     "test:unit": "wp-scripts test-unit-js --config tests/js-unit/jest.config.js",

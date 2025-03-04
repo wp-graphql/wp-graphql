@@ -26,6 +26,70 @@ function isValidVersion(version) {
 }
 
 /**
+ * Get current versions from all files
+ */
+function getCurrentVersions(skipReset = false) {
+    const versions = {
+        php: null,
+        constants: null,
+        package: null,
+        readme: null
+    };
+
+    try {
+        // Get version from wp-graphql.php
+        if (fs.existsSync(VERSION_FILES.php)) {
+            const phpContent = fs.readFileSync(VERSION_FILES.php, 'utf8');
+            const phpMatch = phpContent.match(/Version:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
+            versions.php = phpMatch ? phpMatch[1] : null;
+        }
+
+        // Get version from constants.php
+        if (fs.existsSync(VERSION_FILES.constants)) {
+            const constantsContent = fs.readFileSync(VERSION_FILES.constants, 'utf8');
+            const constantsMatch = constantsContent.match(/WPGRAPHQL_VERSION',\s*'([0-9.]+(-[a-zA-Z0-9.]+)?)'/);
+            versions.constants = constantsMatch ? constantsMatch[1] : null;
+        }
+
+        // Get version from package.json
+        if (fs.existsSync(VERSION_FILES.package)) {
+            const packageContent = JSON.parse(fs.readFileSync(VERSION_FILES.package, 'utf8'));
+            versions.package = packageContent.version;
+        }
+
+        // Get stable tag from readme.txt
+        if (fs.existsSync(VERSION_FILES.readme)) {
+            const readmeContent = fs.readFileSync(VERSION_FILES.readme, 'utf8');
+            const readmeMatch = readmeContent.match(/Stable tag:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
+            versions.readme = readmeMatch ? readmeMatch[1] : null;
+        }
+
+        // Check if any versions are invalid or missing
+        Object.keys(versions).forEach(key => {
+            const version = versions[key];
+            if (!version || !isValidVersion(version)) {
+                console.warn(`Warning: Invalid or missing version in ${key}: ${version}`);
+                versions[key] = DEFAULT_VERSION;
+            }
+        });
+
+        return versions;
+    } catch (error) {
+        console.error('Error reading version files:', error);
+        console.error('Current working directory:', process.cwd());
+        console.error('Files checked:', VERSION_FILES);
+
+        // Return default versions on error
+        return {
+            php: DEFAULT_VERSION,
+            constants: DEFAULT_VERSION,
+            package: DEFAULT_VERSION,
+            readme: DEFAULT_VERSION
+        };
+    }
+}
+
+/**
  * Reset all version numbers to a known good state
  */
 function resetVersions(version = DEFAULT_VERSION) {
@@ -70,66 +134,15 @@ function resetVersions(version = DEFAULT_VERSION) {
             console.warn(`${VERSION_FILES.readme} not found, skipping`);
         }
 
-        return getCurrentVersions();
+        // Return default versions if no files exist
+        return {
+            php: version,
+            constants: version,
+            package: version,
+            readme: version
+        };
     } catch (error) {
         throw new Error(`Error resetting versions: ${error.message}`);
-    }
-}
-
-/**
- * Get current versions from all files
- */
-function getCurrentVersions() {
-    const versions = {};
-
-    try {
-        // Get version from wp-graphql.php
-        if (fs.existsSync(VERSION_FILES.php)) {
-            const phpContent = fs.readFileSync(VERSION_FILES.php, 'utf8');
-            const phpMatch = phpContent.match(/Version:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
-            versions.php = phpMatch ? phpMatch[1] : null;
-        }
-
-        // Get version from constants.php
-        if (fs.existsSync(VERSION_FILES.constants)) {
-            const constantsContent = fs.readFileSync(VERSION_FILES.constants, 'utf8');
-            const constantsMatch = constantsContent.match(/WPGRAPHQL_VERSION',\s*'([0-9.]+(-[a-zA-Z0-9.]+)?)'/);
-            versions.constants = constantsMatch ? constantsMatch[1] : null;
-        }
-
-        // Get version from package.json
-        if (fs.existsSync(VERSION_FILES.package)) {
-            const packageContent = JSON.parse(fs.readFileSync(VERSION_FILES.package, 'utf8'));
-            versions.package = packageContent.version;
-        }
-
-        // Get stable tag from readme.txt
-        if (fs.existsSync(VERSION_FILES.readme)) {
-            const readmeContent = fs.readFileSync(VERSION_FILES.readme, 'utf8');
-            const readmeMatch = readmeContent.match(/Stable tag:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
-            versions.readme = readmeMatch ? readmeMatch[1] : null;
-        }
-
-        // Check if any versions are invalid
-        Object.entries(versions).forEach(([file, version]) => {
-            if (version && !isValidVersion(version)) {
-                console.warn(`Warning: Invalid version in ${file}: ${version}`);
-                versions[file] = DEFAULT_VERSION;
-            }
-        });
-
-        // If no valid versions found, reset to default
-        if (!Object.values(versions).some(v => v && isValidVersion(v))) {
-            console.warn('No valid versions found, resetting to default state');
-            return resetVersions();
-        }
-
-        return versions;
-    } catch (error) {
-        console.error('Error reading version files:', error);
-        console.error('Current working directory:', process.cwd());
-        console.error('Files checked:', VERSION_FILES);
-        throw new Error(`Error reading version files: ${error.message}`);
     }
 }
 
