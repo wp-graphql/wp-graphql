@@ -8,6 +8,17 @@
   "license": "GPL-3.0",
   "email": "info@wpgraphql.com",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wp-graphql/wp-graphql.git"
+  },
+  "keywords": [
+    "WordPress",
+    "GraphQL"
+  ],
+  "bugs": {
+    "url": "https://github.com/wp-graphql/wp-graphql/issues"
+  },
   "directories": {
     "doc": "docs",
     "test": "tests"
@@ -16,9 +27,8 @@
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
     "start": "wp-scripts start",
-    "check-versions": "node --no-warnings scripts/check-versions.js",
+    "check-versions": "node scripts/check-versions.js",
     "update-since": "node scripts/update-since-tags.js",
-    "simulate-release": "node scripts/simulate-release.js",
     "simulate-workflow": "node scripts/simulate-workflow.js",
     "test:changesets": "jest scripts/__tests__",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
@@ -34,17 +44,6 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wp-graphql/wp-graphql.git"
-  },
-  "keywords": [
-    "WordPress",
-    "GraphQL"
-  ],
-  "bugs": {
-    "url": "https://github.com/wp-graphql/wp-graphql/issues"
   },
   "dependencies": {
     "@ant-design/icons": "5.6.1",

@@ -13,6 +13,70 @@ const VERSION_FILES = {
 };
 
 /**
+ * Default version to use when resetting
+ */
+const DEFAULT_VERSION = '2.1.0';
+
+/**
+ * Validate version string format
+ */
+function isValidVersion(version) {
+    // Match standard version (2.1.0) or beta version (2.1.0-beta.1)
+    return /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/.test(version);
+}
+
+/**
+ * Reset all version numbers to a known good state
+ */
+function resetVersions(version = DEFAULT_VERSION) {
+    if (!isValidVersion(version)) {
+        throw new Error(`Invalid version format: ${version}`);
+    }
+
+    try {
+        // Update wp-graphql.php version
+        if (fs.existsSync(VERSION_FILES.php)) {
+            let content = fs.readFileSync(VERSION_FILES.php, 'utf8');
+            content = content.replace(/(Version:\s*).+/, `$1${version}`);
+            fs.writeFileSync(VERSION_FILES.php, content);
+        } else {
+            console.warn(`${VERSION_FILES.php} not found, skipping`);
+        }
+
+        // Update constants.php version
+        if (fs.existsSync(VERSION_FILES.constants)) {
+            let content = fs.readFileSync(VERSION_FILES.constants, 'utf8');
+            content = content.replace(/(WPGRAPHQL_VERSION',\s*').+(')/, `$1${version}$2`);
+            fs.writeFileSync(VERSION_FILES.constants, content);
+        } else {
+            console.warn(`${VERSION_FILES.constants} not found, skipping`);
+        }
+
+        // Update package.json version
+        if (fs.existsSync(VERSION_FILES.package)) {
+            let packageJson = JSON.parse(fs.readFileSync(VERSION_FILES.package, 'utf8'));
+            packageJson.version = version;
+            fs.writeFileSync(VERSION_FILES.package, JSON.stringify(packageJson, null, 2) + '\n');
+        } else {
+            console.warn(`${VERSION_FILES.package} not found, skipping`);
+        }
+
+        // Update readme.txt stable tag
+        if (fs.existsSync(VERSION_FILES.readme)) {
+            let content = fs.readFileSync(VERSION_FILES.readme, 'utf8');
+            content = content.replace(/(Stable tag:\s*).+/, `$1${version}`);
+            fs.writeFileSync(VERSION_FILES.readme, content);
+        } else {
+            console.warn(`${VERSION_FILES.readme} not found, skipping`);
+        }
+
+        return getCurrentVersions();
+    } catch (error) {
+        throw new Error(`Error resetting versions: ${error.message}`);
+    }
+}
+
+/**
  * Get current versions from all files
  */
 function getCurrentVersions() {
@@ -20,29 +84,53 @@ function getCurrentVersions() {
 
     try {
         // Get version from wp-graphql.php
-        const phpContent = fs.readFileSync(VERSION_FILES.php, 'utf8');
-        const phpMatch = phpContent.match(/Version:\s*(.+)/);
-        versions.php = phpMatch ? phpMatch[1] : null;
+        if (fs.existsSync(VERSION_FILES.php)) {
+            const phpContent = fs.readFileSync(VERSION_FILES.php, 'utf8');
+            const phpMatch = phpContent.match(/Version:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
+            versions.php = phpMatch ? phpMatch[1] : null;
+        }
 
         // Get version from constants.php
-        const constantsContent = fs.readFileSync(VERSION_FILES.constants, 'utf8');
-        const constantsMatch = constantsContent.match(/WPGRAPHQL_VERSION',\s*'(.+)'/);
-        versions.constants = constantsMatch ? constantsMatch[1] : null;
+        if (fs.existsSync(VERSION_FILES.constants)) {
+            const constantsContent = fs.readFileSync(VERSION_FILES.constants, 'utf8');
+            const constantsMatch = constantsContent.match(/WPGRAPHQL_VERSION',\s*'([0-9.]+(-[a-zA-Z0-9.]+)?)'/);
+            versions.constants = constantsMatch ? constantsMatch[1] : null;
+        }
 
         // Get version from package.json
-        const packageContent = JSON.parse(fs.readFileSync(VERSION_FILES.package, 'utf8'));
-        versions.package = packageContent.version;
+        if (fs.existsSync(VERSION_FILES.package)) {
+            const packageContent = JSON.parse(fs.readFileSync(VERSION_FILES.package, 'utf8'));
+            versions.package = packageContent.version;
+        }
 
         // Get stable tag from readme.txt
-        const readmeContent = fs.readFileSync(VERSION_FILES.readme, 'utf8');
-        const readmeMatch = readmeContent.match(/Stable tag:\s*(.+)/);
-        versions.readme = readmeMatch ? readmeMatch[1] : null;
+        if (fs.existsSync(VERSION_FILES.readme)) {
+            const readmeContent = fs.readFileSync(VERSION_FILES.readme, 'utf8');
+            const readmeMatch = readmeContent.match(/Stable tag:\s*([0-9.]+(-[a-zA-Z0-9.]+)?)/);
+            versions.readme = readmeMatch ? readmeMatch[1] : null;
+        }
 
+        // Check if any versions are invalid
+        Object.entries(versions).forEach(([file, version]) => {
+            if (version && !isValidVersion(version)) {
+                console.warn(`Warning: Invalid version in ${file}: ${version}`);
+                versions[file] = DEFAULT_VERSION;
+            }
+        });
+
+        // If no valid versions found, reset to default
+        if (!Object.values(versions).some(v => v && isValidVersion(v))) {
+            console.warn('No valid versions found, resetting to default state');
+            return resetVersions();
+        }
+
+        return versions;
     } catch (error) {
+        console.error('Error reading version files:', error);
+        console.error('Current working directory:', process.cwd());
+        console.error('Files checked:', VERSION_FILES);
         throw new Error(`Error reading version files: ${error.message}`);
     }
-
-    return versions;
 }
 
 /**
@@ -117,5 +205,7 @@ async function updateVersions(newVersion, isBeta = false) {
 module.exports = {
     getCurrentVersions,
     validateVersions,
-    updateVersions
+    updateVersions,
+    resetVersions,
+    isValidVersion
 };
