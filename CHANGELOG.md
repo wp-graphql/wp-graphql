@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0
+
+### New Features
+
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
+
+### Chores / Bugfixes
+
+- [#3314](https://github.com/wp-graphql/wp-graphql/pull/3314): fix: use version_compare to simplify incompatible dependent check
+- [#3316](https://github.com/wp-graphql/wp-graphql/pull/3316): docs: update changelog and upgrade notice
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): docs: update quick-start.md
+
 ## 2.0.0
 
 ### BREAKING CHANGE UPDATE
@@ -61,7 +73,7 @@ In [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293) a bug was fixed i
 ### Chores / Bugfixes
 
 - [#3250](https://github.com/wp-graphql/wp-graphql/pull/3250): fix: receiving post for Incorrect uri
-- [#3268](https://github.com/wp-graphql/wp-graphql/pull/3268): ci: trigger PR workflows on release/* branches
+- [#3268](https://github.com/wp-graphql/wp-graphql/pull/3268): ci: trigger PR workflows on release/\* branches
 - [#3267](https://github.com/wp-graphql/wp-graphql/pull/3267): chore: fix bleeding edge/deprecated PHPStan smells [first pass]
 - [#3270](https://github.com/wp-graphql/wp-graphql/pull/3270): build(deps): bump the npm_and_yarn group across 1 directory with 3 updates
 - [#3271](https://github.com/wp-graphql/wp-graphql/pull/3271): fix: default cat should not be added when other categories are added
@@ -174,12 +186,12 @@ While there are no intentional breaking changes, because this change impacts eve
 ### New Features
 
 - [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
-    - new: `graphql_connection_pre_get_query` filter
-    - new: `AbstractConnectionResolver::is_valid_query_class()`
-    - new: `AbstractConnectionResolver::get_query()`
-    - new: `AbstractConnectionResolver::get_query_class()`
-    - new: `AsbtractConnectionResolver::query_class()`
-    - new: `AbstractConnectionResolver::$query_class`
+  - new: `graphql_connection_pre_get_query` filter
+  - new: `AbstractConnectionResolver::is_valid_query_class()`
+  - new: `AbstractConnectionResolver::get_query()`
+  - new: `AbstractConnectionResolver::get_query_class()`
+  - new: `AsbtractConnectionResolver::query_class()`
+  - new: `AbstractConnectionResolver::$query_class`
 - [#3124](https://github.com/wp-graphql/wp-graphql/pull/3124): refactor: split `AbstractConnectionResolver::get_args()` and `::get_query_args()` into `::prepare_*()` methods
 - [#3123](https://github.com/wp-graphql/wp-graphql/pull/3123): refactor: split `AbstractConnectionResolver::get_ids()` into `::prepare_ids()`
 - [#3121](https://github.com/wp-graphql/wp-graphql/pull/3121): refactor: split `AbstractConnectionResolver::get_nodes()` and `get_edges()` into `prepare_*()` methods
@@ -188,11 +200,12 @@ While there are no intentional breaking changes, because this change impacts eve
 ### Chores / Bugfixes
 
 - [#3125](https://github.com/wp-graphql/wp-graphql/pull/3125): refactor: improve query handling in AbstractConnectionResolver
-    - Implement PHPStan Generic Type
-    - Update generic Exceptions to InvariantViolation
+  - Implement PHPStan Generic Type
+  - Update generic Exceptions to InvariantViolation
 - [#3127](https://github.com/wp-graphql/wp-graphql/pull/3127): chore: update references to the WPGraphQL Slack Community to point to the new WPGraphQL Discord community instead.
 - [#3122](https://github.com/wp-graphql/wp-graphql/pull/3122): chore: relocate `AbstractConnectionResolver::is_valid_offset()` with other abstract methods.
 -
+
 ## 1.25.0
 
 ### Upgrade Notice
@@ -204,11 +217,11 @@ This release includes a fix to a regression in the v1.24.0. Users impacted by th
 - [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): feat: add `AbsractConnectionResolver::pre_should_execute()`. Thanks @justlevine!
 
 ### Chores / Bugfixes
+
 - [#3104](https://github.com/wp-graphql/wp-graphql/pull/3104): refactor: `AbstractConnectionResolver::should_execute()` Thanks @justlevine!
 - [#3112](https://github.com/wp-graphql/wp-graphql/pull/3104): fix: fixes a regression from v1.24.0 relating to field arguments defined on Interfaces not being properly merged onto Object Types that implement the interface. Thanks @kidunot89!
 - [#3114](https://github.com/wp-graphql/wp-graphql/pull/3114): fix: node IDs not showing in the Query Analyzer / X-GraphQL-Keys when using DataLoader->load_many()
 - [#3116](https://github.com/wp-graphql/wp-graphql/pull/3116): chore: Update WPGraphQLTestCase to v3. Thanks @kidunot89!
-
 
 ## 1.24.0
 
@@ -230,7 +243,6 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 - [#3086](https://github.com/wp-graphql/wp-graphql/pull/3086): refactor: add AbstractConnectionResolver::get_unfiltered_args() public getter. Thanks @justlevine!
 - [#3085](https://github.com/wp-graphql/wp-graphql/pull/3085): refactor: add AbstractConnectionResolver::prepare_page_info()and only instantiate once. Thanks @justlevine!
 - [#3083](https://github.com/wp-graphql/wp-graphql/pull/3083): refactor: deprecate camelCase methods in AbstractConnectionResolver for snake_case equivalents. Thanks @justlevine!
-
 
 ### Chores / Bugfixes
 
@@ -328,7 +340,6 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 
 - ci: update tests to run against WordPress 6.4.1. Update Docker Deploy to include WP 6.4.1. Update README, plugin file's "tested up to" to reflect.
 
-
 ## 1.18.1
 
 ### Chores / Bugfixes
@@ -350,7 +361,6 @@ The AbstractConnectionResolver has undergone some refactoring. Some methods usin
 - [#2975](https://github.com/wp-graphql/wp-graphql/pull/2975): chore: lint and remove useless variables [phpcs]
 - [#2977](https://github.com/wp-graphql/wp-graphql/pull/2977): chore: sort use statements alphabetically with SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses (autofix)
 - [#2978](https://github.com/wp-graphql/wp-graphql/pull/2978]): chore: implement stricter type hinting with SlevomatCodingStandard.TypeHints [phpcs]
-
 
 ## 1.17.0
 
@@ -496,7 +506,6 @@ queries you have using pagination arguments (`first`, `last`, `after`, `before`)
 - [#2799](https://github.com/wp-graphql/wp-graphql/pull/2794): fix: querying posts by slug fails when custom permalinks are set
 - [#2794](https://github.com/wp-graphql/wp-graphql/pull/2794): chore(deps): bump guzzlehttp/psr7 from 1.9.0 to 1.9.1
 
-
 ## 1.14.2
 
 ### Chores / Bugfixes
@@ -519,7 +528,7 @@ queries you have using pagination arguments (`first`, `last`, `after`, `before`)
 - [#2777](https://github.com/wp-graphql/wp-graphql/pull/2777): chore: update composer dev-deps (not PHPStan). Thanks @justlevine!
 - [#2778](https://github.com/wp-graphql/wp-graphql/pull/2778): fix: Update PHPStan and fix smells. Thanks @justlevine!
 - [#2779](https://github.com/wp-graphql/wp-graphql/pull/2779): ci: test against WordPress 6.2. Thanks @justlevine!
-- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call _doing_it_wrong() when using deprecated PostObjectUnion and TermObjectUnion. Thanks @justlevine!
+- [#2781](https://github.com/wp-graphql/wp-graphql/pull/2781): chore: call \_doing_it_wrong() when using deprecated PostObjectUnion and TermObjectUnion. Thanks @justlevine!
 - [#2782](https://github.com/wp-graphql/wp-graphql/pull/2782): ci: fix deprecation warnings in Github workflows. Thanks @justlevine!
 - [#2786](https://github.com/wp-graphql/wp-graphql/pull/2786): fix: early return for HTTP OPTIONS requests.
 
