@@ -18,14 +18,15 @@ describe('Changelog Integration', () => {
                 newVersion: '2.0.0',
                 changesets: [{
                     breaking: true,
-                    breakingChanges: 'This is a breaking change',
-                    upgradeInstructions: 'Follow these steps',
-                    pr: 123
+                    breaking_changes: 'This is a breaking change',
+                    pr_number: '123',
+                    upgrade_instructions: 'Follow these steps'
                 }]
             };
 
-            const options = { repo: 'wp-graphql/wp-graphql' };
-            const notice = await getUpgradeNoticeEntry(release, options);
+            const notice = await getUpgradeNoticeEntry(release, {
+                repo: 'wp-graphql/wp-graphql'
+            });
 
             expect(notice).toContain('= 2.0.0 =');
             expect(notice).toContain('**BREAKING CHANGE UPDATE**');
@@ -37,25 +38,19 @@ describe('Changelog Integration', () => {
         test('generates standard notice for minor versions', async () => {
             const release = {
                 newVersion: '2.1.0',
-                changesets: [{
-                    breaking: false,
-                    summary: 'New feature'
-                }]
+                changesets: []
             };
 
             const notice = await getUpgradeNoticeEntry(release, {});
             expect(notice).toContain('= 2.1.0 =');
-            expect(notice).toContain('no known breaking changes');
+            expect(notice).toContain('While there are no known breaking changes');
             expect(notice).toContain('recommend testing on staging servers');
         });
 
-        test('skips upgrade notice for patch versions without changes', async () => {
+        test('skips notice for patch versions without breaking changes', async () => {
             const release = {
-                newVersion: '2.1.1',
-                changesets: [{
-                    breaking: false,
-                    summary: 'Bug fix'
-                }]
+                newVersion: '2.0.1',
+                changesets: []
             };
 
             const notice = await getUpgradeNoticeEntry(release, {});

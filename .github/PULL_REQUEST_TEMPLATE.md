@@ -11,47 +11,41 @@ Thanks for sending a pull request! Please make sure you click the link above to 
 
 -->
 
-What does this implement/fix? Explain your changes.
----------------------------------------------------
+## What does this implement/fix? Explain your changes.
+
 …
 
+## Breaking Changes
 
-Breaking Changes
----------------
 <!--
 Does this PR introduce breaking changes? Please describe what breaks and any upgrade path for users.
-If there are no breaking changes, you can write "None".
+If there are no breaking changes, delete this comment and the Breaking Changes heading
 -->
 
+## Upgrade Instructions
 
-Upgrade Instructions
-------------------
 <!--
 If you indicated breaking changes above, please provide detailed upgrade instructions for users.
-If there are no breaking changes, you can write "N/A".
+If there are no breaking changes, you can delete this comment and the Upgrade Instructions Heading.
 -->
 
+## Does this close any currently open issues?
 
-Does this close any currently open issues?
-------------------------------------------
 <!--
 ### Write "closes #{pr number}"
 ### see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
 -->
 
+## Any relevant logs, error output, GraphiQL screenshots, etc?
 
-Any relevant logs, error output, GraphiQL screenshots, etc?
--------------------------------------
 <!-- (If it's long, please paste to https://ghostbin.com/ and insert the link here.) -->
 
+## Any other comments?
 
-Any other comments?
--------------------
 …
 
+## Where has this been tested?
 
-Where has this been tested?
----------------------------
 **Operating System:** …
 
 **WordPress Version:** …

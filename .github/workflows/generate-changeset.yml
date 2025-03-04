@@ -22,19 +22,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci
 
-      # Validate PR title format
-      - name: Validate PR Title
+      # Scan for @since tags
+      - name: Scan for @since Tags
+        id: since_tags
         run: |
-          if ! echo "${{ github.event.pull_request.title }}" | grep -E '^(feat|fix|build|chore|ci|docs|perf|refactor|revert|style|test)(!)?:'; then
-            echo "Error: PR title does not follow conventional commit format"
-            exit 1
-          fi
+          TAGS=$(node -e "
+            const { generateSinceTagsMetadata } = require('./scripts/scan-since-tags');
+            generateSinceTagsMetadata().then(result => {
+              console.log(JSON.stringify(result));
+            });
+          ")
+          echo "::set-output name=tags::$TAGS"
 
       # Generate changeset
       - name: Generate Changeset
@@ -73,6 +77,12 @@ jobs:
             - [ ] Version bump type is appropriate
             - [ ] Breaking changes are properly documented
             - [ ] Upgrade instructions are included (if needed)
+            - [ ] @since tags are identified for update
+
+            ### Files with @since Tags to Update
+            ${{ fromJson(steps.since_tags.outputs.tags).sinceFiles }}
+
+            Total tags to update: ${{ fromJson(steps.since_tags.outputs.tags).totalTags }}
           labels: |
             automated pr
             changeset

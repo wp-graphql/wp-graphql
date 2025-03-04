@@ -10,13 +10,14 @@ const ALLOWED_TYPES = ['feat', 'fix', 'chore', 'docs', 'perf', 'refactor', 'reve
  * Parse PR title for type and breaking changes
  */
 function parseTitle(title) {
+    // Match: type(scope)!: description or type!: description
     const typeMatch = title.match(/^(feat|fix|build|chore|ci|docs|perf|refactor|revert|style|test)(?:\([^)]+\))?(!)?:/);
     if (!typeMatch) {
-        throw new Error('PR title does not follow conventional commit format. Must start with type: ' + ALLOWED_TYPES.join(', '));
+        throw new Error(`PR title does not follow conventional commit format. Must start with type: ${ALLOWED_TYPES.join(', ')}`);
     }
 
     const type = typeMatch[1];
-    const isBreaking = typeMatch[2] === '!' || title.includes('BREAKING CHANGE');
+    const isBreaking = Boolean(typeMatch[2] || title.includes('BREAKING CHANGE'));
 
     if (!ALLOWED_TYPES.includes(type)) {
         throw new Error(`Invalid type "${type}". Must be one of: ${ALLOWED_TYPES.join(', ')}`);
@@ -29,48 +30,74 @@ function parseTitle(title) {
 }
 
 /**
+ * Format the summary with type prefix
+ */
+function formatSummary(type, isBreaking, description) {
+    return `${type}${isBreaking ? '!' : ''}: ${description.trim()}`;
+}
+
+/**
  * Extract sections from PR body
  */
 function parsePRBody(body) {
-    return {
-        breaking: body.match(/### Breaking Changes\s+([\s\S]*?)(?=###|$)/)?.[1]?.trim() || '',
-        upgrade: body.match(/### Upgrade Instructions\s+([\s\S]*?)(?=###|$)/)?.[1]?.trim() || '',
-        description: body.match(/What does this implement\/fix\? Explain your changes\.\s*-+\s*([\s\S]*?)(?=###|$)/)?.[1]?.trim() || ''
+    const sections = {
+        description: body.match(/What does this implement\/fix\? Explain your changes\.\s*-+\s*([\s\S]*?)(?=##|$)/)?.[1]?.trim() || '',
+        breaking: body.match(/#{2,3}\s*Breaking Changes\s*([\s\S]*?)(?=##|$)/)?.[1]?.trim() || '',
+        upgrade: body.match(/#{2,3}\s*Upgrade Instructions\s*([\s\S]*?)(?=##|$)/)?.[1]?.trim() || ''
     };
+
+    // Clean up any "N/A" or similar placeholders
+    Object.keys(sections).forEach(key => {
+        if (sections[key].toLowerCase() === 'n/a' || sections[key].toLowerCase() === 'none') {
+            sections[key] = '';
+        }
+    });
+
+    return sections;
 }
 
 /**
  * Create changeset using @changesets/cli
  */
 async function createChangeset({ title, body, prNumber }) {
+    // Parse PR title and body
     const { type, isBreaking } = parseTitle(title);
     const sections = parsePRBody(body);
-    const sinceMetadata = await generateSinceTagsMetadata();
-
-    // Determine bump type
-    const bumpType = isBreaking ? 'major' : (type === 'feat' ? 'minor' : 'patch');
 
     // Validate breaking changes have upgrade instructions
     if (isBreaking || sections.breaking) {
-        if (!sections.upgrade || sections.upgrade.toLowerCase() === 'n/a') {
+        if (!sections.breaking) {
+            throw new Error('Breaking changes must be documented in the PR description');
+        }
+        if (!sections.upgrade) {
             throw new Error('Breaking changes must include upgrade instructions');
         }
     }
 
-    // Format the summary to include the type prefix
-    const summary = `${type}${isBreaking ? '!' : ''}: ${sections.description}`;
+    // Get description from PR body or fallback to title
+    const description = sections.description || title.split(':')[1].trim();
+
+    // Format the summary
+    const summary = formatSummary(type, isBreaking, description);
+
+    // Determine bump type
+    const bumpType = isBreaking || sections.breaking ? 'major' : (type === 'feat' ? 'minor' : 'patch');
 
     // Create the changeset content
     const changesetContent = {
         summary,
-        releases: [{ name: 'wp-graphql', type: bumpType }],
-        type,
+        type: bumpType,
+        pr: Number(prNumber),
         pr_number: prNumber,
         pr_url: `https://github.com/wp-graphql/wp-graphql/pull/${prNumber}`,
         breaking: isBreaking,
-        breaking_changes: sections.breaking || '',
-        upgrade_instructions: sections.upgrade || ''
+        breaking_changes: sections.breaking,
+        upgrade_instructions: sections.upgrade,
+        releases: [{ name: 'wp-graphql', type: bumpType }]
     };
+
+    // Get @since tags metadata
+    const sinceMetadata = await generateSinceTagsMetadata();
 
     // Create a unique ID for the changeset
     const changesetId = `pr-${prNumber}-${Date.now()}`;
@@ -96,7 +123,7 @@ async function createChangeset({ title, body, prNumber }) {
         fileContent += '\n\nUPGRADE INSTRUCTIONS:\n' + sections.upgrade;
     }
 
-    if (sinceMetadata.sinceFiles.length) {
+    if (sinceMetadata.sinceFiles.length > 0) {
         fileContent += '\n\nFILES WITH @since TAGS TO UPDATE:\n' + sinceMetadata.sinceFiles.join('\n');
     }
 
@@ -105,8 +132,8 @@ async function createChangeset({ title, body, prNumber }) {
 
     return {
         type: bumpType,
-        breaking: Boolean(isBreaking || sections.breaking),
-        pr: Number(prNumber) || undefined,
+        breaking: isBreaking,
+        pr: Number(prNumber),
         sinceFiles: sinceMetadata.sinceFiles,
         totalSinceTags: sinceMetadata.totalTags,
         changesetId
@@ -138,5 +165,6 @@ module.exports = {
     parseTitle,
     parsePRBody,
     createChangeset,
+    formatSummary,
     ALLOWED_TYPES
 };

@@ -40,22 +40,22 @@ async function getUpgradeNoticeEntry(release, options) {
     if (breakingChanges.length > 0) {
         notice += '**BREAKING CHANGE UPDATE**\n\n';
         for (const changeset of breakingChanges) {
-            if (changeset.breakingChanges) {
-                notice += changeset.breakingChanges + '\n';
+            if (changeset.breaking_changes) {
+                notice += changeset.breaking_changes + '\n\n';
             }
-            if (changeset.pr) {
-                notice += `In <a href="${options.repo}/pull/${changeset.pr}">#${changeset.pr}</a>\n`;
+            if (changeset.pr_number) {
+                notice += `In <a href="${options.repo}/pull/${changeset.pr_number}">#${changeset.pr_number}</a>\n\n`;
             }
-            if (changeset.upgradeInstructions) {
-                notice += '\nUpgrade Instructions:\n' + changeset.upgradeInstructions + '\n';
+            if (changeset.upgrade_instructions) {
+                notice += changeset.upgrade_instructions + '\n\n';
             }
         }
     } else if (newVersion.match(/\d+\.\d+\.0$/)) {
         // Standard notice for minor versions
-        notice += 'While there are no known breaking changes, as this is a minor version update, we recommend testing on staging servers before updating production environments.\n';
+        notice += 'While there are no known breaking changes in this release, as this is a minor version update, we recommend testing on staging servers before updating production environments.\n';
     }
 
-    return notice;
+    return notice.trim() + '\n';
 }
 
 /**
@@ -66,7 +66,7 @@ async function updateReadmeTxt(release, options) {
     let content = fs.readFileSync(readmePath, 'utf8');
 
     // Generate changelog
-    const changelog = await getReadmeTxtChangelog(release, options);
+    const changelog = formatReadmeTxt(release.newVersion, release.changesets);
 
     // Update changelog section
     content = content.replace(
@@ -175,10 +175,154 @@ async function getReadmeTxtChangelog(release, options) {
     return heading + '\n' + sections.join('\n\n') + '\n\n';
 }
 
+/**
+ * Group changes by their type for readme.txt
+ */
+function groupChanges(changesets) {
+    const groups = {
+        breaking: [],
+        features: [],
+        fixes: [],
+        other: []
+    };
+
+    changesets.forEach(changeset => {
+        if (changeset.breaking || changeset.breaking_changes) {
+            groups.breaking.push(changeset);
+            return;
+        }
+
+        // Skip documentation changes in readme.txt
+        if (changeset.summary.startsWith('docs:')) {
+            return;
+        }
+
+        if (changeset.summary.startsWith('feat:')) {
+            groups.features.push(changeset);
+        } else if (changeset.summary.startsWith('fix:')) {
+            groups.fixes.push(changeset);
+        } else {
+            groups.other.push(changeset);
+        }
+    });
+
+    return groups;
+}
+
+/**
+ * Format a single change entry for readme.txt
+ */
+function formatChangeEntry(changeset) {
+    const summary = changeset.summary.split(':')[1].trim();
+    let entry = `* ${summary}`;
+
+    // Add PR link if available and GITHUB_TOKEN exists
+    if (process.env.GITHUB_TOKEN && changeset.pr_number) {
+        entry += ` (<a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a>)`;
+    }
+
+    return entry;
+}
+
+/**
+ * Format breaking changes section for readme.txt
+ */
+function formatBreakingChanges(changesets) {
+    if (!changesets.length) return '';
+
+    let content = '**BREAKING CHANGES**\n\n';
+
+    changesets.forEach(changeset => {
+        content += `${changeset.breaking_changes}\n\n`;
+        if (changeset.upgrade_instructions) {
+            content += 'Upgrade Instructions:\n';
+            content += `${changeset.upgrade_instructions}\n\n`;
+        }
+        if (process.env.GITHUB_TOKEN && changeset.pr_number) {
+            content += `See <a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a> for details.\n\n`;
+        }
+    });
+
+    return content;
+}
+
+/**
+ * Format changes section for readme.txt
+ */
+function formatChangesSection(title, changes) {
+    if (!changes.length) return '';
+
+    return `**${title}**\n\n${changes.map(formatChangeEntry).join('\n')}\n\n`;
+}
+
+/**
+ * Format upgrade notice for readme.txt
+ */
+function formatUpgradeNotice(version, changesets) {
+    const breakingChanges = changesets.filter(c => c.breaking || c.breaking_changes);
+
+    if (!breakingChanges.length) {
+        // For minor versions, add a standard notice
+        if (version.match(/\d+\.\d+\.0$/)) {
+            return `= ${version} =\n` +
+                   'While there are no breaking changes in this release, as this is a minor version update, ' +
+                   'we recommend testing on staging servers before updating production environments.\n\n';
+        }
+        return '';
+    }
+
+    let notice = `= ${version} =\n**BREAKING CHANGE UPDATE**\n\n`;
+
+    breakingChanges.forEach(changeset => {
+        notice += `${changeset.breaking_changes}\n\n`;
+        if (changeset.upgrade_instructions) {
+            notice += `${changeset.upgrade_instructions}\n\n`;
+        }
+        if (process.env.GITHUB_TOKEN && changeset.pr_number) {
+            notice += `See <a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a> for details.\n\n`;
+        }
+    });
+
+    return notice;
+}
+
+/**
+ * Format the complete changelog for readme.txt
+ */
+function formatReadmeTxt(version, changesets) {
+    const groups = groupChanges(changesets);
+    let content = `= ${version} =\n\n`;
+
+    // Add breaking changes first if any
+    if (groups.breaking.length) {
+        content += formatBreakingChanges(groups.breaking);
+    }
+
+    // Add other changes grouped by type
+    content += formatChangesSection('New Features', groups.features);
+    content += formatChangesSection('Bug Fixes', groups.fixes);
+
+    if (groups.other.length) {
+        content += formatChangesSection('Other Changes', groups.other);
+    }
+
+    // Add upgrade notice if needed
+    const upgradeNotice = formatUpgradeNotice(version, changesets);
+    if (upgradeNotice) {
+        content += '\n== Upgrade Notice ==\n\n' + upgradeNotice;
+    }
+
+    return content;
+}
+
 module.exports = {
     getReadmeTxtChangelog,
     getDependencyReleaseLine,
     updateStableTag,
     getUpgradeNoticeEntry,
-    updateReadmeTxt
+    updateReadmeTxt,
+    formatReadmeTxt,
+    groupChanges,
+    formatChangeEntry,
+    formatUpgradeNotice
 };

@@ -19,6 +19,7 @@
     "check-versions": "node --no-warnings scripts/check-versions.js",
     "update-since": "node scripts/update-since-tags.js",
     "simulate-release": "node scripts/simulate-release.js",
+    "simulate-workflow": "node scripts/simulate-workflow.js",
     "test:changesets": "jest scripts/__tests__",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
