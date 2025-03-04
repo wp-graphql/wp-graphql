@@ -26,8 +26,6 @@ use WPGraphQL\Utils\QueryAnalyzer;
  */
 class Request {
 
-
-
 	/**
 	 * App context for this request.
 	 *
