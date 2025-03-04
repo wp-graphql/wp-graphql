@@ -288,14 +288,13 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 **New Features**
 
-- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
-
+- [#3320](https://github.com/wp-graphql/wp-graphql/pull/3320): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
 **Chores / Bugfixes**
 
 - [#3314](https://github.com/wp-graphql/wp-graphql/pull/3314): fix: use version_compare to simplify incompatible dependent check
 - [#3316](https://github.com/wp-graphql/wp-graphql/pull/3316): docs: update changelog and upgrade notice
 - [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): docs: update quick-start.md
-
+- [#3190](https://github.com/wp-graphql/wp-graphql/pull/3190): docs: add developer docs for `AbstractConnectionResolver`
 
 = 2.0.0 =
 
