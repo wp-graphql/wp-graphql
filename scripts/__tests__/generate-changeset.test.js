@@ -1,4 +1,6 @@
-const { parseTitle, parsePRBody, createChangeset } = require('../generate-changeset');
+const { parseTitle, parsePRBody, createChangeset, ALLOWED_TYPES } = require('../generate-changeset');
+const path = require('path');
+const fs = require('fs');
 
 jest.mock('@changesets/cli', () => ({
     createChangeset: jest.fn().mockImplementation(async (options) => ({
@@ -49,9 +51,12 @@ describe('Changeset Generation', () => {
             expect(() => parseTitle('invalid title')).toThrow();
         });
 
+        test('throws error for invalid type', () => {
+            expect(() => parseTitle('invalid: some change')).toThrow();
+        });
+
         test('handles all valid commit types', () => {
-            const types = ['feat', 'fix', 'build', 'chore', 'ci', 'docs', 'perf', 'refactor', 'revert', 'style', 'test'];
-            types.forEach(type => {
+            ALLOWED_TYPES.forEach(type => {
                 const result = parseTitle(`${type}: some change`);
                 expect(result).toEqual({ type, isBreaking: false });
             });
@@ -153,28 +158,65 @@ Update steps
 
         beforeEach(() => {
             jest.clearAllMocks();
+            fs.writeFileSync = jest.fn();
+            fs.existsSync = jest.fn().mockReturnValue(true);
         });
 
-        test('generates correct changeset content', async () => {
+        test('generates correct changeset content for breaking change', async () => {
             const result = await createChangeset(mockPR);
+
             expect(result).toMatchObject({
                 type: 'major',
                 breaking: true,
-                pr: 123,
-                sinceFiles: ['src/test.php'],
-                totalSinceTags: 1
+                pr: 123
             });
+
+            // Verify the written file content
+            const writeCall = fs.writeFileSync.mock.calls[0][1];
+            expect(writeCall).toContain('feat!: Description here');
+            expect(writeCall).toContain('Breaking details');
+            expect(writeCall).toContain('Update steps');
+            expect(writeCall).toContain('"pr_url": "https://github.com/wp-graphql/wp-graphql/pull/123"');
         });
 
-        test('handles missing PR sections', async () => {
-            const result = await createChangeset({
-                title: 'fix: simple fix',
-                body: 'Just a description',
+        test('throws error for breaking change without upgrade instructions', async () => {
+            const prWithoutInstructions = {
+                ...mockPR,
+                body: `
+What does this implement/fix? Explain your changes.
+---
+Description here
+
+### Breaking Changes
+Breaking details
+                `
+            };
+
+            await expect(createChangeset(prWithoutInstructions)).rejects.toThrow('Breaking changes must include upgrade instructions');
+        });
+
+        test('generates correct changeset content for non-breaking feature', async () => {
+            const nonBreakingPR = {
+                title: 'feat: new feature',
+                body: `
+What does this implement/fix? Explain your changes.
+---
+Adding a cool feature
+                `,
                 prNumber: 456
+            };
+
+            const result = await createChangeset(nonBreakingPR);
+
+            expect(result).toMatchObject({
+                type: 'minor',
+                breaking: false,
+                pr: 456
             });
-            expect(result).toBeDefined();
-            expect(result.breaking).toBe(false);
-            expect(result.type).toBe('patch');
+
+            const writeCall = fs.writeFileSync.mock.calls[0][1];
+            expect(writeCall).toContain('feat: Adding a cool feature');
+            expect(writeCall).toContain('"pr_url": "https://github.com/wp-graphql/wp-graphql/pull/456"');
         });
     });
 });

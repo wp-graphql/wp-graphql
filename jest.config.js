@@ -1,9 +1,31 @@
 module.exports = {
-    testEnvironment: 'node',
+    // Use babel-jest for JS/TS files
     transform: {
-        '^.+\\.js$': 'babel-jest'
+        '^.+\\.[t|j]sx?$': ['babel-jest', {
+            configFile: './babel.config.cjs',
+            rootMode: 'upward',
+            babelrc: false,
+            babelrcRoots: false
+        }]
     },
-    transformIgnorePatterns: [
-        'node_modules/(?!(chalk)/)'
-    ]
+
+    // Specify test environment
+    testEnvironment: 'node',
+
+    // Specify where to find test files
+    testMatch: [
+        '**/scripts/__tests__/**/*.[jt]s?(x)',
+    ],
+
+    // Specify coverage collection
+    collectCoverageFrom: [
+        'scripts/**/*.{js,jsx}',
+        '!scripts/__tests__/**',
+    ],
+
+    // Setup files
+    setupFiles: [],
+
+    // Module file extensions
+    moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
 };

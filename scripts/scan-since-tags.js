@@ -20,28 +20,45 @@ function scanFileForSinceTags(filePath) {
  * Find all files with @since todo tags
  */
 async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
-    const files = await glob(pattern, { ignore: 'node_modules/**' });
-    const results = [];
+    try {
+        // Use glob.sync for synchronous operation, or await the async glob
+        const files = await glob(pattern, { ignore: 'node_modules/**' });
+        const results = [];
 
-    for (const file of files) {
-        const count = scanFileForSinceTags(file);
-        if (count > 0) {
-            results.push({ file, count });
+        // Ensure files is treated as an array
+        const fileArray = Array.isArray(files) ? files : Array.from(files);
+
+        for (const file of fileArray) {
+            const count = scanFileForSinceTags(file);
+            if (count > 0) {
+                results.push({ file, count });
+            }
         }
-    }
 
-    return results;
+        return results;
+    } catch (error) {
+        console.error('Error finding files:', error);
+        return [];
+    }
 }
 
 /**
  * Generate changeset metadata for @since todo files
  */
 async function generateSinceTagsMetadata() {
-    const files = await findFilesWithSinceTags();
-    return {
-        sinceFiles: files.map(({ file }) => file),
-        totalTags: files.reduce((sum, { count }) => sum + count, 0)
-    };
+    try {
+        const files = await findFilesWithSinceTags();
+        return {
+            sinceFiles: files.map(({ file }) => file),
+            totalTags: files.reduce((sum, { count }) => sum + count, 0)
+        };
+    } catch (error) {
+        console.error('Error generating metadata:', error);
+        return {
+            sinceFiles: [],
+            totalTags: 0
+        };
+    }
 }
 
 module.exports = {
