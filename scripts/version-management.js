@@ -163,10 +163,41 @@ function validateVersions(versions) {
 }
 
 /**
+ * Validate version jump isn't too large
+ */
+function validateVersionJump(currentVersion, newVersion) {
+    const [currentMajor, currentMinor, currentPatch] = currentVersion.split('.').map(Number);
+    const [newMajor, newMinor, newPatch] = newVersion.split('.').map(Number);
+
+    // Don't allow jumping more than one major version
+    if (newMajor > currentMajor + 1) {
+        throw new Error(`Version jump too large: ${currentVersion} → ${newVersion}. Cannot increment major version by more than 1.`);
+    }
+
+    // If same major, don't allow jumping more than one minor version
+    if (newMajor === currentMajor && newMinor > currentMinor + 1) {
+        throw new Error(`Version jump too large: ${currentVersion} → ${newVersion}. Cannot increment minor version by more than 1.`);
+    }
+
+    // If same major and minor, don't allow jumping more than one patch version
+    if (newMajor === currentMajor && newMinor === currentMinor && newPatch > currentPatch + 1) {
+        throw new Error(`Version jump too large: ${currentVersion} → ${newVersion}. Cannot increment patch version by more than 1.`);
+    }
+
+    return true;
+}
+
+/**
  * Update version numbers across all files
  */
 async function updateVersions(newVersion, isBeta = false) {
     try {
+        // Get current versions
+        const currentVersions = getCurrentVersions();
+
+        // Validate version jump
+        validateVersionJump(currentVersions.package, newVersion);
+
         // Update wp-graphql.php
         let content = fs.readFileSync(VERSION_FILES.php, 'utf8');
         content = content.replace(/(Version:\s*).+/, `$1${newVersion}`);

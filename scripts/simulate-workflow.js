@@ -233,21 +233,27 @@ ${options.upgrade || ''}`,
  */
 async function simulateVersionUpdate(version, options = {}) {
     try {
-        // Get current version
+        // Get current version and calculate next version
         const beforeVersions = getCurrentVersions();
         const currentVersion = beforeVersions.package;
-
-        // Get changesets and calculate next version if not provided
         const changesets = await readActualChangesets();
         const nextVersion = version || calculateNextVersion(currentVersion, changesets);
 
         console.log(chalk.blue('\nSimulating Version Update:'));
-        console.log('Current Version:', currentVersion);
-        console.log('Next Version:', nextVersion);
+        console.log('Current Version:', chalk.yellow(currentVersion));
+        console.log('Next Version:  ', chalk.green(nextVersion));
+        console.log('Version Jump:  ', chalk.cyan(`${currentVersion} → ${nextVersion}`));
         console.log('Reason:', getVersionBumpReason(changesets));
-        console.log('Options:', options);
 
-        // Show current versions
+        // If it's a major version bump, add extra warning
+        if (nextVersion.split('.')[0] > currentVersion.split('.')[0]) {
+            console.log(chalk.yellow('\n⚠️  Warning: This is a major version bump!'));
+            if (!process.env.FORCE_VERSION) {
+                console.log(chalk.yellow('To proceed, run with FORCE_VERSION=1 environment variable'));
+                return false;
+            }
+        }
+
         console.log(chalk.blue('\nCurrent versions:'));
         Object.entries(beforeVersions).forEach(([file, ver]) => {
             console.log(`${file}: ${ver}`);
