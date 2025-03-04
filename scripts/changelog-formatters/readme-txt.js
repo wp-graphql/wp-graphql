@@ -20,9 +20,89 @@ function updateStableTag(version) {
 }
 
 /**
+ * Generate upgrade notice entry for readme.txt
+ */
+async function getUpgradeNoticeEntry(release, options) {
+    const { newVersion, changesets } = release;
+
+    // Skip upgrade notices for patch versions without breaking changes
+    if (newVersion.match(/\d+\.\d+\.\d+$/) && !changesets.some(c => c.breaking)) {
+        // Only skip if it's not a minor version (x.y.0)
+        if (!newVersion.endsWith('.0')) {
+            return '';
+        }
+    }
+
+    let notice = `= ${newVersion} =\n`;
+
+    // Check for breaking changes
+    const breakingChanges = changesets.filter(c => c.breaking);
+    if (breakingChanges.length > 0) {
+        notice += '**BREAKING CHANGE UPDATE**\n\n';
+        for (const changeset of breakingChanges) {
+            if (changeset.breakingChanges) {
+                notice += changeset.breakingChanges + '\n';
+            }
+            if (changeset.pr) {
+                notice += `In <a href="${options.repo}/pull/${changeset.pr}">#${changeset.pr}</a>\n`;
+            }
+            if (changeset.upgradeInstructions) {
+                notice += '\nUpgrade Instructions:\n' + changeset.upgradeInstructions + '\n';
+            }
+        }
+    } else if (newVersion.match(/\d+\.\d+\.0$/)) {
+        // Standard notice for minor versions
+        notice += 'While there are no known breaking changes, as this is a minor version update, we recommend testing on staging servers before updating production environments.\n';
+    }
+
+    return notice;
+}
+
+/**
+ * Updates readme.txt with changelog and upgrade notice
+ */
+async function updateReadmeTxt(release, options) {
+    const readmePath = path.join(process.cwd(), 'readme.txt');
+    let content = fs.readFileSync(readmePath, 'utf8');
+
+    // Generate changelog
+    const changelog = await getReadmeTxtChangelog(release, options);
+
+    // Update changelog section
+    content = content.replace(
+        /(== Changelog ==\n\n)/,
+        `$1${changelog}`
+    );
+
+    // Generate upgrade notice if needed
+    const upgradeNotice = await getUpgradeNoticeEntry(release, options);
+    if (upgradeNotice) {
+        if (content.includes('== Upgrade Notice ==')) {
+            content = content.replace(
+                /(== Upgrade Notice ==\n\n)/,
+                `$1${upgradeNotice}\n\n`
+            );
+        } else {
+            content += `\n\n== Upgrade Notice ==\n\n${upgradeNotice}\n`;
+        }
+    }
+
+    // Update stable tag if needed
+    if (!release.newVersion.includes('-')) {
+        updateStableTag(release.newVersion);
+    }
+
+    fs.writeFileSync(readmePath, content);
+}
+
+/**
  * Formats changelog entries for WordPress.org readme.txt
  */
 async function getReadmeTxtReleaseLine(changeset, type, options) {
+    if (!changeset || !changeset.summary) {
+        return '';
+    }
+
     const [firstLine] = changeset.summary.split('\n');
     let links;
     try {
@@ -37,7 +117,6 @@ async function getReadmeTxtReleaseLine(changeset, type, options) {
         console.warn('Warning: Could not fetch GitHub info. PR links will not be included.');
     }
 
-    // Format: = [version] =\n\n* Change description ([PR #123](link))
     return `* ${firstLine}${links ? ` (${links.pull})` : ''}`;
 }
 
@@ -61,11 +140,20 @@ async function getReadmeTxtChangelog(release, options) {
     for (const changeset of release.changesets) {
         const line = await getReadmeTxtReleaseLine(changeset, 'patch', options);
 
-        if (changeset.summary.startsWith('feat')) {
-            features.push(line);
-        } else if (changeset.summary.startsWith('fix')) {
-            bugfixes.push(line);
+        // Skip empty lines
+        if (!line) continue;
+
+        // Only try to categorize if summary exists
+        if (changeset && changeset.summary) {
+            if (changeset.summary.startsWith('feat')) {
+                features.push(line);
+            } else if (changeset.summary.startsWith('fix')) {
+                bugfixes.push(line);
+            } else {
+                other.push(line);
+            }
         } else {
+            // If no summary, add to other changes
             other.push(line);
         }
     }
@@ -90,5 +178,7 @@ async function getReadmeTxtChangelog(release, options) {
 module.exports = {
     getReadmeTxtChangelog,
     getDependencyReleaseLine,
-    updateStableTag // Export for testing
+    updateStableTag,
+    getUpgradeNoticeEntry,
+    updateReadmeTxt
 };

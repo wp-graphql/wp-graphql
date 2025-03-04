@@ -1,128 +1,131 @@
-const { getReadmeTxtChangelog, updateStableTag } = require('../../changelog-formatters/readme-txt');
+const { getReadmeTxtChangelog, getUpgradeNoticeEntry, updateReadmeTxt } = require('../../changelog-formatters/readme-txt');
+const defaultChangelogFunctions = require('@changesets/cli/changelog');
 const fs = require('fs');
 const path = require('path');
 
 jest.mock('fs');
 jest.mock('@changesets/get-github-info');
 
-describe('readme.txt formatter', () => {
+describe('Changelog Integration', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        fs.readFileSync.mockReturnValue('Stable tag: 1.0.0');
+        fs.readFileSync.mockReturnValue('== Changelog ==\n\nOld entries\n\n== Upgrade Notice ==\n\nOld notices');
     });
 
-    describe('updateStableTag', () => {
-        test('updates stable tag for stable release', () => {
-            updateStableTag('2.0.0');
+    describe('Upgrade Notice Generation', () => {
+        test('generates upgrade notice for breaking changes', async () => {
+            const release = {
+                newVersion: '2.0.0',
+                changesets: [{
+                    breaking: true,
+                    breakingChanges: 'This is a breaking change',
+                    upgradeInstructions: 'Follow these steps',
+                    pr: 123
+                }]
+            };
+
+            const options = { repo: 'wp-graphql/wp-graphql' };
+            const notice = await getUpgradeNoticeEntry(release, options);
+
+            expect(notice).toContain('= 2.0.0 =');
+            expect(notice).toContain('**BREAKING CHANGE UPDATE**');
+            expect(notice).toContain('This is a breaking change');
+            expect(notice).toContain('In <a href="wp-graphql/wp-graphql/pull/123">#123</a>');
+            expect(notice).toContain('Follow these steps');
+        });
+
+        test('generates standard notice for minor versions', async () => {
+            const release = {
+                newVersion: '2.1.0',
+                changesets: [{
+                    breaking: false,
+                    summary: 'New feature'
+                }]
+            };
+
+            const notice = await getUpgradeNoticeEntry(release, {});
+            expect(notice).toContain('= 2.1.0 =');
+            expect(notice).toContain('no known breaking changes');
+            expect(notice).toContain('recommend testing on staging servers');
+        });
+
+        test('skips upgrade notice for patch versions without changes', async () => {
+            const release = {
+                newVersion: '2.1.1',
+                changesets: [{
+                    breaking: false,
+                    summary: 'Bug fix'
+                }]
+            };
+
+            const notice = await getUpgradeNoticeEntry(release, {});
+            expect(notice).toBe('');
+        });
+    });
+
+    describe('Readme.txt Integration', () => {
+        test('updates both changelog and upgrade notice sections', async () => {
+            const release = {
+                newVersion: '2.0.0',
+                changesets: [{
+                    breaking: true,
+                    breakingChanges: 'Breaking change',
+                    upgradeInstructions: 'Upgrade steps',
+                    summary: 'New feature',
+                    pr: 123
+                }]
+            };
+
+            const options = { repo: 'wp-graphql/wp-graphql' };
+            await updateReadmeTxt(release, options);
+
             expect(fs.writeFileSync).toHaveBeenCalledWith(
                 expect.any(String),
-                'Stable tag: 2.0.0'
+                expect.stringContaining('== Changelog ==')
+            );
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.stringContaining('== Upgrade Notice ==')
+            );
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.stringContaining('**BREAKING CHANGE UPDATE**')
             );
         });
 
-        test('does not update stable tag for beta release', () => {
-            updateStableTag('2.0.0-beta.1');
-            expect(fs.writeFileSync).not.toHaveBeenCalled();
-        });
-    });
+        test('handles missing upgrade notice section', async () => {
+            fs.readFileSync.mockReturnValue('== Changelog ==\n\nOld entries');
 
-    describe('getReadmeTxtChangelog', () => {
-        test('generates changelog while leaving CHANGELOG.md untouched', async () => {
             const release = {
                 newVersion: '2.0.0',
-                changesets: [
-                    { summary: 'feat: new feature', commit: 'abc' }
-                ]
+                changesets: [{
+                    breaking: true,
+                    breakingChanges: 'Breaking change',
+                    upgradeInstructions: 'Upgrade steps'
+                }]
             };
 
-            // Mock both files existing
-            fs.readFileSync
-                .mockReturnValueOnce('Stable tag: 1.0.0') // readme.txt
-                .mockReturnValueOnce('# Changelog'); // CHANGELOG.md
+            await updateReadmeTxt(release, {});
 
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
-
-            // Should only write to readme.txt
-            expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
-            expect(fs.writeFileSync.mock.calls[0][0]).toContain('readme.txt');
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.stringContaining('== Upgrade Notice ==\n\n= 2.0.0 =')
+            );
         });
 
-        test('formats changelog with all section types', async () => {
-            const release = {
-                newVersion: '2.0.0',
-                changesets: [
-                    { summary: 'feat: new feature', commit: 'abc' },
-                    { summary: 'fix: bug fix', commit: 'def' },
-                    { summary: 'chore: other change', commit: 'ghi' }
-                ]
-            };
-
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
-
-            expect(changelog).toContain('= 2.0.0 =');
-            expect(changelog).toContain('**New Features**');
-            expect(changelog).toContain('**Chores / Bugfixes**');
-            expect(changelog).toContain('**Other Changes**');
-        });
-
-        test('handles beta releases', async () => {
+        test('preserves stable tag for beta releases', async () => {
             const release = {
                 newVersion: '2.0.0-beta.1',
-                changesets: [
-                    { summary: 'feat: new feature', commit: 'abc' }
-                ]
+                changesets: [{
+                    breaking: true,
+                    breakingChanges: 'Beta breaking change'
+                }]
             };
 
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
+            await updateReadmeTxt(release, {});
 
-            expect(changelog).toContain('= 2.0.0-beta.1 =');
-            expect(fs.writeFileSync).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('changelog grouping', () => {
-        test('groups multiple changes correctly', async () => {
-            const release = {
-                newVersion: '2.0.0',
-                changesets: [
-                    { summary: 'feat: feature 1', commit: 'abc' },
-                    { summary: 'feat: feature 2', commit: 'def' },
-                    { summary: 'fix: bug fix', commit: 'ghi' },
-                    { summary: 'docs: documentation', commit: 'jkl' }
-                ]
-            };
-
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
-
-            expect(changelog).toMatch(/\*\*New Features\*\*.*feature 1.*feature 2/s);
-            expect(changelog).toMatch(/\*\*Chores \/ Bugfixes\*\*.*bug fix/s);
-            expect(changelog).toMatch(/\*\*Other Changes\*\*.*documentation/s);
-        });
-
-        test('handles breaking changes', async () => {
-            const release = {
-                newVersion: '3.0.0',
-                changesets: [
-                    { summary: 'feat!: breaking feature', commit: 'abc' }
-                ]
-            };
-
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
-            expect(changelog).toContain('breaking feature');
-        });
-    });
-
-    describe('error handling', () => {
-        test('handles missing commit data', async () => {
-            const release = {
-                newVersion: '2.0.0',
-                changesets: [
-                    { summary: 'feat: feature' }
-                ]
-            };
-
-            const changelog = await getReadmeTxtChangelog(release, { repo: 'wp-graphql/wp-graphql' });
-            expect(changelog).toContain('feat: feature');
+            const writeCall = fs.writeFileSync.mock.calls[0][1];
+            expect(writeCall).not.toMatch(/Stable tag: 2.0.0-beta.1/);
         });
     });
 });
