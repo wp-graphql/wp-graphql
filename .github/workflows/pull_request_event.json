@@ -1,0 +1,13 @@
+ {
+     "action": "merged",
+     "pull_request": {
+       "merged": true,
+       "title": "Example PR Title",
+       "body": "This is an example PR body.",
+       "number": 1,
+       "html_url": "https://github.com/your-username/your-repo/pull/1",
+       "base": {
+         "ref": "develop"
+       }
+     }
+   }

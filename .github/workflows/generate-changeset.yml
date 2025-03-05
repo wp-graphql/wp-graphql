@@ -46,13 +46,10 @@ jobs:
       # Generate changeset
       - name: Generate Changeset
         id: generate
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
+          echo "PR_TITLE=${{ env.PR_TITLE || github.event.pull_request.title || 'feat: No title' }}" >> $GITHUB_ENV
+          echo "PR_BODY=${{ env.PR_BODY || github.event.pull_request.body || 'No body' }}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ env.PR_NUMBER || github.event.pull_request.number || 'No number' }}" >> $GITHUB_ENV
           # Run with error handling
           if ! node scripts/generate-changeset.js; then
             echo "Error generating changeset"
@@ -62,11 +59,13 @@ jobs:
       # Create PR with changeset
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
+
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.SYNC_TOKEN }}
           commit-message: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
           branch: changeset-pr-${{ github.event.pull_request.number }}
           title: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+          base: "develop"
           body: |
             This PR was automatically created to add a changeset for PR #${{ github.event.pull_request.number }}.
 
