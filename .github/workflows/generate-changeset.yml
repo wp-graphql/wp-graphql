@@ -1,17 +1,35 @@
 name: "Generate Changeset"
 
-# Triggered when a PR is merged
+# Triggered when a PR is merged or manually
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      PR_TITLE:
+        description: "Title of the PR"
+        required: true
+        default: "feat: No title"
+      PR_BODY:
+        description: "Body of the PR"
+        required: true
+        default: "No body"
+      PR_NUMBER:
+        description: "Number of the PR"
+        required: true
+        default: "0"
 
 jobs:
   generate-changeset:
-    # Only run if PR was merged (not just closed)
-    if: github.event.pull_request.merged == true
+    # Only run if PR was merged (not just closed) or manually triggered
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     name: Generate Changeset
     runs-on: ubuntu-latest
-
+    env:
+      PR_TITLE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_TITLE || github.event.pull_request.title }}
+      PR_BODY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_BODY || github.event.pull_request.body }}
+      PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_NUMBER || github.event.pull_request.number }}
+      SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
     permissions:
       contents: write # Grant write access to the repository contents
 
@@ -20,7 +38,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'develop' || github.event.pull_request.base.ref }}
+          token: ${{ secrets.SYNC_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,45 +66,28 @@ jobs:
       - name: Generate Changeset
         id: generate
         run: |
-          echo "PR_TITLE=${{ env.PR_TITLE || github.event.pull_request.title || 'feat: No title' }}" >> $GITHUB_ENV
-          echo "PR_BODY=${{ env.PR_BODY || github.event.pull_request.body || 'No body' }}" >> $GITHUB_ENV
-          echo "PR_NUMBER=${{ env.PR_NUMBER || github.event.pull_request.number || 'No number' }}" >> $GITHUB_ENV
           # Run with error handling
           if ! node scripts/generate-changeset.js; then
             echo "Error generating changeset"
             exit 1
           fi
 
-      # Create PR with changeset
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+      # Set Git config
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
 
-        with:
-          token: ${{ secrets.SYNC_TOKEN }}
-          commit-message: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
-          branch: changeset-pr-${{ github.event.pull_request.number }}
-          title: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
-          base: "develop"
-          body: |
-            This PR was automatically created to add a changeset for PR #${{ github.event.pull_request.number }}.
-
-            The changeset will be used to:
-            1. Update the changelog
-            2. Determine version bump
-            3. Update version numbers
-            4. Update @since tags
-
-            ### Validation
-            - [ ] Changeset format is correct
-            - [ ] Version bump type is appropriate
-            - [ ] Breaking changes are properly documented
-            - [ ] Upgrade instructions are included (if needed)
-            - [ ] @since tags are identified for update
-
-            ### Files with @since Tags to Update
-            ${{ steps.since_tags.outputs.tags != '' && fromJson(steps.since_tags.outputs.tags).sinceFiles || 'No files with @since tags found.' }}
-
-            Total tags to update: ${{ steps.since_tags.outputs.tags != '' && fromJson(steps.since_tags.outputs.tags).totalTags || 0 }}
-          labels: |
-            automated pr
-            changeset
+      # Commit changeset directly to develop or echo what would happen
+      - name: Commit Changeset
+        run: |
+          git checkout develop
+          git add .changeset/*  # Adjust this path if necessary
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "This would commit the following changes:"
+            git diff --cached  # Show what would be committed
+            echo "Commit message: chore: add changeset for PR #${{ github.event.inputs.PR_NUMBER }}"
+          else
+            git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+            git push origin develop
+          fi
