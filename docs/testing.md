@@ -5,7 +5,7 @@ title: "Testing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run tests locally.
 
-In order to run tests, you must [clone the plugin from Github](https://github.com/wp-graphql/wp-graphql). Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
+In order to run tests, you must [clone the plugin from GitHub](https://github.com/wp-graphql/wp-graphql). Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
 
 ## Testing Locally with Codeception
 
@@ -22,11 +22,11 @@ Running tests locally with Codeception is the fastest way to run tests, but it r
 
 WPGraphQL includes a script to install a local test environment.
 
-Running this script will install WordPress to your machines `tmp` directory, and will add WPGraphQL as a plugin and activate it.
+Running this script will install WordPress to your machine's `tmp` directory, and will add WPGraphQL as a plugin and activate it.
 
 > **NOTE:** Because this installs to a tmp directory, if you restart your computer, this will go away so you would need to run this script again to setup your test environment again.
 
-Run the following command, replacing the variables with data for your local Database
+Run the following command, replacing the variables with data for your local Database:
 
 ```shell
 bin/install-test-env.sh $db_name $db_user $db_pass $db_host latest true
@@ -142,7 +142,7 @@ To run the tests, run the following commands (you can use `control + c` to exit)
 vendor/bin/codecept run wpunit
 ```
 
-This will run *all* of the tests of the `wpunit` suite.
+This will run _all_ of the tests of the `wpunit` suite.
 
 To run an individual test file, you can specify the file like so:
 
@@ -162,7 +162,7 @@ The tests should start running and you should see something similar to the follo
 
 ## Testing with Docker
 
-Testing in docker is slower than testing locally directly with Codeception, but it allows you to test in a consistent environment and not have to worry about a local environment issue getting in the way of running the tests. Also allows testing with different versions of PHP and/or WordPress quickly.
+Testing in Docker is slower than testing locally directly with Codeception, but it allows you to test in a consistent environment and not have to worry about a local environment issue getting in the way of running the tests. It also allows testing with different versions of PHP and/or WordPress quickly.
 
 ### Pre-Requisites
 
@@ -176,7 +176,7 @@ Build and start the Docker testing environment by running this command:
 composer build-test
 ```
 
-This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step to run the full test suite in the docker container.
+This step will take several minutes the first time it's run because it needs to install OS dependencies. This work will be cached so you won't have to wait as long the next time you run it. You are ready to go to the next step to run the full test suite in the Docker container.
 
 Build the environment with specific version of PHP:
 
@@ -214,7 +214,7 @@ composer run-test
 
 Use the environment variable SUITES to specify individual files or lists of files to test. This is useful when working on one test file and wanting to limit test execution to the single file or test. Also see the contributing documentation on enabling xdebug in the testing docker environment.
 
-By default the SUITES variable is set to all test types; acceptance,functional,wpunit.  See the .env file in the source root directory.
+By default the SUITES variable is set to all test types; acceptance,functional,wpunit. See the .env file in the source root directory.
 
 To run just the acceptance test suite, use the following:
 
@@ -260,13 +260,13 @@ PHP_VERSION=8.1 WP_VERSION=6.0 SUITES=acceptance composer run-test
 
 **Notes:**
 
--   If you make a change that requires `composer install` to be rerun, run composer build-app again.
+- If you make a change that requires `composer install` to be rerun, run composer build-app again.
 
--   Leave the container shell by typing `exit`.
+- Leave the container shell by typing `exit`.
 
--   Docker artifacts will *usually* be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
-    - Run this command: `docker system prune`
-    - https://docs.docker.com/config/pruning/#prune-containers
+- Docker artifacts will _usually_ be cleaned up automatically when the script completes. In case it doesn't do the job, try these solutions:
+  - Run this command: `docker system prune`
+  - https://docs.docker.com/config/pruning/#prune-containers
 
 #### Advanced Testing Within Docker Shell
 
@@ -282,7 +282,7 @@ Specify the PHP and/or WordPress versions to use that environment. Environment m
 PHP_VERSION=8.1 WP_VERSION=6.0 docker compose run --entrypoint bash -- testing
 ```
 
-Run the setup script, which also runs the test suite.  This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.
+Run the setup script, which also runs the test suite. This needs to be run at least once after logging into the docker bash shell prompt. If you log out, the settings are not saved and must be re-run after opening the docker shell prompt.
 
 ```shell
 /usr/local/bin/testing-entrypoint.sh

@@ -21,14 +21,10 @@ function scanFileForSinceTags(filePath) {
  */
 async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
     try {
-        // Use glob.sync for synchronous operation
         const files = await glob(pattern);
         const results = [];
 
-        // Ensure files is treated as an array
-        const fileArray = Array.isArray(files) ? files : [files];
-
-        for (const file of fileArray) {
+        for (const file of files) {
             const count = scanFileForSinceTags(file);
             if (count > 0) {
                 results.push({ file, count });
@@ -48,10 +44,23 @@ async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
 async function generateSinceTagsMetadata() {
     try {
         const files = await findFilesWithSinceTags();
-        return {
+        const metadata = {
             sinceFiles: files.map(({ file }) => file),
             totalTags: files.reduce((sum, { count }) => sum + count, 0)
         };
+
+        if (files.length > 0) {
+            console.log('\nFound files with @since tags to update:');
+            files.forEach(({ file, count }) => {
+                console.log(`- ${file} (${count} tags)`);
+            });
+        } else {
+            console.log('\nNo files found with @since tags to update');
+        }
+
+        console.log(`Total tags to update: ${metadata.totalTags}\n`);
+
+        return metadata;
     } catch (error) {
         console.error('Error generating metadata:', error);
         return {

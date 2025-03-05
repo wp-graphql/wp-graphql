@@ -2,8 +2,7 @@
 
 const { createChangeset } = require('./generate-changeset');
 const { updateVersions, getCurrentVersions, resetVersions } = require('./version-management');
-const { updateAllSinceTags } = require('./update-since-tags');
-const { generateSinceTagsMetadata } = require('./scan-since-tags');
+const { updateAllSinceTags, findSinceTodoFiles, getSincePlaceholders } = require('./update-since-tags');
 const { formatChangelogMd } = require('./changelog-formatters/changelog-md');
 const { formatReadmeTxt } = require('./changelog-formatters/readme-txt');
 const fs = require('fs');
@@ -96,6 +95,30 @@ function calculateNextVersion(currentVersion, changesets) {
 
     // Otherwise, it's a patch
     return `${major}.${minor}.${patch + 1}`;
+}
+
+/**
+ * Get the next version number
+ */
+function getNextVersion(currentVersion, forceVersion = false) {
+    if (forceVersion) {
+        // For forced version, increment the patch number
+        const [major, minor, patch] = currentVersion.split('.').map(Number);
+        return `${major}.${minor}.${patch + 1}`;
+    }
+
+    // Read changesets and calculate version based on changes
+    const changesets = fs.existsSync('.changeset')
+        ? fs.readdirSync('.changeset').filter(file => file.endsWith('.md') && file !== 'README.md')
+        : [];
+
+    if (changesets.length === 0) {
+        // No changes, increment patch
+        const [major, minor, patch] = currentVersion.split('.').map(Number);
+        return `${major}.${minor}.${patch + 1}`;
+    }
+
+    return calculateNextVersion(currentVersion, changesets);
 }
 
 /**
@@ -232,76 +255,75 @@ ${options.upgrade || ''}`,
 /**
  * Simulate version update
  */
-async function simulateVersionUpdate(version, options = {}) {
+async function simulateVersionUpdate() {
+    console.log('\nSimulating Version Update:');
+
+    // Get current version from package.json
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const currentVersion = packageJson.version;
+
+    // Determine next version
+    const forceVersion = process.env.FORCE_VERSION === '1';
+    const nextVersion = getNextVersion(currentVersion, forceVersion);
+
+    console.log('Current Version:', currentVersion);
+    console.log('Next Version:  ', nextVersion);
+    console.log('Version Jump:  ', `${currentVersion} → ${nextVersion}`);
+    console.log('Reason:', forceVersion ? 'Forced version bump' : 'No changes detected');
+
+    console.log('\nScanning for @since tags to update...');
+
+    // Use the functions from update-since-tags.js
     try {
-        // Get current version and calculate next version
-        const beforeVersions = getCurrentVersions();
-        const currentVersion = beforeVersions.package;
-        const changesets = await readActualChangesets();
-        const nextVersion = version || calculateNextVersion(currentVersion, changesets);
+        const files = await findSinceTodoFiles();
+        console.log('\nProcessing files for @since tags...');
 
-        console.log(chalk.blue('\nSimulating Version Update:'));
-        console.log('Current Version:', chalk.yellow(currentVersion));
-        console.log('Next Version:  ', chalk.green(nextVersion));
-        console.log('Version Jump:  ', chalk.cyan(`${currentVersion} → ${nextVersion}`));
-        console.log('Reason:', getVersionBumpReason(changesets));
-
-        // Scan for @since tags before version check
-        console.log(chalk.blue('\nScanning for @since tags to update:'));
-        try {
-            const metadata = await generateSinceTagsMetadata();
-            if (metadata.totalTags > 0) {
-                console.log(chalk.yellow(`Found ${metadata.totalTags} @since tags to update in ${metadata.sinceFiles.length} files:`));
-                metadata.sinceFiles.forEach(file => {
-                    console.log(chalk.gray(`  - ${file}`));
-                });
-            } else {
-                console.log(chalk.gray('No @since tags found that need updating'));
-            }
-        } catch (error) {
-            console.warn(chalk.yellow('Warning: Error scanning for @since tags:'), error.message);
-        }
-
-        // If it's a major version bump, add extra warning
-        if (nextVersion.split('.')[0] > currentVersion.split('.')[0]) {
-            console.log(chalk.yellow('\n⚠️  Warning: This is a major version bump!'));
-            if (!process.env.FORCE_VERSION) {
-                console.log(chalk.yellow('To proceed, run with FORCE_VERSION=1 environment variable'));
-                return false;
+        const results = [];
+        for (const file of (files || [])) {
+            try {
+                const content = fs.readFileSync(file, 'utf8');
+                const count = getSincePlaceholders(content);
+                if (count > 0) {
+                    results.push({ file, count });
+                    console.log(`Found ${count} @since tags in ${file}`);
+                }
+            } catch (error) {
+                console.error(`Error processing file ${file}:`, error.message);
             }
         }
 
-        console.log(chalk.blue('\nCurrent versions:'));
-        Object.entries(beforeVersions).forEach(([file, ver]) => {
-            console.log(`${file}: ${ver}`);
-        });
-
-        // Update versions
-        await updateVersions(nextVersion, options.beta);
-        console.log(chalk.green('\n✓ Version numbers updated'));
-
-        // Show new versions
-        console.log(chalk.blue('\nUpdated versions:'));
-        const afterVersions = getCurrentVersions();
-        Object.entries(afterVersions).forEach(([file, ver]) => {
-            const changed = beforeVersions[file] !== ver;
-            console.log(`${file}: ${chalk[changed ? 'green' : 'gray'](ver)}`);
-        });
-
-        // Show @since tag updates
-        const sinceResults = await updateAllSinceTags(nextVersion);
-        if (sinceResults.updated.length > 0) {
-            console.log(chalk.green(`\n✓ Updated ${sinceResults.updated.length} files with @since tags:`));
-            sinceResults.updated.forEach(file => {
-                console.log(chalk.gray(`  - ${file}`));
+        if (results.length > 0) {
+            console.log('\nFound files with @since tags to update:');
+            results.forEach(({ file, count }) => {
+                console.log(`- ${file} (${count} tags)`);
             });
+        } else {
+            console.log('\nNo files found with @since tags to update');
         }
 
-        return true;
+        const totalTags = results.reduce((sum, { count }) => sum + count, 0);
+        console.log(`Total tags to update: ${totalTags}\n`);
+
     } catch (error) {
-        console.error(chalk.red('\n❌ Error updating versions:'), error.message);
-        throw error;
+        console.error('Error scanning for @since tags:', error);
     }
+
+    // Show current versions
+    console.log('\nCurrent versions:');
+    console.log('php:', currentVersion);
+    console.log('constants:', currentVersion);
+    console.log('package:', currentVersion);
+    console.log('readme:', currentVersion);
+
+    // Simulate updating versions
+    console.log('\n✓ Version numbers updated');
+
+    // Show updated versions
+    console.log('\nUpdated versions:');
+    console.log('php:', nextVersion);
+    console.log('constants:', nextVersion);
+    console.log('package:', nextVersion);
+    console.log('readme:', nextVersion);
 }
 
 /**
@@ -346,9 +368,7 @@ async function main() {
                 break;
 
             case 'version':
-                await simulateVersionUpdate(args[1], {
-                    beta: args.includes('--beta')
-                });
+                await simulateVersionUpdate();
                 break;
 
             case 'changelog':

@@ -6,8 +6,36 @@ const { glob } = require('glob');
  * Find files containing @since todo tags
  */
 async function findSinceTodoFiles(pattern = 'src/**/*.php') {
-    const files = await glob(pattern, { ignore: 'node_modules/**' });
-    return Array.isArray(files) ? files : [];
+    try {
+        console.log('\nDebug: Current working directory:', process.cwd());
+        console.log('Debug: Looking for files matching pattern:', pattern);
+
+        // Use glob.sync instead of async glob for simpler handling
+        const files = glob.sync(pattern, {
+            ignore: [
+                'node_modules/**',
+                'vendor/**',
+                'phpcs/**',
+                '.github/**',
+                '.wordpress-org/**',
+                'bin/**',
+                'build/**',
+                'docker/**',
+                'img/**',
+                'phpstan/**',
+                'docs/**'
+            ],
+            dot: false, // Ignore dot directories
+            cwd: process.cwd()
+        });
+
+        console.log('Debug: Found files:', files);
+
+        return files || [];
+    } catch (error) {
+        console.error('Error finding files:', error);
+        return [];
+    }
 }
 
 /**
@@ -49,7 +77,7 @@ function updateSinceTags(filePath, version) {
 /**
  * Update all @since todo tags in the project
  */
-async function updateAllSinceTags(version, pattern = 'src/**/*.php') {
+async function updateAllSinceTags(version, pattern = '**/*.php') {
     const results = {
         updated: [],
         errors: []
@@ -57,11 +85,15 @@ async function updateAllSinceTags(version, pattern = 'src/**/*.php') {
 
     try {
         const files = await findSinceTodoFiles(pattern);
+        console.log('Debug: Processing files:', files);
 
         for (const file of files) {
             try {
                 const content = fs.readFileSync(file, 'utf8');
-                if (getSincePlaceholders(content) > 0) {
+                const count = getSincePlaceholders(content);
+                console.log(`Debug: File ${file} has ${count} @since tags`);
+
+                if (count > 0) {
                     const updated = updateSinceTags(file, version);
                     if (updated) {
                         results.updated.push(file);

@@ -7,6 +7,7 @@ This directory contains "changesets" which help us manage versioning and changel
 Changesets are automatically generated when PRs are merged based on:
 
 1. PR Title: Must follow conventional commit standards
+
    - `feat:` = minor version bump
    - `fix:` = patch version bump
    - Optional scopes can be used: `feat(graphiql):`, `fix(core):`
@@ -29,7 +30,7 @@ Changesets are automatically generated when PRs are merged to track changes and 
    - Generates and commits changesets
    - Creates releases and deploys
 
-For detailed information about the automation process, see [GitHub Workflows](../.github/workflows/README.md)
+For detailed information about the automation process, see [GitHub Workflows](../.github/workflows/README.md).
 
 ## What is a Changeset?
 
@@ -56,12 +57,15 @@ breaking: false
 [PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
 
 #### Description
+
 Adds a new GraphQL field `customField` to the Post type that exposes custom meta data.
 
 #### Upgrade Notes
+
 Users implementing the PostType interface will need to implement this new field.
 
 #### Files with @since next-version
+
 - src/Type/ObjectType/PostType.php
 ```
 
@@ -107,6 +111,7 @@ flowchart TD
 ```
 
 When a release is created:
+
 1. All changesets are collected
 2. Version bump is determined (patch/minor/major)
 3. Changelog entries are generated for:
@@ -133,16 +138,20 @@ When a release is created:
 ## Branch Strategy
 
 ### Active Development (v2.x)
+
 - `master`: Current stable release (2.x.x)
 - `develop`: Development branch for next 2.x release
 - All feature/bugfix PRs target `develop`
 
 ### Maintenance Mode (v1.x)
+
 > **Note**: 1.x branch is in limited support mode with manual releases only.
+
 - Only critical bug fixes and security patches
 - Limited to latest minor.patch of v1.x series
 
 ### Next Major Version (v3.x)
+
 - `next-major`: Development branch for v3.0
 - Breaking changes and major features target this branch
 - Follows beta release process (see Beta Releases Guide)
@@ -175,7 +184,7 @@ git merge develop
 
 ### Beta Releases
 
-For beta releases (e.g., v3.0.0-beta.1), see [Beta Releases Guide](../docs/beta-releases.md)
+For beta releases (e.g., v3.0.0-beta.1), see [Beta Releases Guide](../docs/beta-releases.md).
 
 ## Customizations
 
