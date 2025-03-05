@@ -80,9 +80,9 @@ jobs:
             - [ ] @since tags are identified for update
 
             ### Files with @since Tags to Update
-            ${{ fromJson(steps.since_tags.outputs.tags).sinceFiles }}
+            ${{ fromJson(steps.since_tags.outputs.tags).sinceFiles || 'No files with @since tags found.' }}
 
-            Total tags to update: ${{ fromJson(steps.since_tags.outputs.tags).totalTags }}
+            Total tags to update: ${{ fromJson(steps.since_tags.outputs.tags).totalTags || 0 }}
           labels: |
             automated pr
             changeset
