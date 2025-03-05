@@ -62,3 +62,7 @@ c3.php
 
 # output from e2e tests
 artifacts
+
+# Changesets
+# Note: Do NOT ignore .changeset/*.md files as they are needed for release management
+.changeset/pre.json

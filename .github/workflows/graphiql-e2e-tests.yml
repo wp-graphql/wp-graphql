@@ -1,23 +1,22 @@
-name: GraphiQL End-to-End Tests
+name: GraphiQL E2E Tests
 
 on:
   push:
     branches:
       - develop
       - master
-      - release/*
+      - "1.x/master"
+      - next-major
   pull_request:
     branches:
       - develop
       - master
-      - release/*
+      - "1.x/master"
+      - next-major
     paths:
-      - 'package.json'
-      - 'package-lock.json'
       - 'packages/**'
-      - '**.js'
-      - '.github/workflows/*.yml'
-      - '!docs/**'
+      - 'src/Admin/GraphiQL/**'
+      - '.github/workflows/graphiql-e2e-tests.yml'
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:
@@ -27,46 +26,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    e2e-tests:
-        name: E2E tests on Node ${{ matrix.node-version }}
-        runs-on: ubuntu-latest
+  test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                php-version: 8.2
-                extensions: mbstring, intl
-                tools: composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl
+          tools: composer
 
-            - name: Install dependencies
-              uses: ramsey/composer-install@v3
-              with:
-                composer-options: "--no-progress"
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--no-progress"
 
-            - name: Install JavaScript dependencies
-              run: npm ci
+      - name: Install JavaScript dependencies
+        run: npm ci
 
-            - name: Build Assets
-              run: npm run build
+      - name: Build Assets
+        run: npm run build
 
-            - name: Install Playwright dependencies
-              run: |
-                  npx playwright install chromium firefox webkit --with-deps
+      - name: Install Playwright dependencies
+        run: |
+            npx playwright install chromium firefox webkit --with-deps
 
-            - name: Start WordPress Environment
-              run: npm run wp-env -- start
+      - name: Start WordPress Environment
+        run: npm run wp-env -- start
 
-            - name: Run E2E tests
-              run: npm run test:e2e
+      - name: Run E2E tests
+        run: npm run test:e2e
 
-            - name: Stop WordPress Environment
-              run: npm run wp-env -- stop
+      - name: Stop WordPress Environment
+        run: npm run wp-env -- stop

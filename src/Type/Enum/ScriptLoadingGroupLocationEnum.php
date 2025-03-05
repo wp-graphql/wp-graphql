@@ -3,7 +3,7 @@
  * Register the ScriptLoadingGroupLocationEnum Type to the Schema
  *
  * @package WPGraphQL\Type\Enum
- * @since TBD
+ * @since 1.30.0
  */
 
 namespace WPGraphQL\Type\Enum;

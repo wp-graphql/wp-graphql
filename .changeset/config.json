@@ -1,0 +1,20 @@
+{
+    "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
+    "changelog": [
+        "./scripts/changelog-formatters/changelog-md.js",
+        "./scripts/changelog-formatters/readme-txt.js"
+    ],
+    "commit": false,
+    "fixed": [],
+    "linked": [],
+    "access": "restricted",
+    "baseBranch": "develop",
+    "updateInternalDependencies": "patch",
+    "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+        "onlyUpdatePeerDependentsWhenOutOfRange": true
+    },
+    "snapshot": {
+        "useCalculatedVersion": true
+    },
+    "ignore": []
+}

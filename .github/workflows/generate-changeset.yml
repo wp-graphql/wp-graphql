@@ -1,0 +1,88 @@
+name: "Generate Changeset"
+
+# Triggered when a PR is merged
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  generate-changeset:
+    # Only run if PR was merged (not just closed)
+    if: github.event.pull_request.merged == true
+    name: Generate Changeset
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # Scan for @since tags
+      - name: Scan for @since Tags
+        id: since_tags
+        run: |
+          TAGS=$(node -e "
+            const { generateSinceTagsMetadata } = require('./scripts/scan-since-tags');
+            generateSinceTagsMetadata().then(result => {
+              console.log(JSON.stringify(result));
+            });
+          ")
+          echo "::set-output name=tags::$TAGS"
+
+      # Generate changeset
+      - name: Generate Changeset
+        id: generate
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Run with error handling
+          if ! node scripts/generate-changeset.js; then
+            echo "Error generating changeset"
+            exit 1
+          fi
+
+      # Create PR with changeset
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+          branch: changeset-pr-${{ github.event.pull_request.number }}
+          title: "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+          body: |
+            This PR was automatically created to add a changeset for PR #${{ github.event.pull_request.number }}.
+
+            The changeset will be used to:
+            1. Update the changelog
+            2. Determine version bump
+            3. Update version numbers
+            4. Update @since tags
+
+            ### Validation
+            - [ ] Changeset format is correct
+            - [ ] Version bump type is appropriate
+            - [ ] Breaking changes are properly documented
+            - [ ] Upgrade instructions are included (if needed)
+            - [ ] @since tags are identified for update
+
+            ### Files with @since Tags to Update
+            ${{ fromJson(steps.since_tags.outputs.tags).sinceFiles }}
+
+            Total tags to update: ${{ fromJson(steps.since_tags.outputs.tags).totalTags }}
+          labels: |
+            automated pr
+            changeset
