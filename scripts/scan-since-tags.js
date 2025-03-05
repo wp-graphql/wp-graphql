@@ -22,6 +22,16 @@ function scanFileForSinceTags(filePath) {
 async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
     try {
         const files = await glob(pattern);
+
+        // Log the files found
+        // console.log('Files found:', files);
+
+        // Ensure files is an array
+        if (!Array.isArray(files)) {
+            // console.error('Expected files to be an array, but got:', files);
+            return []; // Return an empty array if files is not iterable
+        }
+
         const results = [];
 
         for (const file of files) {
@@ -34,7 +44,7 @@ async function findFilesWithSinceTags(pattern = 'src/**/*.php') {
         return results;
     } catch (error) {
         console.error('Error finding files:', error);
-        return [];
+        return []; // Return an empty array on error
     }
 }
 
