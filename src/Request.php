@@ -730,7 +730,7 @@ class Request {
 		 * @param bool $is_valid Whether the content type is valid
 		 * @param string $content_type The content type header value that was received
 		 *
-		 * @since todo
+		 * @since next-version
 		 */
 		return (bool) apply_filters( 'graphql_is_valid_http_content_type', $is_valid, $content_type );
 	}
