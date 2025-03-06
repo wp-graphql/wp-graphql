@@ -83,11 +83,5 @@ jobs:
         run: |
           git checkout develop
           git add .changeset/*  # Adjust this path if necessary
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "This would commit the following changes:"
-            git diff --cached  # Show what would be committed
-            echo "Commit message: chore: add changeset for PR #${{ github.event.inputs.PR_NUMBER }}"
-          else
-            git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number }}"
-            git push origin develop
-          fi
+          git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number || github.event.inputs.PR_NUMBER }}"
+          git push origin develop
