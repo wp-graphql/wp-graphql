@@ -49,6 +49,17 @@ final class Registry {
 	 */
 	public static function get_extensions(): array {
 		return [
+			'wp-graphql/wpgraphql-ide'           => [
+				'name'              => 'WPGraphQL IDE',
+				'description'       => 'GraphQL IDE for WPGraphQL',
+				'documentation_url' => 'https://github.com/wp-graphql/wpgraphql-ide',
+				'plugin_url'        => 'https://wordpress.org/plugins/wpgraphql-ide/',
+				'support_url'       => 'https://github.com/wp-graphql/wpgraphql-ide/issues/new/choose',
+				'author'            => [
+					'name'     => 'WPGraphQL',
+					'homepage' => 'https://wpgraphql.com',
+				],
+			],
 			'wp-graphql/wp-graphql-smart-cache'  => [
 				'name'              => 'WPGraphQL Smart Cache',
 				'description'       => 'A smart cache for WPGraphQL that caches only the data you need.',
