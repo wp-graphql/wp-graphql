@@ -49,7 +49,7 @@ final class Registry {
 	 */
 	public static function get_extensions(): array {
 		return [
-			'wp-graphql/wpgraphql-ide'  => [
+			'wp-graphql/wpgraphql-ide'           => [
 				'name'              => 'WPGraphQL IDE',
 				'description'       => 'GraphQL IDE for WPGraphQL',
 				'documentation_url' => 'https://github.com/wp-graphql/wpgraphql-ide',
