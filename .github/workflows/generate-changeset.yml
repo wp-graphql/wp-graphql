@@ -39,7 +39,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Determine collection branch and target branch based on the PR's base branch
       COLLECTION_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'changeset-beta' || 'changeset-collection' }}
-      TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+      TARGET_BRANCH: ${{ github.event.pull_request.base.ref || 'master' }}
 
     steps:
       - name: Checkout
@@ -112,10 +112,19 @@ jobs:
       # Check if PR exists, create if not
       - name: Check or create collection PR
         run: |
-          # Check if PR already exists
-          PR_EXISTS=$(gh pr list --head $COLLECTION_BRANCH --base $TARGET_BRANCH --json number | jq 'length')
+          # Ensure TARGET_BRANCH has a value
+          if [ -z "$TARGET_BRANCH" ]; then
+            echo "TARGET_BRANCH is empty, defaulting to 'master'"
+            TARGET_BRANCH="master"
+          fi
 
-          if [ "$PR_EXISTS" -eq "0" ]; then
+          echo "Using target branch: $TARGET_BRANCH"
+          echo "Using collection branch: $COLLECTION_BRANCH"
+
+          # Check if PR already exists
+          PR_COUNT=$(gh pr list --head "$COLLECTION_BRANCH" --base "$TARGET_BRANCH" | wc -l)
+
+          if [ "$PR_COUNT" -eq "0" ]; then
             echo "Creating new collection PR"
 
             # Set title based on branch
@@ -130,8 +139,8 @@ jobs:
             fi
 
             gh pr create \
-              --base $TARGET_BRANCH \
-              --head $COLLECTION_BRANCH \
+              --base "$TARGET_BRANCH" \
+              --head "$COLLECTION_BRANCH" \
               --title "$PR_TITLE" \
               --body "$PR_BODY" \
               --label "$LABEL"
