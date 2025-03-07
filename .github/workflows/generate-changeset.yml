@@ -25,8 +25,10 @@ permissions:
 
 jobs:
   generate-changeset:
-    # Only run if PR was merged (not just closed) or manually triggered
-    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+    # Only run if PR was merged (not just closed) and not a changeset PR
+    if: >
+      (github.event_name != 'pull_request' || github.event.pull_request.merged == true) &&
+      (github.event_name == 'workflow_dispatch' || !contains(github.event.pull_request.title, 'ci: Changeset for PR'))
     name: Generate Changeset
     runs-on: ubuntu-latest
     env:
@@ -130,6 +132,6 @@ jobs:
           gh pr create \
             --base develop \
             --head $BRANCH_NAME \
-            --title "Changeset for PR #$PR_NUMBER" \
+            --title "ci: Changeset for PR #$PR_NUMBER" \
             --body "Automatically generated changeset for PR #$PR_NUMBER. This PR contains version bump information and changelog entries." \
             --label "changeset"
