@@ -163,7 +163,18 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
    - Upgrade instructions (if breaking)
 
 3. Add `@since todo` tags to new functions/classes
+
    - These will be automatically updated during the release process.
+
+4. **Changeset Generation Process**:
+   - When your PR is ready for review, a maintainer will review it
+   - After approval, the maintainer will add the `ready-for-changeset` label
+   - This triggers an automated workflow that:
+     - Creates a changeset based on your PR title and description
+     - Adds the changeset to a collection branch
+     - Creates/updates a PR from the collection branch to develop
+   - When multiple changesets are collected, they'll be released together
+   - The label will be automatically removed after processing
 
 ## Testing
 

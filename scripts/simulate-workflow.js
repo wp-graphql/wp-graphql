@@ -25,48 +25,46 @@ async function initChalk() {
 function createTestChangesets() {
     return [
         {
-            summary: 'feat: Add new GraphQL field',
             type: 'minor',
             pr: 123,
-            pr_number: '123',
-            pr_url: 'https://github.com/wp-graphql/wp-graphql/pull/123',
             breaking: false,
-            breaking_changes: '',
-            upgrade_instructions: '',
-            releases: [{ name: 'wp-graphql', type: 'minor' }]
+            summary: 'feat: Add new GraphQL field',
+            content: `### feat: Add new GraphQL field
+
+[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
+
+#### Description
+Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`
         },
         {
-            summary: 'feat!: Breaking API change',
             type: 'major',
             pr: 124,
-            pr_number: '124',
-            pr_url: 'https://github.com/wp-graphql/wp-graphql/pull/124',
             breaking: true,
-            breaking_changes: 'This changes the way mutations handle input validation',
-            upgrade_instructions: 'Update your mutation input to include the new required fields',
-            releases: [{ name: 'wp-graphql', type: 'major' }]
+            summary: 'feat!: Breaking API change',
+            content: `### feat!: Breaking API change
+
+[PR #124](https://github.com/wp-graphql/wp-graphql/pull/124)
+
+#### Description
+Changes the way mutations handle input validation.
+
+#### Breaking Changes
+This changes the way mutations handle input validation. The previous approach of passing validation options as a second argument is no longer supported.
+
+#### Upgrade Instructions
+Update your mutation input to include the new required fields and remove any separate validation options.`
         },
         {
-            summary: 'fix: Resolve N+1 query issue',
             type: 'patch',
             pr: 125,
-            pr_number: '125',
-            pr_url: 'https://github.com/wp-graphql/wp-graphql/pull/125',
             breaking: false,
-            breaking_changes: '',
-            upgrade_instructions: '',
-            releases: [{ name: 'wp-graphql', type: 'patch' }]
-        },
-        {
-            summary: 'docs: Update API documentation',
-            type: 'patch',
-            pr: 126,
-            pr_number: '126',
-            pr_url: 'https://github.com/wp-graphql/wp-graphql/pull/126',
-            breaking: false,
-            breaking_changes: '',
-            upgrade_instructions: '',
-            releases: [{ name: 'wp-graphql', type: 'patch' }]
+            summary: 'fix: Resolve N+1 query issue',
+            content: `### fix: Resolve N+1 query issue
+
+[PR #125](https://github.com/wp-graphql/wp-graphql/pull/125)
+
+#### Description
+Fixes a performance issue with nested queries.`
         }
     ];
 }
@@ -149,11 +147,22 @@ async function simulateChangelog(version, options = {}) {
         console.log(chalk.yellow('----------------------------------------'));
 
         // Generate readme.txt content
-        console.log(chalk.blue('\nreadme.txt preview:'));
+        console.log(chalk.blue('\nreadme.txt changelog preview:'));
         console.log(chalk.yellow('----------------------------------------'));
         const txtContent = formatReadmeTxt(nextVersion, changesets);
         console.log(txtContent);
         console.log(chalk.yellow('----------------------------------------'));
+
+        // Generate upgrade notice content
+        const { formatUpgradeNotice } = require('./changelog-formatters/readme-txt');
+        const upgradeNotice = formatUpgradeNotice(nextVersion, changesets);
+
+        if (upgradeNotice) {
+            console.log(chalk.blue('\nreadme.txt upgrade notice preview:'));
+            console.log(chalk.yellow('----------------------------------------'));
+            console.log(upgradeNotice);
+            console.log(chalk.yellow('----------------------------------------'));
+        }
 
         // Show what would be updated
         if (!options.dryRun) {
@@ -181,6 +190,19 @@ async function simulateChangelog(version, options = {}) {
                     /(== Changelog ==\n\n)/,
                     `$1${txtContent}`
                 );
+
+                // Add or update upgrade notice if needed
+                if (upgradeNotice) {
+                    if (readmeContent.includes('== Upgrade Notice ==')) {
+                        readmeContent = readmeContent.replace(
+                            /(== Upgrade Notice ==\n\n)/,
+                            `$1${upgradeNotice}\n\n`
+                        );
+                    } else {
+                        readmeContent += `\n\n== Upgrade Notice ==\n\n${upgradeNotice}\n`;
+                    }
+                }
+
                 fs.writeFileSync(readmePath, readmeContent);
 
                 console.log(chalk.green('\n✓ Files updated successfully'));
@@ -206,9 +228,71 @@ async function readActualChangesets() {
         for (const file of files) {
             if (file.endsWith('.md') && file !== 'README.md') {
                 const content = fs.readFileSync(path.join(changesetDir, file), 'utf8');
-                const [, frontmatter] = content.split('---\n');
-                if (frontmatter) {
-                    const changeset = JSON.parse(frontmatter);
+
+                // Extract frontmatter between --- markers
+                const frontmatterMatch = content.match(/---\n([\s\S]*?)\n---/);
+                if (frontmatterMatch) {
+                    const frontmatter = frontmatterMatch[1];
+
+                    // Check if it's JSON or YAML format
+                    let changeset;
+                    if (frontmatter.trim().startsWith('{')) {
+                        // JSON format (old)
+                        try {
+                            changeset = JSON.parse(frontmatter);
+                        } catch (e) {
+                            console.error(`Error parsing JSON in ${file}:`, e.message);
+                            continue;
+                        }
+                    } else {
+                        // YAML format (new)
+                        changeset = {};
+                        frontmatter.split('\n').forEach(line => {
+                            if (line.includes(':')) {
+                                const [key, value] = line.split(':').map(part => part.trim());
+                                if (key && value !== undefined) {
+                                    // Convert boolean strings to actual booleans
+                                    if (value === 'true') changeset[key] = true;
+                                    else if (value === 'false') changeset[key] = false;
+                                    else if (!isNaN(value)) changeset[key] = Number(value);
+                                    else changeset[key] = value;
+                                }
+                            }
+                        });
+
+                        // Extract content after frontmatter for summary
+                        const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
+                        const changeContent = contentMatch ? contentMatch[1] : '';
+                        changeset.content = changeContent;
+
+                        // Extract summary from the first line
+                        const summaryLine = changeContent.split('\n')[0];
+                        changeset.summary = summaryLine.replace(/^### /, '');
+
+                        // Try to extract PR number from content if not in frontmatter
+                        if (!changeset.pr && changeContent) {
+                            const prMatch = changeContent.match(/\[PR #(\d+)\]/i) ||
+                                           changeContent.match(/\[#(\d+)\]/i) ||
+                                           changeContent.match(/pull\/(\d+)/i);
+                            if (prMatch) {
+                                changeset.pr = parseInt(prMatch[1], 10);
+                            }
+                        }
+
+                        // Extract breaking changes if present
+                        const breakingChangesMatch = changeContent.match(/#### Breaking Changes\n([\s\S]*?)(?=\n####|$)/);
+                        if (breakingChangesMatch) {
+                            changeset.breaking_changes = breakingChangesMatch[1].trim();
+                            changeset.breaking = true;
+                        }
+
+                        // Extract upgrade instructions if present
+                        const upgradeInstructionsMatch = changeContent.match(/#### Upgrade Instructions\n([\s\S]*?)(?=\n####|$)/);
+                        if (upgradeInstructionsMatch) {
+                            changeset.upgrade_instructions = upgradeInstructionsMatch[1].trim();
+                        }
+                    }
+
                     changesets.push(changeset);
                 }
             }

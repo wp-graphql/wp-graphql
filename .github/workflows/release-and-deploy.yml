@@ -1,0 +1,198 @@
+name: Release and Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - next-major
+    paths:
+      - ".changeset/**" # Only trigger when changesets are merged
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: "Skip build process (for testing)"
+        required: false
+        default: "false"
+      beta:
+        description: "Create beta release"
+        required: false
+        default: "false"
+      prerelease_tag:
+        description: "Prerelease tag (beta, alpha, etc)"
+        required: false
+        default: "beta"
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      # Check current versions
+      - name: Check Current Versions
+        run: node scripts/check-versions.js
+
+      # Determine if this is a beta release
+      - name: Determine Release Type
+        id: release_type
+        run: |
+          # Get current branch
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+          # Check if this is a beta release
+          if [[ "${{ github.event.inputs.beta }}" == "true" ]]; then
+            echo "is_beta=true" >> $GITHUB_OUTPUT
+            echo "prerelease_tag=${{ github.event.inputs.prerelease_tag || 'beta' }}" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" == "next-major" ]]; then
+            echo "is_beta=true" >> $GITHUB_OUTPUT
+            echo "prerelease_tag=beta" >> $GITHUB_OUTPUT
+          else
+            echo "is_beta=false" >> $GITHUB_OUTPUT
+            echo "prerelease_tag=" >> $GITHUB_OUTPUT
+          fi
+
+      # For standard releases, merge develop into master
+      - name: Merge develop into master
+        if: steps.release_type.outputs.is_beta != 'true'
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git fetch origin master
+          git checkout master
+          git merge develop --no-ff -m "chore: merge develop into master for release"
+          git push origin master
+
+      # Process changesets with or without prerelease flag
+      - name: Process Changesets
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: >-
+            ${{ steps.release_type.outputs.is_beta == 'true' &&
+            format('npm run version -- --prerelease {0}', steps.release_type.outputs.prerelease_tag) ||
+            'npm run version' }}
+          publish: >-
+            ${{ steps.release_type.outputs.is_beta == 'true' &&
+            format('npm run release -- --tag {0}', steps.release_type.outputs.prerelease_tag) ||
+            'npm run release' }}
+          commit: >-
+            ${{ steps.release_type.outputs.is_beta == 'true' &&
+            'chore: version beta packages' ||
+            'chore: version packages' }}
+          title: >-
+            ${{ steps.release_type.outputs.is_beta == 'true' &&
+            'chore: version beta packages' ||
+            'chore: version packages' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Get the new version number
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Synchronize version numbers using our script
+      - name: Synchronize Version Numbers
+        run: |
+          # Use our version-management.js script to update all version files
+          node -e "
+            const { updateVersions } = require('./scripts/version-management');
+            updateVersions('${{ steps.get_version.outputs.version }}', ${{ steps.release_type.outputs.is_beta == 'true' }}).then(() => {
+              console.log('✓ Version numbers synchronized to ${{ steps.get_version.outputs.version }}');
+            }).catch(err => {
+              console.error('Error:', err);
+              process.exit(1);
+            });
+          "
+
+      # Update @since tags (only for stable releases)
+      - name: Update @since Tags
+        if: steps.release_type.outputs.is_beta != 'true'
+        run: node scripts/update-since-tags.js ${{ steps.get_version.outputs.version }}
+
+      # Validate version numbers
+      - name: Validate Version Numbers
+        run: node scripts/check-versions.js
+
+      # Commit the version changes
+      - name: Commit Version Changes
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .
+          git commit -m "chore: update version numbers and @since tags to ${{ steps.get_version.outputs.version }}"
+
+          # Push to appropriate branch
+          if [[ "${{ steps.release_type.outputs.is_beta }}" == "true" ]]; then
+            git push origin next-major
+          else
+            git push origin master
+          fi
+
+      # Build the plugin
+      - name: Build Plugin
+        if: ${{ github.event.inputs.skip_build != 'true' }}
+        run: |
+          npm run build
+          composer run-script zip
+
+      # Create GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: v${{ steps.get_version.outputs.version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ steps.release_type.outputs.is_beta == 'true' }}
+
+      # Upload release asset
+      - name: Upload Release Asset
+        if: ${{ github.event.inputs.skip_build != 'true' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./plugin-build/wp-graphql.zip
+          asset_name: ${{ steps.release_type.outputs.is_beta == 'true' && format('wp-graphql-{0}.zip', steps.get_version.outputs.version) || 'wp-graphql.zip' }}
+          asset_content_type: application/zip
+
+      # Deploy to WordPress.org
+      - name: WordPress Plugin Deploy
+        if: ${{ github.event.inputs.skip_build != 'true' }}
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wp-graphql

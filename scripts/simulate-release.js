@@ -30,10 +30,18 @@ async function simulateRelease(newVersion, options = { beta: false }) {
         const mockRelease = {
             newVersion,
             changesets: [
-                // Mock changeset for testing
+                // Mock changeset for testing - updated to new format
                 {
+                    type: 'minor',
+                    pr: 123,
+                    breaking: false,
                     summary: 'feat: Test feature',
-                    commit: 'test-commit'
+                    content: `### feat: Test feature
+
+[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
+
+#### Description
+This is a test feature for simulation.`
                 }
             ]
         };
