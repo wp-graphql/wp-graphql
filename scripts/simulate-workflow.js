@@ -23,6 +23,18 @@ async function initChalk() {
  * Create test changesets for simulation
  */
 function createTestChangesets() {
+    // Get the package name
+    let packageName = 'wp-graphql';
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+            packageName = packageJson.name || packageName;
+        }
+    } catch (error) {
+        console.warn('Error reading package.json:', error.message);
+    }
+
     return [
         {
             type: 'minor',
@@ -34,7 +46,8 @@ function createTestChangesets() {
 [PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
 
 #### Description
-Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`
+Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`,
+            packageName: packageName
         },
         {
             type: 'major',
@@ -52,7 +65,8 @@ Changes the way mutations handle input validation.
 This changes the way mutations handle input validation. The previous approach of passing validation options as a second argument is no longer supported.
 
 #### Upgrade Instructions
-Update your mutation input to include the new required fields and remove any separate validation options.`
+Update your mutation input to include the new required fields and remove any separate validation options.`,
+            packageName: packageName
         },
         {
             type: 'patch',
@@ -64,7 +78,8 @@ Update your mutation input to include the new required fields and remove any sep
 [PR #125](https://github.com/wp-graphql/wp-graphql/pull/125)
 
 #### Description
-Fixes a performance issue with nested queries.`
+Fixes a performance issue with nested queries.`,
+            packageName: packageName
         }
     ];
 }
@@ -251,18 +266,32 @@ async function readActualChangesets() {
                     } else {
                         // YAML format (new)
                         changeset = {};
-                        frontmatter.split('\n').forEach(line => {
+
+                        // Parse the YAML frontmatter
+                        const lines = frontmatter.split('\n');
+                        for (const line of lines) {
                             if (line.includes(':')) {
-                                const [key, value] = line.split(':').map(part => part.trim());
-                                if (key && value !== undefined) {
-                                    // Convert boolean strings to actual booleans
-                                    if (value === 'true') changeset[key] = true;
-                                    else if (value === 'false') changeset[key] = false;
-                                    else if (!isNaN(value)) changeset[key] = Number(value);
-                                    else changeset[key] = value;
+                                // Handle package name to bump type mapping
+                                if (line.includes('"') && line.includes('major') || line.includes('minor') || line.includes('patch')) {
+                                    // This is a package name to bump type mapping
+                                    const packageMatch = line.match(/"([^"]+)":\s*(\w+)/);
+                                    if (packageMatch) {
+                                        // Store the bump type
+                                        changeset.type = packageMatch[2];
+                                    }
+                                } else {
+                                    // Handle other metadata
+                                    const [key, value] = line.split(':').map(part => part.trim());
+                                    if (key && value !== undefined) {
+                                        // Convert boolean strings to actual booleans
+                                        if (value === 'true') changeset[key] = true;
+                                        else if (value === 'false') changeset[key] = false;
+                                        else if (!isNaN(value)) changeset[key] = Number(value);
+                                        else changeset[key] = value;
+                                    }
                                 }
                             }
-                        });
+                        }
 
                         // Extract content after frontmatter for summary
                         const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);

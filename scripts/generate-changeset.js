@@ -96,6 +96,9 @@ async function createChangeset({ title, body, prNumber }) {
     const changesetDir = path.join(process.cwd(), '.changeset');
     const changesetPath = path.join(changesetDir, `${changesetId}.md`);
 
+    // Get package name from package.json
+    const packageName = getPackageName();
+
     // Ensure .changeset directory exists
     if (!fs.existsSync(changesetDir)) {
         fs.mkdirSync(changesetDir, { recursive: true });
@@ -103,7 +106,7 @@ async function createChangeset({ title, body, prNumber }) {
 
     // Create the changeset file content with YAML frontmatter (not JSON)
     let fileContent = '---\n';
-    fileContent += `type: ${bumpType}\n`;
+    fileContent += `"${packageName}": ${bumpType}\n`;
     fileContent += `pr: ${prNumber}\n`;
     fileContent += `breaking: ${isBreaking}\n`;
     fileContent += '---\n\n';
@@ -140,6 +143,47 @@ async function createChangeset({ title, body, prNumber }) {
         totalSinceTags: sinceMetadata.totalTags,
         changesetId
     };
+}
+
+/**
+ * Create a changeset file
+ */
+function createChangesetFile(changeset) {
+    const packageName = getPackageName();
+    const changesetId = `pr-${changeset.pr}-${Date.now()}`;
+    const changesetPath = path.join(process.cwd(), '.changeset', `${changesetId}.md`);
+
+    // Create the .changeset directory if it doesn't exist
+    if (!fs.existsSync(path.join(process.cwd(), '.changeset'))) {
+        fs.mkdirSync(path.join(process.cwd(), '.changeset'));
+    }
+
+    // Create the frontmatter in the format expected by @changesets/cli
+    // This should be a mapping of package names to bump types
+    const frontmatter = `---
+"${packageName}": ${changeset.type}
+pr: ${changeset.pr}
+breaking: ${changeset.breaking}
+---
+
+${changeset.content}`;
+
+    fs.writeFileSync(changesetPath, frontmatter);
+    return changesetPath;
+}
+
+/**
+ * Get the package name from package.json
+ */
+function getPackageName() {
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        return packageJson.name || 'wp-graphql'; // Default to wp-graphql if name is not found
+    } catch (error) {
+        console.error('Error reading package.json:', error);
+        return 'wp-graphql'; // Default fallback
+    }
 }
 
 // When run directly from command line

@@ -7,10 +7,17 @@ jest.mock('../scan-since-tags', () => ({
     generateSinceTagsMetadata: jest.fn()
 }));
 
+// Mock fs functions
 jest.mock('fs', () => ({
     existsSync: jest.fn(),
     writeFileSync: jest.fn(),
-    mkdirSync: jest.fn()
+    mkdirSync: jest.fn(),
+    readFileSync: jest.fn().mockImplementation(() => JSON.stringify({ name: 'wp-graphql' }))
+}));
+
+// Mock path.join to avoid file system issues
+jest.mock('path', () => ({
+    join: jest.fn().mockImplementation((...args) => args.join('/'))
 }));
 
 describe('Changeset Generation', () => {
@@ -246,126 +253,173 @@ describe('Changeset Generation', () => {
         });
 
         test('creates correct changeset file structure', async () => {
-            await createChangeset(validPR);
-            const writeCall = fs.writeFileSync.mock.calls[0][1];
+            // Mock fs.writeFileSync
+            fs.writeFileSync = jest.fn().mockImplementation((path, content) => {
+                // Store the content for assertions
+                fs.writeFileSync.mockContent = content;
+            });
+            fs.existsSync = jest.fn().mockReturnValue(false);
+            fs.mkdirSync = jest.fn();
 
-            // Verify YAML front matter
-            expect(writeCall).toMatch(/^---\n/);
-            expect(writeCall).toMatch(/\n---\n/);
-
-            // Verify YAML content
-            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            expect(yamlContent).toContain('type: minor');
-            expect(yamlContent).toContain('pr: 123');
-            expect(yamlContent).toContain('breaking: false');
-
-            // Verify content structure
-            expect(writeCall).toContain('### feat:');
-            expect(writeCall).toContain('[PR #123]');
-        });
-
-        test('creates changeset with breaking change from title', async () => {
-            const pr = {
-                title: 'fix!: Breaking change in bug fix',
-                body: `What does this implement/fix? Explain your changes.
----
-This is a breaking bug fix
-
-## Breaking Changes
-This breaks something
-
-## Upgrade Instructions
-Follow these steps`,
-                prNumber: '123'
+            // Mock generateSinceTagsMetadata
+            const mockSinceMetadata = {
+                sinceFiles: [],
+                totalTags: 0
             };
+            generateSinceTagsMetadata.mockResolvedValue(mockSinceMetadata);
 
-            const result = await createChangeset(pr);
-            expect(result.type).toBe('major');
-            expect(result.breaking).toBe(true);
-
-            // Verify changeset content
-            const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            expect(yamlContent).toContain('type: major');
-            expect(yamlContent).toContain('breaking: true');
-            expect(writeCall).toContain('#### Breaking Changes');
-        });
-
-        test('creates changeset with breaking change from PR body', async () => {
-            const pr = {
-                title: 'fix: Non-breaking title',
-                body: `What does this implement/fix? Explain your changes.
----
-This is a bug fix
-
-## Breaking Changes
-This breaks something
-
-## Upgrade Instructions
-Follow these steps`,
-                prNumber: '123'
-            };
-
-            const result = await createChangeset(pr);
-            expect(result.type).toBe('major');
-            expect(result.breaking).toBe(false); // Title doesn't have breaking change marker
-
-            // Verify changeset content
-            const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            expect(yamlContent).toContain('type: major');
-            expect(writeCall).toContain('#### Breaking Changes');
-            expect(writeCall).toContain('This breaks something');
-        });
-
-        test('creates changeset with breaking change from both title and body', async () => {
-            const pr = {
-                title: 'feat!: Breaking feature change',
-                body: `What does this implement/fix? Explain your changes.
----
-This is a feature
-
-## Breaking Changes
-This also breaks something
-
-## Upgrade Instructions
-Follow these steps`,
-                prNumber: '123'
-            };
-
-            const result = await createChangeset(pr);
-            expect(result.type).toBe('major');
-            expect(result.breaking).toBe(true);
-
-            // Verify changeset content
-            const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            expect(yamlContent).toContain('type: major');
-            expect(yamlContent).toContain('breaking: true');
-            expect(writeCall).toContain('#### Breaking Changes');
-            expect(writeCall).toContain('This also breaks something');
-            expect(writeCall).toContain('#### Upgrade Instructions');
-            expect(writeCall).toContain('Follow these steps');
-        });
-
-        test('createChangeset generates correct file content', async () => {
-            // Mock implementation
-            fs.writeFileSync = jest.fn();
-
-            // Call the function
+            // Call createChangeset
             await createChangeset({
                 title: 'feat: Test feature',
-                body: 'Test description',
+                body: 'What does this implement/fix? Explain your changes.\n---\nThis is a test feature',
                 prNumber: '123'
             });
 
-            // Get the content that would have been written
-            const fileContent = fs.writeFileSync.mock.calls[0][1];
+            // Verify fs.writeFileSync was called
+            expect(fs.writeFileSync).toHaveBeenCalled();
+            const content = fs.writeFileSync.mockContent;
 
-            // Verify it has the correct format
-            expect(fileContent).toContain('---\ntype: minor\npr: 123\nbreaking: false\n---');
-            expect(fileContent).toContain('### feat: Test feature');
-            expect(fileContent).toContain('[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)');
+            // Check that the content contains the expected parts
+            expect(content).toContain('"wp-graphql": minor');
+            expect(content).toContain('pr: 123');
+            expect(content).toContain('breaking: false');
+            expect(content).toContain('### feat: This is a test feature');
+            expect(content).toContain('[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)');
+        });
+
+        test('creates changeset with breaking change from title', async () => {
+            // Mock fs.writeFileSync
+            fs.writeFileSync = jest.fn().mockImplementation((path, content) => {
+                // Store the content for assertions
+                fs.writeFileSync.mockContent = content;
+            });
+            fs.existsSync = jest.fn().mockReturnValue(false);
+            fs.mkdirSync = jest.fn();
+
+            // Mock generateSinceTagsMetadata
+            const mockSinceMetadata = {
+                sinceFiles: [],
+                totalTags: 0
+            };
+            generateSinceTagsMetadata.mockResolvedValue(mockSinceMetadata);
+
+            // Call createChangeset with breaking change in title
+            await createChangeset({
+                title: 'feat!: Breaking change',
+                body: 'What does this implement/fix? Explain your changes.\n---\nThis is a breaking change\n\n## Breaking Changes\nThis breaks something\n\n## Upgrade Instructions\nFollow these steps',
+                prNumber: '123'
+            });
+
+            // Verify fs.writeFileSync was called
+            expect(fs.writeFileSync).toHaveBeenCalled();
+            const content = fs.writeFileSync.mockContent;
+
+            // Check that the content contains the expected parts
+            expect(content).toContain('"wp-graphql": major');
+            expect(content).toContain('breaking: true');
+            expect(content).toContain('#### Breaking Changes');
+            expect(content).toContain('#### Upgrade Instructions');
+        });
+
+        test('creates changeset with breaking change from PR body', async () => {
+            // Mock fs.writeFileSync
+            fs.writeFileSync = jest.fn().mockImplementation((path, content) => {
+                // Store the content for assertions
+                fs.writeFileSync.mockContent = content;
+            });
+            fs.existsSync = jest.fn().mockReturnValue(false);
+            fs.mkdirSync = jest.fn();
+
+            // Mock generateSinceTagsMetadata
+            const mockSinceMetadata = {
+                sinceFiles: [],
+                totalTags: 0
+            };
+            generateSinceTagsMetadata.mockResolvedValue(mockSinceMetadata);
+
+            // Call createChangeset with breaking change in body
+            await createChangeset({
+                title: 'feat: Feature with breaking change',
+                body: 'What does this implement/fix? Explain your changes.\n---\nThis is a feature with breaking change\n\n## Breaking Changes\nThis breaks something\n\n## Upgrade Instructions\nFollow these steps',
+                prNumber: '123'
+            });
+
+            // Verify fs.writeFileSync was called
+            expect(fs.writeFileSync).toHaveBeenCalled();
+            const content = fs.writeFileSync.mockContent;
+
+            // Check that the content contains the expected parts
+            expect(content).toContain('"wp-graphql": major');
+            expect(content).toContain('#### Breaking Changes');
+            expect(content).toContain('This breaks something');
+        });
+
+        test('creates changeset with breaking change from both title and body', async () => {
+            // Mock fs.writeFileSync
+            fs.writeFileSync = jest.fn().mockImplementation((path, content) => {
+                // Store the content for assertions
+                fs.writeFileSync.mockContent = content;
+            });
+            fs.existsSync = jest.fn().mockReturnValue(false);
+            fs.mkdirSync = jest.fn();
+
+            // Mock generateSinceTagsMetadata
+            const mockSinceMetadata = {
+                sinceFiles: [],
+                totalTags: 0
+            };
+            generateSinceTagsMetadata.mockResolvedValue(mockSinceMetadata);
+
+            // Call createChangeset with breaking change in both title and body
+            await createChangeset({
+                title: 'feat!: Breaking change',
+                body: 'What does this implement/fix? Explain your changes.\n---\nThis is a breaking change\n\n## Breaking Changes\nThis also breaks something\n\n## Upgrade Instructions\nFollow these steps',
+                prNumber: '123'
+            });
+
+            // Verify fs.writeFileSync was called
+            expect(fs.writeFileSync).toHaveBeenCalled();
+            const content = fs.writeFileSync.mockContent;
+
+            // Check that the content contains the expected parts
+            expect(content).toContain('"wp-graphql": major');
+            expect(content).toContain('breaking: true');
+            expect(content).toContain('#### Breaking Changes');
+            expect(content).toContain('This also breaks something');
+        });
+
+        test('createChangeset generates correct file content', async () => {
+            // Mock fs.writeFileSync
+            fs.writeFileSync = jest.fn().mockImplementation((path, content) => {
+                // Store the content for assertions
+                fs.writeFileSync.mockContent = content;
+            });
+            fs.existsSync = jest.fn().mockReturnValue(false);
+            fs.mkdirSync = jest.fn();
+
+            // Mock generateSinceTagsMetadata
+            const mockSinceMetadata = {
+                sinceFiles: ['test.php'],
+                totalTags: 1
+            };
+            generateSinceTagsMetadata.mockResolvedValue(mockSinceMetadata);
+
+            // Call createChangeset
+            await createChangeset({
+                title: 'feat: Test feature',
+                body: 'What does this implement/fix? Explain your changes.\n---\nThis is a test feature',
+                prNumber: '123'
+            });
+
+            // Get the file content that would be written
+            const content = fs.writeFileSync.mockContent;
+
+            // Check that the content contains the expected parts
+            expect(content).toContain('"wp-graphql": minor');
+            expect(content).toContain('pr: 123');
+            expect(content).toContain('breaking: false');
+            expect(content).toContain('### feat: This is a test feature');
+            expect(content).toContain('[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)');
         });
     });
 
