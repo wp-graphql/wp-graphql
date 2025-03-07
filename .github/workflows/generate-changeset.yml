@@ -33,7 +33,7 @@ jobs:
       PR_TITLE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_TITLE || github.event.pull_request.title }}
       PR_BODY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_BODY || github.event.pull_request.body }}
       PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_NUMBER || github.event.pull_request.number }}
-      SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
 
     steps:
       - name: Checkout
@@ -62,7 +62,7 @@ jobs:
               console.log(JSON.stringify(result));
             });
           ")
-          echo "::set-output name=tags::$TAGS"
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
       # Generate changeset
       - name: Generate Changeset
@@ -80,10 +80,26 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
 
-      # Commit changeset directly to develop or echo what would happen
-      - name: Commit Changeset
+      # Create a new branch and PR instead of pushing directly to develop
+      - name: Create changeset branch and PR
         run: |
-          git checkout develop
-          git add .changeset/*  # Adjust this path if necessary
-          git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number || github.event.inputs.PR_NUMBER }}"
-          git push origin develop
+          # Create a new branch
+          BRANCH_NAME="changeset-pr-$PR_NUMBER"
+          git checkout -b $BRANCH_NAME
+
+          # Add and commit changes
+          git add .changeset/*
+          git commit -m "chore: add changeset for PR #$PR_NUMBER"
+
+          # Push to the new branch
+          git push origin $BRANCH_NAME
+
+          # Create PR using GitHub CLI
+          gh pr create \
+            --base develop \
+            --head $BRANCH_NAME \
+            --title "Changeset for PR #$PR_NUMBER" \
+            --body "Automatically generated changeset for PR #$PR_NUMBER. This PR contains version bump information and changelog entries." \
+            --label "automated,changeset"
+        env:
+          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
