@@ -80,6 +80,16 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
 
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          type -p curl >/dev/null || apt-get install curl -y
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt-get update \
+          && apt-get install gh -y
+
       # Create a new branch and PR instead of pushing directly to develop
       - name: Create changeset branch and PR
         run: |
@@ -100,6 +110,6 @@ jobs:
             --head $BRANCH_NAME \
             --title "Changeset for PR #$PR_NUMBER" \
             --body "Automatically generated changeset for PR #$PR_NUMBER. This PR contains version bump information and changelog entries." \
-            --label "automated,changeset"
+            --label "changeset"
         env:
           GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
