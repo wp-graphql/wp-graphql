@@ -26,6 +26,12 @@ jobs:
   release:
     name: Build and Release
     runs-on: ubuntu-latest
+    # Skip if the commit message indicates it was from the sync workflow or contains [skip release]
+    if: ${{
+      !contains(github.event.head_commit.message, 'Auto-merge master back to develop') &&
+      !contains(github.event.head_commit.message, '[skip release]') &&
+      (github.event_name != 'push' || github.ref != 'refs/heads/master')
+    }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,7 +90,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git fetch origin master
           git checkout master
-          git merge develop --no-ff -m "chore: merge develop into master for release"
+          git merge develop --no-ff -m "chore: merge develop into master for release [skip ci]"
           git push origin master
 
       # Process changesets with or without prerelease flag
@@ -102,8 +108,8 @@ jobs:
             'npm run release' }}
           commit: >-
             ${{ steps.release_type.outputs.is_beta == 'true' &&
-            'chore: version beta packages' ||
-            'chore: version packages' }}
+            'chore: version beta packages [skip ci]' ||
+            'chore: version packages [skip ci]' }}
           title: >-
             ${{ steps.release_type.outputs.is_beta == 'true' &&
             'chore: version beta packages' ||
@@ -147,7 +153,7 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add .
-          git commit -m "chore: update version numbers and @since tags to ${{ steps.get_version.outputs.version }}"
+          git commit -m "chore: update version numbers and @since tags to ${{ steps.get_version.outputs.version }} [skip ci]"
 
           # Push to appropriate branch
           if [[ "${{ steps.release_type.outputs.is_beta }}" == "true" ]]; then

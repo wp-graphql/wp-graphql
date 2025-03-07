@@ -89,6 +89,26 @@ npm run changeset
 
 This will prompt you for the necessary information and create a changeset file.
 
+## Skipping Releases
+
+There are times when you might want to commit directly to master without triggering a release. You can do this in two ways:
+
+1. **Use the `[skip release]` tag in your commit message**:
+
+   ```
+   git commit -m "fix: update documentation [skip release]"
+   ```
+
+   This will prevent the release workflow from running.
+
+2. **Use the `[skip ci]` tag to skip all workflows**:
+   ```
+   git commit -m "chore: update config [skip ci]"
+   ```
+   This will skip all GitHub Actions workflows.
+
+Note that direct pushes to the `master` branch will not trigger the release workflow by default, but they will still trigger the sync workflow to keep `develop` in sync with `master`.
+
 ## How are Changesets Used?
 
 ### Release Process
