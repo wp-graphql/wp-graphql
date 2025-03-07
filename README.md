@@ -9,9 +9,9 @@
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
 [![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
 
-**Unlock the power of WordPress data with GraphQL**  
+**Unlock the power of WordPress data with GraphQL**
 
-WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.  
+WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.
 
 Whether you're a WordPress developer exploring GraphQL or a GraphQL expert diving into WordPress, WPGraphQL simplifies data interaction and empowers your development workflow.
 
@@ -58,7 +58,7 @@ WPGraphQL is powered by a passionate community of contributors, backers, and spo
 
 [![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](https://opencollective.com/wp-graphql#backer) [![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](https://opencollective.com/wp-graphql#sponsor)
 
-Want to help maintain and grow WPGraphQL? 
+Want to help maintain and grow WPGraphQL?
 
 - [Support the project on Open Collective](https://opencollective.com/wp-graphql)
 - [Join the Community on Discord](https://wpgraphql.com/discord)

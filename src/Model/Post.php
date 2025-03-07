@@ -819,7 +819,7 @@ class Post extends Model {
 						_doing_it_wrong(
 							__METHOD__,
 							'`sourceUrlsBySize` is deprecated. Use the `sourceUrlBySize` callable instead.',
-							'@todo'
+							'1.29.1'
 						);
 
 						/**

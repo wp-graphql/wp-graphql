@@ -15,6 +15,10 @@
 # Do not ignore the prd.md file as this helps cursor understand the project and requirements and the community can help maintain it
 !.cursor/prd.md
 
+# Do not ignore the cursor/rules directory as it contains project-specific rules that should be shared with all contributors
+!.cursor/rules
+!.cursor/rules/**
+
 # Composer dependencies. These should be installed on the users machine
 vendor
 
@@ -62,3 +66,7 @@ c3.php
 
 # output from e2e tests
 artifacts
+
+# Changesets
+# Note: Do NOT ignore .changeset/*.md files as they are needed for release management
+.changeset/pre.json

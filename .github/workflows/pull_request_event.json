@@ -1,0 +1,13 @@
+ {
+     "action": "merged",
+     "pull_request": {
+       "merged": true,
+       "title": "Example PR Title",
+       "body": "This is an example PR body.",
+       "number": 9999,
+       "html_url": "https://github.com/wp-graphql/wp-graphql/pull/9999",
+       "base": {
+         "ref": "develop"
+       }
+     }
+   }
