@@ -111,15 +111,9 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
 
-      # Install GitHub CLI
-      - name: Install GitHub CLI
-        run: |
-          type -p curl >/dev/null || apt-get install curl -y
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt-get update \
-          && apt-get install gh -y
+      # Install GitHub CLI using the official action
+      - name: Setup GitHub CLI
+        uses: cli/cli@v2
 
       # Create a new branch and PR instead of pushing directly to develop
       - name: Create changeset branch and PR
