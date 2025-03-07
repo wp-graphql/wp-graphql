@@ -88,19 +88,6 @@ async function createChangeset({ title, body, prNumber }) {
             : 'patch'  // Everything else is patch
         );
 
-    // Create the changeset content
-    const changesetContent = {
-        summary,
-        type: bumpType,
-        pr: Number(prNumber),
-        pr_number: prNumber,
-        pr_url: `https://github.com/wp-graphql/wp-graphql/pull/${prNumber}`,
-        breaking: isBreaking,
-        breaking_changes: sections.breaking,
-        upgrade_instructions: sections.upgrade,
-        releases: [{ name: 'wp-graphql', type: bumpType }]
-    };
-
     // Get @since tags metadata
     const sinceMetadata = await generateSinceTagsMetadata();
 
@@ -114,22 +101,32 @@ async function createChangeset({ title, body, prNumber }) {
         fs.mkdirSync(changesetDir, { recursive: true });
     }
 
-    // Create the changeset file content
+    // Create the changeset file content with YAML frontmatter (not JSON)
     let fileContent = '---\n';
-    fileContent += JSON.stringify(changesetContent, null, 2);
-    fileContent += '\n---\n\n';
-    fileContent += summary;
+    fileContent += `type: ${bumpType}\n`;
+    fileContent += `pr: ${prNumber}\n`;
+    fileContent += `breaking: ${isBreaking}\n`;
+    fileContent += '---\n\n';
+    fileContent += `### ${summary}\n\n`;
+    fileContent += `[PR #${prNumber}](https://github.com/wp-graphql/wp-graphql/pull/${prNumber})\n\n`;
+
+    if (sections.description) {
+        fileContent += `#### Description\n${sections.description}\n\n`;
+    }
 
     if (sections.breaking) {
-        fileContent += '\n\nBREAKING CHANGES:\n' + sections.breaking;
+        fileContent += `#### Breaking Changes\n${sections.breaking}\n\n`;
     }
 
     if (sections.upgrade) {
-        fileContent += '\n\nUPGRADE INSTRUCTIONS:\n' + sections.upgrade;
+        fileContent += `#### Upgrade Instructions\n${sections.upgrade}\n\n`;
     }
 
     if (sinceMetadata.sinceFiles.length > 0) {
-        fileContent += '\n\nFILES WITH @since TAGS TO UPDATE:\n' + sinceMetadata.sinceFiles.join('\n');
+        fileContent += `#### Files with @since next-version\n`;
+        sinceMetadata.sinceFiles.forEach(file => {
+            fileContent += `- ${file}\n`;
+        });
     }
 
     // Write the changeset file

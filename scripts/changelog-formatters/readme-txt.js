@@ -40,12 +40,15 @@ async function getUpgradeNoticeEntry(release, options) {
     if (breakingChanges.length > 0) {
         notice += '**BREAKING CHANGE UPDATE**\n\n';
         for (const changeset of breakingChanges) {
+            // Include PR link and summary
+            if (changeset.pr && changeset.summary) {
+                notice += `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr}): ${changeset.summary}\n\n`;
+            }
+
             if (changeset.breaking_changes) {
                 notice += changeset.breaking_changes + '\n\n';
             }
-            if (changeset.pr_number) {
-                notice += `In <a href="${options.repo}/pull/${changeset.pr_number}">#${changeset.pr_number}</a>\n\n`;
-            }
+
             if (changeset.upgrade_instructions) {
                 notice += changeset.upgrade_instructions + '\n\n';
             }
@@ -96,28 +99,19 @@ async function updateReadmeTxt(release, options) {
 }
 
 /**
- * Formats changelog entries for WordPress.org readme.txt
+ * Get a single line for the readme.txt changelog
  */
-async function getReadmeTxtReleaseLine(changeset, type, options) {
+async function getReadmeTxtReleaseLine(changeset, releaseType, options) {
+    // Skip if no summary
     if (!changeset || !changeset.summary) {
         return '';
     }
 
-    const [firstLine] = changeset.summary.split('\n');
-    let links;
-    try {
-        if (process.env.GITHUB_TOKEN) {
-            const info = await getInfo({
-                repo: options.repo,
-                commit: changeset.commit
-            });
-            links = info.links;
-        }
-    } catch (error) {
-        console.warn('Warning: Could not fetch GitHub info. PR links will not be included.');
-    }
+    // Format the PR link
+    const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
 
-    return `* ${firstLine}${links ? ` (${links.pull})` : ''}`;
+    // Format the line with the PR link before the full summary
+    return `* ${prLink}: ${changeset.summary}`;
 }
 
 /**
@@ -187,19 +181,22 @@ function groupChanges(changesets) {
     };
 
     changesets.forEach(changeset => {
-        if (changeset.breaking || changeset.breaking_changes) {
+        // Check for breaking changes in multiple ways
+        const hasBreakingContent = changeset.content && changeset.content.includes('#### Breaking Changes');
+
+        if (changeset.breaking || changeset.breaking_changes || hasBreakingContent) {
             groups.breaking.push(changeset);
             return;
         }
 
         // Skip documentation changes in readme.txt
-        if (changeset.summary.startsWith('docs:')) {
+        if (changeset.summary && changeset.summary.startsWith('docs:')) {
             return;
         }
 
-        if (changeset.summary.startsWith('feat:')) {
+        if (changeset.summary && changeset.summary.startsWith('feat:')) {
             groups.features.push(changeset);
-        } else if (changeset.summary.startsWith('fix:')) {
+        } else if (changeset.summary && changeset.summary.startsWith('fix:')) {
             groups.fixes.push(changeset);
         } else {
             groups.other.push(changeset);
@@ -213,15 +210,17 @@ function groupChanges(changesets) {
  * Format a single change entry for readme.txt
  */
 function formatChangeEntry(changeset) {
-    const summary = changeset.summary.split(':')[1].trim();
-    let entry = `* ${summary}`;
+    // Get the full summary including prefix
+    const summary = changeset.summary || '';
 
-    // Add PR link if available and GITHUB_TOKEN exists
-    if (process.env.GITHUB_TOKEN && changeset.pr_number) {
-        entry += ` (<a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a>)`;
+    // Format PR link using markdown format (same as CHANGELOG.md)
+    let prLink = '';
+    if (changeset.pr) {
+        prLink = `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})`;
     }
 
-    return entry;
+    // Put the PR link before the description
+    return `* ${prLink ? prLink + ': ' : ''}${summary}`;
 }
 
 /**
@@ -233,13 +232,41 @@ function formatBreakingChanges(changesets) {
     let content = '**BREAKING CHANGES**\n\n';
 
     changesets.forEach(changeset => {
-        content += `${changeset.breaking_changes}\n\n`;
-        if (changeset.upgrade_instructions) {
-            content += 'Upgrade Instructions:\n';
-            content += `${changeset.upgrade_instructions}\n\n`;
+        // Format PR link using markdown format
+        const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+
+        // Include the PR link and summary at the top of each breaking change
+        if (prLink && changeset.summary) {
+            content += `* ${prLink}: ${changeset.summary}\n\n`;
         }
-        if (process.env.GITHUB_TOKEN && changeset.pr_number) {
-            content += `See <a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a> for details.\n\n`;
+
+        // Extract breaking changes from content if not directly available
+        let breakingChanges = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Breaking Changes\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                breakingChanges = match[1].trim();
+            }
+        } else if (changeset.breaking_changes) {
+            breakingChanges = changeset.breaking_changes;
+        }
+
+        if (breakingChanges) {
+            content += `  ${breakingChanges}\n\n`;
+        }
+
+        // Extract upgrade instructions if available
+        let upgradeInstructions = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Upgrade Instructions\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                upgradeInstructions = match[1].trim();
+                content += '  **Upgrade Instructions:**\n';
+                content += `  ${upgradeInstructions}\n\n`;
+            }
+        } else if (changeset.upgrade_instructions) {
+            content += '  **Upgrade Instructions:**\n';
+            content += `  ${changeset.upgrade_instructions}\n\n`;
         }
     });
 
@@ -274,12 +301,37 @@ function formatUpgradeNotice(version, changesets) {
     let notice = `= ${version} =\n**BREAKING CHANGE UPDATE**\n\n`;
 
     breakingChanges.forEach(changeset => {
-        notice += `${changeset.breaking_changes}\n\n`;
-        if (changeset.upgrade_instructions) {
-            notice += `${changeset.upgrade_instructions}\n\n`;
+        // Format PR link and include summary
+        if (changeset.pr && changeset.summary) {
+            const prLink = `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})`;
+            notice += `${prLink}: ${changeset.summary}\n\n`;
         }
-        if (process.env.GITHUB_TOKEN && changeset.pr_number) {
-            notice += `See <a href="https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr_number}">#${changeset.pr_number}</a> for details.\n\n`;
+
+        // Extract breaking changes from content if not directly available
+        let breakingChanges = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Breaking Changes\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                breakingChanges = match[1].trim();
+            }
+        } else if (changeset.breaking_changes) {
+            breakingChanges = changeset.breaking_changes;
+        }
+
+        if (breakingChanges) {
+            notice += `${breakingChanges}\n\n`;
+        }
+
+        // Extract upgrade instructions if available
+        let upgradeInstructions = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Upgrade Instructions\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                upgradeInstructions = match[1].trim();
+                notice += `${upgradeInstructions}\n\n`;
+            }
+        } else if (changeset.upgrade_instructions) {
+            notice += `${changeset.upgrade_instructions}\n\n`;
         }
     });
 
@@ -299,20 +351,54 @@ function formatReadmeTxt(version, changesets) {
     }
 
     // Add other changes grouped by type
-    content += formatChangesSection('New Features', groups.features);
-    content += formatChangesSection('Bug Fixes', groups.fixes);
-
-    if (groups.other.length) {
-        content += formatChangesSection('Other Changes', groups.other);
+    if (groups.features.length) {
+        content += `**New Features**\n\n${groups.features.map(formatChangeEntry).join('\n')}\n\n`;
     }
 
-    // Add upgrade notice if needed
-    const upgradeNotice = formatUpgradeNotice(version, changesets);
-    if (upgradeNotice) {
-        content += '\n== Upgrade Notice ==\n\n' + upgradeNotice;
+    if (groups.fixes.length) {
+        content += `**Chores / Bugfixes**\n\n${groups.fixes.map(formatChangeEntry).join('\n')}\n\n`;
+    }
+
+    if (groups.other.length) {
+        content += `**Other Changes**\n\n${groups.other.map(formatChangeEntry).join('\n')}\n\n`;
     }
 
     return content;
+}
+
+// If the file uses a function to parse changesets, we need to update it
+// to handle the new format. Look for functions that read changeset files
+// and extract metadata from them.
+
+// Example update (actual implementation will depend on the current code):
+function parseChangeset(content) {
+    // Extract frontmatter between --- markers
+    const frontmatterMatch = content.match(/---\n([\s\S]*?)\n---/);
+    if (!frontmatterMatch) return null;
+
+    const frontmatter = frontmatterMatch[1];
+
+    // Parse YAML frontmatter
+    const metadata = {};
+    frontmatter.split('\n').forEach(line => {
+        const [key, value] = line.split(':').map(part => part.trim());
+        if (key && value) {
+            // Convert boolean strings to actual booleans
+            if (value === 'true') metadata[key] = true;
+            else if (value === 'false') metadata[key] = false;
+            else if (!isNaN(value)) metadata[key] = Number(value);
+            else metadata[key] = value;
+        }
+    });
+
+    // Extract content after frontmatter
+    const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
+    const changeContent = contentMatch ? contentMatch[1] : '';
+
+    return {
+        ...metadata,
+        content: changeContent
+    };
 }
 
 module.exports = {

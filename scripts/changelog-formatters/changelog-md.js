@@ -14,16 +14,19 @@ function groupChanges(changesets) {
     };
 
     changesets.forEach(changeset => {
-        if (changeset.breaking || changeset.breaking_changes) {
+        // Check for breaking changes in multiple ways
+        const hasBreakingContent = changeset.content && changeset.content.includes('#### Breaking Changes');
+
+        if (changeset.breaking || changeset.breaking_changes || hasBreakingContent) {
             groups.breaking.push(changeset);
             return;
         }
 
-        if (changeset.summary.startsWith('feat:')) {
+        if (changeset.summary && changeset.summary.startsWith('feat:')) {
             groups.features.push(changeset);
-        } else if (changeset.summary.startsWith('fix:')) {
+        } else if (changeset.summary && changeset.summary.startsWith('fix:')) {
             groups.fixes.push(changeset);
-        } else if (changeset.summary.startsWith('docs:')) {
+        } else if (changeset.summary && changeset.summary.startsWith('docs:')) {
             groups.docs.push(changeset);
         } else {
             groups.other.push(changeset);
@@ -44,8 +47,14 @@ function formatPRLink(pr_number) {
  * Format a single change entry
  */
 function formatChangeEntry(changeset) {
-    const summary = changeset.summary.split(':')[1].trim();
-    return `- ${summary} (${formatPRLink(changeset.pr_number)})`;
+    // Keep the prefix (feat:, fix:, etc.) in the summary
+    const summary = changeset.summary || '';
+
+    // Format the PR link if PR number is available
+    const prLink = changeset.pr ? formatPRLink(changeset.pr) : '';
+
+    // Put the PR link before the description
+    return `- ${prLink}: ${summary}`;
 }
 
 /**
@@ -57,24 +66,45 @@ function formatBreakingChanges(changesets) {
     let content = '### ⚠ BREAKING CHANGES\n\n';
 
     changesets.forEach(changeset => {
-        content += `${changeset.breaking_changes}\n\n`;
-        if (changeset.upgrade_instructions) {
-            content += '#### Upgrade Instructions\n\n';
-            content += `${changeset.upgrade_instructions}\n\n`;
+        // Format the PR link if PR number is available
+        const prLink = changeset.pr ? formatPRLink(changeset.pr) : '';
+
+        // Include the PR link and summary at the top of each breaking change
+        if (prLink && changeset.summary) {
+            content += `- ${prLink}: ${changeset.summary}\n\n`;
         }
-        content += `(${formatPRLink(changeset.pr_number)})\n\n`;
+
+        // Extract breaking changes from content if not directly available
+        let breakingChanges = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Breaking Changes\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                breakingChanges = match[1].trim();
+            }
+        } else if (changeset.breaking_changes) {
+            breakingChanges = changeset.breaking_changes;
+        }
+
+        if (breakingChanges) {
+            content += `  ${breakingChanges}\n\n`;
+        }
+
+        // Extract upgrade instructions if available
+        let upgradeInstructions = '';
+        if (changeset.content) {
+            const match = changeset.content.match(/#### Upgrade Instructions\n([\s\S]*?)(?=\n####|$)/);
+            if (match) {
+                upgradeInstructions = match[1].trim();
+                content += '  #### Upgrade Instructions:\n';
+                content += `  ${upgradeInstructions}\n\n`;
+            }
+        } else if (changeset.upgrade_instructions) {
+            content += '  #### Upgrade Instructions:\n';
+            content += `  ${changeset.upgrade_instructions}\n\n`;
+        }
     });
 
     return content;
-}
-
-/**
- * Format changes section
- */
-function formatChangesSection(title, changes) {
-    if (!changes.length) return '';
-
-    return `### ${title}\n\n${changes.map(formatChangeEntry).join('\n')}\n\n`;
 }
 
 /**
@@ -90,12 +120,20 @@ function formatChangelogMd(version, changesets) {
     }
 
     // Add other changes grouped by type
-    content += formatChangesSection('Features', groups.features);
-    content += formatChangesSection('Bug Fixes', groups.fixes);
-    content += formatChangesSection('Documentation', groups.docs);
+    if (groups.features.length) {
+        content += `### New Features\n\n${groups.features.map(formatChangeEntry).join('\n')}\n\n`;
+    }
+
+    if (groups.fixes.length) {
+        content += `### Chores / Bugfixes\n\n${groups.fixes.map(formatChangeEntry).join('\n')}\n\n`;
+    }
+
+    if (groups.docs.length) {
+        content += `### Documentation\n\n${groups.docs.map(formatChangeEntry).join('\n')}\n\n`;
+    }
 
     if (groups.other.length) {
-        content += formatChangesSection('Other Changes', groups.other);
+        content += `### Other Changes\n\n${groups.other.map(formatChangeEntry).join('\n')}\n\n`;
     }
 
     return content;
@@ -116,6 +154,36 @@ async function updateChangelogMd(release, options) {
     content = lines.join('\n');
 
     fs.writeFileSync(changelogPath, content);
+}
+
+function parseChangeset(content) {
+    // Extract frontmatter between --- markers
+    const frontmatterMatch = content.match(/---\n([\s\S]*?)\n---/);
+    if (!frontmatterMatch) return null;
+
+    const frontmatter = frontmatterMatch[1];
+
+    // Parse YAML frontmatter
+    const metadata = {};
+    frontmatter.split('\n').forEach(line => {
+        const [key, value] = line.split(':').map(part => part.trim());
+        if (key && value) {
+            // Convert boolean strings to actual booleans
+            if (value === 'true') metadata[key] = true;
+            else if (value === 'false') metadata[key] = false;
+            else if (!isNaN(value)) metadata[key] = Number(value);
+            else metadata[key] = value;
+        }
+    });
+
+    // Extract content after frontmatter
+    const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
+    const changeContent = contentMatch ? contentMatch[1] : '';
+
+    return {
+        ...metadata,
+        content: changeContent
+    };
 }
 
 module.exports = {

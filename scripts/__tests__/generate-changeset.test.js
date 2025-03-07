@@ -214,8 +214,8 @@ describe('Changeset Generation', () => {
 
             // Verify changeset content
             const writeCall = fs.writeFileSync.mock.calls[0][1];
-            expect(writeCall).toContain('BREAKING CHANGES:');
-            expect(writeCall).toContain('UPGRADE INSTRUCTIONS:');
+            expect(writeCall).toContain('#### Breaking Changes');
+            expect(writeCall).toContain('#### Upgrade Instructions');
         });
 
         test('requires upgrade instructions for breaking changes', async () => {
@@ -241,8 +241,8 @@ describe('Changeset Generation', () => {
             expect(result.totalSinceTags).toBe(1);
 
             const writeCall = fs.writeFileSync.mock.calls[0][1];
-            expect(writeCall).toContain('FILES WITH @since TAGS TO UPDATE:');
-            expect(writeCall).toContain('test.php');
+            expect(writeCall).toContain('#### Files with @since next-version');
+            expect(writeCall).toContain('- test.php');
         });
 
         test('creates correct changeset file structure', async () => {
@@ -253,18 +253,15 @@ describe('Changeset Generation', () => {
             expect(writeCall).toMatch(/^---\n/);
             expect(writeCall).toMatch(/\n---\n/);
 
-            // Verify JSON content
-            const jsonContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            const parsed = JSON.parse(jsonContent);
-            expect(parsed).toMatchObject({
-                summary: expect.any(String),
-                type: 'minor',
-                pr: 123,
-                pr_number: '123',
-                pr_url: expect.stringContaining('/123'),
-                breaking: false,
-                releases: [{ name: 'wp-graphql', type: 'minor' }]
-            });
+            // Verify YAML content
+            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
+            expect(yamlContent).toContain('type: minor');
+            expect(yamlContent).toContain('pr: 123');
+            expect(yamlContent).toContain('breaking: false');
+
+            // Verify content structure
+            expect(writeCall).toContain('### feat:');
+            expect(writeCall).toContain('[PR #123]');
         });
 
         test('creates changeset with breaking change from title', async () => {
@@ -288,9 +285,10 @@ Follow these steps`,
 
             // Verify changeset content
             const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const jsonContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            const parsed = JSON.parse(jsonContent);
-            expect(parsed.releases[0].type).toBe('major');
+            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
+            expect(yamlContent).toContain('type: major');
+            expect(yamlContent).toContain('breaking: true');
+            expect(writeCall).toContain('#### Breaking Changes');
         });
 
         test('creates changeset with breaking change from PR body', async () => {
@@ -314,10 +312,10 @@ Follow these steps`,
 
             // Verify changeset content
             const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const jsonContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            const parsed = JSON.parse(jsonContent);
-            expect(parsed.releases[0].type).toBe('major');
-            expect(parsed.breaking_changes).toBe('This breaks something');
+            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
+            expect(yamlContent).toContain('type: major');
+            expect(writeCall).toContain('#### Breaking Changes');
+            expect(writeCall).toContain('This breaks something');
         });
 
         test('creates changeset with breaking change from both title and body', async () => {
@@ -341,11 +339,33 @@ Follow these steps`,
 
             // Verify changeset content
             const writeCall = fs.writeFileSync.mock.calls[0][1];
-            const jsonContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
-            const parsed = JSON.parse(jsonContent);
-            expect(parsed.releases[0].type).toBe('major');
-            expect(parsed.breaking_changes).toBe('This also breaks something');
-            expect(parsed.upgrade_instructions).toBe('Follow these steps');
+            const yamlContent = writeCall.match(/---\n([\s\S]*?)\n---/)[1];
+            expect(yamlContent).toContain('type: major');
+            expect(yamlContent).toContain('breaking: true');
+            expect(writeCall).toContain('#### Breaking Changes');
+            expect(writeCall).toContain('This also breaks something');
+            expect(writeCall).toContain('#### Upgrade Instructions');
+            expect(writeCall).toContain('Follow these steps');
+        });
+
+        test('createChangeset generates correct file content', async () => {
+            // Mock implementation
+            fs.writeFileSync = jest.fn();
+
+            // Call the function
+            await createChangeset({
+                title: 'feat: Test feature',
+                body: 'Test description',
+                prNumber: '123'
+            });
+
+            // Get the content that would have been written
+            const fileContent = fs.writeFileSync.mock.calls[0][1];
+
+            // Verify it has the correct format
+            expect(fileContent).toContain('---\ntype: minor\npr: 123\nbreaking: false\n---');
+            expect(fileContent).toContain('### feat: Test feature');
+            expect(fileContent).toContain('[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)');
         });
     });
 
