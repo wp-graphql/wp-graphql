@@ -111,10 +111,6 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
 
-      # Install GitHub CLI using the official action
-      - name: Setup GitHub CLI
-        uses: cli/cli@v2
-
       # Create a new branch and PR instead of pushing directly to develop
       - name: Create changeset branch and PR
         run: |
