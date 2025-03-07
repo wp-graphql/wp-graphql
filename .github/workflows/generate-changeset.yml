@@ -52,17 +52,33 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Scan for @since tags
+      # Scan for @since tags with improved error handling
       - name: Scan for @since Tags
         id: since_tags
         run: |
-          TAGS=$(node -e "
-            const { generateSinceTagsMetadata } = require('./scripts/scan-since-tags');
-            generateSinceTagsMetadata().then(result => {
-              console.log(JSON.stringify(result));
-            });
-          ")
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+          # Run the script and capture both output and exit code
+          OUTPUT=$(node -e "
+            try {
+              const { generateSinceTagsMetadata } = require('./scripts/scan-since-tags');
+              generateSinceTagsMetadata().then(result => {
+                console.log(JSON.stringify(result || {}));
+              }).catch(err => {
+                console.error('Error in generateSinceTagsMetadata:', err);
+                console.log('{}');
+              });
+            } catch (err) {
+              console.error('Error requiring or executing script:', err);
+              console.log('{}');
+            }
+          " 2>&1) || true
+
+          # Check if output is valid JSON
+          if echo "$OUTPUT" | jq empty 2>/dev/null; then
+            echo "tags=$OUTPUT" >> $GITHUB_OUTPUT
+          else
+            echo "Error in since tags script: $OUTPUT"
+            echo "tags={}" >> $GITHUB_OUTPUT
+          fi
 
       # Generate changeset
       - name: Generate Changeset
@@ -72,6 +88,21 @@ jobs:
           if ! node scripts/generate-changeset.js; then
             echo "Error generating changeset"
             exit 1
+          fi
+
+          # Check if any changesets were created
+          if [ -z "$(ls -A .changeset/*.md 2>/dev/null)" ]; then
+            echo "No changesets were generated. Creating a minimal one."
+
+            # Create a minimal changeset if none exists
+            mkdir -p .changeset
+            cat > .changeset/minimal-changeset.md << EOF
+            ---
+            "wp-graphql": patch
+            ---
+
+            PR #$PR_NUMBER: $PR_TITLE
+            EOF
           fi
 
       # Set Git config
