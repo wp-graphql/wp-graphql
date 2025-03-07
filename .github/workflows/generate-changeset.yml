@@ -33,7 +33,7 @@ jobs:
       PR_TITLE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_TITLE || github.event.pull_request.title }}
       PR_BODY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_BODY || github.event.pull_request.body }}
       PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_NUMBER || github.event.pull_request.number }}
-      GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
+      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
 
     steps:
       - name: Checkout
@@ -104,6 +104,7 @@ jobs:
           # Push to the new branch
           git push origin $BRANCH_NAME
 
+          # GitHub CLI uses GH_TOKEN environment variable by default
           # Create PR using GitHub CLI
           gh pr create \
             --base develop \
@@ -111,5 +112,3 @@ jobs:
             --title "Changeset for PR #$PR_NUMBER" \
             --body "Automatically generated changeset for PR #$PR_NUMBER. This PR contains version bump information and changelog entries." \
             --label "changeset"
-        env:
-          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
