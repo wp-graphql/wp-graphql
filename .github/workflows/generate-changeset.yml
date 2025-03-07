@@ -96,13 +96,13 @@ jobs:
 
             # Create a minimal changeset if none exists
             mkdir -p .changeset
-            cat > .changeset/minimal-changeset.md << EOF
-            ---
-            "wp-graphql": patch
-            ---
 
-            PR #$PR_NUMBER: $PR_TITLE
-            EOF
+            # Use echo commands instead of heredoc
+            echo '---' > .changeset/minimal-changeset.md
+            echo '"wp-graphql": patch' >> .changeset/minimal-changeset.md
+            echo '---' >> .changeset/minimal-changeset.md
+            echo '' >> .changeset/minimal-changeset.md
+            echo "PR #$PR_NUMBER: $PR_TITLE" >> .changeset/minimal-changeset.md
           fi
 
       # Set Git config
