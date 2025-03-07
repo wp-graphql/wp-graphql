@@ -1,9 +1,9 @@
 name: "Generate Changeset"
 
-# Triggered when a PR is merged or manually
+# Trigger on label being added or PR being approved
 on:
-  pull_request:
-    types: [closed]
+  pull_request_target:
+    types: [labeled]
   workflow_dispatch:
     inputs:
       PR_TITLE:
@@ -25,25 +25,29 @@ permissions:
 
 jobs:
   generate-changeset:
-    # Only run if PR was merged (not just closed) and not a changeset PR
+    # Only run if the PR is labeled with 'ready-for-changeset' or manually triggered
     if: >
-      (github.event_name != 'pull_request' || github.event.pull_request.merged == true) &&
-      (github.event_name == 'workflow_dispatch' || !contains(github.event.pull_request.title, 'ci: Changeset for PR'))
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' &&
+       contains(github.event.pull_request.labels.*.name, 'ready-for-changeset'))
     name: Generate Changeset
     runs-on: ubuntu-latest
     env:
       PR_TITLE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_TITLE || github.event.pull_request.title }}
       PR_BODY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_BODY || github.event.pull_request.body }}
       PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.PR_NUMBER || github.event.pull_request.number }}
-      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Determine collection branch and target branch based on the PR's base branch
+      COLLECTION_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'changeset-beta' || 'changeset-collection' }}
+      TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'develop' || github.event.pull_request.base.ref }}
-          token: ${{ secrets.SYNC_TOKEN }}
+          ref: ${{ env.TARGET_BRANCH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -54,43 +58,12 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Scan for @since tags with improved error handling
-      - name: Scan for @since Tags
-        id: since_tags
-        run: |
-          # Run the script and capture both output and exit code
-          OUTPUT=$(node -e "
-            try {
-              const { generateSinceTagsMetadata } = require('./scripts/scan-since-tags');
-              generateSinceTagsMetadata().then(result => {
-                console.log(JSON.stringify(result || {}));
-              }).catch(err => {
-                console.error('Error in generateSinceTagsMetadata:', err);
-                console.log('{}');
-              });
-            } catch (err) {
-              console.error('Error requiring or executing script:', err);
-              console.log('{}');
-            }
-          " 2>&1) || true
-
-          # Check if output is valid JSON
-          if echo "$OUTPUT" | jq empty 2>/dev/null; then
-            echo "tags=$OUTPUT" >> $GITHUB_OUTPUT
-          else
-            echo "Error in since tags script: $OUTPUT"
-            echo "tags={}" >> $GITHUB_OUTPUT
-          fi
-
-      # Generate changeset
+      # Generate changeset using our script
       - name: Generate Changeset
         id: generate
         run: |
-          # Run with error handling
-          if ! node scripts/generate-changeset.js; then
-            echo "Error generating changeset"
-            exit 1
-          fi
+          # Use our generate-changeset.js script
+          node scripts/generate-changeset.js
 
           # Check if any changesets were created
           if [ -z "$(ls -A .changeset/*.md 2>/dev/null)" ]; then
@@ -99,9 +72,12 @@ jobs:
             # Create a minimal changeset if none exists
             mkdir -p .changeset
 
-            # Use echo commands instead of heredoc
+            # Get package name from package.json
+            PACKAGE_NAME=$(node -p "console.log(require('./package.json').name)")
+
+            # Use echo commands instead of heredoc with correct package name
             echo '---' > .changeset/minimal-changeset.md
-            echo '"wp-graphql": patch' >> .changeset/minimal-changeset.md
+            echo "\"$PACKAGE_NAME\": patch" >> .changeset/minimal-changeset.md
             echo '---' >> .changeset/minimal-changeset.md
             echo '' >> .changeset/minimal-changeset.md
             echo "PR #$PR_NUMBER: $PR_TITLE" >> .changeset/minimal-changeset.md
@@ -113,25 +89,58 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
 
-      # Create a new branch and PR instead of pushing directly to develop
-      - name: Create changeset branch and PR
+      # Check if collection branch exists, create if not
+      - name: Check or create collection branch
         run: |
-          # Create a new branch
-          BRANCH_NAME="changeset-pr-$PR_NUMBER"
-          git checkout -b $BRANCH_NAME
+          if git ls-remote --heads origin $COLLECTION_BRANCH | grep -q $COLLECTION_BRANCH; then
+            echo "Collection branch exists, checking out"
+            git fetch origin $COLLECTION_BRANCH
+            git checkout $COLLECTION_BRANCH
+          else
+            echo "Creating new collection branch"
+            git checkout -b $COLLECTION_BRANCH
+          fi
 
+      # Add changeset to collection branch
+      - name: Add changeset to collection
+        run: |
           # Add and commit changes
           git add .changeset/*
           git commit -m "chore: add changeset for PR #$PR_NUMBER"
+          git push origin $COLLECTION_BRANCH
 
-          # Push to the new branch
-          git push origin $BRANCH_NAME
+      # Check if PR exists, create if not
+      - name: Check or create collection PR
+        run: |
+          # Check if PR already exists
+          PR_EXISTS=$(gh pr list --head $COLLECTION_BRANCH --base $TARGET_BRANCH --json number | jq 'length')
 
-          # GitHub CLI uses GH_TOKEN environment variable by default
-          # Create PR using GitHub CLI
-          gh pr create \
-            --base develop \
-            --head $BRANCH_NAME \
-            --title "ci: Changeset for PR #$PR_NUMBER" \
-            --body "Automatically generated changeset for PR #$PR_NUMBER. This PR contains version bump information and changelog entries." \
-            --label "changeset"
+          if [ "$PR_EXISTS" -eq "0" ]; then
+            echo "Creating new collection PR"
+
+            # Set title based on branch
+            if [[ "$COLLECTION_BRANCH" == "changeset-beta" ]]; then
+              PR_TITLE="Beta Changesets Collection"
+              PR_BODY="This PR collects changesets for the next beta release."
+              LABEL="beta-changeset-collection"
+            else
+              PR_TITLE="Changesets Collection"
+              PR_BODY="This PR collects changesets from various merged PRs. When merged, it will trigger version updates based on the collected changesets."
+              LABEL="changeset-collection"
+            fi
+
+            gh pr create \
+              --base $TARGET_BRANCH \
+              --head $COLLECTION_BRANCH \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY" \
+              --label "$LABEL"
+          else
+            echo "Collection PR already exists"
+          fi
+
+      # Remove the label to prevent re-running
+      - name: Remove label
+        if: contains(github.event.pull_request.labels.*.name, 'ready-for-changeset')
+        run: |
+          gh pr edit $PR_NUMBER --remove-label "ready-for-changeset"

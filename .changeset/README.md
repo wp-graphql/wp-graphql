@@ -4,7 +4,7 @@ This directory contains "changesets" which help us manage versioning and changel
 
 ## Automated Changeset Generation
 
-Changesets are automatically generated when PRs are merged based on:
+Changesets are automatically generated when PRs are labeled with `ready-for-changeset` based on:
 
 1. PR Title: Must follow conventional commit standards
 
@@ -22,7 +22,7 @@ Changesets are automatically generated when PRs are merged based on:
 
 ## How Changesets Work in WPGraphQL
 
-Changesets are automatically generated when PRs are merged to track changes and automate releases. The process works as follows:
+Changesets are automatically generated when PRs are labeled to track changes and automate releases. The process works as follows:
 
 1. Contributors submit PRs following our conventional commit standards
 2. GitHub Actions automate the process:
@@ -78,17 +78,18 @@ Users implementing the PostType interface will need to implement this new field.
 ```mermaid
 flowchart TD
     %% PR and Changeset Process
-    PR[PR Merged] --> GC[Generate Changeset]
-    GC --> ST[Scan @since next-version tags]
+    PR[PR Merged] --> RL[Add ready-for-changeset label]
+    RL --> GC[Generate Changeset]
+    GC --> ST[Scan @since todo tags]
     ST --> CPR[Create Changeset PR]
     CPR --> |Merged to develop| DEV[develop branch]
+    DEV --> |Auto-merge to master| M[master branch]
 
     %% Standard Release Flow
     subgraph "Standard Release"
-        DEV --> |Merge to master| M[master branch]
         M --> VB[Version Bump]
         VB --> SV[Sync Versions<br/>package.json<br/>wp-graphql.php<br/>constants.php]
-        SV --> US[Update @since next-version tags]
+        SV --> US[Update @since tags]
         US --> CL[Generate Changelogs]
 
         %% Changelog Generation
@@ -101,10 +102,14 @@ flowchart TD
 
     %% Beta Release Flow
     subgraph "Beta Release"
-        B[next-major branch] --> BV[Version Bump with Beta]
+        PR2[PR to next-major] --> RL2[Add ready-for-changeset label]
+        RL2 --> GC2[Generate Changeset]
+        GC2 --> ST2[Scan @since todo tags]
+        ST2 --> CPR2[Create Beta Changeset PR]
+        CPR2 --> |Merged to next-major| NM[next-major branch]
+        NM --> BV[Version Bump with Beta]
         BV --> BSV[Sync Versions<br/>Keep Stable Tag]
-        BSV --> BUS[Update @since next-version tags]
-        BUS --> BCL[Generate Changelogs]
+        BSV --> BCL[Generate Changelogs]
         BCL --> BGR[Create GitHub Pre-release]
         BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
     end
@@ -128,7 +133,7 @@ When a release is created:
    - constants.php
    - package.json
    - wp-graphql.php
-5. `@since next-version` tags are replaced with new version
+5. `@since next-version` tags are replaced with new version (standard releases only)
 6. Changes are committed and pushed
 7. GitHub release is created
 8. Plugin is deployed to WordPress.org:
@@ -160,31 +165,33 @@ When a release is created:
 
 ### Current Version (v2.x)
 
-```bash
-# Ensure you're on develop with latest changes
-git checkout develop
-git pull origin develop
+The release process is fully automated:
 
-# Create release
-npm run changeset version
-
-# Review the changes:
-# - Version numbers in constants.php, package.json, wp-graphql.php
-# - Changelog entries in CHANGELOG.md and readme.txt
-# - Stable tag in readme.txt
-# - @since next-version tags replaced with new version
-
-# Create release
-npm run changeset publish
-
-# After release, merge to master
-git checkout master
-git merge develop
-```
+1. PRs are merged to `develop` with the `ready-for-changeset` label
+2. Changesets are collected in a PR from `changeset-collection` to `develop`
+3. When the changeset collection PR is merged to `develop`, a workflow automatically:
+   - Merges `develop` into `master`
+   - Processes changesets to determine version bump
+   - Updates version numbers and `@since` tags
+   - Generates changelogs
+   - Creates a GitHub release
+   - Deploys to WordPress.org
 
 ### Beta Releases
 
-For beta releases (e.g., v3.0.0-beta.1), see [Beta Releases Guide](../docs/beta-releases.md).
+For beta releases (e.g., v3.0.0-beta.1):
+
+1. PRs are merged to `next-major` with the `ready-for-changeset` label
+2. Changesets are collected in a PR from `changeset-beta` to `next-major`
+3. When the changeset collection PR is merged to `next-major`, the same workflow:
+   - Processes changesets with prerelease flag
+   - Updates version numbers with beta suffix
+   - Keeps stable tag unchanged
+   - Creates a GitHub pre-release
+   - Deploys to WordPress.org
+   - **Note: `@since` tags are NOT updated for beta releases**
+
+See [Beta Releases Guide](../docs/beta-releases.md) for more details.
 
 ## Customizations
 

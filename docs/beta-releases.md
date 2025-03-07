@@ -22,36 +22,17 @@ Beta releases are developed on the `next-major` branch:
 ```mermaid
 flowchart TD
     %% PR and Changeset Process
-    PR[PR Merged] --> GC[Generate Changeset]
+    PR[PR to next-major] --> RL[Add ready-for-changeset label]
+    RL --> GC[Generate Changeset]
     GC --> ST[Scan @since next-version tags]
-    ST --> CPR[Create Changeset PR]
-    CPR --> |Merged to develop| DEV[develop branch]
-
-    %% Standard Release Flow
-    subgraph "Standard Release"
-        DEV --> |Merge to master| M[master branch]
-        M --> VB[Version Bump]
-        VB --> SV[Sync Versions<br/>package.json<br/>wp-graphql.php<br/>constants.php]
-        SV --> US[Update @since next-version tags]
-        US --> CL[Generate Changelogs]
-
-        %% Changelog Generation
-        CL --> MD[CHANGELOG.md<br/>Developer Format]
-        CL --> RT[readme.txt<br/>WordPress.org Format]
-
-        MD & RT --> GR[Create GitHub Release]
-        GR --> WO[Deploy to WordPress.org<br/>Update Stable Tag]
-    end
-
-    %% Beta Release Flow
-    subgraph "Beta Release"
-        B[next-major branch] --> BV[Version Bump with Beta]
-        BV --> BSV[Sync Versions<br/>Keep Stable Tag]
-        BSV --> BUS[Update @since next-version tags]
-        BUS --> BCL[Generate Changelogs]
-        BCL --> BGR[Create GitHub Pre-release]
-        BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
-    end
+    ST --> CPR[Create Beta Changeset PR]
+    CPR --> |Merged to next-major| NM[next-major branch]
+    NM --> BV[Version Bump with Beta]
+    BV --> BSV[Sync Versions<br/>Keep Stable Tag]
+    BSV --> BUS[Update @since tags]
+    BUS --> BCL[Generate Changelogs]
+    BCL --> BGR[Create GitHub Pre-release]
+    BGR --> BWO[Deploy to WordPress.org<br/>Keep Stable Tag]
 ```
 
 ### Automated Process
@@ -59,17 +40,22 @@ flowchart TD
 The beta release process is automated via GitHub Actions:
 
 1. PRs with breaking changes target the `next-major` branch
-2. When changes are merged:
-   - Version is automatically bumped with beta suffix
-   - Changelog is updated
-   - Git tag is created
-   - GitHub pre-release is created automatically
-   - Plugin is deployed to WordPress.org
-   - Stable tag remains pointing to last stable release
+2. When a PR is ready, a maintainer adds the `ready-for-changeset` label
+3. This triggers the changeset generation workflow which:
+   - Creates a changeset based on the PR
+   - Adds it to the `changeset-beta` collection branch (determined automatically based on target branch)
+   - Creates/updates a PR from `changeset-beta` to `next-major`
+4. When the collection PR is merged to `next-major`:
+   - The beta release workflow automatically runs
+   - Version is bumped with beta suffix
+   - `@since` tags are updated
+   - Changelog is generated
+   - GitHub pre-release is created
+   - Plugin zip is built and attached to the release
 
 ### Changeset Generation
 
-Breaking changes are tracked through changesets, which are automatically generated when PRs are merged. To indicate a breaking change:
+Breaking changes are tracked through changesets, which are automatically generated when PRs are labeled. To indicate a breaking change:
 
 1. Add `!` suffix to your PR title: `feat!: breaking change`
 2. Document breaking changes in PR description
@@ -85,14 +71,14 @@ The automation will handle:
 
 Some aspects require manual review:
 
-1. Before merging PRs:
+1. Before labeling PRs:
    - Ensure breaking changes are properly documented
    - Verify upgrade instructions are included
    - Check `@since todo` tags are present
-2. Before releasing:
-   - Review changelog entries
-   - Verify version numbers
-   - Test beta release
+2. Before merging the changeset collection PR:
+   - Review generated changesets
+   - Verify version bump types
+   - Check breaking change documentation
 
 ## Version Numbering
 
@@ -127,4 +113,3 @@ Feedback on beta releases can be provided through:
 - Beta releases are marked as pre-releases on GitHub
 - The stable tag in readme.txt is not updated for beta releases
 - Breaking changes must include upgrade notes
-- Beta releases are not deployed to WordPress.org

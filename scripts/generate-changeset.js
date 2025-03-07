@@ -81,7 +81,12 @@ async function createChangeset({ title, body, prNumber }) {
     const summary = formatSummary(type, isBreaking, description);
 
     // Determine bump type
-    const bumpType = isBreaking || sections.breaking ? 'major' : (type === 'feat' ? 'minor' : 'patch');
+    const bumpType = isBreaking || sections.breaking
+        ? 'major'  // Breaking changes are major
+        : (type === 'feat'
+            ? 'minor'  // New features are minor
+            : 'patch'  // Everything else is patch
+        );
 
     // Create the changeset content
     const changesetContent = {
