@@ -112,10 +112,10 @@ jobs:
       # Check if PR exists, create if not
       - name: Check or create collection PR
         run: |
-          # Check if PR already exists
-          PR_EXISTS=$(gh pr list --head $COLLECTION_BRANCH --base $TARGET_BRANCH --json number | jq 'length')
+          # Check if PR already exists - using a more robust approach
+          PR_COUNT=$(gh pr list --head "$COLLECTION_BRANCH" --base "$TARGET_BRANCH" | wc -l)
 
-          if [ "$PR_EXISTS" -eq "0" ]; then
+          if [ "$PR_COUNT" -eq "0" ]; then
             echo "Creating new collection PR"
 
             # Set title based on branch
@@ -130,8 +130,8 @@ jobs:
             fi
 
             gh pr create \
-              --base $TARGET_BRANCH \
-              --head $COLLECTION_BRANCH \
+              --base "$TARGET_BRANCH" \
+              --head "$COLLECTION_BRANCH" \
               --title "$PR_TITLE" \
               --body "$PR_BODY" \
               --label "$LABEL"
