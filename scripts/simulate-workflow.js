@@ -23,6 +23,18 @@ async function initChalk() {
  * Create test changesets for simulation
  */
 function createTestChangesets() {
+    // Get the package name
+    let packageName = 'wp-graphql';
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+            packageName = packageJson.name || packageName;
+        }
+    } catch (error) {
+        console.warn('Error reading package.json:', error.message);
+    }
+
     return [
         {
             type: 'minor',
@@ -34,7 +46,8 @@ function createTestChangesets() {
 [PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
 
 #### Description
-Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`
+Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`,
+            packageName: packageName
         },
         {
             type: 'major',
@@ -52,7 +65,8 @@ Changes the way mutations handle input validation.
 This changes the way mutations handle input validation. The previous approach of passing validation options as a second argument is no longer supported.
 
 #### Upgrade Instructions
-Update your mutation input to include the new required fields and remove any separate validation options.`
+Update your mutation input to include the new required fields and remove any separate validation options.`,
+            packageName: packageName
         },
         {
             type: 'patch',
@@ -64,7 +78,8 @@ Update your mutation input to include the new required fields and remove any sep
 [PR #125](https://github.com/wp-graphql/wp-graphql/pull/125)
 
 #### Description
-Fixes a performance issue with nested queries.`
+Fixes a performance issue with nested queries.`,
+            packageName: packageName
         }
     ];
 }
@@ -75,18 +90,22 @@ Fixes a performance issue with nested queries.`
 function calculateNextVersion(currentVersion, changesets) {
     const [major, minor, patch] = currentVersion.split('.').map(Number);
 
-    // Check for breaking changes
+    // Check for breaking changes with null checks
     const hasBreakingChanges = changesets.some(
-        changeset => changeset.breaking || changeset.breaking_changes || changeset.type === 'major'
+        changeset => changeset.breaking || changeset.breaking_changes ||
+                    (changeset.type && changeset.type === 'major')
     );
+
     if (hasBreakingChanges) {
         return `${major + 1}.0.0`;
     }
 
-    // Check for features (minor changes)
+    // Check for features (minor changes) with null checks
     const hasFeatures = changesets.some(
-        changeset => changeset.type === 'minor' || changeset.summary.startsWith('feat:')
+        changeset => (changeset.type && changeset.type === 'minor') ||
+                    (changeset.summary && changeset.summary.startsWith('feat:'))
     );
+
     if (hasFeatures) {
         return `${major}.${minor + 1}.0`;
     }
@@ -247,18 +266,32 @@ async function readActualChangesets() {
                     } else {
                         // YAML format (new)
                         changeset = {};
-                        frontmatter.split('\n').forEach(line => {
+
+                        // Parse the YAML frontmatter
+                        const lines = frontmatter.split('\n');
+                        for (const line of lines) {
                             if (line.includes(':')) {
-                                const [key, value] = line.split(':').map(part => part.trim());
-                                if (key && value !== undefined) {
-                                    // Convert boolean strings to actual booleans
-                                    if (value === 'true') changeset[key] = true;
-                                    else if (value === 'false') changeset[key] = false;
-                                    else if (!isNaN(value)) changeset[key] = Number(value);
-                                    else changeset[key] = value;
+                                // Handle package name to bump type mapping
+                                if (line.includes('"') && line.includes('major') || line.includes('minor') || line.includes('patch')) {
+                                    // This is a package name to bump type mapping
+                                    const packageMatch = line.match(/"([^"]+)":\s*(\w+)/);
+                                    if (packageMatch) {
+                                        // Store the bump type
+                                        changeset.type = packageMatch[2];
+                                    }
+                                } else {
+                                    // Handle other metadata
+                                    const [key, value] = line.split(':').map(part => part.trim());
+                                    if (key && value !== undefined) {
+                                        // Convert boolean strings to actual booleans
+                                        if (value === 'true') changeset[key] = true;
+                                        else if (value === 'false') changeset[key] = false;
+                                        else if (!isNaN(value)) changeset[key] = Number(value);
+                                        else changeset[key] = value;
+                                    }
                                 }
                             }
-                        });
+                        }
 
                         // Extract content after frontmatter for summary
                         const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
@@ -342,81 +375,120 @@ ${options.upgrade || ''}`,
 async function simulateVersionUpdate() {
     console.log('\nSimulating Version Update:');
 
-    // Get current version from package.json
-    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    const currentVersion = packageJson.version;
-
-    // Determine next version
-    const forceVersion = process.env.FORCE_VERSION === '1';
-    const nextVersion = getNextVersion(currentVersion, forceVersion);
-
-    console.log('Current Version:', currentVersion);
-    console.log('Next Version:  ', nextVersion);
-    console.log('Version Jump:  ', `${currentVersion} → ${nextVersion}`);
-    console.log('Reason:', forceVersion ? 'Forced version bump' : 'No changes detected');
-
-    console.log('\nScanning for @since tags to update...');
-
-    // Use the functions from update-since-tags.js
     try {
-        const files = await findSinceTodoFiles();
-        console.log('\nProcessing files for @since tags...');
-
-        const results = [];
-        for (const file of (files || [])) {
-            try {
-                const content = fs.readFileSync(file, 'utf8');
-                const count = getSincePlaceholders(content);
-                if (count > 0) {
-                    results.push({ file, count });
-                    console.log(`Found ${count} @since tags in ${file}`);
-                }
-            } catch (error) {
-                console.error(`Error processing file ${file}:`, error.message);
+        // Get current version from package.json
+        let currentVersion = '1.0.0'; // Default fallback version
+        try {
+            const packageJsonPath = path.join(process.cwd(), 'package.json');
+            if (fs.existsSync(packageJsonPath)) {
+                const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+                currentVersion = packageJson.version || currentVersion;
+            } else {
+                console.warn('package.json not found, using default version');
             }
+        } catch (error) {
+            console.warn('Error reading package.json:', error.message);
         }
 
-        if (results.length > 0) {
-            console.log('\nFound files with @since tags to update:');
-            results.forEach(({ file, count }) => {
-                console.log(`- ${file} (${count} tags)`);
-            });
-        } else {
-            console.log('\nNo files found with @since tags to update');
+        // Determine next version
+        const forceVersion = process.env.FORCE_VERSION === '1';
+
+        // Get changesets with error handling
+        let changesets = [];
+        try {
+            if (fs.existsSync('.changeset')) {
+                const changesetFiles = fs.readdirSync('.changeset')
+                    .filter(file => file.endsWith('.md') && file !== 'README.md');
+
+                if (changesetFiles.length > 0) {
+                    changesets = await readActualChangesets();
+                }
+            }
+        } catch (error) {
+            console.warn('Error reading changesets:', error.message);
         }
 
-        const totalTags = results.reduce((sum, { count }) => sum + count, 0);
-        console.log(`Total tags to update: ${totalTags}\n`);
+        const nextVersion = getNextVersion(currentVersion, forceVersion);
 
+        console.log('Current Version:', currentVersion);
+        console.log('Next Version:  ', nextVersion);
+        console.log('Version Jump:  ', `${currentVersion} → ${nextVersion}`);
+        console.log('Reason:', forceVersion ? 'Forced version bump' : getVersionBumpReason(changesets));
+
+        console.log('\nScanning for @since tags to update...');
+
+        // Use the functions from update-since-tags.js
+        try {
+            const files = await findSinceTodoFiles();
+            console.log('\nProcessing files for @since tags...');
+
+            const results = [];
+            for (const file of (files || [])) {
+                try {
+                    const content = fs.readFileSync(file, 'utf8');
+                    const count = getSincePlaceholders(content);
+                    if (count > 0) {
+                        results.push({ file, count });
+                        console.log(`Found ${count} @since tags in ${file}`);
+                    }
+                } catch (error) {
+                    console.error(`Error processing file ${file}:`, error.message);
+                }
+            }
+
+            if (results.length > 0) {
+                console.log('\nFound files with @since tags to update:');
+                results.forEach(({ file, count }) => {
+                    console.log(`- ${file} (${count} tags)`);
+                });
+            } else {
+                console.log('\nNo files found with @since tags to update');
+            }
+
+            const totalTags = results.reduce((sum, { count }) => sum + count, 0);
+            console.log(`Total tags to update: ${totalTags}\n`);
+
+        } catch (error) {
+            console.error('Error scanning for @since tags:', error);
+        }
+
+        // Show current versions
+        console.log('\nCurrent versions:');
+        console.log('php:', currentVersion);
+        console.log('constants:', currentVersion);
+        console.log('package:', currentVersion);
+        console.log('readme:', currentVersion);
+
+        // Simulate updating versions
+        console.log('\n✓ Version numbers updated');
+
+        // Show updated versions
+        console.log('\nUpdated versions:');
+        console.log('php:', nextVersion);
+        console.log('constants:', nextVersion);
+        console.log('package:', nextVersion);
+        console.log('readme:', nextVersion);
     } catch (error) {
-        console.error('Error scanning for @since tags:', error);
+        console.error('Error in simulateVersionUpdate:', error);
+        throw error;
     }
-
-    // Show current versions
-    console.log('\nCurrent versions:');
-    console.log('php:', currentVersion);
-    console.log('constants:', currentVersion);
-    console.log('package:', currentVersion);
-    console.log('readme:', currentVersion);
-
-    // Simulate updating versions
-    console.log('\n✓ Version numbers updated');
-
-    // Show updated versions
-    console.log('\nUpdated versions:');
-    console.log('php:', nextVersion);
-    console.log('constants:', nextVersion);
-    console.log('package:', nextVersion);
-    console.log('readme:', nextVersion);
 }
 
 /**
  * Get a human-readable reason for the version bump
  */
 function getVersionBumpReason(changesets) {
-    const breakingChanges = changesets.filter(c => c.breaking || c.breaking_changes || c.type === 'major');
-    const features = changesets.filter(c => c.type === 'minor' || c.summary.startsWith('feat:'));
-    const fixes = changesets.filter(c => c.type === 'patch' || c.summary.startsWith('fix:'));
+    const breakingChanges = changesets.filter(c =>
+        c.breaking || c.breaking_changes || (c.type && c.type === 'major')
+    );
+
+    const features = changesets.filter(c =>
+        (c.type && c.type === 'minor') || (c.summary && c.summary.startsWith('feat:'))
+    );
+
+    const fixes = changesets.filter(c =>
+        (c.type && c.type === 'patch') || (c.summary && c.summary.startsWith('fix:'))
+    );
 
     if (breakingChanges.length > 0) {
         return chalk.red(`Major version bump due to ${breakingChanges.length} breaking change(s)`);

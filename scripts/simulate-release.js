@@ -3,6 +3,8 @@ const { getCurrentVersions, updateVersions } = require('./version-management');
 const { updateAllSinceTags } = require('./update-since-tags');
 const { getReadmeTxtChangelog } = require('./changelog-formatters/readme-txt');
 const chalk = require('chalk');
+const path = require('path');
+const fs = require('fs');
 
 async function simulateRelease(newVersion, options = { beta: false }) {
     try {
@@ -27,24 +29,7 @@ async function simulateRelease(newVersion, options = { beta: false }) {
 
         // 4. Generate changelog
         console.log(chalk.blue('\n4. Generating changelog entries...'));
-        const mockRelease = {
-            newVersion,
-            changesets: [
-                // Mock changeset for testing - updated to new format
-                {
-                    type: 'minor',
-                    pr: 123,
-                    breaking: false,
-                    summary: 'feat: Test feature',
-                    content: `### feat: Test feature
-
-[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
-
-#### Description
-This is a test feature for simulation.`
-                }
-            ]
-        };
+        const mockRelease = createMockRelease();
         const changelog = await getReadmeTxtChangelog(mockRelease, {
             repo: 'wp-graphql/wp-graphql'
         });
@@ -91,3 +76,45 @@ if (require.main === module) {
 }
 
 module.exports = simulateRelease;
+
+// Get the package name from package.json
+function getPackageName() {
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        return packageJson.name || 'wp-graphql'; // Default to wp-graphql if name is not found
+    } catch (error) {
+        console.error('Error reading package.json:', error);
+        return 'wp-graphql'; // Default fallback
+    }
+}
+
+// Create a mock release for simulation
+function createMockRelease() {
+    const packageName = getPackageName();
+
+    return {
+        newVersion: '2.0.0',
+        changesets: [
+            {
+                type: 'major',
+                pr: 123,
+                breaking: true,
+                summary: 'feat!: Breaking API change',
+                content: `### feat!: Breaking API change
+
+[PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
+
+#### Description
+This is a simulated breaking change for testing purposes.
+
+#### Breaking Changes
+This changes the API in a significant way.
+
+#### Upgrade Instructions
+Follow these steps to upgrade your code.`,
+                packageName: packageName
+            }
+        ]
+    };
+}

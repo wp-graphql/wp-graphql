@@ -1,6 +1,6 @@
 # Changesets
 
-This directory contains "changesets" which help us manage versioning and changelogs.
+This directory contains "changesets" which help us manage changes and document them correctly.
 
 ## Automated Changeset Generation
 
@@ -32,42 +32,62 @@ Changesets are automatically generated when PRs are labeled to track changes and
 
 For detailed information about the automation process, see [GitHub Workflows](../.github/workflows/README.md).
 
-## What is a Changeset?
+## What is a changeset?
 
-A changeset is a file that describes changes made in a PR. It includes:
+A changeset is a file that describes a change to the codebase. It includes:
 
-- Type of change (patch/minor/major)
-- PR number and link
-- Whether it contains breaking changes
-- Description of changes
-- Upgrade notes (if any)
-- Files containing `@since next-version` that need updating
+1. The type of change (major, minor, patch)
+2. The PR number
+3. Whether it's a breaking change
+4. A description of the change
 
-## Example Changeset
+## Format
+
+Changesets are markdown files with YAML frontmatter. The frontmatter should include:
 
 ```md
 ---
-type: minor
+"wp-graphql": major|minor|patch
 pr: 123
-breaking: false
+breaking: true|false
 ---
 
-### feat: Add new GraphQL field to Post type
+### feat: Title of the change
 
 [PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
 
 #### Description
 
-Adds a new GraphQL field `customField` to the Post type that exposes custom meta data.
+Description of the change
 
-#### Upgrade Notes
+#### Breaking Changes
 
-Users implementing the PostType interface will need to implement this new field.
+Description of breaking changes (if any)
 
-#### Files with @since next-version
+#### Upgrade Instructions
 
-- src/Type/ObjectType/PostType.php
+Instructions for upgrading (if needed)
 ```
+
+## How are changesets used?
+
+When a PR is merged, a changeset is automatically generated based on the PR title and description.
+
+These changesets are then used to:
+
+1. Determine the next version number
+2. Generate the changelog
+3. Update @since tags in the code
+
+## Manual creation
+
+Changesets are typically created automatically, but you can create one manually by running:
+
+```
+npm run changeset
+```
+
+This will prompt you for the necessary information and create a changeset file.
 
 ## How are Changesets Used?
 
