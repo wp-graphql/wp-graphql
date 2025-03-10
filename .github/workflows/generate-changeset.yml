@@ -39,7 +39,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Determine collection branch and target branch based on the PR's base branch
       COLLECTION_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'changeset-beta' || 'changeset-collection' }}
-      TARGET_BRANCH: ${{ github.event.pull_request.base.ref || 'master' }}
+      TARGET_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'next-major' || 'develop' }}
 
     steps:
       - name: Checkout
@@ -109,22 +109,17 @@ jobs:
           git commit -m "chore: add changeset for PR #$PR_NUMBER"
           git push origin $COLLECTION_BRANCH
 
-      # Check if PR exists, create if not
+      # Check or create collection PR
       - name: Check or create collection PR
         run: |
-          # Ensure TARGET_BRANCH has a value
-          if [ -z "$TARGET_BRANCH" ]; then
-            echo "TARGET_BRANCH is empty, defaulting to 'master'"
-            TARGET_BRANCH="master"
-          fi
-
+          # TARGET_BRANCH is now set at the job level to either 'develop' or 'next-major'
           echo "Using target branch: $TARGET_BRANCH"
           echo "Using collection branch: $COLLECTION_BRANCH"
 
-          # Check if PR already exists
-          PR_COUNT=$(gh pr list --head "$COLLECTION_BRANCH" --base "$TARGET_BRANCH" | wc -l)
+          # Check if ANY PR already exists from this collection branch (regardless of target)
+          PR_EXISTS=$(gh pr list --head "$COLLECTION_BRANCH" --json number | jq length)
 
-          if [ "$PR_COUNT" -eq "0" ]; then
+          if [ "$PR_EXISTS" -eq "0" ]; then
             echo "Creating new collection PR"
 
             # Set title based on branch
@@ -145,7 +140,10 @@ jobs:
               --body "$PR_BODY" \
               --label "$LABEL"
           else
-            echo "Collection PR already exists"
+            echo "Collection PR already exists from branch $COLLECTION_BRANCH. Not creating a new one."
+
+            # Optionally, we could update the existing PR with new commits
+            echo "The existing PR will automatically include the new changesets."
           fi
 
       # Remove the label to prevent re-running
