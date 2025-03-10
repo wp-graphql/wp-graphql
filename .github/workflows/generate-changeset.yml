@@ -39,7 +39,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Determine collection branch and target branch based on the PR's base branch
       COLLECTION_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'changeset-beta' || 'changeset-collection' }}
-      TARGET_BRANCH: ${{ github.event.pull_request.base.ref || 'master' }}
+      TARGET_BRANCH: ${{ github.event.pull_request.base.ref == 'next-major' && 'next-major' || 'develop' }}
 
     steps:
       - name: Checkout
@@ -111,22 +111,19 @@ jobs:
           git commit -m "chore: add changeset for PR #$PR_NUMBER"
           git push origin $COLLECTION_BRANCH
 
-      # Check if PR exists, create if not
+      # Check or create collection PR
       - name: Check or create collection PR
+        id: collection_pr
         run: |
-          # Ensure TARGET_BRANCH has a value
-          if [ -z "$TARGET_BRANCH" ]; then
-            echo "TARGET_BRANCH is empty, defaulting to 'master'"
-            TARGET_BRANCH="master"
-          fi
-
+          # TARGET_BRANCH is now set at the job level to either 'develop' or 'next-major'
           echo "Using target branch: $TARGET_BRANCH"
           echo "Using collection branch: $COLLECTION_BRANCH"
 
-          # Check if PR already exists
-          PR_COUNT=$(gh pr list --head "$COLLECTION_BRANCH" --base "$TARGET_BRANCH" | wc -l)
+          # Check if ANY PR already exists from this collection branch (regardless of target)
+          PR_DATA=$(gh pr list --head "$COLLECTION_BRANCH" --json number,url)
+          PR_EXISTS=$(echo "$PR_DATA" | jq length)
 
-          if [ "$PR_COUNT" -eq "0" ]; then
+          if [ "$PR_EXISTS" -eq "0" ]; then
             echo "Creating new collection PR"
 
             # Set title based on branch
@@ -140,15 +137,161 @@ jobs:
               LABEL="changeset-collection"
             fi
 
-            gh pr create \
+            # Create the PR
+            PR_URL=$(gh pr create \
               --base "$TARGET_BRANCH" \
               --head "$COLLECTION_BRANCH" \
               --title "$PR_TITLE" \
               --body "$PR_BODY" \
-              --label "$LABEL"
+              --label "$LABEL" \
+              --json url -q .url)
+
+            # Extract PR number from URL
+            PR_NUMBER=$(echo "$PR_URL" | grep -o '[0-9]\+$')
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
           else
-            echo "Collection PR already exists"
+            # Get the PR number and URL from existing PR
+            PR_NUMBER=$(echo "$PR_DATA" | jq -r '.[0].number')
+            PR_URL=$(echo "$PR_DATA" | jq -r '.[0].url')
+            echo "Collection PR already exists from branch $COLLECTION_BRANCH. Not creating a new one."
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+            # Optionally, we could update the existing PR with new commits
+            echo "The existing PR will automatically include the new changesets."
           fi
+
+      # Generate changelog from changesets and update PR description
+      - name: Update PR with changelog
+        if: steps.collection_pr.outputs.pr_number != ''
+        run: |
+          PR_NUMBER="${{ steps.collection_pr.outputs.pr_number }}"
+
+          # Use the Changesets CLI to generate a changelog preview
+          # This is similar to what the changesets/action uses for releases
+          echo "Generating changelog preview..."
+
+          # Create a temporary directory for changelog generation
+          TEMP_DIR=$(mktemp -d)
+          CHANGELOG_FILE="$TEMP_DIR/CHANGELOG.md"
+          ADDITIONAL_INFO="$TEMP_DIR/additional.md"
+
+          # Use Changesets CLI to get pending releases
+          # This will show what changes would be included in the next release
+          npx @changesets/cli status --output="$TEMP_DIR/status.json"
+
+          # Start building the changelog
+          echo "## Changelog Preview" > "$CHANGELOG_FILE"
+          echo "" >> "$CHANGELOG_FILE"
+          echo "This PR includes the following changes that will be part of the next release:" >> "$CHANGELOG_FILE"
+          echo "" >> "$CHANGELOG_FILE"
+
+          # Create additional info section separately to avoid YAML issues
+          echo "## Additional Information" > "$ADDITIONAL_INFO"
+          echo "When merged, this PR will trigger version updates based on the collected changesets." >> "$ADDITIONAL_INFO"
+
+          # If the status.json file exists and has content, parse it
+          if [ -s "$TEMP_DIR/status.json" ]; then
+            # Extract release type (major, minor, patch)
+            RELEASE_TYPE=$(jq -r '.releases[0].type // "patch"' "$TEMP_DIR/status.json")
+            echo "### Release Type: $RELEASE_TYPE" >> "$CHANGELOG_FILE"
+            echo "" >> "$CHANGELOG_FILE"
+
+            # Process each changeset as a bulleted list
+            jq -c '.changesets[]' "$TEMP_DIR/status.json" | while read -r changeset; do
+              SUMMARY=$(echo "$changeset" | jq -r '.summary')
+              PR_NUM=$(echo "$SUMMARY" | grep -o "PR #[0-9]\+" | grep -o "[0-9]\+" | head -1)
+
+              if [ -n "$PR_NUM" ]; then
+                # Extract the PR title (remove the "PR #XXXX: " prefix)
+                PR_TITLE=$(echo "$SUMMARY" | sed -E "s/PR #$PR_NUM:? ?//")
+                echo "- #$PR_NUM: $PR_TITLE" >> "$CHANGELOG_FILE"
+              else
+                # No PR number found, just use the summary
+                echo "- $SUMMARY" >> "$CHANGELOG_FILE"
+              fi
+            done
+          else
+            # Fallback to our manual method if the Changesets CLI doesn't provide what we need
+            echo "### Changes" >> "$CHANGELOG_FILE"
+            echo "" >> "$CHANGELOG_FILE"
+
+            # Process each changeset file manually as a bulleted list
+            for file in .changeset/*.md; do
+              # Skip files that don't exist or README
+              [ -e "$file" ] || continue
+              if [[ "$file" == ".changeset/README.md" ]]; then continue; fi
+
+              # Extract PR number from frontmatter if available
+              PR_NUMBER_FROM_FILE=$(grep -o "pr: [0-9]\+" "$file" | awk '{print $2}' || echo "")
+
+              # Check if it's a breaking change
+              IS_BREAKING=$(grep "breaking: true" "$file" > /dev/null && echo "true" || echo "false")
+
+              # Extract the content after the frontmatter
+              CONTENT=$(awk '/^---$/ && ++count == 2 {flag=1; next} flag' "$file")
+
+              # Determine PR reference and title
+              if [ -n "$PR_NUMBER_FROM_FILE" ]; then
+                PR_NUM="$PR_NUMBER_FROM_FILE"
+              else
+                PR_NUM=$(echo "$CONTENT" | grep -o "PR #[0-9]\+" | grep -o "[0-9]\+" | head -1 || echo "")
+              fi
+
+              if [ -n "$CONTENT" ]; then
+                if [ -n "$PR_NUM" ]; then
+                  # Extract the PR title (remove the "PR #XXXX: " prefix if present)
+                  PR_TITLE=$(echo "$CONTENT" | sed -E "s/PR #$PR_NUM:? ?//")
+
+                  # Add breaking change indicator if needed
+                  if [ "$IS_BREAKING" = "true" ]; then
+                    echo "- #$PR_NUM: $PR_TITLE 🚨 BREAKING CHANGE" >> "$CHANGELOG_FILE"
+                  else
+                    echo "- #$PR_NUM: $PR_TITLE" >> "$CHANGELOG_FILE"
+                  fi
+                else
+                  # No PR number found, just use the content
+                  if [ "$IS_BREAKING" = "true" ]; then
+                    echo "- $CONTENT 🚨 BREAKING CHANGE" >> "$CHANGELOG_FILE"
+                  else
+                    echo "- $CONTENT" >> "$CHANGELOG_FILE"
+                  fi
+                fi
+              fi
+            done
+          fi
+
+          # Get current PR description
+          CURRENT_BODY=$(gh pr view $PR_NUMBER --json body -q .body)
+
+          # Create a single file with the complete new body to avoid YAML issues
+          FULL_BODY_FILE="$TEMP_DIR/full_body.md"
+
+          # Check if the description already has a changelog section
+          if echo "$CURRENT_BODY" | grep -q "## Changelog Preview"; then
+            # Replace the existing changelog section
+            echo "$CURRENT_BODY" | sed '/## Changelog Preview/,/^## /{ /^## Changelog Preview/!{ /^## /!d; }; }' > "$FULL_BODY_FILE"
+            # Append the new changelog
+            cat "$CHANGELOG_FILE" >> "$FULL_BODY_FILE"
+            echo "" >> "$FULL_BODY_FILE"
+            # Append the additional info
+            cat "$ADDITIONAL_INFO" >> "$FULL_BODY_FILE"
+          else
+            # Start with the current body
+            echo "$CURRENT_BODY" > "$FULL_BODY_FILE"
+            echo "" >> "$FULL_BODY_FILE"
+            # Append the changelog
+            cat "$CHANGELOG_FILE" >> "$FULL_BODY_FILE"
+            echo "" >> "$FULL_BODY_FILE"
+            # Append the additional info
+            cat "$ADDITIONAL_INFO" >> "$FULL_BODY_FILE"
+          fi
+
+          # Update the PR description using the full body file
+          gh pr edit $PR_NUMBER --body-file "$FULL_BODY_FILE"
+
+          echo "Updated PR #$PR_NUMBER with changelog preview"
 
       # Remove the label to prevent re-running
       - name: Remove label
