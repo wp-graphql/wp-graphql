@@ -275,7 +275,7 @@ class Router {
 		 * single SP before interpreting the field value or forwarding the
 		 * message downstream.
 		 */
-		$value = ! empty( $value ) ? preg_replace( '/\s+/', ' ', $value ) : '';
+		$value = preg_replace( '/\s+/', ' ', $value );
 		header( apply_filters( 'graphql_send_header', sprintf( '%s: %s', $key, $value ), $key, $value ) );
 	}
 

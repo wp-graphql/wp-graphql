@@ -186,6 +186,132 @@ function parseChangeset(content) {
     };
 }
 
+const formatChangelog = (changesets, options = {}) => {
+    const { version, previousVersion } = options;
+    const groups = groupChanges(changesets);
+
+    let changelog = '';
+
+    // Add Breaking Changes section if there are any
+    if (groups.breaking.length > 0) {
+        changelog += '### Breaking Changes\n\n';
+        groups.breaking.forEach((changeset) => {
+            const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+            changelog += `- ${prLink ? `${prLink}: ` : ''}${changeset.summary}\n`;
+
+            // Add breaking changes details if available
+            if (changeset.breakingChanges) {
+                const breakingChangesLines = changeset.breakingChanges.split('\n');
+                breakingChangesLines.forEach(line => {
+                    if (line.trim()) {
+                        changelog += `  ${line.trim()}\n`;
+                    }
+                });
+            }
+
+            // Add upgrade instructions if available
+            if (changeset.upgradeInstructions) {
+                changelog += `  **Upgrade Instructions**: ${changeset.upgradeInstructions}\n`;
+            }
+        });
+        changelog += '\n';
+    }
+
+    // Add Features section if there are any
+    if (groups.features.length > 0) {
+        changelog += '### New Features\n\n';
+        groups.features.forEach((changeset) => {
+            const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+            changelog += `- ${prLink ? `${prLink}: ` : ''}${changeset.summary}\n`;
+
+            // Add description if available and not empty
+            if (changeset.description && changeset.description.trim()) {
+                const descriptionLines = changeset.description.split('\n');
+                descriptionLines.forEach(line => {
+                    if (line.trim()) {
+                        changelog += `  ${line.trim()}\n`;
+                    }
+                });
+            }
+        });
+        changelog += '\n';
+    }
+
+    // Add Fixes section if there are any
+    if (groups.fixes.length > 0) {
+        changelog += '### Chores / Bugfixes\n\n';
+        groups.fixes.forEach((changeset) => {
+            const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+            changelog += `- ${prLink ? `${prLink}: ` : ''}${changeset.summary}\n`;
+
+            // Add description if available and not empty
+            if (changeset.description && changeset.description.trim()) {
+                const descriptionLines = changeset.description.split('\n');
+                descriptionLines.forEach(line => {
+                    if (line.trim()) {
+                        changelog += `  ${line.trim()}\n`;
+                    }
+                });
+            }
+        });
+        changelog += '\n';
+    }
+
+    // Add Documentation section if there are any
+    if (groups.docs.length > 0) {
+        changelog += '### Documentation\n\n';
+        groups.docs.forEach((changeset) => {
+            const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+            changelog += `- ${prLink ? `${prLink}: ` : ''}${changeset.summary}\n`;
+        });
+        changelog += '\n';
+    }
+
+    // Add Other section if there are any
+    if (groups.other.length > 0) {
+        changelog += '### Other Changes\n\n';
+        groups.other.forEach((changeset) => {
+            const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+            changelog += `- ${prLink ? `${prLink}: ` : ''}${changeset.summary}\n`;
+        });
+        changelog += '\n';
+    }
+
+    // Process new contributors
+    const newContributors = getNewContributors(changesets);
+    if (newContributors.length > 0) {
+        changelog += '### New Contributors\n\n';
+        newContributors.forEach(contributor => {
+            changelog += `- @${contributor.username} made their first contribution in [#${contributor.pr}](https://github.com/wp-graphql/wp-graphql/pull/${contributor.pr})\n`;
+        });
+        changelog += '\n';
+    }
+
+    return changelog.trim();
+};
+
+/**
+ * Extract new contributors from changesets
+ *
+ * @param {Array} changesets Array of changeset objects
+ * @returns {Array} Array of new contributor objects with username and PR number
+ */
+function getNewContributors(changesets) {
+    const contributors = [];
+
+    // Extract contributor information from changesets
+    changesets.forEach(changeset => {
+        if (changeset.pr && changeset.newContributor && changeset.contributorUsername) {
+            contributors.push({
+                username: changeset.contributorUsername,
+                pr: changeset.pr
+            });
+        }
+    });
+
+    return contributors;
+}
+
 module.exports = {
     formatChangelogMd,
     groupChanges, // Export for testing

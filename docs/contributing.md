@@ -176,6 +176,41 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
    - When multiple changesets are collected, they'll be released together
    - The label will be automatically removed after processing
 
+### New Contributor Recognition
+
+First-time contributors are automatically recognized in our release notes:
+
+1. When your first PR is merged, our system identifies you as a new contributor
+2. Your GitHub username and PR are highlighted in a special "New Contributors" section of the release notes
+3. This helps welcome new members to our community and recognize their contributions
+
+This process is completely automated - no additional steps required from you!
+
+## Skipping Releases
+
+When working directly on the `master` branch, you may want to prevent triggering a release. Here are ways to do this:
+
+1. **Use the `[skip release]` tag in your commit message**:
+
+   ```
+   git commit -m "fix: update documentation [skip release]"
+   ```
+
+   This will prevent the release workflow from running but still allow other workflows.
+
+2. **Use the `[skip ci]` tag to skip all workflows**:
+
+   ```
+   git commit -m "chore: update config [skip ci]"
+   ```
+
+   This will skip all GitHub Actions workflows.
+
+3. **Direct pushes to `master`**:
+   Direct pushes to the `master` branch will not trigger the release workflow by default, but they will still trigger the sync workflow to keep `develop` in sync with `master`.
+
+These options give you flexibility when making documentation updates or other changes that don't require a new release.
+
 ## Testing
 
 ### Script Tests

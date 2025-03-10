@@ -2,6 +2,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { generateSinceTagsMetadata } = require('./scan-since-tags');
+const fetch = require('node-fetch');
 
 // Define allowed types
 const ALLOWED_TYPES = ['feat', 'fix', 'chore', 'docs', 'perf', 'refactor', 'revert', 'style', 'test', 'ci', 'build'];
@@ -53,23 +54,153 @@ function parsePRBody(body) {
         }
     });
 
+    // Check if breaking changes section is just a template placeholder
+    if (sections.breaking) {
+        // Remove HTML comments
+        const withoutComments = sections.breaking.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+        // Check if it's empty or contains only template text
+        if (!withoutComments ||
+            withoutComments.includes('Does this PR introduce breaking changes?') ||
+            withoutComments.includes('If there are no breaking changes, delete this comment')) {
+            sections.breaking = '';
+        }
+    }
+
+    // Check if upgrade instructions section is just a template placeholder
+    if (sections.upgrade) {
+        // Remove HTML comments
+        const withoutComments = sections.upgrade.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+        // Check if it's empty or contains only template text
+        if (!withoutComments ||
+            withoutComments.includes('If you indicated breaking changes above') ||
+            withoutComments.includes('If there are no breaking changes, you can delete this comment')) {
+            sections.upgrade = '';
+        }
+    }
+
     return sections;
+}
+
+/**
+ * Check if a GitHub user is a first-time contributor
+ *
+ * @param {string} username GitHub username to check
+ * @param {number} prNumber PR number
+ * @returns {Promise<boolean>} True if this is their first contribution
+ */
+async function isNewContributor(username, prNumber) {
+    try {
+        // Skip check if no username or PR number
+        if (!username || !prNumber) {
+            return false;
+        }
+
+        // Use GitHub API to search for PRs by this author that were merged before this one
+        const token = process.env.GITHUB_TOKEN;
+        const headers = token ? { 'Authorization': `token ${token}` } : {};
+
+        const searchUrl = `https://api.github.com/search/issues?q=repo:wp-graphql/wp-graphql+type:pr+author:${username}+is:merged+-is:draft+number:<${prNumber}`;
+
+        const response = await fetch(searchUrl, { headers });
+        const data = await response.json();
+
+        // If total_count is 0, this is their first contribution
+        return data.total_count === 0;
+    } catch (error) {
+        console.error('Error checking for new contributor:', error);
+        return false;
+    }
+}
+
+/**
+ * Extract GitHub username from PR data
+ *
+ * @param {Object} prData PR data from GitHub API
+ * @returns {string|null} GitHub username or null if not found
+ */
+function extractGitHubUsername(prData) {
+    try {
+        // Try to extract from PR body first (more reliable)
+        if (prData.user && prData.user.login) {
+            return prData.user.login;
+        }
+
+        // Fallback: try to extract from PR URL if it's in the format
+        if (prData.html_url) {
+            const match = prData.html_url.match(/github\.com\/([^/]+)/);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error extracting GitHub username:', error);
+        return null;
+    }
+}
+
+/**
+ * Get PR data from GitHub API
+ *
+ * @param {number} prNumber PR number
+ * @returns {Promise<Object>} PR data from GitHub API
+ */
+async function getPRData(prNumber) {
+    try {
+        if (!prNumber) {
+            return null;
+        }
+
+        const token = process.env.GITHUB_TOKEN;
+        const headers = token ? { 'Authorization': `token ${token}` } : {};
+
+        const url = `https://api.github.com/repos/wp-graphql/wp-graphql/pulls/${prNumber}`;
+        const response = await fetch(url, { headers });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch PR data: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching PR data:', error);
+        return null;
+    }
 }
 
 /**
  * Create changeset using @changesets/cli
  */
 async function createChangeset({ title, body, prNumber }) {
+    // Get PR data if we have a PR number
+    let prData = null;
+    let username = null;
+    let isFirstTimeContributor = false;
+
+    if (prNumber) {
+        prData = await getPRData(prNumber);
+        if (prData) {
+            username = extractGitHubUsername(prData);
+            if (username) {
+                isFirstTimeContributor = await isNewContributor(username, prNumber);
+            }
+        }
+    }
+
     // Parse PR title and body
     const { type, isBreaking } = parseTitle(title);
     const sections = parsePRBody(body);
 
     // Validate breaking changes have upgrade instructions
-    if (isBreaking || sections.breaking) {
-        if (!sections.breaking) {
-            throw new Error('Breaking changes must be documented in the PR description');
+    const hasBreakingChanges = isBreaking || (sections.breaking && sections.breaking.length > 0);
+    if (hasBreakingChanges) {
+        if (isBreaking && !sections.breaking) {
+            throw new Error('Breaking changes indicated in PR title must be documented in the PR description');
         }
-        if (!sections.upgrade) {
+        if (sections.breaking && !sections.upgrade) {
             throw new Error('Breaking changes must include upgrade instructions');
         }
     }
@@ -81,7 +212,7 @@ async function createChangeset({ title, body, prNumber }) {
     const summary = formatSummary(type, isBreaking, description);
 
     // Determine bump type
-    const bumpType = isBreaking || sections.breaking
+    const bumpType = hasBreakingChanges
         ? 'major'  // Breaking changes are major
         : (type === 'feat'
             ? 'minor'  // New features are minor
@@ -108,7 +239,9 @@ async function createChangeset({ title, body, prNumber }) {
     let fileContent = '---\n';
     fileContent += `"${packageName}": ${bumpType}\n`;
     fileContent += `pr: ${prNumber}\n`;
-    fileContent += `breaking: ${isBreaking}\n`;
+    fileContent += `breaking: ${hasBreakingChanges ? 'true' : 'false'}\n`;
+    fileContent += `contributorUsername: "${username || ''}"\n`;
+    fileContent += `newContributor: ${isFirstTimeContributor}\n`;
     fileContent += '---\n\n';
     fileContent += `### ${summary}\n\n`;
     fileContent += `[PR #${prNumber}](https://github.com/wp-graphql/wp-graphql/pull/${prNumber})\n\n`;
@@ -164,6 +297,8 @@ function createChangesetFile(changeset) {
 "${packageName}": ${changeset.type}
 pr: ${changeset.pr}
 breaking: ${changeset.breaking}
+contributorUsername: "${changeset.contributorUsername}"
+newContributor: ${changeset.newContributor}
 ---
 
 ${changeset.content}`;
