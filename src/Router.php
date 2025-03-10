@@ -260,8 +260,8 @@ class Router {
 	/**
 	 * Sends an HTTP header.
 	 *
-	 * @param string      $key   Header key.
-	 * @param string|null $value Header value. Null values will be converted to empty strings.
+	 * @param string $key   Header key.
+	 * @param string $value Header value.
 	 *
 	 * @return void
 	 * @since  0.0.5
