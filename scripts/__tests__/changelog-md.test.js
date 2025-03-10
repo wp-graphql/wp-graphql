@@ -1,6 +1,6 @@
-describe('getNewContributors', () => {
-  const { getNewContributors } = require('../changelog-formatters/changelog-md');
+const { getNewContributors, formatChangelog } = require('../changelog-md');
 
+describe('getNewContributors', () => {
   test('returns empty array when no new contributors', () => {
     const changesets = [
       { pr: 123, summary: 'feat: New feature' },
@@ -42,8 +42,6 @@ describe('getNewContributors', () => {
 });
 
 describe('formatChangelog with new contributors', () => {
-  const { formatChangelog } = require('../changelog-formatters/changelog-md');
-
   test('includes new contributors section when present', () => {
     const changesets = [
       {

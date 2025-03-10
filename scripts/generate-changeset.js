@@ -239,8 +239,8 @@ async function createChangeset({ title, body, prNumber }) {
     let fileContent = '---\n';
     fileContent += `"${packageName}": ${bumpType}\n`;
     fileContent += `pr: ${prNumber}\n`;
-    fileContent += `breaking: ${hasBreakingChanges}\n`;
-    fileContent += `contributorUsername: "${username}"\n`;
+    fileContent += `breaking: ${hasBreakingChanges ? 'true' : 'false'}\n`;
+    fileContent += `contributorUsername: "${username || ''}"\n`;
     fileContent += `newContributor: ${isFirstTimeContributor}\n`;
     fileContent += '---\n\n';
     fileContent += `### ${summary}\n\n`;
