@@ -82,6 +82,8 @@ jobs:
             echo '' >> .changeset/minimal-changeset.md
             echo "PR #$PR_NUMBER: $PR_TITLE" >> .changeset/minimal-changeset.md
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Set Git config
       - name: Set Git config

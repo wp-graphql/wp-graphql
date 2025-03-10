@@ -50,6 +50,8 @@ Changesets are markdown files with YAML frontmatter. The frontmatter should incl
 "wp-graphql": major|minor|patch
 pr: 123
 breaking: true|false
+contributorUsername: "githubusername"
+newContributor: true|false
 ---
 
 ### feat: Title of the change
@@ -78,6 +80,18 @@ These changesets are then used to:
 1. Determine the next version number
 2. Generate the changelog
 3. Update @since tags in the code
+4. Identify and credit new contributors
+
+### New Contributor Detection
+
+The changeset generation process automatically:
+
+1. Identifies the GitHub username of the PR author
+2. Checks if this is their first contribution to the project
+3. Adds this information to the changeset metadata
+4. Includes a "New Contributors" section in the release notes
+
+This helps recognize and welcome first-time contributors to the project.
 
 ## Manual creation
 

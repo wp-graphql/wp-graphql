@@ -123,6 +123,39 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Get Previous Version
+        id: get_previous_version
+        run: |
+          PREVIOUS_VERSION=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) | sed 's/v//')
+          echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          echo "Previous Version: $PREVIOUS_VERSION"
+
+      - name: Get Changelog
+        id: get_changelog
+        run: |
+          CHANGELOG=$(node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const versionHeader = '## ${{ steps.get_version.outputs.version }}';
+            const nextVersionHeader = '## ';
+            const startIdx = content.indexOf(versionHeader);
+            if (startIdx === -1) {
+              console.log('Version header not found');
+              process.exit(1);
+            }
+            const startContent = startIdx + versionHeader.length;
+            let endContent = content.indexOf(nextVersionHeader, startContent);
+            if (endContent === -1) {
+              endContent = content.length;
+            }
+            const changelog = content.substring(startContent, endContent).trim();
+            console.log(changelog);
+          ")
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       # Synchronize version numbers using our script
       - name: Synchronize Version Numbers
@@ -178,9 +211,14 @@ jobs:
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
           release_name: v${{ steps.get_version.outputs.version }}
-          body_path: CHANGELOG.md
           draft: false
           prerelease: ${{ steps.release_type.outputs.is_beta == 'true' }}
+          body: |
+            ${{ steps.release_type.outputs.is_beta == 'true' && '## Beta Release' || '## Release Notes' }}
+
+            ${{ steps.get_changelog.outputs.changelog }}
+
+            **Full Changelog**: https://github.com/wp-graphql/wp-graphql/compare/v${{ steps.get_previous_version.outputs.previous_version }}...v${{ steps.get_version.outputs.version }}
 
       # Upload release asset
       - name: Upload Release Asset

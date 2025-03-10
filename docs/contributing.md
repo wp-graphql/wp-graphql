@@ -176,6 +176,16 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
    - When multiple changesets are collected, they'll be released together
    - The label will be automatically removed after processing
 
+### New Contributor Recognition
+
+First-time contributors are automatically recognized in our release notes:
+
+1. When your first PR is merged, our system identifies you as a new contributor
+2. Your GitHub username and PR are highlighted in a special "New Contributors" section of the release notes
+3. This helps welcome new members to our community and recognize their contributions
+
+This process is completely automated - no additional steps required from you!
+
 ## Skipping Releases
 
 When working directly on the `master` branch, you may want to prevent triggering a release. Here are ways to do this:

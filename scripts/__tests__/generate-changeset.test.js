@@ -20,6 +20,24 @@ jest.mock('path', () => ({
     join: jest.fn().mockImplementation((...args) => args.join('/'))
 }));
 
+// Mock the fetch function for GitHub API calls
+global.fetch = jest.fn();
+
+// Mock the contributor detection functions
+jest.mock('../generate-changeset', () => {
+  const originalModule = jest.requireActual('../generate-changeset');
+  return {
+    ...originalModule,
+    isNewContributor: jest.fn().mockResolvedValue(true),
+    getPRData: jest.fn().mockResolvedValue({
+      user: {
+        login: 'testuser'
+      }
+    }),
+    extractGitHubUsername: jest.fn().mockReturnValue('testuser')
+  };
+});
+
 describe('Changeset Generation', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -436,4 +454,117 @@ describe('Changeset Generation', () => {
             expect(formatSummary('fix', false, '  Fix bug  ')).toBe('fix: Fix bug');
         });
     });
+});
+
+describe('Contributor detection', () => {
+  const { isNewContributor, getPRData, extractGitHubUsername } = require('../generate-changeset');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Setup fetch mock for GitHub API
+    global.fetch.mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ total_count: 0 }) // Simulate first-time contributor
+      })
+    );
+  });
+
+  test('extractGitHubUsername extracts username from PR data', () => {
+    const prData = {
+      user: {
+        login: 'testuser'
+      },
+      html_url: 'https://github.com/testuser/repo/pull/123'
+    };
+
+    expect(extractGitHubUsername(prData)).toBe('testuser');
+  });
+
+  test('isNewContributor correctly identifies new contributors', async () => {
+    // Setup
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ total_count: 0 }) // No previous PRs
+      })
+    );
+
+    const result = await isNewContributor('newuser', 123);
+
+    // Verify
+    expect(result).toBe(true);
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('author:newuser'),
+      expect.any(Object)
+    );
+  });
+
+  test('isNewContributor correctly identifies returning contributors', async () => {
+    // Setup
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ total_count: 5 }) // Has previous PRs
+      })
+    );
+
+    const result = await isNewContributor('returninguser', 123);
+
+    // Verify
+    expect(result).toBe(false);
+  });
+
+  test('getPRData fetches PR information correctly', async () => {
+    // Setup
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          user: { login: 'testuser' },
+          html_url: 'https://github.com/wp-graphql/wp-graphql/pull/123'
+        })
+      })
+    );
+
+    const result = await getPRData(123);
+
+    // Verify
+    expect(result).toHaveProperty('user.login', 'testuser');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.github.com/repos/wp-graphql/wp-graphql/pulls/123',
+      expect.any(Object)
+    );
+  });
+
+  test('createChangeset includes contributor information in changeset', async () => {
+    // Setup
+    const { createChangeset } = require('../generate-changeset');
+    const fs = require('fs');
+    jest.spyOn(fs, 'writeFileSync').mockImplementation();
+
+    // Mock the contributor detection functions
+    isNewContributor.mockResolvedValueOnce(true);
+    getPRData.mockResolvedValueOnce({
+      user: { login: 'newcontributor' }
+    });
+    extractGitHubUsername.mockReturnValueOnce('newcontributor');
+
+    // Execute
+    await createChangeset({
+      title: 'feat: New feature',
+      body: 'Description of the feature',
+      prNumber: '123'
+    });
+
+    // Verify
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.stringContaining('contributorUsername: "newcontributor"')
+    );
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.stringContaining('newContributor: true')
+    );
+  });
 });
