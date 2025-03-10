@@ -126,7 +126,16 @@
     ],
     "common_code_patterns": {
       "registering_graphql_type": "add_action( 'graphql_register_types', function( $type_registry ) {\n\n    register_graphql_object_type( 'TypeName', [\n        'fields' => [\n            'fieldName' => [\n                'type' => 'String',\n                'resolve' => function($source, $args, $context, $info) {\n                    // Resolution logic\n                }\n            ]\n        ]\n    ]);\n\n});",
-      "registering_graphql_field": "add_action( 'graphql_register_types', function( $type_registry ) {\n\n    register_graphql_field( 'TypeName', 'FieldName', [\n        'description' => __( 'Description of the field', 'your-textdomain' ),\n        'type' => 'String',\n        'resolve' => function() {\n            // interact with the WordPress database, or even an external API or whatever.\n            return 'value retrieved from WordPress, or elsewhere';\n        }\n    ]);\n\n});"
+      "registering_graphql_field": "add_action( 'graphql_register_types', function( $type_registry ) {\n\n    register_graphql_field( 'TypeName', 'FieldName', [\n        'description' => __( 'Description of the field', 'your-textdomain' ),\n        'type' => 'String',\n        'resolve' => function() {\n            // interact with the WordPress database, or even an external API or whatever.\n            return 'value retrieved from WordPress, or elsewhere';\n        }\n    ]);\n\n});",
+      "deprecation_notice": "_deprecated_argument( __METHOD__, '@since next-version', 'Deprecation message explaining what to use instead.' );"
+    },
+    "coding_standards": {
+      "version_placeholders": {
+        "description": "When using WordPress deprecation functions, use '@since next-version' as the version placeholder",
+        "valid_formats": ["@since next-version", "@next-version"],
+        "preferred_format": "@since next-version",
+        "applicable_functions": ["_deprecated_argument", "_deprecated_function", "_deprecated_file", "_deprecated_hook", "_deprecated_class", "_deprecated_constructor", "_doing_it_wrong"]
+      }
     },
     "key_directories": [
       {

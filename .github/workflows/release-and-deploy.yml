@@ -26,6 +26,12 @@ jobs:
   release:
     name: Build and Release
     runs-on: ubuntu-latest
+    # Skip if the commit message indicates it was from the sync workflow or contains [skip release]
+    if: ${{
+      !contains(github.event.head_commit.message, 'Auto-merge master back to develop') &&
+      !contains(github.event.head_commit.message, '[skip release]') &&
+      (github.event_name != 'push' || github.ref != 'refs/heads/master')
+    }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,7 +90,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git fetch origin master
           git checkout master
-          git merge develop --no-ff -m "chore: merge develop into master for release"
+          git merge develop --no-ff -m "chore: merge develop into master for release [skip ci]"
           git push origin master
 
       # Process changesets with or without prerelease flag
@@ -102,8 +108,8 @@ jobs:
             'npm run release' }}
           commit: >-
             ${{ steps.release_type.outputs.is_beta == 'true' &&
-            'chore: version beta packages' ||
-            'chore: version packages' }}
+            'chore: version beta packages [skip ci]' ||
+            'chore: version packages [skip ci]' }}
           title: >-
             ${{ steps.release_type.outputs.is_beta == 'true' &&
             'chore: version beta packages' ||
@@ -117,6 +123,39 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Get Previous Version
+        id: get_previous_version
+        run: |
+          PREVIOUS_VERSION=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) | sed 's/v//')
+          echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          echo "Previous Version: $PREVIOUS_VERSION"
+
+      - name: Get Changelog
+        id: get_changelog
+        run: |
+          CHANGELOG=$(node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const versionHeader = '## ${{ steps.get_version.outputs.version }}';
+            const nextVersionHeader = '## ';
+            const startIdx = content.indexOf(versionHeader);
+            if (startIdx === -1) {
+              console.log('Version header not found');
+              process.exit(1);
+            }
+            const startContent = startIdx + versionHeader.length;
+            let endContent = content.indexOf(nextVersionHeader, startContent);
+            if (endContent === -1) {
+              endContent = content.length;
+            }
+            const changelog = content.substring(startContent, endContent).trim();
+            console.log(changelog);
+          ")
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       # Synchronize version numbers using our script
       - name: Synchronize Version Numbers
@@ -147,7 +186,7 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add .
-          git commit -m "chore: update version numbers and @since tags to ${{ steps.get_version.outputs.version }}"
+          git commit -m "chore: update version numbers and @since tags to ${{ steps.get_version.outputs.version }} [skip ci]"
 
           # Push to appropriate branch
           if [[ "${{ steps.release_type.outputs.is_beta }}" == "true" ]]; then
@@ -172,9 +211,14 @@ jobs:
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
           release_name: v${{ steps.get_version.outputs.version }}
-          body_path: CHANGELOG.md
           draft: false
           prerelease: ${{ steps.release_type.outputs.is_beta == 'true' }}
+          body: |
+            ${{ steps.release_type.outputs.is_beta == 'true' && '## Beta Release' || '## Release Notes' }}
+
+            ${{ steps.get_changelog.outputs.changelog }}
+
+            **Full Changelog**: https://github.com/wp-graphql/wp-graphql/compare/v${{ steps.get_previous_version.outputs.previous_version }}...v${{ steps.get_version.outputs.version }}
 
       # Upload release asset
       - name: Upload Release Asset
