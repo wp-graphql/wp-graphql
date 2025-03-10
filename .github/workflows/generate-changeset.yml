@@ -128,11 +128,11 @@ jobs:
 
             # Set title based on branch
             if [[ "$COLLECTION_BRANCH" == "changeset-beta" ]]; then
-              PR_TITLE="Beta Changesets Collection"
+              PR_TITLE="release: next beta version 📦"
               PR_BODY="This PR collects changesets for the next beta release."
               LABEL="beta-changeset-collection"
             else
-              PR_TITLE="Changesets Collection"
+              PR_TITLE="release: next version 📦"
               PR_BODY="This PR collects changesets from various merged PRs. When merged, it will trigger version updates based on the collected changesets."
               LABEL="changeset-collection"
             fi

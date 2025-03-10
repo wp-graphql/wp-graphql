@@ -54,6 +54,32 @@ function parsePRBody(body) {
         }
     });
 
+    // Check if breaking changes section is just a template placeholder
+    if (sections.breaking) {
+        // Remove HTML comments
+        const withoutComments = sections.breaking.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+        // Check if it's empty or contains only template text
+        if (!withoutComments ||
+            withoutComments.includes('Does this PR introduce breaking changes?') ||
+            withoutComments.includes('If there are no breaking changes, delete this comment')) {
+            sections.breaking = '';
+        }
+    }
+
+    // Check if upgrade instructions section is just a template placeholder
+    if (sections.upgrade) {
+        // Remove HTML comments
+        const withoutComments = sections.upgrade.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+        // Check if it's empty or contains only template text
+        if (!withoutComments ||
+            withoutComments.includes('If you indicated breaking changes above') ||
+            withoutComments.includes('If there are no breaking changes, you can delete this comment')) {
+            sections.upgrade = '';
+        }
+    }
+
     return sections;
 }
 
@@ -169,11 +195,12 @@ async function createChangeset({ title, body, prNumber }) {
     const sections = parsePRBody(body);
 
     // Validate breaking changes have upgrade instructions
-    if (isBreaking || sections.breaking) {
-        if (!sections.breaking) {
-            throw new Error('Breaking changes must be documented in the PR description');
+    const hasBreakingChanges = isBreaking || (sections.breaking && sections.breaking.length > 0);
+    if (hasBreakingChanges) {
+        if (isBreaking && !sections.breaking) {
+            throw new Error('Breaking changes indicated in PR title must be documented in the PR description');
         }
-        if (!sections.upgrade) {
+        if (sections.breaking && !sections.upgrade) {
             throw new Error('Breaking changes must include upgrade instructions');
         }
     }
@@ -185,7 +212,7 @@ async function createChangeset({ title, body, prNumber }) {
     const summary = formatSummary(type, isBreaking, description);
 
     // Determine bump type
-    const bumpType = isBreaking || sections.breaking
+    const bumpType = hasBreakingChanges
         ? 'major'  // Breaking changes are major
         : (type === 'feat'
             ? 'minor'  // New features are minor
@@ -212,7 +239,7 @@ async function createChangeset({ title, body, prNumber }) {
     let fileContent = '---\n';
     fileContent += `"${packageName}": ${bumpType}\n`;
     fileContent += `pr: ${prNumber}\n`;
-    fileContent += `breaking: ${isBreaking}\n`;
+    fileContent += `breaking: ${hasBreakingChanges}\n`;
     fileContent += `contributorUsername: "${username}"\n`;
     fileContent += `newContributor: ${isFirstTimeContributor}\n`;
     fileContent += '---\n\n';
