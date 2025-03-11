@@ -1,4 +1,4 @@
-const { getNewContributors, formatChangelog } = require('../changelog-md');
+const { getNewContributors, formatChangelog } = require('../../changelog-formatters/changelog-md');
 
 describe('getNewContributors', () => {
   test('returns empty array when no new contributors', () => {
