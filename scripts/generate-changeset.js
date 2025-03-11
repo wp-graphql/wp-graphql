@@ -238,11 +238,11 @@ async function createChangeset({ title, body, prNumber }) {
     // Create the changeset file content with YAML frontmatter (not JSON)
     let fileContent = '---\n';
     fileContent += `"${packageName}": ${bumpType}\n`;
-    fileContent += `pr: ${prNumber}\n`;
-    fileContent += `breaking: ${hasBreakingChanges ? 'true' : 'false'}\n`;
-    fileContent += `contributorUsername: "${username || ''}"\n`;
-    fileContent += `newContributor: ${isFirstTimeContributor}\n`;
     fileContent += '---\n\n';
+    fileContent += `<!-- pr: ${prNumber} -->\n`;
+    fileContent += `<!-- breaking: ${hasBreakingChanges ? 'true' : 'false'} -->\n`;
+    fileContent += `<!-- contributorUsername: "${username || ''}" -->\n`;
+    fileContent += `<!-- newContributor: ${isFirstTimeContributor} -->\n\n`;
     fileContent += `### ${summary}\n\n`;
     fileContent += `[PR #${prNumber}](https://github.com/wp-graphql/wp-graphql/pull/${prNumber})\n\n`;
 
@@ -295,11 +295,12 @@ function createChangesetFile(changeset) {
     // This should be a mapping of package names to bump types
     const frontmatter = `---
 "${packageName}": ${changeset.type}
-pr: ${changeset.pr}
-breaking: ${changeset.breaking}
-contributorUsername: "${changeset.contributorUsername}"
-newContributor: ${changeset.newContributor}
 ---
+
+<!-- pr: ${changeset.pr} -->
+<!-- breaking: ${changeset.breaking} -->
+<!-- contributorUsername: "${changeset.contributorUsername || ''}" -->
+<!-- newContributor: ${changeset.newContributor || false} -->
 
 ${changeset.content}`;
 

@@ -80,6 +80,11 @@ jobs:
             echo "\"$PACKAGE_NAME\": patch" >> .changeset/minimal-changeset.md
             echo '---' >> .changeset/minimal-changeset.md
             echo '' >> .changeset/minimal-changeset.md
+            echo "<!-- pr: $PR_NUMBER -->" >> .changeset/minimal-changeset.md
+            echo "<!-- breaking: false -->" >> .changeset/minimal-changeset.md
+            echo "<!-- contributorUsername: \"\" -->" >> .changeset/minimal-changeset.md
+            echo "<!-- newContributor: false -->" >> .changeset/minimal-changeset.md
+            echo '' >> .changeset/minimal-changeset.md
             echo "PR #$PR_NUMBER: $PR_TITLE" >> .changeset/minimal-changeset.md
           fi
         env:

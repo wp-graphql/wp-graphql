@@ -184,7 +184,7 @@ function groupChanges(changesets) {
         // Check for breaking changes in multiple ways
         const hasBreakingContent = changeset.content && changeset.content.includes('#### Breaking Changes');
 
-        if (changeset.breaking || changeset.breaking_changes || hasBreakingContent) {
+        if (changeset.breaking || hasBreakingContent) {
             groups.breaking.push(changeset);
             return;
         }
@@ -194,13 +194,16 @@ function groupChanges(changesets) {
             return;
         }
 
-        if (changeset.summary && changeset.summary.startsWith('feat:')) {
+        // Check the summary for conventional commit prefixes
+        const summary = changeset.summary || '';
+
+        if (summary.startsWith('feat:')) {
             groups.features.push(changeset);
-        } else if (changeset.summary && (
-            changeset.summary.startsWith('fix:') ||
-            changeset.summary.startsWith('chore:') ||
-            changeset.summary.startsWith('ci:')
-        )) {
+        } else if (
+            summary.startsWith('fix:') ||
+            summary.startsWith('chore:') ||
+            summary.startsWith('ci:')
+        ) {
             groups.fixes.push(changeset);
         } else {
             groups.other.push(changeset);
@@ -397,10 +400,47 @@ function parseChangeset(content) {
 
     // Extract content after frontmatter
     const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
-    const changeContent = contentMatch ? contentMatch[1] : '';
+    let changeContent = contentMatch ? contentMatch[1] : '';
+
+    // Extract metadata from HTML comments
+    const prMatch = changeContent.match(/<!--\s*pr:\s*(\d+)\s*-->/);
+    if (prMatch) metadata.pr = parseInt(prMatch[1], 10);
+
+    const breakingMatch = changeContent.match(/<!--\s*breaking:\s*(true|false)\s*-->/);
+    if (breakingMatch) metadata.breaking = breakingMatch[1] === 'true';
+
+    const usernameMatch = changeContent.match(/<!--\s*contributorUsername:\s*"([^"]*)"\s*-->/);
+    if (usernameMatch) metadata.contributorUsername = usernameMatch[1];
+
+    const newContribMatch = changeContent.match(/<!--\s*newContributor:\s*(true|false)\s*-->/);
+    if (newContribMatch) metadata.newContributor = newContribMatch[1] === 'true';
+
+    // Remove HTML comments from the content
+    changeContent = changeContent.replace(/<!--\s*pr:\s*\d+\s*-->\n?/g, '')
+                                .replace(/<!--\s*breaking:\s*(?:true|false)\s*-->\n?/g, '')
+                                .replace(/<!--\s*contributorUsername:\s*".*"\s*-->\n?/g, '')
+                                .replace(/<!--\s*newContributor:\s*(?:true|false)\s*-->\n?/g, '')
+                                .trim();
+
+    // Extract summary from the content (first line or first heading)
+    let summary = '';
+    const summaryMatch = changeContent.match(/^###?\s+(.+)$/m) || changeContent.match(/^(.+)$/m);
+    if (summaryMatch) {
+        summary = summaryMatch[1].trim();
+    }
+
+    // Check if summary starts with a conventional commit type
+    const typeMatch = summary.match(/^(feat|fix|chore|docs|perf|refactor|revert|style|test|ci|build)(\!)?:/);
+    if (typeMatch) {
+        metadata.type = typeMatch[1];
+        if (typeMatch[2] === '!') {
+            metadata.breaking = true;
+        }
+    }
 
     return {
         ...metadata,
+        summary: summary,
         content: changeContent
     };
 }
@@ -414,5 +454,6 @@ module.exports = {
     formatReadmeTxt,
     groupChanges,
     formatChangeEntry,
-    formatUpgradeNotice
+    formatUpgradeNotice,
+    parseChangeset
 };

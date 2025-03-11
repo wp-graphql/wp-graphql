@@ -23,65 +23,80 @@ async function initChalk() {
  * Create test changesets for simulation
  */
 function createTestChangesets() {
-    // Get the package name
-    let packageName = 'wp-graphql';
-    try {
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        if (fs.existsSync(packageJsonPath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-            packageName = packageJson.name || packageName;
-        }
-    } catch (error) {
-        console.warn('Error reading package.json:', error.message);
-    }
-
-    return [
+    const changesets = [
         {
-            type: 'minor',
-            pr: 123,
-            breaking: false,
-            summary: 'feat: Add new GraphQL field',
-            content: `### feat: Add new GraphQL field
+            id: 'test-major-1',
+            content: `---
+"wp-graphql": major
+---
+
+<!-- pr: 123 -->
+<!-- breaking: true -->
+<!-- contributorUsername: "testuser" -->
+<!-- newContributor: false -->
+
+### feat!: Major breaking change
 
 [PR #123](https://github.com/wp-graphql/wp-graphql/pull/123)
 
 #### Description
-Adds a new GraphQL field \`customField\` to the Post type that exposes custom meta data.`,
-            packageName: packageName
+This is a test major change.
+
+#### Breaking Changes
+This breaks the API in a significant way.
+
+#### Upgrade Instructions
+Follow these steps to upgrade.`
         },
         {
-            type: 'major',
-            pr: 124,
-            breaking: true,
-            summary: 'feat!: Breaking API change',
-            content: `### feat!: Breaking API change
+            id: 'test-minor-1',
+            content: `---
+"wp-graphql": minor
+---
+
+<!-- pr: 124 -->
+<!-- breaking: false -->
+<!-- contributorUsername: "testuser2" -->
+<!-- newContributor: true -->
+
+### feat: New feature
 
 [PR #124](https://github.com/wp-graphql/wp-graphql/pull/124)
 
 #### Description
-Changes the way mutations handle input validation.
-
-#### Breaking Changes
-This changes the way mutations handle input validation. The previous approach of passing validation options as a second argument is no longer supported.
-
-#### Upgrade Instructions
-Update your mutation input to include the new required fields and remove any separate validation options.`,
-            packageName: packageName
+This is a test minor change.`
         },
         {
-            type: 'patch',
-            pr: 125,
-            breaking: false,
-            summary: 'fix: Resolve N+1 query issue',
-            content: `### fix: Resolve N+1 query issue
+            id: 'test-patch-1',
+            content: `---
+"wp-graphql": patch
+---
+
+<!-- pr: 125 -->
+<!-- breaking: false -->
+<!-- contributorUsername: "testuser" -->
+<!-- newContributor: false -->
+
+### fix: Bug fix
 
 [PR #125](https://github.com/wp-graphql/wp-graphql/pull/125)
 
 #### Description
-Fixes a performance issue with nested queries.`,
-            packageName: packageName
+This is a test patch change.`
         }
     ];
+
+    // Create the changesets directory if it doesn't exist
+    if (!fs.existsSync('.changeset')) {
+        fs.mkdirSync('.changeset');
+    }
+
+    // Write the test changesets to files
+    changesets.forEach(changeset => {
+        fs.writeFileSync(`.changeset/${changeset.id}.md`, changeset.content);
+    });
+
+    return changesets;
 }
 
 /**
@@ -142,197 +157,112 @@ function getNextVersion(currentVersion, forceVersion = false) {
  * Simulate changelog generation
  */
 async function simulateChangelog(version, options = {}) {
-    // Get current version
-    const currentVersions = getCurrentVersions();
-    const currentVersion = currentVersions.package;
+    const currentVersion = getCurrentVersions().package;
+    const nextVersion = version || getNextVersion(currentVersion);
 
-    // Get changesets (either from test data or actual .changeset directory)
-    const changesets = options.useTestData ? createTestChangesets() : await readActualChangesets();
-
-    // Calculate next version if not provided
-    const nextVersion = version || calculateNextVersion(currentVersion, changesets);
-
-    console.log(chalk.blue('\nSimulating Changelog Generation:'));
+    console.log('\nSimulating Changelog Generation:');
     console.log('Current Version:', currentVersion);
     console.log('Next Version:', nextVersion);
     console.log('Options:', options);
 
-    try {
-        // Generate CHANGELOG.md content
-        console.log(chalk.blue('\nCHANGELOG.md preview:'));
-        console.log(chalk.yellow('----------------------------------------'));
-        const mdContent = formatChangelogMd(nextVersion, changesets);
-        console.log(mdContent);
-        console.log(chalk.yellow('----------------------------------------'));
-
-        // Generate readme.txt content
-        console.log(chalk.blue('\nreadme.txt changelog preview:'));
-        console.log(chalk.yellow('----------------------------------------'));
-        const txtContent = formatReadmeTxt(nextVersion, changesets);
-        console.log(txtContent);
-        console.log(chalk.yellow('----------------------------------------'));
-
-        // Generate upgrade notice content
-        const { formatUpgradeNotice } = require('./changelog-formatters/readme-txt');
-        const upgradeNotice = formatUpgradeNotice(nextVersion, changesets);
-
-        if (upgradeNotice) {
-            console.log(chalk.blue('\nreadme.txt upgrade notice preview:'));
-            console.log(chalk.yellow('----------------------------------------'));
-            console.log(upgradeNotice);
-            console.log(chalk.yellow('----------------------------------------'));
-        }
-
-        // Show what would be updated
-        if (!options.dryRun) {
-            console.log(chalk.blue('\nFiles that would be updated:'));
-            console.log(chalk.gray('- CHANGELOG.md'));
-            console.log(chalk.gray('- readme.txt'));
-
-            if (options.write) {
-                // Actually write the files if --write flag is used
-                const changelogPath = path.join(process.cwd(), 'CHANGELOG.md');
-                const readmePath = path.join(process.cwd(), 'readme.txt');
-
-                let changelogContent = fs.existsSync(changelogPath)
-                    ? fs.readFileSync(changelogPath, 'utf8')
-                    : '# Changelog\n\n';
-
-                // Insert new content after the title
-                const lines = changelogContent.split('\n');
-                lines.splice(2, 0, mdContent);
-                fs.writeFileSync(changelogPath, lines.join('\n'));
-
-                // Update readme.txt
-                let readmeContent = fs.readFileSync(readmePath, 'utf8');
-                readmeContent = readmeContent.replace(
-                    /(== Changelog ==\n\n)/,
-                    `$1${txtContent}`
-                );
-
-                // Add or update upgrade notice if needed
-                if (upgradeNotice) {
-                    if (readmeContent.includes('== Upgrade Notice ==')) {
-                        readmeContent = readmeContent.replace(
-                            /(== Upgrade Notice ==\n\n)/,
-                            `$1${upgradeNotice}\n\n`
-                        );
-                    } else {
-                        readmeContent += `\n\n== Upgrade Notice ==\n\n${upgradeNotice}\n`;
-                    }
-                }
-
-                fs.writeFileSync(readmePath, readmeContent);
-
-                console.log(chalk.green('\n✓ Files updated successfully'));
-            }
-        }
-
-        return true;
-    } catch (error) {
-        console.error(chalk.red('\n❌ Error generating changelog:'), error.message);
-        throw error;
+    // Get changesets
+    let changesets = [];
+    if (options.useTestData) {
+        // Use test data
+        createTestChangesets();
+        changesets = await readActualChangesets();
+    } else {
+        // Use actual changesets
+        changesets = await readActualChangesets();
     }
+
+    // Debug: Show the changesets we found
+    console.log(`\nFound ${changesets.length} changesets:`);
+    changesets.forEach((changeset, index) => {
+        console.log(`\nChangeset ${index + 1}:`);
+        console.log(`  File: ${changeset.file || 'unknown'}`);
+        console.log(`  PR: ${changeset.pr || 'unknown'}`);
+        console.log(`  Breaking: ${changeset.breaking || false}`);
+        console.log(`  Summary: ${changeset.summary || 'unknown'}`);
+    });
+
+    // Generate changelog for CHANGELOG.md
+    const { formatChangelogMd } = require('./changelog-formatters/changelog-md');
+    const changelogMd = formatChangelogMd(nextVersion, changesets);
+
+    console.log('\nCHANGELOG.md preview:');
+    console.log('----------------------------------------');
+    console.log(changelogMd);
+    console.log('----------------------------------------');
+
+    // Generate changelog for readme.txt
+    const { formatReadmeTxt } = require('./changelog-formatters/readme-txt');
+    const readmeTxt = formatReadmeTxt(nextVersion, changesets);
+
+    console.log('\nreadme.txt changelog preview:');
+    console.log('----------------------------------------');
+    console.log(readmeTxt);
+    console.log('----------------------------------------');
+
+    // Write the files if requested
+    if (options.write) {
+        const { updateChangelogMd } = require('./changelog-formatters/changelog-md');
+        const { updateReadmeTxt } = require('./changelog-formatters/readme-txt');
+
+        await updateChangelogMd({ newVersion: nextVersion, changesets }, options);
+        await updateReadmeTxt({ newVersion: nextVersion, changesets }, options);
+
+        console.log('\nChangelog files updated.');
+    }
+
+    return {
+        changelogMd,
+        readmeTxt,
+        changesets
+    };
 }
 
 /**
  * Read actual changesets from the .changeset directory
  */
 async function readActualChangesets() {
-    const changesetDir = path.join(process.cwd(), '.changeset');
-    const changesets = [];
+    try {
+        const changesetDir = path.join(process.cwd(), '.changeset');
+        const files = fs.readdirSync(changesetDir)
+            .filter(file => file.endsWith('.md') && file !== 'README.md');
 
-    if (fs.existsSync(changesetDir)) {
-        const files = fs.readdirSync(changesetDir);
+        const changesets = [];
+
+        // Import the parseChangeset function directly
+        const { parseChangeset } = require('./changelog-formatters/changelog-md');
+
+        // Make sure parseChangeset is available
+        if (typeof parseChangeset !== 'function') {
+            console.error('parseChangeset is not a function. Check the exports in changelog-md.js');
+            return [];
+        }
+
         for (const file of files) {
-            if (file.endsWith('.md') && file !== 'README.md') {
-                const content = fs.readFileSync(path.join(changesetDir, file), 'utf8');
+            const filePath = path.join(changesetDir, file);
+            const content = fs.readFileSync(filePath, 'utf8');
 
-                // Extract frontmatter between --- markers
-                const frontmatterMatch = content.match(/---\n([\s\S]*?)\n---/);
-                if (frontmatterMatch) {
-                    const frontmatter = frontmatterMatch[1];
+            // Parse the changeset
+            const changeset = parseChangeset(content);
 
-                    // Check if it's JSON or YAML format
-                    let changeset;
-                    if (frontmatter.trim().startsWith('{')) {
-                        // JSON format (old)
-                        try {
-                            changeset = JSON.parse(frontmatter);
-                        } catch (e) {
-                            console.error(`Error parsing JSON in ${file}:`, e.message);
-                            continue;
-                        }
-                    } else {
-                        // YAML format (new)
-                        changeset = {};
-
-                        // Parse the YAML frontmatter
-                        const lines = frontmatter.split('\n');
-                        for (const line of lines) {
-                            if (line.includes(':')) {
-                                // Handle package name to bump type mapping
-                                if (line.includes('"') && line.includes('major') || line.includes('minor') || line.includes('patch')) {
-                                    // This is a package name to bump type mapping
-                                    const packageMatch = line.match(/"([^"]+)":\s*(\w+)/);
-                                    if (packageMatch) {
-                                        // Store the bump type
-                                        changeset.type = packageMatch[2];
-                                    }
-                                } else {
-                                    // Handle other metadata
-                                    const [key, value] = line.split(':').map(part => part.trim());
-                                    if (key && value !== undefined) {
-                                        // Convert boolean strings to actual booleans
-                                        if (value === 'true') changeset[key] = true;
-                                        else if (value === 'false') changeset[key] = false;
-                                        else if (!isNaN(value)) changeset[key] = Number(value);
-                                        else changeset[key] = value;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Extract content after frontmatter for summary
-                        const contentMatch = content.match(/---\n[\s\S]*?\n---\n\n([\s\S]*)/);
-                        const changeContent = contentMatch ? contentMatch[1] : '';
-                        changeset.content = changeContent;
-
-                        // Extract summary from the first line
-                        const summaryLine = changeContent.split('\n')[0];
-                        changeset.summary = summaryLine.replace(/^### /, '');
-
-                        // Try to extract PR number from content if not in frontmatter
-                        if (!changeset.pr && changeContent) {
-                            const prMatch = changeContent.match(/\[PR #(\d+)\]/i) ||
-                                           changeContent.match(/\[#(\d+)\]/i) ||
-                                           changeContent.match(/pull\/(\d+)/i);
-                            if (prMatch) {
-                                changeset.pr = parseInt(prMatch[1], 10);
-                            }
-                        }
-
-                        // Extract breaking changes if present
-                        const breakingChangesMatch = changeContent.match(/#### Breaking Changes\n([\s\S]*?)(?=\n####|$)/);
-                        if (breakingChangesMatch) {
-                            changeset.breaking_changes = breakingChangesMatch[1].trim();
-                            changeset.breaking = true;
-                        }
-
-                        // Extract upgrade instructions if present
-                        const upgradeInstructionsMatch = changeContent.match(/#### Upgrade Instructions\n([\s\S]*?)(?=\n####|$)/);
-                        if (upgradeInstructionsMatch) {
-                            changeset.upgrade_instructions = upgradeInstructionsMatch[1].trim();
-                        }
-                    }
-
-                    changesets.push(changeset);
-                }
+            if (changeset) {
+                // Add the file name for debugging
+                changeset.file = file;
+                changesets.push(changeset);
+            } else {
+                console.warn(`Failed to parse changeset: ${file}`);
             }
         }
-    }
 
-    return changesets;
+        return changesets;
+    } catch (error) {
+        console.error('Error reading changesets:', error);
+        return [];
+    }
 }
 
 /**
