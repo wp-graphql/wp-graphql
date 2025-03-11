@@ -25,6 +25,10 @@ on:
         description: "Force release even without changesets"
         required: false
         default: "false"
+      skip_changesets:
+        description: "Skip changesets processing (for manual version bumping)"
+        required: false
+        default: "false"
 
 jobs:
   release:
@@ -99,10 +103,13 @@ jobs:
           git checkout master
           git merge develop --no-ff -m "chore: merge develop into master for release [skip ci]"
           git push origin master
+          # Go back to develop for the changesets action
+          git checkout develop
 
       # Process changesets with or without prerelease flag
       - name: Process Changesets
         id: changesets
+        if: ${{ github.event.inputs.skip_changesets != 'true' }}
         uses: changesets/action@v1
         with:
           version: >-
@@ -123,6 +130,13 @@ jobs:
             'chore: version packages' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Manual version bump (when skip_changesets is true)
+      - name: Manual Version Bump
+        if: ${{ github.event.inputs.skip_changesets == 'true' }}
+        run: |
+          echo "Skipping changesets processing as requested."
+          echo "Using existing version from package.json"
 
       # Get the new version number
       - name: Get Version
