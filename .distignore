@@ -18,7 +18,13 @@
 /node_modules
 /packages
 /artifacts
-
+/.changeset
+/scripts
+.cursor
+.husky
+.nvmrc
+.babel.config.cjs
+jest.config.js
 .DS_Store
 .distignore
 .dockerignore
