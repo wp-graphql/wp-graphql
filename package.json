@@ -45,6 +45,12 @@
     "version": "changeset version",
     "release": "changeset publish"
   },
+  "changesets": {
+    "changelog": "./scripts/changelog-formatters/changelog-md.js",
+    "commit": true,
+    "access": "public",
+    "baseBranch": "develop"
+  },
   "dependencies": {
     "@ant-design/icons": "5.6.1",
     "@apollo/client": "3.12.11",

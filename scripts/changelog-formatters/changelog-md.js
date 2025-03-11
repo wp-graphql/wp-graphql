@@ -356,6 +356,23 @@ function getNewContributors(changesets) {
     return contributors;
 }
 
+// Custom changelog formatter for WP-GraphQL
+// This is used by changesets to format the changelog entries
+
+/**
+ * Format a changelog entry for markdown
+ *
+ * @param {Object} release The release object from changesets
+ * @param {Object} options Formatting options
+ * @returns {string} Formatted changelog entry
+ */
+function getReleaseLine(release, options = {}) {
+  const { commit, summary } = release;
+  const { repo } = options;
+
+  return `\n\n${summary ? summary : ""}\n\n`;
+}
+
 module.exports = {
     formatChangelogMd,
     groupChanges, // Export for testing
@@ -364,5 +381,6 @@ module.exports = {
     updateChangelogMd,
     getNewContributors, // Add this export for the tests
     formatChangelog, // Add this export for the tests
-    parseChangeset // Export the parseChangeset function
+    parseChangeset, // Export the parseChangeset function
+    getReleaseLine,
 };
