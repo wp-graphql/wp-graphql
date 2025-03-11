@@ -21,17 +21,24 @@ on:
         description: "Prerelease tag (beta, alpha, etc)"
         required: false
         default: "beta"
+      force_release:
+        description: "Force release even without changesets"
+        required: false
+        default: "false"
 
 jobs:
   release:
     name: Build and Release
     runs-on: ubuntu-latest
     # Skip if the commit message indicates it was from the sync workflow or contains [skip release]
-    if: ${{
-      !contains(github.event.head_commit.message, 'Auto-merge master back to develop') &&
-      !contains(github.event.head_commit.message, '[skip release]') &&
-      (github.event_name != 'push' || github.ref != 'refs/heads/master')
-    }}
+    # Also check if we're manually forcing a release via workflow_dispatch
+    if: >
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.force_release == 'true') ||
+      (
+        !contains(github.event.head_commit.message, 'Auto-merge master back to develop') &&
+        !contains(github.event.head_commit.message, '[skip release]') &&
+        (github.event_name != 'push' || github.ref != 'refs/heads/master')
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v4
