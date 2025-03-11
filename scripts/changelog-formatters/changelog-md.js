@@ -24,7 +24,11 @@ function groupChanges(changesets) {
 
         if (changeset.summary && changeset.summary.startsWith('feat:')) {
             groups.features.push(changeset);
-        } else if (changeset.summary && changeset.summary.startsWith('fix:')) {
+        } else if (changeset.summary && (
+            changeset.summary.startsWith('fix:') ||
+            changeset.summary.startsWith('chore:') ||
+            changeset.summary.startsWith('ci:')
+        )) {
             groups.fixes.push(changeset);
         } else if (changeset.summary && changeset.summary.startsWith('docs:')) {
             groups.docs.push(changeset);
@@ -317,5 +321,7 @@ module.exports = {
     groupChanges, // Export for testing
     formatPRLink, // Export for testing
     formatChangeEntry, // Export for testing
-    updateChangelogMd
+    updateChangelogMd,
+    getNewContributors, // Add this export for the tests
+    formatChangelog // Add this export for the tests
 };

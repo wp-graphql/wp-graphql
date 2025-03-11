@@ -196,7 +196,11 @@ function groupChanges(changesets) {
 
         if (changeset.summary && changeset.summary.startsWith('feat:')) {
             groups.features.push(changeset);
-        } else if (changeset.summary && changeset.summary.startsWith('fix:')) {
+        } else if (changeset.summary && (
+            changeset.summary.startsWith('fix:') ||
+            changeset.summary.startsWith('chore:') ||
+            changeset.summary.startsWith('ci:')
+        )) {
             groups.fixes.push(changeset);
         } else {
             groups.other.push(changeset);
