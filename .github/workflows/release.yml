@@ -26,18 +26,31 @@ on:
         description: 'Target branch for manual release (usually develop)'
         required: false
         default: 'develop'
+      deploy_only:
+        description: 'Only deploy an existing tag (skip release creation)'
+        required: false
+        type: boolean
+        default: false
+      deploy_tag:
+        description: 'Specific tag to deploy (required if deploy_only is true)'
+        required: false
+        type: string
+        default: ''
   schedule:
     # Run on the 1st and 15th of each month
     - cron: '0 0 1,15 * *'
 
 jobs:
   prepare-release:
-    # Only run if:
-    # 1. PR from develop to main is merged, OR
-    # 2. Manually triggered, OR
-    # 3. Scheduled run
-    if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop') || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    # Skip this job if we're only deploying an existing tag
+    if: |
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop') || 
+      (github.event_name == 'workflow_dispatch' && !github.event.inputs.deploy_only) || 
+      github.event_name == 'schedule'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_bump.outputs.version }}
+      release_created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}
     steps:
       - name: Set checkout ref
         id: set_ref
@@ -426,4 +439,88 @@ jobs:
           # For manual/scheduled events, commit to the specified target branch or develop
           branch: ${{ github.event.inputs.target_branch || 'develop' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_PAT }} 
+          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+
+  deploy-wordpress:
+    needs: [prepare-release]
+    # Run this job if:
+    # 1. prepare-release job was successful and created/found a release
+    # 2. OR if we're doing a manual deploy of an existing tag
+    if: |
+      always() && 
+      (
+        (needs.prepare-release.result == 'success' && needs.prepare-release.outputs.release_created == 'true') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only == 'true' && github.event.inputs.deploy_tag != '')
+      )
+    name: Deploy to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine tag to deploy
+        id: get_tag
+        run: |
+          if [[ "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
+            echo "tag=${{ github.event.inputs.deploy_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v${{ needs.prepare-release.outputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get_tag.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install Node dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wp-graphql
+
+      - name: Create artifact directory
+        run: |
+          mkdir -p plugin-build
+
+      - name: Create plugin artifact
+        run: |
+          composer run-script zip
+
+      - name: Upload artifact to workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp-graphql
+          path: plugin-build/wp-graphql.zip
+
+      - name: Upload artifact to release
+        # Only upload to release if we're not doing a manual deploy
+        if: github.event.inputs.deploy_only != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          files: plugin-build/wp-graphql.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
