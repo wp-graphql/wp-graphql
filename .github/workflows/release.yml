@@ -104,8 +104,8 @@ jobs:
             fi
           fi
           
-          # Get the new version after bump
-          NEW_VERSION=$(grep -oP "define\('AUTOMATION_TESTS_VERSION', '\K[^']+" constants.php)
+          # Get the new version after bump (using WPGRAPHQL_VERSION)
+          NEW_VERSION=$(grep -oP "define\(\s*'WPGRAPHQL_VERSION',\s*'\K[^']+" constants.php)
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           
       - name: Update @since and deprecated version placeholders
@@ -203,10 +203,10 @@ jobs:
         run: |
           # First, check if this is a breaking change release by using our new script
           # This will automatically update the upgrade notice section if breaking changes are found
-          npm run upgrade-notice:update -- --version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          npm run upgrade-notice:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
           
           # Now update the changelogs using the same release notes
-          npm run changelogs:update -- --version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
           
       - name: Commit changes to master
         if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'

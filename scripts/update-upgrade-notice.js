@@ -18,16 +18,17 @@ const { hideBin } = require('yargs/helpers');
 
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
-  .option('version', {
+  .option('new-version', {
     type: 'string',
-    description: 'Version number for the upgrade notice',
+    description: 'Version to check for breaking changes',
     demandOption: true
   })
   .option('notes-file', {
     type: 'string',
-    description: 'Path to the release notes file to extract breaking changes from',
-    default: 'release_notes_temp.md'
+    description: 'Path to release notes file',
+    demandOption: true
   })
+  .version(false)
   .help()
   .argv;
 
@@ -133,14 +134,14 @@ function updateUpgradeNotice(version, breakingChanges) {
  */
 function main() {
   try {
-    const { version, notesFile } = argv;
+    const { newVersion, notesFile } = argv;
     
     // Extract breaking changes from release notes
     const breakingChanges = extractBreakingChanges(notesFile);
     
     // If there are breaking changes, update the upgrade notice
     if (breakingChanges.length > 0) {
-      updateUpgradeNotice(version, breakingChanges);
+      updateUpgradeNotice(newVersion, breakingChanges);
     } else {
       console.log('No breaking changes to add to upgrade notice.');
     }
