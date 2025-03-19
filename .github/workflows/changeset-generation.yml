@@ -68,23 +68,53 @@ jobs:
       - name: Extract PR information
         id: pr_info
         run: |
+          # First ensure PR_NUMBER is set correctly based on event type
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "Error: PR number is required for workflow_dispatch"
+              exit 1
+            fi
           else
             PR_NUMBER="${{ github.event.pull_request.number }}"
           fi
 
-          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          # Fetch PR data
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
 
+          # Validate the API response
+          if [[ $(echo "$PR_DATA" | jq -r 'if type=="object" then "valid" else "invalid" end') != "valid" ]]; then
+            echo "Error: Invalid response from GitHub API"
+            echo "Response: $PR_DATA"
+            exit 1
+          fi
+
+          # Extract and validate required fields
           PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
-          PR_BODY=$(echo "$PR_DATA" | jq -r '.body')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
           PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login')
 
-          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-          echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
-          echo "pr_author=${PR_AUTHOR}" >> $GITHUB_OUTPUT
-          echo "pr_body=${PR_BODY}" >> $GITHUB_OUTPUT
+          if [[ -z "$PR_TITLE" || -z "$PR_AUTHOR" ]]; then
+            echo "Error: Failed to extract required PR information"
+            exit 1
+          fi
+
+          # Output the values with proper escaping
+          {
+            echo "pr_number=${PR_NUMBER}"
+            echo "pr_title<<EOF"
+            echo "${PR_TITLE}"
+            echo "EOF"
+            echo "pr_author=${PR_AUTHOR}"
+            echo "pr_body<<EOF"
+            echo "${PR_BODY}"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+        shell: /usr/bin/bash -e {0}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate changeset for current PR
         run: |
@@ -149,7 +179,7 @@ jobs:
         id: check_pr
         run: |
           # Check if there's already a PR from develop to master
-          PR_LIST=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_LIST=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:develop&base=master")
 
@@ -170,7 +200,7 @@ jobs:
           PR_NUMBER="${{ steps.check_pr.outputs.number }}"
 
           # Get current PR data
-          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
 
           PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
