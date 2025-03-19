@@ -290,7 +290,7 @@ function updateGitHubChangelog(newContent, version) {
   
   // Create changelog if it doesn't exist
   if (!fs.existsSync(changelogPath)) {
-    fs.writeFileSync(changelogPath, '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n');
+    fs.writeFileSync(changelogPath, '# Changelog\n\n');
   }
   
   const existingContent = fs.readFileSync(changelogPath, 'utf8');
@@ -319,15 +319,22 @@ function updateGitHubChangelog(newContent, version) {
     return;
   }
   
-  // Extract the header (everything before the first ## heading)
-  const headerMatch = existingContent.match(/^([\s\S]*?)(?=##|$)/);
-  const header = headerMatch ? headerMatch[1] : '';
-  const rest = existingContent.substring(header.length);
+  // Find the position after the "# Changelog" header
+  const headerMatch = existingContent.match(/^# Changelog\n+/);
+  if (!headerMatch) {
+    // If no header found, prepend it
+    const updatedContent = '# Changelog\n\n' + newContent + existingContent;
+    fs.writeFileSync(changelogPath, updatedContent);
+  } else {
+    // Insert new content after the header
+    const headerEndPos = headerMatch[0].length;
+    const updatedContent = 
+      existingContent.substring(0, headerEndPos) + 
+      newContent + 
+      (existingContent.substring(headerEndPos).trim() ? '\n\n' + existingContent.substring(headerEndPos) : '');
+    fs.writeFileSync(changelogPath, updatedContent);
+  }
   
-  // Combine header, new content, and existing entries
-  const updatedContent = header + newContent + rest;
-  
-  fs.writeFileSync(changelogPath, updatedContent);
   console.log(`Added new entries for v${version} to CHANGELOG.md`);
 }
 
