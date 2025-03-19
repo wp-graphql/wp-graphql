@@ -209,7 +209,7 @@ function wpgql_delete_me() {
 /**
  * Another Test
  *
- * @since @next-version
+ * @since @todo
  */
 function wpgql_delete_me_too() {
   _deprecated_function( 'wpgql_delete_me_too', '@next-version', '' );
