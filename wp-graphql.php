@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.1.2
+ * Version: 2.1.3
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.1.2
+ * @version  2.1.3
  */
 
 // Exit if accessed directly.
