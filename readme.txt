@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.1.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -71,6 +71,53 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 Learn more about how [Appsero collects and uses this data](https://appsero.com/privacy-policy/).
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+
+**BREAKING CHANGE UPDATE**
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
+= 1.32.0 =
+
+In <a href="https://github.com/wp-graphql/wp-graphql/pull/3293">#3293</a> a bug was fixed in how the `MediaDetails.file` field resolves. The previous behavior was a bug, but might have been used as a feature. If you need the field to behave the same as it did prior to this bugfix, you can [follow the instructions here](https://github.com/wp-graphql/wp-graphql/pull/3293) to override the field's resolver to how it worked before.
+
+= 1.30.0 =
+
+This release includes a new feature to implement a SemVer-compliant update checker, which will prevent auto-updates for major releases that include breaking changes.
+
+It also exposes the `EnqueuedAsset.group` and `EnqueuedScript.location` fields to the schema. Additionally, it adds a WPGraphQL Extensions page to the WordPress admin.
+
+There are no known breaking changes in this release, however, we recommend testing on staging servers to ensure the changes don't negatively impact your projects.
+
+= 1.28.0 =
+
+This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users.
+
+While there are no intentional breaking changes, because this change impacts every user we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
+
+= 1.26.0 =
+
+This release refactors some code in the AbstractConnectionResolver with an aim at making it more efficient and easier to extend. While we believe there are no breaking changes and have tested against popular extensions such as WPGraphQL Headless Login, WPGraphQL Gravity Forms, WPGraphQL Rank Math and others, we recommend running your own tests on a staging site to confirm that there are no regresssions caused by the refactoring.
+
+= 1.25.0 =
+
+This release includes a fix to a regression in the v1.24.0. Users impacted by the regression in 1.24.0 included, but are not necessarily limited to, users of the WPGraphQL for WooCommerce extension.
+
+= 1.24.0 =
+
+The AbstractConnectionResolver has undergone some refactoring. Some methods using `snakeCase` have been deprecated in favor of their `camel_case` equivalent. While we've preserved the deprecated methods to prevent breaking changes, you might begin seeing PHP notices about the deprecations. Any plugin that extends the AbstractConnectionResolver should update the following methods:
+
+- `getSource` -> `get_source`
+- `getContext` -> `get_context`
+- `getInfo` -> `get_info`
+- `getShouldExecute` -> `get_should_execute`
+- `getLoader` -> `getLoader`
 
 = 1.16.0 =
 
@@ -236,21 +283,6 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
-
-= 2.2.0 =
-
-**New Features**
-
-* feat: test next version (https://github.com/jasonbahl/automation-tests/pull/5)
-
-**Other Changes**
-
-* chore: update file (https://github.com/jasonbahl/automation-tests/pull/13)
-* chore: update function (https://github.com/jasonbahl/automation-tests/pull/11)
-* ci: update bump versions (https://github.com/jasonbahl/automation-tests/pull/9)
-* chore: since todo test (https://github.com/jasonbahl/automation-tests/pull/7)
-* chore: update workflow to use master instead of main (https://github.com/jasonbahl/automation-tests/pull/3)
-* chore: update package-lock.json (https://github.com/jasonbahl/automation-tests/pull/2)
 
 = 2.1.0 =
 
