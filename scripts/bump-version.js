@@ -52,7 +52,7 @@ const argv = yargs(hideBin(process.argv))
 function getCurrentVersion() {
   const constantsPath = path.join(process.cwd(), 'constants.php');
   const contents = fs.readFileSync(constantsPath, 'utf8');
-  const match = contents.match(/define\('AUTOMATION_TESTS_VERSION', '([^']+)'\)/);
+  const match = contents.match(/define\('WPGRAPHQL_VERSION', '([^']+)'\)/);
   
   if (!match) {
     throw new Error('Could not find version in constants.php');
@@ -117,8 +117,8 @@ function updateConstantsFile(newVersion) {
   let content = fs.readFileSync(filePath, 'utf8');
   
   content = content.replace(
-    /define\('AUTOMATION_TESTS_VERSION', '[^']+'\)/,
-    `define('AUTOMATION_TESTS_VERSION', '${newVersion}')`
+    /define\('WPGRAPHQL_VERSION', '[^']+'\)/,
+    `define('WPGRAPHQL_VERSION', '${newVersion}')`
   );
   
   fs.writeFileSync(filePath, content);
@@ -126,21 +126,25 @@ function updateConstantsFile(newVersion) {
 }
 
 /**
- * Update version in plugin main file
+ * Update version in wp-graphql.php
  * 
  * @param {string} newVersion New version
  */
 function updatePluginFile(newVersion) {
-  const filePath = path.join(process.cwd(), 'automation-tests.php');
+  const filePath = path.join(process.cwd(), 'wp-graphql.php');
   let content = fs.readFileSync(filePath, 'utf8');
   
+  // Update both Version: in the plugin header and @version in the docblock
   content = content.replace(
     /Version: .+/,
     `Version: ${newVersion}`
+  ).replace(
+    /@version\s+.+/,
+    `@version  ${newVersion}`
   );
   
   fs.writeFileSync(filePath, content);
-  console.log(`Updated version in automation-tests.php to ${newVersion}`);
+  console.log(`Updated version in wp-graphql.php to ${newVersion}`);
 }
 
 /**
@@ -201,14 +205,18 @@ function bumpVersion() {
     
     console.log(`Bumping version from ${currentVersion} to ${newVersion}`);
     
+    // Update all version references
     updateConstantsFile(newVersion);
     updatePluginFile(newVersion);
     updatePackageJson(newVersion);
     updateReadmeTxt(newVersion);
     
-    console.log('Version bump complete!');
+    console.log(chalk.green('✓ Version bump complete!'));
+    
+    // Output the new version for use in GitHub Actions
+    console.log(`::set-output name=version::${newVersion}`);
   } catch (err) {
-    console.error('Error bumping version:', err);
+    console.error(chalk.red('Error bumping version:'), err);
     process.exit(1);
   }
 }
