@@ -196,31 +196,3 @@ function graphql_init_appsero_telemetry() {
 }
 
 graphql_init_appsero_telemetry();
-
-/**
- * Test
- *
- * @since 2.2.0
- */
-function wpgql_delete_me() {
-  _deprecated_function( 'wpgql_delete_me', '2.2.0', '' );
-}
-
-/**
- * Another Test
- *
- * @since @todo
- */
-function wpgql_delete_me_too() {
-  _deprecated_function( 'wpgql_delete_me_too', '2.2.0', '' );
-}
-
-/**
- * Another Test
- *
- * @since @tbd
- */
-function wpgql_delete_me_three() {
-  _deprecated_function( 'wpgql_delete_me_three', '2.2.0', '' );
-}
-
