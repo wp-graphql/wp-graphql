@@ -4,10 +4,10 @@
  * Script to update both CHANGELOG.md and readme.txt with changeset contents
  * 
  * Usage:
- *   node scripts/update-changelogs.js --version=1.2.3
+ *   node scripts/update-changelogs.js --new-version=1.2.3
  * 
  * Options:
- *   --version  Version to use in the changelog (defaults to current version in constants.php)
+ *   --new-version  Version to use in the changelog (defaults to current version in constants.php)
  */
 
 const fs = require('fs-extra');
@@ -18,10 +18,17 @@ const { hideBin } = require('yargs/helpers');
 
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
-  .option('version', {
-    describe: 'Version to use in the changelog',
-    type: 'string'
+  .option('new-version', {
+    type: 'string',
+    description: 'Version to add to changelog',
+    demandOption: true
   })
+  .option('notes-file', {
+    type: 'string',
+    description: 'Path to release notes file',
+    demandOption: true
+  })
+  .version(false)
   .help()
   .argv;
 
@@ -653,7 +660,7 @@ function updateChangelogs() {
     // First, clean up any duplicate entries
     cleanupDuplicateEntries();
     
-    const version = argv.version || getCurrentVersion();
+    const version = argv['new-version'] || getCurrentVersion();
     const changesets = readChangesets();
     
     if (changesets.length === 0) {
