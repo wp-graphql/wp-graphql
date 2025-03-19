@@ -35,8 +35,8 @@ WPGraphQL uses several automated processes to maintain consistency and quality:
 3. **Version Management**
 
    - Automatically updates version numbers
-   - Updates `@since todo` tags to the appropriate version during the release process
-   - Maintains changelog in multiple formats
+   - Updates `@since next-version` / `@next-version` tags to the appropriate version during the release process
+   - Maintains changelog in multiple formats (CHANGELOG.md, readme.txt)
 
 4. **Testing**
    - Script tests for automation code
@@ -162,83 +162,16 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
    - Breaking changes (if any)
    - Upgrade instructions (if breaking)
 
-3. Add `@since todo` tags to new functions/classes
+3. Add `@since next-version` tags to new functions/classes docblocks or use `@next-version` as a version placeholder for deprecation functions
 
    - These will be automatically updated during the release process.
 
 4. **Changeset Generation Process**:
    - When your PR is ready for review, a maintainer will review it
-   - After approval, the maintainer will add the `ready-for-changeset` label
+   - After approval, the maintainer will merge the PR
    - This triggers an automated workflow that:
      - Creates a changeset based on your PR title and description
-     - Adds the changeset to a collection branch
-     - Creates/updates a PR from the collection branch to develop
-   - When multiple changesets are collected, they'll be released together
-   - The label will be automatically removed after processing
-
-### New Contributor Recognition
-
-First-time contributors are automatically recognized in our release notes:
-
-1. When your first PR is merged, our system identifies you as a new contributor
-2. Your GitHub username and PR are highlighted in a special "New Contributors" section of the release notes
-3. This helps welcome new members to our community and recognize their contributions
-
-This process is completely automated - no additional steps required from you!
-
-## Skipping Releases
-
-When working directly on the `master` branch, you may want to prevent triggering a release. Here are ways to do this:
-
-1. **Use the `[skip release]` tag in your commit message**:
-
-   ```
-   git commit -m "fix: update documentation [skip release]"
-   ```
-
-   This will prevent the release workflow from running but still allow other workflows.
-
-2. **Use the `[skip ci]` tag to skip all workflows**:
-
-   ```
-   git commit -m "chore: update config [skip ci]"
-   ```
-
-   This will skip all GitHub Actions workflows.
-
-3. **Direct pushes to `master`**:
-   Direct pushes to the `master` branch will not trigger the release workflow by default, but they will still trigger the sync workflow to keep `develop` in sync with `master`.
-
-These options give you flexibility when making documentation updates or other changes that don't require a new release.
-
-## Testing
-
-### Script Tests
-
-```shell
-# Run tests for our automation scripts
-npm run test:changesets
-```
-
-### E2E Tests
-
-```shell
-# Run GraphiQL E2E tests
-npm run test:e2e
-```
-
-### Version Management
-
-```shell
-# Check current versions across files
-npm run check-versions
-
-# Simulate a release (dry-run)
-npm run simulate-release 2.0.0
-
-# Simulate a beta release
-npm run simulate-release 2.0.0-beta.1 --beta
-```
-
-> [!NOTE]
-> The simulation commands help test the release process without actually creating releases.
+     - Adds the changeset to the develop branch
+     - Creates/updates a PR from the develop branch to master
+   - When one or more changesets are collected, they'll be released together
+   - Merging the PR containing multiple changesets will trigger a release workflow that will publish and deploy the plugin

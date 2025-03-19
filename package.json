@@ -27,10 +27,6 @@
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
     "start": "wp-scripts start",
-    "check-versions": "node scripts/check-versions.js",
-    "update-since": "node scripts/update-since-tags.js",
-    "simulate-workflow": "node scripts/simulate-workflow.js",
-    "test:changesets": "jest scripts/__tests__ --verbose --detectOpenHandles --forceExit",
     "test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
     "test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
     "test:unit": "wp-scripts test-unit-js --config tests/js-unit/jest.config.js",
@@ -41,15 +37,16 @@
     "lint:js:src": "wp-scripts lint-js ./src",
     "wp-env": "wp-env",
     "prepare": "husky install",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish"
-  },
-  "changesets": {
-    "changelog": "./scripts/changelog-formatters/changelog-md.js",
-    "commit": true,
-    "access": "public",
-    "baseBranch": "develop"
+    "changeset:generate": "node scripts/generate-changeset.js",
+    "changeset:analyze": "node scripts/analyze-changesets.js",
+    "release:notes": "node scripts/generate-release-notes.js",
+    "version:bump": "node scripts/bump-version.js",
+    "changelog:update": "node scripts/update-changelog.js",
+    "readme:update": "node scripts/update-readme.js",
+    "changelogs:update": "node scripts/update-changelogs.js",
+    "release:prepare": "npm run version:bump && npm run changelogs:update",
+    "upgrade-notice:update": "node scripts/update-upgrade-notice.js",
+    "since-tags:update": "node scripts/update-since-tags.js"
   },
   "dependencies": {
     "@ant-design/icons": "5.6.1",
@@ -71,8 +68,6 @@
     "use-query-params": "1.2.3"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
-    "@changesets/get-github-info": "^0.6.0",
     "@babel/preset-env": "^7.26.8",
     "@babel/preset-react": "^7.26.3",
     "@playwright/test": "^1.50.1",
@@ -85,14 +80,17 @@
     "@wordpress/scripts": "^27.9.0",
     "babel-jest": "^29.7.0",
     "babel-plugin-inline-json-import": "^0.3.2",
-    "chalk": "^5.4.1",
+    "chalk": "^4.1.2",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "husky": "^9.1.7",
-    "glob": "^8.1.0",
     "lint-staged": "^15.4.3",
     "sort-package-json": "^2.14.0",
-    "webpack-remove-empty-scripts": "^1.0.4"
+    "webpack-remove-empty-scripts": "^1.0.4",
+    "archiver": "^5.3.1",
+    "fs-extra": "^11.1.1",
+    "glob": "^10.3.3",
+    "yargs": "^17.7.2"
   },
   "lint-staged": {
     "package.json": "sort-package-json"
