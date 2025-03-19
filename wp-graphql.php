@@ -6,7 +6,7 @@
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.1.0
+ * Version: 2.2.0
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -18,7 +18,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.1.0
+ * @version  2.2.0
  */
 
 // Exit if accessed directly.
@@ -200,10 +200,10 @@ graphql_init_appsero_telemetry();
 /**
  * Test
  *
- * @since @next-version
+ * @since 2.2.0
  */
 function wpgql_delete_me() {
-  _deprecated_function( 'wpgql_delete_me', '@next-version', '' );
+  _deprecated_function( 'wpgql_delete_me', '2.2.0', '' );
 }
 
 /**
@@ -212,7 +212,7 @@ function wpgql_delete_me() {
  * @since @todo
  */
 function wpgql_delete_me_too() {
-  _deprecated_function( 'wpgql_delete_me_too', '@next-version', '' );
+  _deprecated_function( 'wpgql_delete_me_too', '2.2.0', '' );
 }
 
 /**
@@ -221,6 +221,6 @@ function wpgql_delete_me_too() {
  * @since @tbd
  */
 function wpgql_delete_me_three() {
-  _deprecated_function( 'wpgql_delete_me_three', '@next-version', '' );
+  _deprecated_function( 'wpgql_delete_me_three', '2.2.0', '' );
 }
 
