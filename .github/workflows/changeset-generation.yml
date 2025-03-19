@@ -148,10 +148,10 @@ jobs:
       - name: Check for existing release PR
         id: check_pr
         run: |
-          # Check if there's already a PR from develop to main
+          # Check if there's already a PR from develop to master
           PR_LIST=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:develop&base=main")
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:develop&base=master")
           
           PR_COUNT=$(echo "$PR_LIST" | jq length)
           
@@ -235,7 +235,7 @@ jobs:
           PAYLOAD=$(jq -n \
             --arg title "release: next version 📦" \
             --arg head "develop" \
-            --arg base "main" \
+            --arg base "master" \
             --arg body "$PR_BODY" \
             '{title: $title, head: $head, base: $base, body: $body}')
           
@@ -243,7 +243,7 @@ jobs:
           echo "API Payload:"
           echo "$PAYLOAD" | jq '.'
           
-          # Create a new PR from develop to main
+          # Create a new PR from develop to master
           RESPONSE=$(curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
