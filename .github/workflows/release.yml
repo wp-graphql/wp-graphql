@@ -9,7 +9,7 @@ on:
   pull_request_target:
     types: [closed]
     branches:
-      - main
+      - master
   workflow_dispatch:
     inputs:
       release_type:
@@ -56,7 +56,7 @@ jobs:
         id: set_ref
         run: |
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
-            echo "ref=main" >> $GITHUB_OUTPUT
+            echo "ref=master" >> $GITHUB_OUTPUT
           else
             echo "ref=${{ github.event.inputs.target_branch || 'develop' }}" >> $GITHUB_OUTPUT
           fi
@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # For PR events, check out the main branch
+          # For PR events, check out the master branch
           # For manual/scheduled events, check out the specified target branch or develop
           ref: ${{ steps.set_ref.outputs.ref }}
           # Use a personal access token with repo scope for better permissions
@@ -140,7 +140,7 @@ jobs:
           RELEASE_NOTES="## Release Notes"
           RELEASE_NOTES="${RELEASE_NOTES}"$'\n\n'
           
-          # Check if this is a PR from develop to main
+          # Check if this is a PR from develop to master
           if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
             # Get the PR body content, carefully excluding the pending @since section
             PR_CONTENT=$(echo '${{ github.event.pull_request.body }}' | awk '
@@ -180,7 +180,7 @@ jobs:
             elif [[ "${{ github.event_name }}" == "schedule" ]]; then
               RELEASE_NOTES="${RELEASE_NOTES}This is a scheduled release."
             else
-              RELEASE_NOTES="${RELEASE_NOTES}This release was triggered by merging a PR from develop to main."
+              RELEASE_NOTES="${RELEASE_NOTES}This release was triggered by merging a PR from develop to master."
             fi
             
             RELEASE_NOTES="${RELEASE_NOTES}"$'\n\n'
@@ -208,7 +208,7 @@ jobs:
           # Now update the changelogs using the same release notes
           npm run changelogs:update -- --version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
           
-      - name: Commit changes to main
+      - name: Commit changes to master
         if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
         run: |
           git config --global user.name "GitHub Actions"
@@ -216,10 +216,10 @@ jobs:
           
           # Check if there are any changes to commit
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "Changes detected, committing to main branch"
+            echo "Changes detected, committing to master branch"
             git add *.php *.md *.txt package.json
             git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
-            git push origin main
+            git push origin master
           else
             echo "No changes to commit"
           fi
@@ -295,7 +295,7 @@ jobs:
             if ! command -v gh &> /dev/null; then
               echo "Installing GitHub CLI..."
               curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable master" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
               sudo apt update
               sudo apt install gh
             fi
@@ -397,7 +397,7 @@ jobs:
               
               # Commit the deleted changesets
               git commit -m "chore: delete changesets after release v${{ steps.version_bump.outputs.version }}"
-              git push origin main
+              git push origin master
               
               echo "Deleted changesets for v${{ steps.version_bump.outputs.version }}"
             else
@@ -422,13 +422,13 @@ jobs:
           git checkout develop
           git pull
           
-          # Merge main into develop with a descriptive message
-          git merge --no-ff origin/main -m "chore: sync main back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
+          # Merge master into develop with a descriptive message
+          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
           
           # Push changes to develop
           git push origin develop
           
-          echo "Successfully synced main back to develop branch"
+          echo "Successfully synced master back to develop branch"
           
       - name: Commit changes to develop
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
