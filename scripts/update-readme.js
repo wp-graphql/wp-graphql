@@ -157,61 +157,57 @@ function groupChangesetsByType(changesets) {
  * @returns {string} Formatted changelog content for readme.txt
  */
 function generateReadmeChangelogContent(groups, version) {
-  let content = `= ${version} =\n`;
+  let content = `= ${version} =\n\n`;
   
   // Add breaking changes first
   if (groups.breaking.length > 0) {
-    content += '\n**BREAKING CHANGES**\n\n';
+    content += '**BREAKING CHANGES**\n\n';
     groups.breaking.forEach(changeset => {
-      // Remove the type prefix from the title for cleaner readme entries
       const title = changeset.title.replace(/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)!?: /, '');
-      content += `* ${title}\n`;
+      const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+      content += `* ${title}${prLink ? ` (${prLink})` : ''}\n`;
     });
+    content += '\n';
   }
   
   // Add features
   if (groups.feat.length > 0) {
-    content += '\n**New Features**\n\n';
+    content += '**New Features**\n\n';
     groups.feat.forEach(changeset => {
       const title = changeset.title.replace(/^feat!?: /, '');
-      content += `* ${title}\n`;
+      const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+      content += `* ${title}${prLink ? ` (${prLink})` : ''}\n`;
     });
+    content += '\n';
   }
   
   // Add bug fixes
   if (groups.fix.length > 0) {
-    content += '\n**Bug Fixes**\n\n';
+    content += '**Chores / Bugfixes**\n\n';
     groups.fix.forEach(changeset => {
       const title = changeset.title.replace(/^fix!?: /, '');
-      content += `* ${title}\n`;
+      const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+      content += `* ${title}${prLink ? ` (${prLink})` : ''}\n`;
     });
+    content += '\n';
   }
   
-  // Add other change types if they exist
-  const otherTypes = [
-    { key: 'docs', title: 'Documentation' },
-    { key: 'style', title: 'Styles' },
-    { key: 'refactor', title: 'Code Refactoring' },
-    { key: 'perf', title: 'Performance' },
-    { key: 'test', title: 'Tests' },
-    { key: 'build', title: 'Build' },
-    { key: 'ci', title: 'CI' },
-    { key: 'chore', title: 'Maintenance' },
-    { key: 'revert', title: 'Reverts' },
-    { key: 'other', title: 'Other Changes' }
-  ];
+  // Add other changes
+  const otherChanges = [...groups.docs, ...groups.style, ...groups.refactor, ...groups.perf, 
+    ...groups.test, ...groups.build, ...groups.ci, ...groups.chore, ...groups.revert, ...groups.other]
+    .filter(change => !groups.breaking.includes(change));
   
-  otherTypes.forEach(({ key, title }) => {
-    if (groups[key] && groups[key].length > 0 && key !== 'breaking') {
-      content += `\n**${title}**\n\n`;
-      groups[key].forEach(changeset => {
-        const cleanTitle = changeset.title.replace(new RegExp(`^${key}!?: `), '');
-        content += `* ${cleanTitle}\n`;
-      });
-    }
-  });
+  if (otherChanges.length > 0 && !content.includes('**Chores / Bugfixes**')) {
+    content += '**Chores / Bugfixes**\n\n';
+    otherChanges.forEach(changeset => {
+      const title = changeset.title.replace(/^(docs|style|refactor|perf|test|build|ci|chore|revert)!?: /, '');
+      const prLink = changeset.pr ? `[#${changeset.pr}](https://github.com/wp-graphql/wp-graphql/pull/${changeset.pr})` : '';
+      content += `* ${title}${prLink ? ` (${prLink})` : ''}\n`;
+    });
+    content += '\n';
+  }
   
-  return content;
+  return content.trim();
 }
 
 /**
@@ -251,47 +247,6 @@ function generateUpgradeNoticeContent(groups, version) {
  */
 function updateReadme(newContent, version, upgradeNotice = '') {
   const readmePath = path.join(process.cwd(), 'readme.txt');
-  
-  // Create readme.txt if it doesn't exist
-  if (!fs.existsSync(readmePath)) {
-    const defaultReadme = `=== Automation Tests ===
-Contributors: jasonbahl
-Tags: testing, automation
-Requires at least: 5.0
-Tested up to: 6.2
-Stable tag: ${version}
-Requires PHP: 7.4
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-
-A plugin to test automation workflows.
-
-== Description ==
-
-This is a test repository for experimenting with GitHub Workflows for WordPress plugin development and release management.
-
-== Installation ==
-
-1. Upload the plugin files to the \`/wp-content/plugins/automation-tests\` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
-
-== Frequently Asked Questions ==
-
-= What is this plugin for? =
-
-This plugin is a testing ground for GitHub Actions workflows before implementing them in production repositories.
-
-== Upgrade Notice ==
-
-${upgradeNotice}
-
-== Changelog ==
-
-`;
-    fs.writeFileSync(readmePath, defaultReadme);
-    console.log('Created new readme.txt file');
-  }
-  
   let readmeContent = fs.readFileSync(readmePath, 'utf8');
   
   // Update stable tag
@@ -300,44 +255,68 @@ ${upgradeNotice}
     `Stable tag: ${version}`
   );
   
-  // Update upgrade notice if provided
+  // Handle upgrade notice section
   if (upgradeNotice) {
-    const upgradeNoticeMatch = readmeContent.match(/(== Upgrade Notice ==\n\n)([\s\S]*?)(\n\n==|$)/);
+    const upgradeNoticeSection = readmeContent.match(/== Upgrade Notice ==([\s\S]*?)(?=\n==|$)/);
     
-    if (upgradeNoticeMatch) {
-      // Insert new upgrade notice at the top of the upgrade notice section
-      readmeContent = readmeContent.replace(
-        /(== Upgrade Notice ==\n\n)([\s\S]*?)(\n\n==|$)/,
-        `$1${upgradeNotice}\n\n$2$3`
-      );
+    if (upgradeNoticeSection) {
+      // Keep existing upgrade notices
+      const existingNotices = upgradeNoticeSection[1].trim();
+      
+      // Check if this version's notice already exists
+      const versionNoticeRegex = new RegExp(`= ${version} =([\\s\\S]*?)(?=\\n= |$)`);
+      const hasVersionNotice = versionNoticeRegex.test(existingNotices);
+      
+      if (!hasVersionNotice) {
+        // Add new notice at the top, preserving existing notices
+        const updatedNotices = `\n\n${upgradeNotice}\n\n${existingNotices}`;
+        readmeContent = readmeContent.replace(
+          /== Upgrade Notice ==([\s\S]*?)(?=\n==|$)/,
+          `== Upgrade Notice ==${updatedNotices}`
+        );
+      }
     } else {
-      // Add upgrade notice section if it doesn't exist
+      // Add upgrade notice section before changelog
+      const upgradeNoticeSection = `\n\n== Upgrade Notice ==\n\n${upgradeNotice}`;
       readmeContent = readmeContent.replace(
-        /(== Frequently Asked Questions ==[\s\S]*?)(\n\n==|$)/,
-        `$1\n\n== Upgrade Notice ==\n\n${upgradeNotice}$2`
+        /(== Changelog ==)/,
+        `${upgradeNoticeSection}\n\n$1`
       );
     }
   }
   
-  // Find the changelog section
-  const changelogMatch = readmeContent.match(/(== Changelog ==\n\n)([\s\S]*)/);
+  // Handle changelog section
+  const changelogMatch = readmeContent.match(/(== Changelog ==\n\n)([\s\S]*?)((?=\n==|$))/);
   
   if (changelogMatch) {
-    // Insert new changelog entry at the top of the changelog section
-    const changelogHeader = changelogMatch[1];
-    const existingChangelog = changelogMatch[2];
+    // Extract the "View Full Changelog" link if it exists
+    const fullChangelogLink = changelogMatch[2].match(/\n----\n\nView Full Changelog:.*$/);
     
-    readmeContent = readmeContent.replace(
-      /(== Changelog ==\n\n)([\s\S]*)/,
-      `$1${newContent}\n\n$2`
-    );
+    // Check if this version already exists in the changelog
+    const versionEntryRegex = new RegExp(`= ${version} =([\\s\\S]*?)(?=\\n= |$)`);
+    const hasVersionEntry = versionEntryRegex.test(changelogMatch[2]);
+    
+    if (!hasVersionEntry) {
+      // Add new changelog entry at the top
+      let updatedChangelog = `${newContent}\n\n${changelogMatch[2].replace(/\n----\n\nView Full Changelog:.*$/, '')}`.trim();
+      
+      // Add back the "View Full Changelog" link if it existed
+      if (fullChangelogLink) {
+        updatedChangelog += '\n\n----\n\n' + fullChangelogLink[0].trim();
+      }
+      
+      readmeContent = readmeContent.replace(
+        /(== Changelog ==\n\n)([\s\S]*?)(?=\n==|$)/,
+        `$1${updatedChangelog}\n\n`
+      );
+    }
   } else {
     // Add changelog section if it doesn't exist
-    readmeContent += `\n== Changelog ==\n\n${newContent}\n`;
+    readmeContent += `\n== Changelog ==\n\n${newContent}\n\n`;
   }
   
   fs.writeFileSync(readmePath, readmeContent);
-  console.log(`Updated readme.txt with changelog entries for v${version}`);
+  console.log(`Updated readme.txt with entries for v${version}`);
 }
 
 /**
