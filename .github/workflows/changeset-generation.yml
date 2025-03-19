@@ -47,7 +47,7 @@ jobs:
     if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
     env:
       REPO_URL: "https://github.com/${{ github.repository }}"
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.PAT }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.base.ref || 'develop' }}
           # Use a personal access token with repo scope for better permissions
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -80,7 +80,7 @@ jobs:
           fi
 
           # Fetch PR data
-          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.PAT }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
 
           # Validate the API response
@@ -114,7 +114,7 @@ jobs:
 
         shell: /usr/bin/bash -e {0}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Generate changeset for current PR
         run: |
@@ -179,7 +179,7 @@ jobs:
         id: check_pr
         run: |
           # Check if there's already a PR from develop to master
-          PR_LIST=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_LIST=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:develop&base=master")
 
@@ -200,7 +200,7 @@ jobs:
           PR_NUMBER="${{ steps.check_pr.outputs.number }}"
 
           # Get current PR data
-          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.PAT }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
 
           PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
@@ -230,7 +230,7 @@ jobs:
 
           # Update the PR
           RESPONSE=$(curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}" \
@@ -275,7 +275,7 @@ jobs:
 
           # Create a new PR from develop to master
           RESPONSE=$(curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls" \
