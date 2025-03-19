@@ -30,13 +30,14 @@ const argv = yargs(hideBin(process.argv))
     description: 'Type of version bump (patch, minor, major)',
     choices: ['patch', 'minor', 'major']
   })
-  .option('version', {
+  .option('new-version', {
     type: 'string',
     description: 'Specific version to set',
     conflicts: 'type'
   })
+  .version(false)
   .check(argv => {
-    if (argv.version && !/^\d+\.\d+\.\d+$/.test(argv.version)) {
+    if (argv['new-version'] && !/^\d+\.\d+\.\d+$/.test(argv['new-version'])) {
       throw new Error('Version must be in format x.y.z');
     }
     return true;
@@ -215,8 +216,8 @@ function bumpVersion() {
     
     // Determine the new version
     let newVersion;
-    if (argv.version) {
-      newVersion = argv.version;
+    if (argv['new-version']) {
+      newVersion = argv['new-version'];
     } else if (argv.type) {
       newVersion = calculateNewVersion(currentVersion, argv.type);
     } else {
@@ -235,8 +236,11 @@ function bumpVersion() {
     
     console.log(chalk.green('✓ Version bump complete!'));
     
-    // Output the new version for use in GitHub Actions
-    console.log(`::set-output name=version::${newVersion}`);
+    // Use new GitHub Actions output syntax
+    const outputFile = process.env.GITHUB_OUTPUT;
+    if (outputFile) {
+      fs.appendFileSync(outputFile, `version=${newVersion}\n`);
+    }
   } catch (err) {
     console.error(chalk.red('Error bumping version:'), err);
     process.exit(1);

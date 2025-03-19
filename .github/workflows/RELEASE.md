@@ -90,16 +90,17 @@ You can test various components locally:
 
 ```bash
 # Test version bumping
-npm run version:bump                    # Auto-detect version bump from changesets
-npm run version:bump -- --type=patch    # Force specific bump type (patch|minor|major)
+npm run version:bump                        # Auto-detect version bump from changesets
+npm run version:bump -- --type=patch        # Force specific bump type (patch|minor|major)
+npm run version:bump -- --new-version=1.2.3 # Set specific version number
 
 # Test @since tag updates
-npm run since-tags:update -- <version>  # Update @since tags with specific version
-npm run since-tags:update -- --dry-run  # Check for pending updates without applying
+npm run since-tags:update -- <version>      # Update @since tags with specific version
+npm run since-tags:update -- --dry-run      # Check for pending updates without applying
 
 # Generate release notes
-npm run release:notes                   # Generate markdown format
-npm run release:notes -- --format=json  # Generate JSON format
+npm run release:notes                       # Generate markdown format
+npm run release:notes -- --format=json      # Generate JSON format
 ```
 
 These are the same scripts used in the automated workflow. Make sure you have all dependencies installed (`npm ci`) before running these commands. 
