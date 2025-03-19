@@ -466,7 +466,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
 
   deploy-wordpress:
-    needs: [prepare-release]
+    # Make the needs dependency conditional based on deploy_only
+    needs: ${{ github.event.inputs.deploy_only != 'true' && fromJSON('["prepare-release"]') || fromJSON('[]') }}
     # Run this job if:
     # 1. prepare-release job was successful and created/found a release
     # 2. OR if we're doing a manual deploy of an existing tag
