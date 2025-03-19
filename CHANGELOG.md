@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.1.1 - 2025-03-19
+
+### Bug Fixes
+
+- fix: Avoid the deprecation warning when sending null header values ([#3338](https://github.com/jasonbahl/automation-tests/pull/3338))
+
+### Other Changes
+
+- chore: update README's for github workflows ([#3343](https://github.com/jasonbahl/automation-tests/pull/3343))
+- chore: update cursor rules to use .cursor/rules instead of .cursorrules ([#3333](https://github.com/jasonbahl/automation-tests/pull/3333))
+- chore: add WPGraphQL IDE to the extensions page ([#3332](https://github.com/jasonbahl/automation-tests/pull/3332))
+
+
+
 ## 2.1.0
 
 ### New Features
