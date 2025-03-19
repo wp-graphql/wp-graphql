@@ -51,14 +51,26 @@ const argv = yargs(hideBin(process.argv))
  */
 function getCurrentVersion() {
   const constantsPath = path.join(process.cwd(), 'constants.php');
-  const contents = fs.readFileSync(constantsPath, 'utf8');
-  const match = contents.match(/define\('WPGRAPHQL_VERSION', '([^']+)'\)/);
   
-  if (!match) {
-    throw new Error('Could not find version in constants.php');
+  if (!fs.existsSync(constantsPath)) {
+    console.log(chalk.yellow('Warning: constants.php not found, falling back to package.json'));
+    const packageJson = require(path.join(process.cwd(), 'package.json'));
+    return packageJson.version;
   }
   
-  return match[1];
+  const contents = fs.readFileSync(constantsPath, 'utf8');
+  
+  // Try to find the WPGRAPHQL_VERSION constant
+  const wpGraphQLMatch = contents.match(/define\(\s*'WPGRAPHQL_VERSION',\s*'([^']+)'\s*\)/);
+  
+  if (wpGraphQLMatch) {
+    return wpGraphQLMatch[1];
+  }
+  
+  // If no version found in constants.php, try package.json
+  console.log(chalk.yellow('Warning: No version constant found in constants.php, falling back to package.json'));
+  const packageJson = require(path.join(process.cwd(), 'package.json'));
+  return packageJson.version;
 }
 
 /**
@@ -114,15 +126,25 @@ function determineBumpType() {
  */
 function updateConstantsFile(newVersion) {
   const filePath = path.join(process.cwd(), 'constants.php');
+  
+  if (!fs.existsSync(filePath)) {
+    console.log(chalk.yellow('Warning: constants.php not found, skipping update'));
+    return;
+  }
+  
   let content = fs.readFileSync(filePath, 'utf8');
   
-  content = content.replace(
-    /define\('WPGRAPHQL_VERSION', '[^']+'\)/,
-    `define('WPGRAPHQL_VERSION', '${newVersion}')`
-  );
-  
-  fs.writeFileSync(filePath, content);
-  console.log(`Updated version in constants.php to ${newVersion}`);
+  // Update WPGRAPHQL_VERSION with WordPress coding standards formatting
+  if (content.includes('WPGRAPHQL_VERSION')) {
+    content = content.replace(
+      /define\(\s*'WPGRAPHQL_VERSION',\s*'[^']+'\s*\)/,
+      `define( 'WPGRAPHQL_VERSION', '${newVersion}' )`
+    );
+    fs.writeFileSync(filePath, content);
+    console.log(`Updated version in constants.php to ${newVersion}`);
+  } else {
+    console.log(chalk.yellow('Warning: WPGRAPHQL_VERSION constant not found in constants.php'));
+  }
 }
 
 /**
