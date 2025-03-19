@@ -71,7 +71,8 @@ const argv = yargs(hideBin(process.argv))
  * @returns {string} Change type
  */
 function extractChangeType(title) {
-  const match = title.match(/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert):/);
+  // Updated regex to handle optional ! for breaking changes
+  const match = title.match(/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(!)?:/);
   return match ? match[1] : 'other';
 }
 

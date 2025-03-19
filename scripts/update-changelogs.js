@@ -26,7 +26,7 @@ const argv = yargs(hideBin(process.argv))
   .option('notes-file', {
     type: 'string',
     description: 'Path to release notes file',
-    demandOption: true
+    demandOption: false
   })
   .version(false)
   .help()
@@ -347,41 +347,9 @@ function updateGitHubChangelog(newContent, version) {
 function updateWordPressReadme(newContent, version, groups) {
   const readmePath = path.join(process.cwd(), 'readme.txt');
   
-  // Create readme if it doesn't exist
   if (!fs.existsSync(readmePath)) {
-    const defaultReadme = `=== Automation Tests ===
-Contributors: jasonbahl
-Tags: testing, automation
-Requires at least: 5.0
-Tested up to: 6.2
-Stable tag: ${version}
-Requires PHP: 7.4
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-
-A plugin to test automation workflows.
-
-== Description ==
-
-This is a test repository for experimenting with GitHub Workflows for WordPress plugin development and release management.
-
-== Installation ==
-
-1. Upload the plugin files to the \`/wp-content/plugins/automation-tests\` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
-
-== Frequently Asked Questions ==
-
-= What is this plugin for? =
-
-This plugin is a testing ground for GitHub Actions workflows before implementing them in production repositories.
-
-== Upgrade Notice ==
-
-== Changelog ==
-
-`;
-    fs.writeFileSync(readmePath, defaultReadme);
+    console.error('Error: readme.txt not found. This file is required for WordPress plugins.');
+    process.exit(1);
   }
   
   const existingContent = fs.readFileSync(readmePath, 'utf8');
@@ -390,7 +358,7 @@ This plugin is a testing ground for GitHub Actions workflows before implementing
   const changelogMatch = existingContent.match(/(== Changelog ==\n\n)([\s\S]*)/);
   
   if (!changelogMatch) {
-    console.error('Changelog section not found in readme.txt');
+    console.error('Error: Changelog section not found in readme.txt');
     process.exit(1);
   }
   
@@ -422,12 +390,6 @@ This plugin is a testing ground for GitHub Actions workflows before implementing
     );
     console.log(`Added new entries for v${version} to readme.txt`);
   }
-  
-  // Update the stable tag
-  updatedContent = updatedContent.replace(
-    /Stable tag: [0-9.]+/,
-    `Stable tag: ${version}`
-  );
   
   // Add upgrade notice if there are breaking changes
   const upgradeNotice = generateUpgradeNotice(groups, version);
@@ -543,35 +505,6 @@ function cleanupDuplicateEntries() {
       }
     });
     
-    // Ensure versions are in descending order
-    const headerRegex = /^([\s\S]*?)(?=##|$)/;
-    const headerMatch = content.match(headerRegex);
-    const header = headerMatch ? headerMatch[1] : '';
-    
-    // Extract all version sections
-    const versionSectionRegex = /(## v\d+\.\d+\.\d+ - \d{4}-\d{2}-\d{2}[\s\S]*?)(?=## v|$)/g;
-    const versionSections = [...content.matchAll(versionSectionRegex)].map(match => ({
-      content: match[0],
-      version: match[0].match(/v(\d+\.\d+\.\d+)/)[1]
-    }));
-    
-    // Sort by version in descending order
-    versionSections.sort((a, b) => {
-      const versionA = a.version.split('.').map(Number);
-      const versionB = b.version.split('.').map(Number);
-      
-      for (let i = 0; i < 3; i++) {
-        if (versionA[i] !== versionB[i]) {
-          return versionB[i] - versionA[i];
-        }
-      }
-      
-      return 0;
-    });
-    
-    // Reconstruct the content
-    content = header + versionSections.map(section => section.content).join('');
-    
     fs.writeFileSync(changelogPath, content);
   }
   
@@ -580,79 +513,74 @@ function cleanupDuplicateEntries() {
   if (fs.existsSync(readmePath)) {
     let content = fs.readFileSync(readmePath, 'utf8');
     
-    // Find all version headers
-    const versionHeaders = content.match(/= \d+\.\d+\.\d+ =/g) || [];
-    const uniqueVersions = new Set();
-    const duplicateVersions = [];
-    
-    // Identify duplicate versions
-    versionHeaders.forEach(header => {
-      const version = header.match(/= (\d+\.\d+\.\d+) =/)[1];
-      if (uniqueVersions.has(version)) {
-        duplicateVersions.push(version);
-      } else {
-        uniqueVersions.add(version);
-      }
-    });
-    
-    // Remove duplicate entries for each version
-    duplicateVersions.forEach(version => {
-      console.log(`Cleaning up duplicate entries for v${version} in readme.txt`);
+    // Handle Changelog section
+    const changelogSection = content.match(/== Changelog ==([\s\S]*?)(?=\n==|$)/);
+    if (changelogSection) {
+      const changelogContent = changelogSection[1];
+      const changelogVersions = changelogContent.match(/= \d+\.\d+\.\d+ =/g) || [];
+      const uniqueChangelogVersions = new Set();
+      const duplicateChangelogVersions = [];
       
-      // Find all entries for this version
-      const regex = new RegExp(`(= ${version} =[\\s\\S]*?)(?== \\d|$)`, 'g');
-      const matches = [...content.matchAll(regex)];
-      
-      if (matches.length > 1) {
-        // Keep only the first entry
-        const firstEntry = matches[0][0];
-        
-        // Remove all entries for this version
-        content = content.replace(regex, '');
-        
-        // Add back the first entry after the changelog header
-        const changelogMatch = content.match(/(== Changelog ==\n\n)([\s\S]*)/);
-        if (changelogMatch) {
-          content = content.replace(
-            changelogMatch[0],
-            `${changelogMatch[1]}${firstEntry}${changelogMatch[2].includes('=') ? changelogMatch[2].substring(changelogMatch[2].indexOf('=')) : ''}`
-          );
+      // Identify duplicate versions within Changelog
+      changelogVersions.forEach(header => {
+        const version = header.match(/= (\d+\.\d+\.\d+) =/)[1];
+        if (uniqueChangelogVersions.has(version)) {
+          duplicateChangelogVersions.push(version);
+        } else {
+          uniqueChangelogVersions.add(version);
         }
-      }
-    });
-    
-    // Ensure versions are in descending order
-    const changelogHeaderRegex = /(== Changelog ==\n\n)([\s\S]*)/;
-    const changelogMatch = content.match(changelogHeaderRegex);
-    
-    if (changelogMatch) {
-      const changelogHeader = changelogMatch[1];
-      const changelogContent = changelogMatch[2];
-      
-      // Extract all version sections
-      const versionSectionRegex = /(= \d+\.\d+\.\d+ =[\s\S]*?)(?== \d|$)/g;
-      const versionSections = [...changelogContent.matchAll(versionSectionRegex)].map(match => ({
-        content: match[0],
-        version: match[0].match(/= (\d+\.\d+\.\d+) =/)[1]
-      }));
-      
-      // Sort by version in descending order
-      versionSections.sort((a, b) => {
-        const versionA = a.version.split('.').map(Number);
-        const versionB = b.version.split('.').map(Number);
-        
-        for (let i = 0; i < 3; i++) {
-          if (versionA[i] !== versionB[i]) {
-            return versionB[i] - versionA[i];
-          }
-        }
-        
-        return 0;
       });
       
-      // Reconstruct the content
-      const newChangelogContent = versionSections.map(section => section.content).join('');
-      content = content.replace(changelogMatch[0], changelogHeader + newChangelogContent);
+      // Remove duplicate entries within Changelog
+      duplicateChangelogVersions.forEach(version => {
+        console.log(`Cleaning up duplicate entries for v${version} in Changelog section`);
+        
+        const regex = new RegExp(`(= ${version} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
+        const matches = [...changelogContent.matchAll(regex)];
+        
+        if (matches.length > 1) {
+          // Keep only the first entry
+          const firstEntry = matches[0][0];
+          let updatedSection = changelogContent.replace(regex, '');
+          updatedSection = '== Changelog ==\n\n' + firstEntry + updatedSection.replace('== Changelog ==\n\n', '');
+          content = content.replace(/== Changelog ==[\s\S]*?(?=\n==|$)/, updatedSection);
+        }
+      });
+    }
+    
+    // Handle Upgrade Notice section
+    const upgradeSection = content.match(/== Upgrade Notice ==([\s\S]*?)(?=\n==|$)/);
+    if (upgradeSection) {
+      const upgradeContent = upgradeSection[1];
+      const upgradeVersions = upgradeContent.match(/= \d+\.\d+\.\d+ =/g) || [];
+      const uniqueUpgradeVersions = new Set();
+      const duplicateUpgradeVersions = [];
+      
+      // Identify duplicate versions within Upgrade Notice
+      upgradeVersions.forEach(header => {
+        const version = header.match(/= (\d+\.\d+\.\d+) =/)[1];
+        if (uniqueUpgradeVersions.has(version)) {
+          duplicateUpgradeVersions.push(version);
+        } else {
+          uniqueUpgradeVersions.add(version);
+        }
+      });
+      
+      // Remove duplicate entries within Upgrade Notice
+      duplicateUpgradeVersions.forEach(version => {
+        console.log(`Cleaning up duplicate entries for v${version} in Upgrade Notice section`);
+        
+        const regex = new RegExp(`(= ${version} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
+        const matches = [...upgradeContent.matchAll(regex)];
+        
+        if (matches.length > 1) {
+          // Keep only the first entry
+          const firstEntry = matches[0][0];
+          let updatedSection = upgradeContent.replace(regex, '');
+          updatedSection = '== Upgrade Notice ==\n\n' + firstEntry + updatedSection.replace('== Upgrade Notice ==\n\n', '');
+          content = content.replace(/== Upgrade Notice ==[\s\S]*?(?=\n==|$)/, updatedSection);
+        }
+      });
     }
     
     fs.writeFileSync(readmePath, content);
@@ -683,6 +611,7 @@ function updateChangelogs() {
     
     // Update WordPress readme
     const wordpressChangelogContent = generateWordPressChangelogContent(groupedChangesets, version);
+    const upgradeNotice = generateUpgradeNotice(groupedChangesets, version);
     updateWordPressReadme(wordpressChangelogContent, version, groupedChangesets);
     
     // Archive changesets
