@@ -45,7 +45,7 @@ jobs:
     # Add debug step before the condition
     if: |
       (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop') ||
-      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only != 'true') ||
       github.event_name == 'schedule'
     runs-on: ubuntu-latest
     outputs:
@@ -471,7 +471,6 @@ jobs:
     # 1. prepare-release job was successful and created/found a release
     # 2. OR if we're doing a manual deploy of an existing tag
     if: |
-      always() &&
       (
         (needs.prepare-release.result == 'success' && needs.prepare-release.outputs.release_created == 'true') ||
         (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only == 'true' && github.event.inputs.deploy_tag != '')
