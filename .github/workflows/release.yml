@@ -153,15 +153,13 @@ jobs:
 
           # Check if this is a PR from develop to master
           if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
-            # Get the PR body content, carefully excluding the pending @since section
-            PR_CONTENT=$(echo '${{ github.event.pull_request.body }}' | awk '
-              BEGIN { p=0; in_since=0 }
-              /^## Changelog/ { p=1; print; next }
-              /^### 🔄 Pending `@since` Tag/ { in_since=1; next }
-              /^###/ && in_since { in_since=0 }  # Reset when we hit the next section
-              /^This PR contains all changes/ { p=0; next }
-              !in_since && p { print }
-            ')
+            # Create a temporary file for the PR body
+            echo '${{ github.event.pull_request.body }}' > /tmp/release-notes/pr_body.md
+
+            # Process the PR body using sed instead of awk
+            PR_CONTENT=$(sed -n '/^## Changelog/,/^This PR contains all changes/p' /tmp/release-notes/pr_body.md | \
+              sed '/^This PR contains all changes/d' | \
+              sed '/^### 🔄 Pending `@since` Tag/,/^###/d')
 
             # For debugging
             echo "Extracted PR content:"
@@ -208,7 +206,9 @@ jobs:
           cat "$GITHUB_WORKSPACE/release_notes.md"
 
           # Set the content for GitHub Actions output using jq to properly escape the content
-          echo "content=$(echo "$RELEASE_NOTES" | jq -Rsa .)" >> $GITHUB_OUTPUT
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Update changelogs
         run: |
