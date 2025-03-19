@@ -104,8 +104,8 @@ jobs:
             fi
           fi
           
-          # Get the new version after bump
-          NEW_VERSION=$(grep -oP "define\('AUTOMATION_TESTS_VERSION', '\K[^']+" constants.php)
+          # Get the new version after bump (using WPGRAPHQL_VERSION)
+          NEW_VERSION=$(grep -oP "define\(\s*'WPGRAPHQL_VERSION',\s*'\K[^']+" constants.php)
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           
       - name: Update @since and deprecated version placeholders
