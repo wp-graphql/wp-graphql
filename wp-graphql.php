@@ -214,3 +214,12 @@ function wpgql_delete_me() {
 function wpgql_delete_me_too() {
   _deprecated_function( 'wpgql_delete_me_too', '@next-version', '' );
 }
+
+/**
+ * Another Test
+ *
+ * @since @tbd
+ */
+function wpgql_delete_me_three() {
+  _deprecated_function( 'wpgql_delete_me_three', '@next-version', '' );
+}
