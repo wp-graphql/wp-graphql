@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 'PR number to generate changeset for'
+        description: "PR number to generate changeset for"
         required: true
         type: string
 
@@ -56,36 +56,66 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref || 'develop' }}
           # Use a personal access token with repo scope for better permissions
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-          
+          node-version: "20"
+
       - name: Install dependencies
         run: npm ci
-          
+
       - name: Extract PR information
         id: pr_info
         run: |
+          # First ensure PR_NUMBER is set correctly based on event type
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "Error: PR number is required for workflow_dispatch"
+              exit 1
+            fi
           else
             PR_NUMBER="${{ github.event.pull_request.number }}"
           fi
-          
-          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+
+          # Fetch PR data
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
-          
+
+          # Validate the API response
+          if [[ $(echo "$PR_DATA" | jq -r 'if type=="object" then "valid" else "invalid" end') != "valid" ]]; then
+            echo "Error: Invalid response from GitHub API"
+            echo "Response: $PR_DATA"
+            exit 1
+          fi
+
+          # Extract and validate required fields
           PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
-          PR_BODY=$(echo "$PR_DATA" | jq -r '.body')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
           PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login')
-          
-          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-          echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
-          echo "pr_author=${PR_AUTHOR}" >> $GITHUB_OUTPUT
-          echo "pr_body=${PR_BODY}" >> $GITHUB_OUTPUT
-          
+
+          if [[ -z "$PR_TITLE" || -z "$PR_AUTHOR" ]]; then
+            echo "Error: Failed to extract required PR information"
+            exit 1
+          fi
+
+          # Output the values with proper escaping
+          {
+            echo "pr_number=${PR_NUMBER}"
+            echo "pr_title<<EOF"
+            echo "${PR_TITLE}"
+            echo "EOF"
+            echo "pr_author=${PR_AUTHOR}"
+            echo "pr_body<<EOF"
+            echo "${PR_BODY}"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+        shell: /usr/bin/bash -e {0}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Generate changeset for current PR
         run: |
           # Generate a changeset for the current PR
@@ -94,11 +124,11 @@ jobs:
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
             --body="${{ steps.pr_info.outputs.pr_body }}"
-          
+
           # Commit and push the changeset
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          
+
           # Check if there are changes to commit
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .changesets/
@@ -108,19 +138,19 @@ jobs:
           else
             echo "No changes to commit"
           fi
-          
+
       - name: Generate release notes from changesets
         id: generate_notes
         run: |
           # Create a temporary directory for release notes
           mkdir -p /tmp/release-notes
-          
+
           # Generate release notes from all changesets to a temporary file
           npm run release:notes 2>/dev/null | grep -v "^>" > /tmp/release-notes/temp_notes_raw.md
-          
+
           # Remove the "Found X changesets" line
           sed -n '/^Found/!p' /tmp/release-notes/temp_notes_raw.md > /tmp/release-notes/temp_notes.md
-          
+
           # For debugging
           echo "Generated release notes:"
           cat /tmp/release-notes/temp_notes.md
@@ -130,10 +160,10 @@ jobs:
         run: |
           # Get the next version from package.json
           NEXT_VERSION=$(node -p "require('./package.json').version")
-          
+
           # Run the since-tags script in dry-run mode to check for @since and deprecated version placeholders
           node scripts/update-since-tags.js "$NEXT_VERSION" --dry-run || true
-          
+
           # If the summary file exists, read it
           if [ -f "/tmp/since-tags-summary.md" ]; then
             SINCE_SUMMARY=$(cat /tmp/since-tags-summary.md)
@@ -144,17 +174,17 @@ jobs:
           else
             echo "has_updates=false" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Check for existing release PR
         id: check_pr
         run: |
           # Check if there's already a PR from develop to master
-          PR_LIST=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_LIST=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:develop&base=master")
-          
+
           PR_COUNT=$(echo "$PR_LIST" | jq length)
-          
+
           if [[ "$PR_COUNT" -gt 0 ]]; then
             PR_NUMBER=$(echo "$PR_LIST" | jq -r '.[0].number')
             echo "exists=true" >> $GITHUB_OUTPUT
@@ -162,24 +192,24 @@ jobs:
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Update existing release PR
         if: steps.check_pr.outputs.exists == 'true'
         run: |
           # Update the PR body with the latest changelog
           PR_NUMBER="${{ steps.check_pr.outputs.number }}"
-          
+
           # Get current PR data
-          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          PR_DATA=$(curl -s --max-time 30 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
-          
+
           PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
-          
+
           # Create the PR body with proper formatting
           PR_BODY="## Upcoming Changes"
           PR_BODY="${PR_BODY}"$'\n\n'
           PR_BODY="${PR_BODY}$(cat /tmp/release-notes/temp_notes.md)"
-          
+
           # Add @since updates section if there are any
           if [[ "${{ steps.check_since.outputs.has_updates }}" == "true" ]]; then
             # Read the summary from the previous step's output
@@ -187,17 +217,17 @@ jobs:
             PR_BODY="${PR_BODY}"$'\n\n'
             PR_BODY="${PR_BODY}${SINCE_SUMMARY}"
           fi
-          
+
           PR_BODY="${PR_BODY}"$'\n\n'
           PR_BODY="${PR_BODY}This PR contains all changes that will be included in the next release. It is automatically updated when new changesets are added to the develop branch."
-          
+
           # Use jq to properly escape the content
           PAYLOAD=$(jq -n --arg body "$PR_BODY" --arg title "$PR_TITLE" '{body: $body, title: $title}')
-          
+
           # For debugging
           echo "API Payload:"
           echo "$PAYLOAD" | jq '.'
-          
+
           # Update the PR
           RESPONSE=$(curl -X PATCH \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -205,13 +235,13 @@ jobs:
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}" \
             -d "$PAYLOAD")
-            
+
           # Print full response for debugging
           echo "Full API Response:"
           echo "$RESPONSE" | jq '.'
-          
+
           echo "Updated existing release PR #${PR_NUMBER} with latest changelog"
-          
+
       - name: Create new release PR
         if: steps.check_pr.outputs.exists == 'false'
         run: |
@@ -219,7 +249,7 @@ jobs:
           PR_BODY="## Upcoming Changes"
           PR_BODY="${PR_BODY}"$'\n\n'
           PR_BODY="${PR_BODY}$(cat /tmp/release-notes/temp_notes.md)"
-          
+
           # Add @since updates section if there are any
           if [[ "${{ steps.check_since.outputs.has_updates }}" == "true" ]]; then
             # Read the summary from the previous step's output
@@ -227,10 +257,10 @@ jobs:
             PR_BODY="${PR_BODY}"$'\n\n'
             PR_BODY="${PR_BODY}${SINCE_SUMMARY}"
           fi
-          
+
           PR_BODY="${PR_BODY}"$'\n\n'
           PR_BODY="${PR_BODY}This PR contains all changes that will be included in the next release. It is automatically updated when new changesets are added to the develop branch."
-          
+
           # Use jq to properly escape the content
           PAYLOAD=$(jq -n \
             --arg title "release: next version 📦" \
@@ -238,11 +268,11 @@ jobs:
             --arg base "master" \
             --arg body "$PR_BODY" \
             '{title: $title, head: $head, base: $base, body: $body}')
-          
+
           # For debugging
           echo "API Payload:"
           echo "$PAYLOAD" | jq '.'
-          
+
           # Create a new PR from develop to master
           RESPONSE=$(curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -250,27 +280,27 @@ jobs:
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls" \
             -d "$PAYLOAD")
-          
+
           # Print full response for debugging
           echo "Full API Response:"
           echo "$RESPONSE" | jq '.'
-          
+
           # Check for error messages
           ERROR_MESSAGE=$(echo "$RESPONSE" | jq -r '.message // "No error message"')
           if [[ "$ERROR_MESSAGE" != "No error message" ]]; then
             echo "Error creating PR: $ERROR_MESSAGE"
-            
+
             # Check for more detailed errors
             ERRORS=$(echo "$RESPONSE" | jq -r '.errors // []')
             if [[ "$ERRORS" != "[]" ]]; then
               echo "Detailed errors: $ERRORS"
             fi
-            
+
             exit 1
           fi
-          
+
           PR_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
-          
+
           if [[ -z "$PR_NUMBER" || "$PR_NUMBER" == "null" ]]; then
             echo "Failed to create PR. No PR number returned."
             exit 1
