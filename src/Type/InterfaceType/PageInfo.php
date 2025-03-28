@@ -16,7 +16,7 @@ class PageInfo {
 		register_graphql_interface_type(
 			'WPPageInfo',
 			[
-				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				'description' => __( 'Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction.', 'wp-graphql' ),
 				'interfaces'  => [ 'PageInfo' ],
 				'fields'      => self::get_fields(),
 			]
@@ -25,7 +25,7 @@ class PageInfo {
 		register_graphql_interface_type(
 			'PageInfo',
 			[
-				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				'description' => __( 'Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction.', 'wp-graphql' ),
 				'fields'      => self::get_fields(),
 			]
 		);

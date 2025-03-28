@@ -21,7 +21,7 @@ class HierarchicalContentNode {
 		register_graphql_interface_type(
 			'HierarchicalContentNode',
 			[
-				'description' => __( 'Content node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+				'description' => __( 'Content that can be organized in a parent-child structure. Provides fields for navigating up and down the hierarchy and maintaining structured relationships.', 'wp-graphql' ),
 				'interfaces'  => [
 					'Node',
 					'ContentNode',

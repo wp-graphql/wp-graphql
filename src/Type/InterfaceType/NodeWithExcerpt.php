@@ -17,7 +17,7 @@ class NodeWithExcerpt {
 			'NodeWithExcerpt',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have an excerpt', 'wp-graphql' ),
+				'description' => __( 'A node which provides an excerpt field, which is a condensed summary of the main content. Excerpts can be manually created or automatically generated and are often used in content listings and search results.', 'wp-graphql' ),
 				'fields'      => [
 					'excerpt' => [
 						'type'        => 'String',

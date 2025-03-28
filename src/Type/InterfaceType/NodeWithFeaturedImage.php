@@ -21,7 +21,7 @@ class NodeWithFeaturedImage {
 		register_graphql_interface_type(
 			'NodeWithFeaturedImage',
 			[
-				'description' => __( 'A node that can have a featured image set', 'wp-graphql' ),
+				'description' => __( 'Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],
 				'connections' => [
 					'featuredImage' => [

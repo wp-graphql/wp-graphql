@@ -39,7 +39,7 @@ class TermNode {
 						},
 					],
 				],
-				'description' => __( 'Terms are nodes within a Taxonomy, used to group and relate other nodes.', 'wp-graphql' ),
+				'description' => __( 'Base interface for taxonomy terms such as categories and tags. Terms are used to organize and classify content.', 'wp-graphql' ),
 				'resolveType' => static function ( $term ) use ( $type_registry ) {
 
 					/**

@@ -14,7 +14,7 @@ class Node {
 		register_graphql_interface_type(
 			'Node',
 			[
-				'description' => __( 'An object with an ID', 'wp-graphql' ),
+				'description' => __( 'An object with a globally unique identifier. All objects that can be identified by a unique ID implement this interface.', 'wp-graphql' ),
 				'fields'      => [
 					'id' => [
 						'type'        => [ 'non_null' => 'ID' ],
