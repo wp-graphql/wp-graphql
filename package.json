@@ -90,7 +90,8 @@
     "archiver": "^5.3.1",
     "fs-extra": "^11.1.1",
     "glob": "^10.3.3",
-    "yargs": "^17.7.2"
+    "yargs": "^17.7.2",
+    "js-yaml": "^4.1.0"
   },
   "lint-staged": {
     "package.json": "sort-package-json"

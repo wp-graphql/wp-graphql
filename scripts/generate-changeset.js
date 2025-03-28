@@ -2,19 +2,19 @@
 
 /**
  * Script to generate a changeset file from PR information
- * 
+ *
  * Usage:
  *   node scripts/generate-changeset.js --pr=123 --title="feat: Add new feature" --author="username" --body="Description of the change"
  *   node scripts/generate-changeset.js --pr=123 --title="feat!: Add breaking feature" --author="username" --body="Description of the change"
  *   node scripts/generate-changeset.js --pr=123 --title="BREAKING CHANGE: Refactor API" --author="username" --body="Description of the change"
- * 
+ *
  * Options:
  *   --pr         PR number
  *   --title      PR title
  *   --author     PR author
  *   --body       PR description
  *   --breaking   Explicitly mark as breaking change (true/false)
- * 
+ *
  * Breaking Change Detection:
  *   Breaking changes are automatically detected from:
  *   1. Conventional commit syntax with ! (e.g., "feat!: Add breaking feature")
@@ -29,6 +29,7 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const { getEnvVar } = require('./utils/env');
 const chalk = require('chalk');
+const yaml = require('js-yaml');
 
 // Get GitHub token from environment variables
 // This will work with both GitHub Actions (GITHUB_TOKEN) and local .env file
@@ -61,12 +62,17 @@ const argv = yargs(hideBin(process.argv))
     description: 'Whether the PR indicates a breaking change',
     default: false
   })
+  .option('branchRef', {
+    type: 'string',
+    description: 'Branch reference',
+    default: process.env.GITHUB_REF_NAME
+  })
   .help()
   .argv;
 
 /**
  * Extract change type from PR title (feat, fix, etc.)
- * 
+ *
  * @param {string} title PR title
  * @returns {string} Change type
  */
@@ -78,7 +84,7 @@ function extractChangeType(title) {
 
 /**
  * Check if PR indicates a breaking change
- * 
+ *
  * @param {string} title PR title
  * @param {string} body PR description
  * @returns {boolean} Whether the PR indicates a breaking change
@@ -88,62 +94,85 @@ function isBreakingChange(title, body) {
   if (argv.breaking === true || argv.breaking === 'true') {
     return true;
   }
-  
+
   // Check for conventional commit breaking change indicator (!)
   if (title.includes('!:')) {
     return true;
   }
-  
+
   // Check for "BREAKING CHANGE:" or "BREAKING-CHANGE:" prefix in title (case insensitive)
   const breakingPrefix = /^(BREAKING CHANGE|BREAKING-CHANGE):/i;
   if (breakingPrefix.test(title)) {
     return true;
   }
-  
+
   // Check for "BREAKING CHANGE:" or "BREAKING-CHANGE:" in body
   if (body.includes('BREAKING CHANGE:') || body.includes('BREAKING-CHANGE:')) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
+ * Get milestone name from branch reference
+ *
+ * @param {string} branchRef Branch reference
+ * @returns {string|null} Milestone name or null if no milestone
+ */
+const getMilestoneName = (branchRef) => {
+  if (branchRef && branchRef.startsWith('milestone/')) {
+    return branchRef.replace('milestone/', '');
+  }
+  return null;
+};
+
+/**
  * Generate a changeset file
  */
-async function generateChangeset() {
+const generateChangeset = async ({
+  pr,
+  title,
+  author,
+  body,
+  branchRef
+}) => {
   // Create .changesets directory if it doesn't exist
   const changesetDir = path.join(process.cwd(), '.changesets');
   await fs.ensureDir(changesetDir);
 
   // Extract PR information
-  const { pr, title, author, body } = argv;
   const changeType = extractChangeType(title);
   const breaking = isBreakingChange(title, body);
+  const milestone = getMilestoneName(branchRef);
 
-  // Generate unique filename with timestamp and PR number
-  const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-  const filename = path.join(changesetDir, `${timestamp}-pr-${pr}.md`);
+  const changesetData = {
+    title,
+    pr,
+    author,
+    type: changeType,
+    breaking,
+    ...(milestone && { milestone }),
+  };
 
-  // Create changeset content
   const content = `---
-title: "${title}"
-pr: ${pr}
-author: "${author}"
-type: "${changeType}"
-breaking: ${breaking}
-description: |
-${body.split('\n').map(line => `  ${line}`).join('\n')}
----
+${yaml.dump(changesetData, { quotingType: '"' })}---
+
+${body || title}
 `;
 
+  // Generate unique filename with timestamp and PR number
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '').split('T')[0];
+  const filename = path.join(changesetDir, `${timestamp}-pr-${pr}.md`);
+
   // Write changeset file
-  await fs.writeFile(filename, content);
+  await fs.promises.writeFile(filename, content, 'utf8');
   console.log(`Changeset created: ${filename}`);
-}
+  return filename;
+};
 
 // Run the script
-generateChangeset().catch(err => {
+generateChangeset(argv).catch(err => {
   console.error('Error generating changeset:', err);
   process.exit(1);
-}); 
+});
