@@ -567,12 +567,12 @@ final class WPGraphQL {
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'tag';
 			$args['graphql_plural_name'] = 'tags';
-			$args['graphql_description'] = __( 'A taxonomy term used to organize and classify content. Unlike categories, tags do not support hierarchy and are generally used for more specific classifications.', 'wp-graphql' );
+			$args['graphql_description'] = __( 'A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications.', 'wp-graphql' );
 		} elseif ( 'post_format' === $taxonomy ) { // Adds GraphQL support for post formats.
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'postFormat';
 			$args['graphql_plural_name'] = 'postFormats';
-			$args['graphql_description'] = __( 'A formatting template that defines how content is styled and presented. Examples include "standard", "gallery", "video", etc.', 'wp-graphql' );
+			$args['graphql_description'] = __( 'A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as "standard", "gallery", "video", etc.', 'wp-graphql' );
 		}
 
 		return $args;
