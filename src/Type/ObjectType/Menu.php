@@ -15,7 +15,7 @@ class Menu {
 		register_graphql_object_type(
 			'Menu',
 			[
-				'description' => __( 'Menus are the containers for navigation items. Menus can be assigned to menu locations, which are typically registered by the active theme.', 'wp-graphql' ),
+				'description' => __( 'Collections of navigation links. Menus can be assigned to designated locations and used to build site navigation structures.', 'wp-graphql' ),
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'model'       => MenuModel::class,
 				'fields'      => [
