@@ -155,8 +155,20 @@ const generateChangeset = async ({
     ...(milestone && { milestone }),
   };
 
+  // Manually format the YAML to avoid js-yaml's automatic block scalar formatting
+  const yamlContent = Object.entries(changesetData)
+    .map(([key, value]) => {
+      // For string values that contain special characters, wrap in quotes
+      const formattedValue = typeof value === 'string' ?
+        `"${value.replace(/"/g, '\\"')}"` :
+        value;
+      return `${key}: ${formattedValue}`;
+    })
+    .join('\n');
+
   const content = `---
-${yaml.dump(changesetData, { quotingType: '"' })}---
+${yamlContent}
+---
 
 ${body || title}
 `;
