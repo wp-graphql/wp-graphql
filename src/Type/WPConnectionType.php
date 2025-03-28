@@ -366,6 +366,7 @@ class WPConnectionType {
 				'description' => sprintf(
 					// translators: %s is the name of the connection.
 					__( 'Pagination metadata specific to "%s" collections. Provides cursors and flags for navigating through sets of %s Nodes.', 'wp-graphql' ),
+					$this->connection_name,
 					$this->connection_name
 				),
 				'fields'      => PageInfo::get_fields(),
@@ -562,7 +563,7 @@ class WPConnectionType {
 				[
 					'interfaces'  => [ 'WPPageInfo' ],
 					// translators: %s is the name of the connection edge.
-					'description' => sprintf( __( 'Pagination metadata specific to "%s" collections. Provides cursors and flags for navigating through sets of %s Nodes.', 'wp-graphql' ), $connection_edge_type ),
+					'description' => sprintf( __( 'Pagination metadata specific to "%s" collections. Provides cursors and flags for navigating through sets of "%s" Nodes.', 'wp-graphql' ), $connection_edge_type, $connection_edge_type ),
 					'fields'      => PageInfo::get_fields(),
 				]
 			);
@@ -574,7 +575,7 @@ class WPConnectionType {
 				[
 					'interfaces'  => [ 'Edge' ],
 					// translators: %s is the name of the type the connection edge is to.
-					'description' => sprintf( __( 'Represents a connection to a %s. Contains both the %s Node and metadata about the relationship.', 'wp-graphql' ), $this->to_type ),
+					'description' => sprintf( __( 'Represents a connection to a %s. Contains both the %s Node and metadata about the relationship.', 'wp-graphql' ), $this->to_type, $this->to_type ),
 					'fields'      => [
 						'node' => [
 							'type'        => [ 'non_null' => $this->to_type ],
