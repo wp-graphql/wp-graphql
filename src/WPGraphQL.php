@@ -531,14 +531,17 @@ final class WPGraphQL {
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'mediaItem';
 			$args['graphql_plural_name'] = 'mediaItems';
+			$args['graphql_description'] = __( 'Represents uploaded media, including images, videos, documents, and audio files.', 'wp-graphql' );
 		} elseif ( 'page' === $post_type ) { // Adds GraphQL support for pages.
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'page';
 			$args['graphql_plural_name'] = 'pages';
+			$args['graphql_description'] = __( 'A standalone content entry generally used for static, non-chronological content such as "About Us" or "Contact" pages.', 'wp-graphql' );
 		} elseif ( 'post' === $post_type ) { // Adds GraphQL support for posts.
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'post';
 			$args['graphql_plural_name'] = 'posts';
+			$args['graphql_description'] = __( 'A chronological content entry typically used for blog posts, news articles, or similar date-based content.', 'wp-graphql' );
 		}
 
 		return $args;
@@ -559,14 +562,17 @@ final class WPGraphQL {
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'category';
 			$args['graphql_plural_name'] = 'categories';
+			$args['graphql_description'] = __( 'A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure.', 'wp-graphql' );
 		} elseif ( 'post_tag' === $taxonomy ) { // Adds GraphQL support for tags.
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'tag';
 			$args['graphql_plural_name'] = 'tags';
+			$args['graphql_description'] = __( 'A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications.', 'wp-graphql' );
 		} elseif ( 'post_format' === $taxonomy ) { // Adds GraphQL support for post formats.
 			$args['show_in_graphql']     = true;
 			$args['graphql_single_name'] = 'postFormat';
 			$args['graphql_plural_name'] = 'postFormats';
+			$args['graphql_description'] = __( 'A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as "standard", "gallery", "video", etc.', 'wp-graphql' );
 		}
 
 		return $args;

@@ -21,7 +21,7 @@ class Comment {
 		register_graphql_object_type(
 			'Comment',
 			[
-				'description' => __( 'A Comment object', 'wp-graphql' ),
+				'description' => __( 'A response or reaction to content submitted by users. Comments are typically associated with a specific content entry.', 'wp-graphql' ),
 				'model'       => CommentModel::class,
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'UniformResourceIdentifiable' ],
 				'connections' => [
