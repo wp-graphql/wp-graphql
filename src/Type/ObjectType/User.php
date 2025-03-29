@@ -26,7 +26,7 @@ class User {
 		register_graphql_object_type(
 			'User',
 			[
-				'description' => __( 'A User object', 'wp-graphql' ),
+				'description' => __( 'A registered user account. Users can be assigned roles, author content, and have various capabilities within the site.', 'wp-graphql' ),
 				'model'       => UserModel::class,
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],
 				'connections' => [

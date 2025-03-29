@@ -16,7 +16,7 @@ class NodeWithComments {
 			'NodeWithComments',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have comments associated with it', 'wp-graphql' ),
+				'description' => __( 'Content that can receive and display user-submitted comments. Provides fields for accessing comment counts and managing comment status.', 'wp-graphql' ),
 				'fields'      => [
 					'commentCount'  => [
 						'type'        => 'Int',

@@ -18,7 +18,7 @@ class DatabaseIdentifier {
 		register_graphql_interface_type(
 			'DatabaseIdentifier',
 			[
-				'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
+				'description' => __( 'An object that has a unique numeric identifier in the database. Provides consistent access to the database ID across different object types.', 'wp-graphql' ),
 				'fields'      => [
 					'databaseId' => [
 						'type'        => [ 'non_null' => 'Int' ],

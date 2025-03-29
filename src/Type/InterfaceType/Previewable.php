@@ -18,7 +18,7 @@ class Previewable {
 		register_graphql_interface_type(
 			'Previewable',
 			[
-				'description' => __( 'Nodes that can be seen in a preview (unpublished) state.', 'wp-graphql' ),
+				'description' => __( 'Content that supports a draft preview mode. Allows viewing unpublished changes before they are made publicly available. Previewing unpublished changes requires appropriate permissions.', 'wp-graphql' ),
 				'fields'      => [
 					'isPreview'                 => [
 						'type'        => 'Boolean',

@@ -16,7 +16,7 @@ class OneToOneConnection {
 		register_graphql_interface_type(
 			'OneToOneConnection',
 			[
-				'description' => __( 'A singular connection from one Node to another, with support for relational data on the "edge" of the connection.', 'wp-graphql' ),
+				'description' => __( 'A direct one-to-one relationship between objects. Unlike plural connections, this represents a single related object rather than a collection.', 'wp-graphql' ),
 				'interfaces'  => [ 'Edge' ],
 				'fields'      => [
 					'node' => [

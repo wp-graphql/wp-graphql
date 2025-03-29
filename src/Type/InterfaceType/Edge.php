@@ -16,7 +16,7 @@ class Edge {
 		register_graphql_interface_type(
 			'Edge',
 			[
-				'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
+				'description' => __( 'Represents a connection between two objects. Contains both the related object (node) and metadata about the relationship (cursor).', 'wp-graphql' ),
 				'fields'      => [
 					'cursor' => [
 						'type'        => 'String',

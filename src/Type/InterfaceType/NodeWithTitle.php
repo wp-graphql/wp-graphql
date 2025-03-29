@@ -17,7 +17,7 @@ class NodeWithTitle {
 			'NodeWithTitle',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
+				'description' => __( 'Content with a dedicated title field. The title typically serves as the main heading and identifier for the content.', 'wp-graphql' ),
 				'fields'      => [
 					'title' => [
 						'type'        => 'String',

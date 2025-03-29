@@ -22,7 +22,7 @@ class HierarchicalNode {
 		register_graphql_interface_type(
 			'HierarchicalNode',
 			[
-				'description' => __( 'Node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+				'description' => __( 'Content that can exist in a parent-child structure. Provides fields for navigating up (parent) and down (children) through the hierarchy.', 'wp-graphql' ),
 				'interfaces'  => [
 					'Node',
 					'DatabaseIdentifier',

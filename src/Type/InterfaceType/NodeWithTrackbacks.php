@@ -17,7 +17,7 @@ class NodeWithTrackbacks {
 			'NodeWithTrackbacks',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have trackbacks and pingbacks', 'wp-graphql' ),
+				'description' => __( 'Content that supports cross-site notifications when linked to by other sites. Includes fields for pingback status and linked URLs.', 'wp-graphql' ),
 				'fields'      => [
 					'toPing'     => [
 						'type'        => [ 'list_of' => 'String' ],

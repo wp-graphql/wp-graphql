@@ -21,6 +21,7 @@
 /.changeset
 /scripts
 .cursor
+.changesets
 .husky
 .nvmrc
 .babel.config.cjs

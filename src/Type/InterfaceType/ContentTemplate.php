@@ -15,7 +15,7 @@ class ContentTemplate {
 		register_graphql_interface_type(
 			'ContentTemplate',
 			[
-				'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
+				'description' => __( 'A layout pattern that can help inform how content might be structured and displayed. Templates can define specialized layouts for different types of content.', 'wp-graphql' ),
 				'fields'      => [
 					'templateName' => [
 						'type'        => 'String',

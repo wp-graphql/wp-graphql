@@ -33,11 +33,13 @@ class TermObject {
 		$single_name = $tax_object->graphql_single_name;
 
 		$config = [
-			'description' => sprintf(
-				// translators: %s is the term object singular name.
-				__( 'The %s type', 'wp-graphql' ),
-				$single_name
-			),
+			'description' => ! empty( $tax_object->graphql_description )
+				? $tax_object->graphql_description
+				: ( ! empty( $tax_object->description )
+					? $tax_object->description
+					/* translators: taxonomy object singular name w/ description */
+					: sprintf( __( 'The %s type', 'wp-graphql' ), $single_name )
+				),
 			'connections' => static::get_connections( $tax_object ),
 			'interfaces'  => static::get_interfaces( $tax_object ),
 			'fields'      => static::get_fields( $tax_object ),
