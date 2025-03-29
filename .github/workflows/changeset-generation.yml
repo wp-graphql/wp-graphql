@@ -118,6 +118,9 @@ jobs:
 
       - name: Generate changeset for current PR
         run: |
+          # Create .changesets directory if it doesn't exist
+          mkdir -p .changesets
+
           # Check if a changeset already exists for this PR
           EXISTING_CHANGESETS=$(find .changesets -name "*-pr-${{ steps.pr_info.outputs.pr_number }}.md" -type f)
 
@@ -126,7 +129,7 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Write PR body to a temporary file to avoid shell interpretation issues
+          # Write PR body to a temporary file
           echo '${{ steps.pr_info.outputs.pr_body }}' > /tmp/pr_body.txt
 
           # Generate/regenerate the changeset

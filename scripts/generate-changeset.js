@@ -146,8 +146,12 @@ const generateChangeset = async ({
   const breaking = isBreakingChange(title, body);
   const milestone = getMilestoneName(branchRef);
 
+  // Sanitize the inputs to handle special characters
+  const sanitizedTitle = title.replace(/`/g, '\\`');
+  const sanitizedBody = body.replace(/`/g, '\\`');
+
   const changesetData = {
-    title,
+    title: sanitizedTitle,
     pr,
     author,
     type: changeType,
@@ -170,7 +174,7 @@ const generateChangeset = async ({
 ${yamlContent}
 ---
 
-${body || title}
+${sanitizedBody || sanitizedTitle}
 `;
 
   // Generate unique filename with timestamp and PR number
