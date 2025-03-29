@@ -17,7 +17,7 @@ class NodeWithRevisions {
 			'NodeWithRevisions',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have revisions', 'wp-graphql' ),
+				'description' => __( 'Content that maintains a history of changes. Provides access to previous versions of the content and the ability to restore earlier revisions.', 'wp-graphql' ),
 				'fields'      => [
 					'isRevision' => [
 						'type'        => 'Boolean',

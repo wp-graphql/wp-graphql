@@ -17,7 +17,7 @@ class NodeWithPageAttributes {
 			'NodeWithPageAttributes',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have page attributes', 'wp-graphql' ),
+				'description' => __( 'Content that supports ordering metadata. Includes a menu order field which can be used for custom sorting in navigation menus and other ordered collections.', 'wp-graphql' ),
 				'fields'      => [
 					'menuOrder' => [
 						'type'        => 'Int',

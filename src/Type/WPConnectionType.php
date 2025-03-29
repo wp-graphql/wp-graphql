@@ -365,7 +365,8 @@ class WPConnectionType {
 				'interfaces'  => [ $this->to_type . 'ConnectionPageInfo' ],
 				'description' => sprintf(
 					// translators: %s is the name of the connection.
-					__( 'Page Info on the "%s"', 'wp-graphql' ),
+					__( 'Pagination metadata specific to "%1$s" collections. Provides cursors and flags for navigating through sets of %2$s Nodes.', 'wp-graphql' ),
+					$this->connection_name,
 					$this->connection_name
 				),
 				'fields'      => PageInfo::get_fields(),
@@ -562,7 +563,7 @@ class WPConnectionType {
 				[
 					'interfaces'  => [ 'WPPageInfo' ],
 					// translators: %s is the name of the connection edge.
-					'description' => sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type ),
+					'description' => sprintf( __( 'Pagination metadata specific to "%1$s" collections. Provides cursors and flags for navigating through sets of "%2$s" Nodes.', 'wp-graphql' ), $connection_edge_type, $connection_edge_type ),
 					'fields'      => PageInfo::get_fields(),
 				]
 			);
@@ -574,7 +575,7 @@ class WPConnectionType {
 				[
 					'interfaces'  => [ 'Edge' ],
 					// translators: %s is the name of the type the connection edge is to.
-					'description' => sprintf( __( 'Edge between a Node and a connected %s', 'wp-graphql' ), $this->to_type ),
+					'description' => sprintf( __( 'Represents a connection to a %1$s. Contains both the %2$s Node and metadata about the relationship.', 'wp-graphql' ), $this->to_type, $this->to_type ),
 					'fields'      => [
 						'node' => [
 							'type'        => [ 'non_null' => $this->to_type ],
@@ -592,7 +593,7 @@ class WPConnectionType {
 				[
 					'interfaces'  => [ 'Connection' ],
 					// translators: %s is the name of the type the connection is to.
-					'description' => sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type ),
+					'description' => sprintf( __( 'A paginated collection of %1$s Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of %2$s Nodes', 'wp-graphql' ), $this->to_type, $this->to_type ),
 					'fields'      => [
 						'edges'    => [
 							'type'        => [ 'non_null' => [ 'list_of' => [ 'non_null' => $connection_edge_type ] ] ],
