@@ -129,15 +129,15 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Write PR body to a temporary file
-          echo '${{ steps.pr_info.outputs.pr_body }}' > /tmp/pr_body.txt
+          # Use the PR body from the extracted info
+          echo "$PR_BODY" > /tmp/pr_body.txt
 
           # Generate/regenerate the changeset
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(cat /tmp/pr_body.txt)"
+            --body="$PR_BODY"
 
           # Commit and push the changeset
           git config --global user.name "GitHub Actions"
@@ -152,6 +152,8 @@ jobs:
           else
             echo "No changes to commit"
           fi
+        env:
+          PR_BODY: ${{ steps.pr_info.outputs.pr_body }}
 
       - name: Generate release notes from changesets
         id: generate_notes
