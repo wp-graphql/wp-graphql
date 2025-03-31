@@ -13,7 +13,7 @@ class PostObjectFieldFormatEnum {
 		register_graphql_enum_type(
 			'PostObjectFieldFormatEnum',
 			[
-				'description' => __( 'The format of post field data.', 'wp-graphql' ),
+				'description' => __( 'Content field rendering options. Determines whether content fields are returned as raw data or with applied formatting and transformations.', 'wp-graphql' ),
 				'values'      => [
 					'RAW'      => [
 						'name'        => 'RAW',

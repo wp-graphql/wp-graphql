@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\Enum;
 
+use WPGraphQL\Utils\Utils;
+
 class ContentNodeIdTypeEnum {
 
 	/**
@@ -13,7 +15,7 @@ class ContentNodeIdTypeEnum {
 		register_graphql_enum_type(
 			'ContentNodeIdTypeEnum',
 			[
-				'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+				'description' => __( 'Identifier types for retrieving specific content. Determines which property (global ID, database ID, URI) is used to locate content objects.', 'wp-graphql' ),
 				'values'      => self::get_values(),
 			]
 		);
@@ -47,7 +49,8 @@ class ContentNodeIdTypeEnum {
 			register_graphql_enum_type(
 				$post_type_object->graphql_single_name . 'IdType',
 				[
-					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+					// translators: %s is the post type name.
+					'description' => sprintf( __( 'Identifier types for retrieving a specific %s. Specifies which unique attribute is used to find an exact %s.', 'wp-graphql' ), Utils::format_type_name( $post_type_object->graphql_single_name ), Utils::format_type_name( $post_type_object->graphql_single_name ) ),
 					'values'      => $values,
 				]
 			);

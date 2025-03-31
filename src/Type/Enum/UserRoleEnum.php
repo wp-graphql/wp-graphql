@@ -32,7 +32,7 @@ class UserRoleEnum {
 		register_graphql_enum_type(
 			'UserRoleEnum',
 			[
-				'description' => __( 'Names of available user roles', 'wp-graphql' ),
+				'description' => __( 'Permission levels for user accounts. Defines the standard access levels that control what actions users can perform within the system.', 'wp-graphql' ),
 				'values'      => $roles,
 			]
 		);

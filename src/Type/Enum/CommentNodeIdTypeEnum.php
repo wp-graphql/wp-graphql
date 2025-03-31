@@ -17,7 +17,7 @@ class CommentNodeIdTypeEnum {
 		register_graphql_enum_type(
 			'CommentNodeIdTypeEnum',
 			[
-				'description' => __( 'The Type of Identifier used to fetch a single comment node. Default is "ID". To be used along with the "id" field.', 'wp-graphql' ),
+				'description' => __( 'Identifier types for retrieving a specific comment. Specifies which unique attribute is used to find a particular comment.', 'wp-graphql' ),
 				'values'      => [
 					'ID'          => [
 						'name'        => 'ID',

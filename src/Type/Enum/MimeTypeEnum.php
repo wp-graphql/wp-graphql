@@ -38,7 +38,7 @@ class MimeTypeEnum {
 		register_graphql_enum_type(
 			'MimeTypeEnum',
 			[
-				'description' => __( 'The MimeType of the object', 'wp-graphql' ),
+				'description' => __( 'Media file type classification based on MIME standards. Used to identify and filter media items by their format and content type.', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);

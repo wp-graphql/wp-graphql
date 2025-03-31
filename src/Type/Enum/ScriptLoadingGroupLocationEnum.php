@@ -22,7 +22,7 @@ class ScriptLoadingGroupLocationEnum {
 		register_graphql_enum_type(
 			'ScriptLoadingGroupLocationEnum',
 			[
-				'description' => __( 'Location in the document where the script to be loaded', 'wp-graphql' ),
+				'description' => __( 'Script insertion positions in the document structure. Determines whether scripts are placed in the document head or before the closing body tag.', 'wp-graphql' ),
 				'values'      => [
 					'HEADER' => [
 						'value'       => 0,

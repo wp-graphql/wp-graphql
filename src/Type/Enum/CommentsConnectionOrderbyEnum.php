@@ -12,7 +12,7 @@ class CommentsConnectionOrderbyEnum {
 		register_graphql_enum_type(
 			'CommentsConnectionOrderbyEnum',
 			[
-				'description' => __( 'Options for ordering the connection', 'wp-graphql' ),
+				'description' => __( 'Sorting attributes for comment collections. Specifies which comment property determines the order of results.', 'wp-graphql' ),
 				'values'      => [
 					'COMMENT_AGENT'        => [
 						'description' => __( 'Order by browser user agent of the commenter.', 'wp-graphql' ),

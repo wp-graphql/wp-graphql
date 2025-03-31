@@ -12,7 +12,7 @@ class TermObjectsConnectionOrderbyEnum {
 		register_graphql_enum_type(
 			'TermObjectsConnectionOrderbyEnum',
 			[
-				'description' => __( 'Options for ordering the connection by', 'wp-graphql' ),
+				'description' => __( 'Sorting attributes for taxonomy term collections. Determines which property of taxonomy terms is used for ordering results.', 'wp-graphql' ),
 				'values'      => [
 					'NAME'        => [
 						'value'       => 'name',

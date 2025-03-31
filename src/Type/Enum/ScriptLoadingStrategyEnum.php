@@ -22,7 +22,7 @@ class ScriptLoadingStrategyEnum {
 		register_graphql_enum_type(
 			'ScriptLoadingStrategyEnum',
 			[
-				'description' => __( 'The strategy to use when loading the script', 'wp-graphql' ),
+				'description' => __( 'Script loading optimization attributes. Controls browser behavior for script loading to improve page performance (async or defer).', 'wp-graphql' ),
 				'values'      => [
 					'ASYNC' => [
 						'value'       => 'async',

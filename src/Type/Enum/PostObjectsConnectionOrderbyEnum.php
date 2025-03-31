@@ -13,7 +13,7 @@ class PostObjectsConnectionOrderbyEnum {
 		register_graphql_enum_type(
 			'PostObjectsConnectionOrderbyEnum',
 			[
-				'description' => __( 'Field to order the connection by', 'wp-graphql' ),
+				'description' => __( 'Content sorting attributes for post-type objects. Identifies which content property should be used to determine result order.', 'wp-graphql' ),
 				'values'      => [
 					'AUTHOR'        => [
 						'value'       => 'post_author',

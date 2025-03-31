@@ -13,7 +13,7 @@ class OrderEnum {
 		register_graphql_enum_type(
 			'OrderEnum',
 			[
-				'description'  => __( 'The cardinality of the connection order', 'wp-graphql' ),
+				'description'  => __( 'Sort direction for ordered results. Determines whether items are returned in ascending or descending order.', 'wp-graphql' ),
 				'values'       => [
 					'ASC'  => [
 						'value'       => 'ASC',

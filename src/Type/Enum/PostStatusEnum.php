@@ -46,7 +46,7 @@ class PostStatusEnum {
 		register_graphql_enum_type(
 			'PostStatusEnum',
 			[
-				'description' => __( 'The status of the object.', 'wp-graphql' ),
+				'description' => __( 'Publishing status that controls the visibility and editorial state of content. Determines whether content is published, pending review, in draft state, or private.', 'wp-graphql' ),
 				'values'      => $post_status_enum_values,
 			]
 		);

@@ -38,7 +38,7 @@ class MediaItemStatusEnum {
 		register_graphql_enum_type(
 			'MediaItemStatusEnum',
 			[
-				'description' => __( 'The status of the media item object.', 'wp-graphql' ),
+				'description' => __( 'Publication status for media items. Controls whether media is publicly accessible, private, or in another state.', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);

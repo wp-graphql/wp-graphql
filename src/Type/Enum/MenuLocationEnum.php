@@ -39,7 +39,7 @@ class MenuLocationEnum {
 		register_graphql_enum_type(
 			'MenuLocationEnum',
 			[
-				'description' => __( 'Registered menu locations', 'wp-graphql' ),
+				'description' => __( 'Designated areas where navigation menus can be displayed. Represents the named regions in the interface where menus can be assigned.', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);

@@ -43,7 +43,7 @@ class MediaItemSizeEnum {
 		register_graphql_enum_type(
 			'MediaItemSizeEnum',
 			[
-				'description' => __( 'The size of the media item object.', 'wp-graphql' ),
+				'description' => __( 'Predefined image size variations. Represents the standard image dimensions available for media assets.', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);

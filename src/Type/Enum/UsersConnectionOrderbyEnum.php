@@ -13,7 +13,7 @@ class UsersConnectionOrderbyEnum {
 		register_graphql_enum_type(
 			'UsersConnectionOrderbyEnum',
 			[
-				'description' => __( 'Field to order the connection by', 'wp-graphql' ),
+				'description' => __( 'User attribute sorting options. Determines which property of user accounts is used for ordering user listings.', 'wp-graphql' ),
 				'values'      => [
 					'DISPLAY_NAME' => [
 						'value'       => 'display_name',

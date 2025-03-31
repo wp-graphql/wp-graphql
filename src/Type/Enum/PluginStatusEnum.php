@@ -13,7 +13,7 @@ class PluginStatusEnum {
 		register_graphql_enum_type(
 			'PluginStatusEnum',
 			[
-				'description'  => __( 'The status of the WordPress plugin.', 'wp-graphql' ),
+				'description'  => __( 'Operational status of a plugin. Indicates whether a plugin is active, inactive, or in another state that affects its functionality.', 'wp-graphql' ),
 				'values'       => self::get_enum_values(),
 				'defaultValue' => 'ACTIVE',
 			]

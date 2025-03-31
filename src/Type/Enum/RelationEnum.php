@@ -13,7 +13,7 @@ class RelationEnum {
 		register_graphql_enum_type(
 			'RelationEnum',
 			[
-				'description' => __( 'The logical relation between each item in the array when there are more than one.', 'wp-graphql' ),
+				'description' => __( 'Logical operators for filter conditions. Determines whether multiple filtering criteria should be combined with AND (all must match) or OR (any can match).', 'wp-graphql' ),
 				'values'      => [
 					'AND' => [
 						'name'        => 'AND',
