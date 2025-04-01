@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.2.0 - 2025-04-01
+
+### New Features
+
+- feat: add support for graphql_description on register_post_type and register_taxonomy ([#3346](https://github.com/jasonbahl/automation-tests/pull/3346))
+
+### Other Changes
+
+- chore: update  placeholder that didn't properly get replaced during release ([#3349](https://github.com/jasonbahl/automation-tests/pull/3349))
+- chore: update interface descriptions ([#3347](https://github.com/jasonbahl/automation-tests/pull/3347))
+
+
+
 ## v2.1.1 - 2025-03-19
 
 ### Bug Fixes
