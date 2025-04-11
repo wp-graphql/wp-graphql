@@ -18,27 +18,29 @@ class NodeWithExcerpt {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have an excerpt', 'wp-graphql' ),
-				'fields'      => [
-					'excerpt' => [
-						'type'        => 'String',
-						'description' => __( 'The excerpt of the post.', 'wp-graphql' ),
-						'args'        => [
-							'format' => [
-								'type'        => 'PostObjectFieldFormatEnum',
-								'description' => __( 'Format of the field output', 'wp-graphql' ),
+				'fields'      => static function () {
+					return [
+						'excerpt' => [
+							'type'        => 'String',
+							'description' => __( 'The excerpt of the post.', 'wp-graphql' ),
+							'args'        => [
+								'format' => [
+									'type'        => 'PostObjectFieldFormatEnum',
+									'description' => __( 'Format of the field output', 'wp-graphql' ),
+								],
 							],
-						],
-						'resolve'     => static function ( $source, $args ) {
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								// @codingStandardsIgnoreLine.
-								return $source->excerptRaw;
-							}
+							'resolve'     => static function ( $source, $args ) {
+								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+									// @codingStandardsIgnoreLine.
+									return $source->excerptRaw;
+								}
 
-							// @codingStandardsIgnoreLine.
-							return $source->excerptRendered;
-						},
-					],
-				],
+								// @codingStandardsIgnoreLine.
+								return $source->excerptRendered;
+							},
+						],
+					];
+				},
 			]
 		);
 	}

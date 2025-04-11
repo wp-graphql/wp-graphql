@@ -19,12 +19,14 @@ class DatabaseIdentifier {
 			'DatabaseIdentifier',
 			[
 				'description' => __( 'Object that can be identified with a Database ID', 'wp-graphql' ),
-				'fields'      => [
-					'databaseId' => [
-						'type'        => [ 'non_null' => 'Int' ],
-						'description' => __( 'The unique identifier stored in the database', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'databaseId' => [
+							'type'        => [ 'non_null' => 'Int' ],
+							'description' => __( 'The unique identifier stored in the database', 'wp-graphql' ),
+						],
+					];
+				},
 			]
 		);
 	}

@@ -61,7 +61,8 @@ class TermNode {
 
 					return ! empty( $type ) ? $type : null;
 				},
-				'fields'      => [
+				'fields'      => static function() {
+					return [
 					'databaseId'     => [
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
@@ -105,7 +106,8 @@ class TermNode {
 						'type'        => 'String',
 						'description' => __( 'The link to the term', 'wp-graphql' ),
 					],
-				],
+				];
+			},
 			]
 		);
 	}

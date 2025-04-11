@@ -23,7 +23,8 @@ class UniformResourceIdentifiable {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => __( 'Any node that has a URI', 'wp-graphql' ),
-				'fields'      => [
+				'fields'      => static function() {
+					return [
 					'uri'           => [
 						'type'        => 'String',
 						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
@@ -67,7 +68,8 @@ class UniformResourceIdentifiable {
 							return $node instanceof Comment;
 						},
 					],
-				],
+				];
+			},
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
 					switch ( true ) {
 						case $node instanceof Post:

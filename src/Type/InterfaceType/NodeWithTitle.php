@@ -18,7 +18,8 @@ class NodeWithTitle {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
-				'fields'      => [
+				'fields'      => function() {
+					return [
 					'title' => [
 						'type'        => 'String',
 						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
@@ -38,7 +39,8 @@ class NodeWithTitle {
 							return $source->titleRendered;
 						},
 					],
-				],
+				];
+				},
 			]
 		);
 	}

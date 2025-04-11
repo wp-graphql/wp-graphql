@@ -17,16 +17,18 @@ class Edge {
 			'Edge',
 			[
 				'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
-				'fields'      => [
-					'cursor' => [
-						'type'        => 'String',
-						'description' => __( 'Opaque reference to the nodes position in the connection. Value can be used with pagination args.', 'wp-graphql' ),
-					],
-					'node'   => [
-						'type'        => [ 'non_null' => 'Node' ],
-						'description' => __( 'The connected node', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'cursor' => [
+							'type'        => 'String',
+							'description' => __( 'Opaque reference to the nodes position in the connection. Value can be used with pagination args.', 'wp-graphql' ),
+						],
+						'node'   => [
+							'type'        => [ 'non_null' => 'Node' ],
+							'description' => __( 'The connected node', 'wp-graphql' ),
+						],
+					];
+				},
 			]
 		);
 	}

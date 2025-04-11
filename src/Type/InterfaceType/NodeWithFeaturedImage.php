@@ -39,7 +39,8 @@ class NodeWithFeaturedImage {
 						},
 					],
 				],
-				'fields'      => [
+				'fields'      => function() {
+					return [
 					'featuredImageId'         => [
 						'type'        => 'ID',
 						'description' => __( 'Globally unique ID of the featured image assigned to the node', 'wp-graphql' ),
@@ -48,7 +49,8 @@ class NodeWithFeaturedImage {
 						'type'        => 'Int',
 						'description' => __( 'The database identifier for the featured image node assigned to the content node', 'wp-graphql' ),
 					],
-				],
+				];
+				},
 			]
 		);
 	}

@@ -17,27 +17,29 @@ class NodeWithContentEditor {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that supports the content editor', 'wp-graphql' ),
-				'fields'      => [
-					'content' => [
-						'type'        => 'String',
-						'description' => __( 'The content of the post.', 'wp-graphql' ),
-						'args'        => [
-							'format' => [
-								'type'        => 'PostObjectFieldFormatEnum',
-								'description' => __( 'Format of the field output', 'wp-graphql' ),
+				'fields'      => static function () {
+					return [
+						'content' => [
+							'type'        => 'String',
+							'description' => __( 'The content of the post.', 'wp-graphql' ),
+							'args'        => [
+								'format' => [
+									'type'        => 'PostObjectFieldFormatEnum',
+									'description' => __( 'Format of the field output', 'wp-graphql' ),
+								],
 							],
-						],
-						'resolve'     => static function ( $source, $args ) {
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								// @codingStandardsIgnoreLine.
-								return $source->contentRaw;
-							}
+							'resolve'     => static function ( $source, $args ) {
+								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+									// @codingStandardsIgnoreLine.
+									return $source->contentRaw;
+								}
 
-							// @codingStandardsIgnoreLine.
-							return $source->contentRendered;
-						},
-					],
-				],
+								// @codingStandardsIgnoreLine.
+								return $source->contentRendered;
+							},
+						],
+					];
+				},
 			]
 		);
 	}

@@ -28,16 +28,18 @@ class HierarchicalContentNode {
 					'DatabaseIdentifier',
 					'HierarchicalNode',
 				],
-				'fields'      => [
-					'parentId'         => [
-						'type'        => 'ID',
-						'description' => __( 'The globally unique identifier of the parent node.', 'wp-graphql' ),
-					],
-					'parentDatabaseId' => [
-						'type'        => 'Int',
-						'description' => __( 'Database id of the parent node', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'parentId'         => [
+							'type'        => 'ID',
+							'description' => __( 'The globally unique identifier of the parent node.', 'wp-graphql' ),
+						],
+						'parentDatabaseId' => [
+							'type'        => 'Int',
+							'description' => __( 'Database id of the parent node', 'wp-graphql' ),
+						],
+					];
+				},
 			]
 		);
 	}

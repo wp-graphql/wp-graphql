@@ -18,12 +18,14 @@ class NodeWithPageAttributes {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => __( 'A node that can have page attributes', 'wp-graphql' ),
-				'fields'      => [
+				'fields'      => function() {
+					return [
 					'menuOrder' => [
 						'type'        => 'Int',
 						'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
 					],
-				],
+				];
+			}
 			]
 		);
 	}

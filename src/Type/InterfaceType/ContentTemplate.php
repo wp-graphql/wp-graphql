@@ -16,12 +16,14 @@ class ContentTemplate {
 			'ContentTemplate',
 			[
 				'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
-				'fields'      => [
-					'templateName' => [
-						'type'        => 'String',
-						'description' => __( 'The name of the template', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'templateName' => [
+							'type'        => 'String',
+							'description' => __( 'The name of the template', 'wp-graphql' ),
+						],
+					];
+				},
 				'resolveType' => static function ( $value ) {
 					return isset( $value['__typename'] ) ? $value['__typename'] : 'DefaultTemplate';
 				},

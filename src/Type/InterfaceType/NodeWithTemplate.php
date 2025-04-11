@@ -18,12 +18,14 @@ class NodeWithTemplate {
 			[
 				'description' => __( 'A node that can have a template associated with it', 'wp-graphql' ),
 				'interfaces'  => [ 'Node' ],
-				'fields'      => [
+				'fields'      =>function() {
+					return [
 					'template' => [
 						'description' => __( 'The template assigned to the node', 'wp-graphql' ),
 						'type'        => 'ContentTemplate',
 					],
-				],
+				];
+				},
 			]
 		);
 	}

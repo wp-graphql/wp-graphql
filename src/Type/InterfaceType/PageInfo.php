@@ -18,7 +18,9 @@ class PageInfo {
 			[
 				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
 				'interfaces'  => [ 'PageInfo' ],
-				'fields'      => self::get_fields(),
+				'fields'      => static function () {
+					return self::get_fields();
+				},
 			]
 		);
 
@@ -26,7 +28,9 @@ class PageInfo {
 			'PageInfo',
 			[
 				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
-				'fields'      => self::get_fields(),
+				'fields'      => static function () {
+					return self::get_fields();
+				},
 			]
 		);
 	}
