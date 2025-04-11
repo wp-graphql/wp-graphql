@@ -43,19 +43,19 @@ class CommentsConnectionOrderbyEnum {
 						'value'       => 'comment_content',
 					],
 					'COMMENT_DATE'         => [
-						'description' => __( 'Order by date/time timestamp of the comment.', 'wp-graphql' ),
+						'description' => __( 'Chronological ordering by comment submission date.', 'wp-graphql' ),
 						'value'       => 'comment_date',
 					],
 					'COMMENT_DATE_GMT'     => [
-						'description' => __( 'Order by GMT timezone date/time timestamp of the comment.', 'wp-graphql' ),
+						'description' => __( 'Chronological ordering by comment date in UTC/GMT time.', 'wp-graphql' ),
 						'value'       => 'comment_date_gmt',
 					],
 					'COMMENT_ID'           => [
-						'description' => __( 'Order by the globally unique identifier for the comment object', 'wp-graphql' ),
+						'description' => __( 'Ordering by internal ID (typically reflects creation order).', 'wp-graphql' ),
 						'value'       => 'comment_ID',
 					],
 					'COMMENT_IN'           => [
-						'description' => __( 'Order by the array list of comment IDs listed in the where clause.', 'wp-graphql' ),
+						'description' => __( 'Preserve custom order of IDs as specified in the query.', 'wp-graphql' ),
 						'value'       => 'comment__in',
 					],
 					'COMMENT_KARMA'        => [
@@ -63,19 +63,19 @@ class CommentsConnectionOrderbyEnum {
 						'value'       => 'comment_karma',
 					],
 					'COMMENT_PARENT'       => [
-						'description' => __( 'Order by the comment parent ID.', 'wp-graphql' ),
+						'description' => __( 'Ordering by parent comment relationship (threaded discussions).', 'wp-graphql' ),
 						'value'       => 'comment_parent',
 					],
 					'COMMENT_POST_ID'      => [
-						'description' => __( 'Order by the post object ID.', 'wp-graphql' ),
+						'description' => __( 'Ordering by associated content item ID.', 'wp-graphql' ),
 						'value'       => 'comment_post_ID',
 					],
 					'COMMENT_TYPE'         => [
-						'description' => __( 'Order by the the type of comment, such as \'comment\', \'pingback\', or \'trackback\'.', 'wp-graphql' ),
+						'description' => __( 'Ordering by comment classification (standard comments, pingbacks, etc.).', 'wp-graphql' ),
 						'value'       => 'comment_type',
 					],
 					'USER_ID'              => [
-						'description' => __( 'Order by the user ID.', 'wp-graphql' ),
+						'description' => __( 'Ordering by the user account ID associated with the comment as the comment author.', 'wp-graphql' ),
 						'value'       => 'user_id',
 					],
 				],

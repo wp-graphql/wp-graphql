@@ -33,7 +33,7 @@ class TermNodeIdTypeEnum {
 				$tax_object->graphql_single_name . 'IdType',
 				[
 					// translators: %s is the taxonomy name.
-					'description' => sprintf( __( 'Identifier types for retrieving a specific %s. Determines which unique property (global ID, database ID, slug, etc.) is used to locate the %s.', 'wp-graphql' ), Utils::format_type_name( $tax_object->graphql_single_name ), Utils::format_type_name( $tax_object->graphql_single_name ) ),
+					'description' => sprintf( __( 'Identifier types for retrieving a specific %1$s. Determines which unique property (global ID, database ID, slug, etc.) is used to locate the %2$s.', 'wp-graphql' ), Utils::format_type_name( $tax_object->graphql_single_name ), Utils::format_type_name( $tax_object->graphql_single_name ) ),
 					'values'      => self::get_values(),
 				]
 			);

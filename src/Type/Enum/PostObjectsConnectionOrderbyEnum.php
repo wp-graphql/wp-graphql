@@ -17,43 +17,43 @@ class PostObjectsConnectionOrderbyEnum {
 				'values'      => [
 					'AUTHOR'        => [
 						'value'       => 'post_author',
-						'description' => __( 'Order by author', 'wp-graphql' ),
-					],
-					'TITLE'         => [
-						'value'       => 'post_title',
-						'description' => __( 'Order by title', 'wp-graphql' ),
-					],
-					'SLUG'          => [
-						'value'       => 'post_name',
-						'description' => __( 'Order by slug', 'wp-graphql' ),
-					],
-					'MODIFIED'      => [
-						'value'       => 'post_modified',
-						'description' => __( 'Order by last modified date', 'wp-graphql' ),
-					],
-					'DATE'          => [
-						'value'       => 'post_date',
-						'description' => __( 'Order by publish date', 'wp-graphql' ),
-					],
-					'PARENT'        => [
-						'value'       => 'post_parent',
-						'description' => __( 'Order by parent ID', 'wp-graphql' ),
-					],
-					'IN'            => [
-						'value'       => 'post__in',
-						'description' => __( 'Preserve the ID order given in the IN array', 'wp-graphql' ),
-					],
-					'NAME_IN'       => [
-						'value'       => 'post_name__in',
-						'description' => __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' ),
-					],
-					'MENU_ORDER'    => [
-						'value'       => 'menu_order',
-						'description' => __( 'Order by the menu order value', 'wp-graphql' ),
+						'description' => __( 'Ordering by content author (typically by author name).', 'wp-graphql' ),
 					],
 					'COMMENT_COUNT' => [
 						'value'       => 'comment_count',
-						'description' => __( 'Order by the number of comments it has acquired', 'wp-graphql' ),
+						'description' => __( 'Ordering by popularity based on number of comments.', 'wp-graphql' ),
+					],
+					'DATE'          => [
+						'value'       => 'post_date',
+						'description' => __( 'Chronological ordering by publication date.', 'wp-graphql' ),
+					],
+					'IN'            => [
+						'value'       => 'post__in',
+						'description' => __( 'Maintain custom order of IDs exactly as specified in the query with the IN field.', 'wp-graphql' ),
+					],
+					'MENU_ORDER'    => [
+						'value'       => 'menu_order',
+						'description' => __( 'Ordering by manually defined sort position.', 'wp-graphql' ),
+					],
+					'MODIFIED'      => [
+						'value'       => 'post_modified',
+						'description' => __( 'Chronological ordering by modified date.', 'wp-graphql' ),
+					],
+					'NAME_IN'       => [
+						'value'       => 'post_name__in',
+						'description' => __( 'Maintain custom order of IDs exactly as specified in the query with the NAME_IN field.', 'wp-graphql' ),
+					],
+					'PARENT'        => [
+						'value'       => 'post_parent',
+						'description' => __( 'Ordering by parent-child relationship in hierarchical content.', 'wp-graphql' ),
+					],
+					'SLUG'          => [
+						'value'       => 'post_name',
+						'description' => __( 'Alphabetical ordering by URL-friendly name.', 'wp-graphql' ),
+					],
+					'TITLE'         => [
+						'value'       => 'post_title',
+						'description' => __( 'Alphabetical ordering by content title', 'wp-graphql' ),
 					],
 				],
 			]

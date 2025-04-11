@@ -26,11 +26,11 @@ class ScriptLoadingStrategyEnum {
 				'values'      => [
 					'ASYNC' => [
 						'value'       => 'async',
-						'description' => __( 'Use the script `async` attribute', 'wp-graphql' ),
+						'description' => __( 'Load script in parallel with page rendering, executing as soon as downloaded', 'wp-graphql' ),
 					],
 					'DEFER' => [
 						'value'       => 'defer',
-						'description' => __( 'Use the script `defer` attribute', 'wp-graphql' ),
+						'description' => __( 'Download script in parallel but defer execution until page is fully parsed', 'wp-graphql' ),
 					],
 				],
 			]

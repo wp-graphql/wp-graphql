@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class PostStatusEnum {
+	use EnumDescriptionTrait;
 
 	/**
 	 * Register the PostStatusEnum Type to the Schema
@@ -33,11 +34,7 @@ class PostStatusEnum {
 				}
 
 				$post_status_enum_values[ WPEnumType::get_safe_name( $status ) ] = [
-					'description' => sprintf(
-						// translators: %1$s is the post status.
-						__( 'Objects with the %1$s status', 'wp-graphql' ),
-						$status
-					),
+					'description' => self::get_filtered_description( 'PostStatusEnum', $status ),
 					'value'       => $status,
 				];
 			}
@@ -50,5 +47,36 @@ class PostStatusEnum {
 				'values'      => $post_status_enum_values,
 			]
 		);
+	}
+
+	/**
+	 * Get the default description for a post status.
+	 *
+	 * @param string               $value The post status (publish, draft, etc.)
+	 * @param array<string, mixed> $context Additional context data
+	 */
+	protected static function get_default_description( string $value, array $context = [] ): string {
+		switch ( $value ) {
+			case 'publish':
+				return __( 'Content that is publicly visible to all visitors', 'wp-graphql' );
+			case 'draft':
+				return __( 'Content that is saved but not yet published or visible to the public', 'wp-graphql' );
+			case 'pending':
+				return __( 'Content awaiting review before publication', 'wp-graphql' );
+			case 'private':
+				return __( 'Content only visible to authorized users with appropriate permissions', 'wp-graphql' );
+			case 'trash':
+				return __( 'Content marked for deletion but still recoverable', 'wp-graphql' );
+			case 'auto-draft':
+				return __( 'Automatically saved content that has not been manually saved', 'wp-graphql' );
+			case 'inherit':
+				return __( 'Content that inherits its status from a parent object', 'wp-graphql' );
+			default:
+				return sprintf(
+					// translators: %1$s is the post status.
+					__( 'Objects with the %1$s status', 'wp-graphql' ),
+					$value
+				);
+		}
 	}
 }

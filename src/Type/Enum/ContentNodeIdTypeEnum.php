@@ -50,7 +50,7 @@ class ContentNodeIdTypeEnum {
 				$post_type_object->graphql_single_name . 'IdType',
 				[
 					// translators: %s is the post type name.
-					'description' => sprintf( __( 'Identifier types for retrieving a specific %s. Specifies which unique attribute is used to find an exact %s.', 'wp-graphql' ), Utils::format_type_name( $post_type_object->graphql_single_name ), Utils::format_type_name( $post_type_object->graphql_single_name ) ),
+					'description' => sprintf( __( 'Identifier types for retrieving a specific %1$s. Specifies which unique attribute is used to find an exact %2$s.', 'wp-graphql' ), Utils::format_type_name( $post_type_object->graphql_single_name ), Utils::format_type_name( $post_type_object->graphql_single_name ) ),
 					'values'      => $values,
 				]
 			);

@@ -26,11 +26,11 @@ class ScriptLoadingGroupLocationEnum {
 				'values'      => [
 					'HEADER' => [
 						'value'       => 0,
-						'description' => __( 'A script to be loaded in document `<head>` tag', 'wp-graphql' ),
+						'description' => __( 'Early loading in document `<head>` tag. (executes before page content renders)', 'wp-graphql' ),
 					],
 					'FOOTER' => [
 						'value'       => 1,
-						'description' => __( 'A script to be loaded in document at right before the closing `<body>` tag', 'wp-graphql' ),
+						'description' => __( 'Delayed loading at end of document, right before the closing `<body>` tag. (allows content to render first)', 'wp-graphql' ),
 					],
 				],
 			]

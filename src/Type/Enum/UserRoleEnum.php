@@ -5,6 +5,7 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class UserRoleEnum {
+	use EnumDescriptionTrait;
 
 	/**
 	 * Register the UserRoleEnum Type to the Schema
@@ -19,7 +20,7 @@ class UserRoleEnum {
 			$formatted_role = WPEnumType::get_safe_name( isset( $role['name'] ) ? $role['name'] : $key );
 
 			$roles[ $formatted_role ] = [
-				'description' => __( 'User role with specific capabilities', 'wp-graphql' ),
+				'description' => self::get_filtered_description( 'UserRoleEnum', $key ),
 				'value'       => $key,
 			];
 		}
@@ -36,5 +37,28 @@ class UserRoleEnum {
 				'values'      => $roles,
 			]
 		);
+	}
+
+	/**
+	 * Get the default description for a user role.
+	 *
+	 * @param string               $value The role key (administrator, editor, etc.)
+	 * @param array<string, mixed> $context Additional context data
+	 */
+	protected static function get_default_description( string $value, array $context = [] ): string {
+		switch ( $value ) {
+			case 'administrator':
+				return __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
+			case 'editor':
+				return __( 'Content management access without administrative capabilities.', 'wp-graphql' );
+			case 'author':
+				return __( 'Can publish and manage their own content.', 'wp-graphql' );
+			case 'contributor':
+				return __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
+			case 'subscriber':
+				return __( 'Can only manage their profile and read content.', 'wp-graphql' );
+			default:
+				return __( 'User role with specific capabilities', 'wp-graphql' );
+		}
 	}
 }

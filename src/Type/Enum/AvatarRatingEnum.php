@@ -12,7 +12,7 @@ class AvatarRatingEnum {
 		register_graphql_enum_type(
 			'AvatarRatingEnum',
 			[
-				'description' => __( "Content rating filter for user avatars. Determines the maximum maturity level of avatars to display, following standard content rating classifications (G, PG, R, X).", 'wp-graphql' ),
+				'description' => __( 'Content rating filter for user avatars. Determines the maximum maturity level of avatars to display, following standard content rating classifications (G, PG, R, X).', 'wp-graphql' ),
 				'values'      => [
 					'G'  => [
 						'description' => 'Indicates a G level avatar rating level.',
