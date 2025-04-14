@@ -65,7 +65,7 @@ class ContentNodeIdTypeEnum {
 	/**
 	 * Get the values for the Enum definitions
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<string,(\Closure)|string>>
 	 */
 	public static function get_values() {
 		return [

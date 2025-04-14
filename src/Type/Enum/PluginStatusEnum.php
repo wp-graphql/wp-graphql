@@ -26,7 +26,7 @@ class PluginStatusEnum {
 	/**
 	 * Returns the array configuration for the GraphQL enum values.
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<string,(\Closure)|string>>
 	 */
 	protected static function get_enum_values() {
 		$values = [

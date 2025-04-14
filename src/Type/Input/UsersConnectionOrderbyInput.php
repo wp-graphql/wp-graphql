@@ -13,12 +13,12 @@ class UsersConnectionOrderbyInput {
 		register_graphql_input_type(
 			'UsersConnectionOrderbyInput',
 			[
-				'description' => static function() {
+				'description' => static function () {
 					return __( 'Options for ordering the connection', 'wp-graphql' );
 				},
 				'fields'      => [
 					'field' => [
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'The field name used to sort the results.', 'wp-graphql' );
 						},
 						'type'        => [
@@ -26,7 +26,7 @@ class UsersConnectionOrderbyInput {
 						],
 					],
 					'order' => [
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'The cardinality of the order of the connection', 'wp-graphql' );
 						},
 						'type'        => 'OrderEnum',

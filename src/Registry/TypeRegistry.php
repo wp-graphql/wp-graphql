@@ -812,13 +812,17 @@ class TypeRegistry {
 			$config['name'] = ucfirst( $type_name );
 
 			// Allow the description to be a callable
-			if ( isset( $config['description'] ) && is_callable( $config['description'] ) ) {
+			if ( WPGraphQL::is_introspection_query() && isset( $config['description'] ) && is_callable( $config['description'] ) ) {
 				$config['description'] = $config['description']();
+			} else {
+				$config['description'] = is_string( $config['description'] ) ? $config['description'] : '';
 			}
 
 			// Allow the deprecationReason to be a callable
-			if ( isset( $config['deprecationReason'] ) && is_callable( $config['deprecationReason'] ) ) {
+			if ( WPGraphQL::is_introspection_query() && isset( $config['deprecationReason'] ) && is_callable( $config['deprecationReason'] ) ) {
 				$config['deprecationReason'] = $config['deprecationReason']();
+			} else {
+				$config['deprecationReason'] = is_string( $config['deprecationReason'] ) ? $config['deprecationReason'] : '';
 			}
 
 			switch ( $kind ) {
@@ -930,12 +934,16 @@ class TypeRegistry {
 			$field_config['name'] = lcfirst( $field_name );
 		}
 
-		if ( isset( $field_config['description'] ) && is_callable( $field_config['description'] ) ) {
+		if ( WPGraphQL::is_introspection_query() && isset( $field_config['description'] ) && is_callable( $field_config['description'] ) ) {
 			$field_config['description'] = $field_config['description']();
+		} else {
+			$field_config['description'] = is_string( $field_config['description'] ) ? $field_config['description'] : '';
 		}
 
-		if ( isset( $field_config['deprecationReason'] ) && is_callable( $field_config['deprecationReason'] ) ) {
+		if ( WPGraphQL::is_introspection_query() && isset( $field_config['deprecationReason'] ) && is_callable( $field_config['deprecationReason'] ) ) {
 			$field_config['deprecationReason'] = $field_config['deprecationReason']();
+		} else {
+			$field_config['deprecationReason'] = is_string( $field_config['deprecationReason'] ) ? $field_config['deprecationReason'] : '';
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {

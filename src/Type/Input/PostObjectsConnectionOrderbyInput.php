@@ -13,7 +13,7 @@ class PostObjectsConnectionOrderbyInput {
 		register_graphql_input_type(
 			'PostObjectsConnectionOrderbyInput',
 			[
-				'description' => static function() {
+				'description' => static function () {
 					return __( 'Options for ordering the connection', 'wp-graphql' );
 				},
 				'fields'      => [
@@ -21,7 +21,7 @@ class PostObjectsConnectionOrderbyInput {
 						'type'        => [
 							'non_null' => 'PostObjectsConnectionOrderbyEnum',
 						],
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'The field to order the connection by', 'wp-graphql' );
 						},
 					],
@@ -29,7 +29,7 @@ class PostObjectsConnectionOrderbyInput {
 						'type'        => [
 							'non_null' => 'OrderEnum',
 						],
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'Possible directions in which to order a list of items', 'wp-graphql' );
 						},
 					],

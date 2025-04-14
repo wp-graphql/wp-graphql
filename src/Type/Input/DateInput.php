@@ -12,25 +12,25 @@ class DateInput {
 		register_graphql_input_type(
 			'DateInput',
 			[
-				'description' => static function() {
+				'description' => static function () {
 					return __( 'Date values', 'wp-graphql' );
 				},
 				'fields'      => [
 					'year'  => [
 						'type'        => 'Int',
-						'description' => static function() {
+						'description' => static function () {
 							return __( '4 digit year (e.g. 2017)', 'wp-graphql' );
 						},
 					],
 					'month' => [
 						'type'        => 'Int',
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'Month number (from 1 to 12)', 'wp-graphql' );
 						},
 					],
 					'day'   => [
 						'type'        => 'Int',
-						'description' => static function() {
+						'description' => static function () {
 							return __( 'Day of the month (from 1 to 31)', 'wp-graphql' );
 						},
 					],

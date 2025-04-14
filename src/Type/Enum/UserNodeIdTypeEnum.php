@@ -23,7 +23,7 @@ class UserNodeIdTypeEnum {
 	/**
 	 * Returns the values for the Enum.
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<string,(\Closure)|string>>
 	 */
 	public static function get_values() {
 		return [
