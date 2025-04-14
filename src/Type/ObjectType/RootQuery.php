@@ -34,7 +34,9 @@ class RootQuery {
 		register_graphql_object_type(
 			'RootQuery',
 			[
-				'description' => __( 'The root entry point into the Graph', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The root entry point into the Graph', 'wp-graphql' );
+				},
 				'connections' => [
 					'contentTypes'          => [
 						'toType'  => 'ContentType',
@@ -49,15 +51,21 @@ class RootQuery {
 						'connectionArgs' => [
 							'id'       => [
 								'type'        => 'Int',
-								'description' => __( 'The database ID of the object', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'The database ID of the object', 'wp-graphql' );
+								},
 							],
 							'location' => [
 								'type'        => 'MenuLocationEnum',
-								'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'The menu location for the menu being queried', 'wp-graphql' );
+								},
 							],
 							'slug'     => [
 								'type'        => 'String',
-								'description' => __( 'The slug of the menu to query items for', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'The slug of the menu to query items for', 'wp-graphql' );
+								},
 							],
 						],
 						'resolve'        => static function ( $source, $args, $context, $info ) {
@@ -72,15 +80,21 @@ class RootQuery {
 							'search' => [
 								'name'        => 'search',
 								'type'        => 'String',
-								'description' => __( 'Show plugin based on a keyword search.', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'Show plugin based on a keyword search.', 'wp-graphql' );
+								},
 							],
 							'status' => [
 								'type'        => 'PluginStatusEnum',
-								'description' => __( 'Show plugins with a specific status.', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'Show plugins with a specific status.', 'wp-graphql' );
+								},
 							],
 							'stati'  => [
 								'type'        => [ 'list_of' => 'PluginStatusEnum' ],
-								'description' => __( 'Retrieve plugins where plugin status is in an array.', 'wp-graphql' ),
+								'description' => static function () {
+									return __( 'Retrieve plugins where plugin status is in an array.', 'wp-graphql' );
+								},
 							],
 						],
 						'resolve'        => static function ( $root, $args, $context, $info ) {
@@ -151,24 +165,32 @@ class RootQuery {
 					return [
 						'allSettings' => [
 							'type'        => 'Settings',
-							'description' => __( 'Entry point to get all settings for the site', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Entry point to get all settings for the site', 'wp-graphql' );
+							},
 							'resolve'     => static function () {
 								return true;
 							},
 						],
 						'comment'     => [
 							'type'        => 'Comment',
-							'description' => __( 'Returns a Comment', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Returns a Comment', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'Unique identifier for the comment node.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique identifier for the comment node.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'CommentNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a comment by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $_source, array $args, AppContext $context ) {
@@ -193,25 +215,35 @@ class RootQuery {
 						],
 						'contentNode' => [
 							'type'        => 'ContentNode',
-							'description' => __( 'A node used to manage content', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A node used to manage content', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'          => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'Unique identifier for the content node.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique identifier for the content node.', 'wp-graphql' );
+									},
 								],
 								'idType'      => [
 									'type'        => 'ContentNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a content node by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a content node by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 								'contentType' => [
 									'type'        => 'ContentTypeEnum',
-									'description' => __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The content type the node is used for. Required when idType is set to "name" or "slug"', 'wp-graphql' );
+									},
 								],
 								'asPreview'   => [
 									'type'        => 'Boolean',
-									'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $_root, $args, AppContext $context ) {
@@ -264,15 +296,21 @@ class RootQuery {
 						],
 						'contentType' => [
 							'type'        => 'ContentType',
-							'description' => __( 'Fetch a Content Type node by unique Identifier', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Fetch a Content Type node by unique Identifier', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [ 'non_null' => 'ID' ],
-									'description' => __( 'Unique Identifier for the Content Type node.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique Identifier for the Content Type node.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'ContentTypeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a content type by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a content type by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $_root, $args, $context ) {
@@ -296,15 +334,21 @@ class RootQuery {
 						],
 						'taxonomy'    => [
 							'type'        => 'Taxonomy',
-							'description' => __( 'Fetch a Taxonomy node by unique Identifier', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Fetch a Taxonomy node by unique Identifier', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [ 'non_null' => 'ID' ],
-									'description' => __( 'Unique Identifier for the Taxonomy node.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique Identifier for the Taxonomy node.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'TaxonomyIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a taxonomy by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a taxonomy by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $_root, $args, $context ) {
@@ -328,11 +372,15 @@ class RootQuery {
 						],
 						'node'        => [
 							'type'        => 'Node',
-							'description' => __( 'Fetches an object given its ID', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Fetches an object given its ID', 'wp-graphql' );
+							},
 							'args'        => [
 								'id' => [
 									'type'        => 'ID',
-									'description' => __( 'The unique identifier of the node', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The unique identifier of the node', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $root, $args, AppContext $context, ResolveInfo $info ) {
@@ -341,11 +389,15 @@ class RootQuery {
 						],
 						'nodeByUri'   => [
 							'type'        => 'UniformResourceIdentifiable',
-							'description' => __( 'Fetches an object given its Unique Resource Identifier', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Fetches an object given its Unique Resource Identifier', 'wp-graphql' );
+							},
 							'args'        => [
 								'uri' => [
 									'type'        => [ 'non_null' => 'String' ],
-									'description' => __( 'Unique Resource Identifier in the form of a path or permalink for a node. Ex: "/hello-world"', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique Resource Identifier in the form of a path or permalink for a node. Ex: "/hello-world"', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $root, $args, AppContext $context ) {
@@ -354,17 +406,23 @@ class RootQuery {
 						],
 						'menu'        => [
 							'type'        => 'Menu',
-							'description' => __( 'A WordPress navigation menu', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A WordPress navigation menu', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the menu.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the menu.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'MenuNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a menu by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a menu by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args, AppContext $context ) {
@@ -422,17 +480,23 @@ class RootQuery {
 						],
 						'menuItem'    => [
 							'type'        => 'MenuItem',
-							'description' => __( 'A WordPress navigation menu item', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A WordPress navigation menu item', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the menu item.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the menu item.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'MenuItemNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a menu item by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a menu item by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args, AppContext $context ) {
@@ -457,13 +521,17 @@ class RootQuery {
 						],
 						'plugin'      => [
 							'type'        => 'Plugin',
-							'description' => __( 'A WordPress plugin', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A WordPress plugin', 'wp-graphql' );
+							},
 							'args'        => [
 								'id' => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the plugin.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the plugin.', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args, AppContext $context ) {
@@ -474,21 +542,29 @@ class RootQuery {
 						],
 						'termNode'    => [
 							'type'        => 'TermNode',
-							'description' => __( 'A node in a taxonomy used to group and relate content nodes', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A node in a taxonomy used to group and relate content nodes', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'       => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'Unique identifier for the term node.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Unique identifier for the term node.', 'wp-graphql' );
+									},
 								],
 								'idType'   => [
 									'type'        => 'TermNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a term node by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a term node by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 								'taxonomy' => [
 									'type'        => 'TaxonomyEnum',
-									'description' => __( 'The taxonomy of the tern node. Required when idType is set to "name" or "slug"', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The taxonomy of the tern node. Required when idType is set to "name" or "slug"', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $root, $args, AppContext $context ) {
@@ -540,13 +616,17 @@ class RootQuery {
 						],
 						'theme'       => [
 							'type'        => 'Theme',
-							'description' => __( 'A Theme object', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'A Theme object', 'wp-graphql' );
+							},
 							'args'        => [
 								'id' => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the theme.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the theme.', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args ) {
@@ -557,17 +637,23 @@ class RootQuery {
 						],
 						'user'        => [
 							'type'        => 'User',
-							'description' => __( 'Returns a user', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Returns a user', 'wp-graphql' );
+							},
 							'args'        => [
 								'id'     => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the user.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the user.', 'wp-graphql' );
+									},
 								],
 								'idType' => [
 									'type'        => 'UserNodeIdTypeEnum',
-									'description' => __( 'Type of unique identifier to fetch a user by. Default is Global ID', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Type of unique identifier to fetch a user by. Default is Global ID', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args, $context ) {
@@ -622,13 +708,17 @@ class RootQuery {
 						],
 						'userRole'    => [
 							'type'        => 'UserRole',
-							'description' => __( 'Returns a user role', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Returns a user role', 'wp-graphql' );
+							},
 							'args'        => [
 								'id' => [
 									'type'        => [
 										'non_null' => 'ID',
 									],
-									'description' => __( 'The globally unique identifier of the user object.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The globally unique identifier of the user object.', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, array $args ) {
@@ -639,7 +729,9 @@ class RootQuery {
 						],
 						'viewer'      => [
 							'type'        => 'User',
-							'description' => __( 'Returns the current user', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Returns the current user', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $source, array $args, AppContext $context ) {
 								return ! empty( $context->viewer->ID ) ? $context->get_loader( 'user' )->load_deferred( $context->viewer->ID ) : null;
 							},
@@ -665,26 +757,34 @@ class RootQuery {
 				$post_type_object->graphql_single_name,
 				[
 					'type'        => $post_type_object->graphql_single_name,
-					'description' => sprintf(
-						// translators: %1$s is the post type GraphQL name, %2$s is the post type description
-						__( 'An object of the %1$s Type. %2$s', 'wp-graphql' ),
-						$post_type_object->graphql_single_name,
-						$post_type_object->description
-					),
+					'description' => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %1$s is the post type GraphQL name, %2$s is the post type description
+							__( 'An object of the %1$s Type. %2$s', 'wp-graphql' ),
+							$post_type_object->graphql_single_name,
+							$post_type_object->description
+						);
+					},
 					'args'        => [
 						'id'        => [
 							'type'        => [
 								'non_null' => 'ID',
 							],
-							'description' => __( 'The globally unique identifier of the object.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The globally unique identifier of the object.', 'wp-graphql' );
+							},
 						],
 						'idType'    => [
 							'type'        => $post_type_object->graphql_single_name . 'IdType',
-							'description' => __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' );
+							},
 						],
 						'asPreview' => [
 							'type'        => 'Boolean',
-							'description' => __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn\'t have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the "asPreview" argument is not explicitly provided as an argument.', 'wp-graphql' );
+							},
 						],
 					],
 					'resolve'     => static function ( $source, array $args, AppContext $context ) use ( $post_type_object ) {
@@ -764,37 +864,45 @@ class RootQuery {
 			$post_by_args = [
 				'id'  => [
 					'type'        => 'ID',
-					'description' => sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'Get the %s object by its global ID', 'wp-graphql' ),
-						$post_type_object->graphql_single_name
-					),
+					'description' => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %s is the post type's GraphQL name.
+							__( 'Get the %s object by its global ID', 'wp-graphql' ),
+							$post_type_object->graphql_single_name
+						);
+					},
 				],
 				$post_type_object->graphql_single_name . 'Id' => [
 					'type'        => 'Int',
-					'description' => sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'Get the %s by its database ID', 'wp-graphql' ),
-						$post_type_object->graphql_single_name
-					),
+					'description' => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %s is the post type's GraphQL name.
+							__( 'Get the %s by its database ID', 'wp-graphql' ),
+							$post_type_object->graphql_single_name
+						);
+					},
 				],
 				'uri' => [
 					'type'        => 'String',
-					'description' => sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'Get the %s by its uri', 'wp-graphql' ),
-						$post_type_object->graphql_single_name
-					),
+					'description' => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %s is the post type's GraphQL name.
+							__( 'Get the %s by its uri', 'wp-graphql' ),
+							$post_type_object->graphql_single_name
+						);
+					},
 				],
 			];
 			if ( false === $post_type_object->hierarchical ) {
 				$post_by_args['slug'] = [
 					'type'        => 'String',
-					'description' => sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ),
-						$post_type_object->graphql_single_name
-					),
+					'description' => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %s is the post type's GraphQL name.
+							__( 'Get the %s by its slug (only available for non-hierarchical types)', 'wp-graphql' ),
+							$post_type_object->graphql_single_name
+						);
+					},
 				];
 			}
 
@@ -807,11 +915,13 @@ class RootQuery {
 				[
 					'type'              => $post_type_object->graphql_single_name,
 					'deprecationReason' => __( 'Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: "" ), use post(id: "" idType: "")', 'wp-graphql' ),
-					'description'       => sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'A %s object', 'wp-graphql' ),
-						$post_type_object->graphql_single_name
-					),
+					'description'       => static function () use ( $post_type_object ) {
+						return sprintf(
+							// translators: %s is the post type's GraphQL name.
+							__( 'A %s object', 'wp-graphql' ),
+							$post_type_object->graphql_single_name
+						);
+					},
 					'args'              => $post_by_args,
 					'resolve'           => static function ( $source, array $args, $context ) use ( $post_type_object ) {
 						$post_id = 0;
@@ -895,21 +1005,27 @@ class RootQuery {
 				$tax_object->graphql_single_name,
 				[
 					'type'        => $tax_object->graphql_single_name,
-					'description' => sprintf(
-						// translators: %s is the taxonomys' GraphQL name.
-						__( 'A % object', 'wp-graphql' ),
-						$tax_object->graphql_single_name
-					),
+					'description' => static function () use ( $tax_object ) {
+						return sprintf(
+							// translators: %s is the taxonomys' GraphQL name.
+							__( 'A % object', 'wp-graphql' ),
+							$tax_object->graphql_single_name
+						);
+					},
 					'args'        => [
 						'id'     => [
 							'type'        => [
 								'non_null' => 'ID',
 							],
-							'description' => __( 'The globally unique identifier of the object.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The globally unique identifier of the object.', 'wp-graphql' );
+							},
 						],
 						'idType' => [
 							'type'        => $tax_object->graphql_single_name . 'IdType',
-							'description' => __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Type of unique identifier to fetch by. Default is Global ID', 'wp-graphql' );
+							},
 						],
 					],
 					'resolve'     => static function ( $_source, array $args, $context ) use ( $tax_object ) {

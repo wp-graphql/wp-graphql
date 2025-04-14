@@ -15,12 +15,16 @@ class ContentTemplate {
 		register_graphql_interface_type(
 			'ContentTemplate',
 			[
-				'description' => __( 'The template assigned to a node of content', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The template assigned to a node of content', 'wp-graphql' );
+				},
 				'fields'      => static function () {
 					return [
 						'templateName' => [
 							'type'        => 'String',
-							'description' => __( 'The name of the template', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The name of the template', 'wp-graphql' );
+							},
 						],
 					];
 				},
@@ -72,7 +76,9 @@ class ContentTemplate {
 				[
 					'interfaces'      => [ 'ContentTemplate' ],
 					// Translators: Placeholder is the name of the GraphQL Type in the Schema
-					'description'     => __( 'The template assigned to the node', 'wp-graphql' ),
+					'description'     => static function () {
+						return __( 'The template assigned to the node', 'wp-graphql' );
+					},
 					'fields'          => [
 						'templateName' => [
 							'resolve' => static function ( $template ) {

@@ -83,6 +83,17 @@ class WPEnumType extends EnumType {
 		$values = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_values', $values );
 		$values = apply_filters( 'graphql_' . $type_name . '_values', $values );
 
+		// map over the values and if the description is a callable, call it
+		$values = array_map(
+			static function ( $value ) {
+				if ( is_callable( $value['description'] ) ) {
+						$value['description'] = $value['description']();
+				}
+					return $value;
+			},
+			$values
+		);
+
 		/**
 		 * Sort the values alphabetically by key. This makes reading through docs much easier
 		 *

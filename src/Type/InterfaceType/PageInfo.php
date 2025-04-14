@@ -16,7 +16,9 @@ class PageInfo {
 		register_graphql_interface_type(
 			'WPPageInfo',
 			[
-				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Information about pagination in a connection.', 'wp-graphql' );
+				},
 				'interfaces'  => [ 'PageInfo' ],
 				'fields'      => static function () {
 					return self::get_fields();
@@ -27,7 +29,9 @@ class PageInfo {
 		register_graphql_interface_type(
 			'PageInfo',
 			[
-				'description' => __( 'Information about pagination in a connection.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Information about pagination in a connection.', 'wp-graphql' );
+				},
 				'fields'      => static function () {
 					return self::get_fields();
 				},
@@ -46,21 +50,29 @@ class PageInfo {
 				'type'        => [
 					'non_null' => 'Boolean',
 				],
-				'description' => __( 'When paginating forwards, are there more items?', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'When paginating forwards, are there more items?', 'wp-graphql' );
+				},
 			],
 			'hasPreviousPage' => [
 				'type'        => [
 					'non_null' => 'Boolean',
 				],
-				'description' => __( 'When paginating backwards, are there more items?', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'When paginating backwards, are there more items?', 'wp-graphql' );
+				},
 			],
 			'startCursor'     => [
 				'type'        => 'String',
-				'description' => __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'When paginating backwards, the cursor to continue.', 'wp-graphql' );
+				},
 			],
 			'endCursor'       => [
 				'type'        => 'String',
-				'description' => __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'When paginating forwards, the cursor to continue.', 'wp-graphql' );
+				},
 			],
 		];
 	}

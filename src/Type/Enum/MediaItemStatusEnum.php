@@ -26,11 +26,13 @@ class MediaItemStatusEnum {
 		 */
 		foreach ( $post_stati as $status ) {
 			$values[ WPEnumType::get_safe_name( $status ) ] = [
-				'description' => sprintf(
-					// translators: %1$s is the post status.
-					__( 'Objects with the %1$s status', 'wp-graphql' ),
-					$status
-				),
+				'description' => static function () use ( $status ) {
+					return sprintf(
+						// translators: %1$s is the post status.
+						__( 'Objects with the %1$s status', 'wp-graphql' ),
+						$status
+					);
+				},
 				'value'       => $status,
 			];
 		}
@@ -38,7 +40,9 @@ class MediaItemStatusEnum {
 		register_graphql_enum_type(
 			'MediaItemStatusEnum',
 			[
-				'description' => __( 'The status of the media item object.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The status of the media item object.', 'wp-graphql' );
+				},
 				'values'      => $values,
 			]
 		);

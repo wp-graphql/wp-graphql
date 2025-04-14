@@ -17,15 +17,19 @@ class NodeWithPageAttributes {
 			'NodeWithPageAttributes',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that can have page attributes', 'wp-graphql' ),
-				'fields'      => function() {
+				'description' => static function () {
+					return __( 'A node that can have page attributes', 'wp-graphql' );
+				},
+				'fields'      => static function () {
 					return [
-					'menuOrder' => [
-						'type'        => 'Int',
-						'description' => __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' ),
-					],
-				];
-			}
+						'menuOrder' => [
+							'type'        => 'Int',
+							'description' => static function () {
+								return __( 'A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types.', 'wp-graphql' );
+							},
+						],
+					];
+				},
 			]
 		);
 	}

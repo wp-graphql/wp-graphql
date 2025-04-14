@@ -19,7 +19,9 @@ class MenuItemLinkable {
 		register_graphql_interface_type(
 			'MenuItemLinkable',
 			[
-				'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' );
+				},
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 				'fields'      => [],
 				'resolveType' => static function ( $node ) use ( $type_registry ) {

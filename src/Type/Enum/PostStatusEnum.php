@@ -33,11 +33,13 @@ class PostStatusEnum {
 				}
 
 				$post_status_enum_values[ WPEnumType::get_safe_name( $status ) ] = [
-					'description' => sprintf(
-						// translators: %1$s is the post status.
-						__( 'Objects with the %1$s status', 'wp-graphql' ),
-						$status
-					),
+					'description' => static function () use ( $status ) {
+						return sprintf(
+							// translators: %1$s is the post status.
+							__( 'Objects with the %1$s status', 'wp-graphql' ),
+							$status
+						);
+					},
 					'value'       => $status,
 				];
 			}
@@ -46,7 +48,9 @@ class PostStatusEnum {
 		register_graphql_enum_type(
 			'PostStatusEnum',
 			[
-				'description' => __( 'The status of the object.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The status of the object.', 'wp-graphql' );
+				},
 				'values'      => $post_status_enum_values,
 			]
 		);

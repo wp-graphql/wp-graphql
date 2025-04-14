@@ -13,20 +13,28 @@ class MediaSize {
 		register_graphql_object_type(
 			'MediaSize',
 			[
-				'description' => __( 'Details of an available size for a media item', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Details of an available size for a media item', 'wp-graphql' );
+				},
 				'fields'      => static function () {
 					return [
 						'name'      => [
 							'type'        => 'String',
-							'description' => __( 'The referenced size name', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The referenced size name', 'wp-graphql' );
+							},
 						],
 						'file'      => [
 							'type'        => 'String',
-							'description' => __( 'The filename of the referenced size', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The filename of the referenced size', 'wp-graphql' );
+							},
 						],
 						'filePath'  => [
 							'type'        => 'String',
-							'description' => __( 'The path of the file for the referenced size (default size is full)', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The path of the file for the referenced size (default size is full)', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $image ) {
 								if ( ! empty( $image['ID'] ) ) {
 									$original_file  = get_attached_file( absint( $image['ID'] ) );
@@ -45,22 +53,30 @@ class MediaSize {
 						],
 						'width'     => [
 							'type'        => 'String',
-							'description' => __( 'The width of the referenced size', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The width of the referenced size', 'wp-graphql' );
+							},
 						],
 						'height'    => [
 							'type'        => 'String',
-							'description' => __( 'The height of the referenced size', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The height of the referenced size', 'wp-graphql' );
+							},
 						],
 						'mimeType'  => [
 							'type'        => 'String',
-							'description' => __( 'The mime type of the referenced size', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The mime type of the referenced size', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $image ) {
 								return ! empty( $image['mime-type'] ) ? $image['mime-type'] : null;
 							},
 						],
 						'fileSize'  => [
 							'type'        => 'Int',
-							'description' => __( 'The filesize of the resource', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The filesize of the resource', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $image ) {
 								if ( ! empty( $image['ID'] ) && ! empty( $image['file'] ) ) {
 									$original_file = get_attached_file( absint( $image['ID'] ) );
@@ -74,7 +90,9 @@ class MediaSize {
 						],
 						'sourceUrl' => [
 							'type'        => 'String',
-							'description' => __( 'The url of the referenced size', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The url of the referenced size', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $image ) {
 								$src_url = null;
 

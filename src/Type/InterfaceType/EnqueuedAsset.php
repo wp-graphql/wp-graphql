@@ -21,7 +21,9 @@ class EnqueuedAsset {
 		register_graphql_interface_type(
 			'EnqueuedAsset',
 			[
-				'description' => __( 'Asset enqueued by the CMS', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Asset enqueued by the CMS', 'wp-graphql' );
+				},
 				'resolveType' => static function ( $asset ) use ( $type_registry ) {
 
 					/**
@@ -44,12 +46,18 @@ class EnqueuedAsset {
 					return [
 						'args'         => [
 							'type'              => 'Boolean',
-							'description'       => __( 'Deprecated', 'wp-graphql' ),
-							'deprecationReason' => __( 'Use `EnqueuedAsset.media` instead.', 'wp-graphql' ),
+							'description'       => static function () {
+								return __( 'Deprecated', 'wp-graphql' );
+							},
+							'deprecationReason' => static function () {
+								return __( 'Use `EnqueuedAsset.media` instead.', 'wp-graphql' );
+							},
 						],
 						'after'        => [
 							'type'        => [ 'list_of' => 'String' ],
-							'description' => __( 'The inline code to be run after the asset is loaded.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The inline code to be run after the asset is loaded.', 'wp-graphql' );
+							},
 							'resolve'     => static function ( \_WP_Dependency $asset ) {
 								if ( empty( $asset->extra['after'] ) ) {
 									return null;
@@ -67,7 +75,9 @@ class EnqueuedAsset {
 						],
 						'before'       => [
 							'type'        => [ 'list_of' => 'String' ],
-							'description' => __( 'The inline code to be run before the asset is loaded.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The inline code to be run before the asset is loaded.', 'wp-graphql' );
+							},
 							'resolve'     => static function ( \_WP_Dependency $asset ) {
 								if ( empty( $asset->extra['before'] ) ) {
 									return null;
@@ -85,7 +95,9 @@ class EnqueuedAsset {
 						],
 						'conditional'  => [
 							'type'        => 'String',
-							'description' => __( 'The HTML conditional comment for the enqueued asset. E.g. IE 6, lte IE 7, etc', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The HTML conditional comment for the enqueued asset. E.g. IE 6, lte IE 7, etc', 'wp-graphql' );
+							},
 							'resolve'     => static function ( \_WP_Dependency $asset ) {
 								if ( ! isset( $asset->extra['conditional'] ) || ! is_string( $asset->extra['conditional'] ) ) {
 									return null;
@@ -96,38 +108,54 @@ class EnqueuedAsset {
 						],
 						'dependencies' => [
 							'type'        => [ 'list_of' => 'EnqueuedAsset' ],
-							'description' => __( 'Dependencies needed to use this asset', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Dependencies needed to use this asset', 'wp-graphql' );
+							},
 						],
 						'id'           => [
 							'type'        => [ 'non_null' => 'ID' ],
-							'description' => __( 'The ID of the enqueued asset', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The ID of the enqueued asset', 'wp-graphql' );
+							},
 						],
 						'handle'       => [
 							'type'        => 'String',
-							'description' => __( 'The handle of the enqueued asset', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The handle of the enqueued asset', 'wp-graphql' );
+							},
 						],
 						'src'          => [
 							'type'        => 'String',
-							'description' => __( 'The source of the asset', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The source of the asset', 'wp-graphql' );
+							},
 							'resolve'     => static function ( \_WP_Dependency $stylesheet ) {
 								return ! empty( $stylesheet->src ) && is_string( $stylesheet->src ) ? $stylesheet->src : null;
 							},
 						],
 						'version'      => [
 							'type'        => 'String',
-							'description' => __( 'The version of the enqueued asset', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The version of the enqueued asset', 'wp-graphql' );
+							},
 						],
 						'extra'        => [
 							'type'              => 'String',
-							'description'       => __( 'Extra information needed for the script', 'wp-graphql' ),
-							'deprecationReason' => __( 'Use `EnqueuedScript.extraData` instead.', 'wp-graphql' ),
+							'description'       => static function () {
+								return __( 'Extra information needed for the script', 'wp-graphql' );
+							},
+							'deprecationReason' => static function () {
+								return __( 'Use `EnqueuedScript.extraData` instead.', 'wp-graphql' );
+							},
 							'resolve'           => static function ( $asset ) {
 								return isset( $asset->extra['data'] ) ? $asset->extra['data'] : null;
 							},
 						],
 						'group'        => [
 							'type'        => 'Int',
-							'description' => __( 'The loading group to which this asset belongs.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The loading group to which this asset belongs.', 'wp-graphql' );
+							},
 							'resolve'     => static function ( $asset ) {
 								return isset( $asset->extra['group'] ) ? (int) $asset->extra['group'] : null;
 							},

@@ -27,7 +27,9 @@ class MenuItemObjectUnion {
 			'MenuItemObjectUnion',
 			[
 				'typeNames'   => self::get_possible_types(),
-				'description' => __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' );
+				},
 				'resolveType' => static function ( $obj ) use ( $type_registry ) {
 					_doing_it_wrong( 'MenuItemObjectUnion', esc_attr__( 'The MenuItemObjectUnion GraphQL type is deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ), '0.10.3' );
 					// Post object

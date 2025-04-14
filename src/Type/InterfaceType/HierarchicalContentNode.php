@@ -21,7 +21,9 @@ class HierarchicalContentNode {
 		register_graphql_interface_type(
 			'HierarchicalContentNode',
 			[
-				'description' => __( 'Content node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Content node with hierarchical (parent/child) relationships', 'wp-graphql' );
+				},
 				'interfaces'  => [
 					'Node',
 					'ContentNode',
@@ -32,11 +34,15 @@ class HierarchicalContentNode {
 					return [
 						'parentId'         => [
 							'type'        => 'ID',
-							'description' => __( 'The globally unique identifier of the parent node.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The globally unique identifier of the parent node.', 'wp-graphql' );
+							},
 						],
 						'parentDatabaseId' => [
 							'type'        => 'Int',
-							'description' => __( 'Database id of the parent node', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Database id of the parent node', 'wp-graphql' );
+							},
 						],
 					];
 				},

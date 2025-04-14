@@ -93,7 +93,9 @@ class TimezoneEnum {
 
 			$enum_values[ WPEnumType::get_safe_name( $value ) ] = [
 				'value'       => $value,
-				'description' => $display,
+				'description' => static function () use ( $display ) {
+					return $display;
+				},
 			];
 		}
 		$offset_range = [
@@ -175,18 +177,22 @@ class TimezoneEnum {
 			// Intentionally avoid WPEnumType::get_safe_name here for specific timezone formatting
 			$enum_values[ WPEnumType::get_safe_name( $offset_name ) ] = [
 				'value'       => $offset_value,
-				'description' => sprintf(
-					// translators: %s is the UTC offset.
-					__( 'UTC offset: %s', 'wp-graphql' ),
-					$offset_name
-				),
+				'description' => static function () use ( $offset_name ) {
+					return sprintf(
+						// translators: %s is the UTC offset.
+						__( 'UTC offset: %s', 'wp-graphql' ),
+						$offset_name
+					);
+				},
 			];
 		}
 
 		register_graphql_enum_type(
 			'TimezoneEnum',
 			[
-				'description' => __( 'Available timezones', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Available timezones', 'wp-graphql' );
+				},
 				'values'      => $enum_values,
 			]
 		);

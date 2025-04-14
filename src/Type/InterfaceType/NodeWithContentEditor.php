@@ -16,16 +16,22 @@ class NodeWithContentEditor {
 			'NodeWithContentEditor',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that supports the content editor', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'A node that supports the content editor', 'wp-graphql' );
+				},
 				'fields'      => static function () {
 					return [
 						'content' => [
 							'type'        => 'String',
-							'description' => __( 'The content of the post.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The content of the post.', 'wp-graphql' );
+							},
 							'args'        => [
 								'format' => [
 									'type'        => 'PostObjectFieldFormatEnum',
-									'description' => __( 'Format of the field output', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'Format of the field output', 'wp-graphql' );
+									},
 								],
 							],
 							'resolve'     => static function ( $source, $args ) {

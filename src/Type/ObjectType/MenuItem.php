@@ -20,13 +20,17 @@ class MenuItem {
 		register_graphql_object_type(
 			'MenuItem',
 			[
-				'description' => __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu.', 'wp-graphql' );
+				},
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'model'       => MenuItemModel::class,
 				'connections' => [
 					'connectedNode' => [
 						'toType'      => 'MenuItemLinkable',
-						'description' => __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'Connection from MenuItem to it\'s connected node', 'wp-graphql' );
+						},
 						'oneToOne'    => true,
 						'resolve'     => static function ( MenuItemModel $menu_item, $args, AppContext $context, ResolveInfo $info ) {
 							if ( ! isset( $menu_item->databaseId ) ) {
@@ -82,7 +86,9 @@ class MenuItem {
 					],
 					'menu'          => [
 						'toType'      => 'Menu',
-						'description' => __( 'The Menu a MenuItem is part of', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The Menu a MenuItem is part of', 'wp-graphql' );
+						},
 						'oneToOne'    => true,
 						'resolve'     => static function ( MenuItemModel $menu_item, $args, $context, $info ) {
 							$resolver = new MenuConnectionResolver( $menu_item, $args, $context, $info );
@@ -95,79 +101,117 @@ class MenuItem {
 				'fields'      => static function () {
 					return [
 						'id'               => [
-							'description' => __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The globally unique identifier of the nav menu item object.', 'wp-graphql' );
+							},
 						],
 						'parentId'         => [
 							'type'        => 'ID',
-							'description' => __( 'The globally unique identifier of the parent nav menu item object.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The globally unique identifier of the parent nav menu item object.', 'wp-graphql' );
+							},
 						],
 						'parentDatabaseId' => [
 							'type'        => 'Int',
-							'description' => __( 'The database id of the parent menu item or null if it is the root', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The database id of the parent menu item or null if it is the root', 'wp-graphql' );
+							},
 						],
 						'cssClasses'       => [
 							'type'        => [
 								'list_of' => 'String',
 							],
-							'description' => __( 'Class attribute for the menu item link', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Class attribute for the menu item link', 'wp-graphql' );
+							},
 						],
 						'description'      => [
 							'type'        => 'String',
-							'description' => __( 'Description of the menu item.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Description of the menu item.', 'wp-graphql' );
+							},
 						],
 						'label'            => [
 							'type'        => 'String',
-							'description' => __( 'Label or title of the menu item.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Label or title of the menu item.', 'wp-graphql' );
+							},
 						],
 						'linkRelationship' => [
 							'type'        => 'String',
-							'description' => __( 'Link relationship (XFN) of the menu item.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Link relationship (XFN) of the menu item.', 'wp-graphql' );
+							},
 						],
 						'menuItemId'       => [
 							'type'              => 'Int',
-							'description'       => __( 'WP ID of the menu item.', 'wp-graphql' ),
-							'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
+							'description'       => static function () {
+								return __( 'WP ID of the menu item.', 'wp-graphql' );
+							},
+							'deprecationReason' => static function () {
+								return __( 'Deprecated in favor of the databaseId field', 'wp-graphql' );
+							},
 						],
 						'target'           => [
 							'type'        => 'String',
-							'description' => __( 'Target attribute for the menu item link.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Target attribute for the menu item link.', 'wp-graphql' );
+							},
 						],
 						'title'            => [
 							'type'        => 'String',
-							'description' => __( 'Title attribute for the menu item link', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Title attribute for the menu item link', 'wp-graphql' );
+							},
 						],
 						'url'              => [
 							'type'        => 'String',
-							'description' => __( 'URL or destination of the menu item.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'URL or destination of the menu item.', 'wp-graphql' );
+							},
 						],
 						// Note: this field is added to the MenuItem type instead of applied by the "UniformResourceIdentifiable" interface
 						// because a MenuItem is not identifiable by a uri, the connected resource is identifiable by the uri.
 						'uri'              => [
 							'type'        => 'String',
-							'description' => __( 'The uri of the resource the menu item links to', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The uri of the resource the menu item links to', 'wp-graphql' );
+							},
 						],
 						'path'             => [
 							'type'        => 'String',
-							'description' => __( 'Path for the resource. Relative path for internal resources. Absolute path for external resources.', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Path for the resource. Relative path for internal resources. Absolute path for external resources.', 'wp-graphql' );
+							},
 						],
 						'isRestricted'     => [
 							'type'        => 'Boolean',
-							'description' => __( 'Whether the object is restricted from the current viewer', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Whether the object is restricted from the current viewer', 'wp-graphql' );
+							},
 						],
 						'order'            => [
 							'type'        => 'Int',
-							'description' => __( 'Menu item order', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'Menu item order', 'wp-graphql' );
+							},
 						],
 						'locations'        => [
 							'type'        => [
 								'list_of' => 'MenuLocationEnum',
 							],
-							'description' => __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' ),
+							'description' => static function () {
+								return __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' );
+							},
 						],
 						'connectedObject'  => [
 							'type'              => 'MenuItemObjectUnion',
-							'deprecationReason' => __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' ),
-							'description'       => __( 'The object connected to this menu item.', 'wp-graphql' ),
+							'deprecationReason' => static function () {
+								return __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' );
+							},
+							'description'       => static function () {
+								return __( 'The object connected to this menu item.', 'wp-graphql' );
+							},
 							'resolve'           => static function ( $menu_item, array $args, AppContext $context, $info ) {
 								$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
 								$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );

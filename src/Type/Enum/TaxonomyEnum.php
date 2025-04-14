@@ -26,11 +26,13 @@ class TaxonomyEnum {
 			if ( ! isset( $values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] ) ) {
 				$values[ WPEnumType::get_safe_name( $tax_object->graphql_single_name ) ] = [
 					'value'       => $tax_object->name,
-					'description' => sprintf(
-						// translators: %s is the taxonomy name.
-						__( 'Taxonomy enum %s', 'wp-graphql' ),
-						$tax_object->name
-					),
+					'description' => static function () use ( $tax_object ) {
+						return sprintf(
+							// translators: %s is the taxonomy name.
+							__( 'Taxonomy enum %s', 'wp-graphql' ),
+							$tax_object->name
+						);
+					},
 				];
 			}
 		}
@@ -38,7 +40,9 @@ class TaxonomyEnum {
 		register_graphql_enum_type(
 			'TaxonomyEnum',
 			[
-				'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Allowed taxonomies', 'wp-graphql' );
+				},
 				'values'      => $values,
 			]
 		);
