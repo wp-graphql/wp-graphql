@@ -811,6 +811,16 @@ class TypeRegistry {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
 
+			// Allow the description to be a callable
+			if ( isset( $config['description'] ) && is_callable( $config['description'] ) ) {
+				$config['description'] = $config['description']();
+			}
+
+			// Allow the deprecationReason to be a callable
+			if ( isset( $config['deprecationReason'] ) && is_callable( $config['deprecationReason'] ) ) {
+				$config['deprecationReason'] = $config['deprecationReason']();
+			}
+
 			switch ( $kind ) {
 				case 'enum':
 					$prepared_type = new WPEnumType( $config );
@@ -918,6 +928,14 @@ class TypeRegistry {
 	protected function prepare_field( string $field_name, array $field_config, string $type_name ): ?array {
 		if ( ! isset( $field_config['name'] ) ) {
 			$field_config['name'] = lcfirst( $field_name );
+		}
+
+		if ( isset( $field_config['description'] ) && is_callable( $field_config['description'] ) ) {
+			$field_config['description'] = $field_config['description']();
+		}
+
+		if ( isset( $field_config['deprecationReason'] ) && is_callable( $field_config['deprecationReason'] ) ) {
+			$field_config['deprecationReason'] = $field_config['deprecationReason']();
 		}
 
 		if ( ! isset( $field_config['type'] ) ) {
