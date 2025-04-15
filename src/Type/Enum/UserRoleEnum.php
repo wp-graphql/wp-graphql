@@ -5,7 +5,6 @@ namespace WPGraphQL\Type\Enum;
 use WPGraphQL\Type\WPEnumType;
 
 class UserRoleEnum {
-	use EnumDescriptionTrait;
 
 	/**
 	 * Register the UserRoleEnum Type to the Schema
@@ -19,8 +18,28 @@ class UserRoleEnum {
 		foreach ( $all_roles as $key => $role ) {
 			$formatted_role = WPEnumType::get_safe_name( isset( $role['name'] ) ? $role['name'] : $key );
 
+			switch ( $role ) {
+				case 'administrator':
+					$description = __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
+					break;
+				case 'editor':
+					$description = __( 'Content management access without administrative capabilities.', 'wp-graphql' );
+					break;
+				case 'author':
+					$description = __( 'Can publish and manage their own content.', 'wp-graphql' );
+					break;
+				case 'contributor':
+					$description = __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
+					break;
+				case 'subscriber':
+					$description = __( 'Can only manage their profile and read content.', 'wp-graphql' );
+					break;
+				default:
+					$description = __( 'User role with specific capabilities', 'wp-graphql' );
+			}
+
 			$roles[ $formatted_role ] = [
-				'description' => self::get_filtered_description( 'UserRoleEnum', $key ),
+				'description' => $description,
 				'value'       => $key,
 			];
 		}
@@ -39,26 +58,4 @@ class UserRoleEnum {
 		);
 	}
 
-	/**
-	 * Get the default description for a user role.
-	 *
-	 * @param string               $value The role key (administrator, editor, etc.)
-	 * @param array<string, mixed> $context Additional context data
-	 */
-	protected static function get_default_description( string $value, array $context = [] ): string {
-		switch ( $value ) {
-			case 'administrator':
-				return __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
-			case 'editor':
-				return __( 'Content management access without administrative capabilities.', 'wp-graphql' );
-			case 'author':
-				return __( 'Can publish and manage their own content.', 'wp-graphql' );
-			case 'contributor':
-				return __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
-			case 'subscriber':
-				return __( 'Can only manage their profile and read content.', 'wp-graphql' );
-			default:
-				return __( 'User role with specific capabilities', 'wp-graphql' );
-		}
-	}
 }

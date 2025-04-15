@@ -58,6 +58,13 @@ class WPEnumType extends EnumType {
 	 * @since 0.0.5
 	 */
 	private static function prepare_values( $values, $type_name ) {
+
+		// map over the values and if the description is a callable, call it
+		foreach ( $values as $key => $value ) {
+			$formatted_key = self::get_safe_name( $key );
+			$values[ $key ]['description'] = self::get_value_description( $value, $formatted_key, $type_name );
+		}
+
 		/**
 		 * Filter all object fields, passing the $typename as a param
 		 *
@@ -90,6 +97,10 @@ class WPEnumType extends EnumType {
 		 */
 		ksort( $values );
 
+		// wp_send_json([
+		// 	'values' => $values
+		// ]);
+
 		/**
 		 * Return the filtered, sorted $fields
 		 *
@@ -97,4 +108,42 @@ class WPEnumType extends EnumType {
 		 */
 		return $values;
 	}
+
+	private static function get_value_description( $value, $key, $enum_type ) {
+
+		codecept_debug([
+			'value' => $value,
+			'key' => $key,
+			'enum_type' => $enum_type
+		]);
+
+		$value_name = $key;
+		$value_description = $value['description'] ?? '';
+
+		/**
+		 * Filter the description for an enum value.
+		 *
+		 * @param null|string $pre_value_description The pre-filtered description.
+		 * @param string $enum_type The name of the enum type.
+		 * @param string $value The value of the enum.
+		 */
+		$pre_value_description = apply_filters(
+			'graphql_pre_enum_value_description',
+			null,
+			$value_description,
+			$value_name,
+			$enum_type
+		);
+
+		if ( null !== $pre_value_description ) {
+			return $pre_value_description;
+		}
+
+		if ( ! empty( $value_description ) && is_callable( $value_description ) ) {
+			return $value_description();
+		}
+		return is_string( $value_description ) ? $value_description : '';
+
+	}
+
 }

@@ -84,17 +84,17 @@ class EnumTypeDescriptionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
     public function testEnumDescriptionFilter(): void {
         $filter_called = false;
 
-        add_filter('graphql_pre_enum_description', function($desc, $enum_type, $value, $context) use (&$filter_called) {
+        add_filter('graphql_pre_enum_value_description', function($desc, $value_desc, $value_name, $enum_type) use (&$filter_called) {
             $filter_called = true;
             codecept_debug([
                 'filter_called' => true,
                 'desc' => $desc,
                 'enum_type' => $enum_type,
-                'value' => $value,
-                'context' => $context
+                'value_name' => $value_name,
+                'value_desc' => $value_desc
             ]);
 
-            if ($enum_type === 'PostStatusEnum' && $value === 'publish') {
+            if ($enum_type === 'PostStatusEnum' && $value_name === 'PUBLISH') {
                 return 'Custom filtered description for published content';
             }
             return $desc;
@@ -131,63 +131,5 @@ class EnumTypeDescriptionTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
         // Add debug assertion
         $this->assertTrue($filter_called, 'Filter was never called');
-    }
-
-    /**
-     * Test that the filter receives the correct context data
-     */
-    public function testEnumDescriptionFilterContext(): void {
-        $received_context = null;
-        $filter_called = false;
-
-        add_filter('graphql_pre_enum_description', function($desc, $enum_type, $value, $context) use (&$received_context, &$filter_called) {
-            $filter_called = true;
-
-            // Debug ALL calls to the filter
-            codecept_debug([
-                'filter_called' => true,
-                'enum_type' => $enum_type,
-                'value' => $value,
-                'context' => $context,
-                'desc' => $desc
-            ]);
-
-            // Only set context for MediaItemSizeEnum and only if we haven't captured it yet
-            if ($enum_type === 'MediaItemSizeEnum' && is_null($received_context)) {
-                $received_context = $context;
-            }
-            return $desc;
-        }, 10, 4);
-
-        $query = '
-        query GetMediaItemSizeEnumType {
-            __type(name: "MediaItemSizeEnum") {
-                enumValues {
-                    name
-                    description
-                }
-            }
-        }
-        ';
-
-        $this->graphql(['query' => $query]);
-
-        // First verify the filter was called at all
-        $this->assertTrue($filter_called, 'Filter was never called');
-
-        // Debug what we received
-        codecept_debug(['final_context' => $received_context]);
-
-        // Only assert context structure if it exists
-        if (!is_null($received_context)) {
-            $this->assertIsArray($received_context);
-            $this->assertArrayHasKey('width', $received_context);
-            $this->assertArrayHasKey('height', $received_context);
-            $this->assertArrayHasKey('crop', $received_context);
-            $this->assertEquals(150, $received_context['width']);
-            $this->assertEquals(150, $received_context['height']);
-        } else {
-            $this->markTestIncomplete('Context was null - need to verify expected behavior');
-        }
     }
 }
