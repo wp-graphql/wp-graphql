@@ -793,6 +793,41 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
+	 * introspection queries.
+	 *
+	 * @param array<string,mixed> $config The config to prepare.
+	 *
+	 * @return array<string,mixed> The prepared config.
+	 */
+	public static function prepare_config_for_introspection( array $config ): array {
+
+		/**
+		 * Filter the keys that are prepared for introspection.
+		 *
+		 * @param array<string> $introspection_keys The keys to prepare for introspection.
+		 */
+		$introspection_keys = apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
+
+		foreach ( $introspection_keys as $key ) {
+
+			if ( ! isset( $config[ $key ] ) || ! is_callable( $config[ $key ] ) ) {
+				continue;
+			}
+
+			if ( ! WPGraphQL::is_introspection_query() ) {
+				// If not introspection, unset the key.
+				unset( $config[ $key ] );
+				continue;
+			}
+
+			$config[ $key ] = is_callable( $config[ $key ] ) ? $config[ $key ]() : '';
+		}
+
+		return $config;
+	}
+
+	/**
 	 * Prepare the type for registration.
 	 *
 	 * @param string                                                  $type_name The name of the type to prepare
@@ -811,19 +846,7 @@ class TypeRegistry {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
 
-			// Allow the description to be a callable
-			if ( WPGraphQL::is_introspection_query() && isset( $config['description'] ) && is_callable( $config['description'] ) ) {
-				$config['description'] = $config['description']();
-			} else {
-				$config['description'] = is_string( $config['description'] ) ? $config['description'] : '';
-			}
-
-			// Allow the deprecationReason to be a callable
-			if ( WPGraphQL::is_introspection_query() && isset( $config['deprecationReason'] ) && is_callable( $config['deprecationReason'] ) ) {
-				$config['deprecationReason'] = $config['deprecationReason']();
-			} else {
-				$config['deprecationReason'] = is_string( $config['deprecationReason'] ) ? $config['deprecationReason'] : '';
-			}
+			$config = self::prepare_config_for_introspection( $config );
 
 			switch ( $kind ) {
 				case 'enum':
@@ -934,17 +957,7 @@ class TypeRegistry {
 			$field_config['name'] = lcfirst( $field_name );
 		}
 
-		if ( WPGraphQL::is_introspection_query() && isset( $field_config['description'] ) && is_callable( $field_config['description'] ) ) {
-			$field_config['description'] = $field_config['description']();
-		} else {
-			$field_config['description'] = is_string( $field_config['description'] ) ? $field_config['description'] : '';
-		}
-
-		if ( WPGraphQL::is_introspection_query() && isset( $field_config['deprecationReason'] ) && is_callable( $field_config['deprecationReason'] ) ) {
-			$field_config['deprecationReason'] = $field_config['deprecationReason']();
-		} else {
-			$field_config['deprecationReason'] = is_string( $field_config['deprecationReason'] ) ? $field_config['deprecationReason'] : '';
-		}
+		$field_config = self::prepare_config_for_introspection( $field_config );
 
 		if ( ! isset( $field_config['type'] ) ) {
 			graphql_debug(

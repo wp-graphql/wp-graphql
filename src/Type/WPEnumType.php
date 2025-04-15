@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class WPEnumType
@@ -86,10 +87,10 @@ class WPEnumType extends EnumType {
 		// map over the values and if the description is a callable, call it
 		$values = array_map(
 			static function ( $value ) {
-				if ( is_callable( $value['description'] ) ) {
-						$value['description'] = $value['description']();
+				if ( ! is_array( $value ) ) {
+					$value = [ 'value' => $value ];
 				}
-					return $value;
+				return TypeRegistry::prepare_config_for_introspection( $value );
 			},
 			$values
 		);
