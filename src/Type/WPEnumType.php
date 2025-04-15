@@ -77,7 +77,6 @@ class WPEnumType extends EnumType {
 		 *
 		 * @param array<string,mixed> $values
 		 * @param string              $type_name
-		 *
 		 */
 		$values = apply_filters( 'graphql_enum_values', $values, $type_name );
 
