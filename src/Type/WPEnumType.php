@@ -61,8 +61,12 @@ class WPEnumType extends EnumType {
 
 		// map over the values and if the description is a callable, call it
 		foreach ( $values as $key => $value ) {
-			$formatted_key = self::get_safe_name( $key );
-			$values[ $key ]['description'] = self::get_value_description( $value, $formatted_key, $type_name );
+			if ( ! empty( $value['description'] ) && is_callable( $value['description'] ) ) {
+				$description = $value['description']();
+			} else {
+				$description = is_string( $value['description'] ) ? $value['description'] : '';
+			}
+			$values[ $key ]['description'] = $description;
 		}
 
 		/**
@@ -97,10 +101,6 @@ class WPEnumType extends EnumType {
 		 */
 		ksort( $values );
 
-		// wp_send_json([
-		// 	'values' => $values
-		// ]);
-
 		/**
 		 * Return the filtered, sorted $fields
 		 *
@@ -109,13 +109,17 @@ class WPEnumType extends EnumType {
 		return $values;
 	}
 
-	private static function get_value_description( $value, $key, $enum_type ) {
-
-		codecept_debug([
-			'value' => $value,
-			'key' => $key,
-			'enum_type' => $enum_type
-		]);
+	/**
+	 * Get the description for an enum value.
+	 *
+	 * @param array<string,mixed> $value The value of the enum.
+	 * @param string $key The key of the enum.
+	 * @param string $enum_type The name of the enum type.
+	 * @return string
+	 *
+	 * @since next-version
+	 */
+	private static function get_value_description( $value, $key, $enum_type ): string {
 
 		$value_name = $key;
 		$value_description = $value['description'] ?? '';
@@ -142,6 +146,7 @@ class WPEnumType extends EnumType {
 		if ( ! empty( $value_description ) && is_callable( $value_description ) ) {
 			return $value_description();
 		}
+
 		return is_string( $value_description ) ? $value_description : '';
 
 	}

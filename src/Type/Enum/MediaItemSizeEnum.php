@@ -140,6 +140,7 @@ class MediaItemSizeEnum {
 			$values[ WPEnumType::get_safe_name( $image_size ) ] = [
 				'description' => $description,
 				'value'       => $image_size,
+				'dimensions'  => $image_size_dimensions,
 			];
 		}
 

@@ -41,6 +41,7 @@ class UserRoleEnum {
 			$roles[ $formatted_role ] = [
 				'description' => $description,
 				'value'       => $key,
+				'role'        => $role,
 			];
 		}
 
