@@ -93,7 +93,6 @@ class MediaItemSizeEnum {
 		 * Loop through the image_sizes
 		 */
 		foreach ( $image_sizes as $image_size => $image_size_dimensions ) {
-
 			switch ( $image_size ) {
 				case 'thumbnail':
 					$description = sprintf(
@@ -110,6 +109,7 @@ class MediaItemSizeEnum {
 						$image_size_dimensions['width'],
 						$image_size_dimensions['height']
 					);
+					break;
 				case 'medium_large':
 					$description = sprintf(
 						// translators: %1$s is the width of the image, %2$s is the height of the image
@@ -117,6 +117,7 @@ class MediaItemSizeEnum {
 						$image_size_dimensions['width'],
 						$image_size_dimensions['height']
 					);
+					break;
 				case 'large':
 					$description = sprintf(
 						// translators: %1$s is the width of the image, %2$s is the height of the image

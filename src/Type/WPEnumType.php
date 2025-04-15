@@ -108,47 +108,4 @@ class WPEnumType extends EnumType {
 		 */
 		return $values;
 	}
-
-	/**
-	 * Get the description for an enum value.
-	 *
-	 * @param array<string,mixed> $value The value of the enum.
-	 * @param string $key The key of the enum.
-	 * @param string $enum_type The name of the enum type.
-	 * @return string
-	 *
-	 * @since next-version
-	 */
-	private static function get_value_description( $value, $key, $enum_type ): string {
-
-		$value_name = $key;
-		$value_description = $value['description'] ?? '';
-
-		/**
-		 * Filter the description for an enum value.
-		 *
-		 * @param null|string $pre_value_description The pre-filtered description.
-		 * @param string $enum_type The name of the enum type.
-		 * @param string $value The value of the enum.
-		 */
-		$pre_value_description = apply_filters(
-			'graphql_pre_enum_value_description',
-			null,
-			$value_description,
-			$value_name,
-			$enum_type
-		);
-
-		if ( null !== $pre_value_description ) {
-			return $pre_value_description;
-		}
-
-		if ( ! empty( $value_description ) && is_callable( $value_description ) ) {
-			return $value_description();
-		}
-
-		return is_string( $value_description ) ? $value_description : '';
-
-	}
-
 }

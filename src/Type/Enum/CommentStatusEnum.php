@@ -20,16 +20,19 @@ class CommentStatusEnum {
 		 * Loop through the post_stati
 		 */
 		foreach ( $stati as $status => $name ) {
-
 			switch ( $name ) {
 				case 'approve':
 					$description = __( 'Comments that are publicly visible on content.', 'wp-graphql' );
+					break;
 				case 'hold':
 					$description = __( 'Comments awaiting moderation before becoming publicly visible.', 'wp-graphql' );
+					break;
 				case 'spam':
 					$description = __( 'Comments flagged as spam and hidden from public view.', 'wp-graphql' );
+					break;
 				case 'trash':
 					$description = __( 'Comments marked for deletion but still recoverable. Hidden from public view.', 'wp-graphql' );
+					break;
 				default:
 					$description = sprintf(
 						// translators: %s is the comment status.
@@ -52,5 +55,4 @@ class CommentStatusEnum {
 			]
 		);
 	}
-
 }
