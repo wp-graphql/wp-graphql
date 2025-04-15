@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.2.0 - 2025-04-01
+## v2.2.0 - 2025-04-15
 
 ### New Features
 
@@ -10,8 +10,6 @@
 
 - chore: update  placeholder that didn't properly get replaced during release ([#3349](https://github.com/jasonbahl/automation-tests/pull/3349))
 - chore: update interface descriptions ([#3347](https://github.com/jasonbahl/automation-tests/pull/3347))
-
-
 
 ## v2.1.1 - 2025-03-19
 
