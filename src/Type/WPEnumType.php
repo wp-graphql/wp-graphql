@@ -76,8 +76,10 @@ class WPEnumType extends EnumType {
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
 		 * @param array<string,mixed> $values
+		 * @param string              $type_name
+		 *
 		 */
-		$values = apply_filters( 'graphql_enum_values', $values );
+		$values = apply_filters( 'graphql_enum_values', $values, $type_name );
 
 		/**
 		 * Pass the values through a filter
@@ -88,11 +90,12 @@ class WPEnumType extends EnumType {
 		 * more specific overrides
 		 *
 		 * @param array<string,mixed> $values
+		 * @param string              $type_name
 		 *
 		 * @since 0.0.5
 		 */
-		$values = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_values', $values );
-		$values = apply_filters( 'graphql_' . $type_name . '_values', $values );
+		$values = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_values', $values, $type_name );
+		$values = apply_filters( 'graphql_' . $type_name . '_values', $values, $type_name );
 
 		/**
 		 * Sort the values alphabetically by key. This makes reading through docs much easier
