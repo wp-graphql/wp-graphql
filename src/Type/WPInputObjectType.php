@@ -33,6 +33,8 @@ class WPInputObjectType extends InputObjectType {
 		$name           = $config['name'] ?? $this->inferName();
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
+		$config = TypeRegistry::prepare_config_for_introspection( $config );
+
 		if ( array_key_exists( 'fields', $config ) && is_array( $config['fields'] ) ) {
 			$config['fields'] = function () use ( $config, $type_registry ) {
 				$fields = $this->prepare_fields( $config['fields'], $config['name'], $config, $type_registry );

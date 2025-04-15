@@ -73,7 +73,9 @@ class DateQueryInput {
 					],
 					'inclusive' => [
 						'type'        => 'Boolean',
-						'description' => __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'For after/before, whether exact value should be matched or not', 'wp-graphql' );
+						},
 					],
 					'compare'   => [
 						'type'        => 'String',

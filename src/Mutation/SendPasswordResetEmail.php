@@ -17,7 +17,9 @@ class SendPasswordResetEmail {
 		register_graphql_mutation(
 			'sendPasswordResetEmail',
 			[
-				'description'         => __( 'Send password reset email to user', 'wp-graphql' ),
+				'description'         => static function () {
+					return __( 'Send password reset email to user', 'wp-graphql' );
+				},
 				'inputFields'         => self::get_input_fields(),
 				'outputFields'        => self::get_output_fields(),
 				'mutateAndGetPayload' => self::mutate_and_get_payload(),
@@ -36,7 +38,9 @@ class SendPasswordResetEmail {
 				'type'        => [
 					'non_null' => 'String',
 				],
-				'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'A string that contains the user\'s username or email address.', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -50,7 +54,9 @@ class SendPasswordResetEmail {
 		return [
 			'user'    => [
 				'type'              => 'User',
-				'description'       => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
+				'description'       => static function () {
+					return __( 'The user that the password reset email was sent to', 'wp-graphql' );
+				},
 				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
 				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
@@ -58,7 +64,9 @@ class SendPasswordResetEmail {
 			],
 			'success' => [
 				'type'        => 'Boolean',
-				'description' => __( 'Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent.', 'wp-graphql' );
+				},
 			],
 		];
 	}

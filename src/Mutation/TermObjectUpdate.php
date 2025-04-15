@@ -46,15 +46,19 @@ class TermObjectUpdate {
 			[
 				'name' => [
 					'type'        => 'String',
-					// Translators: The placeholder is the name of the taxonomy for the object being mutated
-					'description' => sprintf( __( 'The name of the %1$s object to mutate', 'wp-graphql' ), $taxonomy->name ),
+					'description' => static function () use ( $taxonomy ) {
+						// Translators: The placeholder is the name of the taxonomy for the object being mutated
+						return sprintf( __( 'The name of the %1$s object to mutate', 'wp-graphql' ), $taxonomy->name );
+					},
 				],
 				'id'   => [
 					'type'        => [
 						'non_null' => 'ID',
 					],
-					// Translators: The placeholder is the taxonomy of the term being updated
-					'description' => sprintf( __( 'The ID of the %1$s object to update', 'wp-graphql' ), $taxonomy->graphql_single_name ),
+					'description' => static function () use ( $taxonomy ) {
+						// Translators: The placeholder is the taxonomy of the term being updated
+						return sprintf( __( 'The ID of the %1$s object to update', 'wp-graphql' ), $taxonomy->graphql_single_name );
+					},
 				],
 			]
 		);

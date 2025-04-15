@@ -38,11 +38,15 @@ class UserRegister {
 						'non_null' => 'String',
 					],
 					// translators: the placeholder is the name of the type of object being updated
-					'description' => __( 'A string that contains the user\'s username.', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'A string that contains the user\'s username.', 'wp-graphql' );
+					},
 				],
 				'email'    => [
 					'type'        => 'String',
-					'description' => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'A string containing the user\'s email address.', 'wp-graphql' );
+					},
 				],
 			]
 		);
