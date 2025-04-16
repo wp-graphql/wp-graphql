@@ -24,21 +24,27 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array<string,mixed>              $config The Config to set up an Input Type
-	 *
 	 * @phpstan-param InputObjectConfig $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-		$name           = $config['name'] ?? $this->inferName();
+		$name = $config['name'] ?? $this->inferName();
+		if ( ! is_string( $name ) ) {
+			$name = '';
+		}
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
+		/** @var InputObjectConfig */
 		$config = TypeRegistry::prepare_config_for_introspection( $config );
 
 		if ( array_key_exists( 'fields', $config ) && is_array( $config['fields'] ) ) {
 			$config['fields'] = function () use ( $config, $type_registry ) {
-				$fields = $this->prepare_fields( $config['fields'], $config['name'], $config, $type_registry );
-				$fields = $type_registry->prepare_fields( $fields, $config['name'] );
+				$type_name = $config['name'] ?? '';
+				if ( ! is_string( $type_name ) ) {
+					$type_name = '';
+				}
+				$fields = $this->prepare_fields( $config['fields'], $type_name, $config, $type_registry );
+				$fields = $type_registry->prepare_fields( $fields, $type_name );
 
 				return $fields;
 			};
