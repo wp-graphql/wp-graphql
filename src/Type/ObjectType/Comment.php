@@ -122,7 +122,9 @@ class Comment {
 							'description'       => static function () {
 								return __( 'ID for the comment, unique among comments.', 'wp-graphql' );
 							},
-							'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
+							'deprecationReason' => static function () {
+								return __( 'Deprecated in favor of databaseId', 'wp-graphql' );
+							},
 						],
 						'content'          => [
 							'type'        => 'String',

@@ -64,9 +64,9 @@ class TimezoneEnum {
 				'continent'   => $zone[0],
 				'city'        => $exists[1] ? $zone[1] : '',
 				'subcity'     => $exists[2] ? $zone[2] : '',
-				't_continent' => translate( str_replace( '_', ' ', $zone[0] ), 'wp-graphql' ),
-				't_city'      => $exists[1] ? translate( str_replace( '_', ' ', $zone[1] ), 'wp-graphql' ) : '',
-				't_subcity'   => $exists[2] ? translate( str_replace( '_', ' ', $zone[2] ), 'wp-graphql' ) : '',
+				't_continent' => str_replace( '_', ' ', $zone[0] ),
+				't_city'      => $exists[1] ? str_replace( '_', ' ', $zone[1] ) : '',
+				't_subcity'   => $exists[2] ? str_replace( '_', ' ', $zone[2] ) : '',
 			];
 			// phpcs:enable
 		}

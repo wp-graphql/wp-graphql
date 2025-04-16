@@ -57,7 +57,9 @@ class SendPasswordResetEmail {
 				'description'       => static function () {
 					return __( 'The user that the password reset email was sent to', 'wp-graphql' );
 				},
-				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
+				'deprecationReason' => static function () {
+					return __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' );
+				},
 				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
 				},

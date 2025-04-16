@@ -315,7 +315,9 @@ class TermObject {
 		$fields      = [
 			$single_name . 'Id' => [
 				'type'              => 'Int',
-				'deprecationReason' => __( 'Deprecated in favor of databaseId', 'wp-graphql' ),
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of databaseId', 'wp-graphql' );
+				},
 				'description'       => static function () {
 					return __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' );
 				},

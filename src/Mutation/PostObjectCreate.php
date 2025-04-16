@@ -207,7 +207,9 @@ class PostObjectCreate {
 		return [
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
-				'description' => __( 'The Post object mutation type.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The Post object mutation type.', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload, $_args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
