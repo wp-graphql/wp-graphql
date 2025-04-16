@@ -38,7 +38,7 @@ class ContentTypeEnum {
 		register_graphql_enum_type(
 			'ContentTypeEnum',
 			[
-				'description' => static function() {
+				'description' => static function () {
 					return __( 'Allowed Content Types', 'wp-graphql' );
 				},
 				'values'      => $values,
