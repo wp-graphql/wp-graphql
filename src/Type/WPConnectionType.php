@@ -374,7 +374,8 @@ class WPConnectionType {
 				'description' => function () {
 					return sprintf(
 						// translators: %s is the name of the connection.
-						__( 'Page Info on the "%s"', 'wp-graphql' ),
+						__( 'Pagination metadata specific to "%1$s" collections. Provides cursors and flags for navigating through sets of %2$s Nodes.', 'wp-graphql' ),
+						$this->connection_name,
 						$this->connection_name
 					);
 				},
@@ -595,7 +596,7 @@ class WPConnectionType {
 					'interfaces'  => [ 'WPPageInfo' ],
 					'description' => static function () use ( $connection_edge_type ) {
 						// translators: %s is the name of the connection edge.
-						return sprintf( __( 'Page Info on the connected %s', 'wp-graphql' ), $connection_edge_type );
+						return sprintf( __( 'Pagination metadata specific to "%1$s" collections. Provides cursors and flags for navigating through sets of "%2$s" Nodes.', 'wp-graphql' ), $connection_edge_type, $connection_edge_type );
 					},
 					'fields'      => PageInfo::get_fields(),
 				]
@@ -609,7 +610,7 @@ class WPConnectionType {
 					'interfaces'  => [ 'Edge' ],
 					'description' => function () {
 						// translators: %s is the name of the type the connection edge is to.
-						return sprintf( __( 'Edge between a Node and a connected %s', 'wp-graphql' ), $this->to_type );
+						return sprintf( __( 'Represents a connection to a %1$s. Contains both the %2$s Node and metadata about the relationship.', 'wp-graphql' ), $this->to_type, $this->to_type );
 					},
 					'fields'      => [
 						'node' => [
@@ -631,7 +632,7 @@ class WPConnectionType {
 					'interfaces'  => [ 'Connection' ],
 					'description' => function () {
 						// translators: %s is the name of the type the connection is to.
-						return sprintf( __( 'Connection to %s Nodes', 'wp-graphql' ), $this->to_type );
+						return sprintf( __( 'A paginated collection of %1$s Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of %2$s Nodes', 'wp-graphql' ), $this->to_type, $this->to_type );
 					},
 					'fields'      => [
 						'edges'    => [

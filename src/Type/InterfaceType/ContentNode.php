@@ -28,7 +28,7 @@ class ContentNode {
 			[
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable' ],
 				'description' => static function () {
-					return __( 'Nodes used to manage content', 'wp-graphql' );
+					return __( 'Base interface for content objects like posts, pages, and media items. Provides common fields available across these content types.', 'wp-graphql' );
 				},
 				'connections' => [
 					'contentType'         => [

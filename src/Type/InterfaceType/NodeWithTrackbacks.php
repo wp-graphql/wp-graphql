@@ -18,7 +18,7 @@ class NodeWithTrackbacks {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that can have trackbacks and pingbacks', 'wp-graphql' );
+					return __( 'Content that supports cross-site notifications when linked to by other sites. Includes fields for pingback status and linked URLs.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

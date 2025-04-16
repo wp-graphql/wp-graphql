@@ -19,7 +19,7 @@ class DatabaseIdentifier {
 			'DatabaseIdentifier',
 			[
 				'description' => static function () {
-					return __( 'Object that can be identified with a Database ID', 'wp-graphql' );
+					return __( 'An object that has a unique numeric identifier in the database. Provides consistent access to the database ID across different object types.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

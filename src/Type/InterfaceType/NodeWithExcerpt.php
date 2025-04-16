@@ -18,7 +18,7 @@ class NodeWithExcerpt {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that can have an excerpt', 'wp-graphql' );
+					return __( 'A node which provides an excerpt field, which is a condensed summary of the main content. Excerpts can be manually created or automatically generated and are often used in content listings and search results.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

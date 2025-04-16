@@ -22,7 +22,7 @@ class Comment {
 			'Comment',
 			[
 				'description' => static function () {
-					return __( 'A Comment object', 'wp-graphql' );
+					return __( 'A response or reaction to content submitted by users. Comments are typically associated with a specific content entry.', 'wp-graphql' );
 				},
 				'model'       => CommentModel::class,
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier', 'UniformResourceIdentifiable' ],

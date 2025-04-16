@@ -17,7 +17,7 @@ class PageInfo {
 			'WPPageInfo',
 			[
 				'description' => static function () {
-					return __( 'Information about pagination in a connection.', 'wp-graphql' );
+					return __( 'Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction.', 'wp-graphql' );
 				},
 				'interfaces'  => [ 'PageInfo' ],
 				'fields'      => static function () {
@@ -30,7 +30,7 @@ class PageInfo {
 			'PageInfo',
 			[
 				'description' => static function () {
-					return __( 'Information about pagination in a connection.', 'wp-graphql' );
+					return __( 'Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return self::get_fields();

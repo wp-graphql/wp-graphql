@@ -17,7 +17,7 @@ class NodeWithTemplate {
 			'NodeWithTemplate',
 			[
 				'description' => static function () {
-					return __( 'A node that can have a template associated with it', 'wp-graphql' );
+					return __( 'Content that provides template metadata. The template can help inform how the content is might be structured, styled, and presented to the user.', 'wp-graphql' );
 				},
 				'interfaces'  => [ 'Node' ],
 				'fields'      => static function () {

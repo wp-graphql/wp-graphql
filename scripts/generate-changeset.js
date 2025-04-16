@@ -146,8 +146,12 @@ const generateChangeset = async ({
   const breaking = isBreakingChange(title, body);
   const milestone = getMilestoneName(branchRef);
 
+  // Sanitize the inputs to handle special characters
+  const sanitizedTitle = title.replace(/`/g, '\\`');
+  const sanitizedBody = body.replace(/`/g, '\\`');
+
   const changesetData = {
-    title,
+    title: sanitizedTitle,
     pr,
     author,
     type: changeType,
@@ -155,10 +159,22 @@ const generateChangeset = async ({
     ...(milestone && { milestone }),
   };
 
-  const content = `---
-${yaml.dump(changesetData, { quotingType: '"' })}---
+  // Manually format the YAML to avoid js-yaml's automatic block scalar formatting
+  const yamlContent = Object.entries(changesetData)
+    .map(([key, value]) => {
+      // For string values that contain special characters, wrap in quotes
+      const formattedValue = typeof value === 'string' ?
+        `"${value.replace(/"/g, '\\"')}"` :
+        value;
+      return `${key}: ${formattedValue}`;
+    })
+    .join('\n');
 
-${body || title}
+  const content = `---
+${yamlContent}
+---
+
+${sanitizedBody || sanitizedTitle}
 `;
 
   // Generate unique filename with timestamp and PR number

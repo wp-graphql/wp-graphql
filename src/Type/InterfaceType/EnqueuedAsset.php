@@ -22,7 +22,7 @@ class EnqueuedAsset {
 			'EnqueuedAsset',
 			[
 				'description' => static function () {
-					return __( 'Asset enqueued by the CMS', 'wp-graphql' );
+					return __( 'A script or stylesheet resource that should be loaded by the client. Contains information about the resource\'s location, dependencies, and loading behavior.', 'wp-graphql' );
 				},
 				'resolveType' => static function ( $asset ) use ( $type_registry ) {
 

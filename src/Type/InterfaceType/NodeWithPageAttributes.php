@@ -18,7 +18,7 @@ class NodeWithPageAttributes {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that can have page attributes', 'wp-graphql' );
+					return __( 'Content that supports ordering metadata. Includes a menu order field which can be used for custom sorting in navigation menus and other ordered collections.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

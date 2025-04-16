@@ -17,7 +17,7 @@ class NodeWithContentEditor {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that supports the content editor', 'wp-graphql' );
+					return __( 'Content that has a main body field which can contain formatted text and media. Provides access to both raw (with appropriate permissions) and rendered versions of the content.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

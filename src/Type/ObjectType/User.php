@@ -27,7 +27,7 @@ class User {
 			'User',
 			[
 				'description' => static function () {
-					return __( 'A User object', 'wp-graphql' );
+					return __( 'A registered user account. Users can be assigned roles, author content, and have various capabilities within the site.', 'wp-graphql' );
 				},
 				'model'       => UserModel::class,
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'Commenter', 'DatabaseIdentifier' ],

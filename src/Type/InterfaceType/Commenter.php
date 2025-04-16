@@ -24,7 +24,7 @@ class Commenter {
 			'Commenter',
 			[
 				'description' => static function () {
-					return __( 'The author of a comment', 'wp-graphql' );
+					return __( 'A user or guest who has submitted a comment. Provides identification and contact information for the comment author.', 'wp-graphql' );
 				},
 				'interfaces'  => [ 'Node', 'DatabaseIdentifier' ],
 				'resolveType' => static function ( $comment_author ) use ( $type_registry ) {

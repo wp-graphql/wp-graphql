@@ -15,7 +15,7 @@ class Node {
 			'Node',
 			[
 				'description' => static function () {
-					return __( 'An object with an ID', 'wp-graphql' );
+					return __( 'An object with a globally unique identifier. All objects that can be identified by a unique ID implement this interface.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

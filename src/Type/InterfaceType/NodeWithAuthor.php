@@ -17,7 +17,7 @@ class NodeWithAuthor {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that can have an author assigned to it', 'wp-graphql' );
+					return __( 'Content that can be attributed to a specific user. Provides fields for accessing the author\'s information and establishing content ownership.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

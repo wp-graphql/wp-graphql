@@ -7,27 +7,28 @@ title: "Custom Post Types"
 
 In order to use Custom Post Types with WPGraphQL, you must configure the Post Type to `show_in_graphql` using the following fields:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `show_in_graphql` | boolean | Yes | If true, show the post type in the GraphQL Schema |
-| `graphql_single_name` | string | Yes | Camel case string with no punctuation or spaces. Needs to start with a letter (not a number) |
-| `graphql_plural_name` | string | No | Camel case string with no punctuation or spaces. Needs to start with a letter (not a number) |
-| `graphql_kind` | string | No | Allows the type representing the post type to be added to the graph as an object type, interface type or union type. Possible values are 'object', 'interface' or 'union'. Default is 'object' |
-| `graphql_resolve_type` | callable | No | The callback used to resolve the type. Only used if "graphql_kind" is set to "union" or "interface" |
-| `graphql_interfaces` | array&lt;string&gt; | No | List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node" |
-| `graphql_exclude_interfaces` | array&lt;string&gt; | No | List of Interface names the type *should not* implement. This is applied after default and custom interfaces are added |
-| `graphql_fields` | array&lt;$config&gt; | No | Array of fields to add to the Type. Applied if "graphql_kind" is "interface" or "object" |
-| `graphql_exclude_fields` | array&lt;string&gt; | No | Array of fields names to exclude from the type. Applies if "graphql_kind" is "interface" or "object" |
-| `graphql_connections` | array&lt;$config&gt; | No | Array of connection configs to register to the type. Only applies if the "graphql_kind" is "object" or "interface" |
-| `graphql_exclude_connections` | array&lt;string&gt; | No | Array of connection names to exclude from the type |
-| `graphql_union_types` | array&lt;string&gt; | No | Array of possible types the union can resolve to. Only used if "graphql_kind" is set to "union" |
-| `graphql_register_root_field` | boolean | No | Whether to register a field to the RootQuery to query a single node of this type. Default true |
-| `graphql_register_root_connection` | boolean | No | Whether to register a connection to the RootQuery to query multiple nodes of this type. Default true |
-| `graphql_exclude_mutations` | array&lt;string&gt; | No | Array of mutations to prevent from being registered. Possible values are "create", "update", "delete" |
+| Field                              | Type                 | Required | Description                                                                                                                                                                                    |
+| ---------------------------------- | -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `show_in_graphql`                  | boolean              | Yes      | If true, show the post type in the GraphQL Schema                                                                                                                                              |
+| `graphql_single_name`              | string               | Yes      | Camel case string with no punctuation or spaces. Needs to start with a letter (not a number)                                                                                                   |
+| `graphql_plural_name`              | string               | No       | Camel case string with no punctuation or spaces. Needs to start with a letter (not a number)                                                                                                   |
+| `graphql_description`              | string               | No       | Custom description for the type in the GraphQL schema. If not set, will fallback to post type's description, then a default description                                                        |
+| `graphql_kind`                     | string               | No       | Allows the type representing the post type to be added to the graph as an object type, interface type or union type. Possible values are 'object', 'interface' or 'union'. Default is 'object' |
+| `graphql_resolve_type`             | callable             | No       | The callback used to resolve the type. Only used if "graphql_kind" is set to "union" or "interface"                                                                                            |
+| `graphql_interfaces`               | array&lt;string&gt;  | No       | List of Interface names the type should implement. These will be applied in addition to default interfaces such as "Node"                                                                      |
+| `graphql_exclude_interfaces`       | array&lt;string&gt;  | No       | List of Interface names the type _should not_ implement. This is applied after default and custom interfaces are added                                                                         |
+| `graphql_fields`                   | array&lt;$config&gt; | No       | Array of fields to add to the Type. Applied if "graphql_kind" is "interface" or "object"                                                                                                       |
+| `graphql_exclude_fields`           | array&lt;string&gt;  | No       | Array of fields names to exclude from the type. Applies if "graphql_kind" is "interface" or "object"                                                                                           |
+| `graphql_connections`              | array&lt;$config&gt; | No       | Array of connection configs to register to the type. Only applies if the "graphql_kind" is "object" or "interface"                                                                             |
+| `graphql_exclude_connections`      | array&lt;string&gt;  | No       | Array of connection names to exclude from the type                                                                                                                                             |
+| `graphql_union_types`              | array&lt;string&gt;  | No       | Array of possible types the union can resolve to. Only used if "graphql_kind" is set to "union"                                                                                                |
+| `graphql_register_root_field`      | boolean              | No       | Whether to register a field to the RootQuery to query a single node of this type. Default true                                                                                                 |
+| `graphql_register_root_connection` | boolean              | No       | Whether to register a connection to the RootQuery to query multiple nodes of this type. Default true                                                                                           |
+| `graphql_exclude_mutations`        | array&lt;string&gt;  | No       | Array of mutations to prevent from being registered. Possible values are "create", "update", "delete"                                                                                          |
 
 ## Registering a new Custom Post Type
 
-This is an example of registering a new "docs" post\_type and enabling GraphQL Support.
+This is an example of registering a new "docs" post_type and enabling GraphQL Support.
 
 ```php
 add_action( 'init', function() {
@@ -39,7 +40,7 @@ add_action( 'init', function() {
       ],
       'hierarchical' => true, # set to false if you don't want parent/child relationships for the entries
       'show_in_graphql' => true, # Set to false if you want to exclude this type from the GraphQL Schema
-      'graphql_single_name' => 'document', 
+      'graphql_single_name' => 'document',
       'graphql_plural_name' => 'documents', # If set to the same name as graphql_single_name, the field name will default to `all${graphql_single_name}`, i.e. `allDocument`.
       'public' => true, # set to false if entries of the post_type should not have public URIs per entry
       'publicly_queryable' => true, # Set to false if entries should only be queryable in WPGraphQL by authenticated requests
@@ -96,7 +97,7 @@ And if your `graphql_single_name` were `Doc`, you would be able to query a singl
 
 ```graphql
 {
-  doc( id: "validIdGoesHere" ) {
+  doc(id: "validIdGoesHere") {
     id
     title
   }
@@ -107,7 +108,7 @@ And if your `graphql_single_name` were `Doc`, you would be able to query a singl
 
 All post types have the `ContentNode` Interface applied to their GraphQL Type.
 
-WPGraphQL exposes fields that a post type has registered support for using the [post\_type\_supports](https://developer.wordpress.org/reference/functions/post_type_supports/), and leaves out fields that a post type does not support.
+WPGraphQL exposes fields that a post type has registered support for using the [post_type_supports](https://developer.wordpress.org/reference/functions/post_type_supports/), and leaves out fields that a post type does not support.
 
 Supported fields are applied to the GraphQL Type using [Interfaces](/docs/interfaces/).
 

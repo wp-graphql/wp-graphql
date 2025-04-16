@@ -18,7 +18,7 @@ class NodeWithRevisions {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'A node that can have revisions', 'wp-graphql' );
+					return __( 'Content that maintains a history of changes. Provides access to previous versions of the content and the ability to restore earlier revisions.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

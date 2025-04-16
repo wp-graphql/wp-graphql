@@ -20,7 +20,7 @@ class MenuItemLinkable {
 			'MenuItemLinkable',
 			[
 				'description' => static function () {
-					return __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' );
+					return __( 'Content that can be referenced by navigation menu items. Provides the essential fields needed to create links within navigation structures.', 'wp-graphql' );
 				},
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 				'fields'      => [],

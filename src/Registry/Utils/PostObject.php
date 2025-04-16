@@ -34,9 +34,14 @@ class PostObject {
 		$single_name = $post_type_object->graphql_single_name;
 
 		$config = [
-			'description' => static function () use ( $single_name ) {
-				// translators: post object singular name w/ description
-				return sprintf( __( 'The %s type', 'wp-graphql' ), $single_name );
+			'description' => static function () use ( $post_type_object, $single_name ) {
+				return ! empty( $post_type_object->graphql_description )
+					? $post_type_object->graphql_description
+					: ( ! empty( $post_type_object->description )
+						? $post_type_object->description
+					/* translators: post object singular name w/ description */
+						: sprintf( __( 'The %s type', 'wp-graphql' ), $single_name )
+					);
 			},
 			'connections' => static::get_connections( $post_type_object ),
 			'interfaces'  => static::get_interfaces( $post_type_object ),

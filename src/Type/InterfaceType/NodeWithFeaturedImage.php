@@ -22,7 +22,7 @@ class NodeWithFeaturedImage {
 			'NodeWithFeaturedImage',
 			[
 				'description' => static function () {
-					return __( 'A node that can have a featured image set', 'wp-graphql' );
+					return __( 'Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer.', 'wp-graphql' );
 				},
 				'interfaces'  => [ 'Node' ],
 				'connections' => [

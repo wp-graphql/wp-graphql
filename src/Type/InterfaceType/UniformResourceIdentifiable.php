@@ -23,7 +23,7 @@ class UniformResourceIdentifiable {
 			[
 				'interfaces'  => [ 'Node' ],
 				'description' => static function () {
-					return __( 'Any node that has a URI', 'wp-graphql' );
+					return __( 'An interface for content that can be accessed via a unique URI/URL path. Implemented by content types that have their own permalinks.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [

@@ -17,7 +17,7 @@ class Connection {
 			'Connection',
 			[
 				'description' => static function () {
-					return __( 'A plural connection from one Node Type in the Graph to another Node Type, with support for relational data via "edges".', 'wp-graphql' );
+					return __( 'A paginated relationship between objects. Supports cursor-based pagination with edges containing relationship metadata and nodes containing the related objects.', 'wp-graphql' );
 				},
 				'fields'      => static function () {
 					return [
