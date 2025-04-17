@@ -2,7 +2,7 @@
 
 namespace WPGraphQL\Type\Enum;
 
-use WPGraphQL\Type\WPEnumType;
+	use WPGraphQL\Type\WPEnumType;
 
 class MediaItemSizeEnum {
 
@@ -23,7 +23,7 @@ class MediaItemSizeEnum {
 
 		// Create the full array with sizes and crop info
 		foreach ( $get_intermediate_image_sizes as $_size ) {
-			if ( in_array( $_size, [ 'thumbnail', 'medium', 'large' ], true ) ) {
+			if ( in_array( $_size, [ 'thumbnail', 'medium', 'medium_large', 'large', 'full' ], true ) ) {
 				$sizes[ $_size ]['width']  = \get_option( $_size . '_size_w' );
 				$sizes[ $_size ]['height'] = \get_option( $_size . '_size_h' );
 				$sizes[ $_size ]['crop']   = (bool) \get_option( $_size . '_crop' );
@@ -59,35 +59,7 @@ class MediaItemSizeEnum {
 		$sizes = self::get_image_sizes();
 
 		$values      = [];
-		$image_sizes = ! empty( $sizes ) ? $sizes : [
-			'thumbnail'    => [
-				'width'  => 150,
-				'height' => 150,
-				'crop'   => true,
-			],
-			'medium'       => [
-				'width'  => 300,
-				'height' => 300,
-				'crop'   => true,
-			],
-			'medium_large' => [
-				'width'  => 768,
-				'height' => 0,
-				'crop'   => false,
-			],
-			'large'        => [
-				'width'  => 1024,
-				'height' => 0,
-				'crop'   => false,
-			],
-			'full'         => [
-				'width'  => null,
-				'height' => null,
-				'crop'   => false,
-			],
-		];
-
-		// get all image sizes along with their dimensions
+		$image_sizes = ! empty( $sizes ) ? $sizes : [];
 
 		/**
 		 * Loop through the image_sizes
