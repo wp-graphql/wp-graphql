@@ -13,7 +13,7 @@ class PostObjectsConnectionDateColumnEnum {
 		register_graphql_enum_type(
 			'PostObjectsConnectionDateColumnEnum',
 			[
-				'description' => __( 'The column to use when filtering by date', 'wp-graphql' ),
+				'description' => __( 'Date field selectors for content filtering. Specifies which date attribute (creation date, modification date) should be used for date-based queries.', 'wp-graphql' ),
 				'values'      => [
 					'DATE'     => [
 						'value'       => 'post_date',

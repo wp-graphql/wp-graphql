@@ -13,7 +13,7 @@ class UsersConnectionSearchColumnEnum {
 		register_graphql_enum_type(
 			'UsersConnectionSearchColumnEnum',
 			[
-				'description' => __( 'Column used for searching for users.', 'wp-graphql' ),
+				'description' => __( 'User properties that can be targeted in search operations. Defines which user attributes can be searched when looking for specific users.', 'wp-graphql' ),
 				'values'      => [
 					'ID'       => [
 						'value'       => 'ID',

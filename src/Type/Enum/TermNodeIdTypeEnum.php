@@ -2,6 +2,8 @@
 
 namespace WPGraphQL\Type\Enum;
 
+use WPGraphQL\Utils\Utils;
+
 class TermNodeIdTypeEnum {
 
 	/**
@@ -30,7 +32,8 @@ class TermNodeIdTypeEnum {
 			register_graphql_enum_type(
 				$tax_object->graphql_single_name . 'IdType',
 				[
-					'description' => __( 'The Type of Identifier used to fetch a single resource. Default is ID.', 'wp-graphql' ),
+					// translators: %s is the taxonomy name.
+					'description' => sprintf( __( 'Identifier types for retrieving a specific %1$s. Determines which unique property (global ID, database ID, slug, etc.) is used to locate the %2$s.', 'wp-graphql' ), Utils::format_type_name( $tax_object->graphql_single_name ), Utils::format_type_name( $tax_object->graphql_single_name ) ),
 					'values'      => self::get_values(),
 				]
 			);

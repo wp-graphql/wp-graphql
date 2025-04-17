@@ -13,16 +13,16 @@ class PostObjectFieldFormatEnum {
 		register_graphql_enum_type(
 			'PostObjectFieldFormatEnum',
 			[
-				'description' => __( 'The format of post field data.', 'wp-graphql' ),
+				'description' => __( 'Content field rendering options. Determines whether content fields are returned as raw data or with applied formatting and transformations. Default is RENDERED.', 'wp-graphql' ),
 				'values'      => [
 					'RAW'      => [
 						'name'        => 'RAW',
-						'description' => __( 'Provide the field value directly from database. Null on unauthenticated requests.', 'wp-graphql' ),
+						'description' => __( 'Unprocessed content exactly as stored in the database, requires appropriate permissions.', 'wp-graphql' ),
 						'value'       => 'raw',
 					],
 					'RENDERED' => [
 						'name'        => 'RENDERED',
-						'description' => __( 'Provide the field value as rendered by WordPress. Default.', 'wp-graphql' ),
+						'description' => __( 'Content with all formatting and transformations applied, ready for display.', 'wp-graphql' ),
 						'value'       => 'rendered',
 					],
 				],

@@ -186,7 +186,7 @@ class TimezoneEnum {
 		register_graphql_enum_type(
 			'TimezoneEnum',
 			[
-				'description' => __( 'Available timezones', 'wp-graphql' ),
+				'description' => __( 'Standardized timezone identifiers. Represents geographical time zones using standard format for date and time operations.', 'wp-graphql' ),
 				'values'      => $enum_values,
 			]
 		);

@@ -38,7 +38,7 @@ class TaxonomyEnum {
 		register_graphql_enum_type(
 			'TaxonomyEnum',
 			[
-				'description' => __( 'Allowed taxonomies', 'wp-graphql' ),
+				'description' => __( 'Available classification systems for organizing content. Identifies the different taxonomy types that can be used for content categorization.', 'wp-graphql' ),
 				'values'      => $values,
 			]
 		);
