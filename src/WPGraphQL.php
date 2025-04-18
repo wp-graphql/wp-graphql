@@ -169,7 +169,7 @@ final class WPGraphQL {
 	 * @since 1.28.0
 	 */
 	public static function is_introspection_query(): bool {
-		return self::$is_introspection_query;
+		return (bool) self::$is_introspection_query;
 	}
 
 	/**

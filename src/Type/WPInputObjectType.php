@@ -34,9 +34,6 @@ class WPInputObjectType extends InputObjectType {
 		}
 		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
 
-		/** @var InputObjectConfig */
-		$config = TypeRegistry::prepare_config_for_introspection( $config );
-
 		if ( array_key_exists( 'fields', $config ) && is_array( $config['fields'] ) ) {
 			$config['fields'] = function () use ( $config, $type_registry ) {
 				$type_name = $config['name'] ?? '';
