@@ -158,6 +158,8 @@
 	<rule ref="SlevomatCodingStandard.TypeHints">
 		<!-- Array syntax is preferred -->
 		<exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
+		<!-- Deprecated and will be removed in Slevomat v9 -->
+		<exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat" />
 		<!-- WP dependencies are too loosely typed to implement these safely. Breaking change. -->
 		<exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
 		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
