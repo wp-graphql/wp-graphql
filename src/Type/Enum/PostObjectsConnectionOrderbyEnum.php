@@ -14,67 +14,67 @@ class PostObjectsConnectionOrderbyEnum {
 			'PostObjectsConnectionOrderbyEnum',
 			[
 				'description' => static function () {
-					return __( 'Field to order the connection by', 'wp-graphql' );
+					return __( 'Content sorting attributes for post-type objects. Identifies which content property should be used to determine result order.', 'wp-graphql' );
 				},
 				'values'      => [
 					'AUTHOR'        => [
 						'value'       => 'post_author',
 						'description' => static function () {
-							return __( 'Order by author', 'wp-graphql' );
-						},
-					],
-					'TITLE'         => [
-						'value'       => 'post_title',
-						'description' => static function () {
-							return __( 'Order by title', 'wp-graphql' );
-						},
-					],
-					'SLUG'          => [
-						'value'       => 'post_name',
-						'description' => static function () {
-							return __( 'Order by slug', 'wp-graphql' );
-						},
-					],
-					'MODIFIED'      => [
-						'value'       => 'post_modified',
-						'description' => static function () {
-							return __( 'Order by last modified date', 'wp-graphql' );
-						},
-					],
-					'DATE'          => [
-						'value'       => 'post_date',
-						'description' => static function () {
-							return __( 'Order by publish date', 'wp-graphql' );
-						},
-					],
-					'PARENT'        => [
-						'value'       => 'post_parent',
-						'description' => static function () {
-							return __( 'Order by parent ID', 'wp-graphql' );
-						},
-					],
-					'IN'            => [
-						'value'       => 'post__in',
-						'description' => static function () {
-							return __( 'Preserve the ID order given in the IN array', 'wp-graphql' );
-						},
-					],
-					'NAME_IN'       => [
-						'value'       => 'post_name__in',
-						'description' => static function () {
-							return __( 'Preserve slug order given in the NAME_IN array', 'wp-graphql' );
-						},
-					],
-					'MENU_ORDER'    => [
-						'value'       => 'menu_order',
-						'description' => static function () {
-							return __( 'Order by the menu order value', 'wp-graphql' );
+							return __( 'Ordering by content author (typically by author name).', 'wp-graphql' );
 						},
 					],
 					'COMMENT_COUNT' => [
 						'value'       => 'comment_count',
 						'description' => static function () {
-							return __( 'Order by the number of comments it has acquired', 'wp-graphql' );
+							return __( 'Ordering by popularity based on number of comments.', 'wp-graphql' );
+						},
+					],
+					'DATE'          => [
+						'value'       => 'post_date',
+						'description' => static function () {
+							return __( 'Chronological ordering by publication date.', 'wp-graphql' );
+						},
+					],
+					'IN'            => [
+						'value'       => 'post__in',
+						'description' => static function () {
+							return __( 'Maintain custom order of IDs exactly as specified in the query with the IN field.', 'wp-graphql' );
+						},
+					],
+					'MENU_ORDER'    => [
+						'value'       => 'menu_order',
+						'description' => static function () {
+							return __( 'Ordering by manually defined sort position.', 'wp-graphql' );
+						},
+					],
+					'MODIFIED'      => [
+						'value'       => 'post_modified',
+						'description' => static function () {
+							return __( 'Chronological ordering by modified date.', 'wp-graphql' );
+						},
+					],
+					'NAME_IN'       => [
+						'value'       => 'post_name__in',
+						'description' => static function () {
+							return __( 'Maintain custom order of IDs exactly as specified in the query with the NAME_IN field.', 'wp-graphql' );
+						},
+					],
+					'PARENT'        => [
+						'value'       => 'post_parent',
+						'description' => static function () {
+							return __( 'Ordering by parent-child relationship in hierarchical content.', 'wp-graphql' );
+						},
+					],
+					'SLUG'          => [
+						'value'       => 'post_name',
+						'description' => static function () {
+							return __( 'Alphabetical ordering by URL-friendly name.', 'wp-graphql' );
+						},
+					],
+					'TITLE'         => [
+						'value'       => 'post_title',
+						'description' => static function () {
+							return __( 'Alphabetical ordering by content title', 'wp-graphql' );
 						},
 					],
 				],

@@ -13,7 +13,7 @@ class AvatarRatingEnum {
 			'AvatarRatingEnum',
 			[
 				'description' => static function () {
-					return __( "What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are judged in that order. Default is the value of the 'avatar_rating' option", 'wp-graphql' );
+					return __( 'Content rating filter for user avatars. Determines the maximum maturity level of avatars to display, following standard content rating classifications (G, PG, R, X).', 'wp-graphql' );
 				},
 				'values'      => [
 					'G'  => [

@@ -14,7 +14,7 @@ class TaxonomyIdTypeEnum {
 			'TaxonomyIdTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'The Type of Identifier used to fetch a single Taxonomy node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' );
+					return __( 'Identifier types for retrieving a taxonomy definition. Determines whether to look up taxonomies by ID or name.', 'wp-graphql' );
 				},
 				'values'      => [
 					'ID'   => [

@@ -191,7 +191,7 @@ class TimezoneEnum {
 			'TimezoneEnum',
 			[
 				'description' => static function () {
-					return __( 'Available timezones', 'wp-graphql' );
+					return __( 'Standardized timezone identifiers. Represents geographical time zones using standard format for date and time operations.', 'wp-graphql' );
 				},
 				'values'      => $enum_values,
 			]

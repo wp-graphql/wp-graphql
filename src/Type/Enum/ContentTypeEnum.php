@@ -39,7 +39,7 @@ class ContentTypeEnum {
 			'ContentTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'Allowed Content Types', 'wp-graphql' );
+					return __( 'Available content entity types that can be queried or filtered. Identifies the primary content structures available in the system.', 'wp-graphql' );
 				},
 				'values'      => $values,
 			]

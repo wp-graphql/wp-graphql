@@ -14,7 +14,7 @@ class ContentTypeIdTypeEnum {
 			'ContentTypeIdTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'The Type of Identifier used to fetch a single Content Type node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' );
+					return __( 'Identifier types for retrieving a specific content type definition. Determines whether to look up content types by ID or name.', 'wp-graphql' );
 				},
 				'values'      => [
 					'ID'   => [

@@ -14,7 +14,7 @@ class UsersConnectionOrderbyEnum {
 			'UsersConnectionOrderbyEnum',
 			[
 				'description' => static function () {
-					return __( 'Field to order the connection by', 'wp-graphql' );
+					return __( 'User attribute sorting options. Determines which property of user accounts is used for ordering user listings.', 'wp-graphql' );
 				},
 				'values'      => [
 					'DISPLAY_NAME' => [

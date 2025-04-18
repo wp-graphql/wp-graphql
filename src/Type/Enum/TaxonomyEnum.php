@@ -41,7 +41,7 @@ class TaxonomyEnum {
 			'TaxonomyEnum',
 			[
 				'description' => static function () {
-					return __( 'Allowed taxonomies', 'wp-graphql' );
+					return __( 'Available classification systems for organizing content. Identifies the different taxonomy types that can be used for content categorization.', 'wp-graphql' );
 				},
 				'values'      => $values,
 			]

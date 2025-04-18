@@ -14,7 +14,7 @@ class UsersConnectionSearchColumnEnum {
 			'UsersConnectionSearchColumnEnum',
 			[
 				'description' => static function () {
-					return __( 'Column used for searching for users.', 'wp-graphql' );
+					return __( 'User properties that can be targeted in search operations. Defines which user attributes can be searched when looking for specific users.', 'wp-graphql' );
 				},
 				'values'      => [
 					'ID'       => [

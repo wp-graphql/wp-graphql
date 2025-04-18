@@ -13,7 +13,7 @@ class UserNodeIdTypeEnum {
 			'UserNodeIdTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'The Type of Identifier used to fetch a single User node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' );
+					return __( 'Identifier types for retrieving a specific user. Determines whether to look up users by ID, email, username, or other unique properties.', 'wp-graphql' );
 				},
 				'values'      => self::get_values(),
 			]

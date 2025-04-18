@@ -44,7 +44,7 @@ class MenuLocationEnum {
 			'MenuLocationEnum',
 			[
 				'description' => static function () {
-					return __( 'Registered menu locations', 'wp-graphql' );
+					return __( 'Designated areas where navigation menus can be displayed. Represents the named regions in the interface where menus can be assigned.', 'wp-graphql' );
 				},
 				'values'      => $values,
 			]

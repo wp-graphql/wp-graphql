@@ -14,7 +14,7 @@ class PostObjectsConnectionDateColumnEnum {
 			'PostObjectsConnectionDateColumnEnum',
 			[
 				'description' => static function () {
-					return __( 'The column to use when filtering by date', 'wp-graphql' );
+					return __( 'Date field selectors for content filtering. Specifies which date attribute (creation date, modification date) should be used for date-based queries.', 'wp-graphql' );
 				},
 				'values'      => [
 					'DATE'     => [

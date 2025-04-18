@@ -23,19 +23,19 @@ class ScriptLoadingStrategyEnum {
 			'ScriptLoadingStrategyEnum',
 			[
 				'description' => static function () {
-					return __( 'The strategy to use when loading the script', 'wp-graphql' );
+					return __( 'Script loading optimization attributes. Controls browser behavior for script loading to improve page performance (async or defer).', 'wp-graphql' );
 				},
 				'values'      => [
 					'ASYNC' => [
 						'value'       => 'async',
 						'description' => static function () {
-							return __( 'Use the script `async` attribute', 'wp-graphql' );
+							return __( 'Load script in parallel with page rendering, executing as soon as downloaded', 'wp-graphql' );
 						},
 					],
 					'DEFER' => [
 						'value'       => 'defer',
 						'description' => static function () {
-							return __( 'Use the script `defer` attribute', 'wp-graphql' );
+							return __( 'Download script in parallel but defer execution until page is fully parsed', 'wp-graphql' );
 						},
 					],
 				],

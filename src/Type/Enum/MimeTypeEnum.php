@@ -43,7 +43,7 @@ class MimeTypeEnum {
 			'MimeTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'The MimeType of the object', 'wp-graphql' );
+					return __( 'Media file type classification based on MIME standards. Used to identify and filter media items by their format and content type.', 'wp-graphql' );
 				},
 				'values'      => $values,
 			]

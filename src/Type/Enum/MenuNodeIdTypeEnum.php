@@ -18,7 +18,7 @@ class MenuNodeIdTypeEnum {
 			'MenuNodeIdTypeEnum',
 			[
 				'description' => static function () {
-					return __( 'The Type of Identifier used to fetch a single node. Default is "ID". To be used along with the "id" field.', 'wp-graphql' );
+					return __( 'Identifier types for retrieving a specific navigation menu. Specifies which property (ID, name, location) is used to locate a particular menu.', 'wp-graphql' );
 				},
 				'values'      => [
 					'ID'          => [
