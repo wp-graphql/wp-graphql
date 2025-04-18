@@ -16,22 +16,24 @@ class UsersConnectionOrderbyInput {
 				'description' => static function () {
 					return __( 'Options for ordering the connection', 'wp-graphql' );
 				},
-				'fields'      => [
-					'field' => [
-						'description' => static function () {
-							return __( 'The field name used to sort the results.', 'wp-graphql' );
-						},
-						'type'        => [
-							'non_null' => 'UsersConnectionOrderbyEnum',
+				'fields'      => static function () {
+					return [
+						'field' => [
+							'description' => static function () {
+								return __( 'The field name used to sort the results.', 'wp-graphql' );
+							},
+							'type'        => [
+								'non_null' => 'UsersConnectionOrderbyEnum',
+							],
 						],
-					],
-					'order' => [
-						'description' => static function () {
-							return __( 'The cardinality of the order of the connection', 'wp-graphql' );
-						},
-						'type'        => 'OrderEnum',
-					],
-				],
+						'order' => [
+							'description' => static function () {
+								return __( 'The cardinality of the order of the connection', 'wp-graphql' );
+							},
+							'type'        => 'OrderEnum',
+						],
+					];
+				},
 			]
 		);
 	}

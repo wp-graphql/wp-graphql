@@ -859,7 +859,7 @@ class TypeRegistry {
 
 			if ( ! WPGraphQL::is_introspection_query() ) {
 				// If not introspection, set to null.
-				$config[ $key ] = null;
+				$config[ $key ] = '';
 				continue;
 			}
 
