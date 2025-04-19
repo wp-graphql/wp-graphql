@@ -20,7 +20,7 @@ use WP_Post;
  * @property ?int          $menuDatabaseId
  * @property ?string       $menuId
  * @property int           $objectId
- * @property ?int          $parentDatabaseID
+ * @property ?int          $parentDatabaseId
  * @property ?string       $parentId
  * @property ?string       $target
  * @property ?string       $title
@@ -166,7 +166,7 @@ class MenuItem extends Model {
 					return $this->data->menu_item_parent;
 				},
 				'parentId'         => function () {
-					return ! empty( $this->parentDatabaseID ) ? Relay::toGlobalId( 'post', (string) $this->parentDatabaseID ) : null;
+					return ! empty( $this->parentDatabaseId ) ? Relay::toGlobalId( 'post', (string) $this->parentDatabaseId ) : null;
 				},
 				'path'             => function () {
 					$url = $this->url;
