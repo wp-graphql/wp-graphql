@@ -10,20 +10,23 @@ use WP_Post;
 /**
  * Class MenuItem - Models the data for the MenuItem object type
  *
- * @property string $id
- * @property array  $cssClasses
- * @property string $description
- * @property string $label
- * @property string $linkRelationship
- * @property int    $menuItemId
- * @property int    $databaseId
- * @property int    $objectId
- * @property string $target
- * @property string $title
- * @property string $url
- * @property string $menuId
- * @property int    $menuDatabaseId
- * @property array  $locations
+ * @property string[]      $cssClasses
+ * @property int           $databaseId
+ * @property ?string       $description
+ * @property ?string       $id
+ * @property ?string       $label
+ * @property ?string       $linkRelationship
+ * @property string[]|null $locations
+ * @property ?int          $menuDatabaseId
+ * @property ?string       $menuId
+ * @property int           $menuItemId
+ * @property int           $objectId
+ * @property ?int          $parentDatabaseID
+ * @property ?string       $parentId
+ * @property ?string       $target
+ * @property ?string       $title
+ * @property ?string       $uri
+ * @property ?string       $url
  *
  * @package WPGraphQL\Model
  */
@@ -99,15 +102,6 @@ class MenuItem extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'               => function () {
-					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
-				},
-				'parentId'         => function () {
-					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'post', $this->data->menu_item_parent ) : null;
-				},
-				'parentDatabaseId' => function () {
-					return $this->data->menu_item_parent;
-				},
 				'cssClasses'       => function () {
 					// If all we have is a non-array or an array with one empty
 					// string, return an empty array.
@@ -117,64 +111,20 @@ class MenuItem extends Model {
 
 					return $this->data->classes;
 				},
+				'databaseId'       => function () {
+					return absint( $this->data->ID );
+				},
 				'description'      => function () {
 					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
+				},
+				'id'               => function () {
+					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
 				},
 				'label'            => function () {
 					return ( ! empty( $this->data->title ) ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
 				},
 				'linkRelationship' => function () {
 					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;
-				},
-				'menuItemId'       => function () {
-					return absint( $this->data->ID );
-				},
-				'databaseId'       => function () {
-					return absint( $this->data->ID );
-				},
-				'objectId'         => function () {
-					return ( absint( $this->data->object_id ) );
-				},
-				'target'           => function () {
-					return ! empty( $this->data->target ) ? $this->data->target : null;
-				},
-				'title'            => function () {
-					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
-				},
-				'uri'              => function () {
-					$url = $this->data->url;
-
-					return ! empty( $url ) ? str_ireplace( home_url(), '', $url ) : null;
-				},
-				'url'              => function () {
-					return ! empty( $this->data->url ) ? $this->data->url : null;
-				},
-				'path'             => function () {
-					$url = $this->url;
-
-					if ( ! empty( $url ) ) {
-						/** @var array<string,mixed> $parsed */
-						$parsed = wp_parse_url( $url );
-						if ( isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
-							return $parsed['path'];
-						}
-					}
-
-					return $url;
-				},
-				'order'            => function () {
-					return $this->data->menu_order;
-				},
-				'menuId'           => function () {
-					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
-				},
-				'menuDatabaseId'   => function () {
-					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
-					if ( is_wp_error( $menus ) ) {
-						throw new UserError( esc_html( $menus->get_error_message() ) );
-					}
-
-					return ! empty( $menus[0]->term_id ) ? $menus[0]->term_id : null;
 				},
 				'locations'        => function () {
 					if ( empty( $this->menuDatabaseId ) ) {
@@ -195,6 +145,59 @@ class MenuItem extends Model {
 					}
 
 					return $locations;
+				},
+				'menuDatabaseId'   => function () {
+					$menus = wp_get_object_terms( $this->data->ID, 'nav_menu' );
+					if ( is_wp_error( $menus ) ) {
+						throw new UserError( esc_html( $menus->get_error_message() ) );
+					}
+
+					return ! empty( $menus[0]->term_id ) ? $menus[0]->term_id : null;
+				},
+				'menuId'           => function () {
+					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
+				},
+				'menuItemId'       => function () {
+					return absint( $this->data->ID );
+				},
+				'objectId'         => function () {
+					return absint( $this->data->object_id );
+				},
+				'order'            => function () {
+					return $this->data->menu_order;
+				},
+				'parentDatabaseId' => function () {
+					return $this->data->menu_item_parent;
+				},
+				'parentId'         => function () {
+					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'post', $this->data->menu_item_parent ) : null;
+				},
+				'path'             => function () {
+					$url = $this->url;
+
+					if ( ! empty( $url ) ) {
+						/** @var array<string,mixed> $parsed */
+						$parsed = wp_parse_url( $url );
+						if ( isset( $parsed['host'] ) && strpos( home_url(), $parsed['host'] ) ) {
+							return $parsed['path'];
+						}
+					}
+
+					return $url;
+				},
+				'target'           => function () {
+					return ! empty( $this->data->target ) ? $this->data->target : null;
+				},
+				'title'            => function () {
+					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
+				},
+				'uri'              => function () {
+					$url = $this->data->url;
+
+					return ! empty( $url ) ? str_ireplace( home_url(), '', $url ) : null;
+				},
+				'url'              => function () {
+					return ! empty( $this->data->url ) ? $this->data->url : null;
 				},
 			];
 		}

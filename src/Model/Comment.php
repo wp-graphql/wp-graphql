@@ -8,29 +8,29 @@ use WP_Comment;
 /**
  * Class Comment - Models data for Comments
  *
- * @property int    $comment_ID
- * @property int    $comment_parent_id
- * @property int    $commentId
- * @property int    $parentDatabaseId
- * @property int    $userId
- * @property string $agent
- * @property string $authorIp
- * @property string $comment_author
- * @property string $comment_author_url
- * @property string $commentAuthor
- * @property string $commentAuthorUrl
- * @property string $commentAuthorEmail
- * @property string $contentRaw
- * @property string $contentRendered
- * @property string $date
- * @property string $dateGmt
- * @property string $id
- * @property string $karma
- * @property string $link
- * @property string $parentId
- * @property string $status
- * @property string $type
- * @property string $uri
+ * @property ?string $agent
+ * @property string  $authorIp
+ * @property string  $commentAuthor
+ * @property string  $comment_author
+ * @property ?string $commentAuthorEmail
+ * @property ?string $commentAuthorUrl
+ * @property string  $comment_author_url
+ * @property int     $commentId
+ * @property int     $comment_ID
+ * @property int     $comment_parent_id
+ * @property ?string $contentRaw
+ * @property ?string $contentRendered
+ * @property ?string $date
+ * @property ?string $dateGmt
+ * @property ?string $id
+ * @property ?string $karma
+ * @property ?string $link
+ * @property int     $parentDatabaseId
+ * @property string  $parentId
+ * @property ?string $status
+ * @property ?string $type
+ * @property ?string $uri
+ * @property ?int    $userId
  *
  * @package WPGraphQL\Model
  */
@@ -117,17 +117,33 @@ class Comment extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                 => function () {
-					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
+				'agent'              => function () {
+					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
 				},
-				'commentId'          => function () {
-					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
+				'authorIp'           => function () {
+					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
 				},
-				'databaseId'         => function () {
-					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
+				'approved'           => function () {
+					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '1.13.0' );
+					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
+				},
+				'commentAuthor'      => function () {
+					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
+				},
+				'comment_author'     => function () {
+					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
+				},
+				'comment_author_url' => function () {
+					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
+				},
+				'commentAuthorUrl'   => function () {
+					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
 				},
 				'commentAuthorEmail' => function () {
 					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
+				},
+				'commentId'          => function () {
+					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
 				},
 				'comment_ID'         => function () {
 					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : 0;
@@ -138,33 +154,6 @@ class Comment extends Model {
 				'comment_parent_id'  => function () {
 					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
 				},
-				'parentDatabaseId'   => function () {
-					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
-				},
-				'parentId'           => function () {
-					return ! empty( $this->comment_parent_id ) ? Relay::toGlobalId( 'comment', $this->data->comment_parent ) : null;
-				},
-				'comment_author'     => function () {
-					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
-				},
-				'comment_author_url' => function () {
-					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
-				},
-				'commentAuthor'      => function () {
-					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;
-				},
-				'commentAuthorUrl'   => function () {
-					return ! empty( $this->data->comment_author_url ) ? $this->data->comment_author_url : null;
-				},
-				'authorIp'           => function () {
-					return ! empty( $this->data->comment_author_IP ) ? $this->data->comment_author_IP : null;
-				},
-				'date'               => function () {
-					return ! empty( $this->data->comment_date ) ? $this->data->comment_date : null;
-				},
-				'dateGmt'            => function () {
-					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
-				},
 				'contentRaw'         => function () {
 					return ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 				},
@@ -172,6 +161,18 @@ class Comment extends Model {
 					$content = ! empty( $this->data->comment_content ) ? $this->data->comment_content : null;
 
 					return $this->html_entity_decode( apply_filters( 'comment_text', $content, $this->data ), 'contentRendered', false );
+				},
+				'databaseId'         => function () {
+					return ! empty( $this->data->comment_ID ) ? $this->data->comment_ID : 0;
+				},
+				'date'               => function () {
+					return ! empty( $this->data->comment_date ) ? $this->data->comment_date : null;
+				},
+				'dateGmt'            => function () {
+					return ! empty( $this->data->comment_date_gmt ) ? $this->data->comment_date_gmt : null;
+				},
+				'id'                 => function () {
+					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment', $this->data->comment_ID ) : null;
 				},
 				'karma'              => function () {
 					return ! empty( $this->data->comment_karma ) ? $this->data->comment_karma : null;
@@ -181,9 +182,11 @@ class Comment extends Model {
 
 					return ! empty( $link ) ? urldecode( $link ) : null;
 				},
-				'approved'           => function () {
-					_doing_it_wrong( __METHOD__, 'The approved field is deprecated in favor of `status`', '1.13.0' );
-					return ! empty( $this->data->comment_approved ) && 'hold' !== $this->data->comment_approved;
+				'parentDatabaseId'   => function () {
+					return ! empty( $this->data->comment_parent ) ? absint( $this->data->comment_parent ) : 0;
+				},
+				'parentId'           => function () {
+					return ! empty( $this->comment_parent_id ) ? Relay::toGlobalId( 'comment', $this->data->comment_parent ) : null;
 				},
 				'status'             => function () {
 					if ( ! is_numeric( $this->data->comment_approved ) ) {
@@ -191,9 +194,6 @@ class Comment extends Model {
 					}
 
 					return '1' === $this->data->comment_approved ? 'approve' : 'hold';
-				},
-				'agent'              => function () {
-					return ! empty( $this->data->comment_agent ) ? $this->data->comment_agent : null;
 				},
 				'type'               => function () {
 					return ! empty( $this->data->comment_type ) ? $this->data->comment_type : null;

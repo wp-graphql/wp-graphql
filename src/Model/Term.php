@@ -9,19 +9,19 @@ use WP_Term;
 /**
  * Class Term - Models data for Terms
  *
- * @property string $id
- * @property int    $term_id
- * @property int    $databaseId
- * @property int    $count
- * @property string $description
- * @property string $name
- * @property string $slug
- * @property int    $termGroupId
- * @property int    $termTaxonomyId
- * @property string $taxonomyName
- * @property string $link
- * @property string $parentId
- * @property int    $parentDatabaseId
+ * @property ?int    $count
+ * @property ?int    $databaseId
+ * @property ?string $description
+ * @property ?string $id
+ * @property ?string $link
+ * @property ?string $name
+ * @property ?string $parentId
+ * @property ?int    $parentDatabaseId
+ * @property ?string $slug
+ * @property ?string $taxonomyName
+ * @property int     $term_id
+ * @property ?int    $termGroupId
+ * @property ?int    $termTaxonomyId
  *
  * @package WPGraphQL\Model
  */
@@ -117,46 +117,14 @@ class Term extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                       => function () {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
-				},
-				'term_id'                  => function () {
-					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
+				'count'                    => function () {
+					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
 				},
 				'databaseId'               => function () {
 					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
-				'count'                    => function () {
-					return ! empty( $this->data->count ) ? absint( $this->data->count ) : null;
-				},
 				'description'              => function () {
 					return ! empty( $this->data->description ) ? $this->html_entity_decode( $this->data->description, 'description' ) : null;
-				},
-				'name'                     => function () {
-					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
-				},
-				'slug'                     => function () {
-					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
-				},
-				'termGroupId'              => function () {
-					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
-				},
-				'termTaxonomyId'           => function () {
-					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
-				},
-				'taxonomyName'             => function () {
-					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
-				},
-				'link'                     => function () {
-					$link = get_term_link( $this->data->term_id );
-
-					return ( ! is_wp_error( $link ) ) ? $link : null;
-				},
-				'parentId'                 => function () {
-					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', (string) $this->data->parent ) : null;
-				},
-				'parentDatabaseId'         => function () {
-					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
 				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
@@ -176,6 +144,38 @@ class Term extends Model {
 					$wp_styles->queue = [];
 
 					return $queue;
+				},
+				'id'                       => function () {
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
+				},
+				'link'                     => function () {
+					$link = get_term_link( $this->data->term_id );
+
+					return ( ! is_wp_error( $link ) ) ? $link : null;
+				},
+				'name'                     => function () {
+					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
+				},
+				'parentDatabaseId'         => function () {
+					return ! empty( $this->data->parent ) ? $this->data->parent : null;
+				},
+				'parentId'                 => function () {
+					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', (string) $this->data->parent ) : null;
+				},
+				'slug'                     => function () {
+					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
+				},
+				'taxonomyName'             => function () {
+					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
+				},
+				'term_id'                  => function () {
+					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
+				},
+				'termGroupId'              => function () {
+					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
+				},
+				'termTaxonomyId'           => function () {
+					return ! empty( $this->data->term_taxonomy_id ) ? absint( $this->data->term_taxonomy_id ) : null;
 				},
 				'uri'                      => function () {
 					$link = $this->link;

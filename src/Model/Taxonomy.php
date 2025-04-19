@@ -7,27 +7,27 @@ use GraphQLRelay\Relay;
 /**
  * Class Taxonomy - Models data for taxonomies
  *
- * @property string $id
- * @property array  $object_type
- * @property string $name
- * @property string $label
- * @property string $description
- * @property bool   $public
- * @property bool   $hierarchical
- * @property bool   $showUi
- * @property bool   $showInMenu
- * @property bool   $showInNavMenus
- * @property bool   $showCloud
- * @property bool   $showInQuickEdit
- * @property bool   $showInAdminColumn
- * @property bool   $showInRest
- * @property string $restBase
- * @property string $restControllerClass
- * @property bool   $showInGraphql
- * @property string $graphqlSingleName
- * @property string $graphql_single_name
- * @property string $graphqlPluralName
- * @property string $graphql_plural_name
+ * @property string        $description
+ * @property ?string       $graphqlPluralName
+ * @property ?string       $graphql_plural_name
+ * @property ?string       $graphqlSingleName
+ * @property ?string       $graphql_single_name
+ * @property bool          $hierarchical
+ * @property ?string       $id
+ * @property ?string       $label
+ * @property ?string       $name
+ * @property string[]|null $object_type
+ * @property bool          $public
+ * @property ?string       $restBase
+ * @property ?string       $restControllerClass
+ * @property bool          $showCloud
+ * @property bool          $showInAdminColumn
+ * @property ?bool         $showInGraphql
+ * @property bool          $showInMenu
+ * @property bool          $showInNavMenus
+ * @property bool          $showInQuickEdit
+ * @property bool          $showInRest
+ * @property bool          $showUi
  *
  * @package WPGraphQL\Model
  */
@@ -85,56 +85,8 @@ class Taxonomy extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                  => function () {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
-				},
-				'object_type'         => function () {
-					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
-				},
-				'name'                => function () {
-					return ! empty( $this->data->name ) ? $this->data->name : null;
-				},
-				'label'               => function () {
-					return ! empty( $this->data->label ) ? $this->data->label : null;
-				},
 				'description'         => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : '';
-				},
-				'public'              => function () {
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
-				},
-				'hierarchical'        => function () {
-					return true === $this->data->hierarchical;
-				},
-				'showUi'              => function () {
-					return true === $this->data->show_ui;
-				},
-				'showInMenu'          => function () {
-					return true === $this->data->show_in_menu;
-				},
-				'showInNavMenus'      => function () {
-					return true === $this->data->show_in_nav_menus;
-				},
-				'showCloud'           => function () {
-					return true === $this->data->show_tagcloud;
-				},
-				'showInQuickEdit'     => function () {
-					return true === $this->data->show_in_quick_edit;
-				},
-				'showInAdminColumn'   => function () {
-					return true === $this->data->show_admin_column;
-				},
-				'showInRest'          => function () {
-					return true === $this->data->show_in_rest;
-				},
-				'restBase'            => function () {
-					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
-				},
-				'restControllerClass' => function () {
-					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
-				},
-				'showInGraphql'       => function () {
-					return true === $this->data->show_in_graphql;
 				},
 				'graphqlSingleName'   => function () {
 					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
@@ -147,6 +99,55 @@ class Taxonomy extends Model {
 				},
 				'graphql_plural_name' => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				},
+				'hierarchical'        => function () {
+					return true === $this->data->hierarchical;
+				},
+				'id'                  => function () {
+					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
+				},
+				'label'               => function () {
+					return ! empty( $this->data->label ) ? $this->data->label : null;
+				},
+				'name'                => function () {
+					return ! empty( $this->data->name ) ? $this->data->name : null;
+				},
+				'object_type'         => function () {
+					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
+				},
+				'public'              => function () {
+					// @todo this is a bug
+					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
+				},
+				'restBase'            => function () {
+					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
+				},
+				'restControllerClass' => function () {
+					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
+				},
+				'showCloud'           => function () {
+					return true === $this->data->show_tagcloud;
+				},
+				'showInAdminColumn'   => function () {
+					return true === $this->data->show_admin_column;
+				},
+				'showInGraphql'       => function () {
+					return true === $this->data->show_in_graphql;
+				},
+				'showInMenu'          => function () {
+					return true === $this->data->show_in_menu;
+				},
+				'showInNavMenus'      => function () {
+					return true === $this->data->show_in_nav_menus;
+				},
+				'showInQuickEdit'     => function () {
+					return true === $this->data->show_in_quick_edit;
+				},
+				'showInRest'          => function () {
+					return true === $this->data->show_in_rest;
+				},
+				'showUi'              => function () {
+					return true === $this->data->show_ui;
 				},
 			];
 		}
