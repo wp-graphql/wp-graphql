@@ -180,7 +180,7 @@ final class Extensions {
 	 *
 	 * @return array<string, array<string, mixed>> List of installed plugins.
 	 */
-	private function get_installed_plugins() {
+	private function get_installed_plugins(): array {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			// @phpstan-ignore requireOnce.fileNotFound
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -210,7 +210,7 @@ final class Extensions {
 	 * @param array<string,mixed> $extension The extension to sanitize.
 	 * @return array<string,mixed> The sanitized extension.
 	 */
-	private function sanitize_extension( array $extension ) {
+	private function sanitize_extension( array $extension ): array {
 		return [
 			'name'              => ! empty( $extension['name'] ) ? sanitize_text_field( $extension['name'] ) : null,
 			'description'       => ! empty( $extension['description'] ) ? sanitize_text_field( $extension['description'] ) : null,
@@ -280,7 +280,7 @@ final class Extensions {
 	 *
 	 * @return PopulatedExtension[] The populated extensions.
 	 */
-	private function populate_installation_data( $extensions ) {
+	private function populate_installation_data( $extensions ): array {
 		$installed_plugins = $this->get_installed_plugins();
 
 		$populated_extensions = [];

@@ -157,11 +157,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 /**
- * Initialize the plugin tracker
- *
- * @return void
+ * Initialize the plugin tracker.
  */
-function graphql_init_appsero_telemetry() {
+function graphql_init_appsero_telemetry(): void {
 	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on.
 	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
 		return;

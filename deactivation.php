@@ -21,10 +21,8 @@ function graphql_deactivation_callback() {
 
 /**
  * Delete data on deactivation
- *
- * @return void
  */
-function delete_graphql_data() {
+function delete_graphql_data(): void {
 
 	if ( ! class_exists( 'WPGraphQL' ) ) {
 		return;
