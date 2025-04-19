@@ -133,7 +133,7 @@ class PostObjects {
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
 					} else {
-						$id = $post->ID;
+						$id = $post->databaseId;
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );

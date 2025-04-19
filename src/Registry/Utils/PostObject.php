@@ -124,7 +124,7 @@ class PostObject {
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
 					} else {
-						$id = $post->ID;
+						$id = $post->databaseId;
 					}
 
 					$resolver = new CommentConnectionResolver( $post, $args, $context, $info );
@@ -172,7 +172,7 @@ class PostObject {
 				'connectionArgs'     => PostObjects::get_connection_args( [], $post_type_object ),
 				'resolve'            => static function ( Post $post, $args, $context, $info ) {
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-					$resolver->set_query_arg( 'post_parent', $post->ID );
+					$resolver->set_query_arg( 'post_parent', $post->databaseId );
 
 					return $resolver->get_connection();
 				},
@@ -203,7 +203,7 @@ class PostObject {
 					),
 					'resolve'        => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
 						$taxonomies = \WPGraphQL::get_allowed_taxonomies();
-						$object_id  = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
+						$object_id  = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->databaseId;
 
 						if ( empty( $object_id ) ) {
 							return null;
@@ -225,7 +225,7 @@ class PostObject {
 				'queryClass'     => 'WP_Term_Query',
 				'connectionArgs' => TermObjects::get_connection_args(),
 				'resolve'        => static function ( Post $post, $args, AppContext $context, $info ) use ( $tax_object ) {
-					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->ID;
+					$object_id = true === $post->isPreview && ! empty( $post->parentDatabaseId ) ? $post->parentDatabaseId : $post->databaseId;
 
 					if ( empty( $object_id ) || ! absint( $object_id ) ) {
 						return null;
@@ -391,7 +391,7 @@ class PostObject {
 				'deprecationReason' => __( 'Deprecated in favor of the databaseId field', 'wp-graphql' ),
 				'description'       => __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' ),
 				'resolve'           => static function ( Post $post ) {
-					return absint( $post->ID );
+					return absint( $post->databaseId );
 				},
 			],
 			'hasPassword'       => [
