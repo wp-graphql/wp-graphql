@@ -161,7 +161,7 @@ class AdminNotices {
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
 
 		// If not a valid config, bail early.
-		if ( ! $this->is_valid_config( $config ) ) {
+		if ( ! $this->is_valid_config( $filtered_notice ) ) {
 			return [];
 		}
 
