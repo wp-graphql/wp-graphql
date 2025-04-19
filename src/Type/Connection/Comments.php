@@ -41,7 +41,7 @@ class Comments {
 					'resolve'  => static function ( User $user, $args, $context, $info ) {
 						$resolver = new CommentConnectionResolver( $user, $args, $context, $info );
 
-						return $resolver->set_query_arg( 'user_id', absint( $user->userId ) )->get_connection();
+						return $resolver->set_query_arg( 'user_id', absint( $user->databaseId ) )->get_connection();
 					},
 
 				]
@@ -76,7 +76,7 @@ class Comments {
 					'resolve'       => static function ( Comment $comment, $args, $context, $info ) {
 						$resolver = new CommentConnectionResolver( $comment, $args, $context, $info );
 
-						return $resolver->set_query_arg( 'parent', absint( $comment->commentId ) )->get_connection();
+						return $resolver->set_query_arg( 'parent', absint( $comment->databaseId ) )->get_connection();
 					},
 				]
 			)
