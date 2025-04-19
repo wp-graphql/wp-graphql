@@ -14,58 +14,55 @@ use WP_Post;
 /**
  * Class Post - Models data for the Post object type
  *
- * @property string|int|null $authorDatabaseId
- * @property ?string         $authorId
- * @property int             $commentCount
- * @property ?string         $commentStatus
- * @property ?string         $contentRaw
- * @property ?string         $contentRendered
- * @property ?int            $databaseId
- * @property ?string         $date
- * @property ?string         $dateGmt
- * @property ?int            $editLastId
- * @property string[]|null   $editLock
- * @property ?string         $enclosure
- * @property ?string         $excerptRaw
- * @property ?string         $excerptRendered
- * @property ?int            $featuredImageDatabaseId
- * @property ?string         $featuredImageId
- * @property ?string         $guid
- * @property bool            $hasPassword
- * @property ?string         $id
- * @property int             $ID
- * @property bool            $isFrontPage
- * @property bool            $isPostsPage
- * @property bool            $isPreview
- * @property bool            $isPrivacyPage
- * @property bool            $isRevision
- * @property bool            $isSticky
- * @property ?string         $link
- * @property ?int            $menuOrder
- * @property ?string         $modified
- * @property ?string         $modifiedGmt
- * @property ?string         $pageTemplate
- * @property ?int            $parentDatabaseId
- * @property ?string         $parentId
- * @property ?string         $password
- * @property ?string         $pinged
- * @property ?string         $pingStatus
- * @property string|int|null $post_author
- * @property ?string         $post_status
- * @property ?string         $post_type
- * @property int             $previewRevisionDatabaseId
- * @property ?string         $slug
- * @property ?string         $status
+ * @property ?int          $authorDatabaseId
+ * @property ?string       $authorId
+ * @property int           $commentCount
+ * @property ?string       $commentStatus
+ * @property ?string       $contentRaw
+ * @property ?string       $contentRendered
+ * @property ?int          $databaseId
+ * @property ?string       $date
+ * @property ?string       $dateGmt
+ * @property ?int          $editLastId
+ * @property string[]|null $editLock
+ * @property ?string       $enclosure
+ * @property ?string       $excerptRaw
+ * @property ?string       $excerptRendered
+ * @property ?int          $featuredImageDatabaseId
+ * @property ?string       $featuredImageId
+ * @property ?string       $guid
+ * @property bool          $hasPassword
+ * @property ?string       $id
+ * @property bool          $isFrontPage
+ * @property bool          $isPostsPage
+ * @property bool          $isPreview
+ * @property bool          $isPrivacyPage
+ * @property bool          $isRevision
+ * @property bool          $isSticky
+ * @property ?string       $link
+ * @property ?int          $menuOrder
+ * @property ?string       $modified
+ * @property ?string       $modifiedGmt
+ * @property ?string       $pageTemplate
+ * @property ?int          $parentDatabaseId
+ * @property ?string       $parentId
+ * @property ?string       $password
+ * @property ?string       $pinged
+ * @property ?string       $pingStatus
+ * @property ?string       $post_type
+ * @property int           $previewRevisionDatabaseId
+ * @property ?string       $slug
+ * @property ?string       $status
  * @property array{
  *  __typename: string,
  *  templateName: string
- * }                         $template
- * @property ?string         $titleRaw
- * @property ?string         $titleRendered
- * @property ?string         $toPing
- * @property ?string         $uri
+ * }                       $template
+ * @property ?string       $titleRaw
+ * @property ?string       $titleRendered
+ * @property ?string       $toPing
+ * @property ?string       $uri
  *
- * // Attachment specific fields
+ * Attachment specific fields:
  * @property string|null              $altText
  * @property string|null              $captionRaw
  * @property string|null              $captionRendered
@@ -76,6 +73,11 @@ use WP_Post;
  * @property string|null              $mediaType
  * @property string|null              $mimeType
  * @property string|null              $sourceUrl
+ *
+ * Aliases:
+ * @property ?int    $ID
+ * @property ?int    $post_author
+ * @property ?string $post_status
  */
 class Post extends Model {
 
@@ -156,7 +158,11 @@ class Post extends Model {
 			'databaseId',
 			'enqueuedScriptsQueue',
 			'enqueuedStylesheetsQueue',
+			'hasPassword',
 			'id',
+			'isFrontPage',
+			'isPostsPage',
+			'isPrivacyPage',
 			'isRestricted',
 			'link',
 			'post_status',
@@ -165,10 +171,6 @@ class Post extends Model {
 			'status',
 			'titleRendered',
 			'uri',
-			'isPostsPage',
-			'isFrontPage',
-			'isPrivacyPage',
-			'hasPassword',
 		];
 
 		if ( isset( $this->post_type_object->graphql_single_name ) ) {
@@ -416,27 +418,14 @@ class Post extends Model {
 				'authorDatabaseId'          => function () {
 					if ( true === $this->isPreview ) {
 						$parent_post = get_post( $this->data->post_parent );
-						if ( empty( $parent_post ) ) {
-							return null;
-						}
 
-						return $parent_post->post_author;
+						return ! empty( $parent_post->post_author ) ? (int) $parent_post->post_author : null;
 					}
 
 					return ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
 				},
 				'authorId'                  => function () {
-					if ( true === $this->isPreview ) {
-						$parent_post = get_post( $this->data->post_parent );
-						if ( empty( $parent_post ) ) {
-							return null;
-						}
-						$id = (int) $parent_post->post_author;
-					} else {
-						$id = ! empty( $this->data->post_author ) ? (int) $this->data->post_author : null;
-					}
-
-					return Relay::toGlobalId( 'user', (string) $id );
+					return ! empty( $this->authorDatabaseId ) ? Relay::toGlobalId( 'user', (string) $this->authorDatabaseId ) : null;
 				},
 				'commentCount'              => function () {
 					return ! empty( $this->data->comment_count ) ? absint( $this->data->comment_count ) : 0;
@@ -540,10 +529,7 @@ class Post extends Model {
 					return ! empty( $this->data->post_password );
 				},
 				'id'                        => function () {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
-				},
-				'ID'                        => function () {
-					return $this->data->ID;
+					return ! empty( $this->data->post_type && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
 				},
 				'isFrontPage'               => function () {
 					if ( 'page' !== $this->data->post_type || 'page' !== get_option( 'show_on_front' ) ) {
@@ -568,7 +554,7 @@ class Post extends Model {
 				'isPreview'                 => function () {
 					if ( $this->isRevision ) {
 						$revisions = wp_get_post_revisions(
-							$this->parentDatabaseId,
+							$this->data->post_parent,
 							[
 								'posts_per_page' => 1,
 								'fields'         => 'ids',
@@ -601,7 +587,7 @@ class Post extends Model {
 					return 'revision' === $this->data->post_type;
 				},
 				'isSticky'                  => function () {
-					return is_sticky( $this->databaseId );
+					return is_sticky( $this->data->ID );
 				},
 				'link'                      => function () {
 					$link = get_permalink( $this->data->ID );
@@ -632,33 +618,18 @@ class Post extends Model {
 					return ! empty( $this->data->post_parent ) ? absint( $this->data->post_parent ) : null;
 				},
 				'parentId'                  => function () {
-					return ( ! empty( $this->data->post_type ) && ! empty( $this->data->post_parent ) ) ? Relay::toGlobalId( 'post', (string) $this->data->post_parent ) : null;
+					return ( ! empty( $this->data->post_type ) && ! empty( $this->parentDatabaseId ) ) ? Relay::toGlobalId( 'post', (string) $this->parentDatabaseId ) : null;
 				},
 				'password'                  => function () {
 					return ! empty( $this->data->post_password ) ? $this->data->post_password : null;
 				},
 				'pinged'                    => function () {
-					$punged = get_pung( $this->databaseId );
+					$punged = get_pung( $this->data->ID );
 
-					return ! empty( implode( ',', (array) $punged ) ) ? $punged : null;
+					return empty( $punged ) ? null : implode( ',', (array) $punged );
 				},
 				'pingStatus'                => function () {
 					return ! empty( $this->data->ping_status ) ? $this->data->ping_status : null;
-				},
-				'post_author'               => function () {
-					if ( $this->isPreview ) {
-						$parent_post = get_post( $this->parentDatabaseId );
-						if ( empty( $parent_post ) ) {
-							return null;
-						}
-
-						return (int) $parent_post->post_author;
-					}
-
-					return ! empty( $this->data->post_author ) ? $this->data->post_author : null;
-				},
-				'post_status'               => function () {
-					return ! empty( $this->data->post_status ) ? $this->data->post_status : null;
 				},
 				'post_type'                 => function () {
 					return ! empty( $this->data->post_type ) ? $this->data->post_type : null;
@@ -702,13 +673,14 @@ class Post extends Model {
 							return $template;
 						}
 
+						/** @var \WP_Post $parent_post */
 						$registered_templates = wp_get_theme()->get_page_templates( $parent_post );
 
 						if ( empty( $registered_templates ) ) {
 							return $template;
 						}
-						$set_template  = get_post_meta( $this->parentDatabaseId, '_wp_page_template', true );
-						$template_name = get_page_template_slug( $this->parentDatabaseId );
+						$set_template  = get_post_meta( $parent_post->ID, '_wp_page_template', true );
+						$template_name = get_page_template_slug( $parent_post->ID );
 
 						if ( empty( $set_template ) ) {
 							$set_template = get_post_meta( $this->data->ID, '_wp_page_template', true );
@@ -761,7 +733,7 @@ class Post extends Model {
 					return empty( $processedTitle ) ? null : $processedTitle;
 				},
 				'toPing'                    => function () {
-					$to_ping = get_to_ping( $this->databaseId );
+					$to_ping = get_to_ping( $this->data->ID );
 
 					return ! empty( $to_ping ) ? implode( ',', (array) $to_ping ) : null;
 				},
@@ -782,6 +754,17 @@ class Post extends Model {
 					}
 
 					return ! empty( $uri ) ? str_ireplace( home_url(), '', $uri ) : null;
+				},
+
+				// Aliases.
+				'ID'                        => function () {
+					return $this->databaseId;
+				},
+				'post_author'               => function () {
+					return $this->authorDatabaseId;
+				},
+				'post_status'               => function () {
+					return $this->status;
 				},
 			];
 
@@ -857,9 +840,7 @@ class Post extends Model {
 				$this->fields = array_merge( $this->fields, $attachment_fields );
 			}
 
-			/**
-			 * Set the {post_type}Id field to the Model.
-			 */
+			// Deprecated.
 			if ( isset( $this->post_type_object ) && isset( $this->post_type_object->graphql_single_name ) ) {
 				$type_id                  = $this->post_type_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = function () {

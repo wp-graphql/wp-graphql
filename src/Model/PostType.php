@@ -11,8 +11,6 @@ use GraphQLRelay\Relay;
  * @property bool          $deleteWithUser
  * @property ?string       $description
  * @property bool          $excludeFromSearch
- * @property ?string       $graphql_plural_name
- * @property ?string       $graphql_single_name
  * @property ?string       $graphqlPluralName
  * @property ?string       $graphqlSingleName
  * @property bool          $hasArchive
@@ -33,6 +31,10 @@ use GraphQLRelay\Relay;
  * @property bool          $showInRest
  * @property bool          $showUi
  * @property string[]|null $taxonomies
+ *
+ * Aliases:
+ * @property ?string       $graphql_plural_name
+ * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
  */
@@ -106,17 +108,11 @@ class PostType extends Model {
 				'excludeFromSearch'   => function () {
 					return true === $this->data->exclude_from_search;
 				},
-				'graphqlSingleName'   => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
-				'graphql_single_name' => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
 				'graphqlPluralName'   => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
-				'graphql_plural_name' => function () {
-					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				'graphqlSingleName'   => function () {
+					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
 				'hasArchive'          => function () {
 					return ! empty( $this->uri );
@@ -125,7 +121,7 @@ class PostType extends Model {
 					return true === $this->data->hierarchical || ! empty( $this->data->hierarchical );
 				},
 				'id'                  => function () {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
+					return ! empty( $this->name ) ? Relay::toGlobalId( 'post_type', $this->name ) : null;
 				},
 				// If the homepage settings are to set to
 				'isPostsPage'         => function () {
@@ -195,8 +191,16 @@ class PostType extends Model {
 					return ! empty( $object_taxonomies ) ? $object_taxonomies : null;
 				},
 				'uri'                 => function () {
-					$link = get_post_type_archive_link( $this->name );
+					$link = get_post_type_archive_link( $this->data->name );
 					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
+				},
+
+				// Aliases.
+				'graphql_plural_name' => function () {
+					return $this->graphqlPluralName;
+				},
+				'graphql_single_name' => function () {
+					return $this->graphqlSingleName;
 				},
 			];
 		}

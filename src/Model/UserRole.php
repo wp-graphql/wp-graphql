@@ -62,9 +62,9 @@ class UserRole extends Model {
 				'capabilities' => function () {
 					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
 						return null;
-					} else {
-						return array_keys( $this->data['capabilities'] );
 					}
+
+					return array_keys( $this->data['capabilities'] );
 				},
 				'displayName'  => function () {
 					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;

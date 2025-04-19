@@ -19,9 +19,11 @@ use WP_Term;
  * @property ?int    $parentDatabaseId
  * @property ?string $slug
  * @property ?string $taxonomyName
- * @property int     $term_id
  * @property ?int    $termGroupId
  * @property ?int    $termTaxonomyId
+ *
+ * Aliases:
+ * @property ?int     $term_id
  *
  * @package WPGraphQL\Model
  */
@@ -146,12 +148,12 @@ class Term extends Model {
 					return $queue;
 				},
 				'id'                       => function () {
-					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->data->term_id ) ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
+					return ( ! empty( $this->data->taxonomy ) && ! empty( $this->databaseId ) ) ? Relay::toGlobalId( 'term', (string) $this->databaseId ) : null;
 				},
 				'link'                     => function () {
 					$link = get_term_link( $this->data->term_id );
 
-					return ( ! is_wp_error( $link ) ) ? $link : null;
+					return ! is_wp_error( $link ) ? $link : null;
 				},
 				'name'                     => function () {
 					return ! empty( $this->data->name ) ? $this->html_entity_decode( $this->data->name, 'name', true ) : null;
@@ -160,16 +162,13 @@ class Term extends Model {
 					return ! empty( $this->data->parent ) ? $this->data->parent : null;
 				},
 				'parentId'                 => function () {
-					return ! empty( $this->data->parent ) ? Relay::toGlobalId( 'term', (string) $this->data->parent ) : null;
+					return ! empty( $this->parentDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->parentDatabaseId ) : null;
 				},
 				'slug'                     => function () {
 					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
 				},
 				'taxonomyName'             => function () {
 					return ! empty( $this->taxonomy_object->name ) ? $this->taxonomy_object->name : null;
-				},
-				'term_id'                  => function () {
-					return ( ! empty( $this->data->term_id ) ) ? absint( $this->data->term_id ) : null;
 				},
 				'termGroupId'              => function () {
 					return ! empty( $this->data->term_group ) ? absint( $this->data->term_group ) : null;
@@ -180,9 +179,9 @@ class Term extends Model {
 				'uri'                      => function () {
 					$link = $this->link;
 
-					$maybe_url = wp_parse_url( $link );
+					$maybe_url = isset( $link ) ? wp_parse_url( $link ) : null;
 
-					// If this isn't a URL, we can assume it's been filtered and just return the link value.
+					// If wp_parse_url() returned false, we can assume it's been filtered and just return the link value.
 					if ( false === $maybe_url ) {
 						return $link;
 					}
@@ -191,8 +190,14 @@ class Term extends Model {
 					// For subdirectory multisites, this replaces the home_url which includes the subdirectory.
 					return ! empty( $link ) ? str_ireplace( home_url(), '', $link ) : null;
 				},
+
+				// Aliases.
+				'term_id'                  => function () {
+					return $this->databaseId;
+				},
 			];
 
+			// Deprecated.
 			if ( isset( $this->taxonomy_object, $this->taxonomy_object->graphql_single_name ) ) {
 				$type_id                  = $this->taxonomy_object->graphql_single_name . 'Id';
 				$this->fields[ $type_id ] = absint( $this->data->term_id );

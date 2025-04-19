@@ -28,7 +28,6 @@ use WP_User;
  * @property ?string       $slug
  * @property string        $uri
  * @property ?string       $url
- * @property ?int          $userId
  * @property ?string       $username
  *
  * @package WPGraphQL\Model
@@ -70,19 +69,19 @@ class User extends Model {
 		$this->data      = $user;
 
 		$allowed_restricted_fields = [
-			'isRestricted',
-			'id',
-			'userId',
 			'databaseId',
-			'name',
-			'firstName',
-			'lastName',
 			'description',
+			'enqueuedScriptsQueue',
+			'enqueuedStylesheetsQueue',
+			'firstName',
+			'id',
+			'isRestricted',
+			'lastName',
+			'name',
 			'slug',
 			'uri',
 			'url',
-			'enqueuedScriptsQueue',
-			'enqueuedStylesheetsQueue',
+			'userId',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
@@ -177,7 +176,7 @@ class User extends Model {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
 				'databaseId'               => function () {
-					return $this->userId;
+					return ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null;
 				},
 				'description'              => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
@@ -252,9 +251,13 @@ class User extends Model {
 				'url'                      => function () {
 					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
 				},
-				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
 				'username'                 => function () {
 					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
+				},
+
+				// Deprecated.
+				'userId'                   => function () {
+					return $this->databaseId;
 				},
 			];
 		}

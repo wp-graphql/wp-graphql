@@ -48,7 +48,7 @@ class CommentAuthor extends Model {
 					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'id'         => function () {
-					return ! empty( $this->data->comment_ID ) ? Relay::toGlobalId( 'comment_author', $this->data->comment_ID ) : null;
+					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'comment_author', (string) $this->databaseId ) : null;
 				},
 				'name'       => function () {
 					return ! empty( $this->data->comment_author ) ? $this->data->comment_author : null;

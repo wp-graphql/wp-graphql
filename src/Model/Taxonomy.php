@@ -9,9 +9,7 @@ use GraphQLRelay\Relay;
  *
  * @property string        $description
  * @property ?string       $graphqlPluralName
- * @property ?string       $graphql_plural_name
  * @property ?string       $graphqlSingleName
- * @property ?string       $graphql_single_name
  * @property bool          $hierarchical
  * @property ?string       $id
  * @property ?string       $label
@@ -28,6 +26,10 @@ use GraphQLRelay\Relay;
  * @property bool          $showInQuickEdit
  * @property bool          $showInRest
  * @property bool          $showUi
+ *
+ * Aliases:
+ * @property ?string       $graphql_plural_name
+ * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
  */
@@ -88,23 +90,17 @@ class Taxonomy extends Model {
 				'description'         => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : '';
 				},
-				'graphqlSingleName'   => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
-				'graphql_single_name' => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
 				'graphqlPluralName'   => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
-				'graphql_plural_name' => function () {
-					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				'graphqlSingleName'   => function () {
+					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
 				'hierarchical'        => function () {
 					return true === $this->data->hierarchical;
 				},
 				'id'                  => function () {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
+					return ! empty( $this->name ) ? Relay::toGlobalId( 'taxonomy', $this->name ) : null;
 				},
 				'label'               => function () {
 					return ! empty( $this->data->label ) ? $this->data->label : null;
@@ -148,6 +144,14 @@ class Taxonomy extends Model {
 				},
 				'showUi'              => function () {
 					return true === $this->data->show_ui;
+				},
+
+				// Aliases
+				'graphql_plural_name' => function () {
+					return $this->graphqlPluralName;
+				},
+				'graphql_single_name' => function () {
+					return $this->graphqlSingleName;
 				},
 			];
 		}

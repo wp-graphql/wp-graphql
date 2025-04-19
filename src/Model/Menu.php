@@ -11,7 +11,6 @@ use GraphQLRelay\Relay;
  * @property ?int          $databaseId
  * @property ?string       $id
  * @property string[]|null $locations
- * @property ?int          $menuId
  * @property ?string       $name
  * @property ?string       $slug
  *
@@ -76,7 +75,7 @@ class Menu extends Model {
 					return ! empty( $this->data->term_id ) ? absint( $this->data->term_id ) : null;
 				},
 				'id'         => function () {
-					return ! empty( $this->data->term_id ) ? Relay::toGlobalId( 'term', (string) $this->data->term_id ) : null;
+					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'term', (string) $this->databaseId ) : null;
 				},
 				'locations'  => function () {
 					$menu_locations = get_theme_mod( 'nav_menu_locations' );
@@ -94,14 +93,16 @@ class Menu extends Model {
 
 					return $locations;
 				},
-				'menuId'     => function () {
-					return ! empty( $this->data->term_id ) ? absint( $this->data->term_id ) : null;
-				},
 				'name'       => function () {
 					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
 				'slug'       => function () {
 					return ! empty( $this->data->slug ) ? urldecode( $this->data->slug ) : null;
+				},
+
+				// Deprecated.
+				'menuId'     => function () {
+					return $this->databaseId;
 				},
 			];
 		}

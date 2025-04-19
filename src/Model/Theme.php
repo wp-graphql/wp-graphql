@@ -7,16 +7,16 @@ use GraphQLRelay\Relay;
 /**
  * Class Theme - Models data for themes
  *
- * @property ?string         $author
- * @property ?string         $authorUri
- * @property ?string         $description
- * @property ?string         $id
- * @property ?string         $name
- * @property ?string         $screenshot
- * @property ?string         $slug
- * @property ?string         $themeUri
- * @property string[]|null   $tags
- * @property string|int|null $version
+ * @property ?string       $author
+ * @property ?string       $authorUri
+ * @property ?string       $description
+ * @property ?string       $id
+ * @property ?string       $name
+ * @property ?string       $screenshot
+ * @property ?string       $slug
+ * @property ?string       $themeUri
+ * @property string[]|null $tags
+ * @property ?string       $version
  *
  * @package WPGraphQL\Model
  */
@@ -75,8 +75,7 @@ class Theme extends Model {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'id'          => function () {
-					$stylesheet = $this->data->get_stylesheet();
-					return ( ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
+					return ! empty( $this->slug ) ? Relay::toGlobalId( 'theme', $this->slug ) : null;
 				},
 				'name'        => function () {
 					$name = $this->data->get( 'Name' );
@@ -98,7 +97,7 @@ class Theme extends Model {
 					return ! empty( $this->data->tags ) ? $this->data->tags : null;
 				},
 				'version'     => function () {
-					return ! empty( $this->data->version ) ? $this->data->version : null;
+					return ! empty( $this->data->version ) ? (string) $this->data->version : null;
 				},
 			];
 		}

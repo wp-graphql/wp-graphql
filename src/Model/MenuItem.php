@@ -19,7 +19,6 @@ use WP_Post;
  * @property string[]|null $locations
  * @property ?int          $menuDatabaseId
  * @property ?string       $menuId
- * @property int           $menuItemId
  * @property int           $objectId
  * @property ?int          $parentDatabaseID
  * @property ?string       $parentId
@@ -115,13 +114,13 @@ class MenuItem extends Model {
 					return absint( $this->data->ID );
 				},
 				'description'      => function () {
-					return ( ! empty( $this->data->description ) ) ? $this->data->description : null;
+					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'id'               => function () {
-					return ! empty( $this->data->ID ) ? Relay::toGlobalId( 'post', $this->data->ID ) : null;
+					return ! empty( $this->databaseId ) ? Relay::toGlobalId( 'post', (string) $this->databaseId ) : null;
 				},
 				'label'            => function () {
-					return ( ! empty( $this->data->title ) ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
+					return ! empty( $this->data->title ) ? $this->html_entity_decode( $this->data->title, 'label', true ) : null;
 				},
 				'linkRelationship' => function () {
 					return ! empty( $this->data->xfn ) ? $this->data->xfn : null;
@@ -157,9 +156,6 @@ class MenuItem extends Model {
 				'menuId'           => function () {
 					return ! empty( $this->menuDatabaseId ) ? Relay::toGlobalId( 'term', (string) $this->menuDatabaseId ) : null;
 				},
-				'menuItemId'       => function () {
-					return absint( $this->data->ID );
-				},
 				'objectId'         => function () {
 					return absint( $this->data->object_id );
 				},
@@ -170,7 +166,7 @@ class MenuItem extends Model {
 					return $this->data->menu_item_parent;
 				},
 				'parentId'         => function () {
-					return ! empty( $this->data->menu_item_parent ) ? Relay::toGlobalId( 'post', $this->data->menu_item_parent ) : null;
+					return ! empty( $this->parentDatabaseID ) ? Relay::toGlobalId( 'post', (string) $this->parentDatabaseID ) : null;
 				},
 				'path'             => function () {
 					$url = $this->url;
@@ -192,12 +188,17 @@ class MenuItem extends Model {
 					return ( ! empty( $this->data->attr_title ) ) ? $this->data->attr_title : null;
 				},
 				'uri'              => function () {
-					$url = $this->data->url;
+					$url = $this->url;
 
 					return ! empty( $url ) ? str_ireplace( home_url(), '', $url ) : null;
 				},
 				'url'              => function () {
 					return ! empty( $this->data->url ) ? $this->data->url : null;
+				},
+
+				// Deprecated.
+				'menuItemId'       => function () {
+					return $this->databaseId;
 				},
 			];
 		}

@@ -70,7 +70,7 @@ class Plugin extends Model {
 					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
 				},
 				'id'          => function () {
-					return ! empty( $this->data['Path'] ) ? Relay::toGlobalId( 'plugin', $this->data['Path'] ) : null;
+					return ! empty( $this->path ) ? Relay::toGlobalId( 'plugin', $this->path ) : null;
 				},
 				'name'        => function () {
 					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
