@@ -155,7 +155,7 @@ class TypeRegistry {
 	 *
 	 * @var array<string>|null
 	 */
-	protected static $introspection_keys = null;
+	protected static ?array $introspection_keys = null;
 
 	/**
 	 * The loaders needed to register types
@@ -846,6 +846,8 @@ class TypeRegistry {
 	 * @param array<string,mixed> $config The config to prepare.
 	 *
 	 * @return array<string,mixed> The prepared config.
+	 *
+	 * @internal
 	 */
 	public static function prepare_config_for_introspection( array $config ): array {
 
@@ -999,8 +1001,6 @@ class TypeRegistry {
 			$field_config['name'] = lcfirst( $field_name );
 		}
 
-		$field_config = self::prepare_config_for_introspection( $field_config );
-
 		if ( ! isset( $field_config['type'] ) ) {
 			graphql_debug(
 				sprintf(
@@ -1087,6 +1087,8 @@ class TypeRegistry {
 		if ( empty( $field_config['args'] ) ) {
 			unset( $field_config['args'] );
 		}
+
+		$field_config = self::prepare_config_for_introspection( $field_config );
 
 		return $field_config;
 	}
