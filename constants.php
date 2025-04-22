@@ -33,6 +33,6 @@ function graphql_setup_constants() {
 
 	// The minimum version of PHP this plugin requires to work properly
 	if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
-		define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
+		define( 'GRAPHQL_MIN_PHP_VERSION', '7.4' );
 	}
 }
