@@ -130,7 +130,10 @@ jobs:
           fi
 
           # Use the PR body from the extracted info
-          echo "$PR_BODY" > /tmp/pr_body.txt
+          PR_BODY="${{ steps.pr_info.outputs.pr_body }}"
+
+          # Escape any shell variables in the PR body
+          PR_BODY="${PR_BODY//\$/\\$}"
 
           # Generate/regenerate the changeset
           node scripts/generate-changeset.js \
@@ -143,12 +146,31 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
+          # Pull latest changes before committing
+          git pull origin develop
+
           # Check if there are changes to commit
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .changesets/
             git commit -m "chore: update changeset for PR #${{ steps.pr_info.outputs.pr_number }}"
-            git push
-            echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
+
+            # Try to push changes, with retries
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git pull origin develop && git push; then
+                echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "Failed to push changes after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+                echo "Push failed, retrying... (attempt $RETRY_COUNT of $MAX_RETRIES)"
+                sleep 5
+              fi
+            done
           else
             echo "No changes to commit"
           fi
