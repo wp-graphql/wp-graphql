@@ -7,14 +7,24 @@ const formatPrBody = (body) => {
   // First, normalize line endings to LF
   let formatted = body.replace(/\r\n?/g, '\n');
 
-  // Remove HTML comments (including multi-line)
-  formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
+  // Remove HTML comments and their content (including multi-line)
+  // This is a more aggressive approach that ensures all comment blocks are removed
+  formatted = formatted
+    // First pass: Remove HTML comments with their content
+    .replace(/<!--[\s\S]*?-->/g, '')
+    // Second pass: Remove any remaining comment markers (in case of malformed comments)
+    .replace(/<!--[\s\S]*$/, '') // Remove from opening comment to end if no closing
+    .replace(/^[\s\S]*?-->/, '') // Remove from start to first closing comment
+    .replace(/<!--|\s*-->/g, ''); // Remove any remaining comment markers
 
   // Remove extra whitespace and empty lines that might be left after removing comments
   formatted = formatted
     .split('\n')
     .map(line => line.trim())
-    .filter(line => line.length > 0)
+    .filter(line => {
+      // Remove lines that are just dashes or empty
+      return line.length > 0 && !/^-+$/.test(line);
+    })
     .join('\n');
 
   // Escape special characters that could cause shell issues
@@ -23,6 +33,9 @@ const formatPrBody = (body) => {
     .replace(/\$/g, '\\$')    // Escape dollar signs
     .replace(/"/g, '\\"')     // Escape double quotes
     .replace(/'/g, "\\'");    // Escape single quotes
+
+  // Debug output to stderr (won't affect the actual output)
+  console.error('Formatted content:', formatted);
 
   return formatted;
 };
