@@ -132,8 +132,10 @@ jobs:
           # Use the PR body from the extracted info
           PR_BODY="${{ steps.pr_info.outputs.pr_body }}"
 
-          # Escape any shell variables in the PR body
-          PR_BODY="${PR_BODY//\$/\\$}"
+          # Escape special characters in the PR body
+          PR_BODY="${PR_BODY//\$/\\$}"  # Escape dollar signs
+          PR_BODY="${PR_BODY//\`/\\`}"  # Escape backticks
+          PR_BODY="${PR_BODY//\"/\\\"}" # Escape double quotes
 
           # Generate/regenerate the changeset
           node scripts/generate-changeset.js \
