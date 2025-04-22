@@ -12,8 +12,13 @@ on:
       - master
       - release/*
     paths:
+      - '.github/workflows/testing-integration.yml'
       - '**.php'
-      - '.github/workflows/*.yml'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'tests/**'
+      - 'codeception.dist.yml'
+      - 'docker-compose.yml'
       - '!docs/**'
 
 # Cancel previous workflow run groups that have not completed.
