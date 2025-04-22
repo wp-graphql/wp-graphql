@@ -4,8 +4,8 @@
 const formatPrBody = (body) => {
   if (!body) return '';
 
-  // Remove any carriage returns
-  let formatted = body.replace(/\r/g, '');
+  // First, normalize line endings to LF
+  let formatted = body.replace(/\r\n?/g, '\n');
 
   // Remove HTML comments (including multi-line)
   formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
@@ -36,4 +36,4 @@ if (!prBody) {
 }
 
 // Output the formatted body
-console.log(formatPrBody(prBody));
+process.stdout.write(formatPrBody(prBody));
