@@ -41,6 +41,3 @@ parameters:
       analyseAndScan:
         - node_modules (?)
 
-    ignoreErrors:
-      - # @TODO these should be restored
-        identifier: missingType.iterableValue

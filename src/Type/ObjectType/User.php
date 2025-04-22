@@ -83,7 +83,7 @@ class User {
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
 						'resolve'     => static function ( \WPGraphQL\Model\User $user ) {
-							return absint( $user->userId );
+							return (int) $user->databaseId;
 						},
 					],
 					'capabilities'           => [

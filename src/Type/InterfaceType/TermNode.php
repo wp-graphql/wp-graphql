@@ -66,7 +66,7 @@ class TermNode {
 						'type'        => [ 'non_null' => 'Int' ],
 						'description' => __( 'Identifies the primary key from the database.', 'wp-graphql' ),
 						'resolve'     => static function ( Term $term ) {
-							return absint( $term->term_id );
+							return absint( $term->databaseId );
 						},
 					],
 					'count'          => [

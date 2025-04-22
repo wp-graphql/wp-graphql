@@ -7,6 +7,10 @@ use Exception;
 /**
  * Class Model - Abstract class for modeling data for all core types
  *
+ * @property bool $isPrivate
+ * @property bool $isPublic
+ * @property bool $isRestricted
+ *
  * @package WPGraphQL\Model
  */
 abstract class Model {

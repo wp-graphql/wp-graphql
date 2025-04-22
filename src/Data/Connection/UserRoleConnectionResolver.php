@@ -76,7 +76,7 @@ class UserRoleConnectionResolver extends AbstractConnectionResolver {
 			current_user_can( 'list_users' ) ||
 			(
 				$this->source instanceof User &&
-				get_current_user_id() === $this->source->userId
+				get_current_user_id() === $this->source->databaseId
 			)
 		) {
 			return true;
