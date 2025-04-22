@@ -129,24 +129,25 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Write PR body to a temporary file to avoid shell escaping issues
-          echo "${{ steps.pr_info.outputs.pr_body }}" > /tmp/pr_body.txt
+          # Write PR body to a temporary file using base64 to avoid shell interpretation
+          echo '${{ steps.pr_info.outputs.pr_body }}' | base64 -d > /tmp/pr_body.txt 2>/dev/null || echo '${{ steps.pr_info.outputs.pr_body }}' > /tmp/pr_body.txt
 
           # Format the PR body using our helper script, reading from file
-          FORMATTED_BODY=$(node scripts/utils/format-pr-body.js "$(cat /tmp/pr_body.txt)")
+          # Redirect stderr to avoid printing any HTML comment warnings
+          FORMATTED_BODY=$(node scripts/utils/format-pr-body.js "$(cat /tmp/pr_body.txt)" 2>/dev/null)
 
-          # Write formatted body to a file to avoid shell interpretation issues
-          echo "$FORMATTED_BODY" > /tmp/formatted_body.txt
+          # Write formatted body to a file using base64 encoding to avoid shell interpretation
+          echo "$FORMATTED_BODY" | base64 > /tmp/formatted_body.base64
 
           # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(cat /tmp/formatted_body.txt)"
+            --body="$(base64 -d < /tmp/formatted_body.base64)"
 
           # Clean up temporary files
-          rm -f /tmp/pr_body.txt /tmp/formatted_body.txt
+          rm -f /tmp/pr_body.txt /tmp/formatted_body.base64
 
           # Commit and push the changeset
           git config --global user.name "GitHub Actions"
