@@ -13,7 +13,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php: [ '8.1', '8.0', '7.4', '7.3' ]
+        php: [ '8.1', '8.0', '7.4' ]
         wordpress: [ '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1', '6.0' ]
         include:
           # WordPress versions above the PHP testing matrix.
@@ -43,36 +43,20 @@ jobs:
             php: '8.0'
           - wordpress: '6.7'
             php: '7.4'
-          - wordpress: '6.7'
-            php: '7.3'
           - wordpress: '6.6'
             php: '8.0'
           - wordpress: '6.6'
             php: '7.4'
-          - wordpress: '6.6'
-            php: '7.3'
           - wordpress: '6.5'
             php: '8.0'
           - wordpress: '6.5'
             php: '7.4'
-          - wordpress: '6.5'
-            php: '7.3'
           - wordpress: '6.4'
             php: '7.4'
-          - wordpress: '6.4'
-            php: '7.3'
           - wordpress: '6.3'
             php: '7.4'
-          - wordpress: '6.3'
-            php: '7.3'
           - wordpress: '6.2'
             php: '7.4'
-          - wordpress: '6.2'
-            php: '7.3'
-          - wordpress: '6.1'
-            php: '7.3'
-          - wordpress: '6.0'
-            php: '7.3'
 
       fail-fast: false
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}

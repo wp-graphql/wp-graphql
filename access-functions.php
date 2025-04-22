@@ -875,49 +875,6 @@ function graphql_get_endpoint_url() {
 }
 
 /**
- * Polyfill for PHP versions below 7.3
- *
- * @return int|string|null
- *
- * @since 0.10.0
- */
-if ( ! function_exists( 'array_key_first' ) ) {
-
-	/**
-	 * @param mixed[] $arr
-	 *
-	 * @return int|string|null
-	 */
-	function array_key_first( array $arr ) {
-		foreach ( $arr as $key => $value ) {
-			return $key;
-		}
-		return null;
-	}
-}
-
-/**
- * Polyfill for PHP versions below 7.3
- *
- * @return mixed|string|int
- *
- * @since 0.10.0
- */
-if ( ! function_exists( 'array_key_last' ) ) {
-
-	/**
-	 * @param mixed[] $arr
-	 *
-	 * @return int|string|null
-	 */
-	function array_key_last( array $arr ) {
-		end( $arr );
-
-		return key( $arr );
-	}
-}
-
-/**
  * Polyfill for PHP versions below 8.0
  */
 if ( ! function_exists( 'str_starts_with' ) ) {
