@@ -7,6 +7,16 @@ const formatPrBody = (body) => {
   // Remove any carriage returns
   let formatted = body.replace(/\r/g, '');
 
+  // Remove HTML comments (including multi-line)
+  formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
+
+  // Remove extra whitespace and empty lines that might be left after removing comments
+  formatted = formatted
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('\n');
+
   // Escape special characters that could cause shell issues
   formatted = formatted
     .replace(/`/g, '\\`')     // Escape backticks
