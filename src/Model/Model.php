@@ -430,10 +430,8 @@ abstract class Model {
 
 	/**
 	 * Adds the model visibility fields to the data
-	 *
-	 * @return void
 	 */
-	private function add_model_visibility() {
+	private function add_model_visibility(): void {
 
 		/**
 		 * @todo: potentially abstract this out into a more central spot

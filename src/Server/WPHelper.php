@@ -67,7 +67,7 @@ class WPHelper extends Helper {
 	 * @param array<string,mixed>|array<string,mixed>[] $params Request parameters.
 	 * @return array<string,mixed>|array<string,mixed>[]
 	 */
-	private function parse_params( $params ) {
+	private function parse_params( $params ): array {
 		if ( isset( $params[0] ) ) {
 			return array_map( [ $this, 'parse_extensions' ], $params );
 		}
@@ -81,7 +81,7 @@ class WPHelper extends Helper {
 	 * @param  array<string,mixed> $params Request parameters.
 	 * @return array<string,mixed>
 	 */
-	private function parse_extensions( $params ) {
+	private function parse_extensions( $params ): array {
 		if ( isset( $params['extensions'] ) && is_string( $params['extensions'] ) ) {
 			$tmp = json_decode( $params['extensions'], true );
 			if ( ! json_last_error() ) {
