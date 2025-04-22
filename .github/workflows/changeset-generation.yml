@@ -129,15 +129,16 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Create a temporary file to store the PR body
-          echo '${{ steps.pr_info.outputs.pr_body }}' > /tmp/pr_body.txt
+          # Create a temporary file to store the PR body, converting CRLF to LF
+          echo '${{ steps.pr_info.outputs.pr_body }}' | tr -d '\r' > /tmp/pr_body.txt
 
           # Generate/regenerate the changeset using the body from the file
+          # Use tr to ensure we're using LF line endings when reading the file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(cat /tmp/pr_body.txt)"
+            --body="$(cat /tmp/pr_body.txt | tr -d '\r')"
 
           # Clean up
           rm /tmp/pr_body.txt
