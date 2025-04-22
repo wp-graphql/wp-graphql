@@ -15,7 +15,7 @@ WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.co
 
 - **Minimum**: WordPress 6.0+
 - **Recommended**: Latest WordPress version
-- **Tested up to**: WordPress 6.7.1
+- **Tested up to**: WordPress 6.8
 - **Testing**: WPGraphQL is actively tested against the latest WordPress version and one major version back. We may test with older versions but do not actively support them and _may_ drop testing for older versions at any time.
 
 ### WordPress Features
@@ -258,6 +258,6 @@ WPGraphQL works with any GraphQL client that follows the specification:
 
 WPGraphQL is actively tested against:
 - PHP versions 7.4 through 8.3
-- WordPress versions 6.0 through 6.7
+- WordPress versions 6.0 through 6.8
 - Both single site and multisite configurations
 - MariaDB 10.x

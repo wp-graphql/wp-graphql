@@ -843,49 +843,6 @@ function graphql_get_endpoint_url(): string {
 }
 
 /**
- * Polyfill for PHP versions below 7.3
- *
- * @return int|string|null
- *
- * @since 0.10.0
- */
-if ( ! function_exists( 'array_key_first' ) ) {
-
-	/**
-	 * @param mixed[] $arr
-	 *
-	 * @return int|string|null
-	 */
-	function array_key_first( array $arr ) {
-		foreach ( $arr as $key => $value ) {
-			return $key;
-		}
-		return null;
-	}
-}
-
-/**
- * Polyfill for PHP versions below 7.3
- *
- * @return mixed|string|int
- *
- * @since 0.10.0
- */
-if ( ! function_exists( 'array_key_last' ) ) {
-
-	/**
-	 * @param mixed[] $arr
-	 *
-	 * @return int|string|null
-	 */
-	function array_key_last( array $arr ) {
-		end( $arr );
-
-		return key( $arr );
-	}
-}
-
-/**
  * Polyfill for PHP versions below 8.0
  */
 if ( ! function_exists( 'str_starts_with' ) ) {
@@ -924,8 +881,15 @@ if ( ! function_exists( 'str_ends_with' ) ) {
 }
 
 /**
- * @param string       $slug A unique slug to identify the admin notice by
- * @param array<mixed> $config The config for the admin notice. Determines visibility, context, etc.
+ * @param string              $slug A unique slug to identify the admin notice by
+ * @param array<string,mixed> $config The config for the admin notice. Determines visibility, context, etc.
+ *
+ * @phpstan-param array{
+ *  message: string,
+ *  type?: 'error'|'warning'|'success'|'info',
+ *  is_dismissable?: bool,
+ *  conditions?: callable():bool
+ * } $config
  */
 function register_graphql_admin_notice( string $slug, array $config ): void {
 	add_action(
@@ -939,7 +903,12 @@ function register_graphql_admin_notice( string $slug, array $config ): void {
 /**
  * Get the admin notices registered for the WPGraphQL plugin screens
  *
- * @return array|mixed[][] An array of admin notices
+ * @return array<string,array{
+ *  message: string,
+ *  type?: 'error'|'warning'|'success'|'info',
+ *  is_dismissable?: bool,
+ *  conditions?: callable():bool,
+ * }>
  */
 function get_graphql_admin_notices(): array {
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
