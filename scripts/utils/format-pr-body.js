@@ -1,25 +1,23 @@
 /**
  * Helper script to format PR body content for use in changeset generation
  */
-const sanitizeHtml = require('sanitize-html');
-
 const formatPrBody = (body) => {
   if (!body) return '';
 
   // First, normalize line endings to LF
   let formatted = body.replace(/\r\n?/g, '\n');
 
-  // Use sanitize-html to safely remove HTML comments and tags
-  formatted = sanitizeHtml(formatted, {
-    allowedTags: [], // Remove all HTML tags
-    allowedAttributes: {}, // Remove all attributes
-    exclusiveFilter: function(frame) {
-      // Remove HTML comments
-      return frame.type === 'comment';
-    },
-  });
+  // Remove HTML comments and their content (including multi-line)
+  // This is a more aggressive approach that ensures all comment blocks are removed
+  formatted = formatted
+    // First pass: Remove HTML comments with their content
+    .replace(/<!--[\s\S]*?-->/g, '')
+    // Second pass: Remove any remaining comment markers (in case of malformed comments)
+    .replace(/<!--[\s\S]*$/, '') // Remove from opening comment to end if no closing
+    .replace(/^[\s\S]*?-->/, '') // Remove from start to first closing comment
+    .replace(/<!--|\s*-->/g, ''); // Remove any remaining comment markers
 
-  // Remove extra whitespace and empty lines
+  // Remove extra whitespace and empty lines that might be left after removing comments
   formatted = formatted
     .split('\n')
     .map(line => line.trim())
@@ -47,19 +45,20 @@ const formatPrBody = (body) => {
     .replace(/</g, '\\<')     // Escape less than
     .replace(/>/g, '\\>');    // Escape greater than
 
-  // Debug output to stderr (won't affect the actual output)
-  console.error('Formatted content:', formatted);
-
   return formatted;
 };
 
-// Get the PR body from command line argument
-const prBody = process.argv[2];
+// If running as a script
+if (require.main === module) {
+  const prBody = process.argv[2];
 
-if (!prBody) {
-  console.error('No PR body provided');
-  process.exit(1);
+  if (!prBody) {
+    console.error('No PR body provided');
+    process.exit(1);
+  }
+
+  process.stdout.write(formatPrBody(prBody));
+} else {
+  // If imported as a module
+  module.exports = formatPrBody;
 }
-
-// Output the formatted body
-process.stdout.write(formatPrBody(prBody));

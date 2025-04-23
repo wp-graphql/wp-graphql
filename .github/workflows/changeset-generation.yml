@@ -132,21 +132,21 @@ jobs:
           # Create a temporary directory with a unique name
           TEMP_DIR=$(mktemp -d)
 
-          # Write PR body to a temporary file using base64 encoding to avoid shell interpretation
-          echo '${{ steps.pr_info.outputs.pr_body }}' | base64 > "$TEMP_DIR/pr_body.base64"
-
-          # Decode the base64 content for the formatter
-          base64 --decode < "$TEMP_DIR/pr_body.base64" > "$TEMP_DIR/pr_body.txt"
-
-          # Format the PR body using our helper script
-          node scripts/utils/format-pr-body.js "$(cat "$TEMP_DIR/pr_body.txt")" | base64 > "$TEMP_DIR/formatted_body.base64"
+          # Format the PR body using our helper script, passing content directly via node -e
+          node -e "
+            const formatPrBody = require('./scripts/utils/format-pr-body.js');
+            const fs = require('fs');
+            const prBody = '${{ steps.pr_info.outputs.pr_body }}';
+            const formatted = formatPrBody(prBody);
+            fs.writeFileSync('$TEMP_DIR/formatted_body.txt', formatted);
+          "
 
           # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(base64 --decode < "$TEMP_DIR/formatted_body.base64")"
+            --body="$(cat "$TEMP_DIR/formatted_body.txt")"
 
           # Clean up temporary directory
           rm -rf "$TEMP_DIR"
