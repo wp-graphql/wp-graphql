@@ -86,15 +86,6 @@ class User {
 								return __( 'The globally unique identifier for the user object.', 'wp-graphql' );
 							},
 						],
-						'databaseId'             => [
-							'type'        => [ 'non_null' => 'Int' ],
-							'description' => static function () {
-								return __( 'Identifies the primary key from the database.', 'wp-graphql' );
-							},
-							'resolve'     => static function ( \WPGraphQL\Model\User $user ) {
-								return absint( $user->userId );
-							},
-						],
 						'capabilities'           => [
 							'type'        => [
 								'list_of' => 'String',
@@ -109,10 +100,33 @@ class User {
 								return __( 'User metadata option name. Usually it will be "wp_capabilities".', 'wp-graphql' );
 							},
 						],
+						'databaseId'             => [
+							'type'        => [ 'non_null' => 'Int' ],
+							'description' => static function () {
+								return __( 'Identifies the primary key from the database.', 'wp-graphql' );
+							},
+							'resolve'     => static function ( \WPGraphQL\Model\User $user ) {
+								return (int) $user->databaseId;
+							},
+						],
+						'description'            => [
+							'type'        => 'String',
+							'description' => static function () {
+								return __( 'Description of the user.', 'wp-graphql' );
+							},
+						],
 						'email'                  => [
 							'type'        => 'String',
 							'description' => static function () {
 								return __( 'Email address of the user. This is equivalent to the WP_User->user_email property.', 'wp-graphql' );
+							},
+						],
+						'extraCapabilities'      => [
+							'type'        => [
+								'list_of' => 'String',
+							],
+							'description' => static function () {
+								return __( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' );
 							},
 						],
 						'firstName'              => [
@@ -127,20 +141,7 @@ class User {
 								return __( 'Last name of the user. This is equivalent to the WP_User->user_last_name property.', 'wp-graphql' );
 							},
 						],
-						'extraCapabilities'      => [
-							'type'        => [
-								'list_of' => 'String',
-							],
-							'description' => static function () {
-								return __( 'A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps.', 'wp-graphql' );
-							},
-						],
-						'description'            => [
-							'type'        => 'String',
-							'description' => static function () {
-								return __( 'Description of the user.', 'wp-graphql' );
-							},
-						],
+
 						'username'               => [
 							'type'        => 'String',
 							'description' => static function () {

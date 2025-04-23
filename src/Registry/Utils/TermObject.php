@@ -141,7 +141,7 @@ class TermObject {
 				'queryClass'     => 'WP_Term_Query',
 				'resolve'        => static function ( Term $term, $args, AppContext $context, $info ) {
 					$resolver = new TermObjectConnectionResolver( $term, $args, $context, $info );
-					$resolver->set_query_arg( 'parent', $term->term_id );
+					$resolver->set_query_arg( 'parent', $term->databaseId );
 
 					return $resolver->get_connection();
 				},
@@ -179,7 +179,7 @@ class TermObject {
 				},
 				'connectionTypeName' => ucfirst( $tax_object->graphql_single_name ) . 'ToAncestors' . ucfirst( $tax_object->graphql_single_name ) . 'Connection',
 				'resolve'            => static function ( Term $term, $args, AppContext $context, $info ) use ( $tax_object ) {
-					$ancestor_ids = get_ancestors( absint( $term->term_id ), $term->taxonomyName, 'taxonomy' );
+					$ancestor_ids = isset( $term->databaseId ) ? get_ancestors( $term->databaseId, (string) $term->taxonomyName, 'taxonomy' ) : null;
 
 					if ( empty( $ancestor_ids ) ) {
 						return null;
@@ -216,7 +216,7 @@ class TermObject {
 								[
 									[
 										'taxonomy'         => $term->taxonomyName,
-										'terms'            => [ $term->term_id ],
+										'terms'            => [ $term->databaseId ],
 										'field'            => 'term_id',
 										'include_children' => false,
 									],
@@ -244,7 +244,7 @@ class TermObject {
 						$tax_query    = $current_args['tax_query'] ?? [];
 						$tax_query[]  = [
 							'taxonomy'         => $term->taxonomyName,
-							'terms'            => [ $term->term_id ],
+							'terms'            => [ $term->databaseId ],
 							'field'            => 'term_id',
 							'include_children' => false,
 						];
@@ -324,7 +324,7 @@ class TermObject {
 					return __( 'The id field matches the WP_Post->ID field.', 'wp-graphql' );
 				},
 				'resolve'           => static function ( Term $term ) {
-					return absint( $term->term_id );
+					return absint( $term->databaseId );
 				},
 			],
 		];

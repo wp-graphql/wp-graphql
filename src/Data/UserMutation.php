@@ -271,10 +271,9 @@ class UserMutation {
 	 * @param int      $user_id The ID of the user
 	 * @param string[] $roles   List of roles that need to get added to the user
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
-	private static function add_user_roles( $user_id, $roles ) {
+	private static function add_user_roles( $user_id, $roles ): void {
 		if ( empty( $roles ) || ! is_array( $roles ) || ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
 		}
@@ -304,7 +303,7 @@ class UserMutation {
 	 * @param string $role    Name of the role trying to get added to a user object
 	 * @param int    $user_id The ID of the user being mutated
 	 *
-	 * @return bool|\WP_Error
+	 * @return true|\WP_Error
 	 */
 	private static function verify_user_role( $role, $user_id ) {
 		global $wp_roles;
@@ -341,8 +340,8 @@ class UserMutation {
 		if ( empty( $editable_roles[ $role ] ) ) {
 			// Translators: %s is the name of the role that can't be added to the user.
 			return new \WP_Error( 'wpgraphql_user_invalid_role', sprintf( __( 'Sorry, you are not allowed to give this the following role: %s.', 'wp-graphql' ), $role ) );
-		} else {
-			return true;
 		}
+
+		return true;
 	}
 }

@@ -129,31 +129,59 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Use the PR body from the extracted info
-          echo "$PR_BODY" > /tmp/pr_body.txt
+          # Create a temporary directory with a unique name
+          TEMP_DIR=$(mktemp -d)
 
-          # Generate/regenerate the changeset
+          # Write PR body to a temporary file, ensuring proper line endings
+          # Using printf to ensure consistent handling of special characters
+          printf "%s" '${{ steps.pr_info.outputs.pr_body }}' > "$TEMP_DIR/pr_body.txt"
+
+          # Format the PR body using our helper script
+          # The script now handles line endings internally
+          node scripts/utils/format-pr-body.js "$(cat "$TEMP_DIR/pr_body.txt")" > "$TEMP_DIR/formatted_body.txt"
+
+          # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$PR_BODY"
+            --body="$(cat "$TEMP_DIR/formatted_body.txt")"
+
+          # Clean up temporary directory
+          rm -rf "$TEMP_DIR"
 
           # Commit and push the changeset
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
+          # Pull latest changes before committing
+          git pull origin develop
+
           # Check if there are changes to commit
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .changesets/
             git commit -m "chore: update changeset for PR #${{ steps.pr_info.outputs.pr_number }}"
-            git push
-            echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
+
+            # Try to push changes, with retries
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git pull origin develop && git push; then
+                echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "Failed to push changes after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+                echo "Push failed, retrying... (attempt $RETRY_COUNT of $MAX_RETRIES)"
+                sleep 5
+              fi
+            done
           else
             echo "No changes to commit"
           fi
-        env:
-          PR_BODY: ${{ steps.pr_info.outputs.pr_body }}
 
       - name: Generate release notes from changesets
         id: generate_notes

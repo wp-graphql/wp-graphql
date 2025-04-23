@@ -65,7 +65,7 @@ class WPEnumType extends EnumType {
 			if ( ! empty( $value['description'] ) && is_callable( $value['description'] ) ) {
 				$description = $value['description']();
 			} else {
-				$description = isset( $value['description'] ) &&is_string( $value['description'] ) ? $value['description'] : '';
+				$description = isset( $value['description'] ) && is_string( $value['description'] ) ? $value['description'] : '';
 			}
 			$values[ $key ]['description'] = $description ?? '';
 		}

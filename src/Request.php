@@ -575,10 +575,8 @@ class Request {
 	 * Run action for a request.
 	 *
 	 * @param \GraphQL\Server\OperationParams $params OperationParams for the request.
-	 *
-	 * @return void
 	 */
-	private function do_action( OperationParams $params ) {
+	private function do_action( OperationParams $params ): void {
 
 		/**
 		 * Run an action for each request.
@@ -810,10 +808,8 @@ class Request {
 	 * Determines if batch queries are enabled for the server.
 	 *
 	 * Default is to have batch queries enabled.
-	 *
-	 * @return bool
 	 */
-	private function is_batch_queries_enabled() {
+	private function is_batch_queries_enabled(): bool {
 		$batch_queries_enabled = true;
 
 		$batch_queries_setting = get_graphql_setting( 'batch_queries_enabled', 'on' );
@@ -827,15 +823,13 @@ class Request {
 		 * @param bool         $batch_queries_enabled Whether Batch Queries should be enabled
 		 * @param \GraphQL\Server\OperationParams $params Request operation params
 		 */
-		return apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
+		return (bool) apply_filters( 'graphql_is_batch_queries_enabled', $batch_queries_enabled, $this->params );
 	}
 
 	/**
 	 * Create the GraphQL server that will process the request.
-	 *
-	 * @return \GraphQL\Server\StandardServer
 	 */
-	private function get_server() {
+	private function get_server(): StandardServer {
 		$debug_flag = $this->get_debug_flag();
 
 		$config = new ServerConfig();

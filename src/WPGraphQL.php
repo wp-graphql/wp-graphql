@@ -138,10 +138,8 @@ final class WPGraphQL {
 	 * Set whether the request is a GraphQL request or not
 	 *
 	 * @param bool $is_graphql_request
-	 *
-	 * @return void
 	 */
-	public static function set_is_graphql_request( $is_graphql_request = false ) {
+	public static function set_is_graphql_request( $is_graphql_request = false ): void {
 		self::$is_graphql_request = $is_graphql_request;
 	}
 

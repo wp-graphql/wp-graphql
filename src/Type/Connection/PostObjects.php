@@ -137,7 +137,7 @@ class PostObjects {
 					if ( $post->isRevision ) {
 						$id = $post->parentDatabaseId;
 					} else {
-						$id = $post->ID;
+						$id = $post->databaseId;
 					}
 
 					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'any' );
@@ -160,7 +160,7 @@ class PostObjects {
 					return __( 'Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root).', 'wp-graphql' );
 				},
 				'resolve'            => static function ( Post $post, $args, $context, $info ) {
-					$ancestors = get_ancestors( $post->ID, '', 'post_type' );
+					$ancestors = isset( $post->databaseId ) ? get_ancestors( $post->databaseId, '', 'post_type' ) : null;
 					if ( empty( $ancestors ) || ! is_array( $ancestors ) ) {
 						return null;
 					}
@@ -218,7 +218,7 @@ class PostObjects {
 							'fromType' => 'User',
 							'resolve'  => static function ( User $user, $args, AppContext $context, ResolveInfo $info ) use ( $post_type_object ) {
 								$resolver = new PostObjectConnectionResolver( $user, $args, $context, $info, $post_type_object->name );
-								$resolver->set_query_arg( 'author', $user->userId );
+								$resolver->set_query_arg( 'author', $user->databaseId );
 
 								return $resolver->get_connection();
 							},

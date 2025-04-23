@@ -164,7 +164,7 @@ const generateChangeset = async ({
     .map(([key, value]) => {
       // For string values that contain special characters, wrap in quotes
       const formattedValue = typeof value === 'string' ?
-        `"${value.replace(/"/g, '\\"')}"` :
+        `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` :
         value;
       return `${key}: ${formattedValue}`;
     })

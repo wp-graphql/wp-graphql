@@ -70,7 +70,7 @@ class MenuItems {
 								[
 									'taxonomy'         => 'nav_menu',
 									'field'            => 'term_id',
-									'terms'            => (int) $menu->menuId,
+									'terms'            => (int) $menu->databaseId,
 									'include_children' => true,
 									'operator'         => 'IN',
 								],
