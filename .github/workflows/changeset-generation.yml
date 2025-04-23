@@ -132,20 +132,21 @@ jobs:
           # Create a temporary directory with a unique name
           TEMP_DIR=$(mktemp -d)
 
-          # Write PR body to a temporary file, ensuring proper line endings
-          # Using printf to ensure consistent handling of special characters
-          printf "%s" '${{ steps.pr_info.outputs.pr_body }}' > "$TEMP_DIR/pr_body.txt"
+          # Write PR body to a temporary file using base64 encoding to avoid shell interpretation
+          echo '${{ steps.pr_info.outputs.pr_body }}' | base64 > "$TEMP_DIR/pr_body.base64"
+
+          # Decode the base64 content for the formatter
+          base64 --decode < "$TEMP_DIR/pr_body.base64" > "$TEMP_DIR/pr_body.txt"
 
           # Format the PR body using our helper script
-          # The script now handles line endings internally
-          node scripts/utils/format-pr-body.js "$(cat "$TEMP_DIR/pr_body.txt")" > "$TEMP_DIR/formatted_body.txt"
+          node scripts/utils/format-pr-body.js "$(cat "$TEMP_DIR/pr_body.txt")" | base64 > "$TEMP_DIR/formatted_body.base64"
 
           # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(cat "$TEMP_DIR/formatted_body.txt")"
+            --body="$(base64 --decode < "$TEMP_DIR/formatted_body.base64")"
 
           # Clean up temporary directory
           rm -rf "$TEMP_DIR"
