@@ -100,6 +100,16 @@ jobs:
             exit 1
           fi
 
+          # Create temporary directory for processing
+          TEMP_DIR=$(mktemp -d)
+          echo "temp_dir=$TEMP_DIR" >> $GITHUB_OUTPUT
+
+          # Write PR body to temporary file
+          echo "$PR_BODY" > "$TEMP_DIR/pr-body.txt"
+
+          # Format PR body using our script
+          node scripts/utils/format-pr-body.js "$(cat $TEMP_DIR/pr-body.txt)" > "$TEMP_DIR/formatted-body.txt"
+
           # Output the values with proper escaping
           {
             echo "pr_number=${PR_NUMBER}"
@@ -107,9 +117,7 @@ jobs:
             echo "${PR_TITLE}"
             echo "EOF"
             echo "pr_author=${PR_AUTHOR}"
-            echo "pr_body<<EOF"
-            echo "${PR_BODY}"
-            echo "EOF"
+            echo "formatted_body_path=$TEMP_DIR/formatted-body.txt"
           } >> $GITHUB_OUTPUT
 
         shell: /usr/bin/bash -e {0}
@@ -129,30 +137,15 @@ jobs:
             rm $EXISTING_CHANGESETS
           fi
 
-          # Create a temporary directory with a unique name
-          TEMP_DIR=$(mktemp -d)
-
-          # Format the PR body using our helper script, passing content directly via node -e
-          # Use JSON.stringify to safely handle multi-line content
-          node -e "
-            const formatPrBody = require('./scripts/utils/format-pr-body.js');
-            const fs = require('fs');
-            const prBody = JSON.parse(process.env.PR_BODY);
-            const formatted = formatPrBody(prBody);
-            fs.writeFileSync(process.env.OUTPUT_FILE, formatted);
-          " \
-          PR_BODY=$(jq -n --arg body "${{ steps.pr_info.outputs.pr_body }}" '$body') \
-          OUTPUT_FILE="$TEMP_DIR/formatted_body.txt"
-
           # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
-            --body="$(cat "$TEMP_DIR/formatted_body.txt")"
+            --body="$(cat ${{ steps.pr_info.outputs.formatted_body_path }})"
 
           # Clean up temporary directory
-          rm -rf "$TEMP_DIR"
+          rm -rf "${{ steps.pr_info.outputs.temp_dir }}"
 
           # Commit and push the changeset
           git config --global user.name "GitHub Actions"
@@ -166,11 +159,11 @@ jobs:
             git add .changesets/
             git commit -m "chore: update changeset for PR #${{ steps.pr_info.outputs.pr_number }}"
 
-            # Try to push changes, with retries
+            # Try to push changes, with retries and better error handling
             MAX_RETRIES=3
             RETRY_COUNT=0
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if git pull origin develop && git push; then
+              if git pull origin develop --rebase && git push; then
                 echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
                 break
               else
