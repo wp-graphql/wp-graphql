@@ -4,7 +4,6 @@ namespace WPGraphQL\Type\Enum;
 
 class PluginStatusEnum {
 
-
 	/**
 	 * Register the PluginStatusEnum Type to the Schema
 	 *
