@@ -133,13 +133,16 @@ jobs:
           TEMP_DIR=$(mktemp -d)
 
           # Format the PR body using our helper script, passing content directly via node -e
+          # Use JSON.stringify to safely handle multi-line content
           node -e "
             const formatPrBody = require('./scripts/utils/format-pr-body.js');
             const fs = require('fs');
-            const prBody = '${{ steps.pr_info.outputs.pr_body }}';
+            const prBody = JSON.parse(process.env.PR_BODY);
             const formatted = formatPrBody(prBody);
-            fs.writeFileSync('$TEMP_DIR/formatted_body.txt', formatted);
-          "
+            fs.writeFileSync(process.env.OUTPUT_FILE, formatted);
+          " \
+          PR_BODY=$(jq -n --arg body "${{ steps.pr_info.outputs.pr_body }}" '$body') \
+          OUTPUT_FILE="$TEMP_DIR/formatted_body.txt"
 
           # Generate/regenerate the changeset using the formatted body from file
           node scripts/generate-changeset.js \
