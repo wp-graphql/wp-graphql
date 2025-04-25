@@ -96,9 +96,10 @@ final class WPGraphQL {
 	 * The whole idea of the singleton design pattern is that there is a single object
 	 * therefore, we don't want the object to be cloned.
 	 *
+	 * @return void
 	 * @since  0.0.1
 	 */
-	public function __clone(): void {
+	public function __clone() {
 		// Cloning instances of the class is forbidden.
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'The WPGraphQL class should not be cloned.', 'wp-graphql' ), '0.0.1' );
 	}
@@ -106,9 +107,10 @@ final class WPGraphQL {
 	/**
 	 * Disable unserializing of the class.
 	 *
+	 * @return void
 	 * @since  0.0.1
 	 */
-	public function __wakeup(): void {
+	public function __wakeup() {
 		// De-serializing instances of the class is forbidden.
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'De-serializing instances of the WPGraphQL class is not allowed', 'wp-graphql' ), '0.0.1' );
 	}
