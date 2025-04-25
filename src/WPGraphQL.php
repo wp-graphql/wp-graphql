@@ -32,14 +32,14 @@ final class WPGraphQL {
 	/**
 	 * Holds the Schema def
 	 *
-	 * @var mixed|\WPGraphQL\WPSchema|null $schema The Schema used for the GraphQL API
+	 * @var ?\WPGraphQL\WPSchema $schema The Schema used for the GraphQL API
 	 */
 	protected static $schema;
 
 	/**
 	 * Holds the TypeRegistry instance
 	 *
-	 * @var mixed|\WPGraphQL\Registry\TypeRegistry|null $type_registry The registry that holds all GraphQL Types
+	 * @var ?\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
 
@@ -376,9 +376,9 @@ final class WPGraphQL {
 					/**
 					 * Filters the interfaces applied to an object type
 					 *
-					 * @param string[]                                                           $interfaces List of interfaces applied to the Object Type
-					 * @param array<string,mixed>                                                $config     The config for the Object Type
-					 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
+					 * @param string[]                                                     $interfaces List of interfaces applied to the Object Type
+					 * @param array<string,mixed>                                          $config     The config for the Object Type
+					 * @param \WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
 					 */
 					return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 				}
@@ -622,7 +622,15 @@ final class WPGraphQL {
 	 *
 	 * @since 1.12.0
 	 *
-	 * @return array<string,mixed>
+	 * @return array{
+	 *   graphql_kind: 'interface'|'object'|'union',
+	 *   graphql_resolve_type: ?callable,
+	 *   graphql_interfaces: string[],
+	 *   graphql_connections: string[],
+	 *   graphql_union_types: string[],
+	 *   graphql_register_root_field: bool,
+	 *   graphql_register_root_connection: bool,
+	 * }
 	 */
 	public static function get_default_graphql_type_args(): array {
 		return [
@@ -793,7 +801,7 @@ final class WPGraphQL {
 					if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
 						graphql_debug(
 							sprintf(
-							/* translators: %s will replaced with the registered taxonomty */
+							/* translators: %s will replaced with the registered taxonomy */
 								__( 'The "%s" taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$obj->name
 							),
@@ -843,7 +851,7 @@ final class WPGraphQL {
 	 * @throws \Exception
 	 */
 	public static function get_schema() {
-		if ( null === self::$schema ) {
+		if ( ! isset( self::$schema ) ) {
 			$schema_registry = new SchemaRegistry();
 			$schema          = $schema_registry->get_schema();
 
@@ -867,7 +875,7 @@ final class WPGraphQL {
 		/**
 		 * Return the Schema after applying filters
 		 */
-		return ! empty( self::$schema ) ? self::$schema : null;
+		return self::$schema;
 	}
 
 	/**
@@ -888,15 +896,14 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Returns the Schema as defined by static registrations throughout
-	 * the WP Load.
+	 * Returns the type registry, instantiating it if it doesn't exist.
 	 *
 	 * @return \WPGraphQL\Registry\TypeRegistry
 	 *
 	 * @throws \Exception
 	 */
 	public static function get_type_registry() {
-		if ( null === self::$type_registry ) {
+		if ( ! isset( self::$type_registry ) ) {
 			$type_registry = new TypeRegistry();
 
 			/**
@@ -919,7 +926,7 @@ final class WPGraphQL {
 		/**
 		 * Return the Schema after applying filters
 		 */
-		return ! empty( self::$type_registry ) ? self::$type_registry : null;
+		return self::$type_registry;
 	}
 
 	/**
