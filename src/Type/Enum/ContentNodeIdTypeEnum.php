@@ -20,7 +20,6 @@ class ContentNodeIdTypeEnum {
 			]
 		);
 
-		/** @var \WP_Post_Type[] */
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {

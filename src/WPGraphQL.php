@@ -648,17 +648,20 @@ final class WPGraphQL {
 
 	/**
 	 * Get the post types that are allowed to be used in GraphQL.
+	 *
 	 * This gets all post_types that are set to show_in_graphql, but allows for external code
 	 * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
 	 *
-	 * @param string|mixed[]      $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
+	 * @param 'names'|'objects'   $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
 	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed post types
 	 *
-	 * @return array<string,mixed>
+	 * @return string[]|\WP_Post_Type[]
+	 * @phpstan-return ( $output is 'objects' ? \WP_Post_Type[] : string[] )
+	 *
 	 * @since  0.0.4
 	 * @since  1.8.1 adds $output as first param, and stores post type objects in class property.
 	 */
-	public static function get_allowed_post_types( $output = 'names', $args = [] ) {
+	public static function get_allowed_post_types( $output = 'names', $args = [] ): array {
 		// Support deprecated param order.
 		if ( is_array( $output ) ) {
 			_deprecated_argument( __METHOD__, '1.8.1', '$args should be passed as the second parameter.' );
@@ -742,10 +745,11 @@ final class WPGraphQL {
 	 * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
 	 * taxonomies
 	 *
-	 * @param string              $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
+	 * @param 'names'|'objects'   $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
 	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed taxonomies.
 	 *
-	 * @return array<string,mixed>
+	 * @return string[]|\WP_Taxonomy[]
+	 * @phpstan-return ( $output is 'objects' ? \WP_Taxonomy[] : string[] )
 	 * @since  0.0.4
 	 */
 	public static function get_allowed_taxonomies( $output = 'names', $args = [] ): array {

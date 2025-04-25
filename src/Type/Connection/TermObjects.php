@@ -44,7 +44,6 @@ class TermObjects {
 			]
 		);
 
-		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		/**
