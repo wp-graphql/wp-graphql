@@ -10,6 +10,8 @@ use WP_REST_Response;
  *
  * @package WPGraphQL\Admin\Extensions
  *
+ * phpcs:disable -- For phpstan type hinting
+ * @phpstan-import-type ExtensionAuthor from \WPGraphQL\Admin\Extensions\Registry
  * @phpstan-import-type Extension from \WPGraphQL\Admin\Extensions\Registry
  *
  * @phpstan-type PopulatedExtension array{
@@ -19,15 +21,13 @@ use WP_REST_Response;
  *   support_url: non-empty-string,
  *   documentation_url: non-empty-string,
  *   repo_url?: string,
- *   author: array{
- *     name: non-empty-string,
- *     homepage?: string,
- *   },
+ *   author: ExtensionAuthor,
  *   installed: bool,
  *   active: bool,
  *   settings_path?: string,
  *   settings_url?: string,
  * }
+ * phpcs:enable
  */
 final class Extensions {
 	/**
@@ -149,11 +149,12 @@ final class Extensions {
 	/**
 	 * Activate a plugin.
 	 *
-	 * @param \WP_REST_Request<array<string, mixed>> $request The REST request.
+	 * @param \WP_REST_Request<array{plugin:string}> $request The REST request.
+	 *
 	 * @return \WP_REST_Response The REST response.
 	 */
 	public function activate_plugin( WP_REST_Request $request ): WP_REST_Response {
-		$plugin = $request->get_param( 'plugin' );
+		$plugin = (string) $request->get_param( 'plugin' );
 		$result = activate_plugin( $plugin );
 
 		if ( is_wp_error( $result ) ) {
@@ -176,9 +177,14 @@ final class Extensions {
 	}
 
 	/**
-	 * Get the list of installed plugins.
+	 * Get the list of installed plugins
 	 *
-	 * @return array<string, array<string, mixed>> List of installed plugins.
+	 * @return array<string,array{
+	 *  is_active: bool,
+	 *  name: string,
+	 *  description: string,
+	 *  author: string,
+	 * }> List of installed plugins, keyed by the plugin slug.
 	 */
 	private function get_installed_plugins(): array {
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -208,7 +214,18 @@ final class Extensions {
 	 * Sanitizes extension values before they are used.
 	 *
 	 * @param array<string,mixed> $extension The extension to sanitize.
-	 * @return array<string,mixed> The sanitized extension.
+	 * @return array{
+	 *  name: string|null,
+	 *  description: string|null,
+	 *  plugin_url: string|null,
+	 *  support_url: string|null,
+	 *  documentation_url: string|null,
+	 *  repo_url: string|null,
+	 *  author: array{
+	 *    name: string|null,
+	 *    homepage: string|null,
+	 *  },
+	 * }
 	 */
 	private function sanitize_extension( array $extension ): array {
 		return [
@@ -294,7 +311,10 @@ final class Extensions {
 			if ( isset( $installed_plugins[ $slug ] ) ) {
 				$extension['installed'] = true;
 				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
-				$extension['author']    = $installed_plugins[ $slug ]['author'];
+
+				if ( ! empty( $installed_plugins[ $slug ]['author'] ) ) {
+					$extension['author']['name'] = $installed_plugins[ $slug ]['author'];
+				}
 			}
 
 			// @todo Where does this come from?
@@ -349,7 +369,7 @@ final class Extensions {
 			 *
 			 * @see Admin\Extensions\Registry::get_extensions() for the correct format of the extensions.
 			 *
-			 * @param array<string,mixed> $extensions The list of extensions.
+			 * @param array<string,Extension> $extensions The list of extensions.
 			 */
 			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
 
