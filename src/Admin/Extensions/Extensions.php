@@ -35,16 +35,14 @@ final class Extensions {
 	 *
 	 * Filtered by `graphql_get_extensions`.
 	 *
-	 * @var ?PopulatedExtension[]
+	 * @var PopulatedExtension[]
 	 */
-	private $extensions;
+	private array $extensions;
 
 	/**
 	 * Initialize Extensions functionality for WPGraphQL.
-	 *
-	 * @return void
 	 */
-	public function init() {
+	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'register_admin_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
@@ -52,10 +50,8 @@ final class Extensions {
 
 	/**
 	 * Register the admin page for extensions.
-	 *
-	 * @return void
 	 */
-	public function register_admin_page() {
+	public function register_admin_page(): void {
 		add_submenu_page(
 			'graphiql-ide',
 			__( 'WPGraphQL Extensions', 'wp-graphql' ),
@@ -68,10 +64,8 @@ final class Extensions {
 
 	/**
 	 * Render the admin page content.
-	 *
-	 * @return void
 	 */
-	public function render_admin_page() {
+	public function render_admin_page(): void {
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
 		echo '<div style="margin-top: 20px;" id="wpgraphql-extensions"></div>';
@@ -82,10 +76,8 @@ final class Extensions {
 	 * Enqueue the necessary scripts and styles for the extensions page.
 	 *
 	 * @param string $hook_suffix The current admin page.
-	 *
-	 * @return void
 	 */
-	public function enqueue_scripts( $hook_suffix ) {
+	public function enqueue_scripts( $hook_suffix ): void {
 		if ( 'graphql_page_wpgraphql-extensions' !== $hook_suffix ) {
 			return;
 		}
@@ -121,10 +113,8 @@ final class Extensions {
 
 	/**
 	 * Register custom REST API routes.
-	 *
-	 * @return void
 	 */
-	public function register_rest_routes() {
+	public function register_rest_routes(): void {
 		register_rest_route(
 			'wp/v2',
 			'/plugins/(?P<plugin>.+)',
