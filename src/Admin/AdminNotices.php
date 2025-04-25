@@ -155,7 +155,7 @@ class AdminNotices {
 		/**
 		 * Pass the notice through a filter before registering it
 		 *
-		 * @param array<string,mixed> $config The config of the admin notice
+		 * @param AdminNoticeConfig $config The config of the admin notice
 		 * @param string            $slug   The slug identifying the admin notice
 		 */
 		$filtered_notice = apply_filters( 'graphql_add_admin_notice', $config, $slug );
