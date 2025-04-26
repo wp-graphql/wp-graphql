@@ -11,7 +11,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\Rules\QuerySecurityRule;
-use function sprintf;
 
 /**
  * Class QueryDepth
@@ -22,10 +21,8 @@ class QueryDepth extends QuerySecurityRule {
 
 	/**
 	 * The max query depth allowed.
-	 *
-	 * @var int
 	 */
-	private $maxQueryDepth;
+	private int $maxQueryDepth;
 
 	/**
 	 * QueryDepth constructor.
@@ -71,13 +68,11 @@ class QueryDepth extends QuerySecurityRule {
 	/**
 	 * Determine field depth
 	 *
-	 * @param mixed $node The node being analyzed
-	 * @param int   $depth The depth of the field
-	 * @param int   $maxDepth The max depth allowed
-	 *
-	 * @return int|mixed
+	 * @param \GraphQL\Language\AST\Node $node The node being analyzed
+	 * @param int                        $depth The depth of the field. Default is 0
+	 * @param int                        $maxDepth The max depth allowed. Default is 0
 	 */
-	private function fieldDepth( $node, $depth = 0, $maxDepth = 0 ) {
+	private function fieldDepth( Node $node, int $depth = 0, int $maxDepth = 0 ): int {
 		if ( isset( $node->selectionSet ) && $node->selectionSet instanceof SelectionSetNode ) {
 			foreach ( $node->selectionSet->selections as $childNode ) {
 				$maxDepth = $this->nodeDepth( $childNode, $depth, $maxDepth );
@@ -93,10 +88,8 @@ class QueryDepth extends QuerySecurityRule {
 	 * @param \GraphQL\Language\AST\Node $node The node being analyzed in the operation
 	 * @param int                        $depth The depth of the operation
 	 * @param int                        $maxDepth The Max Depth of the operation
-	 *
-	 * @return int|mixed
 	 */
-	private function nodeDepth( Node $node, $depth = 0, $maxDepth = 0 ) {
+	private function nodeDepth( Node $node, int $depth, int $maxDepth ): int {
 		switch ( true ) {
 			case $node instanceof FieldNode:
 				// node has children?
