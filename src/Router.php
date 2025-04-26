@@ -12,7 +12,12 @@ use WP_User;
  * @package WPGraphQL
  * @since   0.0.1
  *
+ * phpcs:disable -- PHPStan annotation. 
  * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
+ * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
+ * 
+ * @phpstan-type WPGraphQLResult = SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
+ * phpcs:enable
  */
 class Router {
 
@@ -495,6 +500,8 @@ class Router {
 			/**
 			 * Filter thrown GraphQL errors
 			 *
+			 * @var SerializableResult $response
+			 *
 			 * @param SerializableError[] $errors  The errors array to be sent in the response.
 			 * @param \Throwable          $error   Thrown error object.
 			 * @param \WPGraphQL\Request  $request WPGraphQL Request object.
@@ -519,8 +526,8 @@ class Router {
 		 * to hook in to track metrics, such as how long the process took from `graphql_process_http_request`
 		 * to here, etc.
 		 *
-		 * @param array<string,mixed>  $response       The GraphQL response
-		 * @param array<string,mixed>  $result         Deprecated. Same as $response.
+		 * @param WPGraphQLResult      $response       The GraphQL response
+		 * @param WPGraphQLResult      $result         Deprecated. Same as $response.
 		 * @param string               $operation_name The name of the operation
 		 * @param string               $query          The request that GraphQL executed
 		 * @param ?array<string,mixed> $variables      Variables to passed to your GraphQL query

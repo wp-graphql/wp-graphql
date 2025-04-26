@@ -273,8 +273,8 @@ class QueryAnalyzer {
 
 		// @todo: support for QueryID?
 
-		// if the query is empty, get it from the request params
-		if ( empty( $query ) ) {
+		// if the query is empty, get it from the (non-batch) request params
+		if ( empty( $query ) && isset( $this->request->params->query ) ) {
 			$query = $this->request->params->query ?: null;
 		}
 
