@@ -36,7 +36,7 @@ class Request {
 	/**
 	 * Request data.
 	 *
-	 * @var mixed|array<string,mixed>|\GraphQL\Server\OperationParams
+	 * @var array<string,mixed>|\GraphQL\Server\OperationParams
 	 */
 	public $data;
 
@@ -86,7 +86,7 @@ class Request {
 	/**
 	 * Validation rules for execution.
 	 *
-	 * @var array<int|string,\GraphQL\Validator\Rules\ValidationRule>
+	 * @var array<string,\GraphQL\Validator\Rules\ValidationRule>
 	 */
 	protected $validation_rules;
 
@@ -195,7 +195,7 @@ class Request {
 	/**
 	 * Return the validation rules to use in the request
 	 *
-	 * @return array<int|string,\GraphQL\Validator\Rules\ValidationRule>
+	 * @return array<string,\GraphQL\Validator\Rules\ValidationRule>
 	 */
 	protected function get_validation_rules(): array {
 		$validation_rules = GraphQL::getStandardValidationRules();
@@ -207,7 +207,7 @@ class Request {
 		/**
 		 * Return the validation rules to use in the request
 		 *
-		 * @param array<int|string,\GraphQL\Validator\Rules\ValidationRule> $validation_rules The validation rules to use in the request
+		 * @param array<string,\GraphQL\Validator\Rules\ValidationRule> $validation_rules The validation rules to use in the request
 		 * @param \WPGraphQL\Request                                        $request          The Request instance
 		 */
 		return apply_filters( 'graphql_validation_rules', $validation_rules, $this );
@@ -222,7 +222,7 @@ class Request {
 		/**
 		 * Set the root value based on what was passed to the request
 		 */
-		$root_value = isset( $this->data['root_value'] ) && ! empty( $this->data['root_value'] ) ? $this->data['root_value'] : null;
+		$root_value = is_array( $this->data ) && ! empty( $this->data['root_value'] ) ? $this->data['root_value'] : null;
 
 		/**
 		 * Return the filtered root value
@@ -456,8 +456,8 @@ class Request {
 		/**
 		 * Run an action after GraphQL Execution
 		 *
-		 * @param mixed[] $filtered_response The response of the entire operation. Could be a single operation or a batch operation
-		 * @param \WPGraphQL\Request  $request Instance of the Request being executed
+		 * @param mixed[]            $filtered_response The response of the entire operation. Could be a single operation or a batch operation
+		 * @param \WPGraphQL\Request $request           Instance of the Request being executed
 		 */
 		do_action( 'graphql_after_execute', $filtered_response, $this );
 
@@ -471,7 +471,7 @@ class Request {
 	 * Apply filters and do actions after GraphQL execution
 	 *
 	 * @param mixed|array<string,mixed>|object $response The response for your GraphQL request
-	 * @param mixed|int|null                   $key      The array key of the params for batch requests
+	 * @param int|null                         $key      The array key of the params for batch requests
 	 *
 	 * @return mixed|array<string,mixed>|object
 	 */
@@ -581,11 +581,11 @@ class Request {
 		/**
 		 * Run an action for each request.
 		 *
-		 * @param ?string          $query     The GraphQL query
-		 * @param ?string          $operation The name of the operation
-		 * @param ?array          $variables Variables to be passed to your GraphQL request
-		 * @param \GraphQL\Server\OperationParams $params The Operation Params. This includes any extra params,
-		 * such as extensions or any other modifications to the request body
+		 * @param ?string                         $query     The GraphQL query
+		 * @param ?string                         $operation The name of the operation
+		 * @param ?array<string,mixed>            $variables Variables to be passed to your GraphQL request
+		 * @param \GraphQL\Server\OperationParams $params    The Operation Params. This includes any extra params,
+		 *                                                   such as extensions or any other modifications to the request body
 		 */
 		do_action( 'do_graphql_request', $params->query, $params->operation, $params->variables, $params );
 	}
@@ -751,7 +751,7 @@ class Request {
 	/**
 	 * Returns the error response for invalid content type
 	 *
-	 * @return array<string,mixed>
+	 * @return array{errors: array<int, array{message:string}>}
 	 */
 	private function get_invalid_content_type_response(): array {
 		$content_type = $this->get_content_type();
@@ -759,15 +759,18 @@ class Request {
 		/**
 		 * Filter the status code to return when the content type is invalid
 		 *
-		 * @param int    $status_code The status code to return
-		 * @param string $content_type The content type header value that was received
+		 * @param int    $status_code The status code to return. Default 415.
+		 * @param string $content_type The content type header value that was received.
 		 */
 		$filtered_status_code = apply_filters( 'graphql_invalid_content_type_status_code', 415, $content_type );
 
-		// validate that the status code is in valid http status code ranges (100-599)
-		if ( is_numeric( $filtered_status_code ) && ( $filtered_status_code > 100 && $filtered_status_code < 599 ) ) {
-			// Set status code to 415 (Unsupported Media Type)
-			Router::$http_status_code = $filtered_status_code;
+		// Set the status code to the filtered value if it's a valid status code.
+		if ( is_numeric( $filtered_status_code ) ) {
+			$filtered_status_code = (int) $filtered_status_code;
+
+			if ( $filtered_status_code > 100 && $filtered_status_code < 599 ) {
+				Router::$http_status_code = $filtered_status_code;
+			}
 		}
 
 		return [
