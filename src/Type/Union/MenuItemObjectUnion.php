@@ -74,8 +74,6 @@ class MenuItemObjectUnion {
 
 		/**
 		 * Add post types that are allowed in WPGraphQL.
-		 *
-		 * @var \WP_Post_Type $post_type_object
 		 */
 		foreach ( \WPGraphQL::get_allowed_post_types( 'objects', $args ) as $post_type_object ) {
 			if ( isset( $post_type_object->graphql_single_name ) ) {

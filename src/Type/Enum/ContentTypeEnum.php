@@ -15,11 +15,7 @@ class ContentTypeEnum {
 	public static function register_type() {
 		$values = [];
 
-		/**
-		 * Get the allowed post types
-		 *
-		 * @var string[] $allowed_post_types
-		 */
+		// Get the allowed post types.
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types();
 
 		/**
@@ -46,9 +42,7 @@ class ContentTypeEnum {
 		);
 
 		/**
-		 * Register a ContentTypesOf${taxonomyName}Enum for each taxonomy
-		 *
-		 * @var \WP_Taxonomy[] $allowed_taxonomies
+		 * Register a ContentTypesOf${taxonomyName}Enum for each taxonomy.
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 		foreach ( $allowed_taxonomies as $tax_object ) {

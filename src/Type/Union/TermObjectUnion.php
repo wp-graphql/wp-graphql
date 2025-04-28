@@ -50,8 +50,7 @@ class TermObjectUnion {
 	 * @return array<string,string>
 	 */
 	public static function get_possible_types() {
-		$possible_types = [];
-		/** @var \WP_Taxonomy[] $allowed_taxonomies */
+		$possible_types     = [];
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects', [ 'graphql_kind' => 'object' ] );
 
 		foreach ( $allowed_taxonomies as $tax_object ) {

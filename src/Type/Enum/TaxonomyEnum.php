@@ -12,7 +12,6 @@ class TaxonomyEnum {
 	 * @return void
 	 */
 	public static function register_type() {
-		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		$values = [];

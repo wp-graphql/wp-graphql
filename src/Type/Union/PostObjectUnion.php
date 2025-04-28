@@ -51,8 +51,7 @@ class PostObjectUnion {
 	 * @return string[]
 	 */
 	public static function get_possible_types() {
-		$possible_types = [];
-		/** @var \WP_Post_Type[] */
+		$possible_types     = [];
 		$allowed_post_types = \WPGraphQL::get_allowed_post_types( 'objects', [ 'graphql_kind' => 'object' ] );
 
 		foreach ( $allowed_post_types as $post_type_object ) {

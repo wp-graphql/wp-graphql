@@ -24,22 +24,22 @@ final class WPGraphQL {
 	/**
 	 * Stores the instance of the WPGraphQL class
 	 *
-	 * @var ?\WPGraphQL The one true WPGraphQL
+	 * @var \WPGraphQL The one true WPGraphQL
 	 * @since  0.0.1
 	 */
-	private static $instance;
+	private static self $instance;
 
 	/**
 	 * Holds the Schema def
 	 *
-	 * @var mixed|\WPGraphQL\WPSchema|null $schema The Schema used for the GraphQL API
+	 * @var ?\WPGraphQL\WPSchema $schema The Schema used for the GraphQL API
 	 */
 	protected static $schema;
 
 	/**
 	 * Holds the TypeRegistry instance
 	 *
-	 * @var mixed|\WPGraphQL\Registry\TypeRegistry|null $type_registry The registry that holds all GraphQL Types
+	 * @var ?\WPGraphQL\Registry\TypeRegistry $type_registry The registry that holds all GraphQL Types
 	 */
 	protected static $type_registry;
 
@@ -49,7 +49,7 @@ final class WPGraphQL {
 	 * @var ?\WP_Post_Type[] allowed_post_types
 	 * @since  0.0.5
 	 */
-	protected static $allowed_post_types;
+	protected static ?array $allowed_post_types;
 
 	/**
 	 * Stores an array of allowed taxonomies
@@ -57,17 +57,17 @@ final class WPGraphQL {
 	 * @var ?\WP_Taxonomy[] allowed_taxonomies
 	 * @since  0.0.5
 	 */
-	protected static $allowed_taxonomies;
+	protected static ?array $allowed_taxonomies;
 
 	/**
-	 * @var bool
+	 * Whether a GraphQL request is currently being processed.
 	 */
-	protected static $is_graphql_request = false;
+	protected static bool $is_graphql_request = false;
 
 	/**
-	 * @var bool
+	 * Whether an Introspection query is currently being processed.
 	 */
-	protected static $is_introspection_query = false;
+	protected static bool $is_introspection_query = false;
 
 	/**
 	 * The instance of the WPGraphQL object
@@ -75,8 +75,8 @@ final class WPGraphQL {
 	 * @return \WPGraphQL - The one true WPGraphQL
 	 * @since  0.0.1
 	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) || ! ( self::$instance instanceof self ) ) {
+	public static function instance(): self {
+		if ( ! isset( self::$instance ) ) {
 			self::$instance = new self();
 			self::$instance->setup_constants();
 			self::$instance->includes();
@@ -118,10 +118,9 @@ final class WPGraphQL {
 	/**
 	 * Setup plugin constants.
 	 *
-	 * @return void
 	 * @since  0.0.1
 	 */
-	private function setup_constants() {
+	private function setup_constants(): void {
 		graphql_setup_constants();
 	}
 
@@ -288,10 +287,9 @@ final class WPGraphQL {
 	 * If the server is running a lower version than required, throw an exception and prevent
 	 * further execution.
 	 *
-	 * @return void
 	 * @throws \Exception
 	 */
-	public function min_php_version_check() {
+	public function min_php_version_check(): void {
 		if ( defined( 'GRAPHQL_MIN_PHP_VERSION' ) && version_compare( PHP_VERSION, GRAPHQL_MIN_PHP_VERSION, '<' ) ) {
 			throw new \Exception(
 				esc_html(
@@ -308,10 +306,8 @@ final class WPGraphQL {
 
 	/**
 	 * Sets up the plugin url
-	 *
-	 * @return void
 	 */
-	public function setup_plugin_url() {
+	public function setup_plugin_url(): void {
 		// Plugin Folder URL.
 		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
 			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( dirname( __DIR__ ) . '/wp-graphql.php' ) );
@@ -319,11 +315,9 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Determine the post_types and taxonomies, etc that should show in GraphQL
-	 *
-	 * @return void
+	 * Determine the post_types and taxonomies, etc that should show in GraphQL.
 	 */
-	public function setup_types() {
+	public function setup_types(): void {
 		/**
 		 * Set up the settings, post_types and taxonomies to show_in_graphql
 		 */
@@ -331,11 +325,9 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Flush permalinks if the GraphQL Endpoint route isn't yet registered
-	 *
-	 * @return void
+	 * Flush permalinks if the GraphQL Endpoint route isn't yet registered.
 	 */
-	public function maybe_flush_permalinks() {
+	public function maybe_flush_permalinks(): void {
 		$rules = get_option( 'rewrite_rules' );
 		if ( ! isset( $rules[ graphql_get_endpoint() . '/?$' ] ) ) {
 			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
@@ -386,9 +378,9 @@ final class WPGraphQL {
 					/**
 					 * Filters the interfaces applied to an object type
 					 *
-					 * @param string[]                                                           $interfaces List of interfaces applied to the Object Type
-					 * @param array<string,mixed>                                                $config     The config for the Object Type
-					 * @param mixed|\WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
+					 * @param string[]                                                     $interfaces List of interfaces applied to the Object Type
+					 * @param array<string,mixed>                                          $config     The config for the Object Type
+					 * @param \WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
 					 */
 					return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
 				}
@@ -419,11 +411,9 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Upgrade routine
-	 *
-	 * @return void
+	 * Upgrade routine.
 	 */
-	public function upgrade() {
+	public function upgrade(): void {
 		$version = get_option( 'wp_graphql_version', null );
 
 		// If the version is not set, this is a fresh install, not an update.
@@ -477,10 +467,8 @@ final class WPGraphQL {
 
 	/**
 	 * Clear all caches in the "wpgraphql_extensions" cache group.
-	 *
-	 * @return void
 	 */
-	public function clear_extensions_cache() {
+	public function clear_extensions_cache(): void {
 		global $wp_object_cache;
 
 		if ( isset( $wp_object_cache->cache['wpgraphql_extensions'] ) ) {
@@ -491,22 +479,19 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Initialize admin functionality
-	 *
-	 * @return void
+	 * Initialize admin functionality.
 	 */
-	public function init_admin() {
+	public function init_admin(): void {
 		$admin = new Admin();
 		$admin->init();
 	}
 
 	/**
-	 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema
+	 * This sets up built-in post_types and taxonomies to show in the GraphQL Schema.
 	 *
-	 * @return void
 	 * @since  0.0.2
 	 */
-	public static function show_in_graphql() {
+	public static function show_in_graphql(): void {
 		add_filter( 'register_post_type_args', [ self::class, 'setup_default_post_types' ], 10, 2 );
 		add_filter( 'register_taxonomy_args', [ self::class, 'setup_default_taxonomies' ], 10, 2 );
 
@@ -586,7 +571,7 @@ final class WPGraphQL {
 	 * @throws \Exception
 	 * @since 1.12.0
 	 */
-	public static function register_graphql_post_type_args( array $args, string $post_type_name ) {
+	public static function register_graphql_post_type_args( array $args, string $post_type_name ): array {
 		// Bail early if the post type is hidden from the WPGraphQL schema.
 		if ( empty( $args['show_in_graphql'] ) ) {
 			return $args;
@@ -615,7 +600,7 @@ final class WPGraphQL {
 	 * @throws \Exception
 	 * @since 1.12.0
 	 */
-	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ) {
+	public static function register_graphql_taxonomy_args( array $args, string $taxonomy_name ): array {
 		// Bail early if the taxonomy  is hidden from the WPGraphQL schema.
 		if ( empty( $args['show_in_graphql'] ) ) {
 			return $args;
@@ -639,7 +624,15 @@ final class WPGraphQL {
 	 *
 	 * @since 1.12.0
 	 *
-	 * @return array<string,mixed>
+	 * @return array{
+	 *   graphql_kind: 'interface'|'object'|'union',
+	 *   graphql_resolve_type: ?callable,
+	 *   graphql_interfaces: string[],
+	 *   graphql_connections: string[],
+	 *   graphql_union_types: string[],
+	 *   graphql_register_root_field: bool,
+	 *   graphql_register_root_connection: bool,
+	 * }
 	 */
 	public static function get_default_graphql_type_args(): array {
 		return [
@@ -665,17 +658,20 @@ final class WPGraphQL {
 
 	/**
 	 * Get the post types that are allowed to be used in GraphQL.
+	 *
 	 * This gets all post_types that are set to show_in_graphql, but allows for external code
 	 * (plugins/theme) to filter the list of allowed_post_types to add/remove additional post_types
 	 *
-	 * @param string|mixed[]      $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
+	 * @param 'names'|'objects'   $output Optional. The type of output to return. Accepts post type 'names' or 'objects'. Default 'names'.
 	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed post types
 	 *
-	 * @return array<string,mixed>
+	 * @return string[]|\WP_Post_Type[]
+	 * @phpstan-return ( $output is 'objects' ? \WP_Post_Type[] : string[] )
+	 *
 	 * @since  0.0.4
 	 * @since  1.8.1 adds $output as first param, and stores post type objects in class property.
 	 */
-	public static function get_allowed_post_types( $output = 'names', $args = [] ) {
+	public static function get_allowed_post_types( $output = 'names', $args = [] ): array {
 		// Support deprecated param order.
 		if ( is_array( $output ) ) {
 			_deprecated_argument( __METHOD__, '1.8.1', '$args should be passed as the second parameter.' );
@@ -759,13 +755,14 @@ final class WPGraphQL {
 	 * (plugins/themes) to filter the list of allowed_taxonomies to add/remove additional
 	 * taxonomies
 	 *
-	 * @param string              $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
+	 * @param 'names'|'objects'   $output Optional. The type of output to return. Accepts taxonomy 'names' or 'objects'. Default 'names'.
 	 * @param array<string,mixed> $args   Optional. Arguments to filter allowed taxonomies.
 	 *
-	 * @return array<string,mixed>
+	 * @return string[]|\WP_Taxonomy[]
+	 * @phpstan-return ( $output is 'objects' ? \WP_Taxonomy[] : string[] )
 	 * @since  0.0.4
 	 */
-	public static function get_allowed_taxonomies( $output = 'names', $args = [] ) {
+	public static function get_allowed_taxonomies( $output = 'names', $args = [] ): array {
 
 		// Initialize array of allowed post type objects.
 		if ( empty( self::$allowed_taxonomies ) ) {
@@ -806,7 +803,7 @@ final class WPGraphQL {
 					if ( empty( $obj->graphql_single_name ) || empty( $obj->graphql_plural_name ) ) {
 						graphql_debug(
 							sprintf(
-							/* translators: %s will replaced with the registered taxonomty */
+							/* translators: %s will replaced with the registered taxonomy */
 								__( 'The "%s" taxonomy isn\'t configured properly to show in GraphQL. It needs a "graphql_single_name" and a "graphql_plural_name"', 'wp-graphql' ),
 								$obj->name
 							),
@@ -838,11 +835,9 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Allow Schema to be cleared
-	 *
-	 * @return void
+	 * Allow Schema to be cleared.
 	 */
-	public static function clear_schema() {
+	public static function clear_schema(): void {
 		self::$type_registry      = null;
 		self::$schema             = null;
 		self::$allowed_post_types = null;
@@ -858,7 +853,7 @@ final class WPGraphQL {
 	 * @throws \Exception
 	 */
 	public static function get_schema() {
-		if ( null === self::$schema ) {
+		if ( ! isset( self::$schema ) ) {
 			$schema_registry = new SchemaRegistry();
 			$schema          = $schema_registry->get_schema();
 
@@ -882,7 +877,7 @@ final class WPGraphQL {
 		/**
 		 * Return the Schema after applying filters
 		 */
-		return ! empty( self::$schema ) ? self::$schema : null;
+		return self::$schema;
 	}
 
 	/**
@@ -903,15 +898,14 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Returns the Schema as defined by static registrations throughout
-	 * the WP Load.
+	 * Returns the type registry, instantiating it if it doesn't exist.
 	 *
 	 * @return \WPGraphQL\Registry\TypeRegistry
 	 *
 	 * @throws \Exception
 	 */
 	public static function get_type_registry() {
-		if ( null === self::$type_registry ) {
+		if ( ! isset( self::$type_registry ) ) {
 			$type_registry = new TypeRegistry();
 
 			/**
@@ -934,15 +928,13 @@ final class WPGraphQL {
 		/**
 		 * Return the Schema after applying filters
 		 */
-		return ! empty( self::$type_registry ) ? self::$type_registry : null;
+		return self::$type_registry;
 	}
 
 	/**
-	 * Return the static schema if there is one
-	 *
-	 * @return ?string
+	 * Return the static schema if there is one.
 	 */
-	public static function get_static_schema() {
+	public static function get_static_schema(): ?string {
 		$schema_file = WPGRAPHQL_PLUGIN_DIR . 'schema.graphql';
 
 		if ( ! file_exists( $schema_file ) ) {
@@ -956,10 +948,8 @@ final class WPGraphQL {
 
 	/**
 	 * Get the AppContext for use in passing down the Resolve Tree
-	 *
-	 * @return \WPGraphQL\AppContext
 	 */
-	public static function get_app_context() {
+	public static function get_app_context(): AppContext {
 		/**
 		 * Configure the app_context which gets passed down to all the resolvers.
 		 *

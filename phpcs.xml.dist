@@ -77,6 +77,8 @@
 		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+		<!-- Better handled by SlevomatCodingStandard.TypeHints.PropertyTypeHint -->
+		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
 
 		<!-- Should probably be added back -->
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>

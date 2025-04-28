@@ -418,13 +418,9 @@ class TypeRegistry {
 		UpdateSettings::register_mutation( $this );
 
 		/**
-		 * Register PostObject types based on post_types configured to show_in_graphql
-		 *
-		 * @var \WP_Post_Type[] $allowed_post_types
+		 * Register PostObject types based on post_types configured to show_in_graphql.
 		 */
 		$allowed_post_types = WPGraphQL::get_allowed_post_types( 'objects' );
-
-		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {

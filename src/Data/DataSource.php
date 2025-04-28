@@ -182,9 +182,7 @@ class DataSource {
 	public static function resolve_taxonomy( $taxonomy ) {
 
 		/**
-		 * Get the allowed_taxonomies
-		 *
-		 * @var string[] $allowed_taxonomies
+		 * Get the allowed_taxonomies.
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
