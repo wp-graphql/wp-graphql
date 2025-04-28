@@ -154,7 +154,7 @@ jobs:
           # Check if this is a PR from develop to master
           if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
             # Create a temporary file for the PR body
-            echo '${{ github.event.pull_request.body }}' > /tmp/release-notes/pr_body.md
+            printf "%s" '${{ github.event.pull_request.body }}' > /tmp/release-notes/pr_body.md
 
             # Process the PR body using sed instead of awk
             PR_CONTENT=$(sed -n '/^## Changelog/,/^This PR contains all changes/p' /tmp/release-notes/pr_body.md | \
