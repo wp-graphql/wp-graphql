@@ -31,14 +31,16 @@ class TaxonomyLoader extends AbstractDataLoader {
 	public function loadKeys( array $keys ) {
 		$taxonomies = \WPGraphQL::get_allowed_taxonomies( 'objects' );
 
+		if ( empty( $taxonomies ) ) {
+			return [];
+		}
+
 		$loaded = [];
-		if ( ! empty( $taxonomies ) && is_array( $taxonomies ) ) {
-			foreach ( $keys as $key ) {
-				if ( isset( $taxonomies[ $key ] ) ) {
-					$loaded[ $key ] = $taxonomies[ $key ];
-				} else {
-					$loaded[ $key ] = null;
-				}
+		foreach ( $keys as $key ) {
+			if ( isset( $taxonomies[ $key ] ) ) {
+				$loaded[ $key ] = $taxonomies[ $key ];
+			} else {
+				$loaded[ $key ] = null;
 			}
 		}
 

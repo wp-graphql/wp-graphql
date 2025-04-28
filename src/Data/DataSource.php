@@ -182,9 +182,7 @@ class DataSource {
 	public static function resolve_taxonomy( $taxonomy ) {
 
 		/**
-		 * Get the allowed_taxonomies
-		 *
-		 * @var string[] $allowed_taxonomies
+		 * Get the allowed_taxonomies.
 		 */
 		$allowed_taxonomies = \WPGraphQL::get_allowed_taxonomies();
 
@@ -573,22 +571,25 @@ class DataSource {
 			switch ( true ) {
 				case $node instanceof Post:
 					if ( $node->isRevision ) {
+						/** @var ?\WP_Post */
 						$parent_post = get_post( $node->parentDatabaseId );
+
 						if ( ! empty( $parent_post ) ) {
-							$parent_post_type = $parent_post->post_type;
 							/** @var \WP_Post_Type $post_type_object */
-							$post_type_object = get_post_type_object( $parent_post_type );
-							$type             = $post_type_object->graphql_single_name;
+							$post_type_object = get_post_type_object( $parent_post->post_type );
+							$type             = $post_type_object->graphql_single_name ?? null;
+
+							break;
 						}
-					} else {
-						/** @var \WP_Post_Type $post_type_object */
-						$post_type_object = get_post_type_object( $node->post_type );
-						$type             = $post_type_object->graphql_single_name;
 					}
+
+					/** @var \WP_Post_Type $post_type_object */
+					$post_type_object = isset( $node->post_type ) ? get_post_type_object( $node->post_type ) : null;
+					$type             = $post_type_object->graphql_single_name ?? null;
 					break;
 				case $node instanceof Term:
 					/** @var \WP_Taxonomy $tax_object */
-					$tax_object = get_taxonomy( $node->taxonomyName );
+					$tax_object = isset( $node->taxonomyName ) ? get_taxonomy( $node->taxonomyName ) : null;
 					$type       = $tax_object->graphql_single_name;
 					break;
 				case $node instanceof Comment:
@@ -633,7 +634,6 @@ class DataSource {
 		 * @since 0.0.6
 		 */
 		$type = apply_filters( 'graphql_resolve_node_type', $type, $node );
-		$type = ucfirst( $type );
 
 		/**
 		 * If the $type is not properly resolved, throw an exception
@@ -649,7 +649,7 @@ class DataSource {
 		 *
 		 * @since 0.0.5
 		 */
-		return $type;
+		return ucfirst( $type );
 	}
 
 	/**

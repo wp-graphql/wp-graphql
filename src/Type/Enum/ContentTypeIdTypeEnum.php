@@ -13,17 +13,23 @@ class ContentTypeIdTypeEnum {
 		register_graphql_enum_type(
 			'ContentTypeIdTypeEnum',
 			[
-				'description' => __( 'The Type of Identifier used to fetch a single Content Type node. To be used along with the "id" field. Default is "ID".', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Identifier types for retrieving a specific content type definition. Determines whether to look up content types by ID or name.', 'wp-graphql' );
+				},
 				'values'      => [
 					'ID'   => [
 						'name'        => 'ID',
 						'value'       => 'id',
-						'description' => __( 'The globally unique ID', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The globally unique ID', 'wp-graphql' );
+						},
 					],
 					'NAME' => [
 						'name'        => 'NAME',
 						'value'       => 'name',
-						'description' => __( 'The name of the content type.', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The name of the content type.', 'wp-graphql' );
+						},
 					],
 				],
 			]

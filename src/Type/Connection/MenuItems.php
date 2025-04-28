@@ -70,7 +70,7 @@ class MenuItems {
 								[
 									'taxonomy'         => 'nav_menu',
 									'field'            => 'term_id',
-									'terms'            => (int) $menu->menuId,
+									'terms'            => (int) $menu->databaseId,
 									'include_children' => true,
 									'operator'         => 'IN',
 								],
@@ -100,19 +100,27 @@ class MenuItems {
 				'connectionArgs' => [
 					'id'               => [
 						'type'        => 'Int',
-						'description' => __( 'The database ID of the object', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The database ID of the object', 'wp-graphql' );
+						},
 					],
 					'location'         => [
 						'type'        => 'MenuLocationEnum',
-						'description' => __( 'The menu location for the menu being queried', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The menu location for the menu being queried', 'wp-graphql' );
+						},
 					],
 					'parentId'         => [
 						'type'        => 'ID',
-						'description' => __( 'The ID of the parent menu object', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The ID of the parent menu object', 'wp-graphql' );
+						},
 					],
 					'parentDatabaseId' => [
 						'type'        => 'Int',
-						'description' => __( 'The database ID of the parent menu object', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The database ID of the parent menu object', 'wp-graphql' );
+						},
 					],
 				],
 				'resolve'        => static function ( $source, $args, $context, $info ) {

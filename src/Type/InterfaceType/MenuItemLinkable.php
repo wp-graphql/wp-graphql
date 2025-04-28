@@ -19,17 +19,19 @@ class MenuItemLinkable {
 		register_graphql_interface_type(
 			'MenuItemLinkable',
 			[
-				'description' => __( 'Nodes that can be linked to as Menu Items', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Content that can be referenced by navigation menu items. Provides the essential fields needed to create links within navigation structures.', 'wp-graphql' );
+				},
 				'interfaces'  => [ 'Node', 'UniformResourceIdentifiable', 'DatabaseIdentifier' ],
 				'fields'      => [],
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
 					switch ( true ) {
-						case $node instanceof Post:
+						case $node instanceof Post && isset( $node->post_type ):
 							/** @var \WP_Post_Type $post_type_object */
 							$post_type_object = get_post_type_object( $node->post_type );
 							$type             = $type_registry->get_type( $post_type_object->graphql_single_name );
 							break;
-						case $node instanceof Term:
+						case $node instanceof Term && isset( $node->taxonomyName ):
 							/** @var \WP_Taxonomy $tax_object */
 							$tax_object = get_taxonomy( $node->taxonomyName );
 							$type       = $type_registry->get_type( $tax_object->graphql_single_name );

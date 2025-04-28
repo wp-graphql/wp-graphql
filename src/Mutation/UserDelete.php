@@ -40,11 +40,15 @@ class UserDelete {
 				'type'        => [
 					'non_null' => 'ID',
 				],
-				'description' => __( 'The ID of the user you want to delete', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the user you want to delete', 'wp-graphql' );
+				},
 			],
 			'reassignId' => [
 				'type'        => 'ID',
-				'description' => __( 'Reassign posts and links to new User ID.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Reassign posts and links to new User ID.', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -58,7 +62,9 @@ class UserDelete {
 		return [
 			'deletedId' => [
 				'type'        => 'ID',
-				'description' => __( 'The ID of the user that you just deleted', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the user that you just deleted', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['user'];
 					return ( ! empty( $deleted->ID ) ) ? Relay::toGlobalId( 'user', $deleted->ID ) : null;
@@ -66,7 +72,9 @@ class UserDelete {
 			],
 			'user'      => [
 				'type'        => 'User',
-				'description' => __( 'The deleted user object', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The deleted user object', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					return new User( $payload['user'] );
 				},

@@ -144,10 +144,8 @@ class TermObjectCursor extends AbstractCursor {
 	 *
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
-	 *
-	 * @return void
 	 */
-	private function compare_with( string $by, string $order ) {
+	private function compare_with( string $by, string $order ): void {
 
 		// Bail early, if "key" and "value" provided in query_vars.
 		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
@@ -180,10 +178,8 @@ class TermObjectCursor extends AbstractCursor {
 	 *
 	 * @param string $meta_key meta key
 	 * @param string $order    The comparison string
-	 *
-	 * @return void
 	 */
-	private function compare_with_meta_field( string $meta_key, string $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ): void {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_term_meta( $this->cursor_offset, $meta_key, true );
 

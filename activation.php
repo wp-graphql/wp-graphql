@@ -1,9 +1,7 @@
 <?php
 /**
  * Runs when WPGraphQL is activated
- *
- * @return void
  */
-function graphql_activation_callback() {
+function graphql_activation_callback(): void {
 	do_action( 'graphql_activate' );
 }

@@ -18,9 +18,42 @@ class UserRoleEnum {
 		foreach ( $all_roles as $key => $role ) {
 			$formatted_role = WPEnumType::get_safe_name( isset( $role['name'] ) ? $role['name'] : $key );
 
+			switch ( $role ) {
+				case 'administrator':
+					$description = static function () {
+						return __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
+					};
+					break;
+				case 'editor':
+					$description = static function () {
+						return __( 'Content management access without administrative capabilities.', 'wp-graphql' );
+					};
+					break;
+				case 'author':
+					$description = static function () {
+						return __( 'Can publish and manage their own content.', 'wp-graphql' );
+					};
+					break;
+				case 'contributor':
+					$description = static function () {
+						return __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
+					};
+					break;
+				case 'subscriber':
+					$description = static function () {
+						return __( 'Can only manage their profile and read content.', 'wp-graphql' );
+					};
+					break;
+				default:
+					$description = static function () {
+						return __( 'User role with specific capabilities', 'wp-graphql' );
+					};
+			}
+
 			$roles[ $formatted_role ] = [
-				'description' => __( 'User role with specific capabilities', 'wp-graphql' ),
+				'description' => $description,
 				'value'       => $key,
+				'role'        => $role,
 			];
 		}
 
@@ -32,7 +65,9 @@ class UserRoleEnum {
 		register_graphql_enum_type(
 			'UserRoleEnum',
 			[
-				'description' => __( 'Names of available user roles', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Permission levels for user accounts. Defines the standard access levels that control what actions users can perform within the system.', 'wp-graphql' );
+				},
 				'values'      => $roles,
 			]
 		);

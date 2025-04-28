@@ -64,9 +64,9 @@ class TimezoneEnum {
 				'continent'   => $zone[0],
 				'city'        => $exists[1] ? $zone[1] : '',
 				'subcity'     => $exists[2] ? $zone[2] : '',
-				't_continent' => translate( str_replace( '_', ' ', $zone[0] ), 'wp-graphql' ),
-				't_city'      => $exists[1] ? translate( str_replace( '_', ' ', $zone[1] ), 'wp-graphql' ) : '',
-				't_subcity'   => $exists[2] ? translate( str_replace( '_', ' ', $zone[2] ), 'wp-graphql' ) : '',
+				't_continent' => str_replace( '_', ' ', $zone[0] ),
+				't_city'      => $exists[1] ? str_replace( '_', ' ', $zone[1] ) : '',
+				't_subcity'   => $exists[2] ? str_replace( '_', ' ', $zone[2] ) : '',
 			];
 			// phpcs:enable
 		}
@@ -93,7 +93,9 @@ class TimezoneEnum {
 
 			$enum_values[ WPEnumType::get_safe_name( $value ) ] = [
 				'value'       => $value,
-				'description' => $display,
+				'description' => static function () use ( $display ) {
+					return $display;
+				},
 			];
 		}
 		$offset_range = [
@@ -175,18 +177,22 @@ class TimezoneEnum {
 			// Intentionally avoid WPEnumType::get_safe_name here for specific timezone formatting
 			$enum_values[ WPEnumType::get_safe_name( $offset_name ) ] = [
 				'value'       => $offset_value,
-				'description' => sprintf(
-					// translators: %s is the UTC offset.
-					__( 'UTC offset: %s', 'wp-graphql' ),
-					$offset_name
-				),
+				'description' => static function () use ( $offset_name ) {
+					return sprintf(
+						// translators: %s is the UTC offset.
+						__( 'UTC offset: %s', 'wp-graphql' ),
+						$offset_name
+					);
+				},
 			];
 		}
 
 		register_graphql_enum_type(
 			'TimezoneEnum',
 			[
-				'description' => __( 'Available timezones', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Standardized timezone identifiers. Represents geographical time zones using standard format for date and time operations.', 'wp-graphql' );
+				},
 				'values'      => $enum_values,
 			]
 		);

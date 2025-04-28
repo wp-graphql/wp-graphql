@@ -32,12 +32,55 @@ class PostStatusEnum {
 					continue;
 				}
 
+				switch ( $status ) {
+					case 'publish':
+						$description = static function () {
+							return __( 'Content that is publicly visible to all visitors', 'wp-graphql' );
+						};
+						break;
+					case 'draft':
+						$description = static function () {
+							return __( 'Content that is saved but not yet published or visible to the public', 'wp-graphql' );
+						};
+						break;
+					case 'pending':
+						$description = static function () {
+							return __( 'Content awaiting review before publication', 'wp-graphql' );
+						};
+						break;
+					case 'private':
+						$description = static function () {
+							return __( 'Content only visible to authorized users with appropriate permissions', 'wp-graphql' );
+						};
+						break;
+					case 'trash':
+						$description = static function () {
+							return __( 'Content marked for deletion but still recoverable', 'wp-graphql' );
+						};
+						break;
+					case 'auto-draft':
+						$description = static function () {
+							return __( 'Automatically saved content that has not been manually saved', 'wp-graphql' );
+						};
+						break;
+					case 'inherit':
+						$description = static function () {
+							return __( 'Content that inherits its status from a parent object', 'wp-graphql' );
+						};
+						break;
+					default:
+						$description = static function () use ( $status ) {
+							return sprintf(
+								// translators: %1$s is the post status.
+								__( 'Objects with the %1$s status', 'wp-graphql' ),
+								$status
+							);
+						};
+						break;
+				}
+
 				$post_status_enum_values[ WPEnumType::get_safe_name( $status ) ] = [
-					'description' => sprintf(
-						// translators: %1$s is the post status.
-						__( 'Objects with the %1$s status', 'wp-graphql' ),
-						$status
-					),
+					'description' => $description,
 					'value'       => $status,
 				];
 			}
@@ -46,7 +89,9 @@ class PostStatusEnum {
 		register_graphql_enum_type(
 			'PostStatusEnum',
 			[
-				'description' => __( 'The status of the object.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Publishing status that controls the visibility and editorial state of content. Determines whether content is published, pending review, in draft state, or private.', 'wp-graphql' );
+				},
 				'values'      => $post_status_enum_values,
 			]
 		);

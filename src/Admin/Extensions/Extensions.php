@@ -10,6 +10,8 @@ use WP_REST_Response;
  *
  * @package WPGraphQL\Admin\Extensions
  *
+ * phpcs:disable -- For phpstan type hinting
+ * @phpstan-import-type ExtensionAuthor from \WPGraphQL\Admin\Extensions\Registry
  * @phpstan-import-type Extension from \WPGraphQL\Admin\Extensions\Registry
  *
  * @phpstan-type PopulatedExtension array{
@@ -19,15 +21,13 @@ use WP_REST_Response;
  *   support_url: non-empty-string,
  *   documentation_url: non-empty-string,
  *   repo_url?: string,
- *   author: array{
- *     name: non-empty-string,
- *     homepage?: string,
- *   },
+ *   author: ExtensionAuthor,
  *   installed: bool,
  *   active: bool,
  *   settings_path?: string,
  *   settings_url?: string,
  * }
+ * phpcs:enable
  */
 final class Extensions {
 	/**
@@ -35,16 +35,14 @@ final class Extensions {
 	 *
 	 * Filtered by `graphql_get_extensions`.
 	 *
-	 * @var ?PopulatedExtension[]
+	 * @var PopulatedExtension[]
 	 */
-	private $extensions;
+	private array $extensions;
 
 	/**
 	 * Initialize Extensions functionality for WPGraphQL.
-	 *
-	 * @return void
 	 */
-	public function init() {
+	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'register_admin_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
@@ -52,10 +50,8 @@ final class Extensions {
 
 	/**
 	 * Register the admin page for extensions.
-	 *
-	 * @return void
 	 */
-	public function register_admin_page() {
+	public function register_admin_page(): void {
 		add_submenu_page(
 			'graphiql-ide',
 			__( 'WPGraphQL Extensions', 'wp-graphql' ),
@@ -68,10 +64,8 @@ final class Extensions {
 
 	/**
 	 * Render the admin page content.
-	 *
-	 * @return void
 	 */
-	public function render_admin_page() {
+	public function render_admin_page(): void {
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
 		echo '<div style="margin-top: 20px;" id="wpgraphql-extensions"></div>';
@@ -82,10 +76,8 @@ final class Extensions {
 	 * Enqueue the necessary scripts and styles for the extensions page.
 	 *
 	 * @param string $hook_suffix The current admin page.
-	 *
-	 * @return void
 	 */
-	public function enqueue_scripts( $hook_suffix ) {
+	public function enqueue_scripts( $hook_suffix ): void {
 		if ( 'graphql_page_wpgraphql-extensions' !== $hook_suffix ) {
 			return;
 		}
@@ -121,10 +113,8 @@ final class Extensions {
 
 	/**
 	 * Register custom REST API routes.
-	 *
-	 * @return void
 	 */
-	public function register_rest_routes() {
+	public function register_rest_routes(): void {
 		register_rest_route(
 			'wp/v2',
 			'/plugins/(?P<plugin>.+)',
@@ -149,11 +139,12 @@ final class Extensions {
 	/**
 	 * Activate a plugin.
 	 *
-	 * @param \WP_REST_Request<array<string, mixed>> $request The REST request.
+	 * @param \WP_REST_Request<array{plugin:string}> $request The REST request.
+	 *
 	 * @return \WP_REST_Response The REST response.
 	 */
 	public function activate_plugin( WP_REST_Request $request ): WP_REST_Response {
-		$plugin = $request->get_param( 'plugin' );
+		$plugin = (string) $request->get_param( 'plugin' );
 		$result = activate_plugin( $plugin );
 
 		if ( is_wp_error( $result ) ) {
@@ -176,11 +167,16 @@ final class Extensions {
 	}
 
 	/**
-	 * Get the list of installed plugins.
+	 * Get the list of installed plugins
 	 *
-	 * @return array<string, array<string, mixed>> List of installed plugins.
+	 * @return array<string,array{
+	 *  is_active: bool,
+	 *  name: string,
+	 *  description: string,
+	 *  author: string,
+	 * }> List of installed plugins, keyed by the plugin slug.
 	 */
-	private function get_installed_plugins() {
+	private function get_installed_plugins(): array {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			// @phpstan-ignore requireOnce.fileNotFound
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -208,9 +204,20 @@ final class Extensions {
 	 * Sanitizes extension values before they are used.
 	 *
 	 * @param array<string,mixed> $extension The extension to sanitize.
-	 * @return array<string,mixed> The sanitized extension.
+	 * @return array{
+	 *  name: string|null,
+	 *  description: string|null,
+	 *  plugin_url: string|null,
+	 *  support_url: string|null,
+	 *  documentation_url: string|null,
+	 *  repo_url: string|null,
+	 *  author: array{
+	 *    name: string|null,
+	 *    homepage: string|null,
+	 *  },
+	 * }
 	 */
-	private function sanitize_extension( array $extension ) {
+	private function sanitize_extension( array $extension ): array {
 		return [
 			'name'              => ! empty( $extension['name'] ) ? sanitize_text_field( $extension['name'] ) : null,
 			'description'       => ! empty( $extension['description'] ) ? sanitize_text_field( $extension['description'] ) : null,
@@ -280,7 +287,7 @@ final class Extensions {
 	 *
 	 * @return PopulatedExtension[] The populated extensions.
 	 */
-	private function populate_installation_data( $extensions ) {
+	private function populate_installation_data( $extensions ): array {
 		$installed_plugins = $this->get_installed_plugins();
 
 		$populated_extensions = [];
@@ -294,7 +301,10 @@ final class Extensions {
 			if ( isset( $installed_plugins[ $slug ] ) ) {
 				$extension['installed'] = true;
 				$extension['active']    = $installed_plugins[ $slug ]['is_active'];
-				$extension['author']    = $installed_plugins[ $slug ]['author'];
+
+				if ( ! empty( $installed_plugins[ $slug ]['author'] ) ) {
+					$extension['author']['name'] = $installed_plugins[ $slug ]['author'];
+				}
 			}
 
 			// @todo Where does this come from?
@@ -349,7 +359,7 @@ final class Extensions {
 			 *
 			 * @see Admin\Extensions\Registry::get_extensions() for the correct format of the extensions.
 			 *
-			 * @param array<string,mixed> $extensions The list of extensions.
+			 * @param array<string,Extension> $extensions The list of extensions.
 			 */
 			$extensions = apply_filters( 'graphql_get_extensions', $extensions );
 

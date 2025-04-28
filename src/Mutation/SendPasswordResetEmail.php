@@ -17,7 +17,9 @@ class SendPasswordResetEmail {
 		register_graphql_mutation(
 			'sendPasswordResetEmail',
 			[
-				'description'         => __( 'Send password reset email to user', 'wp-graphql' ),
+				'description'         => static function () {
+					return __( 'Send password reset email to user', 'wp-graphql' );
+				},
 				'inputFields'         => self::get_input_fields(),
 				'outputFields'        => self::get_output_fields(),
 				'mutateAndGetPayload' => self::mutate_and_get_payload(),
@@ -36,7 +38,9 @@ class SendPasswordResetEmail {
 				'type'        => [
 					'non_null' => 'String',
 				],
-				'description' => __( 'A string that contains the user\'s username or email address.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'A string that contains the user\'s username or email address.', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -50,15 +54,21 @@ class SendPasswordResetEmail {
 		return [
 			'user'    => [
 				'type'              => 'User',
-				'description'       => __( 'The user that the password reset email was sent to', 'wp-graphql' ),
-				'deprecationReason' => __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' ),
+				'description'       => static function () {
+					return __( 'The user that the password reset email was sent to', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'This field will be removed in a future version of WPGraphQL', 'wp-graphql' );
+				},
 				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
 				},
 			],
 			'success' => [
 				'type'        => 'Boolean',
-				'description' => __( 'Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent.', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -127,10 +137,8 @@ class SendPasswordResetEmail {
 	 * Was a username or email address provided?
 	 *
 	 * @param array<string,mixed> $input The input args.
-	 *
-	 * @return bool
 	 */
-	private static function was_username_provided( $input ) {
+	private static function was_username_provided( $input ): bool {
 		return ! empty( $input['username'] ) && is_string( $input['username'] );
 	}
 
@@ -159,10 +167,8 @@ class SendPasswordResetEmail {
 	 * Get the error message indicating why the user wasn't found
 	 *
 	 * @param string $username The user's username or email address.
-	 *
-	 * @return string
 	 */
-	private static function get_user_not_found_error_message( string $username ) {
+	private static function get_user_not_found_error_message( string $username ): string {
 		if ( self::is_email_address( $username ) ) {
 			return __( 'There is no user registered with that email address.', 'wp-graphql' );
 		}
@@ -174,10 +180,8 @@ class SendPasswordResetEmail {
 	 * Is the provided username arg an email address?
 	 *
 	 * @param string $username The user's username or email address.
-	 *
-	 * @return bool
 	 */
-	private static function is_email_address( string $username ) {
+	private static function is_email_address( string $username ): bool {
 		return (bool) strpos( $username, '@' );
 	}
 
@@ -185,10 +189,8 @@ class SendPasswordResetEmail {
 	 * Get the subject of the password reset email
 	 *
 	 * @param \WP_User $user_data User data
-	 *
-	 * @return string
 	 */
-	private static function get_email_subject( $user_data ) {
+	private static function get_email_subject( $user_data ): string {
 		/* translators: Password reset email subject. %s: Site name */
 		$title = sprintf( __( '[%s] Password Reset', 'wp-graphql' ), self::get_site_name() );
 
@@ -199,15 +201,13 @@ class SendPasswordResetEmail {
 		 * @param string   $user_login The username for the user.
 		 * @param \WP_User $user_data WP_User object.
 		 */
-		return apply_filters( 'retrieve_password_title', $title, $user_data->user_login, $user_data );
+		return (string) apply_filters( 'retrieve_password_title', $title, $user_data->user_login, $user_data );
 	}
 
 	/**
 	 * Get the site name.
-	 *
-	 * @return string
 	 */
-	private static function get_site_name() {
+	private static function get_site_name(): string {
 		if ( is_multisite() ) {
 			$network = get_network();
 			if ( isset( $network->site_name ) ) {
@@ -220,7 +220,7 @@ class SendPasswordResetEmail {
 		* in sanitize_option we want to reverse this for the plain text arena of emails.
 		*/
 
-		return wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		return wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
 	}
 
 	/**
@@ -228,10 +228,8 @@ class SendPasswordResetEmail {
 	 *
 	 * @param \WP_User $user_data User data
 	 * @param string   $key       Password reset key
-	 *
-	 * @return string
 	 */
-	private static function get_email_message( $user_data, $key ) {
+	private static function get_email_message( $user_data, $key ): string {
 		$message = __( 'Someone has requested a password reset for the following account:', 'wp-graphql' ) . "\r\n\r\n";
 		/* translators: %s: site name */
 		$message .= sprintf( __( 'Site Name: %s', 'wp-graphql' ), self::get_site_name() ) . "\r\n\r\n";
@@ -251,6 +249,6 @@ class SendPasswordResetEmail {
 		 * @param string   $user_login The username for the user.
 		 * @param \WP_User $user_data WP_User object.
 		 */
-		return apply_filters( 'retrieve_password_message', $message, $key, $user_data->user_login, $user_data );
+		return (string) apply_filters( 'retrieve_password_message', $message, $key, $user_data->user_login, $user_data );
 	}
 }

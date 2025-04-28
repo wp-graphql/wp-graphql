@@ -151,6 +151,13 @@ class TypeRegistry {
 	protected $types;
 
 	/**
+	 * The keys that are prepared for introspection.
+	 *
+	 * @var array<string>|null
+	 */
+	protected static ?array $introspection_keys = null;
+
+	/**
 	 * The loaders needed to register types
 	 *
 	 * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
@@ -411,13 +418,9 @@ class TypeRegistry {
 		UpdateSettings::register_mutation( $this );
 
 		/**
-		 * Register PostObject types based on post_types configured to show_in_graphql
-		 *
-		 * @var \WP_Post_Type[] $allowed_post_types
+		 * Register PostObject types based on post_types configured to show_in_graphql.
 		 */
 		$allowed_post_types = WPGraphQL::get_allowed_post_types( 'objects' );
-
-		/** @var \WP_Taxonomy[] $allowed_taxonomies */
 		$allowed_taxonomies = WPGraphQL::get_allowed_taxonomies( 'objects' );
 
 		foreach ( $allowed_post_types as $post_type_object ) {
@@ -454,45 +457,55 @@ class TypeRegistry {
 					register_graphql_input_type(
 						$post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
 						[
-							'description' => sprintf(
-								// translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
-								__( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ),
-								$tax_object->graphql_plural_name,
-								$post_type_object->graphql_single_name
-							),
+							'description' => static function () use ( $tax_object, $post_type_object ) {
+								return sprintf(
+										// translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
+									__( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ),
+									$tax_object->graphql_plural_name,
+									$post_type_object->graphql_single_name
+								);
+							},
 							'fields'      => [
 								'id'          => [
 									'type'        => 'Id',
-									'description' => sprintf(
-										// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
-										__( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ),
-										$tax_object->graphql_single_name,
-										$post_type_object->graphql_single_name
-									),
+									'description' => static function () use ( $tax_object, $post_type_object ) {
+										return sprintf(
+												// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
+											__( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ),
+											$tax_object->graphql_single_name,
+											$post_type_object->graphql_single_name
+										);
+									},
 								],
 								'slug'        => [
 									'type'        => 'String',
-									'description' => sprintf(
-										// translators: %1$s is the GraphQL name of the taxonomy.
-										__( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ),
-										$tax_object->graphql_single_name
-									),
+									'description' => static function () use ( $tax_object ) {
+										return sprintf(
+											// translators: %1$s is the GraphQL name of the taxonomy.
+											__( 'The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation.', 'wp-graphql' ),
+											$tax_object->graphql_single_name
+										);
+									},
 								],
 								'description' => [
 									'type'        => 'String',
-									'description' => sprintf(
-										// translators: %1$s is the GraphQL name of the taxonomy.
-										__( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ),
-										$tax_object->graphql_single_name
-									),
+									'description' => static function () use ( $tax_object ) {
+										return sprintf(
+											// translators: %1$s is the GraphQL name of the taxonomy.
+											__( 'The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation.', 'wp-graphql' ),
+											$tax_object->graphql_single_name
+										);
+									},
 								],
 								'name'        => [
 									'type'        => 'String',
-									'description' => sprintf(
+									'description' => static function () use ( $tax_object ) {
+										return sprintf(
 											// translators: %1$s is the GraphQL name of the taxonomy.
-										__( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ),
-										$tax_object->graphql_single_name
-									),
+											__( 'The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field.', 'wp-graphql' ),
+											$tax_object->graphql_single_name
+										);
+									},
 								],
 							],
 						]
@@ -501,27 +514,33 @@ class TypeRegistry {
 					register_graphql_input_type(
 						ucfirst( $post_type_object->graphql_single_name ) . ucfirst( $tax_object->graphql_plural_name ) . 'Input',
 						[
-							'description' => sprintf(
-								// translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
-								__( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ),
-								$post_type_object->graphql_single_name,
-								$tax_object->graphql_plural_name
-							),
+							'description' => static function () use ( $tax_object, $post_type_object ) {
+								return sprintf(
+									// translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
+									__( 'Set relationships between the %1$s to %2$s', 'wp-graphql' ),
+									$post_type_object->graphql_single_name,
+									$tax_object->graphql_plural_name
+								);
+							},
 							'fields'      => [
 								'append' => [
 									'type'        => 'Boolean',
-									'description' => sprintf(
-										// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
-										__( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ),
-										$tax_object->graphql_single_name,
-										$tax_object->graphql_plural_name
-									),
+									'description' => static function () use ( $tax_object ) {
+										return sprintf(
+											// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
+											__( 'If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true.', 'wp-graphql' ),
+											$tax_object->graphql_single_name,
+											$tax_object->graphql_plural_name
+										);
+									},
 								],
 								'nodes'  => [
 									'type'        => [
 										'list_of' => $post_type_object->graphql_single_name . ucfirst( $tax_object->graphql_plural_name ) . 'NodeInput',
 									],
-									'description' => __( 'The input list of items to set.', 'wp-graphql' ),
+									'description' => static function () {
+										return __( 'The input list of items to set.', 'wp-graphql' );
+									},
 								],
 							],
 						]
@@ -565,7 +584,9 @@ class TypeRegistry {
 				'url',
 				[
 					'type'        => 'String',
-					'description' => __( 'Site URL.', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'Site URL.', 'wp-graphql' );
+					},
 					'resolve'     => static function () {
 						return get_site_url();
 					},
@@ -587,11 +608,13 @@ class TypeRegistry {
 					Utils::format_field_name( $type_name ),
 					[
 						'type'        => $type_name,
-						'description' => sprintf(
-							// translators: %s is the GraphQL name of the settings group.
-							__( "Fields of the '%s' settings group", 'wp-graphql' ),
-							ucfirst( $group_name ) . 'Settings'
-						),
+						'description' => static function () use ( $group_name ) {
+							return sprintf(
+								// translators: %s is the GraphQL name of the settings group.
+								__( "Fields of the '%s' settings group", 'wp-graphql' ),
+								ucfirst( $group_name ) . 'Settings'
+							);
+						},
 						'resolve'     => static function () use ( $setting_type ) {
 							return $setting_type;
 						},
@@ -793,6 +816,58 @@ class TypeRegistry {
 	}
 
 	/**
+	 * Get the keys that are prepared for introspection.
+	 *
+	 * @return array<string>
+	 */
+	protected static function get_introspection_keys(): array {
+
+		if ( null === self::$introspection_keys ) {
+			/**
+			 * Filter the keys that are prepared for introspection.
+			 *
+			 * @param array<string> $introspection_keys The keys to prepare for introspection.
+			 */
+			$introspection_keys       = \apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
+			self::$introspection_keys = $introspection_keys;
+		}
+
+		return self::$introspection_keys;
+	}
+
+	/**
+	 * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
+	 * introspection queries.
+	 *
+	 * @param array<string,mixed> $config The config to prepare.
+	 *
+	 * @return array<string,mixed> The prepared config.
+	 *
+	 * @internal
+	 */
+	public static function prepare_config_for_introspection( array $config ): array {
+
+		// Get the keys that are prepared for introspection.
+		$introspection_keys = self::get_introspection_keys();
+
+		foreach ( $introspection_keys as $key ) {
+			if ( ! isset( $config[ $key ] ) || ! is_callable( $config[ $key ] ) ) {
+				continue;
+			}
+
+			if ( ! WPGraphQL::is_introspection_query() ) {
+				// If not introspection, set to null.
+				$config[ $key ] = null;
+				continue;
+			}
+
+			$config[ $key ] = is_callable( $config[ $key ] ) ? $config[ $key ]() : '';
+		}
+
+		return $config;
+	}
+
+	/**
 	 * Prepare the type for registration.
 	 *
 	 * @param string                                                  $type_name The name of the type to prepare
@@ -810,6 +885,8 @@ class TypeRegistry {
 		if ( ! empty( $config ) ) {
 			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
 			$config['name'] = ucfirst( $type_name );
+
+			$config = self::prepare_config_for_introspection( $config );
 
 			switch ( $kind ) {
 				case 'enum':
@@ -1006,6 +1083,8 @@ class TypeRegistry {
 		if ( empty( $field_config['args'] ) ) {
 			unset( $field_config['args'] );
 		}
+
+		$field_config = self::prepare_config_for_introspection( $field_config );
 
 		return $field_config;
 	}

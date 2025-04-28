@@ -16,17 +16,25 @@ class Edge {
 		register_graphql_interface_type(
 			'Edge',
 			[
-				'description' => __( 'Relational context between connected nodes', 'wp-graphql' ),
-				'fields'      => [
-					'cursor' => [
-						'type'        => 'String',
-						'description' => __( 'Opaque reference to the nodes position in the connection. Value can be used with pagination args.', 'wp-graphql' ),
-					],
-					'node'   => [
-						'type'        => [ 'non_null' => 'Node' ],
-						'description' => __( 'The connected node', 'wp-graphql' ),
-					],
-				],
+				'description' => static function () {
+					return __( 'Represents a connection between two objects. Contains both the related object (node) and metadata about the relationship (cursor).', 'wp-graphql' );
+				},
+				'fields'      => static function () {
+					return [
+						'cursor' => [
+							'type'        => 'String',
+							'description' => static function () {
+								return __( 'Opaque reference to the nodes position in the connection. Value can be used with pagination args.', 'wp-graphql' );
+							},
+						],
+						'node'   => [
+							'type'        => [ 'non_null' => 'Node' ],
+							'description' => static function () {
+								return __( 'The connected node', 'wp-graphql' );
+							},
+						],
+					];
+				},
 			]
 		);
 	}
