@@ -41,8 +41,10 @@ class MediaItemUpdate {
 					'type'        => [
 						'non_null' => 'ID',
 					],
-					// translators: the placeholder is the name of the type of post object being updated
-					'description' => sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+					'description' => static function () use ( $post_type_object ) {
+						// translators: the placeholder is the name of the type of post object being updated
+						return sprintf( __( 'The ID of the %1$s object', 'wp-graphql' ), $post_type_object->graphql_single_name );
+					},
 				],
 			]
 		);

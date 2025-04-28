@@ -163,11 +163,7 @@ class Request {
 		$this->validation_rules = $this->get_validation_rules();
 		$this->field_resolver   = $this->get_field_resolver();
 
-		/**
-		 * Configure the app_context which gets passed down to all the resolvers.
-		 *
-		 * @since 0.0.4
-		 */
+		// Inject the type registry into the app context.
 		$this->app_context->type_registry = $this->type_registry;
 
 		// The query analyzer tracks nodes, models, list types and more

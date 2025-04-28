@@ -8,7 +8,7 @@ For more information on how to submit an extension, see [docs/submit-extension.m
 
 The extensions page is generated from the array defined in the [`src/Admin/Extensions/Registry.php::get_extensions()` method ](./Registry.php).
 
-Extensions are then shown in the WPGraphQL Extensions page in the WordPress dashboard under the WPGraphQL Admin Menu, and  displayed on the [WPGraphQL website](https://www.wpgraphql.com/extensions/) as part of the WPGraphQL.com website build process.
+Extensions are then shown in the WPGraphQL Extensions page in the WordPress dashboard under the WPGraphQL Admin Menu, and displayed on the [WPGraphQL website](https://www.wpgraphql.com/extensions/) as part of the WPGraphQL.com website build process.
 
 The Extensions page is a React app that reads the list of extensions, sent to the React app that displays the extensions and allows for extensions hosted on WordPress.org to be installed and activated directly from the Extensions page. Extensions hosted on GitHub are linked to their repository and can be downloaded from their repository, or following whatever installation instructions the plugin provides.
 

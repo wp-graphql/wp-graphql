@@ -24,25 +24,49 @@ class WPInputObjectType extends InputObjectType {
 	/**
 	 * WPInputObjectType constructor.
 	 *
-	 * @param array<string,mixed>              $config The Config to set up an Input Type
-	 *
-	 * @phpstan-param InputObjectConfig $config
+	 * @param InputObjectConfig                $config The Config to set up an Input Type
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
 	 */
 	public function __construct( array $config, TypeRegistry $type_registry ) {
-		$name           = $config['name'] ?? $this->inferName();
-		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
-
-		if ( array_key_exists( 'fields', $config ) && is_array( $config['fields'] ) ) {
-			$config['fields'] = function () use ( $config, $type_registry ) {
-				$fields = $this->prepare_fields( $config['fields'], $config['name'], $config, $type_registry );
-				$fields = $type_registry->prepare_fields( $fields, $config['name'] );
-
-				return $fields;
-			};
+		$name = $config['name'] ?? $this->inferName();
+		if ( ! is_string( $name ) ) {
+			$name = '';
 		}
+		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
+		$config['fields'] = $this->get_fields( $config, $type_registry );
 
 		parent::__construct( $config );
+	}
+
+	/**
+	 * Get the fields for the input type
+	 *
+	 * @param array<string,mixed>              $config
+	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @return array<string,mixed>
+	 *
+	 * @since next-version
+	 */
+	protected function get_fields( array $config, TypeRegistry $type_registry ): array {
+
+		$fields = [];
+
+		if ( is_callable( $config['fields'] ) ) {
+			$fields = $config['fields']();
+		} elseif ( is_array( $config['fields'] ) ) {
+			$fields = $config['fields'];
+		}
+
+		if ( ! empty( $fields ) && is_array( $fields ) ) {
+			$type_name = $config['name'] ?? '';
+			if ( ! is_string( $type_name ) ) {
+				$type_name = '';
+			}
+			$fields = $this->prepare_fields( $fields, $type_name, $config, $type_registry );
+			$fields = $type_registry->prepare_fields( $fields, $type_name );
+		}
+
+		return $fields;
 	}
 
 	/**

@@ -22,52 +22,70 @@ class UniformResourceIdentifiable {
 			'UniformResourceIdentifiable',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'An interface for content that can be accessed via a unique URI/URL path. Implemented by content types that have their own permalinks.', 'wp-graphql' ),
-				'fields'      => [
-					'uri'           => [
-						'type'        => 'String',
-						'description' => __( 'The unique resource identifier path', 'wp-graphql' ),
-					],
-					'id'            => [
-						'type'        => [ 'non_null' => 'ID' ],
-						'description' => __( 'The globally unique ID for the object', 'wp-graphql' ),
-					],
-					'isContentNode' => [
-						'type'        => [ 'non_null' => 'Boolean' ],
-						'description' => __( 'Whether the node is a Content Node', 'wp-graphql' ),
-						'resolve'     => static function ( $node ) {
-							return $node instanceof Post;
-						},
-					],
-					'isTermNode'    => [
-						'type'        => [ 'non_null' => 'Boolean' ],
-						'description' => __( 'Whether the node is a Term', 'wp-graphql' ),
-						'resolve'     => static function ( $node ) {
-							return $node instanceof Term;
-						},
-					],
-					'isFrontPage'   => [
-						'type'        => [ 'non_null' => 'Bool' ],
-						'description' => __( 'Whether the node represents the front page.', 'wp-graphql' ),
-						'resolve'     => static function ( $node, $args, $context, $info ) {
-							return isset( $node->isFrontPage ) && (bool) $node->isFrontPage;
-						},
-					],
-					'isPostsPage'   => [
-						'type'        => [ 'non_null' => 'Bool' ],
-						'description' => __( 'Whether  the node represents the blog page.', 'wp-graphql' ),
-						'resolve'     => static function ( $node, $args, $context, $info ) {
-							return isset( $node->isPostsPage ) && (bool) $node->isPostsPage;
-						},
-					],
-					'isComment'     => [
-						'type'        => [ 'non_null' => 'Boolean' ],
-						'description' => __( 'Whether the node is a Comment', 'wp-graphql' ),
-						'resolve'     => static function ( $node ) {
-							return $node instanceof Comment;
-						},
-					],
-				],
+				'description' => static function () {
+					return __( 'An interface for content that can be accessed via a unique URI/URL path. Implemented by content types that have their own permalinks.', 'wp-graphql' );
+				},
+				'fields'      => static function () {
+					return [
+						'uri'           => [
+							'type'        => 'String',
+							'description' => static function () {
+								return __( 'The unique resource identifier path', 'wp-graphql' );
+							},
+						],
+						'id'            => [
+							'type'        => [ 'non_null' => 'ID' ],
+							'description' => static function () {
+								return __( 'The globally unique ID for the object', 'wp-graphql' );
+							},
+						],
+						'isContentNode' => [
+							'type'        => [ 'non_null' => 'Boolean' ],
+							'description' => static function () {
+								return __( 'Whether the node is a Content Node', 'wp-graphql' );
+							},
+							'resolve'     => static function ( $node ) {
+								return $node instanceof Post;
+							},
+						],
+						'isTermNode'    => [
+							'type'        => [ 'non_null' => 'Boolean' ],
+							'description' => static function () {
+								return __( 'Whether the node is a Term', 'wp-graphql' );
+							},
+							'resolve'     => static function ( $node ) {
+								return $node instanceof Term;
+							},
+						],
+						'isFrontPage'   => [
+							'type'        => [ 'non_null' => 'Bool' ],
+							'description' => static function () {
+								return __( 'Whether the node represents the front page.', 'wp-graphql' );
+							},
+							'resolve'     => static function ( $node, $args, $context, $info ) {
+								return isset( $node->isFrontPage ) && (bool) $node->isFrontPage;
+							},
+						],
+						'isPostsPage'   => [
+							'type'        => [ 'non_null' => 'Bool' ],
+							'description' => static function () {
+								return __( 'Whether  the node represents the blog page.', 'wp-graphql' );
+							},
+							'resolve'     => static function ( $node, $args, $context, $info ) {
+								return isset( $node->isPostsPage ) && (bool) $node->isPostsPage;
+							},
+						],
+						'isComment'     => [
+							'type'        => [ 'non_null' => 'Boolean' ],
+							'description' => static function () {
+								return __( 'Whether the node is a Comment', 'wp-graphql' );
+							},
+							'resolve'     => static function ( $node ) {
+								return $node instanceof Comment;
+							},
+						],
+					];
+				},
 				'resolveType' => static function ( $node ) use ( $type_registry ) {
 					switch ( true ) {
 						case $node instanceof Post && isset( $node->post_type ):

@@ -717,6 +717,12 @@ function register_graphql_settings_field( string $group, array $config ): void {
  * @since 0.14.0
  */
 function graphql_debug( $message, $config = [] ): void {
+
+	// Bail if debug is disabled.
+	if ( ! WPGraphQL::debug() ) {
+		return;
+	}
+
 	$debug_backtrace     = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 	$config['backtrace'] = ! empty( $debug_backtrace )
 		?

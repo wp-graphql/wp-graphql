@@ -89,7 +89,9 @@ class WPObjectType extends ObjectType {
 		 *
 		 * @return array<string, array<string, mixed>> $fields
 		 */
-		$config['fields'] = ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		$config['fields'] = function () use ( $config ) {
+			return ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
+		};
 
 		/**
 		 * Set up the Interfaces

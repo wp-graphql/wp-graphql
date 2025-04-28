@@ -20,22 +20,34 @@ class UserRoleEnum {
 
 			switch ( $role ) {
 				case 'administrator':
-					$description = __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
+					$description = static function () {
+						return __( 'Full system access with ability to manage all aspects of the site.', 'wp-graphql' );
+					};
 					break;
 				case 'editor':
-					$description = __( 'Content management access without administrative capabilities.', 'wp-graphql' );
+					$description = static function () {
+						return __( 'Content management access without administrative capabilities.', 'wp-graphql' );
+					};
 					break;
 				case 'author':
-					$description = __( 'Can publish and manage their own content.', 'wp-graphql' );
+					$description = static function () {
+						return __( 'Can publish and manage their own content.', 'wp-graphql' );
+					};
 					break;
 				case 'contributor':
-					$description = __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
+					$description = static function () {
+						return __( 'Can write and manage their own content but cannot publish.', 'wp-graphql' );
+					};
 					break;
 				case 'subscriber':
-					$description = __( 'Can only manage their profile and read content.', 'wp-graphql' );
+					$description = static function () {
+						return __( 'Can only manage their profile and read content.', 'wp-graphql' );
+					};
 					break;
 				default:
-					$description = __( 'User role with specific capabilities', 'wp-graphql' );
+					$description = static function () {
+						return __( 'User role with specific capabilities', 'wp-graphql' );
+					};
 			}
 
 			$roles[ $formatted_role ] = [
@@ -53,7 +65,9 @@ class UserRoleEnum {
 		register_graphql_enum_type(
 			'UserRoleEnum',
 			[
-				'description' => __( 'Permission levels for user accounts. Defines the standard access levels that control what actions users can perform within the system.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Permission levels for user accounts. Defines the standard access levels that control what actions users can perform within the system.', 'wp-graphql' );
+				},
 				'values'      => $roles,
 			]
 		);

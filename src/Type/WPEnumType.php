@@ -2,6 +2,7 @@
 namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Registry\TypeRegistry;
 
 /**
  * Class WPEnumType
@@ -64,9 +65,9 @@ class WPEnumType extends EnumType {
 			if ( ! empty( $value['description'] ) && is_callable( $value['description'] ) ) {
 				$description = $value['description']();
 			} else {
-				$description = is_string( $value['description'] ) ? $value['description'] : '';
+				$description = isset( $value['description'] ) && is_string( $value['description'] ) ? $value['description'] : '';
 			}
-			$values[ $key ]['description'] = $description;
+			$values[ $key ]['description'] = $description ?? '';
 		}
 
 		/**
@@ -95,6 +96,17 @@ class WPEnumType extends EnumType {
 		 */
 		$values = apply_filters( 'graphql_' . lcfirst( $type_name ) . '_values', $values, $type_name );
 		$values = apply_filters( 'graphql_' . $type_name . '_values', $values, $type_name );
+
+		// map over the values and if the description is a callable, call it
+		$values = array_map(
+			static function ( $value ) {
+				if ( ! is_array( $value ) ) {
+					$value = [ 'value' => $value ];
+				}
+				return TypeRegistry::prepare_config_for_introspection( $value );
+			},
+			$values
+		);
 
 		/**
 		 * Sort the values alphabetically by key. This makes reading through docs much easier
