@@ -29,14 +29,18 @@ class ContentTypeEnum {
 		foreach ( $allowed_post_types as $allowed_post_type ) {
 			$values[ WPEnumType::get_safe_name( $allowed_post_type ) ] = [
 				'value'       => $allowed_post_type,
-				'description' => __( 'The Type of Content object', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The Type of Content object', 'wp-graphql' );
+				},
 			];
 		}
 
 		register_graphql_enum_type(
 			'ContentTypeEnum',
 			[
-				'description' => __( 'Available content entity types that can be queried or filtered. Identifies the primary content structures available in the system.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Available content entity types that can be queried or filtered. Identifies the primary content structures available in the system.', 'wp-graphql' );
+				},
 				'values'      => $values,
 			]
 		);
@@ -62,7 +66,9 @@ class ContentTypeEnum {
 				$taxonomy_values[ WPEnumType::get_safe_name( $tax_object_type ) ] = [
 					'name'        => WPEnumType::get_safe_name( $tax_object_type ),
 					'value'       => $tax_object_type,
-					'description' => __( 'The Type of Content object', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'The Type of Content object', 'wp-graphql' );
+					},
 				];
 			}
 
@@ -70,11 +76,13 @@ class ContentTypeEnum {
 				register_graphql_enum_type(
 					'ContentTypesOf' . Utils::format_type_name( $tax_object->graphql_single_name ) . 'Enum',
 					[
-						'description' => sprintf(
-							// translators: %s is the taxonomy's GraphQL name.
-							__( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ),
-							Utils::format_type_name( $tax_object->graphql_single_name )
-						),
+						'description' => static function () use ( $tax_object ) {
+							return sprintf(
+								// translators: %s is the taxonomy's GraphQL name.
+								__( 'Allowed Content Types of the %s taxonomy.', 'wp-graphql' ),
+								Utils::format_type_name( $tax_object->graphql_single_name )
+							);
+						},
 						'values'      => $taxonomy_values,
 					]
 				);

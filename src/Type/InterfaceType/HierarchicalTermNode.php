@@ -21,23 +21,31 @@ class HierarchicalTermNode {
 		register_graphql_interface_type(
 			'HierarchicalTermNode',
 			[
-				'description' => __( 'Term node with hierarchical (parent/child) relationships', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Term node with hierarchical (parent/child) relationships', 'wp-graphql' );
+				},
 				'interfaces'  => [
 					'Node',
 					'TermNode',
 					'DatabaseIdentifier',
 					'HierarchicalNode',
 				],
-				'fields'      => [
-					'parentId'         => [
-						'type'        => 'ID',
-						'description' => __( 'The globally unique identifier of the parent node.', 'wp-graphql' ),
-					],
-					'parentDatabaseId' => [
-						'type'        => 'Int',
-						'description' => __( 'Database id of the parent node', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'parentId'         => [
+							'type'        => 'ID',
+							'description' => static function () {
+								return __( 'The globally unique identifier of the parent node.', 'wp-graphql' );
+							},
+						],
+						'parentDatabaseId' => [
+							'type'        => 'Int',
+							'description' => static function () {
+								return __( 'Database id of the parent node', 'wp-graphql' );
+							},
+						],
+					];
+				},
 			]
 		);
 	}

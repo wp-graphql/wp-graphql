@@ -9,10 +9,10 @@ class MediaItemSizeEnum {
 	/**
 	 * Get information about available image sizes
 	 *
-	 * @since next-version
-	 *
 	 * @param string $size Optional. The size to get information for.
 	 * @return array<string, array{width: int, height: int, crop: bool}>|null
+	 *
+	 * @since next-version
 	 */
 	protected static function get_image_sizes( $size = '' ): ?array {
 
@@ -65,53 +65,10 @@ class MediaItemSizeEnum {
 		 * Loop through the image_sizes
 		 */
 		foreach ( $image_sizes as $image_size => $image_size_dimensions ) {
-			switch ( $image_size ) {
-				case 'thumbnail':
-					$description = sprintf(
-						// translators: %1$s is the width of the image, %2$s is the height of the image
-						__( 'Small image preview suitable for thumbnails and listings. (%1$sx%2$s)', 'wp-graphql' ),
-						$image_size_dimensions['width'],
-						$image_size_dimensions['height']
-					);
-					break;
-				case 'medium':
-					$description = sprintf(
-						// translators: %1$s is the width of the image, %2$s is the height of the image
-						__( 'Medium image preview typically suitable for listings and detail views. (%1$sx%2$s)', 'wp-graphql' ),
-						$image_size_dimensions['width'],
-						$image_size_dimensions['height']
-					);
-					break;
-				case 'medium_large':
-					$description = sprintf(
-						// translators: %1$s is the width of the image, %2$s is the height of the image
-						__( 'Medium-to-large image preview suitable for listings and detail views. (%1$sx%2$s)', 'wp-graphql' ),
-						$image_size_dimensions['width'],
-						$image_size_dimensions['height']
-					);
-					break;
-				case 'large':
-					$description = sprintf(
-						// translators: %1$s is the width of the image, %2$s is the height of the image
-						__( 'Large image preview suitable for detail views. (%1$sx%2$s)', 'wp-graphql' ),
-						$image_size_dimensions['width'],
-						$image_size_dimensions['height']
-					);
-					break;
-				case 'full':
-					$description = __( 'Full-size image.', 'wp-graphql' );
-					break;
-				default:
-					$description = sprintf(
-						// translators: %1$s is the width of the image, %2$s is the height of the image
-						__( 'Custom Image Size. (%1$sx%2$s)', 'wp-graphql' ),
-						$image_size_dimensions['width'],
-						$image_size_dimensions['height']
-					);
-			}
-
 			$values[ WPEnumType::get_safe_name( $image_size ) ] = [
-				'description' => $description,
+				'description' => static function () use ( $image_size, $image_size_dimensions ) {
+					return self::get_value_description( $image_size, $image_size_dimensions );
+				},
 				'value'       => $image_size,
 				'dimensions'  => $image_size_dimensions,
 			];
@@ -120,9 +77,69 @@ class MediaItemSizeEnum {
 		register_graphql_enum_type(
 			'MediaItemSizeEnum',
 			[
-				'description' => __( 'Predefined image size variations. Represents the standard image dimensions available for media assets.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Predefined image size variations. Represents the standard image dimensions available for media assets.', 'wp-graphql' );
+				},
 				'values'      => $values,
 			]
 		);
+	}
+
+	/**
+	 * Get the description for a media item size
+	 *
+	 * @param string                 $image_size The size of the image.
+	 * @param array<string,bool|int> $image_size_dimensions The dimensions of the image.
+	 * @return string The description for the media item size.
+	 *
+	 * @since next-version
+	 */
+	protected static function get_value_description( string $image_size, array $image_size_dimensions ): string {
+		switch ( $image_size ) {
+			case 'thumbnail':
+				$description = sprintf(
+					// translators: %1$s is the width of the image, %2$s is the height of the image
+					__( 'Small image preview suitable for thumbnails and listings. (%1$sx%2$s)', 'wp-graphql' ),
+					$image_size_dimensions['width'],
+					$image_size_dimensions['height']
+				);
+				break;
+			case 'medium':
+				$description = sprintf(
+					// translators: %1$s is the width of the image, %2$s is the height of the image
+					__( 'Medium image preview typically suitable for listings and detail views. (%1$sx%2$s)', 'wp-graphql' ),
+					$image_size_dimensions['width'],
+					$image_size_dimensions['height']
+				);
+				break;
+			case 'medium_large':
+				$description = sprintf(
+					// translators: %1$s is the width of the image, %2$s is the height of the image
+					__( 'Medium-to-large image preview suitable for listings and detail views. (%1$sx%2$s)', 'wp-graphql' ),
+					$image_size_dimensions['width'],
+					$image_size_dimensions['height']
+				);
+				break;
+			case 'large':
+				$description = sprintf(
+					// translators: %1$s is the width of the image, %2$s is the height of the image
+					__( 'Large image preview suitable for detail views. (%1$sx%2$s)', 'wp-graphql' ),
+					$image_size_dimensions['width'],
+					$image_size_dimensions['height']
+				);
+				break;
+			case 'full':
+				$description = __( 'Full-size image.', 'wp-graphql' );
+				break;
+			default:
+				$description = sprintf(
+					// translators: %1$s is the width of the image, %2$s is the height of the image
+					__( 'Custom Image Size. (%1$sx%2$s)', 'wp-graphql' ),
+					$image_size_dimensions['width'],
+					$image_size_dimensions['height']
+				);
+		}
+
+		return $description;
 	}
 }

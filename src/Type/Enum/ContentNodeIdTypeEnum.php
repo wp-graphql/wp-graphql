@@ -15,7 +15,9 @@ class ContentNodeIdTypeEnum {
 		register_graphql_enum_type(
 			'ContentNodeIdTypeEnum',
 			[
-				'description' => __( 'Identifier types for retrieving specific content. Determines which property (global ID, database ID, URI) is used to locate content objects.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Identifier types for retrieving specific content. Determines which property (global ID, database ID, URI) is used to locate content objects.', 'wp-graphql' );
+				},
 				'values'      => self::get_values(),
 			]
 		);
@@ -30,7 +32,9 @@ class ContentNodeIdTypeEnum {
 				$values['SLUG'] = [
 					'name'        => 'SLUG',
 					'value'       => 'slug',
-					'description' => __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier.', 'wp-graphql' );
+					},
 				];
 			}
 
@@ -38,7 +42,9 @@ class ContentNodeIdTypeEnum {
 				$values['SOURCE_URL'] = [
 					'name'        => 'SOURCE_URL',
 					'value'       => 'source_url',
-					'description' => __( 'Identify a media item by its source url', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'Identify a media item by its source url', 'wp-graphql' );
+					},
 				];
 			}
 
@@ -49,8 +55,10 @@ class ContentNodeIdTypeEnum {
 			register_graphql_enum_type(
 				$post_type_object->graphql_single_name . 'IdType',
 				[
-					// translators: %s is the post type name.
-					'description' => sprintf( __( 'Identifier types for retrieving a specific %1$s. Specifies which unique attribute is used to find an exact %2$s.', 'wp-graphql' ), Utils::format_type_name( $post_type_object->graphql_single_name ), Utils::format_type_name( $post_type_object->graphql_single_name ) ),
+					'description' => static function () use ( $post_type_object ) {
+						// translators: %1$s is the post type name, %2$s is the post type name
+						return sprintf( __( 'Identifier types for retrieving a specific %1$s. Specifies which unique attribute is used to find an exact %2$s.', 'wp-graphql' ), Utils::format_type_name( $post_type_object->graphql_single_name ), Utils::format_type_name( $post_type_object->graphql_single_name ) );
+					},
 					'values'      => $values,
 				]
 			);
@@ -60,24 +68,30 @@ class ContentNodeIdTypeEnum {
 	/**
 	 * Get the values for the Enum definitions
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<string,(\Closure)|string>>
 	 */
 	public static function get_values() {
 		return [
 			'ID'          => [
 				'name'        => 'ID',
 				'value'       => 'global_id',
-				'description' => __( 'Identify a resource by the (hashed) Global ID.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Identify a resource by the (hashed) Global ID.', 'wp-graphql' );
+				},
 			],
 			'DATABASE_ID' => [
 				'name'        => 'DATABASE_ID',
 				'value'       => 'database_id',
-				'description' => __( 'Identify a resource by the Database ID.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Identify a resource by the Database ID.', 'wp-graphql' );
+				},
 			],
 			'URI'         => [
 				'name'        => 'URI',
 				'value'       => 'uri',
-				'description' => __( 'Identify a resource by the URI.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Identify a resource by the URI.', 'wp-graphql' );
+				},
 			],
 		];
 	}

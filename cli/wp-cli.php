@@ -60,9 +60,6 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		// Get the schema
 		$schema = WPGraphQL::get_schema();
 
-		// Reset the introspection query flag
-		WPGraphQL::set_is_introspection_query( false );
-
 		/**
 		 * Format the Schema
 		 */
@@ -75,6 +72,9 @@ class WPGraphQL_CLI_Command extends WP_CLI_Command {
 		WP_CLI::line( 'Saving the Schema...' );
 
 		file_put_contents( $file_path, $printed ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		// Reset the introspection query flag
+		WPGraphQL::set_is_introspection_query( false );
 
 		/**
 		 * All done!
