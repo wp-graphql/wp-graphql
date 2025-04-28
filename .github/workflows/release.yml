@@ -154,6 +154,7 @@ jobs:
           # Check if this is a PR from develop to master
           if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
             # Create a temporary file for the PR body
+            # Use printf for safer handling of special characters and newlines
             printf "%s" '${{ github.event.pull_request.body }}' > /tmp/release-notes/pr_body.md
 
             # Process the PR body using sed instead of awk
@@ -219,50 +220,151 @@ jobs:
           # Now update the changelogs using the same release notes
           npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
-      - name: Commit changes to master
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+      - name: Commit and Merge Changes
+        # Only run for PR merges or manual triggers that are NOT deploy-only
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && github.event.inputs.deploy_only != 'true'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-          # Fetch all branches
-          git fetch origin
+          # Determine the working branch from the initial checkout ref
+          # For pull_request_target, ref is 'master', but changes apply to 'develop' conceptually before merge.
+          # Use 'develop' as the working branch for PR merges, and the input/default for others.
+          WORKING_BRANCH="develop"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.target_branch }}" ]]; then
+            WORKING_BRANCH="${{ github.event.inputs.target_branch }}"
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+             # Scheduled runs check out 'develop' according to set_ref
+             WORKING_BRANCH="develop"
+          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+             # PR merges check out 'master' but the changes (version bump etc.) should be committed to develop first
+             WORKING_BRANCH="develop"
+          fi
+          echo "Working branch for committing changes: $WORKING_BRANCH"
 
-          # First commit changes to develop
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "Committing changes to develop first"
-            git add *.php *.md *.txt package.json
-            git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
-            git push origin develop
+          # Fetch latest state
+          git fetch origin $WORKING_BRANCH master
+
+          # If triggered by PR merge, we are on master. We need to commit to develop first.
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+             echo "PR Merge detected. Checking out $WORKING_BRANCH to commit preparation changes..."
+             # Stash changes made on master, checkout develop, apply stash, commit
+             git stash push --include-untracked -m "Stashing prep changes"
+             git checkout "$WORKING_BRANCH"
+             git pull origin "$WORKING_BRANCH"
+             # Check if stash exists before popping
+             if git stash list | grep -q "Stashing prep changes"; then
+               git stash pop || (echo "::warning::Applying stashed changes failed. Trying manual add." && git add . && git reset -- release_notes.md || true)
+             else
+               echo "::warning::No stash found. Assuming changes are already in working directory on $WORKING_BRANCH."
+               git add .
+               git reset -- release_notes.md || true
+             fi
+          else
+             # For manual/scheduled, we should already be on WORKING_BRANCH
+             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+             if [[ "$CURRENT_BRANCH" != "$WORKING_BRANCH" ]]; then
+               echo "::error::Expected to be on branch '$WORKING_BRANCH' but currently on '$CURRENT_BRANCH'. Aborting."
+               exit 1
+             fi
+             # Ensure the branch is up-to-date
+             git pull origin "$WORKING_BRANCH"
+             # Stage changes made in previous steps
+             git add .
+             git reset -- release_notes.md || true
           fi
 
-          # Now switch to master
-          git checkout -B master origin/master
+          # Commit the changes to the WORKING_BRANCH if any exist
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "Committing preparation changes to $WORKING_BRANCH..."
+            git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
+            echo "Pushing changes to $WORKING_BRANCH..."
+            # Add retry logic for push
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git push origin "$WORKING_BRANCH"; then
+                echo "Successfully pushed $WORKING_BRANCH"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "::error::Failed to push $WORKING_BRANCH after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+                echo "::warning::Push to $WORKING_BRANCH failed, pulling and retrying... (attempt $RETRY_COUNT of $MAX_RETRIES)"
+                git pull origin "$WORKING_BRANCH" --rebase # Try to rebase local commit onto remote changes
+                sleep 5
+              fi
+            done
+          else
+            echo "No changes to commit to $WORKING_BRANCH."
+          fi
 
-          # Merge develop into master
-          git merge develop --no-ff -m "release: merge develop into master for v${{ steps.version_bump.outputs.version }}"
+          # --- Merge to Master (only if working branch is not master) ---
+          if [[ "$WORKING_BRANCH" != "master" ]]; then
+            echo "Checking out master branch..."
+            git checkout master
+            # Pull master only if it exists remotely, otherwise it might be the first release
+            if git show-ref --verify --quiet refs/remotes/origin/master; then
+                git pull origin master
+            fi
 
-          # Push changes to master
-          git push origin master
+            echo "Merging $WORKING_BRANCH into master..."
+            # Use the commit from the remote working branch to avoid potential local divergence
+            git merge "origin/$WORKING_BRANCH" --no-ff -m "release: merge $WORKING_BRANCH into master for v${{ steps.version_bump.outputs.version }}"
 
-          # Switch back to develop for subsequent steps
-          git checkout develop
+            echo "Pushing changes to master..."
+            git push origin master
+          else
+             echo "Working branch is master. Skipping merge."
+             # Ensure master is pushed if changes were committed directly to it
+             # Check if the commit was actually made in this run
+             if git log -1 --pretty=%B | grep -q "release: prepare v${{ steps.version_bump.outputs.version }}"; then
+                echo "Pushing changes to master..."
+                git push origin master
+             fi
+          fi
 
+      # Tagging should happen AFTER the commit/merge step, on the master branch
       - name: Create and push tag
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        # Run after commit/merge, using the same condition
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && github.event.inputs.deploy_only != 'true'
         run: |
+          # Ensure we are on master branch before tagging
+          if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
+             echo "Checking out master branch before tagging..."
+             git checkout master
+             # Ensure master is up-to-date locally with remote after potential merge/push
+             git pull origin master
+          fi
+
+          echo "Attempting to tag commit $(git rev-parse HEAD) on branch $(git rev-parse --abbrev-ref HEAD)"
+
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-          # Check if tag already exists
-          if git rev-parse "v${{ steps.version_bump.outputs.version }}" >/dev/null 2>&1; then
-            echo "Tag v${{ steps.version_bump.outputs.version }} already exists. Skipping tag creation."
+          TAG_NAME="v${{ steps.version_bump.outputs.version }}"
+
+          # Check if tag already exists locally or remotely
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1 || git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
+            echo "Tag $TAG_NAME already exists. Skipping tag creation."
           else
-            # Create an annotated tag with the changelog as the message
-            git tag -a "v${{ steps.version_bump.outputs.version }}" -m "Release v${{ steps.version_bump.outputs.version }}"
+            # Create an annotated tag using the generated release notes
+            echo "Creating annotated tag $TAG_NAME..."
+            # Use the release notes file for the tag message
+            if [ -f "$GITHUB_WORKSPACE/release_notes.md" ]; then
+              # Ensure release notes content doesn't break the command
+              # Using -F reads the message from the file
+               git tag -a "$TAG_NAME" -F "$GITHUB_WORKSPACE/release_notes.md"
+            else
+               echo "::warning:: release_notes.md not found. Creating tag with generic message."
+               git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+            fi
 
             # Push the tag
-            git push origin "v${{ steps.version_bump.outputs.version }}"
+            echo "Pushing tag $TAG_NAME..."
+            git push origin "$TAG_NAME"
           fi
 
       - name: Create GitHub Release
@@ -400,6 +502,14 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
+          # We should be on master after tagging. Need to commit deletion to master.
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [[ "$CURRENT_BRANCH" != "master" ]]; then
+             echo "Checking out master to delete changesets..."
+             git checkout master
+             git pull origin master
+          fi
+
           # Check if the .changesets directory exists and contains files
           if [ -d ".changesets" ] && [ "$(find .changesets -type f -name "*.md" | wc -l)" -gt 0 ]; then
             # List all changesets before deleting (for logging purposes)
@@ -420,10 +530,16 @@ jobs:
               git reset -- release_notes.md || true
 
               # Commit the deleted changesets
-              git commit -m "chore: delete changesets after release v${{ steps.version_bump.outputs.version }}"
-              git push origin master
+              # Check if there's anything to commit first
+              if [[ -n "$(git status --porcelain)" ]]; then
+                git commit -m "chore: delete changesets after release v${{ steps.version_bump.outputs.version }}"
+                git push origin master # Push deletion commit to master
 
-              echo "Deleted changesets for v${{ steps.version_bump.outputs.version }}"
+                echo "Deleted changesets committed and pushed to master for v${{ steps.version_bump.outputs.version }}"
+              else
+                 echo "No changesets staged for deletion commit."
+              fi
+
             else
               echo "Error removing changesets"
               exit 1
@@ -435,35 +551,28 @@ jobs:
       - name: Update develop branch
         if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
         run: |
-          # Configure Git
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
           # Fetch all branches
           git fetch --unshallow || git fetch
+          # Fetch latest changes for master and develop
+          git fetch origin master develop
 
           # Checkout develop branch
+          echo "Checking out develop..."
           git checkout develop
-          git pull
+          git pull origin develop
 
           # Merge master into develop with a descriptive message
+          echo "Merging master back into develop..."
           git merge --no-ff origin/master -m "chore: sync master back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
 
           # Push changes to develop
+          echo "Pushing updated develop branch..."
           git push origin develop
 
           echo "Successfully synced master back to develop branch"
-
-      - name: Commit changes to develop
-        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "release: prepare v${{ steps.version_bump.outputs.version }}"
-          file_pattern: "*.php *.md *.txt package.json"
-          # For manual/scheduled events, commit to the specified target branch or develop
-          branch: ${{ github.event.inputs.target_branch || 'develop' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
 
   deploy-wordpress:
     # Only need prepare-release if we're not doing a deploy-only run
