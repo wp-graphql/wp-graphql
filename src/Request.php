@@ -158,17 +158,8 @@ class Request {
 		$this->validation_rules = $this->get_validation_rules();
 		$this->field_resolver   = $this->get_field_resolver();
 
-		/**
-		 * Configure the app_context which gets passed down to all the resolvers.
-		 *
-		 * @since 0.0.4
-		 */
-		$app_context                = new AppContext();
-		$app_context->viewer        = wp_get_current_user();
-		$app_context->root_url      = get_bloginfo( 'url' );
-		$app_context->request       = ! empty( $_REQUEST ) ? $_REQUEST : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$app_context->type_registry = $this->type_registry;
-		$this->app_context          = $app_context;
+		// Inject the type registry into the app context.
+		$this->app_context->type_registry = $this->type_registry;
 
 		$this->query_analyzer = new QueryAnalyzer( $this );
 
