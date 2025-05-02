@@ -139,6 +139,7 @@ use WPGraphQL\Utils\Utils;
  * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
  * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
+ * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
  *
  * @package WPGraphQL\Registry
  */
@@ -647,6 +648,8 @@ class TypeRegistry {
 	 * @param string              $type_name The name of the Type to register
 	 * @param array<string,mixed> $config    The config for the scalar type to register
 	 *
+	 * @phpstan-param WPScalarConfig $config
+	 *
 	 * @throws \Exception
 	 *
 	 * @return void
@@ -880,7 +883,7 @@ class TypeRegistry {
 	 * @param string                                            $type_name The name of the type to prepare
 	 * @param array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
 	 *
-	 * @phpstan-param WPEnumTypeConfig|\GraphQL\Type\Definition\Type|array<string,mixed> $config
+	 * @phpstan-param WPEnumTypeConfig|WPScalarConfig|\GraphQL\Type\Definition\Type|array<string,mixed> $config
 	 *
 	 * @return \GraphQL\Type\Definition\Type|null The prepared type
 	 */
