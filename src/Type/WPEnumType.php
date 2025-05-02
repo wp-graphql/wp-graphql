@@ -10,6 +10,27 @@ use WPGraphQL\Registry\TypeRegistry;
  * EnumTypes should extend this class to have filters and sorting applied, etc.
  *
  * @package WPGraphQL\Type
+ *
+ * phpcs:disable -- For phpstan type hinting
+ * @phpstan-import-type PartialEnumValueConfig from \GraphQL\Type\Definition\EnumType
+ * @phpstan-import-type EnumValues from \GraphQL\Type\Definition\EnumType
+ *
+ * @phpstan-type PartialWPEnumValueConfig array{
+ *   name?: string,
+ *   value?: mixed,
+ *   deprecationReason?: string|callable():string|null,
+ *   description?: string|callable():string|null,
+ *   astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
+ * }
+ * @phpstan-type WPEnumTypeConfig array{
+ *  name: string,
+ *  description?: string|null,
+ *  values: array<string, PartialWPEnumValueConfig>,
+ *  astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+ *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
+ *  kind?:'enum'|null,
+ * }
+ * phpcs:enable
  */
 class WPEnumType extends EnumType {
 
@@ -17,6 +38,7 @@ class WPEnumType extends EnumType {
 	 * WPEnumType constructor.
 	 *
 	 * @param array<string,mixed> $config
+	 * @phpstan-param WPEnumTypeConfig $config
 	 */
 	public function __construct( $config ) {
 		$name             = ucfirst( $config['name'] );
@@ -53,21 +75,23 @@ class WPEnumType extends EnumType {
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
-	 * @param array<string,mixed> $values
-	 * @param string              $type_name
-	 * @return array<string,mixed>
+	 * @param array<string,PartialWPEnumValueConfig> $values
+	 * @param string                                 $type_name
+	 *
+	 * @return EnumValues
 	 * @since 0.0.5
 	 */
 	private static function prepare_values( $values, $type_name ) {
 
-		// map over the values and if the description is a callable, call it
+		// Map over the values and if the description is a callable, resolve it.
 		foreach ( $values as $key => $value ) {
-			if ( ! empty( $value['description'] ) && is_callable( $value['description'] ) ) {
-				$description = $value['description']();
-			} else {
-				$description = isset( $value['description'] ) && is_string( $value['description'] ) ? $value['description'] : '';
+			$description = $value['description'] ?? null;
+
+			if ( is_callable( $description ) ) {
+				$description = $description();
 			}
-			$values[ $key ]['description'] = $description ?? '';
+
+			$values[ $key ]['description'] = is_string( $description ) ? $description : '';
 		}
 
 		/**
@@ -76,8 +100,8 @@ class WPEnumType extends EnumType {
 		 * This is useful when several different types need to be easily filtered at once. . .for example,
 		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
 		 *
-		 * @param array<string,mixed> $values
-		 * @param string              $type_name
+		 * @param EnumValues $values
+		 * @param string     $type_name
 		 */
 		$values = apply_filters( 'graphql_enum_values', $values, $type_name );
 
@@ -89,8 +113,8 @@ class WPEnumType extends EnumType {
 		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
 		 * more specific overrides
 		 *
-		 * @param array<string,mixed> $values
-		 * @param string              $type_name
+		 * @param EnumValues $values
+		 * @param string     $type_name
 		 *
 		 * @since 0.0.5
 		 */
@@ -115,11 +139,6 @@ class WPEnumType extends EnumType {
 		 */
 		ksort( $values );
 
-		/**
-		 * Return the filtered, sorted $fields
-		 *
-		 * @since 0.0.5
-		 */
 		return $values;
 	}
 }

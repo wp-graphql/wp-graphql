@@ -138,6 +138,7 @@ use WPGraphQL\Utils\Utils;
  * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
  * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
  *
  * @package WPGraphQL\Registry
  */
@@ -782,6 +783,8 @@ class TypeRegistry {
 	 * @param string              $type_name The name of the type to register
 	 * @param array<string,mixed> $config he configuration of the type
 	 *
+	 * @phpstan-param WPEnumTypeConfig $config
+	 *
 	 * @throws \Exception
 	 */
 	public function register_enum_type( string $type_name, array $config ): void {
@@ -839,9 +842,13 @@ class TypeRegistry {
 	 * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
 	 * introspection queries.
 	 *
+	 * @template T of array<string,mixed>
+	 *
 	 * @param array<string,mixed> $config The config to prepare.
+	 * @phpstan-param T $config
 	 *
 	 * @return array<string,mixed> The prepared config.
+	 * @phpstan-return T|array{description?: string|null, deprecationReason?: string|null}
 	 *
 	 * @internal
 	 */
@@ -870,47 +877,49 @@ class TypeRegistry {
 	/**
 	 * Prepare the type for registration.
 	 *
-	 * @param string                                                  $type_name The name of the type to prepare
-	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
+	 * @param string                                            $type_name The name of the type to prepare
+	 * @param array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
 	 *
-	 * @return mixed|\GraphQL\Type\Definition\Type|null The prepared type
+	 * @phpstan-param WPEnumTypeConfig|\GraphQL\Type\Definition\Type|array<string,mixed> $config
+	 *
+	 * @return \GraphQL\Type\Definition\Type|null The prepared type
 	 */
 	protected function prepare_type( string $type_name, $config ) {
 		if ( ! is_array( $config ) ) {
 			return $config;
 		}
 
-		$prepared_type = null;
+		if ( empty( $config ) ) {
+			return null;
+		}
 
-		if ( ! empty( $config ) ) {
-			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
-			$config['name'] = ucfirst( $type_name );
+		$config         = self::prepare_config_for_introspection( $config );
+		$config['name'] = ucfirst( $type_name );
 
-			$config = self::prepare_config_for_introspection( $config );
-
-			switch ( $kind ) {
-				case 'enum':
-					$prepared_type = new WPEnumType( $config );
-					break;
-				case 'input':
-					/** @var InputObjectConfig $config */
-					$prepared_type = new WPInputObjectType( $config, $this );
-					break;
-				case 'scalar':
-					$prepared_type = new WPScalar( $config, $this );
-					break;
-				case 'union':
-					$prepared_type = new WPUnionType( $config, $this );
-					break;
-				case 'interface':
-					/** @var InterfaceConfig $config */
-					$prepared_type = new WPInterfaceType( $config, $this );
-					break;
-				case 'object':
-				default:
-					/** @var ObjectConfig $config */
-					$prepared_type = new WPObjectType( $config, $this );
-			}
+		$kind = isset( $config['kind'] ) ? $config['kind'] : null;
+		switch ( $kind ) {
+			case 'enum':
+				/** @var WPEnumTypeConfig $config */
+				$prepared_type = new WPEnumType( $config );
+				break;
+			case 'input':
+				/** @var InputObjectConfig $config */
+				$prepared_type = new WPInputObjectType( $config, $this );
+				break;
+			case 'scalar':
+				$prepared_type = new WPScalar( $config, $this );
+				break;
+			case 'union':
+				$prepared_type = new WPUnionType( $config, $this );
+				break;
+			case 'interface':
+				/** @var InterfaceConfig $config */
+				$prepared_type = new WPInterfaceType( $config, $this );
+				break;
+			case 'object':
+			default:
+				/** @var ObjectConfig $config */
+				$prepared_type = new WPObjectType( $config, $this );
 		}
 
 		return $prepared_type;

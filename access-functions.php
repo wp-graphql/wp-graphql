@@ -280,6 +280,20 @@ function register_graphql_union_type( string $type_name, array $config ): void {
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @phpstan-param array{
+ *   description?: string|callable():string|null,
+ *   values: array<string, array{
+ *     name?: string,
+ *     value?: mixed,
+ *     deprecationReason?: string|callable():string|null,
+ *     description?: string|callable():string|null,
+ *     astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
+ *   }>,
+ *   astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
+ *   kind?: 'enum'|null
+ * } $config
  */
 function register_graphql_enum_type( string $type_name, array $config ): void {
 	$config['kind'] = 'enum';
