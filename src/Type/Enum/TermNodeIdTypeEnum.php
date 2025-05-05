@@ -4,6 +4,13 @@ namespace WPGraphQL\Type\Enum;
 
 use WPGraphQL\Utils\Utils;
 
+/**
+ * Class - TermNodeIdTypeEnum
+ *
+ * @package WPGraphQL\Type\Enum
+ *
+ * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+ */
 class TermNodeIdTypeEnum {
 
 	/**
@@ -45,9 +52,9 @@ class TermNodeIdTypeEnum {
 	}
 
 	/**
-	 * Get the values for the Enum definitions
+	 * Returns the values for the Enum.
 	 *
-	 * @return array<string,array<string,(\Closure)|string>>
+	 * @return array<string,PartialWPEnumValueConfig>
 	 */
 	public static function get_values() {
 		return [

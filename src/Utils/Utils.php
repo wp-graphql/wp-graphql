@@ -34,9 +34,9 @@ class Utils {
 	/**
 	 * Maps new input query args and sanitizes the input
 	 *
-	 * @param mixed|mixed[]|string $args The raw query args from the GraphQL query
-	 * @param mixed|mixed[]|string $map  The mapping of where each of the args should go
-	 * @param string[]             $skip Fields to skipped and not be added to the output array.
+	 * @param mixed[]|string $args The raw query args from the GraphQL query
+	 * @param mixed[]|string $map  The mapping of where each of the args should go
+	 * @param string[]       $skip Fields to skipped and not be added to the output array.
 	 *
 	 * @return array<string,mixed>
 	 * @since  0.5.0
@@ -82,8 +82,8 @@ class Utils {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
-	 * @param string            $date_gmt GMT publication time.
-	 * @param mixed|string|null $date Optional. Local publication time. Default null.
+	 * @param string      $date_gmt GMT publication time.
+	 * @param string|null $date Optional. Local publication time. Default null.
 	 *
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 * @since 4.7.0
@@ -253,7 +253,7 @@ class Utils {
 	/**
 	 * Helper function that defines the allowed HTML to use on the Settings pages
 	 *
-	 * @return array<string,array<string,mixed>>
+	 * @return array<string,array<string,array<string>>>
 	 */
 	public static function get_allowed_wp_kses_html() {
 		$allowed_atts = [
@@ -335,6 +335,7 @@ class Utils {
 	 * @param int|string $id The ID from the input args. Can be either the database ID (as either a string or int) or the global Relay ID.
 	 *
 	 * @return int|false
+	 * @phpstan-return ( $id is int|numeric-string ? int : (int|false) )
 	 */
 	public static function get_database_id_from_id( $id ) {
 		// If we already have the database ID, send it back as an integer.
@@ -353,6 +354,7 @@ class Utils {
 	 * @param int|string $id The encoded Node ID.
 	 *
 	 * @return ?string
+	 * @phpstan-return ( $id is int|numeric-string ? null : ?string )
 	 */
 	public static function get_node_type_from_id( $id ) {
 		if ( is_numeric( $id ) ) {

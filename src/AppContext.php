@@ -28,7 +28,6 @@ use WPGraphQL\Data\NodeResolver;
  *
  * @package WPGraphQL
  */
-// @phpcs:ignore
 #[\AllowDynamicProperties]
 class AppContext {
 
@@ -129,15 +128,13 @@ class AppContext {
 		 * added to the AppContext or for existing loaders to be replaced if
 		 * needed.
 		 *
-		 * @params array $loaders The loaders accessible in the AppContext
-		 * @params AppContext $this The AppContext
+		 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext
+		 * @param \WPGraphQL\AppContext                                   $context The AppContext
 		 */
 		$this->loaders = apply_filters( 'graphql_data_loaders', $loaders, $this );
 
 		/**
 		 * This sets up the NodeResolver to allow nodes to be resolved by URI
-		 *
-		 * @param \WPGraphQL\AppContext $app_context The AppContext instance
 		 */
 		$this->node_resolver = new NodeResolver( $this );
 
@@ -147,7 +144,7 @@ class AppContext {
 		 * This can be used to store additional context config, which is available to resolvers
 		 * throughout the resolution of a GraphQL request.
 		 *
-		 * @params array $config The config array of the AppContext object
+		 * @param mixed[] $config The config array of the AppContext object
 		 */
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
 	}
@@ -157,7 +154,7 @@ class AppContext {
 	 *
 	 * @param string $key The name of the loader to get
 	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 *
 	 * @deprecated Use get_loader instead.
 	 */
@@ -171,7 +168,7 @@ class AppContext {
 	 *
 	 * @param string $key The name of the loader to get
 	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 * @throws \GraphQL\Error\UserError If the loader is not found.
 	 */
 	public function get_loader( $key ) {

@@ -1,6 +1,13 @@
 <?php
 namespace WPGraphQL\Type\Enum;
 
+/**
+ * Class - UserNodeIdTypeEnum
+ *
+ * @package WPGraphQL\Type\Enum
+ *
+ * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+ */
 class UserNodeIdTypeEnum {
 
 	/**
@@ -23,7 +30,7 @@ class UserNodeIdTypeEnum {
 	/**
 	 * Returns the values for the Enum.
 	 *
-	 * @return array<string,array<string,(\Closure)|string>>
+	 * @return array<string,PartialWPEnumValueConfig>
 	 */
 	public static function get_values() {
 		return [

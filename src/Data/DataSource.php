@@ -659,7 +659,7 @@ class DataSource {
 	 * @param \WPGraphQL\AppContext                $context The Context of the GraphQL Request
 	 * @param \GraphQL\Type\Definition\ResolveInfo $info The ResolveInfo for the GraphQL Request
 	 *
-	 * @return string|null
+	 * @return ?\GraphQL\Deferred
 	 * @throws \GraphQL\Error\UserError If no ID is passed.
 	 */
 	public static function resolve_node( $global_id, AppContext $context, ResolveInfo $info ) {
@@ -675,29 +675,28 @@ class DataSource {
 		$id_components = Relay::fromGlobalId( $global_id );
 
 		/**
-		 * If the $id_components is a proper array with a type and id
+		 * $id_components is an array with the id and type
 		 *
 		 * @since 0.0.5
 		 */
-		if ( is_array( $id_components ) && ! empty( $id_components['id'] ) && ! empty( $id_components['type'] ) ) {
-
-			/**
-			 * Get the allowed_post_types and allowed_taxonomies
-			 *
-			 * @since 0.0.5
-			 */
-
-			$loader = $context->get_loader( $id_components['type'] );
-
-			if ( $loader ) {
-				return $loader->load_deferred( $id_components['id'] );
-			}
-
-			return null;
-		} else {
+		if ( empty( $id_components['id'] ) || empty( $id_components['type'] ) ) {
 			// translators: %s is the global ID.
 			throw new UserError( esc_html( sprintf( __( 'The global ID isn\'t recognized ID: %s', 'wp-graphql' ), $global_id ) ) );
 		}
+
+		/**
+		 * Get the allowed_post_types and allowed_taxonomies
+		 *
+		 * @since 0.0.5
+		 */
+
+		$loader = $context->get_loader( $id_components['type'] );
+
+		if ( $loader ) {
+			return $loader->load_deferred( $id_components['id'] );
+		}
+
+		return null;
 	}
 
 	/**
