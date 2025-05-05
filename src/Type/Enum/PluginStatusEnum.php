@@ -2,6 +2,13 @@
 
 namespace WPGraphQL\Type\Enum;
 
+/**
+ * Class - PluginStatusEnum
+ *
+ * @package WPGraphQL\Type\Enum
+ *
+ * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+ */
 class PluginStatusEnum {
 
 	/**
@@ -23,9 +30,9 @@ class PluginStatusEnum {
 	}
 
 	/**
-	 * Returns the array configuration for the GraphQL enum values.
+	 * Returns the values for the Enum.
 	 *
-	 * @return array<string,array<string,(\Closure)|string>>
+	 * @return array<string,PartialWPEnumValueConfig>
 	 */
 	protected static function get_enum_values() {
 		$values = [

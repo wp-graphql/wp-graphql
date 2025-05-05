@@ -880,7 +880,7 @@ abstract class AbstractConnectionResolver {
 		 *
 		 * @param bool                                 $should_execute Whether or not the query should execute.
 		 * @param mixed                                $source         The source that's passed down the GraphQL queries.
-		 * @param array                                $args           The inputArgs on the field.
+		 * @param array<string,mixed>                  $args           The inputArgs on the field.
 		 * @param \WPGraphQL\AppContext                $context        The AppContext passed down the GraphQL tree.
 		 * @param \GraphQL\Type\Definition\ResolveInfo $info           The ResolveInfo passed down the GraphQL tree.
 		 */

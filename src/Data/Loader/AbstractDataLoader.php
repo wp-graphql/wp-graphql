@@ -62,6 +62,8 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return \GraphQL\Deferred|null
 	 * @throws \Exception
+	 *
+	 * @phpstan-return ($database_id is int|string ? \GraphQL\Deferred : null)
 	 */
 	public function load_deferred( $database_id ) {
 		if ( empty( $database_id ) ) {
