@@ -469,30 +469,49 @@ jobs:
     # Only need prepare-release if we're not doing a deploy-only run
     needs: prepare-release
     # Run this job if:
-    # 1. prepare-release job was successful and created/found a release
+    # 1. prepare-release job confirmed the release was created or already exists
     # 2. OR if we're doing a manual deploy of an existing tag
     if: |
       always() &&
       (
-        (needs.prepare-release.result == 'success' && needs.prepare-release.outputs.release_created == 'true') ||
+        (needs.prepare-release.outputs.release_created == 'true') ||
         (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only == 'true' && github.event.inputs.deploy_tag != '')
       )
     name: Deploy to WordPress.org
     runs-on: ubuntu-latest
     steps:
-      - name: Determine tag to deploy
-        id: get_tag
+      - name: Determine tag and version to deploy
+        id: get_version_info
         run: |
           if [[ "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
-            echo "tag=${{ github.event.inputs.deploy_tag }}" >> $GITHUB_OUTPUT
+            DEPLOY_TAG="${{ github.event.inputs.deploy_tag }}"
+            # Ensure deploy_tag starts with 'v' if provided for deploy_only
+            if [[ ! "$DEPLOY_TAG" =~ ^v ]]; then
+              echo "::warning::Deploy tag '${DEPLOY_TAG}' provided for deploy_only does not start with 'v'. Prepending 'v'."
+              DEPLOY_TAG="v${DEPLOY_TAG}"
+            fi
           else
-            echo "tag=v${{ needs.prepare-release.outputs.version }}" >> $GITHUB_OUTPUT
+            DEPLOY_TAG="v${{ needs.prepare-release.outputs.version }}"
           fi
+
+          # Validate tag format (vX.Y.Z)
+          if [[ ! "$DEPLOY_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]]; then
+             echo "::error::Invalid tag format: '$DEPLOY_TAG'. Expected format: vX.Y.Z or vX.Y.Z-suffix"
+             exit 1
+          fi
+
+          # Extract version number without 'v'
+          VERSION_NUMBER=$(echo "$DEPLOY_TAG" | sed 's/^v//')
+
+          echo "tag_name=${DEPLOY_TAG}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION_NUMBER}" >> $GITHUB_OUTPUT
+          echo "Deploying Tag: ${DEPLOY_TAG}, Version Number: ${VERSION_NUMBER}"
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.get_tag.outputs.tag }}
+          # Checkout the specific tag (e.g., v2.3.0)
+          ref: ${{ steps.get_version_info.outputs.tag_name }}
           fetch-depth: 0
 
       - name: Setup PHP
@@ -525,7 +544,8 @@ jobs:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
-          VERSION: ${{ steps.get_tag.outputs.tag }}
+          # Pass the version number WITHOUT the 'v' prefix (e.g., 2.3.0)
+          VERSION: ${{ steps.get_version_info.outputs.version_number }}
 
       - name: Create artifact directory
         run: |
@@ -546,7 +566,8 @@ jobs:
         if: github.event.inputs.deploy_only != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
+          # Use the correct tag name (e.g., v2.3.0)
+          tag_name: ${{ steps.get_version_info.outputs.tag_name }}
           files: plugin-build/wp-graphql.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

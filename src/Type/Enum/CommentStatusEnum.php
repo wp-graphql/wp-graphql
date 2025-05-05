@@ -45,7 +45,7 @@ class CommentStatusEnum {
 	 * @param string $status_name The name of the comment status.
 	 * @return string The description for the comment status.
 	 *
-	 * @since next-version
+	 * @since 2.3.0
 	 */
 	protected static function get_status_description( $status_name ) {
 		switch ( $status_name ) {

@@ -12,7 +12,7 @@ class MediaItemSizeEnum {
 	 * @param string $size Optional. The size to get information for.
 	 * @return array<string, array{width: int, height: int, crop: bool}>|null
 	 *
-	 * @since next-version
+	 * @since 2.3.0
 	 */
 	protected static function get_image_sizes( $size = '' ): ?array {
 
@@ -92,7 +92,7 @@ class MediaItemSizeEnum {
 	 * @param array<string,bool|int> $image_size_dimensions The dimensions of the image.
 	 * @return string The description for the media item size.
 	 *
-	 * @since next-version
+	 * @since 2.3.0
 	 */
 	protected static function get_value_description( string $image_size, array $image_size_dimensions ): string {
 		switch ( $image_size ) {

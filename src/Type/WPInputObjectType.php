@@ -45,7 +45,7 @@ class WPInputObjectType extends InputObjectType {
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 * @return array<string,mixed>
 	 *
-	 * @since next-version
+	 * @since 2.3.0
 	 */
 	protected function get_fields( array $config, TypeRegistry $type_registry ): array {
 
