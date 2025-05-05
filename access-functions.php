@@ -545,16 +545,20 @@ function register_graphql_mutation( string $mutation_name, array $config ): void
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The config for the scalar type to register
  *
+ * @phpstan-param array{
+ *   description?: string|callable():string|null,
+ *   serialize?: callable(mixed): mixed,
+ *   parseValue?: callable(mixed): mixed,
+ *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+ *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeDefinitionNode>|null
+ * } $config
+ *
  * @since 0.8.4
  */
 function register_graphql_scalar( string $type_name, array $config ): void {
-	add_action(
-		get_graphql_register_action(),
-		static function ( TypeRegistry $type_registry ) use ( $type_name, $config ): void {
-			$type_registry->register_scalar( $type_name, $config );
-		},
-		10
-	);
+	$config['kind'] = 'scalar';
+	register_graphql_type( $type_name, $config );
 }
 
 /**
