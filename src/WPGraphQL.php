@@ -170,11 +170,11 @@ final class WPGraphQL {
 	}
 
 	/**
- 	* Registers the Event Registry for tracking GraphQL-related events.
+ 	* Initializes the Event Registry for tracking GraphQL-related events.
  	*
  	* * @return void
  	*/
-	private function register_event_registry(): void {
+	private function initialize_event_registry(): void {
 		// Initialize Event Registry and fire off filters
 		$eventRegistryTracking = new \WPGraphQL\Registry\EventRegistry( [] );
 		$hook = apply_filters(
@@ -219,7 +219,7 @@ final class WPGraphQL {
 		);
 
 		// Initialize EventRegistry.
-		$this->register_event_registry();
+		$this->initialize_event_registry();
 
 		// Initialize the plugin url constant
 		// see: https://developer.wordpress.org/reference/functions/plugins_url/#more-information
