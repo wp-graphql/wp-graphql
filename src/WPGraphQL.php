@@ -195,6 +195,20 @@ final class WPGraphQL {
 				do_action( 'graphql_init', $instance );
 			}
 		);
+		// Initialize Event Registry and fire off filters
+		$eventRegistryTracking = new \WPGraphQL\Registry\EventRegistry( [] );
+		$hook = apply_filters(
+			'graphql_tracking_hook',
+			is_plugin_active_for_network( 'wp-graphql/wp-graphql.php' )
+				? 'muplugins_loaded'
+				: 'plugins_loaded'
+		);
+		add_action(
+			$hook,
+			static function () use ( $eventRegistryTracking ) {
+				$eventRegistryTracking->init();
+			}
+		);
 
 		// Initialize the plugin url constant
 		// see: https://developer.wordpress.org/reference/functions/plugins_url/#more-information

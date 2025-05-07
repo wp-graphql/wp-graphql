@@ -7,6 +7,7 @@
  */
 
 use GraphQL\Type\Definition\Type;
+use WPGraphQL\Registry\EventRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Request;
 use WPGraphQL\Router;
@@ -942,4 +943,26 @@ function register_graphql_admin_notice( string $slug, array $config ): void {
 function get_graphql_admin_notices(): array {
 	$admin_notices = \WPGraphQL\Admin\AdminNotices::get_instance();
 	return $admin_notices->get_admin_notices();
+}
+/**
+ * Registers a GraphQL event configuration to be attached to a WordPress action.
+ *
+ * This function schedules an event registration callback to be executed when
+ * the `graphql_register_events` action is fired (during `EventRegistry::init()`).
+ *
+ * The registered event will listen to a specified WordPress action (e.g. 'publish_post'),
+ * and execute a qualifying callback to potentially dispatch notifications or other side effects.
+ *
+ */
+function register_graphql_event( ...$args ) {
+	if ( did_action ( 'graphql_register_events' ) ) {
+		_doing_it_wrong( 'register_graphql_event', esc_html__( 'Call this before EventRegistry::init', 'wp-graphql' ), '2.4.0' );
+	}
+
+	add_action(
+		'graphql_register_events', 
+		static function (EventRegistry $event_registry) use ($args) {
+			$event_registry->register_event( ...$args );
+		}
+	);
 }
