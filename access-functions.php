@@ -7,7 +7,7 @@
  */
 
 use GraphQL\Type\Definition\Type;
-use WPGraphQL\Registry\EventRegistry;
+use WPGraphQL\Events\EventRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Request;
 use WPGraphQL\Router;

@@ -1,13 +1,13 @@
 <?php
 
-namespace WPGraphQL\Registry;
+namespace WPGraphQL\Events;
 
 use WPGraphQL\Utils\EventMonitor;
 
 /**
  * Class EventRegistry
  *
- * @package WPGraphQL\Registry
+ * @package WPGraphQL\Events
  */
 class EventRegistry {
 

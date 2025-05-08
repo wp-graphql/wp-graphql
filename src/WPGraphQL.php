@@ -176,7 +176,7 @@ final class WPGraphQL {
  	*/
 	private function initialize_event_registry(): void {
 		// Initialize Event Registry and fire off filters
-		$eventRegistryTracking = new \WPGraphQL\Registry\EventRegistry( [] );
+		$eventRegistryTracking = new \WPGraphQL\Events\EventRegistry( [] );
 		$hook = apply_filters(
 			'graphql_tracking_hook',
 			is_plugin_active_for_network( 'wp-graphql/wp-graphql.php' )

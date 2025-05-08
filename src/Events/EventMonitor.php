@@ -1,10 +1,10 @@
 <?php
-namespace WPGraphQL\Utils;
+namespace WPGraphQL\Events;
 
 /**
  * Class EventMonitor
  *
- * @package WPGraphQL\Utils
+ * @package WPGraphQL\Events
  */
 class EventMonitor {
 	/**
