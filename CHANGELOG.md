@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.3.1 - 2025-05-15
+
+### Other Changes
+
+- chore: expose array shape for   ([#3374](https://github.com/jasonbahl/automation-tests/pull/3374))
+- chore: expose array shapes for register_graphql_enum_type()  ([#3373](https://github.com/jasonbahl/automation-tests/pull/3373))
+- chore: narrow/fix php types on WPGraphQL, Server, Utils namespaces ([#3368](https://github.com/jasonbahl/automation-tests/pull/3368))
+
+
+
 ## v2.3.0 - 2025-04-28
 
 ### New Features
