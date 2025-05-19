@@ -342,7 +342,7 @@ abstract class Model {
 
 		$clean_array = [];
 		foreach ( $this->fields as $key => $data ) {
-			$clean_array[ $key ] = function () use ( $key ) {
+			$clean_array[ $key ] = function () use ( $key, $data ) {
 				/**
 				 * Filter to short circuit the callback for any field on a type.
 				 *
@@ -363,7 +363,7 @@ abstract class Model {
 					// If the pre filter returns a value, we use that instead of the callback.
 					$result = $pre;
 				} else {
-					$result = $this->prepare_field( $key, $this->fields[ $key ] );
+					$result = $this->prepare_field( $key, $data );
 				}
 
 				/**
