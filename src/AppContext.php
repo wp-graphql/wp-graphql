@@ -186,8 +186,8 @@ class AppContext {
 		 * @todo Remove this when the loaders are instantiated on demand.
 		 */
 		$loaders = array_map(
-			static function ( $loader_class ) {
-				return new $loader_class();
+			function ( $loader_class ) {
+				return new $loader_class( $this );
 			},
 			$this->loader_classes
 		);
