@@ -33,7 +33,7 @@ class AppContext {
 	/**
 	 * The default loaders for the AppContext.
 	 */
-	public const DEFAULT_LOADERS = [
+	private const DEFAULT_LOADERS = [
 		'comment_author'      => CommentAuthorLoader::class,
 		'comment'             => CommentLoader::class,
 		'enqueued_script'     => EnqueuedScriptLoader::class,
