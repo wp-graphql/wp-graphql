@@ -389,15 +389,15 @@ abstract class Model {
 	 * Prepares an individual field for the model.
 	 *
 	 * @param string $field_name The name of the field on the type
+	 * @param mixed  $field      The field data to prepare.
 	 *
 	 * @return mixed
 	 */
-	private function prepare_field( string $field_name ) {
-		$field = null;
+	private function prepare_field( string $field_name, $field ) {
 
 		// If the user doesn't have access to the field, sanitize it to null.
-		if ( $this->current_user_can_access_field( $field_name ) ) {
-			$field = $this->fields[ $field_name ];
+		if ( ! $this->current_user_can_access_field( $field_name ) ) {
+			$field = null;
 		}
 
 		if ( is_callable( $field ) ) {
@@ -416,8 +416,6 @@ abstract class Model {
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param int|null $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
-		 *
-		 * @phpstan-param T $field
 		 */
 		return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 	}
