@@ -66,7 +66,7 @@
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
-		<!-- Deprecated: @todo: remove in PHPCS v4-->
+		<!-- Deprecated. @todo: remove in PHPCS v4-->
 		<exclude name="Generic.Functions.CallTimePassByReference" />
 
 		<!-- Include only once we support PHP 8.3 and above -->
