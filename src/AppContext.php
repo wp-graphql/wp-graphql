@@ -181,31 +181,33 @@ class AppContext {
 		$this->loader_classes = apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
 
 		/**
-		 * Prime the loaders.
+		 * Prime the loaders if needed
 		 *
 		 * @todo Remove this when the loaders are instantiated on demand.
 		 */
-		$loaders = array_map(
-			function ( $loader_class ) {
-				return new $loader_class( $this );
-			},
-			$this->loader_classes
-		);
+		if ( has_filter( 'graphql_data_loaders' ) ) {
+			$loaders = array_map(
+				function ( $loader_class ) {
+					return new $loader_class( $this );
+				},
+				$this->loader_classes
+			);
 
-		/**
-		 * @deprecated next-version in favor of graphql_data_loader_classes.
-		 * @todo Remove in a future version.
-		 *
-		 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext
-		 * @param \WPGraphQL\AppContext                                   $context The AppContext
-		 */
-		$this->loaders = apply_filters_deprecated(
-			'graphql_data_loaders',
-			[ $loaders, $this ],
-			'@next-version',
-			'graphql_data_loader_classes',
-			esc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ),
-		);
+			/**
+			 * @deprecated next-version in favor of graphql_data_loader_classes.
+			 * @todo Remove in a future version.
+			 *
+			 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext
+			 * @param \WPGraphQL\AppContext                                   $context The AppContext
+			 */
+			$this->loaders = apply_filters_deprecated(
+				'graphql_data_loaders',
+				[ $loaders, $this ],
+				'@next-version',
+				'graphql_data_loader_classes',
+				esc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ),
+			);
+		}
 	}
 
 	/**
@@ -235,12 +237,46 @@ class AppContext {
 	 * @phpstan-return ( $key is T ? new<self::DEFAULT_LOADERS[T]> : \WPGraphQL\Data\Loader\AbstractDataLoader )
 	 */
 	public function get_loader( $key ) {
-		if ( ! array_key_exists( $key, $this->loaders ) ) {
+		if ( ! array_key_exists( $key, $this->loader_classes ) ) {
 			// translators: %s is the key of the loader that was not found.
 			throw new UserError( esc_html( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) ) );
 		}
 
+		// If the loader is not instantiated, instantiate it.
+		if ( ! isset( $this->loaders[ $key ] ) ) {
+			try {
+				$this->loaders[ $key ] = new $this->loader_classes[ $key ]( $this );
+			} catch ( \Throwable $e ) {
+				// translators: %s is the key of the loader that failed to instantiate.
+				throw new UserError( esc_html( sprintf( __( 'Failed to instantiate %1$s: %2$s', 'wp-graphql' ), $this->loader_classes[ $key ], $e->getMessage() ) ) );
+			}
+		}
+
 		return $this->loaders[ $key ];
+	}
+
+	/**
+	 * Magic getter used to warn about accessing the loaders property directly.
+	 *
+	 * @todo Remove this when we change the property visibility.
+	 *
+	 * @param string $key The name of the property to get.
+	 * @return mixed
+	 */
+	public function __get( $key ) {
+		// Use default handling if the key is not a loader.
+		if ( 'loaders' !== $key ) {
+			return $this->$key;
+		}
+
+		// Warn about accessing the loaders property directly.
+		_doing_it_wrong(
+			__METHOD__,
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
+			'@next-version' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
+		);
+
+		return $this->get_loader( $key );
 	}
 
 	/**
