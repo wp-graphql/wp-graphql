@@ -11,7 +11,7 @@ use Exception;
  * @property bool $isPublic
  * @property bool $isRestricted
  *
- * @package WPGraphQL\Model
+ * @template TData
  */
 abstract class Model {
 
@@ -25,7 +25,7 @@ abstract class Model {
 	/**
 	 * Stores the raw data passed to the child class when it's instantiated before it's transformed
 	 *
-	 * @var mixed[]|object|mixed
+	 * @var TData
 	 */
 	protected $data;
 
@@ -161,7 +161,7 @@ abstract class Model {
 	}
 
 	/**
-	 * Setup the global data for the model to have proper context when resolving.
+	 * Setup the global state before each field is resolved so the Model has the necessary context.
 	 *
 	 * @return void
 	 */
@@ -169,8 +169,9 @@ abstract class Model {
 	}
 
 	/**
-	 * Generic model tear down after the fields are setup. This can be used
-	 * to reset state to where it was before the model was setup.
+	 * Tear-down call that runs after each field is resolved.
+	 *
+	 * This can be used to reset state to where it was before the model was setup.
 	 *
 	 * @return void
 	 */
@@ -211,7 +212,7 @@ abstract class Model {
 			 *
 			 * @param string      $restricted_cap The capability to check against
 			 * @param string      $model_name     Name of the model the filter is currently being executed in
-			 * @param mixed       $data           The un-modeled incoming data
+			 * @param TData       $data           The un-modeled incoming data
 			 * @param string|null $visibility     The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner          The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
@@ -226,7 +227,7 @@ abstract class Model {
 			 *
 			 * @param ?bool       $is_private   Whether the model data is private. Defaults to null.
 			 * @param string      $model_name   Name of the model the filter is currently being executed in
-			 * @param mixed       $data         The un-modeled incoming data
+			 * @param TData       $data         The un-modeled incoming data
 			 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
@@ -246,12 +247,12 @@ abstract class Model {
 			/**
 			 * Filter to determine if the data should be considered private or not
 			 *
-			 * @param bool     $is_private   Whether the model is private
+			 * @param bool        $is_private   Whether the model is private
 			 * @param string      $model_name   Name of the model the filter is currently being executed in
-			 * @param mixed       $data         The un-modeled incoming data
+			 * @param TData       $data         The un-modeled incoming data
 			 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
-			 * @param \WP_User $current_user The current user for the session
+			 * @param \WP_User    $current_user The current user for the session
 			 *
 			 * @return bool
 			 */
@@ -273,9 +274,9 @@ abstract class Model {
 		 *
 		 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 		 * @param string      $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed       $data         The un-modeled incoming data
+		 * @param TData       $data         The un-modeled incoming data
 		 * @param int|null    $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
+		 * @param \WP_User    $current_user The current user for the session
 		 *
 		 * @return string
 		 */
@@ -319,10 +320,10 @@ abstract class Model {
 			 *
 			 * @param string[]    $allowed_restricted_fields The fields to allow when the data is designated as restricted to the current user
 			 * @param string      $model_name                Name of the model the filter is currently being executed in
-			 * @param mixed       $data                      The un-modeled incoming data
+			 * @param TData       $data                      The un-modeled incoming data
 			 * @param string|null $visibility                The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner                     The user ID for the owner of this piece of data
-			 * @param \WP_User $current_user The current user for the session
+			 * @param \WP_User    $current_user The current user for the session
 			 */
 				apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
 			)
@@ -351,7 +352,7 @@ abstract class Model {
 				 * @param mixed    $result       The data returned from the callback. Null by default.
 				 * @param string   $key          The name of the field on the type
 				 * @param string   $model_name   Name of the model the filter is currently being executed in
-				 * @param mixed    $data         The un-modeled incoming data
+				 * @param TData    $data         The un-modeled incoming data
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
@@ -362,7 +363,7 @@ abstract class Model {
 					// If the pre filter returns a value, we use that instead of the callback.
 					$result = $pre;
 				} else {
-					$result = $this->prepare_field( $key );
+					$result = $this->prepare_field( $key, $this->fields[ $key ] );
 				}
 
 				/**
@@ -371,7 +372,7 @@ abstract class Model {
 				 * @param mixed    $result       The returned data for the field
 				 * @param string   $key          The name of the field on the type
 				 * @param string   $model_name   Name of the model the filter is currently being executed in
-				 * @param mixed    $data         The un-modeled incoming data
+				 * @param TData    $data         The un-modeled incoming data
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
@@ -412,7 +413,7 @@ abstract class Model {
 		 * @param mixed    $field        The data returned from the callback
 		 * @param string   $field_name   The name of the field on the type
 		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed    $data         The un-modeled incoming data
+		 * @param TData    $data         The un-modeled incoming data
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param int|null $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
@@ -439,7 +440,7 @@ abstract class Model {
 		 * @param string   $capability   The capability to check against to return the field
 		 * @param string   $field_name   The name of the field on the type
 		 * @param string   $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed    $data         The un-modeled incoming data
+		 * @param TData    $data         The un-modeled incoming data
 		 * @param string   $visibility   The visibility setting for this piece of data
 		 * @param int|null $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User $current_user The current user for the session
@@ -501,7 +502,7 @@ abstract class Model {
 		 *
 		 * @param array<string,mixed>    $fields       The array of fields for the model
 		 * @param string                 $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed                  $data         The un-modeled incoming data
+		 * @param TData                  $data         The un-modeled incoming data
 		 * @param string                 $visibility   The visibility setting for this piece of data
 		 * @param ?int                   $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User               $current_user The current user for the session

@@ -26,16 +26,10 @@ use WP_Term;
  * @property ?int     $term_id
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Term>
  */
 class Term extends Model {
-
-	/**
-	 * Stores the incoming WP_Term object
-	 *
-	 * @var \WP_Term $data
-	 */
-	protected $data;
-
 	/**
 	 * Stores the taxonomy object for the term being modeled
 	 *

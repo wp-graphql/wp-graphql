@@ -32,16 +32,10 @@ use GraphQLRelay\Relay;
  * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Taxonomy>
  */
 class Taxonomy extends Model {
-
-	/**
-	 * Stores the incoming WP_Taxonomy object to be modeled
-	 *
-	 * @var \WP_Taxonomy $data
-	 */
-	protected $data;
-
 	/**
 	 * Taxonomy constructor.
 	 *
