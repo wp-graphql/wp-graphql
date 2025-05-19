@@ -276,7 +276,8 @@ class AppContext {
 			'@next-version' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
 		);
 
-		return $this->get_loader( $key );
+		// Return the actual loaders array.
+		return $this->loaders;
 	}
 
 	/**
