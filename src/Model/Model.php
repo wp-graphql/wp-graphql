@@ -395,7 +395,10 @@ abstract class Model {
 	 * @return mixed
 	 */
 	private function prepare_field( string $field_name, $field ) {
-
+		// If the field is an array with a 'callback', use that as the callback.
+		if ( is_array( $field ) && ! empty( $field['callback'] ) ) {
+			$field = $field['callback'];
+		}
 		// If the user doesn't have access to the field, sanitize it to null.
 		if ( ! $this->current_user_can_access_field( $field_name ) ) {
 			$field = null;
