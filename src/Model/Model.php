@@ -138,26 +138,19 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
-		if ( isset( $this->fields[ $key ] ) ) {
-			/**
-			 * If the property has already been processed and cached to the model
-			 * return the processed value.
-			 *
-			 * Otherwise, if it's a callable, process it and cache the value.
-			 */
-			if ( is_scalar( $this->fields[ $key ] ) || ( is_object( $this->fields[ $key ] ) && ! is_callable( $this->fields[ $key ] ) ) || is_array( $this->fields[ $key ] ) ) {
-				return $this->fields[ $key ];
-			} elseif ( is_callable( $this->fields[ $key ] ) ) {
-				$data       = call_user_func( $this->fields[ $key ] );
-				$this->$key = $data;
-
-				return $data;
-			} else {
-				return $this->fields[ $key ];
-			}
-		} else {
+		if ( ! array_key_exists( $key, $this->fields ) ) {
 			return null;
 		}
+
+		// If the property is a callable, we need to process it.
+		if ( is_callable( $this->fields[ $key ] ) ) {
+			$data       = call_user_func( $this->fields[ $key ] );
+			$this->$key = $data;
+
+			return $data;
+		}
+
+		return $this->fields[ $key ];
 	}
 
 	/**
