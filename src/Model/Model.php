@@ -177,9 +177,9 @@ abstract class Model {
 	 * @return string
 	 */
 	protected function get_model_name() {
-		$name = static::class;
-
 		if ( empty( $this->model_name ) ) {
+			$name = static::class;
+
 			if ( false !== strpos( static::class, '\\' ) ) {
 				$starting_character = strrchr( static::class, '\\' );
 				if ( ! empty( $starting_character ) ) {
@@ -189,7 +189,7 @@ abstract class Model {
 			$this->model_name = $name . 'Object';
 		}
 
-		return ! empty( $this->model_name ) ? $this->model_name : $name;
+		return $this->model_name;
 	}
 
 	/**
