@@ -383,9 +383,9 @@ abstract class Model {
 	 * Prepares an individual field for the model.
 	 *
 	 * @param string $field_name The name of the field on the type
-	 * @param mixed  $field      The field data to prepare.
+	 * @param TData  $field      The field data to prepare.
 	 *
-	 * @return mixed
+	 * @return TData
 	 */
 	private function prepare_field( string $field_name, $field ) {
 		$can_access_field = $this->current_user_can_access_field( $field_name, $field );
