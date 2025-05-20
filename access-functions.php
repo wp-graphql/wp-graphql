@@ -221,8 +221,8 @@ function register_graphql_type( string $type_name, array $config ): void {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string                                                  $type_name The name of the Type to register
- * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The Type config
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  */
 function register_graphql_interface_type( string $type_name, $config ): void {
 	add_action(
