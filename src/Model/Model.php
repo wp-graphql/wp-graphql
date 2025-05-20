@@ -395,12 +395,15 @@ abstract class Model {
 	 * @return mixed
 	 */
 	private function prepare_field( string $field_name, $field ) {
+		$can_access_field = $this->current_user_can_access_field( $field_name, $field );
+
 		// If the field is an array with a 'callback', use that as the callback.
 		if ( is_array( $field ) && ! empty( $field['callback'] ) ) {
 			$field = $field['callback'];
 		}
+
 		// If the user doesn't have access to the field, sanitize it to null.
-		if ( ! $this->current_user_can_access_field( $field_name ) ) {
+		if ( ! $can_access_field ) {
 			$field = null;
 		}
 
@@ -425,16 +428,19 @@ abstract class Model {
 	}
 
 	/**
-	 * Checks a field's capabilities to see if the current user can access it.
+	 * Returns the capability to check for the field, or null if there is no capability set.
+	 *
+	 * @uses 'graphql_model_field_capability' to filter the capability to check for the field.
 	 *
 	 * @param string $field_name The name of the field to check
+	 * @param mixed  $field The original metadata for the field.
 	 */
-	private function current_user_can_access_field( string $field_name ): bool {
+	private function current_user_can_access_field( string $field_name, $field ): bool {
 		$capability = '';
 
-		// If the field is an array, check for the capability key
-		if ( is_array( $this->fields[ $field_name ] ) && isset( $this->fields[ $field_name ]['capability'] ) ) {
-			$capability = (string) $this->fields[ $field_name ]['capability'];
+		// If the field metadata is an array, check for the capability key
+		if ( is_array( $field ) && isset( $field['capability'] ) ) {
+			$capability = (string) $field['capability'];
 		}
 
 		/**
@@ -450,11 +456,11 @@ abstract class Model {
 		 */
 		$capability = apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
-		// If there's no capability set, the user can access the field.
 		if ( empty( $capability ) ) {
 			return true;
 		}
 
+		// @todo add support passing capability args.
 		return current_user_can( $capability );
 	}
 
