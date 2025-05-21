@@ -129,6 +129,8 @@ trait WPInterfaceTrait {
 	 *
 	 * @param \GraphQL\Type\Definition\InterfaceType                $interface_type     The interface whose implemented interfaces should be added.
 	 * @param array<string, \GraphQL\Type\Definition\InterfaceType> &$target_interfaces The array to add interfaces to (passed by reference).
+	 *
+	 * @@param-out array<string, \GraphQL\Type\Definition\InterfaceType> $target_interfaces The array to add interfaces to (passed by reference).
 	 */
 	private function resolve_inherited_interfaces( InterfaceType $interface_type, array &$target_interfaces ): void {
 		// Get interfaces implemented by this interface.
@@ -138,19 +140,19 @@ trait WPInterfaceTrait {
 			return;
 		}
 
-		foreach ( $interfaces as $child_interface_name => $child_interface ) {
+		foreach ( $interfaces as $child_interface ) {
 			// Skip invalid interface entries
 			if ( ! $child_interface instanceof InterfaceType ) {
 				continue;
 			}
 
 			// Skip if the interface is already in the target array
-			if ( isset( $target_interfaces[ $child_interface_name ] ) ) {
+			if ( isset( $target_interfaces[ $child_interface->name ] ) ) {
 				continue;
 			}
 
 			// Add the interface to our collection, keyed by name
-			$target_interfaces[ $child_interface_name ] = $child_interface;
+			$target_interfaces[ $child_interface->name ] = $child_interface;
 
 			// Recursively add interfaces from the child interface
 			$this->resolve_inherited_interfaces( $child_interface, $target_interfaces );
