@@ -23,7 +23,7 @@ trait WPInterfaceTrait {
 		$interfaces = ! empty( $this->config['interfaces'] ) && is_array( $this->config['interfaces'] ) ? $this->config['interfaces'] : null;
 
 		if ( null === $interfaces ) {
-			// If no interfaces are explicitly defined, fall back to the the underlying class.
+			// If no interfaces are explicitly defined, fall back to the underlying class.
 			$interfaces = parent::getInterfaces();
 		}
 
@@ -252,7 +252,7 @@ trait WPInterfaceTrait {
 
 		$interface_field = $interface_fields[ $field_name ] ?? [];
 
-		// Bail early since if there is no field type or an interface to inherit it from since we won't be able to register it.
+		// Return early if neither field nor interface type is defined, as registration cannot proceed.
 		if ( empty( $field['type'] ) && empty( $interface_field['type'] ) ) {
 			graphql_debug(
 				sprintf(
