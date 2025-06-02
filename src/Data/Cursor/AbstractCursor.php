@@ -149,7 +149,7 @@ abstract class AbstractCursor {
 	 * Validates cursor compare field configuration. Validation failure results in a fatal
 	 * error because query execution is guaranteed to fail.
 	 *
-	 * @param array<string,mixed>|mixed $field  Threshold configuration.
+	 * @param array<string,mixed> $field Threshold configuration.
 	 *
 	 * @throws \GraphQL\Error\InvariantViolation Invalid configuration format.
 	 */
