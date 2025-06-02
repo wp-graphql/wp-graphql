@@ -31,16 +31,10 @@ use WP_User;
  * @property ?string       $username
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_User>
  */
 class User extends Model {
-
-	/**
-	 * Stores the WP_User object for the incoming data
-	 *
-	 * @var \WP_User $data
-	 */
-	protected $data;
-
 	/**
 	 * The Global Post at time of Model generation
 	 *

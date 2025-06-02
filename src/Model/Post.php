@@ -78,16 +78,10 @@ use WP_Post;
  * @property ?int    $ID
  * @property ?int    $post_author
  * @property ?string $post_status
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Post>
  */
 class Post extends Model {
-
-	/**
-	 * Stores the incoming post data
-	 *
-	 * @var \WP_Post $data
-	 */
-	protected $data;
-
 	/**
 	 * Store the global post to reset during model tear down
 	 *

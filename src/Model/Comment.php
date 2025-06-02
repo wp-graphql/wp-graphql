@@ -35,16 +35,10 @@ use WP_Comment;
  * @property int     $comment_parent_id
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Comment>
  */
 class Comment extends Model {
-
-	/**
-	 * Stores the incoming WP_Comment object to be modeled
-	 *
-	 * @var \WP_Comment $data
-	 */
-	protected $data;
-
 	/**
 	 * Comment constructor.
 	 *

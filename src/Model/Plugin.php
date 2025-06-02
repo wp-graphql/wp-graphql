@@ -17,16 +17,10 @@ use GraphQLRelay\Relay;
  * @property ?string $version
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class Plugin extends Model {
-
-	/**
-	 * Stores the incoming plugin data to be modeled
-	 *
-	 * @var array<string,mixed> $data
-	 */
-	protected $data;
-
 	/**
 	 * Plugin constructor.
 	 *

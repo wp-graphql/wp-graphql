@@ -19,16 +19,10 @@ use GraphQLRelay\Relay;
  * @property ?string       $version
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Theme>
  */
 class Theme extends Model {
-
-	/**
-	 * Stores the incoming WP_Theme to be modeled
-	 *
-	 * @var \WP_Theme $data
-	 */
-	protected $data;
-
 	/**
 	 * Theme constructor.
 	 *
