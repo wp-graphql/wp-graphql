@@ -237,7 +237,8 @@ class AppContext {
 	 * @phpstan-return ( $key is T ? new<self::DEFAULT_LOADERS[T]> : \WPGraphQL\Data\Loader\AbstractDataLoader )
 	 */
 	public function get_loader( $key ) {
-		if ( ! array_key_exists( $key, $this->loader_classes ) ) {
+		// @todo: Remove the isset() when `graphql_data_loaders` is removed.
+		if ( ! array_key_exists( $key, $this->loader_classes ) && ! isset( $this->loaders[ $key ] ) ) {
 			// translators: %s is the key of the loader that was not found.
 			throw new UserError( esc_html( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) ) );
 		}
