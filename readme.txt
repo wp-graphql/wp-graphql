@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -283,6 +283,15 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.3.2 =
+
+**Other Changes**
+
+* chore: improve type safety of  and schema registration (https://github.com/jasonbahl/automation-tests/pull/3382)
+* refactor: cleanup  class to reduce complexity and improve type safety (https://github.com/jasonbahl/automation-tests/pull/3381)
+* perf: refactor  to lazy-load dataloaders (https://github.com/jasonbahl/automation-tests/pull/3380)
+* chore: update Composer dev-deps and PHPCs ruleset (https://github.com/jasonbahl/automation-tests/pull/3379)
 
 = 2.3.1 =
 

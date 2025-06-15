@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.3.2 - 2025-06-15
+
+### Other Changes
+
+- chore: improve type safety of  and schema registration ([#3382](https://github.com/jasonbahl/automation-tests/pull/3382))
+- refactor: cleanup  class to reduce complexity and improve type safety ([#3381](https://github.com/jasonbahl/automation-tests/pull/3381))
+- perf: refactor  to lazy-load dataloaders ([#3380](https://github.com/jasonbahl/automation-tests/pull/3380))
+- chore: update Composer dev-deps and PHPCs ruleset ([#3379](https://github.com/jasonbahl/automation-tests/pull/3379))
+
+
+
 ## v2.3.1 - 2025-06-01
 
 ### Other Changes
