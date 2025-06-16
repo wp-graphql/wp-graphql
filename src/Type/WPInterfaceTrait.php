@@ -20,10 +20,11 @@ trait WPInterfaceTrait {
 	 * @return \GraphQL\Type\Definition\InterfaceType[]
 	 */
 	protected function get_implemented_interfaces(): array {
-		if ( ! isset( $this->config['interfaces'] ) || ! is_array( $this->config['interfaces'] ) || empty( $this->config['interfaces'] ) ) {
+		$interfaces = ! empty( $this->config['interfaces'] ) && is_array( $this->config['interfaces'] ) ? $this->config['interfaces'] : null;
+
+		if ( null === $interfaces ) {
+			// If no interfaces are explicitly defined, fall back to the underlying class.
 			$interfaces = parent::getInterfaces();
-		} else {
-			$interfaces = $this->config['interfaces'];
 		}
 
 		/**
@@ -35,83 +36,136 @@ trait WPInterfaceTrait {
 		 */
 		$interfaces = apply_filters( 'graphql_type_interfaces', $interfaces, $this->config, $this );
 
+		// If the filter gets rid of valid interfaces, we should return an empty array.
 		if ( empty( $interfaces ) || ! is_array( $interfaces ) ) {
-			return $interfaces;
+			return [];
 		}
 
-		$new_interfaces = [];
+		$implemented_interfaces = [];
+		$implementing_type_name = $this->config['name'] ?? 'Unknown';
 
-		foreach ( $interfaces as $interface ) {
-			if ( $interface instanceof InterfaceType && ( $this->config['name'] ?? null ) !== $interface->name ) {
-				$new_interfaces[ $interface->name ] = $interface;
+		foreach ( $interfaces as $maybe_interface ) {
+			$interface = $this->maybe_resolve_interface( $maybe_interface, $implementing_type_name );
+			// Skip invalid interfaces.
+			if ( null === $interface ) {
 				continue;
 			}
 
-			// surface when interfaces are trying to be registered with invalid configuration
-			if ( ! is_string( $interface ) ) {
-				graphql_debug(
-					sprintf(
-						// translators: %s is the name of the GraphQL type.
-						__( 'Invalid Interface registered to the "%s" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType', 'wp-graphql' ),
-						$this->config['name'] ?? 'Unknown'
-					),
-					[ 'invalid_interface' => $interface ]
-				);
-				continue;
-			}
+			$implemented_interfaces[ $interface->name ] = $interface;
 
-			// Prevent an interface from implementing itself
-			if ( ! empty( $this->config['name'] ) && strtolower( $this->config['name'] ) === strtolower( $interface ) ) {
-				graphql_debug(
-					sprintf(
-						// translators: %s is the name of the interface.
-						__( 'The "%s" Interface attempted to implement itself, which is not allowed', 'wp-graphql' ),
-						$interface
-					)
-				);
-				continue;
-			}
-
-			$interface_type = $this->type_registry->get_type( $interface );
-			if ( ! $interface_type instanceof InterfaceType ) {
-				graphql_debug(
-					sprintf(
-						// translators: %1$s is the name of the interface, %2$s is the name of the type.
-						__( '"%1$s" is not a valid Interface Type and cannot be implemented as an Interface on the "%2$s" Type', 'wp-graphql' ),
-						$interface,
-						$this->config['name'] ?? 'Unknown'
-					)
-				);
-				continue;
-			}
-
-			$new_interfaces[ $interface ] = $interface_type;
-			$interface_interfaces         = $interface_type->getInterfaces();
-
-			if ( empty( $interface_interfaces ) ) {
-				continue;
-			}
-
-			foreach ( $interface_interfaces as $interface_interface_name => $interface_interface ) {
-				if ( ! $interface_interface instanceof InterfaceType ) {
-					continue;
-				}
-
-				$new_interfaces[ $interface_interface_name ] = $interface_interface;
-			}
+			// Add interfaces implemented by this interface and their ancestors
+			$this->resolve_inherited_interfaces( $interface, $implemented_interfaces );
 		}
 
-		return array_unique( $new_interfaces );
+		// We use array_unique as a final safeguard against duplicate entries.
+		// While we're already using interface names as array keys which generally prevents duplicates,
+		// this provides an extra layer of protection for edge cases or future modifications.
+		return array_unique( $implemented_interfaces );
 	}
 
+	/**
+	 * Resolves a single interface configuration entry to an InterfaceType instance.
+	 * Handles validation and debugging messages, using early returns for clarity.
+	 *
+	 * @param mixed  $type The interface entry from the config (string name or InterfaceType instance).
+	 * @param string $implementing_type_name The name of the type that is implementing this interface (for debug messages and self-implementation check).
+	 * @return \GraphQL\Type\Definition\InterfaceType|null The resolved InterfaceType or null if invalid/skipped.
+	 */
+	private function maybe_resolve_interface( $type, string $implementing_type_name ): ?InterfaceType {
+		$type_name = $type instanceof InterfaceType ? $type->name : $type;
+
+		// Bail if the entry is trying to implement itself.
+		if ( ! empty( $implementing_type_name ) && strtolower( $implementing_type_name ) === strtolower( $type_name ) ) {
+			graphql_debug(
+				sprintf(
+					// translators: %s is the name of the interface.
+					__( 'The "%s" Interface attempted to implement itself, which is not allowed', 'wp-graphql' ),
+					$type_name
+				)
+			);
+			return null;
+		}
+
+		// Return early if it's already a valid interface type
+		if ( $type instanceof InterfaceType ) {
+			return $type;
+		}
+
+		// If it's not a string, we won't be able to resolve it.
+		if ( ! is_string( $type ) ) {
+			graphql_debug(
+				sprintf(
+					// translators: %s is the name of the GraphQL type.
+					__( 'Invalid Interface registered to the "%s" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType', 'wp-graphql' ),
+					$implementing_type_name
+				),
+				[ 'invalid_interface' => $type ]
+			);
+			return null;
+		}
+
+		// Attempt to resolve the string to a type.
+		$resolved_type = $this->type_registry->get_type( $type );
+
+		// Check if the resolved type is a valid InterfaceType.
+		if ( ! $resolved_type instanceof InterfaceType ) {
+			graphql_debug(
+				sprintf(
+					// translators: %1$s is the name of the interface, %2$s is the name of the type.
+					__( '"%1$s" is not a valid Interface Type and cannot be implemented as an Interface on the "%2$s" Type', 'wp-graphql' ),
+					$type,
+					$implementing_type_name
+				)
+			);
+			return null;
+		}
+
+		return $resolved_type;
+	}
+
+	/**
+	 * Adds interfaces implemented by the given InterfaceType to the target array.
+	 * Handles recursive collection of interfaces, avoiding duplicates.
+	 *
+	 * @param \GraphQL\Type\Definition\InterfaceType                $interface_type     The interface whose implemented interfaces should be added.
+	 * @param array<string, \GraphQL\Type\Definition\InterfaceType> &$target_interfaces The array to add interfaces to (passed by reference).
+	 *
+	 * @@param-out array<string, \GraphQL\Type\Definition\InterfaceType> $target_interfaces The array to add interfaces to (passed by reference).
+	 */
+	private function resolve_inherited_interfaces( InterfaceType $interface_type, array &$target_interfaces ): void {
+		// Get interfaces implemented by this interface.
+		$interfaces = $interface_type->getInterfaces();
+
+		if ( empty( $interfaces ) ) {
+			return;
+		}
+
+		foreach ( $interfaces as $child_interface ) {
+			// Skip invalid interface entries
+			if ( ! $child_interface instanceof InterfaceType ) {
+				continue;
+			}
+
+			// Skip if the interface is already in the target array
+			if ( isset( $target_interfaces[ $child_interface->name ] ) ) {
+				continue;
+			}
+
+			// Add the interface to our collection, keyed by name
+			$target_interfaces[ $child_interface->name ] = $child_interface;
+
+			// Recursively add interfaces from the child interface
+			$this->resolve_inherited_interfaces( $child_interface, $target_interfaces );
+		}
+	}
 
 	/**
 	 * Returns the fields for a Type, applying any missing fields defined on interfaces implemented on the type
 	 *
-	 * @param array<mixed>                     $config
+	 * @param array<string,mixed>              $config
 	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
-	 * @return array<mixed>
+	 * @return array<string, array<string,mixed>>
 	 * @throws \Exception
 	 */
 	protected function get_fields( array $config, TypeRegistry $type_registry ): array {
@@ -160,8 +214,7 @@ trait WPInterfaceTrait {
 	 */
 	private function get_fields_from_implemented_interfaces( TypeRegistry $registry ): array {
 		$interface_fields = [];
-
-		$interfaces = $this->getInterfaces();
+		$interfaces       = $this->getInterfaces();
 
 		// Get the fields for each interface.
 		foreach ( $interfaces as $interface_type ) {
@@ -191,9 +244,9 @@ trait WPInterfaceTrait {
 	/**
 	 * Inherit missing field configs from the interface.
 	 *
-	 * @param string                            $field_name The field name.
-	 * @param array<string,mixed>               $field The field config.
-	 * @param array<string,array<string,mixed>> $interface_fields The fields from the interface. This is passed by reference.
+	 * @param string                            $field_name       The field name.
+	 * @param array<string,mixed>               $field            The field config.
+	 * @param array<string,array<string,mixed>> $interface_fields The fields from the interface.
 	 *
 	 * @return ?array<string,mixed> The field config with inherited values. Null if the field type cannot be determined.
 	 */
@@ -201,7 +254,7 @@ trait WPInterfaceTrait {
 
 		$interface_field = $interface_fields[ $field_name ] ?? [];
 
-		// Bail early, if there is no field type or an interface to inherit it from since we won't be able to register it.
+		// Return early if neither field nor interface type is defined, as registration cannot proceed.
 		if ( empty( $field['type'] ) && empty( $interface_field['type'] ) ) {
 			graphql_debug(
 				sprintf(
@@ -235,18 +288,18 @@ trait WPInterfaceTrait {
 	/**
 	 * Merge the field args from the field and the interface.
 	 *
-	 * @param string                            $field_name The field name.
-	 * @param array<string,array<string,mixed>> $field_args The field args.
+	 * @param string                            $field_name     The field name.
+	 * @param array<string,array<string,mixed>> $field_args     The field args.
 	 * @param array<string,array<string,mixed>> $interface_args The interface args.
 	 *
-	 * @return array<string,array<string,mixed>> The merged field args.
+	 * @return array<string,array<string,mixed>>
 	 */
 	private function merge_field_args( string $field_name, array $field_args, array $interface_args ): array {
 		// We use the interface args as the base and overwrite them with the field args.
 		$merged_args = $interface_args;
 
 		foreach ( $field_args as $arg_name => $config ) {
-			// If the arg is not defined on the interface, we can use the field arg config.
+			// If the arg is not defined on the interface, simply add it from the field.
 			if ( empty( $merged_args[ $arg_name ] ) ) {
 				$merged_args[ $arg_name ] = $config;
 				continue;
@@ -256,6 +309,7 @@ trait WPInterfaceTrait {
 			$field_arg_type     = $this->normalize_type_name( $config['type'] );
 			$interface_arg_type = $this->normalize_type_name( $merged_args[ $arg_name ]['type'] );
 
+			// Log a message and skip the arg if types are incompatible
 			if ( ! empty( $field_arg_type ) && $interface_arg_type !== $field_arg_type ) {
 				graphql_debug(
 					sprintf(
@@ -284,7 +338,7 @@ trait WPInterfaceTrait {
 	/**
 	 * Given a type it will return a string representation of the type.
 	 *
-	 * This is used for optimistic comparison of the arg types.
+	 * This is used for optimistic comparison of the arg types using strings.
 	 *
 	 * @param string|array<string,mixed>|callable|\GraphQL\Type\Definition\Type $type The type to normalize.
 	 */
