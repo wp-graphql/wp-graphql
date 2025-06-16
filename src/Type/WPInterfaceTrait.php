@@ -187,15 +187,40 @@ trait WPInterfaceTrait {
 		$fields = array_merge( $fields, array_diff_key( $interface_fields, $fields ) );
 
 		foreach ( $fields as $field_name => $field ) {
-			$merged_field_config = $this->inherit_field_config_from_interface( $field_name, $field, $interface_fields );
+			// Get all interfaces that define this field
+			$interfaces_with_field = [];
+			foreach ( $this->getInterfaces() as $interface ) {
+				if ( ! $interface instanceof InterfaceType ) {
+					$interface = $type_registry->get_type( $interface );
+				}
 
-			if ( null === $merged_field_config ) {
-				unset( $fields[ $field_name ] );
-				continue;
+				if ( ! $interface instanceof InterfaceType ) {
+					continue;
+				}
+
+				$interface_fields = $interface->getFields();
+				if ( isset( $interface_fields[ $field_name ] ) ) {
+					$interfaces_with_field[] = $interface;
+				}
 			}
 
-			// Update the field.
-			$fields[ $field_name ] = $merged_field_config;
+			// If this field is defined in any interfaces, merge their configs
+			if ( ! empty( $interfaces_with_field ) ) {
+				$merged_field_config = $field;
+				foreach ( $interfaces_with_field as $interface ) {
+					$interface_fields = $interface->getFields();
+					$interface_field = $interface_fields[ $field_name ];
+					$merged_field_config = $this->inherit_field_config_from_interface( $field_name, $merged_field_config, [ $field_name => $interface_field->config ] );
+				}
+
+				if ( null === $merged_field_config ) {
+					unset( $fields[ $field_name ] );
+					continue;
+				}
+
+				// Update the field.
+				$fields[ $field_name ] = $merged_field_config;
+			}
 		}
 
 		$fields = $this->prepare_fields( $fields, $config['name'], $config );
@@ -227,18 +252,63 @@ trait WPInterfaceTrait {
 				continue;
 			}
 
-			$interface_config_fields = $interface_type->getFields();
+			// Get all interfaces in the inheritance chain
+			$all_interfaces = $this->get_all_interfaces( $interface_type, $registry );
 
-			if ( empty( $interface_config_fields ) ) {
-				continue;
-			}
+			// Process interfaces in order from parent to child
+			foreach ( $all_interfaces as $current_interface ) {
+				$interface_config_fields = $current_interface->getFields();
 
-			foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
-				$interface_fields[ $interface_field_name ] = $interface_field->config;
+				if ( ! empty( $interface_config_fields ) ) {
+					foreach ( $interface_config_fields as $interface_field_name => $interface_field ) {
+						// Child interface fields take precedence over parent interface fields
+						$interface_fields[ $interface_field_name ] = $interface_field->config;
+					}
+				}
 			}
 		}
 
 		return $interface_fields;
+	}
+
+	/**
+	 * Get all interfaces in the inheritance chain for a given interface.
+	 *
+	 * @param \GraphQL\Type\Definition\InterfaceType $interface_type The interface to get the inheritance chain for.
+	 * @param \WPGraphQL\Registry\TypeRegistry      $registry       The TypeRegistry instance.
+	 *
+	 * @return array<\GraphQL\Type\Definition\InterfaceType>
+	 */
+	private function get_all_interfaces( InterfaceType $interface_type, TypeRegistry $registry ): array {
+		$interfaces = [];
+		$to_process = [ $interface_type ];
+
+		while ( ! empty( $to_process ) ) {
+			$current = array_shift( $to_process );
+
+			// Get parent interfaces
+			$parent_interfaces = $current->getInterfaces();
+			if ( ! empty( $parent_interfaces ) ) {
+				foreach ( $parent_interfaces as $parent_interface ) {
+					if ( ! $parent_interface instanceof InterfaceType ) {
+						$parent_interface = $registry->get_type( $parent_interface );
+					}
+
+					if ( $parent_interface instanceof InterfaceType ) {
+						// Add parent interface to the beginning of the array
+						// This ensures parent interfaces are processed before child interfaces
+						array_unshift( $interfaces, $parent_interface );
+						$to_process[] = $parent_interface;
+					}
+				}
+			}
+
+			// Add current interface to the end of the array
+			// This ensures child interfaces are processed after parent interfaces
+			$interfaces[] = $current;
+		}
+
+		return $interfaces;
 	}
 
 	/**
