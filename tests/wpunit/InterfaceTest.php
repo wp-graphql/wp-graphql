@@ -1366,7 +1366,21 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 								'description' => 'Object arg description',
 								'defaultValue' => 'object default'
 							]
-						]
+						],
+						'resolve' => static function($_, $args) {
+							// Return a string that includes all provided arguments
+							$result = [];
+							if (isset($args['parentArg'])) {
+								$result[] = 'parent: ' . $args['parentArg'];
+							}
+							if (isset($args['childArg'])) {
+								$result[] = 'child: ' . $args['childArg'];
+							}
+							if (isset($args['objectArg'])) {
+								$result[] = 'object: ' . $args['objectArg'];
+							}
+							return implode(', ', $result);
+						}
 					]
 				]
 			]
@@ -1383,7 +1397,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		// Test that the field has all arguments from the inheritance chain
+		// First, test that the field has all arguments from the inheritance chain
 		$query = 'query {
 			__type(name: "TestObject") {
 				fields {
@@ -1400,7 +1414,11 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql([ 'query' => $query ]);
 
-		$this->assertQuerySuccessful($actual);
+		// Debug the response
+		codecept_debug('Type query response:');
+		codecept_debug($actual);
+
+		$this->assertQuerySuccessful($actual, [], 'The type query should be successful');
 
 		// Find the inheritedField in the response
 		$inheritedField = null;
@@ -1413,11 +1431,66 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertNotNull($inheritedField, 'The inheritedField should exist on the type');
 
+		// Debug the field we found
+		codecept_debug('Found inheritedField:');
+		codecept_debug($inheritedField);
+
 		// On master branch, this might not have all arguments
 		// On PR branch, it should have all arguments from the inheritance chain
 		$argNames = array_map(function($arg) {
 			return $arg['name'];
 		}, $inheritedField['args']);
+
+		codecept_debug('Found argument names:');
+		codecept_debug($argNames);
+
+		// Debug the interfaces
+		$query = 'query {
+			__type(name: "TestObject") {
+				interfaces {
+					name
+				}
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+		codecept_debug('Interfaces query response:');
+		codecept_debug($actual);
+
+		// Debug the ChildInterface
+		$query = 'query {
+			__type(name: "ChildInterface") {
+				interfaces {
+					name
+				}
+				fields {
+					name
+					args {
+						name
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+		codecept_debug('ChildInterface query response:');
+		codecept_debug($actual);
+
+		// Debug the ParentInterface
+		$query = 'query {
+			__type(name: "ParentInterface") {
+				fields {
+					name
+					args {
+						name
+					}
+				}
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+		codecept_debug('ParentInterface query response:');
+		codecept_debug($actual);
 
 		$this->assertContains('parentArg', $argNames, 'The field should have the parent interface argument');
 		$this->assertContains('childArg', $argNames, 'The field should have the child interface argument');
@@ -1436,10 +1509,14 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql([ 'query' => $query ]);
 
+		// Debug the response
+		codecept_debug('Field query response:');
+		codecept_debug($actual);
+
 		// On master branch, this might fail if arguments aren't properly merged
 		// On PR branch, it should succeed
 		$this->assertQuerySuccessful($actual, [
-			$this->expectedField('testInheritance.inheritedField', 'parent value')
+			$this->expectedField('testInheritance.inheritedField', 'parent: parent value, child: child value, object: object value')
 		], 'The query should be valid with all arguments from the inheritance chain');
 	}
 }
