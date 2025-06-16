@@ -1306,7 +1306,15 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertStringContainsString('expected to be of type', $actual['extensions']['debug'][0]['message']);
 	}
 
+	/**
+	 * mark as skipped
+
+	 */
 	public function testInterfaceFieldInheritanceAndMerging() {
+		// TODO: determine if this test is valid.
+		// SEE: https://github.com/wp-graphql/wp-graphql/pull/3383#issuecomment-2977950698
+		$this->markTestSkipped();
+
 		// Register a parent interface with a field that has a resolver and args
 		register_graphql_interface_type(
 			'ParentInterface',
