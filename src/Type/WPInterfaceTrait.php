@@ -208,8 +208,8 @@ trait WPInterfaceTrait {
 			if ( ! empty( $interfaces_with_field ) ) {
 				$merged_field_config = $field;
 				foreach ( $interfaces_with_field as $interface ) {
-					$interface_fields = $interface->getFields();
-					$interface_field = $interface_fields[ $field_name ];
+					$interface_fields    = $interface->getFields();
+					$interface_field     = $interface_fields[ $field_name ];
 					$merged_field_config = $this->inherit_field_config_from_interface( $field_name, $merged_field_config, [ $field_name => $interface_field->config ] );
 				}
 
@@ -275,7 +275,7 @@ trait WPInterfaceTrait {
 	 * Get all interfaces in the inheritance chain for a given interface.
 	 *
 	 * @param \GraphQL\Type\Definition\InterfaceType $interface_type The interface to get the inheritance chain for.
-	 * @param \WPGraphQL\Registry\TypeRegistry      $registry       The TypeRegistry instance.
+	 * @param \WPGraphQL\Registry\TypeRegistry       $registry       The TypeRegistry instance.
 	 *
 	 * @return array<\GraphQL\Type\Definition\InterfaceType>
 	 */
