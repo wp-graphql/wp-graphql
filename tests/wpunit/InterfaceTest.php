@@ -1100,4 +1100,209 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			$this->expectedField('testStrictArgs.fieldWithStrictArgs', 'test')
 		], 'The query should be valid with required argument');
 	}
+
+	public function testInterfaceFieldInheritanceWithConflictingTypes() {
+		register_graphql_interface_type(
+			'ParentInterface',
+			[
+				'fields' => [
+					'conflictingField' => [
+						'type' => 'String',
+						'args' => [
+							'testArg' => [
+								'type' => 'String'
+							]
+						]
+					]
+				]
+			]
+		);
+
+		register_graphql_object_type(
+			'TestObject',
+			[
+				'interfaces' => [ 'ParentInterface' ],
+				'fields' => [
+					'conflictingField' => [
+						'type' => 'Int', // This should conflict with the interface's String type
+						'args' => [
+							'testArg' => [
+								'type' => 'Int' // This should conflict with the interface's String type
+							]
+						]
+					]
+				]
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'testConflictingTypes',
+			[
+				'type' => 'TestObject',
+				'resolve' => static function() {
+					return true;
+				}
+			]
+		);
+
+		$query = 'query {
+			testConflictingTypes {
+				conflictingField(testArg: "test")
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+
+		// On master branch, this would pass without debug messages
+		// With PR #3383, this should have debug messages about type conflicts
+		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about type conflicts');
+		$this->assertStringContainsString('expected to be of type "String"', $actual['extensions']['debug'][0]['message']);
+	}
+
+	public function testInterfaceFieldInheritanceWithMissingRequiredArgs() {
+		register_graphql_interface_type(
+			'InterfaceWithRequiredArgs',
+			[
+				'fields' => [
+					'fieldWithRequiredArgs' => [
+						'type' => 'String',
+						'args' => [
+							'requiredArg' => [
+								'type' => [ 'non_null' => 'String' ]
+							]
+						],
+						'resolve' => static function($_, $args) {
+							return $args['requiredArg'] ?? null;
+						}
+					]
+				]
+			]
+		);
+
+		register_graphql_object_type(
+			'ObjectWithMissingArgs',
+			[
+				'interfaces' => [ 'InterfaceWithRequiredArgs' ],
+				'fields' => [
+					'fieldWithRequiredArgs' => [
+						'type' => 'String',
+						'resolve' => static function($_, $args) {
+							return $args['requiredArg'] ?? null;
+						}
+					]
+				]
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'testMissingArgs',
+			[
+				'type' => 'ObjectWithMissingArgs',
+				'resolve' => static function() {
+					return true;
+				}
+			]
+		);
+
+		// Test without providing the required argument
+		$query = 'query {
+			testMissingArgs {
+				fieldWithRequiredArgs
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+
+		// The query should fail because the required argument is missing
+		$this->assertArrayHasKey('errors', $actual, 'The query should have errors for missing required argument');
+		$this->assertNotEmpty($actual['errors'], 'The query should have errors for missing required argument');
+		$this->assertStringContainsString('requiredArg', $actual['errors'][0]['message']);
+
+		// Test with the required argument
+		$query = 'query {
+			testMissingArgs {
+				fieldWithRequiredArgs(requiredArg: "test")
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+
+		// The query should succeed when the required argument is provided
+		$this->assertQuerySuccessful($actual, [
+			$this->expectedField('testMissingArgs.fieldWithRequiredArgs', 'test')
+		], 'The query should be valid with required argument');
+	}
+
+	public function testInterfaceFieldInheritanceWithNestedTypes() {
+		register_graphql_interface_type(
+			'InterfaceWithNestedTypes',
+			[
+				'fields' => [
+					'fieldWithNestedTypes' => [
+						'type' => [
+							'non_null' => [
+								'list_of' => [
+									'non_null' => 'String'
+								]
+							]
+						],
+						'args' => [
+							'nestedArg' => [
+								'type' => [
+									'list_of' => [
+										'non_null' => 'String'
+									]
+								]
+							]
+						]
+					]
+				]
+			]
+		);
+
+		register_graphql_object_type(
+			'ObjectWithNestedTypes',
+			[
+				'interfaces' => [ 'InterfaceWithNestedTypes' ],
+				'fields' => [
+					'fieldWithNestedTypes' => [
+						'type' => [
+							'list_of' => 'String' // This should conflict with the interface's non-null list of non-null String
+						],
+						'args' => [
+							'nestedArg' => [
+								'type' => 'String' // This should conflict with the interface's list of non-null String
+							]
+						]
+					]
+				]
+			]
+		);
+
+		register_graphql_field(
+			'RootQuery',
+			'testNestedTypes',
+			[
+				'type' => 'ObjectWithNestedTypes',
+				'resolve' => static function() {
+					return true;
+				}
+			]
+		);
+
+		$query = 'query {
+			testNestedTypes {
+				fieldWithNestedTypes(nestedArg: "test")
+			}
+		}';
+
+		$actual = $this->graphql([ 'query' => $query ]);
+
+		// On master branch, this would pass without debug messages
+		// With PR #3383, this should have debug messages about type conflicts
+		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about nested type conflicts');
+		$this->assertStringContainsString('expected to be of type', $actual['extensions']['debug'][0]['message']);
+	}
 }
