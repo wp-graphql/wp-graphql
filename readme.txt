@@ -1,14 +1,12 @@
 === WPGraphQL ===
 Contributors: jasonbahl, tylerbarnes1, ryankanner, chopinbach, kidunot89, justlevine
 Tags: GraphQL, Headless, REST API, Decoupled, React
-Requires at least: 5.0
-Tested up to: 6.7.1
-Requires PHP: 7.1
-Stable tag: 1.29.3
+Requires at least: 6.0
+Tested up to: 6.8
+Requires PHP: 7.4
+Stable tag: 2.3.3
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-
-=== Short Description ===
 
 WPGraphQL adds a flexible and powerful GraphQL API to WordPress, enabling efficient querying and interaction with your site's data.
 
@@ -74,6 +72,21 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.0.0 =
+
+**BREAKING CHANGE UPDATE**
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
+= 1.32.0 =
+
+In <a href="https://github.com/wp-graphql/wp-graphql/pull/3293">#3293</a> a bug was fixed in how the `MediaDetails.file` field resolves. The previous behavior was a bug, but might have been used as a feature. If you need the field to behave the same as it did prior to this bugfix, you can [follow the instructions here](https://github.com/wp-graphql/wp-graphql/pull/3293) to override the field's resolver to how it worked before.
+
 = 1.30.0 =
 
 This release includes a new feature to implement a SemVer-compliant update checker, which will prevent auto-updates for major releases that include breaking changes.
@@ -86,7 +99,7 @@ There are no known breaking changes in this release, however, we recommend testi
 
 This release contains an internal refactor for how the Type Registry is generated which should lead to significant performance improvements for most users.
 
-While there are no intentional breaking changes, because this change impacts every suser we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
+While there are no intentional breaking changes, because this change impacts every user we highly recommend testing this release thoroughly on staging servers to ensure the changes don't negatively impact your projects.
 
 = 1.26.0 =
 
@@ -270,6 +283,147 @@ The `uri` field was non-null on some Types in the Schema but has been changed to
 Composer dependencies are no longer versioned in Github. Recommended install source is WordPress.org or using Composer to get the code from Packagist.org or WPackagist.org.
 
 == Changelog ==
+
+= 2.3.3 =
+
+**Bug Fixes**
+
+* fix: update skipped since tags (https://github.com/jasonbahl/automation-tests/pull/3372)
+* fix: check for preloaded AppContext::get_loader() (https://github.com/jasonbahl/automation-tests/pull/3384)
+* fix: cleanup  logic (https://github.com/jasonbahl/automation-tests/pull/3383)
+
+**Other Changes**
+
+* chore: improve type safety of  and schema registration (https://github.com/jasonbahl/automation-tests/pull/3382)
+* refactor: cleanup  class to reduce complexity and improve type safety (https://github.com/jasonbahl/automation-tests/pull/3381)
+* perf: refactor  to lazy-load dataloaders (https://github.com/jasonbahl/automation-tests/pull/3380)
+* chore: update Composer dev-deps and PHPCs ruleset (https://github.com/jasonbahl/automation-tests/pull/3379)
+* chore: expose array shape for   (https://github.com/jasonbahl/automation-tests/pull/3374)
+* chore: expose array shapes for register_graphql_enum_type()  (https://github.com/jasonbahl/automation-tests/pull/3373)
+* chore: narrow/fix php types on WPGraphQL, Server, Utils namespaces (https://github.com/jasonbahl/automation-tests/pull/3368)
+
+= 2.3.2 =
+
+**Other Changes**
+
+* chore: improve type safety of  and schema registration (https://github.com/jasonbahl/automation-tests/pull/3382)
+* refactor: cleanup  class to reduce complexity and improve type safety (https://github.com/jasonbahl/automation-tests/pull/3381)
+* perf: refactor  to lazy-load dataloaders (https://github.com/jasonbahl/automation-tests/pull/3380)
+* chore: update Composer dev-deps and PHPCs ruleset (https://github.com/jasonbahl/automation-tests/pull/3379)
+
+= 2.3.1 =
+
+**Other Changes**
+
+* chore: expose array shape for   (https://github.com/jasonbahl/automation-tests/pull/3374)
+* chore: expose array shapes for register_graphql_enum_type()  (https://github.com/jasonbahl/automation-tests/pull/3373)
+* chore: narrow/fix php types on WPGraphQL, Server, Utils namespaces (https://github.com/jasonbahl/automation-tests/pull/3368)
+
+= 2.3.0 =
+
+**New Features**
+
+* feat: lazy loading fields for Object Types and Interface Types (https://github.com/jasonbahl/automation-tests/pull/3356)
+* feat: Update Enum Type descriptions (https://github.com/jasonbahl/automation-tests/pull/3355)
+
+**Bug Fixes**
+
+* fix: don't initialize  twice in class constructor (https://github.com/jasonbahl/automation-tests/pull/3369)
+* fix: cleanup Model fields for better source-of-truth and type-safety. (https://github.com/jasonbahl/automation-tests/pull/3363)
+* fix: bump  and remove 7.3 references (https://github.com/jasonbahl/automation-tests/pull/3360)
+
+**Other Changes**
+
+* chore: improve type-safety for  class (https://github.com/jasonbahl/automation-tests/pull/3367)
+* chore: add array shapes to  and  (https://github.com/jasonbahl/automation-tests/pull/3366)
+* chore: inline (non-breaking) native return types (https://github.com/jasonbahl/automation-tests/pull/3362)
+* chore: implement array shapes for  (https://github.com/jasonbahl/automation-tests/pull/3364)
+* chore: Test compatibility with WordPress 6.8 (https://github.com/jasonbahl/automation-tests/pull/3361)
+* ci: trigger Codeception workflow more often (https://github.com/jasonbahl/automation-tests/pull/3359)
+* chore: Update Composer deps (https://github.com/jasonbahl/automation-tests/pull/3358)
+
+= 2.2.0 =
+
+**New Features**
+
+* feat: add support for graphql_description on register_post_type and register_taxonomy (https://github.com/jasonbahl/automation-tests/pull/3346)
+
+**Other Changes**
+
+* chore: update  placeholder that didn't properly get replaced during release (https://github.com/jasonbahl/automation-tests/pull/3349)
+* chore: update interface descriptions (https://github.com/jasonbahl/automation-tests/pull/3347)
+
+= 2.1.1 =
+
+**Bug Fixes**
+
+* fix: Avoid the deprecation warning when sending null header values (https://github.com/jasonbahl/automation-tests/pull/3338)
+
+**Other Changes**
+
+* chore: update README's for github workflows (https://github.com/jasonbahl/automation-tests/pull/3343)
+* chore: update cursor rules to use .cursor/rules instead of .cursorrules (https://github.com/jasonbahl/automation-tests/pull/3333)
+* chore: add WPGraphQL IDE to the extensions page (https://github.com/jasonbahl/automation-tests/pull/3332)
+
+= 2.1.0 =
+
+**New Features**
+
+- [#3320](https://github.com/wp-graphql/wp-graphql/pull/3320): feat: add filter to Request::is_valid_http_content_type to allow for custom content types with POST method requests
+**Chores / Bugfixes**
+
+- [#3314](https://github.com/wp-graphql/wp-graphql/pull/3314): fix: use version_compare to simplify incompatible dependent check
+- [#3316](https://github.com/wp-graphql/wp-graphql/pull/3316): docs: update changelog and upgrade notice
+- [#3325](https://github.com/wp-graphql/wp-graphql/pull/3325): docs: update quick-start.md
+- [#3190](https://github.com/wp-graphql/wp-graphql/pull/3190): docs: add developer docs for `AbstractConnectionResolver`
+
+= 2.0.0 =
+
+**BREAKING CHANGE UPDATE**
+
+This is a major update that drops support for PHP versions below 7.4 and WordPress versions below 6.0.
+
+We've written more about the update here:
+
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-is-coming-heres-what-you-need-to-know
+- https://www.wpgraphql.com/2024/12/16/wpgraphql-v2-0-technical-update-breaking-changes
+
+= 1.32.1 =
+
+**Chores / Bugfixes**
+
+- [#3308](https://github.com/wp-graphql/wp-graphql/pull/3308): fix: update term mutation was preventing terms from removing the parentId
+
+
+= 1.32.0 =
+
+**New Features**
+
+- [#3294](https://github.com/wp-graphql/wp-graphql/pull/3294): feat: introduce new fields for getting mediaItem files and filePaths
+
+**Chores / Bugfixes**
+
+- update stable tag
+
+= 1.31.0 =
+
+**New Features**
+
+- [#3278](https://github.com/wp-graphql/wp-graphql/pull/3278): feat: add option to provide custom file path for static schemas when using the `wp graphql generate-static-schema` command
+
+**Chores / Bugfixes**
+
+- [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: fix: Updated docs link for example of hierarchical data
+- [#3283](https://github.com/wp-graphql/wp-graphql/pull/3283): fix: Error in update checker when WPGraphQL is active as an mu-plugin
+- [#3293](https://github.com/wp-graphql/wp-graphql/pull/3293): fix: correct the resolver for the MediaDetails.file field to return the file name
+- [#3299](https://github.com/wp-graphql/wp-graphql/pull/3299): chore: restore excluded PHPCS rules
+- [#3301](https://github.com/wp-graphql/wp-graphql/pull/3301): fix: React backwards-compatibility with WP < 6.6
+- [#3302](https://github.com/wp-graphql/wp-graphql/pull/3302): chore: update NPM dependencies
+- [#3297](https://github.com/wp-graphql/wp-graphql/pull/3297): fix: typo in `Extensions\Registry\get_extensions()` method name
+- [#3303](https://github.com/wp-graphql/wp-graphql/pull/3303): chore: cleanup git cache
+- [#3298](https://github.com/wp-graphql/wp-graphql/pull/3298): chore: submit GF, Rank Math, and Headless Login plugins
+- [#3287](https://github.com/wp-graphql/wp-graphql/pull/3287): chore: fixes the syntax of the readme.txt so that the short description is shown on WordPress.org
+- [#3284](https://github.com/wp-graphql/wp-graphql/pull/3284): fix: Updated docs link for example of hierarchical data
 
 = 1.30.0 =
 

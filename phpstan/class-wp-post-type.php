@@ -6,7 +6,7 @@
  * @property bool   $show_in_graphql
  * @property 'interface'|'object'|'union' $graphql_kind
  * @property ?callable $graphql_resolve_type
- * @property array $graphql_connections
+ * @property array<string,mixed> $graphql_connections
  * @property string[] $graphql_exclude_connections
  * @property string[] $graphql_interfaces
  * @property string[] $graphql_exclude_interfaces
@@ -14,7 +14,7 @@
  * @property bool $graphql_register_root_field
  * @property bool $graphql_register_root_connection
  * @property string[] $graphql_exclude_mutations
- * @property array $graphql_fields
+ * @property array<string,mixed> $graphql_fields
  * @property string[] $graphql_exclude_fields
  */
 final class WP_Post_Type {

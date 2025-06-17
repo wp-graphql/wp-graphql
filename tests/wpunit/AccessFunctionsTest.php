@@ -1435,9 +1435,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
+		codecept_debug( $actual );
 		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
+		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['extensions']['debugMessage'] );
 		$this->assertNull( $actual['data']['contentNodes'] );
 		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
 	}

@@ -32,7 +32,10 @@ class SettingGroup {
 			ucfirst( $group_name ) . 'Settings',
 			[
 				// translators: %s is the name of the setting group.
-				'description' => sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name ),
+				'description' => static function () use ( $group_name ) {
+					// translators: %s is the name of the setting group.
+					return sprintf( __( 'The %s setting type', 'wp-graphql' ), $group_name );
+				},
 				'fields'      => $fields,
 			]
 		);
@@ -84,7 +87,10 @@ class SettingGroup {
 					$fields[ $field_key ] = [
 						'type'        => $type_registry->get_type( $setting_field['type'] ),
 						// translators: %s is the name of the setting group.
-						'description' => isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] ),
+						'description' => static function () use ( $setting_field ) {
+							// translators: %s is the name of the setting group.
+							return isset( $setting_field['description'] ) && ! empty( $setting_field['description'] ) ? $setting_field['description'] : sprintf( __( 'The %s Settings Group', 'wp-graphql' ), $setting_field['type'] );
+						},
 						'resolve'     => static function () use ( $setting_field ) {
 
 							/**

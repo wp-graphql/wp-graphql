@@ -7,44 +7,40 @@ use GraphQLRelay\Relay;
 /**
  * Class PostType - Models data for PostTypes
  *
- * @property string $id
- * @property string $name
- * @property object $labels
- * @property string $description
- * @property bool   $public
- * @property bool   $hierarchical
- * @property bool   $excludeFromSearch
- * @property bool   $publiclyQueryable
- * @property bool   $showUi
- * @property bool   $showInMenu
- * @property bool   $showInNavMenus
- * @property bool   $showInAdminBar
- * @property int    $menuPosition
- * @property string $menuIcon
- * @property bool   $hasArchive
- * @property bool   $canExport
- * @property bool   $deleteWithUser
- * @property bool   $showInRest
- * @property string $restBase
- * @property string $restControllerClass
- * @property bool   $showInGraphql
- * @property string $graphqlSingleName
- * @property string $graphql_single_name
- * @property string $graphqlPluralName
- * @property string $graphql_plural_name
- * @property string $taxonomies
+ * @property bool          $canExport
+ * @property bool          $deleteWithUser
+ * @property ?string       $description
+ * @property bool          $excludeFromSearch
+ * @property ?string       $graphqlPluralName
+ * @property ?string       $graphqlSingleName
+ * @property bool          $hasArchive
+ * @property ?bool         $hierarchical
+ * @property ?string       $id
+ * @property object        $labels
+ * @property ?string       $menuIcon
+ * @property ?int          $menuPosition
+ * @property ?string       $name
+ * @property ?bool         $public
+ * @property bool          $publiclyQueryable
+ * @property ?string       $restBase
+ * @property ?string       $restControllerClass
+ * @property bool          $showInAdminBar
+ * @property bool          $showInGraphql
+ * @property bool          $showInMenu
+ * @property bool          $showInNavMenus
+ * @property bool          $showInRest
+ * @property bool          $showUi
+ * @property string[]|null $taxonomies
+ *
+ * Aliases:
+ * @property ?string       $graphql_plural_name
+ * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Post_Type>
  */
 class PostType extends Model {
-
-	/**
-	 * Stores the incoming WP_Post_Type to be modeled
-	 *
-	 * @var \WP_Post_Type $data
-	 */
-	protected $data;
-
 	/**
 	 * PostType constructor.
 	 *
@@ -94,91 +90,32 @@ class PostType extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                  => function () {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'post_type', $this->data->name ) : null;
-				},
-				'name'                => function () {
-					return ! empty( $this->data->name ) ? $this->data->name : null;
-				},
-				'label'               => function () {
-					return ! empty( $this->data->label ) ? $this->data->label : null;
-				},
-				'labels'              => function () {
-					return get_post_type_labels( $this->data );
-				},
-				'description'         => function () {
-					return ! empty( $this->data->description ) ? $this->data->description : '';
-				},
-				'public'              => function () {
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : null;
-				},
-				'hierarchical'        => function () {
-					return true === $this->data->hierarchical || ! empty( $this->data->hierarchical );
-				},
-				'excludeFromSearch'   => function () {
-					return true === $this->data->exclude_from_search;
-				},
-				'publiclyQueryable'   => function () {
-					return true === $this->data->publicly_queryable;
-				},
-				'showUi'              => function () {
-					return true === $this->data->show_ui;
-				},
-				'showInMenu'          => function () {
-					return true === $this->data->show_in_menu;
-				},
-				'showInNavMenus'      => function () {
-					return true === $this->data->show_in_nav_menus;
-				},
-				'showInAdminBar'      => function () {
-					return true === $this->data->show_in_admin_bar;
-				},
-				'menuPosition'        => function () {
-					return ! empty( $this->data->menu_position ) ? $this->data->menu_position : null;
-				},
-				'menuIcon'            => function () {
-					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
-				},
-				'hasArchive'          => function () {
-					return ! empty( $this->uri );
-				},
 				'canExport'           => function () {
 					return true === $this->data->can_export;
 				},
 				'deleteWithUser'      => function () {
 					return true === $this->data->delete_with_user;
 				},
-				'taxonomies'          => function () {
-					$object_taxonomies = get_object_taxonomies( $this->data->name );
-					return ( ! empty( $object_taxonomies ) ) ? $object_taxonomies : null;
+				'description'         => function () {
+					return ! empty( $this->data->description ) ? $this->data->description : '';
 				},
-				'showInRest'          => function () {
-					return true === $this->data->show_in_rest;
-				},
-				'restBase'            => function () {
-					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
-				},
-				'restControllerClass' => function () {
-					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
-				},
-				'showInGraphql'       => function () {
-					return true === $this->data->show_in_graphql;
-				},
-				'graphqlSingleName'   => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
-				'graphql_single_name' => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
+				'excludeFromSearch'   => function () {
+					return true === $this->data->exclude_from_search;
 				},
 				'graphqlPluralName'   => function () {
 					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
 				},
-				'graphql_plural_name' => function () {
-					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				'graphqlSingleName'   => function () {
+					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
-				'uri'                 => function () {
-					$link = get_post_type_archive_link( $this->name );
-					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
+				'hasArchive'          => function () {
+					return ! empty( $this->uri );
+				},
+				'hierarchical'        => function () {
+					return true === $this->data->hierarchical || ! empty( $this->data->hierarchical );
+				},
+				'id'                  => function () {
+					return ! empty( $this->name ) ? Relay::toGlobalId( 'post_type', $this->name ) : null;
 				},
 				// If the homepage settings are to set to
 				'isPostsPage'         => function () {
@@ -197,6 +134,67 @@ class PostType extends Model {
 					}
 
 					return false;
+				},
+				'label'               => function () {
+					return ! empty( $this->data->label ) ? $this->data->label : null;
+				},
+				'labels'              => function () {
+					return get_post_type_labels( $this->data );
+				},
+				'menuIcon'            => function () {
+					return ! empty( $this->data->menu_icon ) ? $this->data->menu_icon : null;
+				},
+				'menuPosition'        => function () {
+					return ! empty( $this->data->menu_position ) ? $this->data->menu_position : null;
+				},
+				'name'                => function () {
+					return ! empty( $this->data->name ) ? $this->data->name : null;
+				},
+				'public'              => function () {
+					return ! empty( $this->data->public ) ? (bool) $this->data->public : null;
+				},
+				'publiclyQueryable'   => function () {
+					return true === $this->data->publicly_queryable;
+				},
+				'restBase'            => function () {
+					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
+				},
+				'restControllerClass' => function () {
+					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
+				},
+				'showInAdminBar'      => function () {
+					return true === $this->data->show_in_admin_bar;
+				},
+				'showInGraphql'       => function () {
+					return true === $this->data->show_in_graphql;
+				},
+				'showInMenu'          => function () {
+					return true === $this->data->show_in_menu;
+				},
+				'showInNavMenus'      => function () {
+					return true === $this->data->show_in_nav_menus;
+				},
+				'showInRest'          => function () {
+					return true === $this->data->show_in_rest;
+				},
+				'showUi'              => function () {
+					return true === $this->data->show_ui;
+				},
+				'taxonomies'          => function () {
+					$object_taxonomies = get_object_taxonomies( $this->data->name );
+					return ! empty( $object_taxonomies ) ? $object_taxonomies : null;
+				},
+				'uri'                 => function () {
+					$link = get_post_type_archive_link( $this->data->name );
+					return ! empty( $link ) ? trailingslashit( str_ireplace( home_url(), '', $link ) ) : null;
+				},
+
+				// Aliases.
+				'graphql_plural_name' => function () {
+					return $this->graphqlPluralName;
+				},
+				'graphql_single_name' => function () {
+					return $this->graphqlSingleName;
 				},
 			];
 		}

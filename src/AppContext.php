@@ -28,9 +28,26 @@ use WPGraphQL\Data\NodeResolver;
  *
  * @package WPGraphQL
  */
-// @phpcs:ignore
 #[\AllowDynamicProperties]
 class AppContext {
+	/**
+	 * The default loaders for the AppContext.
+	 */
+	private const DEFAULT_LOADERS = [
+		'comment_author'      => CommentAuthorLoader::class,
+		'comment'             => CommentLoader::class,
+		'enqueued_script'     => EnqueuedScriptLoader::class,
+		'enqueued_stylesheet' => EnqueuedStylesheetLoader::class,
+		'plugin'              => PluginLoader::class,
+		'nav_menu_item'       => PostObjectLoader::class,
+		'post'                => PostObjectLoader::class,
+		'post_type'           => PostTypeLoader::class,
+		'taxonomy'            => TaxonomyLoader::class,
+		'term'                => TermObjectLoader::class,
+		'theme'               => ThemeLoader::class,
+		'user'                => UserLoader::class,
+		'user_role'           => UserRoleLoader::class,
+	];
 
 	/**
 	 * Stores the class to use for the connection query.
@@ -75,12 +92,16 @@ class AppContext {
 	/**
 	 * Passes context about the current connection being resolved
 	 *
+	 * @todo These properties and methods are unused. We should consider deprecating/removing them.
+	 *
 	 * @var mixed|string|null
 	 */
 	public $currentConnection = null;
 
 	/**
 	 * Passes context about the current connection
+	 *
+	 * @todo These properties and methods are unused. We should consider deprecating/removing them.
 	 *
 	 * @var array<string,mixed>
 	 */
@@ -90,6 +111,14 @@ class AppContext {
 	 * Stores the loaders for the class
 	 *
 	 * @var array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>
+	 *
+	 * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation, -- For phpstan type hinting
+	 *
+	 * @template T of key-of<self::DEFAULT_LOADERS>
+	 *
+	 * @phpstan-var array<T, new<self::DEFAULT_LOADERS[T]>>|array<string,\WPGraphQL\Data\Loader\AbstractDataLoader>
+	 *
+	 * phpcs:enable
 	 */
 	public $loaders = [];
 
@@ -101,43 +130,22 @@ class AppContext {
 	public $node_resolver;
 
 	/**
+	 * The loader classes, before they are instantiated.
+	 *
+	 * @var array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>>
+	 */
+	private $loader_classes = self::DEFAULT_LOADERS;
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
 
-		/**
-		 * Create a list of loaders to be available in AppContext
-		 */
-		$loaders = [
-			'comment_author'      => new CommentAuthorLoader( $this ),
-			'comment'             => new CommentLoader( $this ),
-			'enqueued_script'     => new EnqueuedScriptLoader( $this ),
-			'enqueued_stylesheet' => new EnqueuedStylesheetLoader( $this ),
-			'plugin'              => new PluginLoader( $this ),
-			'nav_menu_item'       => new PostObjectLoader( $this ),
-			'post'                => new PostObjectLoader( $this ),
-			'post_type'           => new PostTypeLoader( $this ),
-			'taxonomy'            => new TaxonomyLoader( $this ),
-			'term'                => new TermObjectLoader( $this ),
-			'theme'               => new ThemeLoader( $this ),
-			'user'                => new UserLoader( $this ),
-			'user_role'           => new UserRoleLoader( $this ),
-		];
-
-		/**
-		 * This filters the data loaders, allowing for additional loaders to be
-		 * added to the AppContext or for existing loaders to be replaced if
-		 * needed.
-		 *
-		 * @params array $loaders The loaders accessible in the AppContext
-		 * @params AppContext $this The AppContext
-		 */
-		$this->loaders = apply_filters( 'graphql_data_loaders', $loaders, $this );
+		// Prime the loader classes (and their instances) for the AppContext.
+		$this->prepare_data_loaders();
 
 		/**
 		 * This sets up the NodeResolver to allow nodes to be resolved by URI
-		 *
-		 * @param \WPGraphQL\AppContext $app_context The AppContext instance
 		 */
 		$this->node_resolver = new NodeResolver( $this );
 
@@ -147,9 +155,59 @@ class AppContext {
 		 * This can be used to store additional context config, which is available to resolvers
 		 * throughout the resolution of a GraphQL request.
 		 *
-		 * @params array $config The config array of the AppContext object
+		 * @param mixed[] $config The config array of the AppContext object
 		 */
 		$this->config = apply_filters( 'graphql_app_context_config', $this->config );
+	}
+
+	/**
+	 * Prepares the data loaders for the AppContext.
+	 *
+	 * This method instantiates the loader classes and prepares them for use in the AppContext.
+	 * It also applies filters to allow customization of the loader classes.
+	 *
+	 * @uses graphql_data_loader_classes filter.
+	 * @uses graphql_data_loaders filter (deprecated).
+	 */
+	private function prepare_data_loaders(): void {
+		/**
+		 * Filter to change the data loader classes.
+		 *
+		 * This allows for additional loaders to be added to the AppContext or replaced as needed.
+		 *
+		 * @param array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>> $loader_classes The loader classes accessible in the AppContext
+		 * @param \WPGraphQL\AppContext                                                $context        The AppContext
+		 */
+		$this->loader_classes = apply_filters( 'graphql_data_loader_classes', $this->loader_classes, $this );
+
+		/**
+		 * Prime the loaders if needed
+		 *
+		 * @todo Remove this when the loaders are instantiated on demand.
+		 */
+		if ( has_filter( 'graphql_data_loaders' ) ) {
+			$loaders = array_map(
+				function ( $loader_class ) {
+					return new $loader_class( $this );
+				},
+				$this->loader_classes
+			);
+
+			/**
+			 * @deprecated next-version in favor of graphql_data_loader_classes.
+			 * @todo Remove in a future version.
+			 *
+			 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext
+			 * @param \WPGraphQL\AppContext                                   $context The AppContext
+			 */
+			$this->loaders = apply_filters_deprecated(
+				'graphql_data_loaders',
+				[ $loaders, $this ],
+				'2.3.2',
+				'graphql_data_loader_classes',
+				esc_html__( 'The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated.', 'wp-graphql' ),
+			);
+		}
 	}
 
 	/**
@@ -157,7 +215,7 @@ class AppContext {
 	 *
 	 * @param string $key The name of the loader to get
 	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 *
 	 * @deprecated Use get_loader instead.
 	 */
@@ -169,18 +227,58 @@ class AppContext {
 	/**
 	 * Retrieves loader assigned to $key
 	 *
-	 * @param string $key The name of the loader to get
+	 * @template T of key-of<self::DEFAULT_LOADERS>
 	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader|mixed
+	 * @param T|string $key The name of the loader to get.
+	 *
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 * @throws \GraphQL\Error\UserError If the loader is not found.
+	 *
+	 * @phpstan-return ( $key is T ? new<self::DEFAULT_LOADERS[T]> : \WPGraphQL\Data\Loader\AbstractDataLoader )
 	 */
 	public function get_loader( $key ) {
-		if ( ! array_key_exists( $key, $this->loaders ) ) {
+		// @todo: Remove the isset() when `graphql_data_loaders` is removed.
+		if ( ! array_key_exists( $key, $this->loader_classes ) && ! isset( $this->loaders[ $key ] ) ) {
 			// translators: %s is the key of the loader that was not found.
 			throw new UserError( esc_html( sprintf( __( 'No loader assigned to the key %s', 'wp-graphql' ), $key ) ) );
 		}
 
+		// If the loader is not instantiated, instantiate it.
+		if ( ! isset( $this->loaders[ $key ] ) ) {
+			try {
+				$this->loaders[ $key ] = new $this->loader_classes[ $key ]( $this );
+			} catch ( \Throwable $e ) {
+				// translators: %s is the key of the loader that failed to instantiate.
+				throw new UserError( esc_html( sprintf( __( 'Failed to instantiate %1$s: %2$s', 'wp-graphql' ), $this->loader_classes[ $key ], $e->getMessage() ) ) );
+			}
+		}
+
 		return $this->loaders[ $key ];
+	}
+
+	/**
+	 * Magic getter used to warn about accessing the loaders property directly.
+	 *
+	 * @todo Remove this when we change the property visibility.
+	 *
+	 * @param string $key The name of the property to get.
+	 * @return mixed
+	 */
+	public function __get( $key ) {
+		// Use default handling if the key is not a loader.
+		if ( 'loaders' !== $key ) {
+			return $this->$key;
+		}
+
+		// Warn about accessing the loaders property directly.
+		_doing_it_wrong(
+			__METHOD__,
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
+			'2.3.2' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
+		);
+
+		// Return the actual loaders array.
+		return $this->loaders;
 	}
 
 	/**
@@ -197,6 +295,8 @@ class AppContext {
 	/**
 	 * Returns the $args for the connection the field is a part of
 	 *
+	 * @todo These properties and methods are unused. We should consider deprecating/removing them.
+	 *
 	 * @return mixed[]|mixed
 	 */
 	public function get_connection_args() {
@@ -205,6 +305,8 @@ class AppContext {
 
 	/**
 	 * Returns the current connection
+	 *
+	 * @todo These properties and methods are unused. We should consider deprecating/removing them.
 	 *
 	 * @return mixed|string|null
 	 */

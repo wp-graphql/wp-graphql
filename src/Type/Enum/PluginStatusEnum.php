@@ -2,6 +2,13 @@
 
 namespace WPGraphQL\Type\Enum;
 
+/**
+ * Class - PluginStatusEnum
+ *
+ * @package WPGraphQL\Type\Enum
+ *
+ * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+ */
 class PluginStatusEnum {
 
 	/**
@@ -13,7 +20,9 @@ class PluginStatusEnum {
 		register_graphql_enum_type(
 			'PluginStatusEnum',
 			[
-				'description'  => __( 'The status of the WordPress plugin.', 'wp-graphql' ),
+				'description'  => static function () {
+					return __( 'Operational status of a plugin. Indicates whether a plugin is active, inactive, or in another state that affects its functionality.', 'wp-graphql' );
+				},
 				'values'       => self::get_enum_values(),
 				'defaultValue' => 'ACTIVE',
 			]
@@ -21,40 +30,53 @@ class PluginStatusEnum {
 	}
 
 	/**
-	 * Returns the array configuration for the GraphQL enum values.
+	 * Returns the values for the Enum.
 	 *
-	 * @return array<string,array<string,string>>
+	 * @return array<string,PartialWPEnumValueConfig>
 	 */
 	protected static function get_enum_values() {
 		$values = [
 			'ACTIVE'          => [
 				'value'       => 'active',
-				'description' => __( 'The plugin is currently active.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is currently active.', 'wp-graphql' );
+				},
 			],
 			'DROP_IN'         => [
 				'value'       => 'dropins',
-				'description' => __( 'The plugin is a drop-in plugin.', 'wp-graphql' ),
-
+				'description' => static function () {
+					return __( 'The plugin is a drop-in plugin.', 'wp-graphql' );
+				},
 			],
 			'INACTIVE'        => [
 				'value'       => 'inactive',
-				'description' => __( 'The plugin is currently inactive.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is currently inactive.', 'wp-graphql' );
+				},
 			],
 			'MUST_USE'        => [
 				'value'       => 'mustuse',
-				'description' => __( 'The plugin is a must-use plugin.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is a must-use plugin.', 'wp-graphql' );
+				},
 			],
 			'PAUSED'          => [
 				'value'       => 'paused',
-				'description' => __( 'The plugin is technically active but was paused while loading.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is technically active but was paused while loading.', 'wp-graphql' );
+				},
 			],
 			'RECENTLY_ACTIVE' => [
 				'value'       => 'recently_activated',
-				'description' => __( 'The plugin was active recently.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin was active recently.', 'wp-graphql' );
+				},
 			],
 			'UPGRADE'         => [
 				'value'       => 'upgrade',
-				'description' => __( 'The plugin has an upgrade available.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin has an upgrade available.', 'wp-graphql' );
+				},
 			],
 		];
 
@@ -62,11 +84,15 @@ class PluginStatusEnum {
 		if ( is_multisite() ) {
 			$values['NETWORK_ACTIVATED'] = [
 				'value'       => 'network_activated',
-				'description' => __( 'The plugin is activated on the multisite network.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is activated on the multisite network.', 'wp-graphql' );
+				},
 			];
 			$values['NETWORK_INACTIVE']  = [
 				'value'       => 'network_inactive',
-				'description' => __( 'The plugin is installed on the multisite network, but is currently inactive.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The plugin is installed on the multisite network, but is currently inactive.', 'wp-graphql' );
+				},
 			];
 		}
 

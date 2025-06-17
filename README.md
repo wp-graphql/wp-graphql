@@ -6,12 +6,15 @@
 [![Monthly Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/monthly)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Daily Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/daily)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Latest Stable Version](https://poser.pugx.org/wp-graphql/wp-graphql/v/stable)](https://packagist.org/packages/wp-graphql/wp-graphql)
-[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
-[![Actions Status](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
+[![Testing Integration](https://github.com/wp-graphql/wp-graphql/workflows/Testing%20Integration/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Testing+Integration%22)
+[![WordPress Coding Standards](https://github.com/wp-graphql/wp-graphql/workflows/WordPress%20Coding%20Standards/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22WordPress+Coding+Standards%22)
+[![Schema Linter](https://github.com/wp-graphql/wp-graphql/workflows/Schema%20Linter/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Schema+Linter%22)
+[![GraphiQL E2E Tests](https://github.com/wp-graphql/wp-graphql/workflows/GraphiQL%20E2E%20Tests/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22GraphiQL+E2E+Tests%22)
+[![Code Quality](https://github.com/wp-graphql/wp-graphql/workflows/Code%20Quality/badge.svg)](https://github.com/wp-graphql/wp-graphql/actions?query=workflow%3A%22Code+Quality%22)
 
-**Unlock the power of WordPress data with GraphQL**  
+**Unlock the power of WordPress data with GraphQL**
 
-WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.  
+WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.
 
 Whether you're a WordPress developer exploring GraphQL or a GraphQL expert diving into WordPress, WPGraphQL simplifies data interaction and empowers your development workflow.
 
@@ -31,7 +34,7 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 - **Flexible API**: Access posts, pages, custom post types, taxonomies, users, and more.
 - **Extendable Schema**: Easily add functionality with functions like `register_graphql_field` and `register_graphql_connection`.
-    - Plugins like [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache), [WPGraphQL for ACF](https://github.com/wp-graphql/wp-graphql-acf) and [other extension plugins](https://wpgraphql.com/extensions) demonstrate the power of extendability.
+  - Plugins like [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache), [WPGraphQL for ACF](https://github.com/wp-graphql/wp-graphql-acf) and [other extension plugins](https://wpgraphql.com/extensions) demonstrate the power of extendability.
 - **Modern Framework Integration**: Works seamlessly with [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Svelte](https://www.okupter.com/blog/headless-wordpress-graphql-sveltekit), [Astro](https://docs.astro.build/en/guides/cms/wordpress/) and other frameworks.
 - **Optimized Performance**: Query only the data you need. Collect multiple resources in one request, reducing round-trips. Use [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache) for enhanced performance and network-level caching and cache-invalidation.
 - **Developer Tools**: Explore the schema with tools like the [GraphiQL IDE](https://www.wpgraphql.com/docs/wp-graphiql) and [WordPress Playground](https://wordpress.org/plugins/wp-graphql/?preview=1).
@@ -58,7 +61,7 @@ WPGraphQL is powered by a passionate community of contributors, backers, and spo
 
 [![Backers on Open Collective](https://opencollective.com/wp-graphql/backers/badge.svg)](https://opencollective.com/wp-graphql#backer) [![Sponsors on Open Collective](https://opencollective.com/wp-graphql/sponsors/badge.svg)](https://opencollective.com/wp-graphql#sponsor)
 
-Want to help maintain and grow WPGraphQL? 
+Want to help maintain and grow WPGraphQL?
 
 - [Support the project on Open Collective](https://opencollective.com/wp-graphql)
 - [Join the Community on Discord](https://wpgraphql.com/discord)
@@ -90,4 +93,5 @@ WPGraphQL is becoming a [Canonical Plugin on WordPress.org](https://wordpress.or
 ---
 
 ### 🛠 **Privacy & Telemetry**
+
 WPGraphQL uses the [Appsero SDK](https://appsero.com/privacy-policy) to collect telemetry data **only after user consent**, helping us improve the plugin responsibly.

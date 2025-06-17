@@ -53,7 +53,7 @@ query GetCategoryNodes {
 
 ![Screenshot of a query for a list of Categories nodes](./images/categories-query-nodes.png)
 
-> **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
+>[!TIP] **Edges? Nodes? Huh?** If you're not yet familiar with GraphQL Connections, edges and nodes will look like a foreign concept. To get a better understanding of Edges, Nodes and other conventions of GraphQL Connections: [Read the GraphQL Connections Guide](/docs/connections/)
 
 ### Lists of Tags
 
@@ -82,7 +82,7 @@ One of the primary differences between Categories and Tags is that Categories ar
 
 ### Filtering a List of Terms
 
-> The following examples will use Categories and Tags interchangeable, as they operate largely the same. Behind the scenes, they are both Taxonomy Terms and WordPress and WPGraphQL both treat them nearly identically.
+>[!NOTE] The following examples will use Categories and Tags interchangeable, as they operate largely the same. Behind the scenes, they are both Taxonomy Terms and WordPress and WPGraphQL both treat them nearly identically.
 
 Queries for [Connections](/docs/connections/) (lists of nodes) can be filtered. Below are some examples of filtering using the `where` argument. There are many arguments available for filtering Terms.
 
@@ -175,7 +175,7 @@ Get the most-used tags:
 
 Below is an example of querying a single term (of any Taxonomy) using the `termNode` field and passing the GraphQL [Global ID](/docs/wpgraphql-concepts/).
 
-> The `termNode` field returns a TermNode [Interface](/docs/interfaces/) Type, which allows for terms of *any* Taxonomy to be queried.
+>[!NOTE] The `termNode` field returns a TermNode [Interface](/docs/interfaces/) Type, which allows for terms of *any* Taxonomy to be queried.
 
 ```graphql
 {

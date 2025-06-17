@@ -15,7 +15,9 @@ class MimeTypeEnum {
 		$values = [
 			'IMAGE_JPEG' => [
 				'value'       => 'image/jpeg',
-				'description' => __( 'An image in the JPEG format', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'An image in the JPEG format', 'wp-graphql' );
+				},
 			],
 		];
 
@@ -26,11 +28,13 @@ class MimeTypeEnum {
 			foreach ( $allowed_mime_types as $mime_type ) {
 				$values[ WPEnumType::get_safe_name( $mime_type ) ] = [
 					'value'       => $mime_type,
-					'description' => sprintf(
-						// translators: %s is the mime type.
-						__( '%s mime type.', 'wp-graphql' ),
-						$mime_type
-					),
+					'description' => static function () use ( $mime_type ) {
+						return sprintf(
+							// translators: %s is the mime type.
+							__( '%s mime type.', 'wp-graphql' ),
+							$mime_type
+						);
+					},
 				];
 			}
 		}
@@ -38,7 +42,9 @@ class MimeTypeEnum {
 		register_graphql_enum_type(
 			'MimeTypeEnum',
 			[
-				'description' => __( 'The MimeType of the object', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Media file type classification based on MIME standards. Used to identify and filter media items by their format and content type.', 'wp-graphql' );
+				},
 				'values'      => $values,
 			]
 		);

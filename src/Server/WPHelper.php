@@ -12,6 +12,7 @@ use GraphQL\Server\Helper;
 class WPHelper extends Helper {
 
 	/**
+	 * {@inheritDoc}
 	 * Parses normalized request params and returns instance of OperationParams
 	 * or array of OperationParams in case of batch operation.
 	 *
@@ -46,7 +47,11 @@ class WPHelper extends Helper {
 		 * graphql-php's built-in persistentQueryLoader).
 		 *
 		 * @param mixed[] $data            An array containing the pieces of the data of the GraphQL request
-		 * @param mixed[] $request_context An array containing the both body and query params
+		 * @param array{
+		 *  method: string,
+		 *  query_params: array<string,mixed>|null,
+		 *  body_params: array<string,mixed>|null,
+		 * } $request_context An array containing the both body and query params
 		 */
 		if ( 'GET' === $method ) {
 			$parsed_query_params = apply_filters( 'graphql_request_data', $parsed_query_params, $request_context );
@@ -67,7 +72,7 @@ class WPHelper extends Helper {
 	 * @param array<string,mixed>|array<string,mixed>[] $params Request parameters.
 	 * @return array<string,mixed>|array<string,mixed>[]
 	 */
-	private function parse_params( $params ) {
+	private function parse_params( array $params ): array {
 		if ( isset( $params[0] ) ) {
 			return array_map( [ $this, 'parse_extensions' ], $params );
 		}
@@ -81,7 +86,12 @@ class WPHelper extends Helper {
 	 * @param  array<string,mixed> $params Request parameters.
 	 * @return array<string,mixed>
 	 */
-	private function parse_extensions( $params ) {
+	private function parse_extensions( $params ): array {
+		// Bail if no params are passed.
+		if ( empty( $params ) || ! is_array( $params ) ) {
+			return [];
+		}
+
 		if ( isset( $params['extensions'] ) && is_string( $params['extensions'] ) ) {
 			$tmp = json_decode( $params['extensions'], true );
 			if ( ! json_last_error() ) {

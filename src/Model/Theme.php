@@ -7,28 +7,22 @@ use GraphQLRelay\Relay;
 /**
  * Class Theme - Models data for themes
  *
- * @property string     $id
- * @property string     $slug
- * @property string     $name
- * @property string     $screenshot
- * @property string     $themeUri
- * @property string     $description
- * @property string     $author
- * @property string     $authorUri
- * @property ?string[]  $tags
- * @property string|int $version
+ * @property ?string       $author
+ * @property ?string       $authorUri
+ * @property ?string       $description
+ * @property ?string       $id
+ * @property ?string       $name
+ * @property ?string       $screenshot
+ * @property ?string       $slug
+ * @property ?string       $themeUri
+ * @property string[]|null $tags
+ * @property ?string       $version
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Theme>
  */
 class Theme extends Model {
-
-	/**
-	 * Stores the incoming WP_Theme to be modeled
-	 *
-	 * @var \WP_Theme $data
-	 */
-	protected $data;
-
 	/**
 	 * Theme constructor.
 	 *
@@ -64,13 +58,18 @@ class Theme extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'          => function () {
-					$stylesheet = $this->data->get_stylesheet();
-					return ( ! empty( $stylesheet ) ) ? Relay::toGlobalId( 'theme', $stylesheet ) : null;
+				'author'      => function () {
+					return ! empty( $this->data->author ) ? $this->data->author : null;
 				},
-				'slug'        => function () {
-					$stylesheet = $this->data->get_stylesheet();
-					return ! empty( $stylesheet ) ? $stylesheet : null;
+				'authorUri'   => function () {
+					$author_uri = $this->data->get( 'AuthorURI' );
+					return ! empty( $author_uri ) ? $author_uri : null;
+				},
+				'description' => function () {
+					return ! empty( $this->data->description ) ? $this->data->description : null;
+				},
+				'id'          => function () {
+					return ! empty( $this->slug ) ? Relay::toGlobalId( 'theme', $this->slug ) : null;
 				},
 				'name'        => function () {
 					$name = $this->data->get( 'Name' );
@@ -80,25 +79,19 @@ class Theme extends Model {
 					$screenshot = $this->data->get_screenshot();
 					return ! empty( $screenshot ) ? $screenshot : null;
 				},
+				'slug'        => function () {
+					$stylesheet = $this->data->get_stylesheet();
+					return ! empty( $stylesheet ) ? $stylesheet : null;
+				},
 				'themeUri'    => function () {
 					$theme_uri = $this->data->get( 'ThemeURI' );
 					return ! empty( $theme_uri ) ? $theme_uri : null;
-				},
-				'description' => function () {
-					return ! empty( $this->data->description ) ? $this->data->description : null;
-				},
-				'author'      => function () {
-					return ! empty( $this->data->author ) ? $this->data->author : null;
-				},
-				'authorUri'   => function () {
-					$author_uri = $this->data->get( 'AuthorURI' );
-					return ! empty( $author_uri ) ? $author_uri : null;
 				},
 				'tags'        => function () {
 					return ! empty( $this->data->tags ) ? $this->data->tags : null;
 				},
 				'version'     => function () {
-					return ! empty( $this->data->version ) ? $this->data->version : null;
+					return ! empty( $this->data->version ) ? (string) $this->data->version : null;
 				},
 			];
 		}

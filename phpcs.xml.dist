@@ -5,8 +5,8 @@
 	<!-- What to scan: include any root-level PHP files, and the /src folder -->
 	<file>./access-functions.php</file>
 	<file>./activation.php</file>
-	<file>./deactivation.php</file>
 	<file>./constants.php</file>
+	<file>./deactivation.php</file>
 	<file>./wp-graphql.php</file>
 	<file>./src</file>
 	<exclude-pattern>./phpstan/*</exclude-pattern>
@@ -39,13 +39,13 @@
 		Tests for PHP version compatibility.
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#Recomended-additional-rulesets
 	-->
-	<config name="testVersion" value="7.1-"/>
+	<config name="testVersion" value="7.4-"/>
 
 	<!--
 		Tests for WordPress version compatibility.
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
 	-->
-	<config name="minimum_wp_version" value="5.0"/>
+	<config name="minimum_wp_version" value="6.0"/>
 
 	<!-- Rules -->
 
@@ -53,7 +53,10 @@
 	<rule ref="PHPCompatibilityWP" />
 
 	<!-- Load WordPress VIP Go standards - for use with projects on the (newer) VIP Go platform. -->
-	<rule ref="WordPress-VIP-Go" />
+	<rule ref="WordPress-VIP-Go">
+		<!-- Deprecated. @todo: remove after PHPCS4-->
+		<exclude name="WordPressVIPMinimum.JS" />
+	</rule>
 
 	<!-- Load WordPress Coding standards -->
 	<rule ref="WordPress">
@@ -63,9 +66,13 @@
 		<exclude name="WordPress.Files.FileName"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 		<exclude name="WordPress.WP.Capabilities.Undetermined" />
+		<!-- Deprecated. @todo: remove in PHPCS v4-->
+		<exclude name="Generic.Functions.CallTimePassByReference" />
+
+		<!-- Include only once we support PHP 8.3 and above -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
 
 		<!-- This would be a breaking change to fix-->
-		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid" />
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	</rule>
 
@@ -75,6 +82,8 @@
 		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
 		<!-- Conflicts with b/c in AbstractConnectionResolver -->
 		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+		<!-- Better handled by SlevomatCodingStandard.TypeHints.PropertyTypeHint -->
+		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
 
 		<!-- Should probably be added back -->
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
@@ -138,7 +147,15 @@
 			<property name="caseSensitive" value="true"/>
 		</properties>
 	</rule>
-	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
+	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation">
+		<properties>
+			<property name="ignoredAnnotationNames" type="array">
+				<element value="@phpstan-var" />
+				<element value="@phpstan-param" />
+				<element value="@phpstan-return" />
+			</property>
+		</properties>
+	</rule>
 	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
 	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
 
@@ -148,6 +165,8 @@
 	<rule ref="SlevomatCodingStandard.TypeHints">
 		<!-- Array syntax is preferred -->
 		<exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
+		<!-- Deprecated and will be removed in Slevomat v9 -->
+		<exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat" />
 		<!-- WP dependencies are too loosely typed to implement these safely. Breaking change. -->
 		<exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
 		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
@@ -157,7 +176,6 @@
 		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation" />
 
 		<!-- Should probably be added back. -->
-		<exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilityTypeMissing" />
 		<exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
 	</rule>
 
@@ -186,4 +204,6 @@
 			<property name="skipIfInheritdoc" value="true" />
 		</properties>
 	</rule>
+	<rule ref="./phpcs/WPGraphQL/PHPCS/Sniffs/Functions/VersionParameterSniff.php"/>
+	<rule ref="./phpcs/WPGraphQL/PHPCS/Sniffs/Commenting/ValidSinceTagSniff.php"/>
 </ruleset>

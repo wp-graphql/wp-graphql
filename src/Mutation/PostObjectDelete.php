@@ -44,16 +44,22 @@ class PostObjectDelete {
 				'type'        => [
 					'non_null' => 'ID',
 				],
-				// translators: The placeholder is the name of the post's post_type being deleted
-				'description' => sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $post_type_object->graphql_single_name ),
+				'description' => static function () use ( $post_type_object ) {
+					// translators: The placeholder is the name of the post's post_type being deleted
+					return sprintf( __( 'The ID of the %1$s to delete', 'wp-graphql' ), $post_type_object->graphql_single_name );
+				},
 			],
 			'forceDelete'    => [
 				'type'        => 'Boolean',
-				'description' => __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Whether the object should be force deleted instead of being moved to the trash', 'wp-graphql' );
+				},
 			],
 			'ignoreEditLock' => [
 				'type'        => 'Boolean',
-				'description' => __( 'Override the edit lock when another user is editing the post', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Override the edit lock when another user is editing the post', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -69,7 +75,9 @@ class PostObjectDelete {
 		return [
 			'deletedId'                            => [
 				'type'        => 'ID',
-				'description' => __( 'The ID of the deleted object', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the deleted object', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
@@ -79,7 +87,9 @@ class PostObjectDelete {
 			],
 			$post_type_object->graphql_single_name => [
 				'type'        => $post_type_object->graphql_single_name,
-				'description' => __( 'The object before it was deleted', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The object before it was deleted', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['postObject'];
@@ -131,7 +141,7 @@ class PostObjectDelete {
 			 * If the post is already in the trash, and the forceDelete input was not passed,
 			 * don't remove from the trash
 			 */
-			if ( 'trash' === $post_before_delete->post_status && true !== $force_delete ) {
+			if ( 'trash' === $post_before_delete->status && true !== $force_delete ) {
 				// Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
 				throw new UserError( esc_html( sprintf( __( 'The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input', 'wp-graphql' ), $post_type_object->graphql_single_name, $post_id ) ) );
 			}
@@ -153,7 +163,7 @@ class PostObjectDelete {
 			/**
 			 * If the post was moved to the trash, spoof the object's status before returning it
 			 */
-			$post_before_delete->post_status = ( false !== $deleted && true !== $force_delete ) ? 'trash' : $post_before_delete->post_status;
+			$post_before_delete->status = ( false !== $deleted && true !== $force_delete ) ? 'trash' : $post_before_delete->status;
 
 			/**
 			 * Return the deletedId and the object before it was deleted

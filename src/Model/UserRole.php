@@ -7,22 +7,16 @@ use GraphQLRelay\Relay;
 /**
  * Class UserRole - Models data for user roles
  *
- * @property string $displayName
- * @property string $id
- * @property string $name
- * @property array  $capabilities
+ * @property ?string[] $capabilities
+ * @property ?string   $displayName
+ * @property string    $id
+ * @property ?string   $name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class UserRole extends Model {
-
-	/**
-	 * Stores the incoming user role to be modeled
-	 *
-	 * @var array<string,mixed> $data
-	 */
-	protected $data;
-
 	/**
 	 * UserRole constructor.
 	 *
@@ -59,21 +53,21 @@ class UserRole extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
+				'capabilities' => function () {
+					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
+						return null;
+					}
+
+					return array_keys( $this->data['capabilities'] );
+				},
+				'displayName'  => function () {
+					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
+				},
 				'id'           => function () {
 					return Relay::toGlobalId( 'user_role', $this->data['id'] );
 				},
 				'name'         => function () {
 					return ! empty( $this->data['name'] ) ? esc_html( $this->data['name'] ) : null;
-				},
-				'displayName'  => function () {
-					return ! empty( $this->data['displayName'] ) ? esc_html( $this->data['displayName'] ) : null;
-				},
-				'capabilities' => function () {
-					if ( empty( $this->data['capabilities'] ) || ! is_array( $this->data['capabilities'] ) ) {
-						return null;
-					} else {
-						return array_keys( $this->data['capabilities'] );
-					}
 				},
 			];
 		}

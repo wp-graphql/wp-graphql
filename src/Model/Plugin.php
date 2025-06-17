@@ -7,26 +7,20 @@ use GraphQLRelay\Relay;
 /**
  * Class Plugin - Models the Plugin object
  *
- * @property string $id
- * @property string $name
- * @property string $pluginUri
- * @property string $description
- * @property string $author
- * @property string $authorUri
- * @property string $version
- * @property string $path
+ * @property ?string $author
+ * @property ?string $authorUri
+ * @property ?string $description
+ * @property ?string $id
+ * @property ?string $name
+ * @property ?string $path
+ * @property ?string $pluginUri
+ * @property ?string $version
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class Plugin extends Model {
-
-	/**
-	 * Stores the incoming plugin data to be modeled
-	 *
-	 * @var array<string,mixed> $data
-	 */
-	protected $data;
-
 	/**
 	 * Plugin constructor.
 	 *
@@ -60,29 +54,29 @@ class Plugin extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'          => function () {
-					return ! empty( $this->data['Path'] ) ? Relay::toGlobalId( 'plugin', $this->data['Path'] ) : null;
-				},
-				'name'        => function () {
-					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
-				},
-				'pluginUri'   => function () {
-					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
-				},
-				'description' => function () {
-					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
-				},
 				'author'      => function () {
 					return ! empty( $this->data['Author'] ) ? $this->data['Author'] : null;
 				},
 				'authorUri'   => function () {
 					return ! empty( $this->data['AuthorURI'] ) ? $this->data['AuthorURI'] : null;
 				},
-				'version'     => function () {
-					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
+				'description' => function () {
+					return ! empty( $this->data['Description'] ) ? $this->data['Description'] : null;
+				},
+				'id'          => function () {
+					return ! empty( $this->path ) ? Relay::toGlobalId( 'plugin', $this->path ) : null;
+				},
+				'name'        => function () {
+					return ! empty( $this->data['Name'] ) ? $this->data['Name'] : null;
 				},
 				'path'        => function () {
 					return ! empty( $this->data['Path'] ) ? $this->data['Path'] : null;
+				},
+				'pluginUri'   => function () {
+					return ! empty( $this->data['PluginURI'] ) ? $this->data['PluginURI'] : null;
+				},
+				'version'     => function () {
+					return ! empty( $this->data['Version'] ) ? $this->data['Version'] : null;
 				},
 			];
 		}

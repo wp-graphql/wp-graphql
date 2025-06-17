@@ -93,13 +93,13 @@ class QueryLog {
 	/**
 	 * Filter the results of the GraphQL Response to include the Query Log
 	 *
-	 * @param mixed               $response
-	 * @param \WPGraphQL\WPSchema $schema The WPGraphQL Schema
-	 * @param string              $operation_name The operation name being executed
-	 * @param string              $request        The GraphQL Request being made
-	 * @param array<string,mixed> $variables      The variables sent with the request
+	 * @param mixed|array<string,mixed>|object $response
+	 * @param \WPGraphQL\WPSchema              $schema The WPGraphQL Schema
+	 * @param string                           $operation_name The operation name being executed
+	 * @param string                           $request        The GraphQL Request being made
+	 * @param array<string,mixed>              $variables      The variables sent with the request
 	 *
-	 * @return mixed[]
+	 * @return mixed|array<string,mixed>|object
 	 */
 	public function show_results( $response, $schema, $operation_name, $request, $variables ) {
 		$query_log = $this->get_query_log();

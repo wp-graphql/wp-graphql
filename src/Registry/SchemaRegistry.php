@@ -35,13 +35,36 @@ class SchemaRegistry {
 	public function get_schema() {
 		$this->type_registry->init();
 
-		$schema_config             = new SchemaConfig();
-		$schema_config->query      = $this->type_registry->get_type( 'RootQuery' );
-		$schema_config->mutation   = $this->type_registry->get_type( 'RootMutation' );
-		$schema_config->typeLoader = function ( $type ) {
-			return $this->type_registry->get_type( $type );
-		};
-		$schema_config->types      = $this->type_registry->get_types();
+		$schema_config = SchemaConfig::create()
+			->setQuery(
+				function () {
+					/**
+					 * @var ?\GraphQL\Type\Definition\ObjectType $type
+					 */
+					$type = $this->type_registry->get_type( 'RootQuery' );
+
+					return $type;
+				}
+			)->setMutation(
+				function () {
+					/**
+					 * @var ?\GraphQL\Type\Definition\ObjectType $type
+					 */
+					$type = $this->type_registry->get_type( 'RootMutation' );
+
+					return $type;
+				}
+			)->setTypeLoader(
+				function ( $type_name ) {
+					/**
+					 * @var (\GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType)|null $type
+					 */
+					$type = $this->type_registry->get_type( $type_name );
+
+					return $type;
+				}
+			)
+			->setTypes( fn() => $this->type_registry->get_types() );
 
 		/**
 		 * Create a new instance of the Schema
