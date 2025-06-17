@@ -12,6 +12,9 @@ use WPGraphQL\Model\Model;
  * Class AbstractDataLoader
  *
  * @package WPGraphQL\Data\Loader
+ *
+ * @todo Replace this type with a generic.
+ * @phpstan-type TModel \WPGraphQL\Model\Model<mixed>
  */
 abstract class AbstractDataLoader {
 
@@ -62,6 +65,8 @@ abstract class AbstractDataLoader {
 	 *
 	 * @return \GraphQL\Deferred|null
 	 * @throws \Exception
+	 *
+	 * @phpstan-return ($database_id is int|string ? \GraphQL\Deferred : null)
 	 */
 	public function load_deferred( $database_id ) {
 		if ( empty( $database_id ) ) {
@@ -111,7 +116,7 @@ abstract class AbstractDataLoader {
 	 *
 	 * @param int|string|mixed $key
 	 *
-	 * @return ?\WPGraphQL\Model\Model
+	 * @return ?TModel
 	 * @throws \Exception
 	 */
 	public function load( $key ) {
@@ -369,7 +374,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The entry loaded from the dataloader to be used to generate a Model
 	 * @param mixed $key   The Key used to identify the loaded entry
 	 *
-	 * @return \WPGraphQL\Model\Model|null
+	 * @return TModel|null
 	 */
 	protected function normalize_entry( $entry, $key ) {
 
@@ -482,7 +487,7 @@ abstract class AbstractDataLoader {
 	 * @param mixed $entry The entry data to be used to generate a Model.
 	 * @param mixed $key   The Key to identify the entry by.
 	 *
-	 * @return ?\WPGraphQL\Model\Model
+	 * @return ?TModel
 	 */
 	protected function get_model( $entry, $key ) {
 		return $entry;

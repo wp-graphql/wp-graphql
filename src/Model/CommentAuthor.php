@@ -15,16 +15,10 @@ use WP_Comment;
  * @property ?string $url
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Comment>
  */
 class CommentAuthor extends Model {
-
-	/**
-	 * Stores the comment author to be modeled
-	 *
-	 * @var \WP_Comment $data The raw data passed to he model
-	 */
-	protected $data;
-
 	/**
 	 * CommentAuthor constructor.
 	 *

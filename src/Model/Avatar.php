@@ -17,16 +17,10 @@ namespace WPGraphQL\Model;
  * @property ?int    $width
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class Avatar extends Model {
-
-	/**
-	 * Stores the incoming avatar to be modeled
-	 *
-	 * @var array<string,mixed>
-	 */
-	protected $data;
-
 	/**
 	 * Avatar constructor.
 	 *
