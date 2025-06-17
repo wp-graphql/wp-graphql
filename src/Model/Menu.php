@@ -15,16 +15,10 @@ use GraphQLRelay\Relay;
  * @property ?string       $slug
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Term>
  */
 class Menu extends Model {
-
-	/**
-	 * Stores the incoming WP_Term object
-	 *
-	 * @var \WP_Term $data
-	 */
-	protected $data;
-
 	/**
 	 * Menu constructor.
 	 *

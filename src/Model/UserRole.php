@@ -13,16 +13,10 @@ use GraphQLRelay\Relay;
  * @property ?string   $name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<array<string,mixed>>
  */
 class UserRole extends Model {
-
-	/**
-	 * Stores the incoming user role to be modeled
-	 *
-	 * @var array<string,mixed> $data
-	 */
-	protected $data;
-
 	/**
 	 * UserRole constructor.
 	 *

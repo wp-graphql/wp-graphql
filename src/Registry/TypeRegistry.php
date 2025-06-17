@@ -138,6 +138,10 @@ use WPGraphQL\Utils\Utils;
  * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
  * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
+ * @phpstan-import-type WPEnumTypeConfig from \WPGraphQL\Type\WPEnumType
+ * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
+ *
+ * @phpstan-type TypeDef \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
  *
  * @package WPGraphQL\Registry
  */
@@ -146,7 +150,7 @@ class TypeRegistry {
 	/**
 	 * The registered Types
 	 *
-	 * @var array<string,mixed>
+	 * @var array<string,?TypeDef>
 	 */
 	protected $types;
 
@@ -160,7 +164,7 @@ class TypeRegistry {
 	/**
 	 * The loaders needed to register types
 	 *
-	 * @var array<string,callable():(mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null)>
+	 * @var array<string,callable(): ?TypeDef>
 	 */
 	protected $type_loaders;
 
@@ -230,19 +234,19 @@ class TypeRegistry {
 	 * Types can add "eagerlyLoadType => true" when being registered to be included
 	 * in the eager_type_map.
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,?TypeDef>
 	 */
 	protected function get_eager_type_map() {
-		if ( ! empty( $this->eager_type_map ) ) {
-			return array_map(
-				function ( $type_name ) {
-					return $this->get_type( $type_name );
-				},
-				$this->eager_type_map
-			);
+		if ( empty( $this->eager_type_map ) ) {
+			return [];
 		}
 
-		return [];
+		$resolved_types = [];
+		foreach ( $this->eager_type_map as $type_name ) {
+			$resolved_types[ $type_name ] = $this->get_type( $type_name );
+		}
+
+		return $resolved_types;
 	}
 
 	/**
@@ -646,6 +650,8 @@ class TypeRegistry {
 	 * @param string              $type_name The name of the Type to register
 	 * @param array<string,mixed> $config    The config for the scalar type to register
 	 *
+	 * @phpstan-param WPScalarConfig $config
+	 *
 	 * @throws \Exception
 	 *
 	 * @return void
@@ -685,8 +691,8 @@ class TypeRegistry {
 	/**
 	 * Add a Type to the Registry
 	 *
-	 * @param string                                                  $type_name The name of the type to register
-	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The config for the type
+	 * @param string                      $type_name The name of the type to register
+	 * @param array<string,mixed>|TypeDef $config The config for the type
 	 *
 	 * @throws \Exception
 	 */
@@ -715,10 +721,10 @@ class TypeRegistry {
 			return;
 		}
 
-		/**
-		 * If the Type Name is already registered, skip it.
-		 */
-		if ( isset( $this->types[ $this->format_key( $type_name ) ] ) || isset( $this->type_loaders[ $this->format_key( $type_name ) ] ) ) {
+		$type_key = $this->format_key( $type_name );
+
+		// If the Type Name is already registered, skip it.
+		if ( isset( $this->types[ $type_key ] ) || isset( $this->type_loaders[ $type_key ] ) ) {
 			graphql_debug(
 				sprintf(
 					// translators: %s is the name of the type.
@@ -733,21 +739,29 @@ class TypeRegistry {
 			return;
 		}
 
-		/**
-		 * Register any connections that were passed through the Type config
-		 */
-		if ( is_array( $config ) && isset( $config['connections'] ) ) {
-			$config['name'] = ucfirst( $type_name );
-			$this->register_connections_from_config( $config );
-		}
-
-		$this->type_loaders[ $this->format_key( $type_name ) ] = function () use ( $type_name, $config ) {
+		// Register the type loader.
+		$this->type_loaders[ $type_key ] = function () use ( $type_name, $config ) {
 			return $this->prepare_type( $type_name, $config );
 		};
 
-		if ( WPGraphQL::is_introspection_query() && is_array( $config ) && isset( $config['eagerlyLoadType'] ) && true === $config['eagerlyLoadType'] && ! isset( $this->eager_type_map[ $this->format_key( $type_name ) ] ) ) {
-			$this->eager_type_map[ $this->format_key( $type_name ) ] = $this->format_key( $type_name );
+		// If the config isn't an array, there's nothing left to do.
+		if ( ! is_array( $config ) ) {
+			return;
 		}
+
+		// Register any connections that were passed through the Type config
+		if ( isset( $config['connections'] ) ) {
+			$config['name'] = ucfirst( $type_name ); // Other types are capitalized in the prepare_type method.
+			$this->register_connections_from_config( $config );
+		}
+
+		// Load eager types if this is an introspection query.
+		$should_load_eagerly = WPGraphQL::is_introspection_query() && ! empty( $config['eagerlyLoadType'] );
+		if ( ! $should_load_eagerly || isset( $this->eager_type_map[ $type_key ] ) ) {
+			return;
+		}
+
+		$this->eager_type_map[ $type_key ] = $type_key;
 	}
 
 	/**
@@ -766,8 +780,8 @@ class TypeRegistry {
 	/**
 	 * Add an Interface Type to the registry
 	 *
-	 * @param string                                                  $type_name The name of the type to register
-	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config The configuration of the type
+	 * @param string              $type_name The name of the type to register
+	 * @param array<string,mixed> $config The configuration of the type
 	 *
 	 * @throws \Exception
 	 */
@@ -781,6 +795,8 @@ class TypeRegistry {
 	 *
 	 * @param string              $type_name The name of the type to register
 	 * @param array<string,mixed> $config he configuration of the type
+	 *
+	 * @phpstan-param WPEnumTypeConfig $config
 	 *
 	 * @throws \Exception
 	 */
@@ -839,9 +855,11 @@ class TypeRegistry {
 	 * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
 	 * introspection queries.
 	 *
-	 * @param array<string,mixed> $config The config to prepare.
+	 * @template T of array<string,mixed>
+	 * @param T $config The config to prepare.
 	 *
 	 * @return array<string,mixed> The prepared config.
+	 * @phpstan-return T|array{description?: string|null, deprecationReason?: string|null}
 	 *
 	 * @internal
 	 */
@@ -870,47 +888,49 @@ class TypeRegistry {
 	/**
 	 * Prepare the type for registration.
 	 *
-	 * @param string                                                  $type_name The name of the type to prepare
-	 * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The config for the type
+	 * @template T of WPEnumTypeConfig|WPScalarConfig|array<string,mixed>
 	 *
-	 * @return mixed|\GraphQL\Type\Definition\Type|null The prepared type
+	 * @param string    $type_name The name of the type to prepare
+	 * @param T|TypeDef $config    The config for the type
+	 *
+	 * @return ?TypeDef The prepared type
 	 */
 	protected function prepare_type( string $type_name, $config ) {
 		if ( ! is_array( $config ) ) {
 			return $config;
 		}
 
-		$prepared_type = null;
+		if ( empty( $config ) ) {
+			return null;
+		}
 
-		if ( ! empty( $config ) ) {
-			$kind           = isset( $config['kind'] ) ? $config['kind'] : null;
-			$config['name'] = ucfirst( $type_name );
+		$config         = self::prepare_config_for_introspection( $config );
+		$config['name'] = ucfirst( $type_name );
 
-			$config = self::prepare_config_for_introspection( $config );
-
-			switch ( $kind ) {
-				case 'enum':
-					$prepared_type = new WPEnumType( $config );
-					break;
-				case 'input':
-					/** @var InputObjectConfig $config */
-					$prepared_type = new WPInputObjectType( $config, $this );
-					break;
-				case 'scalar':
-					$prepared_type = new WPScalar( $config, $this );
-					break;
-				case 'union':
-					$prepared_type = new WPUnionType( $config, $this );
-					break;
-				case 'interface':
-					/** @var InterfaceConfig $config */
-					$prepared_type = new WPInterfaceType( $config, $this );
-					break;
-				case 'object':
-				default:
-					/** @var ObjectConfig $config */
-					$prepared_type = new WPObjectType( $config, $this );
-			}
+		$kind = isset( $config['kind'] ) ? $config['kind'] : null;
+		switch ( $kind ) {
+			case 'enum':
+				/** @var WPEnumTypeConfig $config */
+				$prepared_type = new WPEnumType( $config );
+				break;
+			case 'input':
+				/** @var InputObjectConfig $config */
+				$prepared_type = new WPInputObjectType( $config, $this );
+				break;
+			case 'scalar':
+				$prepared_type = new WPScalar( $config, $this );
+				break;
+			case 'union':
+				$prepared_type = new WPUnionType( $config, $this );
+				break;
+			case 'interface':
+				/** @var InterfaceConfig $config */
+				$prepared_type = new WPInterfaceType( $config, $this );
+				break;
+			case 'object':
+			default:
+				/** @var ObjectConfig $config */
+				$prepared_type = new WPObjectType( $config, $this );
 		}
 
 		return $prepared_type;
@@ -921,13 +941,19 @@ class TypeRegistry {
 	 *
 	 * @param string $type_name The name of the Type to get from the registry
 	 *
-	 * @return mixed|array<string,mixed>|\GraphQL\Type\Definition\Type|null
+	 * @return ?TypeDef
 	 */
 	public function get_type( string $type_name ) {
 		$key = $this->format_key( $type_name );
 
 		if ( isset( $this->type_loaders[ $key ] ) ) {
-			$type                = $this->type_loaders[ $key ]();
+			$type = $this->type_loaders[ $key ]();
+			/**
+			 * Filter the type before it is loaded into the registry.
+			 *
+			 * @param ?TypeDef $type The type to load.
+			 * @param string   $type_name The name of the type.
+			 */
 			$this->types[ $key ] = apply_filters( 'graphql_get_type', $type, $type_name );
 			unset( $this->type_loaders[ $key ] );
 		}
@@ -947,16 +973,15 @@ class TypeRegistry {
 	/**
 	 * Return the Types in the registry
 	 *
-	 * @return array<string,mixed>
+	 * @return TypeDef[]
 	 */
 	public function get_types(): array {
-
 		// The full map of types is merged with eager types to support the
 		// rename_graphql_type API.
 		//
 		// All of the types are closures, but eager Types are the full
 		// Type definitions up front
-		return array_merge( $this->types, $this->get_eager_type_map() );
+		return array_filter( array_merge( $this->types, $this->get_eager_type_map() ) );
 	}
 
 	/**
@@ -1093,9 +1118,10 @@ class TypeRegistry {
 	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
 	 * not call before types are ready to be loaded.
 	 *
-	 * @param \GraphQL\Type\Definition\Type|string|array<string,mixed> $type The type definition to process.
+	 * @template WrappedType of array{non_null:mixed}|array{list_of:mixed}
+	 * @param WrappedType|array<string,mixed>|string|\GraphQL\Type\Definition\Type $type The type to process.
 	 *
-	 * @return \GraphQL\Type\Definition\Type|string|array<string,mixed>
+	 * @return ($type is WrappedType ? \GraphQL\Type\Definition\Type : (array<string,mixed>|string|\GraphQL\Type\Definition\Type))
 	 * @throws \Exception
 	 */
 	public function setup_type_modifiers( $type ) {
@@ -1104,14 +1130,13 @@ class TypeRegistry {
 		}
 
 		if ( isset( $type['non_null'] ) ) {
-			/** @var \GraphQL\Type\Definition\Type $inner_type */
+			/** @var TypeDef inner_type */
 			$inner_type = $this->setup_type_modifiers( $type['non_null'] );
-
 			return $this->non_null( $inner_type );
 		}
 
 		if ( isset( $type['list_of'] ) ) {
-			/** @var \GraphQL\Type\Definition\Type $inner_type */
+			/** @var TypeDef $inner_type */
 			$inner_type = $this->setup_type_modifiers( $type['list_of'] );
 			return $this->list_of( $inner_type );
 		}
@@ -1336,14 +1361,14 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a NonNull of that type.
 	 *
-	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
-	 *
-	 * @phpstan-template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
-	 * @phpstan-param T|string $type The Type being wrapped
+	 * @template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
+	 * @param T|string $type The Type being wrapped.
 	 */
 	public function non_null( $type ): \GraphQL\Type\Definition\NonNull {
 		if ( is_string( $type ) ) {
 			$type_def = $this->get_type( $type );
+
+			/** @phpstan-var T&TypeDef $type_def */
 			return Type::nonNull( $type_def );
 		}
 
@@ -1353,11 +1378,10 @@ class TypeRegistry {
 	/**
 	 * Given a Type, this returns an instance of a listOf of that type.
 	 *
-	 * @param \GraphQL\Type\Definition\Type|string $type The Type being wrapped.
+	 * @template T of \GraphQL\Type\Definition\Type
+	 * @param T|string $type The Type being wrapped.
 	 *
-	 * @phpstan-template T of \GraphQL\Type\Definition\Type
-	 * @phpstan-param T|string $type The Type being wrapped.
-	 * @phpstan-return \GraphQL\Type\Definition\ListOfType<T>
+	 * @return \GraphQL\Type\Definition\ListOfType<\GraphQL\Type\Definition\Type>
 	 */
 	public function list_of( $type ): \GraphQL\Type\Definition\ListOfType {
 		if ( is_string( $type ) ) {
@@ -1367,7 +1391,6 @@ class TypeRegistry {
 				$resolved_type = Type::string();
 			}
 
-			/** @phpstan-var T $resolved_type */
 			$type = $resolved_type;
 		}
 

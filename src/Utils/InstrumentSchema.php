@@ -48,10 +48,10 @@ class InstrumentSchema {
 	 * This wraps fields to provide sanitization on fields output by introspection queries
 	 * (description/deprecation reason) and provides hooks to resolvers.
 	 *
-	 * @param mixed[] $fields    The fields configured for a Type
-	 * @param string  $type_name The Type name
+	 * @param \GraphQL\Type\Definition\FieldDefinition[] $fields    The fields configured for a Type
+	 * @param string                                     $type_name The Type name
 	 *
-	 * @return mixed[]
+	 * @return \GraphQL\Type\Definition\FieldDefinition[]
 	 */
 	protected static function wrap_fields( array $fields, string $type_name ) {
 		if ( empty( $fields ) ) {
@@ -202,7 +202,7 @@ class InstrumentSchema {
 	 * @param array<string,mixed>                      $args           The args for the field
 	 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
 	 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-	 * @param mixed|callable|string                    $field_resolver The Resolve function for the field
+	 * @param ?callable                                $field_resolver The Resolve function for the field
 	 * @param string                                   $type_name      The name of the type the fields belong to
 	 * @param string                                   $field_key      The name of the field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field

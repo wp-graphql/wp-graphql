@@ -29,6 +29,7 @@ use WPGraphQL\Utils\Utils;
 function graphql_format_name( string $name, string $replacement = '_', string $regex = '/[^A-Za-z0-9_]/i' ): string {
 	return Utils::format_graphql_name( $name, $replacement, $regex );
 }
+
 /**
  * Formats the name of a field so that it plays nice with GraphiQL
  *
@@ -89,6 +90,8 @@ function graphql_format_type_name( $type_name ): string {
  * @param bool                $return_request If true, return the Request object, else return the results of the request execution
  *
  * @return array<string,mixed>|\WPGraphQL\Request
+ * @phpstan-return ( $return_request is true ? \WPGraphQL\Request : array<string,mixed> )
+ *
  * @throws \Exception
  * @since  0.2.0
  */
@@ -114,6 +117,9 @@ function graphql( array $request_data = [], bool $return_request = false ) {
  * @param bool                $return_request If true, return the Request object, else return the results of the request execution
  *
  * @return array<string,mixed>|\WPGraphQL\Request
+ *
+ * @phpstan-return ( $return_request is true ? \WPGraphQL\Request : array<string,mixed> )
+ *
  * @throws \Exception
  * @since  0.0.2
  */
@@ -129,7 +135,9 @@ function do_graphql_request( $query, $operation_name = '', $variables = [], $ret
 }
 
 /**
- * Determine when to register types
+ * Determine when to register types.
+ *
+ * @return 'graphql_register_initial_types'|'graphql_register_types'|'graphql_register_types_late'
  */
 function get_graphql_register_action(): string {
 	$action = 'graphql_register_types_late';
@@ -157,6 +165,11 @@ function get_graphql_register_action(): string {
  * register_graphql_interfaces_to_types( [ 'MyNewInterface' ], [ 'Post', 'Page' ] );
  */
 function register_graphql_interfaces_to_types( $interface_names, $type_names ): void {
+	// Bail if no interfaces or types.
+	if ( empty( $type_names ) || empty( $interface_names ) ) {
+		return;
+	}
+
 	if ( is_string( $type_names ) ) {
 		$type_names = [ $type_names ];
 	}
@@ -165,25 +178,27 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ): 
 		$interface_names = [ $interface_names ];
 	}
 
-	if ( ! empty( $type_names ) && is_array( $type_names ) && ! empty( $interface_names ) && is_array( $interface_names ) ) {
-		foreach ( $type_names as $type_name ) {
+	// Bail if they're still not arrays.
+	if ( ! is_array( $type_names ) || ! is_array( $interface_names ) ) {
+		return;
+	}
 
-			// Filter the GraphQL Object Type Interface to apply the interface
-			add_filter(
-				'graphql_type_interfaces',
-				static function ( $interfaces, $config ) use ( $type_name, $interface_names ) {
-					$interfaces = is_array( $interfaces ) ? $interfaces : [];
+	foreach ( $type_names as $type_name ) {
+		// Filter the GraphQL Object Type Interface to apply the interface
+		add_filter(
+			'graphql_type_interfaces',
+			static function ( $interfaces, $config ) use ( $type_name, $interface_names ) {
+				$interfaces = is_array( $interfaces ) ? $interfaces : [];
 
-					if ( strtolower( $type_name ) === strtolower( $config['name'] ) ) {
-						$interfaces = array_unique( array_merge( $interfaces, $interface_names ) );
-					}
+				if ( strtolower( $type_name ) === strtolower( $config['name'] ) ) {
+					$interfaces = array_unique( array_merge( $interfaces, $interface_names ) );
+				}
 
-					return $interfaces;
-				},
-				10,
-				2
-			);
-		}
+				return $interfaces;
+			},
+			10,
+			2
+		);
 	}
 }
 
@@ -192,8 +207,6 @@ function register_graphql_interfaces_to_types( $interface_names, $type_names ): 
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
- *
- * @throws \Exception
  */
 function register_graphql_type( string $type_name, array $config ): void {
 	add_action(
@@ -208,10 +221,8 @@ function register_graphql_type( string $type_name, array $config ): void {
 /**
  * Given a Type Name and a $config array, this adds an Interface Type to the TypeRegistry
  *
- * @param string                                                  $type_name The name of the Type to register
- * @param mixed|array<string,mixed>|\GraphQL\Type\Definition\Type $config    The Type config
- *
- * @throws \Exception
+ * @param string              $type_name The name of the Type to register
+ * @param array<string,mixed> $config    The Type config
  */
 function register_graphql_interface_type( string $type_name, $config ): void {
 	add_action(
@@ -269,6 +280,20 @@ function register_graphql_union_type( string $type_name, array $config ): void {
  *
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The Type config
+ *
+ * @phpstan-param array{
+ *   description?: string|callable():string|null,
+ *   values: array<string, array{
+ *     name?: string,
+ *     value?: mixed,
+ *     deprecationReason?: string|callable():string|null,
+ *     description?: string|callable():string|null,
+ *     astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
+ *   }>,
+ *   astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
+ *   kind?: 'enum'|null
+ * } $config
  */
 function register_graphql_enum_type( string $type_name, array $config ): void {
 	$config['kind'] = 'enum';
@@ -484,8 +509,6 @@ function rename_graphql_type( string $type_name, string $new_type_name ): void {
  *
  * @param array<string,mixed> $config Array to configure the connection
  *
- * @throws \Exception
- *
  * @since 0.1.0
  */
 function register_graphql_connection( array $config ): void {
@@ -503,8 +526,6 @@ function register_graphql_connection( array $config ): void {
  *
  * @param string              $mutation_name The name of the Mutation to register
  * @param array<string,mixed> $config        The config for the mutation
- *
- * @throws \Exception
  *
  * @since 0.1.0
  */
@@ -524,18 +545,20 @@ function register_graphql_mutation( string $mutation_name, array $config ): void
  * @param string              $type_name The name of the Type to register
  * @param array<string,mixed> $config    The config for the scalar type to register
  *
- * @throws \Exception
+ * @phpstan-param array{
+ *   description?: string|callable():string|null,
+ *   serialize?: callable(mixed): mixed,
+ *   parseValue?: callable(mixed): mixed,
+ *   parseLiteral?: callable(\GraphQL\Language\AST\ValueNode&\GraphQL\Language\AST\Node, array<string, mixed>|null): mixed,
+ *   astNode?: \GraphQL\Language\AST\ScalarTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<\GraphQL\Language\AST\ScalarTypeDefinitionNode>|null
+ * } $config
  *
  * @since 0.8.4
  */
 function register_graphql_scalar( string $type_name, array $config ): void {
-	add_action(
-		get_graphql_register_action(),
-		static function ( TypeRegistry $type_registry ) use ( $type_name, $config ): void {
-			$type_registry->register_scalar( $type_name, $config );
-		},
-		10
-	);
+	$config['kind'] = 'scalar';
+	register_graphql_type( $type_name, $config );
 }
 
 /**

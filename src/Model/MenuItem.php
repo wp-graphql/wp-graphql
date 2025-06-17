@@ -28,16 +28,10 @@ use WP_Post;
  * @property ?string       $url
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<object|mixed>
  */
 class MenuItem extends Model {
-
-	/**
-	 * Stores the incoming post data
-	 *
-	 * @var mixed|object $data
-	 */
-	protected $data;
-
 	/**
 	 * MenuItem constructor.
 	 *

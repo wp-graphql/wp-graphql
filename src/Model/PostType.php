@@ -37,16 +37,10 @@ use GraphQLRelay\Relay;
  * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Post_Type>
  */
 class PostType extends Model {
-
-	/**
-	 * Stores the incoming WP_Post_Type to be modeled
-	 *
-	 * @var \WP_Post_Type $data
-	 */
-	protected $data;
-
 	/**
 	 * PostType constructor.
 	 *
