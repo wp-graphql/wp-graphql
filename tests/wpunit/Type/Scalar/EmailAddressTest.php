@@ -7,7 +7,7 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		// Enable debug mode
 		add_filter( 'graphql_debug', '__return_true', 99999 );
-		
+
 		parent::setUp();
 
 		$this->clearSchema();
@@ -19,10 +19,10 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function tearDown(): void {
 		// Clean up by removing our test fields
 		remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
-		
+
 		// Remove debug mode filter
 		remove_filter( 'graphql_debug', '__return_true', 99999 );
-		
+
 		parent::tearDown();
 	}
 
@@ -95,8 +95,8 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayHasKey('errors', $response);
 		$this->assertStringContainsString(
-			'Expected a value of type "EmailAddress" but received: not-an-email',
-			$response['errors'][0]['debugMessage']
+			'Expected a value of type EmailAddress but received: "not-an-email"',
+			$response['errors'][0]['message']
 		);
 	}
 
@@ -174,4 +174,4 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayHasKey('errors', $response);
 		$this->assertStringContainsString('must be a string', $response['errors'][0]['message']);
 	}
-} 
+}
