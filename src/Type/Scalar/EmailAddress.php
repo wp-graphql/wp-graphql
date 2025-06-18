@@ -51,13 +51,15 @@ class EmailAddress {
 	}
 
 	/**
-	 * Parses an externally provided value (query variable) to use as an input
+	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param mixed $value
+	 * @param mixed $value The value that was passed to be parsed.
 	 * @return string
 	 * @throws \GraphQL\Error\Error
+	 *
+	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
-	public static function parseValue( $value ) {
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		return self::serialize( $value );
 	}
 
@@ -68,8 +70,10 @@ class EmailAddress {
 	 * @param array<string,mixed>|null   $variables
 	 * @return string
 	 * @throws \GraphQL\Error\Error
+	 *
+	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */
-	public static function parseLiteral( $valueNode, ?array $variables = null ) {
+	public static function parseLiteral( $valueNode, ?array $variables = null ) { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		// Check if the value node is a string
 		if ( ! property_exists( $valueNode, 'value' ) || ! is_string( $valueNode->value ) ) {
 			throw new Error(
@@ -92,9 +96,9 @@ class EmailAddress {
 			'EmailAddress',
 			[
 				'description'  => __( 'A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.', 'wp-graphql' ),
-				'serialize'    => [ static::class, 'serialize' ],
-				'parseValue'   => [ static::class, 'parseValue' ],
-				'parseLiteral' => [ static::class, 'parseLiteral' ],
+				'serialize'    => [ self::class, 'serialize' ],
+				'parseValue'   => [ self::class, 'parseValue' ],
+				'parseLiteral' => [ self::class, 'parseLiteral' ],
 			]
 		);
 	}

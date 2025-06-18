@@ -2,10 +2,10 @@
 
 namespace WPGraphQL\Type\Scalar;
 
+use DateTime;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use DateTime;
 
 /**
  * Class Date
@@ -13,13 +13,6 @@ use DateTime;
  * @package WPGraphQL\Type\Scalar
  */
 class Date {
-
-	/**
-	 * A description of the scalar.
-	 *
-	 * @var string
-	 */
-	public static $description = 'A date string with format Y-m-d. For example: 2020-01-01.';
 
 	/**
 	 * Serializes an internal value to include in a response.
@@ -35,7 +28,7 @@ class Date {
 		try {
 			$date = new DateTime( $value );
 			return $date->format( 'Y-m-d' );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			return null;
 		}
 	}
@@ -43,11 +36,13 @@ class Date {
 	/**
 	 * Parses an externally provided value (query variable) to use as an input
 	 *
-	 * @param mixed $value
+	 * @param mixed $value The value that was passed to be parsed.
 	 * @return string
 	 * @throws \GraphQL\Error\Error
+	 *
+	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
-	public static function parseValue( $value ) {
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! is_string( $value ) || ! self::validate_date( $value ) ) {
 			throw new Error(
 				\esc_html(
@@ -69,9 +64,12 @@ class Date {
 	 * @param array<string,mixed>|null   $variables
 	 * @return string
 	 * @throws \GraphQL\Error\Error
+	 *
+	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */
-	public static function parseLiteral( $valueNode, ?array $variables = null ) {
+	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
@@ -87,7 +85,7 @@ class Date {
 		\register_graphql_scalar(
 			'Date',
 			[
-				'description'  => \esc_html( self::$description ),
+				'description'  => __( 'A date string with format Y-m-d. For example: 2020-01-01.', 'wp-graphql' ),
 				'serialize'    => [ self::class, 'serialize' ],
 				'parseValue'   => [ self::class, 'parseValue' ],
 				'parseLiteral' => [ self::class, 'parseLiteral' ],
@@ -99,7 +97,6 @@ class Date {
 	 * Validate that the date is in the Y-m-d format.
 	 *
 	 * @param string $date
-	 * @return bool
 	 */
 	private static function validate_date( string $date ): bool {
 		$d = DateTime::createFromFormat( 'Y-m-d', $date );
