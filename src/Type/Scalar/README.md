@@ -31,12 +31,12 @@ WPGraphQL includes these Custom Scalars:
 
 | Scalar           | Description                                                                  |
 | ---------------- | ---------------------------------------------------------------------------- |
-| `Date`           | Stores **date-only** values (`Y-m-d`).                                       |
+| `Date`           | Represents a date in `Y-m-d` format, conforming to ISO 8601.                 |
 | `DateTime`       | Stores **date/time** values (`Y-m-d H:i:sZ`, ISO 8601 format).               |
-| `EmailAddress`   | Enforces **valid email formats**.                                            |
+| `EmailAddress`   | Represents a valid email address, conforming to RFC 5322.                    |
 | `Color`          | Represents color values (supports HEX, RGB, and RGBA).                       |
 | `HTML`           | Represents **sanitized HTML content**.                                       |
-| `JSON`           | Represents **JSON-encoded data** (useful for meta values, block attributes). |
+| `json`           | Represents **JSON-encoded data** (useful for meta values, block attributes). |
 | `Locale`         | Stores **WordPress locale identifiers** (`en_US`, `fr_FR`).                  |
 | `NonEmptyString` | Ensures **non-empty text values**.                                           |
 | `Slug`           | Enforces **WordPress-style slugs** (`my-post-title`).                        |
@@ -76,7 +76,9 @@ These scalars might be implemented in the future if clear use cases emerge:
 Custom Scalars can be created by:
 
 1. Using the `register_graphql_scalar()` function within the `graphql_register_types` action
-2. Implementing `serialize()` and `parseValue()` methods
+2. Implementing `serialize()`, `parseValue()`, and `parseLiteral()` methods.
+
+**Note on Naming Conventions:** The `graphql-php` library requires the method names `parseValue` and `parseLiteral`. While these do not follow WordPress's `snake_case` naming convention, we adhere to the library's standard for clarity and compatibility. We use `phpcs:ignore` directives to prevent linting errors for these specific methods.
 
 Example:
 
@@ -91,14 +93,61 @@ add_action( 'graphql_register_types', function() {
         'parseValue' => function($value) {
             // Logic to parse the input value
             return $value;
-        }
+        },
+		'parseLiteral' => function($valueNode) {
+			// Logic to parse the literal value from the query AST
+			return $valueNode->value;
+		}
     ]);
 });
 ```
 
+### Testing Custom Scalars
+
+Consistent and thorough testing is crucial for ensuring custom scalars are robust and reliable. When adding a new scalar, follow these testing guidelines, modeled after `DateTest.php` and `EmailAddressTest.php`.
+
+#### Test File Location and Naming
+
+- Test files should be located in `tests/wpunit/Type/Scalar/`.
+- The file name should correspond to the scalar name, e.g., `MyScalarTest.php`.
+
+#### Test Fields and Mutations
+
+To avoid conflicts with actual schema fields, **all fields and mutations registered for testing purposes must be prefixed with `test`**.
+
+- **Example Field:** `testMyScalarField`
+- **Example Mutation:** `testMyScalarMutation`
+
+This is a critical convention to prevent tests from failing when a real field using the scalar is added to the schema.
+
+#### Core Test Cases
+
+Your test class should include the following checks:
+
+1.  **Serialization:**
+
+    - Unit test the `serialize()` method directly with valid values to ensure they are formatted correctly.
+    - Test invalid values (e.g., `null`, malformed strings, incorrect data types) to ensure they are handled gracefully (typically by returning `null`).
+
+2.  **Value Parsing:**
+
+    - Unit test the `parseValue()` method with valid and invalid input to ensure it either accepts the value or throws a `\GraphQL\Error\Error`.
+
+3.  **Literal Parsing:**
+
+    - Unit test the `parseLiteral()` method, which handles values hardcoded in the query document.
+
+4.  **Integration Tests:**
+
+    - **Query Test:** Register a test field that returns a value, and write a GraphQL query to assert that the serialized output is correct.
+    - **Mutation Test:** Register a test mutation that accepts the scalar as input. Write a GraphQL mutation to assert that valid input is accepted and invalid input results in a GraphQL error.
+
+5.  **Real-World Data:**
+    - When a scalar is intended to be used with specific WordPress data (e.g., `post_date`), create that data in your tests and query it through the scalar to ensure it handles real-world formats and values correctly.
+
 ### Date
 
-A scalar that handles date values, represented as strings in the `Y-m-d` format. This is distinct from the `DateTime` scalar, which includes time information.
+The `Date` scalar type represents a date in the Y-m-d format, adhering to the `full-date` production of the ISO 8601 standard. It does not include time or timezone information. For example: `2020-01-01`.
 
 #### Usage
 
@@ -132,7 +181,7 @@ query GetFormattedPostPublishDate {
 
 ### EmailAddress
 
-A scalar type that validates and sanitizes email addresses according to WordPress standards.
+The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322.
 
 #### Usage
 
@@ -166,11 +215,3 @@ mutation RegisterUser {
   }
 }
 ```
-
-#### Implementation Details
-
-The EmailAddress scalar:
-
-- Validates email format using WordPress's `is_email()` function
-- Sanitizes email using WordPress's `sanitize_email()` function
-- Provides clear error messages for invalid inputs
