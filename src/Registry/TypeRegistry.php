@@ -117,6 +117,7 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\Scalar\Date;
 use WPGraphQL\Type\Scalar\EmailAddress;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
@@ -300,6 +301,7 @@ class TypeRegistry {
 
 		// Register Scalars.
 		EmailAddress::register_scalar();
+		Date::register_scalar();
 
 		// Register Interfaces.
 		Node::register_type();
