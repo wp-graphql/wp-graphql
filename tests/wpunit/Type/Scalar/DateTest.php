@@ -27,14 +27,14 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			},
 		]);
 
-		register_graphql_field( 'Post', 'publishDate', [
+		register_graphql_field( 'Post', 'testPublishDate', [
 			'type' => 'Date',
-			'resolve' => static function ( Post$post ) {
+			'resolve' => static function ( Post $post ) {
 				return $post->date;
 			},
 		]);
 
-		register_graphql_field( 'Post', 'modifiedDate', [
+		register_graphql_field( 'Post', 'testModifiedDate', [
 			'type' => 'Date',
 			'resolve' => static function ( Post $post ) {
 				return $post->modified;
@@ -89,8 +89,8 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '
 		query ($id: ID!) {
 			post(id: $id) {
-				publishDate
-				modifiedDate
+				testPublishDate
+				testModifiedDate
 			}
 		}
 		';
@@ -102,8 +102,8 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
         $post = new Post( $post );
 
-		$this->assertEquals( Date::serialize( $post->date ), $response['data']['post']['publishDate'] );
-		$this->assertEquals( Date::serialize( $post->modified ), $response['data']['post']['modifiedDate'] );
+		$this->assertEquals( Date::serialize( $post->date ), $response['data']['post']['testPublishDate'] );
+		$this->assertEquals( Date::serialize( $post->modified ), $response['data']['post']['testModifiedDate'] );
 	}
 
 	public function testMutationWithValidDate() {
