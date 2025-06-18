@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -39,7 +38,7 @@ class Locale {
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! is_string( $value ) || ! self::is_valid_locale( $value ) ) {
@@ -59,10 +58,10 @@ class Locale {
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
@@ -77,7 +76,6 @@ class Locale {
 	 * Validate that the locale is a valid WordPress locale.
 	 *
 	 * @param string $locale
-	 * @return bool
 	 */
 	private static function is_valid_locale( string $locale ): bool {
 		if ( null === self::$valid_locales ) {

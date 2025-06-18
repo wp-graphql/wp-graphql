@@ -2,11 +2,10 @@
 
 namespace WPGraphQL\Type\Scalar;
 
+use DateTime as PHPDateTime;
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use DateTime as PHPDateTime;
 
 /**
  * Class Time
@@ -35,7 +34,7 @@ class Time {
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! is_string( $value ) || ! self::is_valid_time( $value ) ) {
@@ -55,10 +54,10 @@ class Time {
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
@@ -73,7 +72,6 @@ class Time {
 	 * Validate that the time is in the H:i:s format.
 	 *
 	 * @param string $time
-	 * @return bool
 	 */
 	private static function is_valid_time( string $time ): bool {
 		$d = PHPDateTime::createFromFormat( 'H:i:s', $time );

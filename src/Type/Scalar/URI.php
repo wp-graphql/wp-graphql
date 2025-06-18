@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -22,7 +21,7 @@ class URI {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function serialize( $value ) {
 		if ( ! is_string( $value ) ) {
@@ -67,7 +66,7 @@ class URI {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
@@ -78,10 +77,10 @@ class URI {
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string|null
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */

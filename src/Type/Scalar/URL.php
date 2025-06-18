@@ -3,7 +3,6 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -20,8 +19,8 @@ class URL {
 	 * Serializes an internal value to include in a response.
 	 *
 	 * @param mixed $value
-	 * @return string
-	 * @throws Error
+	 * @return string|null
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function serialize( $value ) {
 		if ( ! is_string( $value ) || empty( $value ) ) {
@@ -62,21 +61,47 @@ class URL {
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		if ( ! is_string( $value ) || false === filter_var( $value, FILTER_VALIDATE_URL ) ) {
+			throw new Error(
+				\esc_html(
+					\sprintf(
+						/* translators: %s: The invalid URL value */
+						\__( 'Value is not a valid URL: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
+		}
+
+		$sanitized_url = \esc_url_raw( $value );
+
+		if ( empty( $sanitized_url ) ) {
+			throw new Error(
+				\esc_html(
+					\sprintf(
+						/* translators: %s: The invalid URL value */
+						\__( 'Value is not a valid URL: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
+		}
+
+		return $sanitized_url;
 	}
 
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */
@@ -86,7 +111,7 @@ class URL {
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**

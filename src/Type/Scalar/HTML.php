@@ -18,13 +18,12 @@ class HTML {
 	 * This method first strips all script tags and their content, then runs the
 	 * string through `wp_kses_post` to ensure a safe, standard set of HTML is allowed.
 	 *
-	 * @param mixed $value The raw value to be sanitized.
+	 * @param string $value The raw value to be sanitized.
 	 * @return string The sanitized HTML string.
 	 */
-	private static function sanitize_html( $value ) {
-		$value = (string) $value;
+	private static function sanitize_html( string $value ): string {
 		// Strip script tags and their content entirely.
-		$value = preg_replace( '#<script(.*?)>(.*?)</script>#is', '', $value );
+		$value = preg_replace( '#<script(.*?)>(.*?)</script>#is', '', $value ) ?? '';
 		// Use the standard WordPress function for sanitizing post content.
 		return wp_kses_post( $value );
 	}
@@ -33,22 +32,18 @@ class HTML {
 	 * Serializes an internal value to include in a response.
 	 *
 	 * @param mixed $value
-	 * @return string
 	 */
-	public static function serialize( $value ) {
-		return self::sanitize_html( $value );
+	public static function serialize( $value ): string {
+		return self::sanitize_html( (string) $value );
 	}
 
 	/**
 	 * Parses an externally provided value (query variable) to use as an input.
 	 *
 	 * @param mixed $value
-	 * @return string
 	 */
-	// NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
-	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-	public static function parseValue( $value ) {
-		return self::sanitize_html( $value );
+	public static function parseValue( $value ): string { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		return self::sanitize_html( (string) $value );
 	}
 
 	/**
@@ -56,13 +51,11 @@ class HTML {
 	 *
 	 * @param \GraphQL\Language\AST\Node $valueNode
 	 * @param array<string,mixed>|null   $variables
-	 * @return string
 	 * @throws \GraphQL\Error\Error
 	 */
-	// NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
-	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-	public static function parseLiteral( $valueNode, ?array $variables = null ) {
+	public static function parseLiteral( $valueNode, ?array $variables = null ): string { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 		return self::sanitize_html( $valueNode->value );

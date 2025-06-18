@@ -2,11 +2,9 @@
 
 namespace WPGraphQL\Type\Scalar;
 
-use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectValueNode;
 
 /**
  * Class JSON
@@ -33,32 +31,32 @@ class JSON {
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	public static function parseValue( $value ) {
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		return $value;
 	}
 
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return mixed
 	 */
-	public static function parseLiteral( $valueNode, ?array $variables = null ) {
-		return self::astToPhp( $valueNode );
+	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		return self::ast_to_php( $valueNode );
 	}
 
 	/**
 	 * Converts an AST node to a PHP value.
 	 *
-	 * @param Node $ast
+	 * @param \GraphQL\Language\AST\Node $ast
 	 * @return mixed
 	 */
-	private static function astToPhp( $ast ) {
+	private static function ast_to_php( $ast ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( $ast instanceof ObjectValueNode ) {
 			$values = [];
 			foreach ( $ast->fields as $field ) {
-				$values[ $field->name->value ] = self::astToPhp( $field->value );
+				$values[ $field->name->value ] = self::ast_to_php( $field->value );
 			}
 			return $values;
 		}
@@ -66,7 +64,7 @@ class JSON {
 		if ( $ast instanceof ListValueNode ) {
 			$values = [];
 			foreach ( $ast->values as $value ) {
-				$values[] = self::astToPhp( $value );
+				$values[] = self::ast_to_php( $value );
 			}
 			return $values;
 		}

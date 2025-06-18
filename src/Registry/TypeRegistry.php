@@ -117,16 +117,19 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\Scalar\Color;
 use WPGraphQL\Type\Scalar\Date;
+use WPGraphQL\Type\Scalar\DateTime;
 use WPGraphQL\Type\Scalar\EmailAddress;
 use WPGraphQL\Type\Scalar\HTML;
+use WPGraphQL\Type\Scalar\JSON;
+use WPGraphQL\Type\Scalar\Locale;
 use WPGraphQL\Type\Scalar\NonEmptyString;
 use WPGraphQL\Type\Scalar\Slug;
-use WPGraphQL\Type\Scalar\URL;
-use WPGraphQL\Type\Scalar\URI;
-use WPGraphQL\Type\Scalar\JSON;
-use WPGraphQL\Type\Scalar\DateTime;
 use WPGraphQL\Type\Scalar\Time;
+use WPGraphQL\Type\Scalar\Timezone;
+use WPGraphQL\Type\Scalar\URI;
+use WPGraphQL\Type\Scalar\URL;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -139,6 +142,7 @@ use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
 use WPGraphQL\Utils\Utils;
+
 
 /**
  * Class TypeRegistry
@@ -308,19 +312,19 @@ class TypeRegistry {
 		do_action( 'graphql_register_initial_types', $type_registry );
 
 		// Register Scalars.
-		\WPGraphQL\Type\Scalar\Date::register_scalar();
-		\WPGraphQL\Type\Scalar\DateTime::register_scalar();
-		\WPGraphQL\Type\Scalar\EmailAddress::register_scalar();
-		\WPGraphQL\Type\Scalar\HTML::register_scalar();
-		\WPGraphQL\Type\Scalar\JSON::register_scalar();
-		\WPGraphQL\Type\Scalar\NonEmptyString::register_scalar();
-		\WPGraphQL\Type\Scalar\Slug::register_scalar();
-		\WPGraphQL\Type\Scalar\URI::register_scalar();
-		\WPGraphQL\Type\Scalar\URL::register_scalar();
-		\WPGraphQL\Type\Scalar\Color::register_scalar();
-		\WPGraphQL\Type\Scalar\Time::register_scalar();
-		\WPGraphQL\Type\Scalar\Timezone::register_scalar();
-		\WPGraphQL\Type\Scalar\Locale::register_scalar();
+		Color::register_scalar();
+		Date::register_scalar();
+		DateTime::register_scalar();
+		EmailAddress::register_scalar();
+		HTML::register_scalar();
+		JSON::register_scalar();
+		Locale::register_scalar();
+		NonEmptyString::register_scalar();
+		Slug::register_scalar();
+		Time::register_scalar();
+		Timezone::register_scalar();
+		URI::register_scalar();
+		URL::register_scalar();
 
 		// Register Interfaces.
 		Node::register_type();

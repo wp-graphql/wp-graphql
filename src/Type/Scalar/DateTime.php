@@ -2,11 +2,10 @@
 
 namespace WPGraphQL\Type\Scalar;
 
+use DateTime as PHPDateTime;
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use DateTime as PHPDateTime;
 
 /**
  * Class DateTime
@@ -23,7 +22,7 @@ class DateTime {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function serialize( $value ) {
 		if ( null === $value || '' === $value || '0000-00-00 00:00:00' === $value ) {
@@ -45,7 +44,7 @@ class DateTime {
 		try {
 			$date = new PHPDateTime( $value );
 			return $date->format( 'Y-m-d\TH:i:s\Z' );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			return null;
 		}
 	}
@@ -55,7 +54,7 @@ class DateTime {
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
@@ -77,10 +76,10 @@ class DateTime {
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 *
 	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */
@@ -97,7 +96,6 @@ class DateTime {
 	 * Validate that the date is in the Y-m-d H:i:s format.
 	 *
 	 * @param string $date
-	 * @return bool
 	 */
 	private static function validate_date_time( string $date ): bool {
 		$d = PHPDateTime::createFromFormat( 'Y-m-d\TH:i:s\Z', $date );

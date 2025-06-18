@@ -22,7 +22,7 @@ class Color {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function serialize( $value ) {
 		if ( null === $value || '' === $value ) {
@@ -30,7 +30,7 @@ class Color {
 		}
 
 		if ( ! is_string( $value ) ) {
-			throw new Error( \__( 'Color value must be a string.', 'wp-graphql' ) );
+			throw new Error( \esc_html__( 'Color value must be a string.', 'wp-graphql' ) );
 		}
 
 		if ( ! self::is_valid_color( $value ) ) {
@@ -53,47 +53,57 @@ class Color {
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		if ( ! is_string( $value ) || ! self::is_valid_color( $value ) ) {
+			throw new Error(
+				\esc_html(
+					\sprintf(
+						/* translators: %s: The invalid Color value */
+						\__( 'Value is not a valid Color: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
+		}
+		return $value;
 	}
 
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 * @param Node                $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return string
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
-	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+	public static function parseLiteral( Node $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**
 	 * Validates if the given string is a valid HEX, RGB, or RGBA color.
 	 *
 	 * @param string $color
-	 * @return bool
 	 */
 	private static function is_valid_color( string $color ): bool {
-		// HEX: #f00, #ff0000, #ff0000ff
+		// HEX: for example #f00, #ff0000, #ff0000ff
 		if ( preg_match( '/^#([a-f0-9]{3}){1,2}([a-f0-9]{2})?$/i', $color ) ) {
 			return true;
 		}
 
-		// RGB: rgb(255, 0, 0)
+		// RGB: for exmaple rgb(255, 0, 0)
 		if ( preg_match( '/^rgb\((\s*\d{1,3}\s*,){2}\s*\d{1,3}\s*\)$/', $color ) ) {
 			return true;
 		}
 
-		// RGBA: rgba(255, 0, 0, 0.5)
+		// RGBA: for example rgba(255, 0, 0, 0.5)
 		if ( preg_match( '/^rgba\((\s*\d{1,3}\s*,){3}\s*[\d\.]+\s*\)$/', $color ) ) {
 			return true;
 		}
