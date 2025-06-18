@@ -25,27 +25,23 @@ Custom Scalars are ideal when you need to:
 
 ### What Custom Scalars are included in WPGraphQL?
 
-#### Currently Implemented
+Below is a list of scalars implemented in WPGraphQL. Each scalar has a dedicated document detailing its purpose, validation rules, and usage examples.
 
-WPGraphQL includes these Custom Scalars:
+- [Color](./Color.md)
+- [Date](./Date.md)
+- [DateTime](./DateTime.md)
+- [EmailAddress](./EmailAddress.md)
+- [HTML](./HTML.md)
+- [JSON](./JSON.md)
+- [Locale](./Locale.md)
+- [NonEmptyString](./NonEmptyString.md)
+- [Slug](./Slug.md)
+- [Time](./Time.md)
+- [Timezone](./Timezone.md)
+- [URI](./URI.md)
+- [URL](./URL.md)
 
-| Scalar           | Description                                                                  |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `Date`           | Represents a date in `Y-m-d` format, conforming to ISO 8601.                 |
-| `DateTime`       | Stores **date/time** values (`Y-m-d H:i:sZ`, ISO 8601 format).               |
-| `EmailAddress`   | Represents a valid email address, conforming to RFC 5322.                    |
-| `Color`          | Represents color values (supports HEX, RGB, and RGBA).                       |
-| `HTML`           | Represents **sanitized HTML content**.                                       |
-| `json`           | Represents **JSON-encoded data** (useful for meta values, block attributes). |
-| `Locale`         | Stores **WordPress locale identifiers** (`en_US`, `fr_FR`).                  |
-| `NonEmptyString` | Ensures **non-empty text values**.                                           |
-| `Slug`           | Enforces **WordPress-style slugs** (`my-post-title`).                        |
-| `Time`           | Stores **time-only** values (`HH:MM:SS`).                                    |
-| `Timezone`       | Stores **timezone identifiers** (`America/New_York`).                        |
-| `URI`            | Stores **WordPress URIs** (`/my-post/`).                                     |
-| `URL`            | Ensures **valid full URLs**.                                                 |
-
-#### Considering for Later Implementation
+### Considering for Later Implementation
 
 These scalars might be implemented in the future if clear use cases emerge:
 
@@ -144,74 +140,3 @@ Your test class should include the following checks:
 
 5.  **Real-World Data:**
     - When a scalar is intended to be used with specific WordPress data (e.g., `post_date`), create that data in your tests and query it through the scalar to ensure it handles real-world formats and values correctly.
-
-### Date
-
-The `Date` scalar type represents a date in the Y-m-d format, adhering to the `full-date` production of the ISO 8601 standard. It does not include time or timezone information. For example: `2020-01-01`.
-
-#### Usage
-
-The `Date` scalar is ideal for fields that only need to store a date, without a time component. For example, it could be used for a post's publish date if the time is irrelevant.
-
-Example:
-
-```graphql
-query GetPostPublishDate {
-  post(id: "cG9zdDo0Mg==") {
-    # Returns the post's publish date, formatted as "2023-10-27"
-    date
-  }
-}
-```
-
-#### Future Directives
-
-In the future, we may introduce a `@formatDate` directive to allow for more flexible date formatting directly within the query.
-
-Example of potential future usage:
-
-```graphql
-query GetFormattedPostPublishDate {
-  post(id: "cG9zdDo0Mg==") {
-    # Would return the date formatted as "October 27, 2023"
-    date @formatDate(format: "F j, Y")
-  }
-}
-```
-
-### EmailAddress
-
-The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322.
-
-#### Usage
-
-Currently used in:
-
-- `User.emailAddress` field (replacing `email` field in v3.0.0)
-- `User.email` field (deprecated, will be removed in v3.0.0)
-- `registerUser.emailAddress` field (replacing `email` field in v3.0.0)
-- `Comment.authorEmail` field
-
-#### Migration Note
-
-The `registerUser.email` field is deprecated and will be removed in v3.0.0. Use `registerUser.emailAddress` instead, which provides proper email validation. Note that in v3.0.0, the `emailAddress` field will also become non-nullable.
-
-Example of current usage:
-
-```graphql
-mutation RegisterUser {
-  registerUser(
-    input: {
-      username: "testuser"
-      # Use emailAddress for proper validation
-      emailAddress: "valid@email.com"
-      # email field is deprecated, will be removed in v3.0.0
-      # email: "valid@email.com"
-    }
-  ) {
-    user {
-      email
-    }
-  }
-}
-```

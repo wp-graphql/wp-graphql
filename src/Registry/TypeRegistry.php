@@ -119,6 +119,14 @@ use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
 use WPGraphQL\Type\Scalar\Date;
 use WPGraphQL\Type\Scalar\EmailAddress;
+use WPGraphQL\Type\Scalar\HTML;
+use WPGraphQL\Type\Scalar\NonEmptyString;
+use WPGraphQL\Type\Scalar\Slug;
+use WPGraphQL\Type\Scalar\URL;
+use WPGraphQL\Type\Scalar\URI;
+use WPGraphQL\Type\Scalar\JSON;
+use WPGraphQL\Type\Scalar\DateTime;
+use WPGraphQL\Type\Scalar\Time;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -300,8 +308,19 @@ class TypeRegistry {
 		do_action( 'graphql_register_initial_types', $type_registry );
 
 		// Register Scalars.
-		EmailAddress::register_scalar();
-		Date::register_scalar();
+		\WPGraphQL\Type\Scalar\Date::register_scalar();
+		\WPGraphQL\Type\Scalar\DateTime::register_scalar();
+		\WPGraphQL\Type\Scalar\EmailAddress::register_scalar();
+		\WPGraphQL\Type\Scalar\HTML::register_scalar();
+		\WPGraphQL\Type\Scalar\JSON::register_scalar();
+		\WPGraphQL\Type\Scalar\NonEmptyString::register_scalar();
+		\WPGraphQL\Type\Scalar\Slug::register_scalar();
+		\WPGraphQL\Type\Scalar\URI::register_scalar();
+		\WPGraphQL\Type\Scalar\URL::register_scalar();
+		\WPGraphQL\Type\Scalar\Color::register_scalar();
+		\WPGraphQL\Type\Scalar\Time::register_scalar();
+		\WPGraphQL\Type\Scalar\Timezone::register_scalar();
+		\WPGraphQL\Type\Scalar\Locale::register_scalar();
 
 		// Register Interfaces.
 		Node::register_type();
