@@ -85,7 +85,7 @@ class Date {
 		\register_graphql_scalar(
 			'Date',
 			[
-				'description'  => __( 'A date string with format Y-m-d. For example: 2020-01-01.', 'wp-graphql' ),
+				'description'  => __( 'The `Date` scalar type represents a date in the Y-m-d format, adhering to the `full-date` production of the ISO 8601 standard. It does not include time or timezone information. For example: `2020-01-01`.', 'wp-graphql' ),
 				'serialize'    => [ self::class, 'serialize' ],
 				'parseValue'   => [ self::class, 'parseValue' ],
 				'parseLiteral' => [ self::class, 'parseLiteral' ],

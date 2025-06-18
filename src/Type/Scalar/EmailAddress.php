@@ -95,7 +95,7 @@ class EmailAddress {
 		register_graphql_scalar(
 			'EmailAddress',
 			[
-				'description'  => __( 'A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.', 'wp-graphql' ),
+				'description'  => __( 'The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322.', 'wp-graphql' ),
 				'serialize'    => [ self::class, 'serialize' ],
 				'parseValue'   => [ self::class, 'parseValue' ],
 				'parseLiteral' => [ self::class, 'parseLiteral' ],
