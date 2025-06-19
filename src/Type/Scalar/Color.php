@@ -18,6 +18,49 @@ use GraphQL\Utils\Utils;
 class Color {
 
 	/**
+	 * Normalizes a color string to RGBA format.
+	 *
+	 * @param string $color The color string to normalize.
+	 * @return string The normalized RGBA color string.
+	 */
+	private static function normalize_color( string $color ): string {
+		// Trim whitespace
+		$color = trim( $color );
+
+		// If HEX, convert to RGBA
+		if ( preg_match( '/^#([a-f0-9]{3}){1,2}([a-f0-9]{2})?$/i', $color ) ) {
+			$hex = substr( $color, 1 );
+
+			if ( 3 === strlen( $hex ) ) {
+				$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+			}
+
+			$r = hexdec( substr( $hex, 0, 2 ) );
+			$g = hexdec( substr( $hex, 2, 2 ) );
+			$b = hexdec( substr( $hex, 4, 2 ) );
+			$a = 1;
+
+			if ( 8 === strlen( $hex ) ) {
+				$a = round( hexdec( substr( $hex, 6, 2 ) ) / 255, 2 );
+			}
+
+			return "rgba($r, $g, $b, $a)";
+		}
+
+		// if RGB, convert to RGBA
+		if ( preg_match( '/^rgb\((\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*)\)$/i', $color, $matches ) ) {
+			return 'rgba(' . str_replace( ' ', '', $matches[1] ) . ',1)';
+		}
+
+		// Return RGBA as-is, but with spaces removed.
+		if ( preg_match( '/^rgba\((\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d\.]+\s*)\)$/i', $color, $matches ) ) {
+			return 'rgba(' . str_replace( ' ', '', $matches[1] ) . ')';
+		}
+
+		return $color;
+	}
+
+	/**
 	 * Serializes an internal value to include in a response.
 	 *
 	 * @param mixed $value
@@ -45,7 +88,7 @@ class Color {
 			);
 		}
 
-		return $value;
+		return self::normalize_color( $value );
 	}
 
 	/**
@@ -67,7 +110,7 @@ class Color {
 				)
 			);
 		}
-		return $value;
+		return self::normalize_color( $value );
 	}
 
 	/**
