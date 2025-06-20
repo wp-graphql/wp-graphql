@@ -44,7 +44,7 @@ class Color {
 				$a = round( hexdec( substr( $hex, 6, 2 ) ) / 255, 2 );
 			}
 
-			return "rgba($r, $g, $b, $a)";
+			return "rgba($r,$g,$b,$a)";
 		}
 
 		// if RGB, convert to RGBA

@@ -47,10 +47,10 @@ class ColorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     /**
      * @covers \WPGraphQL\Type\Scalar\Color::serialize
-     * @dataProvider valid_colors
+     * @dataProvider normalized_colors_provider
      */
-    public function testSerializeValidColor( string $color ) {
-        $this->assertEquals( $color, Color::serialize( $color ) );
+    public function testSerializeValidColor( string $color, string $expected ) {
+        $this->assertEquals( $expected, Color::serialize( $color ) );
     }
 
     /**
@@ -64,10 +64,10 @@ class ColorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     /**
      * @covers \WPGraphQL\Type\Scalar\Color::parseValue
-     * @dataProvider valid_colors
+     * @dataProvider normalized_colors_provider
      */
-    public function testParseValueValidColor( string $color ) {
-        $this->assertEquals( $color, Color::parseValue( $color ) );
+    public function testParseValueValidColor( string $color, string $expected ) {
+        $this->assertEquals( $expected, Color::parseValue( $color ) );
     }
 
     /**
@@ -81,20 +81,20 @@ class ColorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     /**
      * @covers \WPGraphQL\Type\Scalar\Color::parseLiteral
-     * @dataProvider valid_colors
+     * @dataProvider normalized_colors_provider
      */
-    public function testParseLiteral( string $color ) {
+    public function testParseLiteral( string $color, string $expected ) {
         $node = new StringValueNode( [ 'value' => $color ] );
-        $this->assertEquals( $color, Color::parseLiteral( $node ) );
+        $this->assertEquals( $expected, Color::parseLiteral( $node ) );
     }
 
-    public function valid_colors(): array {
+    public function normalized_colors_provider(): array {
         return [
-            [ '#ff0000' ],
-            [ '#f00' ],
-            [ 'rgb(255, 0, 0)' ],
-            [ 'rgba(255, 0, 0, 1)' ],
-            [ 'rgba(255,0,0,0.5)' ],
+            [ '#ff0000', 'rgba(255,0,0,1)' ],
+            [ '#f00', 'rgba(255,0,0,1)' ],
+            [ 'rgb(255, 0, 0)', 'rgba(255,0,0,1)' ],
+            [ 'rgba(255, 0, 0, 1)', 'rgba(255,0,0,1)' ],
+            [ 'rgba(255,0,0,0.5)', 'rgba(255,0,0,0.5)' ],
         ];
     }
 
