@@ -130,10 +130,11 @@ class EmailAddress {
 		register_graphql_scalar(
 			'EmailAddress',
 			[
-				'description'  => \__( 'The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322.', 'wp-graphql' ),
-				'serialize'    => [ self::class, 'serialize' ],
-				'parseValue'   => [ self::class, 'parseValue' ],
-				'parseLiteral' => [ self::class, 'parseLiteral' ],
+				'description'    => \__( 'The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322.', 'wp-graphql' ),
+				'serialize'      => [ self::class, 'serialize' ],
+				'parseValue'     => [ self::class, 'parseValue' ],
+				'parseLiteral'   => [ self::class, 'parseLiteral' ],
+				'specifiedByURL' => 'https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address',
 			]
 		);
 	}
