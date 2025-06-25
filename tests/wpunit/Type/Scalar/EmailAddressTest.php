@@ -94,8 +94,10 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response = $this->graphql(['query' => $query]);
 
 		$this->assertArrayHasKey('errors', $response);
+
+        // When the error is on the server (i.e. not an error of user input) the message is "Internal server error" and more info can be seen if debug mode is enabled.
 		$this->assertStringContainsString(
-			'Expected a value of type EmailAddress but received: "not-an-email"',
+			'Internal server error',
 			$response['errors'][0]['message']
 		);
 	}
