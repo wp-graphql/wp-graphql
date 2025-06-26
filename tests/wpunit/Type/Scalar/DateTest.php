@@ -11,37 +11,37 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
-		add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		\add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
 	}
 
 	public function tearDown(): void {
-		remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		\remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
 		parent::tearDown();
 	}
 
 	public function register_test_fields(): void {
-		register_graphql_field( 'RootQuery', 'testDate', [
+		\register_graphql_field( 'RootQuery', 'testDate', [
 			'type' => 'Date',
 			'resolve' => static function () {
 				return '2022-10-27 12:00:00';
 			},
 		]);
 
-		register_graphql_field( 'Post', 'testPublishDate', [
+		\register_graphql_field( 'Post', 'testPublishDate', [
 			'type' => 'Date',
 			'resolve' => static function ( Post $post ) {
 				return $post->date;
 			},
 		]);
 
-		register_graphql_field( 'Post', 'testModifiedDate', [
+		\register_graphql_field( 'Post', 'testModifiedDate', [
 			'type' => 'Date',
 			'resolve' => static function ( Post $post ) {
 				return $post->modified;
 			},
 		]);
 
-		register_graphql_mutation( 'testDateMutation', [
+		\register_graphql_mutation( 'testDateMutation', [
 			'inputFields' => [
 				'date' => [ 'type' => 'Date' ],
 			],
@@ -84,7 +84,7 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'post_date' => '2021-11-01 10:00:00',
 			'post_modified' => '2021-12-15 14:30:00',
 		] );
-		$post = get_post( $post_id );
+		$post = \get_post( $post_id );
 
 		$query = '
 		query ($id: ID!) {
