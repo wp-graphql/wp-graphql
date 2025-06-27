@@ -16,7 +16,7 @@ class HTML {
 	 * Validates that a string is well-formed HTML.
 	 *
 	 * @param string $html The string to check.
-	 * @throws Error If the HTML is not well-formed.
+	 * @throws \GraphQL\Error\Error If the HTML is not well-formed.
 	 */
 	private static function validate_html( string $html ): void {
 		if ( empty( trim( $html ) ) ) {
@@ -24,17 +24,22 @@ class HTML {
 		}
 
 		$internal_errors = libxml_use_internal_errors( true );
-		$doc               = new \DOMDocument();
+		$doc             = new \DOMDocument();
 		// The LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD flags prevent DOMDocument from adding implied html/body tags.
 		// mb_convert_encoding is used to prevent issues with character encoding.
-		@$doc->loadHTML( mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		$encoded_html = mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' );
+
+		if ( false === $encoded_html ) {
+			throw new Error( esc_html__( 'Failed to encode HTML entities.', 'wp-graphql' ) );
+		}
+		$doc->loadHTML( $encoded_html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 		$errors = libxml_get_errors();
 		libxml_clear_errors();
 		libxml_use_internal_errors( $internal_errors );
 
 		if ( ! empty( $errors ) ) {
 			// We can inspect errors here if we want to be more lenient, but for now any error is a failure.
-			throw new Error( 'Invalid HTML: The provided HTML is not well-formed.' );
+			throw new Error( esc_html__( 'Invalid HTML: The provided HTML is not well-formed.', 'wp-graphql' ) );
 		}
 	}
 
@@ -57,9 +62,9 @@ class HTML {
 		return preg_replace_callback(
 			'/(<\/?)([a-zA-Z0-9]+)([^>]*>)/',
 			static function ( $matches ) {
-				$tag_open          = $matches[1];
-				$tag_name          = strtolower( $matches[2] );
-				$attributes_part   = $matches[3];
+				$tag_open              = $matches[1];
+				$tag_name              = strtolower( $matches[2] );
+				$attributes_part       = $matches[3];
 				$normalized_attributes = preg_replace_callback(
 					'/([a-zA-Z0-9\-]+)(?=\s*=)/',
 					static function ( $attr_matches ) {
@@ -101,8 +106,17 @@ class HTML {
 	 */
 	public static function parseLiteral( $valueNode, ?array $variables = null ): string { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof StringValueNode ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
+			throw new Error(
+				esc_html(
+					sprintf(
+						/* translators: %s: The GraphQL node kind. */
+						__( 'Query error: Can only parse strings got: %s', 'wp-graphql' ),
+						$valueNode->kind
+					)
+				),
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+				[ $valueNode ]
+			);
 		}
 		self::validate_html( $valueNode->value );
 		return self::sanitize_html( $valueNode->value );

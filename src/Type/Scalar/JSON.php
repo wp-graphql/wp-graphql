@@ -3,6 +3,8 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
@@ -10,7 +12,6 @@ use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use GraphQL\Language\AST\ValueNode;
 
 /**
  * Class JSON
@@ -26,13 +27,20 @@ class JSON {
 	 * be a PHP value that can be encoded as JSON. The result is a JSON-encoded string.
 	 *
 	 * @param mixed $value
-	 * @return string
-	 * @throws Error If the value cannot be encoded as JSON.
+	 * @throws \GraphQL\Error\Error If the value cannot be encoded as JSON.
 	 */
 	public static function serialize( $value ): string {
-		$encoded = json_encode( $value );
+		$encoded = wp_json_encode( $value );
 		if ( false === $encoded ) {
-			throw new Error( 'Could not serialize value to JSON: ' . json_last_error_msg() );
+			throw new Error(
+				esc_html(
+					sprintf(
+						/* translators: %s: The error message from json_last_error_msg() */
+						__( 'Could not serialize value to JSON: %s', 'wp-graphql' ),
+						json_last_error_msg()
+					)
+				)
+			);
 		}
 		return $encoded;
 	}
@@ -43,16 +51,32 @@ class JSON {
 	 *
 	 * @param mixed $value
 	 * @return mixed
-	 * @throws Error If the value is not a string or not a valid JSON-encoded string.
+	 * @throws \GraphQL\Error\Error If the value is not a string or not a valid JSON-encoded string.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! is_string( $value ) ) {
 			// Using Utils::printSafe instead of gettype to avoid potential issues with objects that have a __toString method.
-			throw new Error( 'JSON scalar expects a string, but got: ' . Utils::printSafe( $value ) );
+			throw new Error(
+				esc_html(
+					sprintf(
+						/* translators: %s: The type of the value that was passed to be serialized. */
+						__( 'JSON scalar expects a string, but got: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
 		}
 		$decoded = json_decode( $value, true );
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			throw new Error( 'Invalid JSON string provided: ' . json_last_error_msg() );
+			throw new Error(
+				esc_html(
+					sprintf(
+						/* translators: %s: The error message from json_last_error_msg() */
+						__( 'Invalid JSON string provided: %s', 'wp-graphql' ),
+						json_last_error_msg()
+					)
+				)
+			);
 		}
 		return $decoded;
 	}
@@ -60,7 +84,7 @@ class JSON {
 	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
-	 THe literal can be a JSON-encoded string or a GraphQL literal.
+	 * The literal can be a JSON-encoded string or a GraphQL literal.
 	 *
 	 * @param \GraphQL\Language\AST\Node $valueNode
 	 * @param array<string,mixed>|null   $variables
@@ -113,7 +137,7 @@ class JSON {
 		}
 
 		// The remaining types are scalar values (String, Boolean, Enum), which all have a "value" property.
-		if ( $ast instanceof ValueNode ) {
+		if ( $ast instanceof StringValueNode || $ast instanceof BooleanValueNode || $ast instanceof EnumValueNode ) {
 			return $ast->value;
 		}
 
