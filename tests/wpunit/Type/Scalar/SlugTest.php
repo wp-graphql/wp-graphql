@@ -10,12 +10,14 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     public function setUp(): void {
         parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
         remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         parent::tearDown();
     }
@@ -31,6 +33,17 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                 },
             ]
         );
+
+		register_graphql_field(
+			'RootQuery',
+			'testInvalidSlugField',
+			[
+				'type'    => 'Slug',
+				'resolve' => static function () {
+					return 'Not a slug';
+				},
+			]
+		);
 
         register_graphql_mutation( 'testSlugMutation', [
             'inputFields' => [
@@ -57,7 +70,7 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\Slug::serialize
      */
     public function testSerializeInvalidSlugWithSpaces() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid slug: &quot;invalid slug&quot;' );
         Slug::serialize( 'invalid slug' );
     }
@@ -66,7 +79,7 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\Slug::serialize
      */
     public function testSerializeInvalidSlugWithUppercase() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid slug: &quot;InvalidSlug&quot;' );
         Slug::serialize( 'InvalidSlug' );
     }
@@ -75,7 +88,7 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\Slug::serialize
      */
     public function testSerializeInvalidSlugWithSpecialChars() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid slug: &quot;invalid!@#$&quot;' );
         Slug::serialize( 'invalid!@#$' );
     }
@@ -85,6 +98,24 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      */
     public function testParseValue() {
         $this->assertEquals( 'a-valid-slug', Slug::parseValue( 'a-valid-slug' ) );
+    }
+
+    public function testParseValueInvalidSlugWithSpaces() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid slug: &quot;invalid slug&quot;' );
+        Slug::parseValue( 'invalid slug' );
+    }
+
+    public function testParseValueInvalidSlugWithUppercase() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid slug: &quot;InvalidSlug&quot;' );
+        Slug::parseValue( 'InvalidSlug' );
+    }
+
+    public function testParseValueInvalidSlugWithSpecialChars() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid slug: &quot;invalid!@#$&quot;' );
+        Slug::parseValue( 'invalid!@#$' );
     }
 
     /**
@@ -139,4 +170,12 @@ class SlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
         $this->assertArrayHasKey( 'errors', $response );
     }
+
+	public function testQueryInvalidSlugField() {
+		$query = '{ testInvalidSlugField }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'Value is not a valid slug', $result['errors'][0]['extensions']['debugMessage'] );
+	}
 }

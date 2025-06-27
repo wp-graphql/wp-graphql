@@ -10,12 +10,14 @@ class DateTimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     public function setUp(): void {
         parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
         remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         parent::tearDown();
     }
@@ -31,6 +33,17 @@ class DateTimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                 },
             ]
         );
+
+		register_graphql_field(
+			'RootQuery',
+			'testInvalidDateTimeField',
+			[
+				'type'    => 'DateTime',
+				'resolve' => static function () {
+					return 'not-a-datetime';
+				},
+			]
+		);
 
         register_graphql_mutation( 'testDateTimeMutation', [
             'inputFields' => [
@@ -51,15 +64,16 @@ class DateTimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
     public function testSerializeValidDateTime() {
         $this->assertEquals( '2023-10-27T10:30:00Z', DateTime::serialize( '2023-10-27 10:30:00' ) );
         $this->assertEquals( '2023-01-01T00:00:00Z', DateTime::serialize( '2023-01-01' ) );
+        $this->assertNull( DateTime::serialize( '0000-00-00 00:00:00' ) );
+        $this->assertNull( DateTime::serialize( null ) );
     }
 
     /**
      * @covers \WPGraphQL\Type\Scalar\DateTime::serialize
      */
     public function testSerializeInvalidDateTime() {
-        $this->assertNull( DateTime::serialize( 'not-a-date' ) );
-        $this->assertNull( DateTime::serialize( '0000-00-00 00:00:00' ) );
-        $this->assertNull( DateTime::serialize( null ) );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
+        DateTime::serialize( 'not-a-date' );
     }
 
     /**
@@ -137,4 +151,12 @@ class DateTimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
         $this->assertArrayHasKey( 'errors', $response );
     }
+
+	public function testQueryInvalidDateTimeField() {
+		$query = '{ testInvalidDateTimeField }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'Value is not a valid DateTime', $result['errors'][0]['extensions']['debugMessage'] );
+	}
 }

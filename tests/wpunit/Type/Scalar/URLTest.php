@@ -10,12 +10,14 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     public function setUp(): void {
         parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
         remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         parent::tearDown();
     }
@@ -31,6 +33,17 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                 },
             ]
         );
+
+		register_graphql_field(
+			'RootQuery',
+			'testInvalidURLField',
+			[
+				'type'    => 'URL',
+				'resolve' => static function () {
+					return 'not-a-url';
+				},
+			]
+		);
 
         register_graphql_mutation( 'testURLMutation', [
             'inputFields' => [
@@ -58,7 +71,7 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\URL::serialize
      */
     public function testSerializeInvalidURL() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid URL: &quot;not-a-url&quot;' );
         URL::serialize( 'not-a-url' );
     }
@@ -67,7 +80,7 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\URL::serialize
      */
     public function testSerializeUnsafeProtocol() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid URL: &quot;javascript:alert(1)&quot;' );
         URL::serialize( 'javascript:alert(1)' );
     }
@@ -85,6 +98,12 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      */
     public function testParseValue() {
         $this->assertEquals( 'https://wpgraphql.com', URL::parseValue( 'https://wpgraphql.com' ) );
+    }
+
+    public function testParseValueInvalidURL() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid URL: &quot;not-a-url&quot;' );
+        URL::parseValue( 'not-a-url' );
     }
 
     /**
@@ -139,4 +158,12 @@ class URLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
         $this->assertArrayHasKey( 'errors', $response );
     }
+
+	public function testQueryInvalidURLField() {
+		$query = '{ testInvalidURLField }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'Value is not a valid URL', $result['errors'][0]['extensions']['debugMessage'] );
+	}
 }

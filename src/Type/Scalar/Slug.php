@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -17,15 +18,15 @@ use GraphQL\Utils\Utils;
 class Slug {
 
 	/**
-	 * Serializes an internal value to include in a response.
+	 * Coerces the value to a valid slug.
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function serialize( $value ) {
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The value that was passed to be serialized */
@@ -37,7 +38,7 @@ class Slug {
 		}
 
 		if ( sanitize_title( $value ) !== $value ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid slug value */
@@ -52,6 +53,21 @@ class Slug {
 	}
 
 	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new InvariantViolation( esc_html( $e->getMessage() ) );
+		}
+	}
+
+	/**
 	 * Parses an externally provided value (query variable) to use as an input
 	 *
 	 * @param mixed $value
@@ -61,7 +77,11 @@ class Slug {
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**
@@ -80,7 +100,7 @@ class Slug {
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**

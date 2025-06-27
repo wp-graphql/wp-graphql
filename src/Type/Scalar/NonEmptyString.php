@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -17,17 +18,17 @@ use GraphQL\Utils\Utils;
 class NonEmptyString {
 
 	/**
-	 * Serializes an internal value to include in a response.
+	 * Coerces the value to a non-empty string.
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function serialize( $value ) {
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
-					sprintf(
+					\sprintf(
 						/* translators: %s: The value that was passed to be serialized */
 						\__( 'NonEmptyString must be a string. Received: %s', 'wp-graphql' ),
 						Utils::printSafe( $value )
@@ -37,10 +38,25 @@ class NonEmptyString {
 		}
 
 		if ( '' === trim( $value ) ) {
-			throw new Error( \esc_html__( 'NonEmptyString cannot be empty.', 'wp-graphql' ) );
+			throw new \Exception( \esc_html__( 'NonEmptyString cannot be empty.', 'wp-graphql' ) );
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new InvariantViolation( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**
@@ -53,7 +69,11 @@ class NonEmptyString {
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**
@@ -72,7 +92,7 @@ class NonEmptyString {
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**

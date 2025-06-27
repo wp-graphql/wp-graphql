@@ -10,12 +10,14 @@ class TimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     public function setUp(): void {
         parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
         remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         parent::tearDown();
     }
@@ -31,6 +33,17 @@ class TimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                 },
             ]
         );
+
+		register_graphql_field(
+			'RootQuery',
+			'testInvalidTimeField',
+			[
+				'type'    => 'Time',
+				'resolve' => static function () {
+					return 'not-a-time';
+				},
+			]
+		);
 
         register_graphql_mutation( 'testTimeMutation', [
             'inputFields' => [
@@ -57,7 +70,7 @@ class TimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\Time::serialize
      */
     public function testSerializeInvalidTime() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         Time::serialize( '25:00:00' );
     }
 
@@ -83,4 +96,12 @@ class TimeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
         $node = new StringValueNode( [ 'value' => '08:30:15' ] );
         $this->assertEquals( '08:30:15', Time::parseLiteral( $node ) );
     }
+
+	public function testQueryInvalidTimeField() {
+		$query = '{ testInvalidTimeField }';
+		$result = graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'Value is not a valid Time', $result['errors'][0]['extensions']['debugMessage'] );
+	}
 }

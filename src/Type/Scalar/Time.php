@@ -4,6 +4,7 @@ namespace WPGraphQL\Type\Scalar;
 
 use DateTime as PHPDateTime;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -17,28 +18,15 @@ use GraphQL\Utils\Utils;
 class Time {
 
 	/**
-	 * Serializes an internal value to include in a response.
-	 *
-	 * @param mixed $value
-	 * @return string|null
-	 */
-	public static function serialize( $value ) {
-		if ( null === $value || '' === $value ) {
-			return null;
-		}
-		return self::parseValue( $value );
-	}
-
-	/**
-	 * Parses an externally provided value (query variable) to use as an input.
+	 * Coerces the value to a valid time string.
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) || ! self::is_valid_time( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid Time value */
@@ -49,6 +37,39 @@ class Time {
 			);
 		}
 		return $value;
+	}
+
+	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string|null
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		if ( null === $value || '' === $value ) {
+			return null;
+		}
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new InvariantViolation( esc_html( $e->getMessage() ) );
+		}
+	}
+
+	/**
+	 * Parses an externally provided value (query variable) to use as an input.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 * @throws \GraphQL\Error\Error
+	 */
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**

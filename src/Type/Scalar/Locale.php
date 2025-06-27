@@ -21,28 +21,15 @@ class Locale {
 	private static $valid_locales;
 
 	/**
-	 * Serializes an internal value to include in a response.
-	 *
-	 * @param mixed $value
-	 * @return string|null
-	 */
-	public static function serialize( $value ) {
-		if ( null === $value || '' === $value ) {
-			return null;
-		}
-		return self::parseValue( $value );
-	}
-
-	/**
-	 * Parses an externally provided value (query variable) to use as an input.
+	 * Coerces the value to a valid locale.
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) || ! self::is_valid_locale( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid Locale value */
@@ -53,6 +40,40 @@ class Locale {
 			);
 		}
 		return $value;
+	}
+
+	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string|null
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		if ( null === $value || '' === $value ) {
+			return null;
+		}
+
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new \GraphQL\Error\InvariantViolation( esc_html( $e->getMessage() ) );
+		}
+	}
+
+	/**
+	 * Parses an externally provided value (query variable) to use as an input.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 * @throws \GraphQL\Error\Error
+	 */
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**

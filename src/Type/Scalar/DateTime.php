@@ -22,19 +22,19 @@ class DateTime {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws \GraphQL\Error\Error
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	public static function serialize( $value ) {
 		if ( null === $value || '' === $value || '0000-00-00 00:00:00' === $value ) {
 			return null;
 		}
 
-		if ( ! is_string( $value ) ) {
-			throw new Error(
+		if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+			throw new \GraphQL\Error\InvariantViolation(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The value that was passed to be serialized */
-						\__( 'DateTime must be a string. Received: %s', 'wp-graphql' ),
+						\__( 'DateTime must be a string or integer. Received: %s', 'wp-graphql' ),
 						Utils::printSafe( $value )
 					)
 				)
@@ -42,10 +42,18 @@ class DateTime {
 		}
 
 		try {
-			$date = new PHPDateTime( $value );
+			$date = new PHPDateTime( (string) $value );
 			return $date->format( 'Y-m-d\TH:i:s\Z' );
 		} catch ( \Throwable $e ) {
-			return null;
+			throw new \GraphQL\Error\InvariantViolation(
+				\esc_html(
+					\sprintf(
+						/* translators: %s: The value that was passed to be serialized */
+						\__( 'Value is not a valid DateTime: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
 		}
 	}
 

@@ -10,12 +10,14 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
 		$this->clearSchema();
 		\add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
 	}
 
 	public function tearDown(): void {
 		\remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
 		parent::tearDown();
 	}
 
@@ -24,6 +26,13 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'type' => 'Date',
 			'resolve' => static function () {
 				return '2022-10-27 12:00:00';
+			},
+		]);
+
+		\register_graphql_field( 'RootQuery', 'testInvalidDate', [
+			'type' => 'Date',
+			'resolve' => static function () {
+				return 'not-a-date';
 			},
 		]);
 
@@ -57,12 +66,14 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testSerializeValidDate() {
 		$this->assertEquals( '2023-10-27', Date::serialize( '2023-10-27 10:30:00' ) );
 		$this->assertEquals( '2023-01-01', Date::serialize( '2023-01-01' ) );
+		$this->assertNull( Date::serialize( '0000-00-00 00:00:00' ) );
+		$this->assertNull( Date::serialize( null ) );
 	}
 
 	public function testSerializeInvalidDate() {
-		$this->assertNull( Date::serialize( 'not-a-date' ) );
-		$this->assertNull( Date::serialize( '0000-00-00 00:00:00' ) );
-		$this->assertNull( Date::serialize( null ) );
+		$this->expectException( \GraphQL\Error\InvariantViolation::class );
+		$this->expectExceptionMessage( 'Date cannot be serialized from a non-string, non-numeric, or non-DateTime object.' );
+		Date::serialize( 'not-a-date' );
 	}
 
 	public function testParseValueValidDate() {
@@ -77,6 +88,14 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testParseValueNotString() {
 		$this->expectException( \GraphQL\Error\Error::class );
 		Date::parseValue( 12345 );
+	}
+
+	public function testQueryInvalidDateField() {
+		$query = '{ testInvalidDate }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'cannot be serialized from a non-string', $result['errors'][0]['extensions']['debugMessage'] );
 	}
 
 	public function testQueryPostDateFields() {
@@ -123,7 +142,7 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( '2024-01-20', $response['data']['testDateMutation']['date'] );
 	}
 
-	public function testMutationWithInvalidDateFormat() {
+	public function testMutationWithAlternateValidDateFormat() {
 		$mutation = '
 		mutation ($date: Date!) {
 			testDateMutation(input: { date: $date }) {
@@ -137,6 +156,7 @@ class DateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'variables' => [ 'date' => '20-01-2024' ],
 		]);
 
-		$this->assertArrayHasKey( 'errors', $response );
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( '2024-01-20', $response['data']['testDateMutation']['date'] );
 	}
 }

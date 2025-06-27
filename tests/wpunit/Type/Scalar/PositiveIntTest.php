@@ -10,12 +10,14 @@ class PositiveIntTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
 		$this->clearSchema();
 		\add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
 	}
 
 	public function tearDown(): void {
 		\remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
 		parent::tearDown();
 	}
 
@@ -24,6 +26,13 @@ class PositiveIntTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'type' => 'PositiveInt',
 			'resolve' => static function () {
 				return 1;
+			},
+		]);
+
+		\register_graphql_field( 'RootQuery', 'testInvalidPositiveInt', [
+			'type' => 'PositiveInt',
+			'resolve' => static function () {
+				return 0;
 			},
 		]);
 
@@ -45,16 +54,22 @@ class PositiveIntTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( 10, PositiveInt::serialize( 10 ) );
 	}
 
-	public function testSerializeInvalid() {
+	public function testSerializeInvalidZero() {
 		$this->expectException( InvariantViolation::class );
 		PositiveInt::serialize( 0 );
+	}
 
+	public function testSerializeInvalidNegative() {
 		$this->expectException( InvariantViolation::class );
 		PositiveInt::serialize( -1 );
+	}
 
+	public function testSerializeInvalidFloat() {
 		$this->expectException( InvariantViolation::class );
 		PositiveInt::serialize( 1.5 );
+	}
 
+	public function testSerializeInvalidString() {
 		$this->expectException( InvariantViolation::class );
 		PositiveInt::serialize( 'abc' );
 	}
@@ -64,13 +79,17 @@ class PositiveIntTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( 100, PositiveInt::parseValue( 100 ) );
 	}
 
-	public function testParseValueInvalid() {
+	public function testParseValueInvalidZero() {
 		$this->expectException( Error::class );
 		PositiveInt::parseValue( 0 );
+	}
 
+	public function testParseValueInvalidNegative() {
 		$this->expectException( Error::class );
 		PositiveInt::parseValue( -50 );
+	}
 
+	public function testParseValueInvalidFloat() {
 		$this->expectException( Error::class );
 		PositiveInt::parseValue( -1.5 );
 	}
@@ -79,6 +98,14 @@ class PositiveIntTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$query = '{ testPositiveInt }';
 		$response = $this->graphql( [ 'query' => $query ] );
 		$this->assertEquals( 1, $response['data']['testPositiveInt'] );
+	}
+
+	public function testQueryInvalidPositiveInt() {
+		$query = '{ testInvalidPositiveInt }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'cannot represent non-positive value', $result['errors'][0]['extensions']['debugMessage'] );
 	}
 
 	public function testMutationWithValid() {

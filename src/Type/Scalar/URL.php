@@ -20,7 +20,7 @@ class URL {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws \GraphQL\Error\Error
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	public static function serialize( $value ) {
 		if ( ! is_string( $value ) || empty( $value ) ) {
@@ -28,7 +28,7 @@ class URL {
 		}
 
 		if ( false === filter_var( $value, FILTER_VALIDATE_URL ) ) {
-			throw new Error(
+			throw new \GraphQL\Error\InvariantViolation(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid URL value */
@@ -42,7 +42,7 @@ class URL {
 		$sanitized_url = \esc_url_raw( $value );
 
 		if ( empty( $sanitized_url ) ) {
-			throw new Error(
+			throw new \GraphQL\Error\InvariantViolation(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid URL value */

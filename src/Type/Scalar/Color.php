@@ -65,7 +65,7 @@ class Color {
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws \GraphQL\Error\Error
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	public static function serialize( $value ) {
 		if ( null === $value || '' === $value ) {
@@ -73,11 +73,11 @@ class Color {
 		}
 
 		if ( ! is_string( $value ) ) {
-			throw new Error( \esc_html__( 'Color value must be a string.', 'wp-graphql' ) );
+			throw new \GraphQL\Error\InvariantViolation( \esc_html__( 'Color value must be a string.', 'wp-graphql' ) );
 		}
 
 		if ( ! self::is_valid_color( $value ) ) {
-			throw new Error(
+			throw new \GraphQL\Error\InvariantViolation(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid Color value */

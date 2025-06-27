@@ -10,12 +10,14 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
     public function setUp(): void {
         parent::setUp();
+		add_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
         remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+		remove_filter( 'graphql_debug', '__return_true', 99999 );
         \WPGraphQL::clear_schema();
         parent::tearDown();
     }
@@ -31,6 +33,17 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
                 },
             ]
         );
+
+		register_graphql_field(
+			'RootQuery',
+			'testInvalidURIField',
+			[
+				'type'    => 'URI',
+				'resolve' => static function () {
+					return 'not-a-uri';
+				},
+			]
+		);
 
         register_graphql_mutation( 'testURIMutation', [
             'inputFields' => [
@@ -57,7 +70,7 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\URI::serialize
      */
     public function testSerializeInvalidURI() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid URI: &quot;not-a-uri&quot;' );
         URI::serialize( 'not-a-uri' );
     }
@@ -66,7 +79,7 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      * @covers \WPGraphQL\Type\Scalar\URI::serialize
      */
     public function testSerializeInvalidURIFullURL() {
-        $this->expectException( Error::class );
+        $this->expectException( \GraphQL\Error\InvariantViolation::class );
         $this->expectExceptionMessage( 'Value is not a valid URI: &quot;https://wpgraphql.com/&quot;' );
         URI::serialize( 'https://wpgraphql.com/' );
     }
@@ -84,6 +97,18 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
      */
     public function testParseValue() {
         $this->assertEquals( '/a-valid-uri', URI::parseValue( '/a-valid-uri' ) );
+    }
+
+    public function testParseValueInvalidURI() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid URI: &quot;not-a-uri&quot;' );
+        URI::parseValue( 'not-a-uri' );
+    }
+
+    public function testParseValueInvalidURIFullURL() {
+        $this->expectException( \GraphQL\Error\Error::class );
+        $this->expectExceptionMessage( 'Value is not a valid URI: &quot;https://wpgraphql.com/&quot;' );
+        URI::parseValue( 'https://wpgraphql.com/' );
     }
 
     /**
@@ -138,4 +163,12 @@ class URITest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
         $this->assertArrayHasKey( 'errors', $response );
     }
+
+	public function testQueryInvalidURIField() {
+		$query = '{ testInvalidURIField }';
+		$result = $this->graphql( [ 'query' => $query ] );
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertStringContainsString( 'Value is not a valid URI', $result['errors'][0]['extensions']['debugMessage'] );
+	}
 }

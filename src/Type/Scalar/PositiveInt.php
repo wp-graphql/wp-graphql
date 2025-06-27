@@ -20,24 +20,45 @@ class PositiveInt {
 	 *
 	 * @param mixed $value
 	 * @return int
-	 * @throws InvariantViolation|Error
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	private static function coerce( $value ) {
 		if ( ! is_numeric( $value ) || $value > PHP_INT_MAX ) {
-			// translators: %s is the value passed to the scalar
-			throw new InvariantViolation( sprintf( __( 'PositiveInt cannot represent non-numeric value: %s', 'wp-graphql' ), Utils::printSafe( $value ) ) );
+			throw new InvariantViolation(
+				esc_html(
+					sprintf(
+						/* translators: %s: The value that was passed to be serialized */
+						__( 'PositiveInt cannot represent non-numeric value: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
 		}
 
 		$intValue = (int) $value;
 
 		if ( $intValue != $value ) { // phpcs:ignore
-			// translators: %s is the value passed to the scalar
-			throw new InvariantViolation( sprintf( __( 'PositiveInt cannot represent non-integer value: %s', 'wp-graphql' ), Utils::printSafe( $value ) ) );
+			throw new InvariantViolation(
+				esc_html(
+					sprintf(
+						/* translators: %s: The value that was passed to be serialized */
+						__( 'PositiveInt cannot represent non-integer value: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
 		}
 
 		if ( $intValue <= 0 ) {
-			// translators: %s is the value passed to the scalar
-			throw new InvariantViolation( sprintf( __( 'PositiveInt cannot represent non-positive value: %s', 'wp-graphql' ), Utils::printSafe( $value ) ) );
+			throw new InvariantViolation(
+				esc_html(
+					sprintf(
+						/* translators: %s: The value that was passed to be serialized */
+						__( 'PositiveInt cannot represent non-positive value: %s', 'wp-graphql' ),
+						Utils::printSafe( $value )
+					)
+				)
+			);
 		}
 		return $intValue;
 	}
@@ -45,7 +66,7 @@ class PositiveInt {
 	/**
 	 * @param mixed $value
 	 * @return int
-	 * @throws InvariantViolation
+	 * @throws \GraphQL\Error\InvariantViolation
 	 */
 	public static function serialize( $value ) {
 		return self::coerce( $value );
@@ -54,32 +75,40 @@ class PositiveInt {
 	/**
 	 * @param mixed $value
 	 * @return int
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
-	public static function parseValue( $value ) {
+	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		try {
 			return self::coerce( $value );
 		} catch ( InvariantViolation $e ) {
-			throw new Error( $e->getMessage() );
+			throw new Error( esc_html( $e->getMessage() ) );
 		}
 	}
 
 	/**
-	 * @param Node                 $valueNode
-	 * @param array<string,mixed>|null $variables
+	 * @param \GraphQL\Language\AST\Node $valueNode
+	 * @param array<string,mixed>|null   $variables
 	 * @return int
-	 * @throws Error
+	 * @throws \GraphQL\Error\Error
 	 */
-	public static function parseLiteral( Node $valueNode, ?array $variables = null ) {
+	public static function parseLiteral( Node $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		if ( ! $valueNode instanceof IntValueNode ) {
-			// translators: %s is the kind of the value node
-			throw new Error( sprintf( __( 'Query error: Can only parse integers got: %s', 'wp-graphql' ), $valueNode->kind ), [ $valueNode ] );
+			throw new Error(
+				esc_html(
+					sprintf(
+						/* translators: %s: The kind of the value node. */
+						__( 'Query error: Can only parse integers got: %s', 'wp-graphql' ),
+						$valueNode->kind
+					)
+				),
+				[ $valueNode ] // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			);
 		}
 
 		try {
 			return self::coerce( $valueNode->value );
 		} catch ( InvariantViolation $e ) {
-			throw new Error( $e->getMessage() );
+			throw new Error( esc_html( $e->getMessage() ) );
 		}
 	}
 

@@ -3,6 +3,7 @@
 namespace WPGraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -17,19 +18,19 @@ use GraphQL\Utils\Utils;
 class URI {
 
 	/**
-	 * Serializes an internal value to include in a response.
+	 * Coerces the value to a valid URI.
 	 *
 	 * @param mixed $value
 	 * @return string|null
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function serialize( $value ) {
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) ) {
 			// Allow null values to pass through.
 			if ( null === $value ) {
 				return null;
 			}
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The value that was passed to be serialized */
@@ -47,7 +48,7 @@ class URI {
 
 		// A valid URI should start with a forward slash.
 		if ( 0 !== strpos( $value, '/' ) ) {
-			throw new Error(
+			throw new \Exception(
 				\esc_html(
 					\sprintf(
 						/* translators: %s: The invalid URI value */
@@ -62,6 +63,21 @@ class URI {
 	}
 
 	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string|null
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new InvariantViolation( esc_html( $e->getMessage() ) );
+		}
+	}
+
+	/**
 	 * Parses an externally provided value (query variable) to use as an input.
 	 *
 	 * @param mixed $value
@@ -71,7 +87,11 @@ class URI {
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**
@@ -90,7 +110,7 @@ class URI {
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**

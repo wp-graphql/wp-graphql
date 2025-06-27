@@ -13,16 +13,15 @@ use GraphQL\Utils\Utils;
 class EmailAddress {
 
 	/**
-	 * Serializes an internal value to include in a response.
+	 * Coerces the value to a valid email address.
 	 *
 	 * @param mixed $value
 	 * @return string
-	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
 	 */
-	public static function serialize( $value ) {
-		// If the value isn't a string, throw an error
+	private static function coerce( $value ) {
 		if ( ! is_string( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				esc_html(
 					sprintf(
 						/* translators: %s: The value that was passed to be serialized */
@@ -35,7 +34,7 @@ class EmailAddress {
 
 		// Use WordPress's is_email() function to validate the email
 		if ( ! is_email( $value ) ) {
-			throw new Error(
+			throw new \Exception(
 				esc_html(
 					sprintf(
 						/* translators: %s: The invalid email value */
@@ -51,6 +50,23 @@ class EmailAddress {
 	}
 
 	/**
+	 * Serializes an internal value to include in a response.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 * @throws \GraphQL\Error\InvariantViolation
+	 */
+	public static function serialize( $value ) {
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new \GraphQL\Error\InvariantViolation(
+				esc_html( $e->getMessage() )
+			);
+		}
+	}
+
+	/**
 	 * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
 	 *
 	 * @param mixed $value The value that was passed to be parsed.
@@ -60,7 +76,11 @@ class EmailAddress {
 	 * NOTE: `parseValue` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		return self::serialize( $value );
+		try {
+			return self::coerce( $value );
+		} catch ( \Throwable $e ) {
+			throw new Error( esc_html( $e->getMessage() ) );
+		}
 	}
 
 	/**
@@ -74,8 +94,7 @@ class EmailAddress {
 	 * NOTE: `parseLiteral` is a required method for all Custom Scalars in `graphql-php`.
 	 */
 	public static function parseLiteral( $valueNode, ?array $variables = null ) { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		// Check if the value node is a string
-		if ( ! property_exists( $valueNode, 'value' ) || ! is_string( $valueNode->value ) ) {
+		if ( ! $valueNode instanceof \GraphQL\Language\AST\StringValueNode ) {
 			throw new Error(
 				esc_html__( 'Email address must be a string.', 'wp-graphql' ),
 				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -83,7 +102,7 @@ class EmailAddress {
 			);
 		}
 
-		return self::serialize( $valueNode->value );
+		return self::parseValue( $valueNode->value );
 	}
 
 	/**
