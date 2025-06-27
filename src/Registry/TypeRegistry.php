@@ -117,6 +117,23 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
+use WPGraphQL\Type\Scalar\Color;
+use WPGraphQL\Type\Scalar\Date;
+use WPGraphQL\Type\Scalar\DateTime;
+use WPGraphQL\Type\Scalar\EmailAddress;
+use WPGraphQL\Type\Scalar\HTML;
+use WPGraphQL\Type\Scalar\JSON;
+use WPGraphQL\Type\Scalar\Locale;
+use WPGraphQL\Type\Scalar\NegativeInt;
+use WPGraphQL\Type\Scalar\NonEmptyString;
+use WPGraphQL\Type\Scalar\NonNegativeInt;
+use WPGraphQL\Type\Scalar\NonPositiveInt;
+use WPGraphQL\Type\Scalar\PositiveInt;
+use WPGraphQL\Type\Scalar\Slug;
+use WPGraphQL\Type\Scalar\Time;
+use WPGraphQL\Type\Scalar\Timezone;
+use WPGraphQL\Type\Scalar\URL;
+use WPGraphQL\Type\Scalar\UrlPath;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -129,6 +146,7 @@ use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Type\WPScalar;
 use WPGraphQL\Type\WPUnionType;
 use WPGraphQL\Utils\Utils;
+
 
 /**
  * Class TypeRegistry
@@ -296,6 +314,25 @@ class TypeRegistry {
 		 * @param \WPGraphQL\Registry\TypeRegistry $registry Instance of the TypeRegistry
 		 */
 		do_action( 'graphql_register_initial_types', $type_registry );
+
+		// Register Scalars.
+		Color::register_scalar();
+		Date::register_scalar();
+		DateTime::register_scalar();
+		EmailAddress::register_scalar();
+		HTML::register_scalar();
+		JSON::register_scalar();
+		Locale::register_scalar();
+		NegativeInt::register_scalar();
+		NonEmptyString::register_scalar();
+		NonNegativeInt::register_scalar();
+		NonPositiveInt::register_scalar();
+		PositiveInt::register_scalar();
+		Slug::register_scalar();
+		Time::register_scalar();
+		Timezone::register_scalar();
+		UrlPath::register_scalar();
+		URL::register_scalar();
 
 		// Register Interfaces.
 		Node::register_type();
