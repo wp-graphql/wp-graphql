@@ -13,6 +13,32 @@ use GraphQL\Language\AST\StringValueNode;
 class HTML {
 
 	/**
+	 * Validates that a string is well-formed HTML.
+	 *
+	 * @param string $html The string to check.
+	 * @throws Error If the HTML is not well-formed.
+	 */
+	private static function validate_html( string $html ): void {
+		if ( empty( trim( $html ) ) ) {
+			return;
+		}
+
+		$internal_errors = libxml_use_internal_errors( true );
+		$doc               = new \DOMDocument();
+		// The LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD flags prevent DOMDocument from adding implied html/body tags.
+		// mb_convert_encoding is used to prevent issues with character encoding.
+		@$doc->loadHTML( mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		$errors = libxml_get_errors();
+		libxml_clear_errors();
+		libxml_use_internal_errors( $internal_errors );
+
+		if ( ! empty( $errors ) ) {
+			// We can inspect errors here if we want to be more lenient, but for now any error is a failure.
+			throw new Error( 'Invalid HTML: The provided HTML is not well-formed.' );
+		}
+	}
+
+	/**
 	 * A central private method to sanitize HTML strings.
 	 *
 	 * This method first strips all script tags and their content, then runs the
@@ -25,7 +51,26 @@ class HTML {
 		// Strip script tags and their content entirely.
 		$value = preg_replace( '#<script(.*?)>(.*?)</script>#is', '', $value ) ?? '';
 		// Use the standard WordPress function for sanitizing post content.
-		return wp_kses_post( $value );
+		$sanitized_html = wp_kses_post( $value );
+
+		// Normalize tag and attribute names to lowercase for consistent output.
+		return preg_replace_callback(
+			'/(<\/?)([a-zA-Z0-9]+)([^>]*>)/',
+			static function ( $matches ) {
+				$tag_open          = $matches[1];
+				$tag_name          = strtolower( $matches[2] );
+				$attributes_part   = $matches[3];
+				$normalized_attributes = preg_replace_callback(
+					'/([a-zA-Z0-9\-]+)(?=\s*=)/',
+					static function ( $attr_matches ) {
+						return strtolower( $attr_matches[0] );
+					},
+					$attributes_part
+				);
+				return $tag_open . $tag_name . $normalized_attributes;
+			},
+			$sanitized_html
+		) ?? $sanitized_html;
 	}
 
 	/**
@@ -43,6 +88,7 @@ class HTML {
 	 * @param mixed $value
 	 */
 	public static function parseValue( $value ): string { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		self::validate_html( (string) $value );
 		return self::sanitize_html( (string) $value );
 	}
 
@@ -58,6 +104,7 @@ class HTML {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new Error( 'Query error: Can only parse strings got: ' . $valueNode->kind, [ $valueNode ] );
 		}
+		self::validate_html( $valueNode->value );
 		return self::sanitize_html( $valueNode->value );
 	}
 

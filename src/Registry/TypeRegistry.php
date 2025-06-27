@@ -132,8 +132,8 @@ use WPGraphQL\Type\Scalar\PositiveInt;
 use WPGraphQL\Type\Scalar\Slug;
 use WPGraphQL\Type\Scalar\Time;
 use WPGraphQL\Type\Scalar\Timezone;
-use WPGraphQL\Type\Scalar\URI;
 use WPGraphQL\Type\Scalar\URL;
+use WPGraphQL\Type\Scalar\UrlPath;
 use WPGraphQL\Type\Union\MenuItemObjectUnion;
 use WPGraphQL\Type\Union\PostObjectUnion;
 use WPGraphQL\Type\Union\TermObjectUnion;
@@ -331,7 +331,7 @@ class TypeRegistry {
 		Slug::register_scalar();
 		Time::register_scalar();
 		Timezone::register_scalar();
-		URI::register_scalar();
+		UrlPath::register_scalar();
 		URL::register_scalar();
 
 		// Register Interfaces.

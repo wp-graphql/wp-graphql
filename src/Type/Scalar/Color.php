@@ -163,7 +163,7 @@ class Color {
 		register_graphql_scalar(
 			'Color',
 			[
-				'description'  => \__( 'A string representing a color, which can be in HEX, RGB, or RGBA format. For example: `#000000`, `rgb(255, 0, 0)`, or `rgba(255, 0, 0, 0.5)`.', 'wp-graphql' ),
+				'description'  => \__( 'A string representing a color, which can be in HEX, RGB, or RGBA format. For example: `#000000`, `rgb(255, 0, 0)`, or `rgba(255, 0, 0, 0.5)`. Default output if not otherwise specifed is RGBA.', 'wp-graphql' ),
 				'serialize'    => [ self::class, 'serialize' ],
 				'parseValue'   => [ self::class, 'parseValue' ],
 				'parseLiteral' => [ self::class, 'parseLiteral' ],

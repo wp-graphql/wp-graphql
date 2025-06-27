@@ -9,26 +9,29 @@ class HTMLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
     public function setUp(): void {
         parent::setUp();
         $this->clearSchema();
-        add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+        /** @phpstan-ignore-next-line */
+        \add_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
     }
 
     public function tearDown(): void {
-        remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
+        /** @phpstan-ignore-next-line */
+        \remove_action( 'graphql_register_types', [ $this, 'register_test_fields' ] );
         parent::tearDown();
     }
 
     public function register_test_fields(): void {
-        register_graphql_mutation( 'testHtmlMutation', [
-            'inputFields' => [
+        /** @phpstan-ignore-next-line */
+        \register_graphql_mutation( 'testHtmlMutation', [
+            'inputFields'         => [
                 'html' => [ 'type' => 'HTML' ],
             ],
-            'outputFields' => [
+            'outputFields'        => [
                 'html' => [ 'type' => 'HTML' ],
             ],
             'mutateAndGetPayload' => static function ( $input ) {
                 return [ 'html' => $input['html'] ];
             },
-        ]);
+        ] );
     }
 
     public function testSerializeRemovesUnsafeHtml() {
@@ -66,6 +69,45 @@ class HTMLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
     public function testSerializeAllowsAllowedHtml() {
         $allowed_html = '<p>This is a paragraph with <a href="https://wpgraphql.com">a link</a> and <strong>strong</strong> text.</p>';
         $this->assertEquals( $allowed_html, HTML::serialize( $allowed_html ) );
+    }
+
+    public function testMutationWithMismatchedTagsShouldFail() {
+        $mutation = '
+        mutation ($html: HTML!) {
+            testHtmlMutation(input: { html: $html }) {
+                html
+            }
+        }
+        ';
+        $invalid_html = '<b><i>mismatched tags</b></i>';
+
+        $response = $this->graphql([
+            'query' => $mutation,
+            'variables' => [ 'html' => $invalid_html ],
+        ]);
+
+        $this->assertArrayHasKey('errors', $response);
+        $this->assertStringContainsString('Invalid HTML: The provided HTML is not well-formed.', $response['errors'][0]['message']);
+    }
+
+    public function testMutationWithCapitalizedTagsShouldPass() {
+        $mutation = '
+        mutation ($html: HTML!) {
+            testHtmlMutation(input: { html: $html }) {
+                html
+            }
+        }
+        ';
+        $valid_html_with_caps = '<P>This is a paragraph with <A HREF="https://wpgraphql.com">a link</A> and <STRONG>strong</STRONG> text.</P>';
+        $expected_html = '<p>This is a paragraph with <a href="https://wpgraphql.com">a link</a> and <strong>strong</strong> text.</p>';
+
+        $response = $this->graphql([
+            'query' => $mutation,
+            'variables' => [ 'html' => $valid_html_with_caps ],
+        ]);
+
+        $this->assertArrayNotHasKey('errors', $response);
+        $this->assertEquals($expected_html, $response['data']['testHtmlMutation']['html']);
     }
 
 }
