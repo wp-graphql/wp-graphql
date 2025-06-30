@@ -11,7 +11,6 @@ use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Utils\Utils;
 
 /**
  * Class JSON
@@ -23,62 +22,23 @@ use GraphQL\Utils\Utils;
 class JSON {
 
 	/**
-	 * Serializes an internal value to include in a response. The internal value is expected to
-	 * be a PHP value that can be encoded as JSON. The result is a JSON-encoded string.
+	 * Serializes an internal value to include in a response.
 	 *
 	 * @param mixed $value
-	 * @throws \GraphQL\Error\Error If the value cannot be encoded as JSON.
+	 * @return mixed
 	 */
-	public static function serialize( $value ): string {
-		$encoded = wp_json_encode( $value );
-		if ( false === $encoded ) {
-			throw new Error(
-				esc_html(
-					sprintf(
-						/* translators: %s: The error message from json_last_error_msg() */
-						__( 'Could not serialize value to JSON: %s', 'wp-graphql' ),
-						json_last_error_msg()
-					)
-				)
-			);
-		}
-		return $encoded;
+	public static function serialize( $value ) {
+		return $value;
 	}
 
 	/**
 	 * Parses an externally provided value (query variable) to use as an input.
-	 * The external value is expected to be a JSON-encoded string.
 	 *
 	 * @param mixed $value
 	 * @return mixed
-	 * @throws \GraphQL\Error\Error If the value is not a string or not a valid JSON-encoded string.
 	 */
 	public static function parseValue( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		if ( ! is_string( $value ) ) {
-			// Using Utils::printSafe instead of gettype to avoid potential issues with objects that have a __toString method.
-			throw new Error(
-				esc_html(
-					sprintf(
-						/* translators: %s: The type of the value that was passed to be serialized. */
-						__( 'JSON scalar expects a string, but got: %s', 'wp-graphql' ),
-						Utils::printSafe( $value )
-					)
-				)
-			);
-		}
-		$decoded = json_decode( $value, true );
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			throw new Error(
-				esc_html(
-					sprintf(
-						/* translators: %s: The error message from json_last_error_msg() */
-						__( 'Invalid JSON string provided: %s', 'wp-graphql' ),
-						json_last_error_msg()
-					)
-				)
-			);
-		}
-		return $decoded;
+		return $value;
 	}
 
 	/**
@@ -89,11 +49,24 @@ class JSON {
 	 * @param \GraphQL\Language\AST\Node $valueNode
 	 * @param array<string,mixed>|null   $variables
 	 * @return mixed
+	 * @throws \GraphQL\Error\Error If the value is not a valid JSON-encoded string.
 	 */
 	public static function parseLiteral( $valueNode, ?array $variables = null ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		// If the literal is a string, it must be a JSON-encoded string.
 		if ( $valueNode instanceof StringValueNode ) {
-			return self::parseValue( $valueNode->value );
+			$decoded = json_decode( $valueNode->value, true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				throw new Error(
+					esc_html(
+						sprintf(
+							/* translators: %s: The error message from json_last_error_msg() */
+							__( 'Invalid JSON string provided: %s', 'wp-graphql' ),
+							json_last_error_msg()
+						)
+					)
+				);
+			}
+			return $decoded;
 		}
 
 		// For other literals like ObjectValueNode, ListValueNode, we can convert them to a PHP value.
@@ -153,7 +126,7 @@ class JSON {
 		register_graphql_scalar(
 			'JSON',
 			[
-				'description'  => __( 'The `JSON` scalar type represents JSON data, represented as a JSON-encoded string. It is useful for returning arbitrary data that is not predefined in the schema. When used as an input, the value must be a JSON-encoded string.', 'wp-graphql' ),
+				'description'  => __( 'The `JSON` scalar type represents JSON data, represented as fields defined by the JSON specification.', 'wp-graphql' ),
 				'serialize'    => [ self::class, 'serialize' ],
 				'parseValue'   => [ self::class, 'parseValue' ],
 				'parseLiteral' => [ self::class, 'parseLiteral' ],

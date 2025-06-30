@@ -61,41 +61,14 @@ class JSONTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @covers \WPGraphQL\Type\Scalar\JSON::serialize
 	 */
 	public function testSerialize() {
-		$json_string = json_encode( self::FIXTURE );
-		$this->assertEquals( $json_string, JSON::serialize( self::FIXTURE ) );
-	}
-
-	/**
-	 * @covers \WPGraphQL\Type\Scalar\JSON::serialize
-	 */
-	public function testSerializeThrowsOnInvalid() {
-		$this->expectException( Error::class );
-		// Add a value that cannot be encoded to JSON, like a resource.
-		JSON::serialize( fopen( 'php://memory', 'r' ) );
+		$this->assertEquals( self::FIXTURE, JSON::serialize( self::FIXTURE ) );
 	}
 
 	/**
 	 * @covers \WPGraphQL\Type\Scalar\JSON::parseValue
 	 */
 	public function testParseValue() {
-		$json_string = json_encode( self::FIXTURE );
-		$this->assertEquals( self::FIXTURE, JSON::parseValue( $json_string ) );
-	}
-
-	/**
-	 * @covers \WPGraphQL\Type\Scalar\JSON::parseValue
-	 */
-	public function testParseValueThrowsOnInvalidJson() {
-		$this->expectException( Error::class );
-		JSON::parseValue( '{ "invalid" }' );
-	}
-
-	/**
-	 * @covers \WPGraphQL\Type\Scalar\JSON::parseValue
-	 */
-	public function testParseValueThrowsOnNonString() {
-		$this->expectException( Error::class );
-		JSON::parseValue( 123 );
+		$this->assertEquals( self::FIXTURE, JSON::parseValue( self::FIXTURE ) );
 	}
 
 	/**
@@ -146,10 +119,7 @@ class JSONTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		JSON::parseLiteral( $ast );
 	}
 
-	/**
-	 * @dataProvider invalidMutationProvider
-	 */
-	public function testInvalidMutations( $json_input ) {
+	public function testValidMutationWithJsonVariable() {
 		$mutation = '
 		mutation ($json: JSON!) {
 			testJSONMutation(input: { json: $json }) {
@@ -160,40 +130,11 @@ class JSONTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$response = $this->graphql( [
 			'query'     => $mutation,
-			'variables' => [ 'json' => $json_input ],
-		] );
-
-		$this->assertArrayHasKey( 'errors', $response );
-	}
-
-	public function invalidMutationProvider() {
-		return [
-			'invalid json string' => [ '{"invalid": json' ],
-			'unquoted string'     => [ 'invalid' ],
-			'integer'             => [ 1 ],
-			'float'               => [ 1.1 ],
-			'boolean'             => [ true ],
-		];
-	}
-
-	public function testValidMutationWithJsonStringVariable() {
-		$mutation = '
-		mutation ($json: JSON!) {
-			testJSONMutation(input: { json: $json }) {
-				json
-			}
-		}
-		';
-
-		$json_string = json_encode( self::FIXTURE );
-
-		$response = $this->graphql( [
-			'query'     => $mutation,
-			'variables' => [ 'json' => $json_string ],
+			'variables' => [ 'json' => self::FIXTURE ],
 		] );
 
 		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertEquals( $json_string, $response['data']['testJSONMutation']['json'] );
+		$this->assertEquals( self::FIXTURE, $response['data']['testJSONMutation']['json'] );
 	}
 
 	public function testValidMutationWithJsonObjectLiteral() {
@@ -213,6 +154,6 @@ class JSONTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			'b' => [ 1, 'two' ],
 		];
 
-		$this->assertEquals( json_encode( $expected ), $response['data']['testJSONMutation']['json'] );
+		$this->assertEquals( $expected, $response['data']['testJSONMutation']['json'] );
 	}
 }
