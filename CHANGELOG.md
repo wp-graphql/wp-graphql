@@ -1,12 +1,10 @@
 # Changelog
 
-## v2.3.4 - 2025-07-01
+## v2.3.4 - 2025-07-15
 
 ### Bug Fixes
 
 - fix: make  void and call on  ([#3371](https://github.com/jasonbahl/automation-tests/pull/3371))
-
-
 
 ## v2.3.3 - 2025-06-17
 
