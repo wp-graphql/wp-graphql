@@ -32,14 +32,26 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		
 		$query_args = parent::prepare_query_args( $args );
 
-         // Preserve GraphQL-style cursor-based pagination
-         // Override ordering only if not already set
-        if ( empty( $query_args['orderby'] ) ) {
-	    $query_args['orderby'] = 'menu_order';
-        }
-        if ( empty( $query_args['order'] ) ) {
-	    $query_args['order'] = isset( $args['last'] ) ? 'DESC' : 'ASC';
-        }
+        // Handle ordering logic more robustly
+if ( ! empty( $args['where']['orderby'] ) ) {
+    $query_args['orderby'] = $args['where']['orderby'];
+
+    if ( ! empty( $args['where']['order'] ) ) {
+        $query_args['order'] = $args['where']['order'];
+    }
+} elseif ( ! empty( $args['where']['order'] ) ) {
+    // Apply default orderby if only 'order' is provided
+    $query_args['orderby'] = 'menu_order';
+    $query_args['order']   = $args['where']['order'];
+} else {
+    // Default fallback ordering for cursor pagination
+    if ( empty( $query_args['orderby'] ) ) {
+        $query_args['orderby'] = 'menu_order';
+    }
+    if ( empty( $query_args['order'] ) ) {
+        $query_args['order'] = isset( $args['last'] ) ? 'DESC' : 'ASC';
+    }
+}
 
 
 		if ( isset( $args['where']['parentDatabaseId'] ) ) {
