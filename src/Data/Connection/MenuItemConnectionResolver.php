@@ -29,10 +29,18 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 		$last = ! empty( $args['last'] ) ? $args['last'] : null;
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
+		
+		$query_args = parent::prepare_query_args( $args );
 
-		$query_args            = parent::prepare_query_args( $args );
-		$query_args['orderby'] = 'menu_order';
-		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
+         // Preserve GraphQL-style cursor-based pagination
+         // Override ordering only if not already set
+        if ( empty( $query_args['orderby'] ) ) {
+	    $query_args['orderby'] = 'menu_order';
+        }
+        if ( empty( $query_args['order'] ) ) {
+	    $query_args['order'] = isset( $args['last'] ) ? 'DESC' : 'ASC';
+        }
+
 
 		if ( isset( $args['where']['parentDatabaseId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';
