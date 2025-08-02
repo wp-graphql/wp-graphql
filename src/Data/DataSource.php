@@ -686,7 +686,7 @@ class DataSource {
 			__METHOD__,
 			sprintf(
 				/* translators: %s is the method name */
-				esc_html__( 'This method will be removed in the next major release. Use instead.', 'wp-graphql' ),
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
 				'$context->get_loader( \'post\' )->load_deferred( $id )'
 			),
 			'0.8.4'
