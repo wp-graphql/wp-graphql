@@ -14,7 +14,6 @@ class TermObjects extends \WPGraphQL\Type\Connection\TermObjects {
 	 * @param string $function_name
 	 */
 	private static function doing_it_wrong( string $function_name ): void {
-		self::doing_it_wrong( __METHOD__ );
 		_doing_it_wrong(
 			__METHOD__,
 			sprintf( /* translators: %s is the current class name, %s is the new class name */
