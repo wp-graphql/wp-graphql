@@ -1526,49 +1526,67 @@ abstract class AbstractConnectionResolver {
 	 */
 
 	/**
-	 * Returns the $args passed to the connection
-	 *
-	 * @deprecated Deprecated since v1.11.0 in favor of $this->get_args();
+	 * @todo remove in 3.0.0
+	 * @deprecated 1.11.0 in favor of $this->get_args();
+	 * @codeCoverageIgnore
 	 *
 	 * @return array<string,mixed>
-	 *
-	 * @codeCoverageIgnore
 	 */
 	public function getArgs(): array {
-		_deprecated_function( __METHOD__, '1.11.0', static::class . '::get_args()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_args()'
+			),
+			'1.11.0'
+		);
+
 		return $this->get_args();
 	}
 
 	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated 0.3.0
+	 * @codeCoverageIgnore
+	 *
 	 * @param string $key   The key of the query arg to set
 	 * @param mixed  $value The value of the query arg to set
 	 *
 	 * @return static
-	 *
-	 * @deprecated 0.3.0
-	 *
-	 * @codeCoverageIgnore
 	 */
 	public function setQueryArg( $key, $value ) {
-		_deprecated_function( __METHOD__, '0.3.0', static::class . '::set_query_arg()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::set_query_arg()'
+			),
+			'0.3.0'
+		);
 
 		return $this->set_query_arg( $key, $value );
 	}
 
 	/**
-	 * Get_offset
-	 *
-	 * This returns the offset to be used in the $query_args based on the $args passed to the
-	 * GraphQL query.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.9.0
-	 *
 	 * @codeCoverageIgnore
 	 *
 	 * @return int|mixed
 	 */
 	public function get_offset() {
-		_deprecated_function( __METHOD__, '1.9.0', static::class . '::get_offset_for_cursor()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_offset_for_cursor()'
+			),
+			'1.9.0'
+		);
 
 		// Using shorthand since this is for deprecated code.
 		$cursor = $this->args['after'] ?? null;
@@ -1578,60 +1596,100 @@ abstract class AbstractConnectionResolver {
 	}
 
 	/**
-	 * Returns the source of the connection.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.24.0 in favor of $this->get_source().
+	 * @codeCoverageIgnore
 	 *
 	 * @return mixed
 	 */
 	public function getSource() {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_source()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_source()'
+			),
+			'1.24.0'
+		);
 
 		return $this->get_source();
 	}
 
 	/**
-	 * Returns the AppContext of the connection.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.24.0 in favor of $this->get_context().
+	 * @codeCoverageIgnore
 	 */
 	public function getContext(): AppContext {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_context()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_context()'
+			),
+			'1.24.0'
+		);
 
 		return $this->get_context();
 	}
 
 	/**
-	 * Returns the ResolveInfo of the connection.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.24.0 in favor of $this->get_info().
+	 * @codeCoverageIgnore
 	 */
 	public function getInfo(): ResolveInfo {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_info()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_info()'
+			),
+			'1.24.0'
+		);
 
 		return $this->get_info();
 	}
 
 	/**
-	 * Returns whether the connection should execute.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.24.0 in favor of $this->get_should_execute().
+	 * @codeCoverageIgnore
 	 */
 	public function getShouldExecute(): bool {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::should_execute()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_should_execute()'
+			),
+			'1.24.0'
+		);
 
 		return $this->get_should_execute();
 	}
 
 	/**
-	 * Returns the loader.
-	 *
+	 * @todo remove in 3.0.0
 	 * @deprecated 1.24.0 in favor of $this->get_loader().
+	 * @codeCoverageIgnore
 	 *
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 */
 	protected function getLoader() {
-		_deprecated_function( __METHOD__, '1.24.0', static::class . '::get_loader()' );
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s: The name of the method that should be used instead.
+				esc_html__( 'This will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::get_loader()'
+			),
+			'1.24.0'
+		);
 
 		return $this->get_loader();
 	}

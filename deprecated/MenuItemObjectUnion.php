@@ -9,29 +9,35 @@ use WPGraphQL\Registry\TypeRegistry;
 /**
  * Class MenuItemObjectUnion
  *
- * @package WPGraphQL\Type\Union
- * @deprecated
+ * @todo Remove in 3.0.0
+ * @deprecated 0.10.3
+ * @codeCoverageIgnore
  */
 class MenuItemObjectUnion {
 
 	/**
 	 * Registers the Type
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @param ?\WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ) {
+	public static function register_type( ?TypeRegistry $type_registry = null ) {
 		register_graphql_union_type(
 			'MenuItemObjectUnion',
 			[
 				'typeNames'   => self::get_possible_types(),
 				'description' => static function () {
-					return __( 'Deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' );
+					return __( 'Deprecated in favor of MenuItemLinkable Interface', 'wp-graphql' );
 				},
-				'resolveType' => static function ( $obj ) use ( $type_registry ) {
-					_doing_it_wrong( 'MenuItemObjectUnion', esc_attr__( 'The MenuItemObjectUnion GraphQL type is deprecated in favor of MenuItemLinkeable Interface', 'wp-graphql' ), '0.10.3' );
+				'resolveType' => static function ( $obj ) {
+					_doing_it_wrong(
+						self::class,
+						esc_attr__( 'The MenuItemObjectUnion GraphQL type is deprecated in favor of MenuItemLinkable Interface and will be removed in a future version of WPGraphQL', 'wp-graphql' ),
+						'0.10.3'
+					);
+					$type_registry = \WPGraphQL::get_type_registry();
 					// Post object
 					if ( $obj instanceof Post && isset( $obj->post_type ) && ! empty( $obj->post_type ) ) {
 						/** @var \WP_Post_Type $post_type_object */

@@ -206,41 +206,11 @@ abstract class AbstractDataLoader {
 	 * method chaining.
 	 *
 	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 * @deprecated in favor of clear_all
-	 */
-	public function clearAll() {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::clear_all()' );
-		return $this->clear_all();
-	}
-
-	/**
-	 * Clears the entire cache. To be used when some event results in unknown
-	 * invalidations across this particular `DataLoader`. Returns itself for
-	 * method chaining.
-	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
 	 */
 	public function clear_all() {
 		$this->cached = [];
 
 		return $this;
-	}
-
-	/**
-	 * Loads multiple keys. Returns generator where each entry directly corresponds to entry in
-	 * $keys. If second argument $asArray is set to true, returns array instead of generator
-	 *
-	 * @param int[]|string[] $keys
-	 * @param bool           $asArray
-	 *
-	 * @return \Generator|array<int|string,mixed>
-	 * @throws \Exception
-	 *
-	 * @deprecated Use load_many instead
-	 */
-	public function loadMany( array $keys, $asArray = false ) {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::load_many()' );
-		return $this->load_many( $keys, $asArray );
 	}
 
 	/**
@@ -357,17 +327,6 @@ abstract class AbstractDataLoader {
 	 */
 	protected function key_to_scalar( $key ) {
 		return $key;
-	}
-
-	/**
-	 * @param int|string|mixed $key
-	 *
-	 * @return int|string
-	 * @deprecated Use key_to_scalar instead
-	 */
-	protected function keyToScalar( $key ) {
-		_deprecated_function( __METHOD__, '0.8.4', static::class . '::key_to_scalar()' );
-		return $this->key_to_scalar( $key );
 	}
 
 	/**
@@ -508,4 +467,70 @@ abstract class AbstractDataLoader {
 	 * @return array<int|string,mixed>
 	 */
 	abstract protected function loadKeys( array $keys ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- @todo deprecate for `::load_keys()`
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated Use load_many instead
+	 * @codeCoverageIgnore
+	 *
+	 * @param int[]|string[] $keys
+	 * @param bool           $asArray
+	 *
+	 * @return \Generator|array<int|string,mixed>
+	 * @throws \Exception
+	 */
+	public function loadMany( array $keys, $asArray = false ) {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::load_many()'
+			),
+			'0.8.4'
+		);
+		return $this->load_many( $keys, $asArray );
+	}
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated in favor of clear_all
+	 * @codeCoverageIgnore
+	 *
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+	 */
+	public function clearAll() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::clear_all()'
+			),
+			'0.8.4'
+		);
+		return $this->clear_all();
+	}
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated Use key_to_scalar instead
+	 * @codeCoverageIgnore
+	 *
+	 * @param int|string|mixed $key
+	 * @return int|string
+	 */
+	protected function keyToScalar( $key ) {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				static::class . '::key_to_scalar()'
+			),
+			'0.8.4'
+		);
+
+		return $this->key_to_scalar( $key );
+	}
 }

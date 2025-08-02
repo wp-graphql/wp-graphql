@@ -68,6 +68,7 @@
 			"WPGraphQL\\": "src/"
 		},
 		"classmap": [
+			"deprecated/",
 			"src/WPGraphQL.php"
 		]
 	},
