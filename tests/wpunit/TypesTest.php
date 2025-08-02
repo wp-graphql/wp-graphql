@@ -109,8 +109,10 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$messages = wp_list_pluck( $response['extensions']['debug'], 'message' );
-		$this->assertTrue( in_array( 'The registered field \'newFieldWithoutTypeDefined\' does not have a Type defined. Make sure to define a type for all fields.', $messages, true ) );
+		$this->assertStringStartsWith(
+			'The registered field "newFieldWithoutTypeDefined" does not have a Type defined.',
+			$response['extensions']['debug'][0]['message']
+		);
 	}
 
 	public function testMapInput() {
@@ -237,45 +239,31 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		add_filter(
 			'graphql_user_fields',
-			static function ( $fields, $object, \WPGraphQL\Registry\TypeRegistry $type_registry ) {
+			static function ( $fields ) {
+				$type_registry = \WPGraphQL::get_type_registry();
 
 				$fields['testNonNullString'] = [
-					'type'    => $type_registry->non_null( $type_registry->get_type( 'String' ) ),
+					'type'    => [ 'non_null' => 'String' ],
 					'resolve' => static function () {
 						return 'string';
 					},
 				];
 
-				$fields['testNonNullStringTwo'] = [
-					'type'    => $type_registry->non_null( 'String' ),
-					'resolve' => static function () {
-						return 'string';
-					},
-				];
-
-				$fields['testListOfString'] = [
-					'type'    => $type_registry->list_of( $type_registry->get_type( 'String' ) ),
+				$fields['testListOfString']        = [
+					'type'    => [ 'list_of' => 'String' ],
 					'resolve' => static function () {
 						return [ 'string' ];
 					},
 				];
-
-				$fields['testListOfStringTwo'] = [
-					'type'    => $type_registry->list_of( 'String' ),
-					'resolve' => static function () {
-						return [ 'string' ];
-					},
-				];
-
 				$fields['testListOfNonNullString'] = [
-					'type'    => $type_registry->list_of( $type_registry->non_null( 'String' ) ),
+					'type'    => [ 'list_of' => [ 'non_null' => 'String' ] ],
 					'resolve' => static function () {
 						return [ 'string' ];
 					},
 				];
 
 				$fields['testNonNullListOfString'] = [
-					'type'    => $type_registry->non_null( $type_registry->list_of( 'String' ) ),
+					'type'    => [ 'non_null' => [ 'list_of' => 'String' ] ],
 					'resolve' => static function () {
 						return [ 'string' ];
 					},
@@ -284,7 +272,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				return $fields;
 			},
 			10,
-			3
+			1
 		);
 
 		$user_id = $this->factory()->user->create(
@@ -306,9 +294,7 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				user( id: $id ) {
 					id
 					testNonNullString
-					testListOfStringTwo
 					testListOfString
-					testNonNullStringTwo
 					testListOfNonNullString
 					testNonNullListOfString
 				}
@@ -319,8 +305,6 @@ class TypesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$response  = $this->graphql( compact( 'query', 'variables' ) );
 		$expected  = [
 			$this->expectedField( 'user.testNonNullString', 'string' ),
-			$this->expectedField( 'user.testNonNullStringTwo', 'string' ),
-			$this->expectedField( 'user.testListOfStringTwo', [ 'string' ] ),
 			$this->expectedField( 'user.testListOfNonNullString', [ 'string' ] ),
 			$this->expectedField( 'user.testNonNullListOfString', [ 'string' ] ),
 			$this->expectedField( 'user.testListOfString', [ 'string' ] ),

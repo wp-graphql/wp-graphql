@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Registry;
 
-use GraphQL\Error\Error;
 use GraphQL\Type\Definition\Type;
 use WPGraphQL;
 use WPGraphQL\Data\DataSource;
@@ -135,6 +134,8 @@ use WPGraphQL\Utils\Utils;
  *
  * This class maintains the registry of Types used in the GraphQL Schema
  *
+ * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation.NonFullyQualifiedClassName
+ *
  * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
  * @phpstan-import-type InterfaceConfig from \GraphQL\Type\Definition\InterfaceType
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
@@ -142,6 +143,10 @@ use WPGraphQL\Utils\Utils;
  * @phpstan-import-type WPScalarConfig from \WPGraphQL\Type\WPScalar
  *
  * @phpstan-type TypeDef \GraphQL\Type\Definition\Type&\GraphQL\Type\Definition\NamedType
+ *
+ * @phpstan-type WPTypeDef WPEnumTypeConfig|WPScalarConfig|array<string,mixed>
+ *
+ * phpcs:enable
  *
  * @package WPGraphQL\Registry
  */
@@ -153,13 +158,6 @@ class TypeRegistry {
 	 * @var array<string,?TypeDef>
 	 */
 	protected $types;
-
-	/**
-	 * The keys that are prepared for introspection.
-	 *
-	 * @var array<string>|null
-	 */
-	protected static ?array $introspection_keys = null;
 
 	/**
 	 * The loaders needed to register types
@@ -691,8 +689,10 @@ class TypeRegistry {
 	/**
 	 * Add a Type to the Registry
 	 *
-	 * @param string                      $type_name The name of the type to register
-	 * @param array<string,mixed>|TypeDef $config The config for the type
+	 * @template T of WPTypeDef
+	 *
+	 * @param string    $type_name The name of the type to register.
+	 * @param T|TypeDef $config    The config for the type
 	 *
 	 * @throws \Exception
 	 */
@@ -703,6 +703,7 @@ class TypeRegistry {
 		if ( in_array( strtolower( $type_name ), $this->get_excluded_types(), true ) ) {
 			return;
 		}
+
 		/**
 		 * If the Type Name starts with a number, skip it.
 		 */
@@ -832,63 +833,9 @@ class TypeRegistry {
 	}
 
 	/**
-	 * Get the keys that are prepared for introspection.
-	 *
-	 * @return array<string>
-	 */
-	protected static function get_introspection_keys(): array {
-
-		if ( null === self::$introspection_keys ) {
-			/**
-			 * Filter the keys that are prepared for introspection.
-			 *
-			 * @param array<string> $introspection_keys The keys to prepare for introspection.
-			 */
-			$introspection_keys       = \apply_filters( 'graphql_introspection_keys', [ 'description', 'deprecationReason' ] );
-			self::$introspection_keys = $introspection_keys;
-		}
-
-		return self::$introspection_keys;
-	}
-
-	/**
-	 * Prepare the config for introspection. This is used to resolve callable values for description and deprecationReason for
-	 * introspection queries.
-	 *
-	 * @template T of array<string,mixed>
-	 * @param T $config The config to prepare.
-	 *
-	 * @return array<string,mixed> The prepared config.
-	 * @phpstan-return T|array{description?: string|null, deprecationReason?: string|null}
-	 *
-	 * @internal
-	 */
-	public static function prepare_config_for_introspection( array $config ): array {
-
-		// Get the keys that are prepared for introspection.
-		$introspection_keys = self::get_introspection_keys();
-
-		foreach ( $introspection_keys as $key ) {
-			if ( ! isset( $config[ $key ] ) || ! is_callable( $config[ $key ] ) ) {
-				continue;
-			}
-
-			if ( ! WPGraphQL::is_introspection_query() ) {
-				// If not introspection, set to null.
-				$config[ $key ] = null;
-				continue;
-			}
-
-			$config[ $key ] = is_callable( $config[ $key ] ) ? $config[ $key ]() : '';
-		}
-
-		return $config;
-	}
-
-	/**
 	 * Prepare the type for registration.
 	 *
-	 * @template T of WPEnumTypeConfig|WPScalarConfig|array<string,mixed>
+	 * @template T of WPTypeDef
 	 *
 	 * @param string    $type_name The name of the type to prepare
 	 * @param T|TypeDef $config    The config for the type
@@ -904,33 +851,32 @@ class TypeRegistry {
 			return null;
 		}
 
-		$config         = self::prepare_config_for_introspection( $config );
 		$config['name'] = ucfirst( $type_name );
 
-		$kind = isset( $config['kind'] ) ? $config['kind'] : null;
-		switch ( $kind ) {
+		// Ensure a 'kind' is set for the type.
+		if ( ! isset( $config['kind'] ) ) {
+			$config['kind'] = null;
+		}
+
+		switch ( $config['kind'] ) {
 			case 'enum':
-				/** @var WPEnumTypeConfig $config */
 				$prepared_type = new WPEnumType( $config );
 				break;
 			case 'input':
-				/** @var InputObjectConfig $config */
-				$prepared_type = new WPInputObjectType( $config, $this );
+				$prepared_type = new WPInputObjectType( $config );
 				break;
 			case 'scalar':
-				$prepared_type = new WPScalar( $config, $this );
+				$prepared_type = new WPScalar( $config );
 				break;
 			case 'union':
-				$prepared_type = new WPUnionType( $config, $this );
+				$prepared_type = new WPUnionType( $config );
 				break;
 			case 'interface':
-				/** @var InterfaceConfig $config */
-				$prepared_type = new WPInterfaceType( $config, $this );
+				$prepared_type = new WPInterfaceType( $config );
 				break;
 			case 'object':
 			default:
-				/** @var ObjectConfig $config */
-				$prepared_type = new WPObjectType( $config, $this );
+				$prepared_type = new WPObjectType( $config );
 		}
 
 		return $prepared_type;
@@ -994,154 +940,13 @@ class TypeRegistry {
 	 * @throws \Exception
 	 */
 	public function prepare_fields( array $fields, string $type_name ): array {
-		$prepared_fields = [];
-		foreach ( $fields as $field_name => $field_config ) {
-			if ( is_array( $field_config ) && isset( $field_config['type'] ) ) {
-				$prepared_field = $this->prepare_field( $field_name, $field_config, $type_name );
-				if ( ! empty( $prepared_field ) ) {
-					$prepared_fields[ $this->format_key( $field_name ) ] = $prepared_field;
-				}
-			}
-		}
+		\_doing_it_wrong(
+			__METHOD__,
+			esc_html__( 'This should not be called directly. Apply the `WithFieldsTrait` trait to your class and use the `prepare_fields` method from there.', 'wp-graphql' ),
+			'@since next-version'
+		);
 
-		return $prepared_fields;
-	}
-
-	/**
-	 * Prepare the field to be registered on the type
-	 *
-	 * @param string              $field_name   Friendly name of the field
-	 * @param array<string,mixed> $field_config Config data about the field to prepare
-	 * @param string              $type_name    Name of the type to prepare the field for
-	 *
-	 * @return ?array<string,mixed>
-	 * @throws \Exception
-	 */
-	protected function prepare_field( string $field_name, array $field_config, string $type_name ): ?array {
-		if ( ! isset( $field_config['name'] ) ) {
-			$field_config['name'] = lcfirst( $field_name );
-		}
-
-		if ( ! isset( $field_config['type'] ) ) {
-			graphql_debug(
-				sprintf(
-					/* translators: %s is the Field name. */
-					__( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ),
-					$field_name
-				),
-				[
-					'type'       => 'INVALID_FIELD_TYPE',
-					'type_name'  => $type_name,
-					'field_name' => $field_name,
-				]
-			);
-			return null;
-		}
-
-		/**
-		 * If the type is a string, create a callable wrapper to get the type from
-		 * type registry. This preserves lazy-loading and prevents a bug where a type
-		 * has the same name as a function in the global scope (e.g., `header()`) and
-		 * is called since it passes `is_callable`.
-		 */
-		if ( is_string( $field_config['type'] ) ) {
-			// Bail if the type is excluded from the Schema.
-			if ( in_array( strtolower( $field_config['type'] ), $this->get_excluded_types(), true ) ) {
-				return null;
-			}
-
-			$field_config['type'] = function () use ( $field_config, $type_name ) {
-				$type = $this->get_type( $field_config['type'] );
-				if ( ! $type ) {
-					$message = sprintf(
-					/* translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced. */
-						__( 'The field \'%1$s\' on Type \'%2$s\' is configured to return \'%3$s\' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with \'%3$s\', or it needs to be registered to the Schema.', 'wp-graphql' ),
-						$field_config['name'],
-						$type_name,
-						$field_config['type']
-					);
-					// We throw an error here instead of graphql_debug message, as an error would already be thrown if a type didn't exist at this point,
-					// but now it will have a more helpful error message.
-					throw new Error( esc_html( $message ) );
-				}
-				return $type;
-			};
-		}
-
-		/**
-		 * If the type is an array, it contains type modifiers (e.g., "non_null").
-		 * Create a callable wrapper to preserve lazy-loading.
-		 */
-		if ( is_array( $field_config['type'] ) ) {
-			// Bail if the type is excluded from the Schema.
-			$unmodified_type_name = $this->get_unmodified_type_name( $field_config['type'] );
-
-			if ( empty( $unmodified_type_name ) || in_array( strtolower( $unmodified_type_name ), $this->get_excluded_types(), true ) ) {
-				return null;
-			}
-
-			$field_config['type'] = function () use ( $field_config ) {
-				return $this->setup_type_modifiers( $field_config['type'] );
-			};
-		}
-
-		/**
-		 * If the field has arguments, each one must be prepared.
-		 */
-		if ( isset( $field_config['args'] ) && is_array( $field_config['args'] ) ) {
-			foreach ( $field_config['args'] as $arg_name => $arg_config ) {
-				$arg = $this->prepare_field( $arg_name, $arg_config, $type_name );
-
-				// Remove the arg if the field could not be prepared.
-				if ( empty( $arg ) ) {
-					unset( $field_config['args'][ $arg_name ] );
-					continue;
-				}
-
-				$field_config['args'][ $arg_name ] = $arg;
-			}
-		}
-
-		/**
-		 * If the field has no (remaining) valid arguments, unset the key.
-		 */
-		if ( empty( $field_config['args'] ) ) {
-			unset( $field_config['args'] );
-		}
-
-		$field_config = self::prepare_config_for_introspection( $field_config );
-
-		return $field_config;
-	}
-
-	/**
-	 * Processes type modifiers (e.g., "non-null"). Loads types immediately, so do
-	 * not call before types are ready to be loaded.
-	 *
-	 * @template WrappedType of array{non_null:mixed}|array{list_of:mixed}
-	 * @param WrappedType|array<string,mixed>|string|\GraphQL\Type\Definition\Type $type The type to process.
-	 *
-	 * @return ($type is WrappedType ? \GraphQL\Type\Definition\Type : (array<string,mixed>|string|\GraphQL\Type\Definition\Type))
-	 * @throws \Exception
-	 */
-	public function setup_type_modifiers( $type ) {
-		if ( ! is_array( $type ) ) {
-			return $type;
-		}
-
-		if ( isset( $type['non_null'] ) ) {
-			/** @var TypeDef inner_type */
-			$inner_type = $this->setup_type_modifiers( $type['non_null'] );
-			return $this->non_null( $inner_type );
-		}
-
-		if ( isset( $type['list_of'] ) ) {
-			/** @var TypeDef $inner_type */
-			$inner_type = $this->setup_type_modifiers( $type['list_of'] );
-			return $this->list_of( $inner_type );
-		}
-
-		return $type;
+		return $fields;
 	}
 
 	/**
@@ -1174,7 +979,7 @@ class TypeRegistry {
 	public function register_field( string $type_name, string $field_name, array $config ): void {
 		add_filter(
 			'graphql_' . $type_name . '_fields',
-			function ( $fields ) use ( $type_name, $field_name, $config ) {
+			static function ( $fields ) use ( $type_name, $field_name, $config ) {
 
 				// Whether the field should be allowed to have underscores in the field name
 				$allow_field_underscores = isset( $config['allowFieldUnderscores'] ) && true === $config['allowFieldUnderscores'];
@@ -1238,13 +1043,8 @@ class TypeRegistry {
 					return $fields;
 				}
 
-				/**
-				 * If the field returns a properly prepared field, add it the the field registry
-				 */
-				$field = $this->prepare_field( $field_name, $config, $type_name );
-
-				if ( ! empty( $field ) ) {
-					$fields[ $field_name ] = $field;
+				if ( ! empty( $config ) ) {
+					$fields[ $field_name ] = $config;
 				}
 
 				return $fields;
@@ -1284,7 +1084,7 @@ class TypeRegistry {
 	 * @throws \Exception
 	 */
 	public function register_connection( array $config ): void {
-		new WPConnectionType( $config, $this );
+		new WPConnectionType( $config );
 	}
 
 	/**
@@ -1296,13 +1096,8 @@ class TypeRegistry {
 	 * @throws \Exception
 	 */
 	public function register_mutation( string $mutation_name, array $config ): void {
-		// Bail if the mutation has been excluded from the schema.
-		if ( in_array( strtolower( $mutation_name ), $this->get_excluded_mutations(), true ) ) {
-			return;
-		}
-
 		$config['name'] = $mutation_name;
-		new WPMutationType( $config, $this );
+		new WPMutationType( $config );
 	}
 
 	/**
@@ -1356,45 +1151,6 @@ class TypeRegistry {
 				return $excluded_connections;
 			}
 		);
-	}
-
-	/**
-	 * Given a Type, this returns an instance of a NonNull of that type.
-	 *
-	 * @template T of \GraphQL\Type\Definition\NullableType&\GraphQL\Type\Definition\Type
-	 * @param T|string $type The Type being wrapped.
-	 */
-	public function non_null( $type ): \GraphQL\Type\Definition\NonNull {
-		if ( is_string( $type ) ) {
-			$type_def = $this->get_type( $type );
-
-			/** @phpstan-var T&TypeDef $type_def */
-			return Type::nonNull( $type_def );
-		}
-
-		return Type::nonNull( $type );
-	}
-
-	/**
-	 * Given a Type, this returns an instance of a listOf of that type.
-	 *
-	 * @template T of \GraphQL\Type\Definition\Type
-	 * @param T|string $type The Type being wrapped.
-	 *
-	 * @return \GraphQL\Type\Definition\ListOfType<\GraphQL\Type\Definition\Type>
-	 */
-	public function list_of( $type ): \GraphQL\Type\Definition\ListOfType {
-		if ( is_string( $type ) ) {
-			$resolved_type = $this->get_type( $type );
-
-			if ( is_null( $resolved_type ) ) {
-				$resolved_type = Type::string();
-			}
-
-			$type = $resolved_type;
-		}
-
-		return Type::listOf( $type );
 	}
 
 	/**
@@ -1478,22 +1234,5 @@ class TypeRegistry {
 		}
 
 		return $this->excluded_mutations;
-	}
-
-	/**
-	 * Gets the actual type name, stripped of possible NonNull and ListOf wrappers.
-	 *
-	 * Returns an empty string if the type modifiers are malformed.
-	 *
-	 * @param string|array<string|int,mixed> $type The (possibly-wrapped) type name.
-	 */
-	protected function get_unmodified_type_name( $type ): string {
-		if ( ! is_array( $type ) ) {
-			return $type;
-		}
-
-		$type = array_values( $type )[0] ?? '';
-
-		return $this->get_unmodified_type_name( $type );
 	}
 }

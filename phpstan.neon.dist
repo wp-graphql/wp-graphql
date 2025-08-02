@@ -38,6 +38,9 @@ parameters:
         - deactivation.php
         - src/
     excludePaths:
+      analyse:
+        - tests/
+        - vendor/
       analyseAndScan:
         - node_modules (?)
 

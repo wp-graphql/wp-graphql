@@ -1,49 +1,68 @@
 <?php
-namespace WPGraphQL\Type;
-
-use GraphQL\Type\Definition\EnumType;
-use WPGraphQL\Registry\TypeRegistry;
-
 /**
- * Class WPEnumType
- *
  * EnumTypes should extend this class to have filters and sorting applied, etc.
  *
  * @package WPGraphQL\Type
+ * @since 0.0.5
+ */
+
+namespace WPGraphQL\Type;
+
+use GraphQL\Error\UserError;
+use GraphQL\Type\Definition\EnumType;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait;
+
+/**
+ * Class - WPEnumType
  *
- * phpcs:disable -- For phpstan type hinting
- * @phpstan-import-type PartialEnumValueConfig from \GraphQL\Type\Definition\EnumType
+ * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation -- for phpstan type hinting.
+ *
+ * @phpstan-import-type EnumTypeConfig from \GraphQL\Type\Definition\EnumType
  * @phpstan-import-type EnumValues from \GraphQL\Type\Definition\EnumType
  *
- * @phpstan-type PartialWPEnumValueConfig array{
+ * @phpstan-type WPEnumValueConfig array{
  *   name?: string,
+ *   kind?: 'enum'|null,
  *   value?: mixed,
  *   deprecationReason?: string|callable():string|null,
  *   description?: string|callable():string|null,
  *   astNode?: \GraphQL\Language\AST\EnumValueDefinitionNode|null
  * }
+ *
  * @phpstan-type WPEnumTypeConfig array{
- *  name: string,
- *  description?: string|null,
- *  values: array<string, PartialWPEnumValueConfig>,
- *  astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
- *  extensionASTNodes?: array<\GraphQL\Language\AST\EnumTypeExtensionNode>|null,
- *  kind?:'enum'|null,
+ *   description?: string|callable():string|null,
+ *   values: array<string, WPEnumValueConfig>|callable():array<string, WPEnumValueConfig>,
+ *   astNode?: \GraphQL\Language\AST\EnumTypeDefinitionNode|null,
+ *   extensionASTNodes?: \GraphQL\Language\AST\EnumTypeExtensionNode[]|null,
+ *   kind?: 'enum'
  * }
+ *
+ * @phpstan-implements \WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface<EnumTypeConfig>
+ *
  * phpcs:enable
  */
-class WPEnumType extends EnumType {
+class WPEnumType extends EnumType implements TypeAdapterInterface {
+	/** @use \WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait<EnumTypeConfig> */
+	use TypeAdapterTrait;
 
 	/**
-	 * WPEnumType constructor.
+	 * {@inheritDoc}
+	 */
+	public static function get_kind(): string {
+		return 'enum';
+	}
+
+	/**
+	 * Prepares the configuration before passing it to the graphql-php parent constructor.
 	 *
 	 * @param array<string,mixed> $config
-	 * @phpstan-param WPEnumTypeConfig $config
 	 */
 	public function __construct( $config ) {
-		$name             = ucfirst( $config['name'] );
-		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['values'] = self::prepare_values( $config['values'], $config['name'] );
+		$config = $this->prepare_config( $config );
+
+		$this->validate_config( $config );
+
 		parent::__construct( $config );
 	}
 
@@ -72,28 +91,56 @@ class WPEnumType extends EnumType {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * Called by ::prepare_config()
+	 */
+	public function prepare( array $config ): array {
+		if ( ! isset( $config['values'] ) ) {
+			return $config;
+		}
+
+		// Ensure the 'values' key is set as a callable.
+		$config['values'] = static function () use ( $config ) {
+			$values = is_callable( $config['values'] ) ? call_user_func( $config['values'] ) : $config['values'];
+
+			return self::prepare_values( $values, $config['name'] );
+		};
+
+		return $config;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Called by ::validate_config()
+	 *
+	 * @throws \GraphQL\Error\UserError If the configuration is invalid.
+	 */
+	public function validate( array $config ): void {
+		// Values must be array or callable.
+		if ( ! isset( $config['values'] ) || ( ! is_array( $config['values'] ) && ! is_callable( $config['values'] ) ) ) {
+			throw new UserError(
+				sprintf(
+					// translators: %s is the type name.
+					esc_html__( 'Enum type "%s" must have a "values" array or callable.', 'wp-graphql' ),
+					esc_html( $config['name'] )
+				)
+			);
+		}
+	}
+
+	/**
 	 * This function sorts the values and applies a filter to allow for easily
 	 * extending/modifying the shape of the Schema for the enum.
 	 *
-	 * @param array<string,PartialWPEnumValueConfig> $values
-	 * @param string                                 $type_name
+	 * @param array<string,mixed> $values
+	 * @param string              $type_name
 	 *
 	 * @return EnumValues
 	 * @since 0.0.5
 	 */
 	private static function prepare_values( $values, $type_name ) {
-
-		// Map over the values and if the description is a callable, resolve it.
-		foreach ( $values as $key => $value ) {
-			$description = $value['description'] ?? null;
-
-			if ( is_callable( $description ) ) {
-				$description = $description();
-			}
-
-			$values[ $key ]['description'] = is_string( $description ) ? $description : '';
-		}
-
 		/**
 		 * Filter all object fields, passing the $typename as a param
 		 *
@@ -127,7 +174,7 @@ class WPEnumType extends EnumType {
 				if ( ! is_array( $value ) ) {
 					$value = [ 'value' => $value ];
 				}
-				return TypeRegistry::prepare_config_for_introspection( $value );
+				return self::prepare_config_for_introspection( $value );
 			},
 			$values
 		);

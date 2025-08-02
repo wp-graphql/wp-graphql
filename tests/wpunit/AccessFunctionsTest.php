@@ -381,16 +381,17 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		 */
 		add_filter(
 			'graphql_input_fields',
-			static function ( $fields, $type_name, $config, $type_registry ) {
+			static function ( $fields, $type_name, $config ) {
 				if ( isset( $config['queryClass'] ) && 'WP_Query' === $config['queryClass'] ) {
 					$fields['testInputField'] = [
 						'type' => 'String',
 					];
 				}
+
 				return $fields;
 			},
 			10,
-			4
+			3
 		);
 
 		$response = $this->graphql( compact( 'query' ) );
@@ -410,6 +411,9 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->assertArrayNotHasKey( 'errors', $response );
 		$this->assertContains( 'testInputField', $field_names );
+
+		// Cleanup
+		remove_all_filters( 'graphql_input_fields' );
 	}
 
 	public function testRegisterFields() {

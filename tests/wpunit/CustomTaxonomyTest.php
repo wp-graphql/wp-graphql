@@ -1245,8 +1245,8 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-//		$request = new \WPGraphQL\Request();
-		$schema  = WPGraphQL::get_schema();
+		// $request = new \WPGraphQL\Request();
+		$schema = WPGraphQL::get_schema();
 		unregister_taxonomy( 'tax_no_plural' );
 		$schema->assertValid();
 
@@ -1266,19 +1266,16 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
 		self::assertQuerySuccessful(
 			$actual,
 			[
 				$this->expectedField( 'allTaxNoPlural.nodes', self::IS_FALSY ),
 			]
 		);
-
-
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function testRegisterTaxonomyWithoutGraphqlSingleOrPluralNameDoesntInvalidateSchema() {
 
@@ -1295,16 +1292,12 @@ class CustomTaxonomyTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// assert that the schema is still valid, even though the tax
 		// didn't provide the single/plural name (it will be left out of the schema)
 
-//		$request = new \WPGraphQL\Request();
-		$schema  = WPGraphQL::get_schema();
+		// $request = new \WPGraphQL\Request();
+		$schema = WPGraphQL::get_schema();
 		$schema->assertValid();
-
 
 		unregister_taxonomy( 'tax_no_single_plural' );
 
 		$schema->assertValid();
-
-
-
 	}
 }
