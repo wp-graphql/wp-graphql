@@ -50,20 +50,16 @@ case "$subcommand" in
                     BUILD_NO_CACHE=--no-cache
                     ;;
                 a )
-                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/Dockerfile \
+                    --target app \
                     -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
                     --build-arg WP_VERSION=${WP_VERSION} \
                     --build-arg PHP_VERSION=${PHP_VERSION} \
                     .
                     ;;
                 t )
-                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
-                    -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
-                    --build-arg WP_VERSION=${WP_VERSION} \
-                    --build-arg PHP_VERSION=${PHP_VERSION} \
-                    .
-
-                docker build $BUILD_NO_CACHE -f docker/testing.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/Dockerfile \
+                    --target testing \
                     -t wp-graphql-testing:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
                     --build-arg WP_VERSION=${WP_VERSION} \
                     --build-arg PHP_VERSION=${PHP_VERSION} \

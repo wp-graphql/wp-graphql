@@ -58,17 +58,17 @@ jobs:
 
       - name: Generate the Static Schema
         run: |
-          cd /tmp/wordpress/
-          # Output: /tmp/schema.graphql
+          cd /var/www/html
+          # Output: /var/www/html/schema.graphql
           wp graphql generate-static-schema
 
       - name: Lint the Static Schema
         run: |
-          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","TermObjectUnion","TimezoneEnum"]}' /tmp/schema.graphql
+          graphql-schema-linter --except=relay-connection-types-spec,relay-page-info-spec --ignore '{"defined-types-are-used":["MenuItemsWhereArgs","TermObjectUnion","TimezoneEnum"]}' /var/www/html/schema.graphql
 
       - name: Display ignored linting errors
         run: |
-          graphql-schema-linter /tmp/schema.graphql || true
+          graphql-schema-linter /var/www/html/schema.graphql || true
 
       - name: Get Latest tag
         uses: actions-ecosystem/action-get-latest-tag@v1

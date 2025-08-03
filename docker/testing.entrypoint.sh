@@ -52,13 +52,6 @@ workdir="$PWD"
 echo "Moving to WordPress root directory ${WP_ROOT_FOLDER}."
 cd ${WP_ROOT_FOLDER}
 
-# Because we are starting apache independently of the docker image,
-# we set WORDPRESS environment variables so apache see them and used in the wp-config.php
-echo "export WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}" >> /etc/apache2/envvars
-echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars
-echo "export WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}" >> /etc/apache2/envvars
-echo "export WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}" >> /etc/apache2/envvars
-
 # Run app setup scripts.
 . app-setup.sh
 . app-post-setup.sh
@@ -69,28 +62,18 @@ write_htaccess
 echo "Moving back to project working directory ${PROJECT_DIR}"
 cd ${PROJECT_DIR}
 
+# Install Composer dependencies
+echo "Running composer install"
+COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction --no-progress --optimize-autoloader
+
 # Ensure Apache is running
 service apache2 start
-
-# Ensure everything is loaded
-dockerize \
-    -wait tcp://${DB_HOST}:${DB_HOST_PORT:-3306} \
-    -wait ${WP_URL} \
-    -timeout 1m
 
 # Download c3 for testing.
 if [ ! -f "$PROJECT_DIR/c3.php" ]; then
     echo "Downloading Codeception's c3.php"
     curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > "$PROJECT_DIR/c3.php"
 fi
-
-
-# Install the PHP dependencies
-echo "Running composer update"
-COMPOSER_MEMORY_LIMIT=-1 composer update
-echo "Running composer install"
-COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction
-
 
 # Install pcov/clobber if PHP7.1+
 if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
