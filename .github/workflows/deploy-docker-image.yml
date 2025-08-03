@@ -92,7 +92,7 @@ jobs:
           tags: |
             ghcr.io/wp-graphql/wp-graphql:latest-wp${{ matrix.wordpress }}-php${{ matrix.php }}
             ghcr.io/wp-graphql/wp-graphql:${{ steps.vars.outputs.tag }}-wp${{ matrix.wordpress }}-php${{ matrix.php }}
-          file: docker/.Dockerfile
+          file: docker/Dockerfile
           build-args: |
             PHP_VERSION=${{ matrix.php }}
             WP_VERSION=${{ matrix.wordpress }}
