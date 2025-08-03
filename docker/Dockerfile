@@ -78,6 +78,7 @@ RUN apt-get update && apt-get -y install mariadb-client zip unzip \
     && docker-php-ext-install pdo_mysql
 
 ENV COVERAGE=
+ENV SUITES=${SUITES:-wpunit}
 
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
