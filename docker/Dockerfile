@@ -78,7 +78,7 @@ RUN apt-get update && apt-get -y install mariadb-client zip unzip \
     && docker-php-ext-install pdo_mysql
 
 ENV COVERAGE=
-ENV SUITES=${SUITES:-wpunit}
+ENV SUITES=${SUITES:-}
 
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -89,13 +89,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 
 # Configure php
 RUN echo "date.timezone = UTC" >> /usr/local/etc/php/php.ini
-
-# Because we are starting apache independently of the docker image,
-# we set WORDPRESS environment variables so apache see them and used in the wp-config.php
-RUN echo "export WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}" >> /etc/apache2/envvars
-RUN echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars
-RUN echo "export WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}" >> /etc/apache2/envvars
-RUN echo "export WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}" >> /etc/apache2/envvars
 
 # Set up entrypoint
 WORKDIR    /var/www/html
