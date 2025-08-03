@@ -7,7 +7,7 @@
 ARG WP_VERSION
 ARG PHP_VERSION
 
-FROM wordpress:${WP_VERSION:-6.8}-php${PHP_VERSION:-8.3} AS app
+FROM wordpress:${WP_VERSION:-6.8}-php${PHP_VERSION:-8.3}-apache AS app
 LABEL author=jasonbahl
 LABEL author_uri=https://github.com/jasonbahl
 WORKDIR /var/www/html
@@ -53,7 +53,7 @@ RUN echo "Installing XDebug 3 version $XDEBUG_VERSION (in disabled state)" \
     && echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     && echo "xdebug.mode=develop,debug,coverage" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_host=$(ip route | awk '/default/ { print $3 }')" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     && echo "xdebug.max_nesting_level=512" >> /usr/local/etc/php/conf.d/disabled/docker-php-ext-xdebug.ini \
     ;
