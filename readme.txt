@@ -145,6 +145,7 @@ The `ContentRevisionUnion` Union has been removed, and the `RootQuery.revisions`
 
 This is _technically_ a Schema Breaking change, however the behavior for most users querying these fields should remain the same.
 
+
 For example, this query worked before, and still works now:
 
 ```graphql
