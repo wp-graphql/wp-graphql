@@ -5,7 +5,9 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Utils\Utils;
-use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait;
+use WPGraphQL\Registry\TypeAdapters\WithFieldsTrait;
 
 /**
  * Class WPInputObjectType
@@ -13,132 +15,99 @@ use WPGraphQL\Registry\TypeRegistry;
  * Input types should extend this class to take advantage of the helper methods for formatting
  * and adding consistent filters.
  *
+ * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation -- for phpstan type hinting.
+ *
  * @phpstan-import-type InputObjectConfig from \GraphQL\Type\Definition\InputObjectType
  * @phpstan-import-type FieldConfig from \GraphQL\Type\Definition\InputObjectType
+ *
+ * @phpstan-type WPInputObjectTypeConfig array{
+ *   description?: string|callable():string|null,
+ *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   parseValue?: callable(array<string, mixed>): mixed,
+ *   astNode?: \GraphQL\Language\AST\InputObjectTypeDefinitionNode|null,
+ *   extensionASTNodes?: array<\GraphQL\Language\AST\InputObjectTypeExtensionNode>|null,
+ *   kind?: 'input'
+ * }
+ *
+ * @phpstan-implements \WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface<InputObjectConfig>
+ *
+ * phpcs:enable
  *
  * @package WPGraphQL\Type
  * @since 0.0.5
  */
-class WPInputObjectType extends InputObjectType {
+class WPInputObjectType extends InputObjectType implements TypeAdapterInterface {
+	/** @use \WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait<InputObjectConfig> */
+	use TypeAdapterTrait;
+	use WithFieldsTrait;
 
 	/**
-	 * WPInputObjectType constructor.
+	 * Prepares the configuration before passing it to the graphql-php parent constructor.
 	 *
-	 * @param InputObjectConfig                $config The Config to set up an Input Type
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
+	 * @param array<string,mixed> $config
 	 */
-	public function __construct( array $config, TypeRegistry $type_registry ) {
-		$name = $config['name'] ?? $this->inferName();
-		if ( ! is_string( $name ) ) {
-			$name = '';
-		}
-		$config['name']   = apply_filters( 'graphql_type_name', $name, $config, $this );
-		$config['fields'] = $this->get_fields( $config, $type_registry );
+	public function __construct( array $config ) {
+		$config = $this->prepare_config( $config );
+
+		$this->validate_config( $config );
 
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Get the fields for the input type
-	 *
-	 * @param array<string,mixed>              $config
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
-	 * @return array<string,mixed>
-	 *
-	 * @since 2.3.0
+	 * {@inheritDoc}
 	 */
-	protected function get_fields( array $config, TypeRegistry $type_registry ): array {
-
-		$fields = [];
-
-		if ( is_callable( $config['fields'] ) ) {
-			$fields = $config['fields']();
-		} elseif ( is_array( $config['fields'] ) ) {
-			$fields = $config['fields'];
-		}
-
-		if ( ! empty( $fields ) && is_array( $fields ) ) {
-			$type_name = $config['name'] ?? '';
-			if ( ! is_string( $type_name ) ) {
-				$type_name = '';
-			}
-			$fields = $this->prepare_fields( $fields, $type_name, $config, $type_registry );
-			$fields = $type_registry->prepare_fields( $fields, $type_name );
-		}
-
-		return $fields;
+	public static function get_kind(): string {
+		return 'input';
 	}
 
 	/**
-	 * Prepare_fields
+	 * {@inheritDoc}
 	 *
-	 * This function sorts the fields and applies a filter to allow for easily
-	 * extending/modifying the shape of the Schema for the type.
-	 *
-	 * @param array<string,array<string,mixed>> $fields
-	 * @param string                            $type_name
-	 * @param array<string,mixed>               $config
-	 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry
-	 * @return array<string,array<string,mixed>>
-	 *
-	 * @phpstan-param array<string,FieldConfig> $fields
-	 * @phpstan-return array<string,FieldConfig>
-	 * @since 0.0.5
+	 * Called by ::prepare_config()
 	 */
-	public function prepare_fields( array $fields, string $type_name, array $config, TypeRegistry $type_registry ) {
+	public function prepare( array $config ): array {
+		if ( ! isset( $config['fields'] ) ) {
+			return $config;
+		}
 
-		/**
-		 * Filter all object fields, passing the $typename as a param
-		 *
-		 * This is useful when several different types need to be easily filtered at once. . .for example,
-		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
-		 *
-		 * @param array<string,FieldConfig>         $fields        The array of fields for the object config
-		 * @param string                            $type_name     The name of the object type
-		 * @param array<string,mixed>               $config        The type config
-		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
-		 */
-		$fields = apply_filters( 'graphql_input_fields', $fields, $type_name, $config, $type_registry );
+		// Ensure the 'fields' key is set as a callable if it is not already.
+		$config['fields'] = static function () use ( $config ) {
+			$fields = is_callable( $config['fields'] ) ? $config['fields']() : $config['fields'];
 
-		/**
-		 * Filter once with lowercase, once with uppercase for Back Compat.
-		 */
-		$lc_type_name = lcfirst( $type_name );
-		$uc_type_name = ucfirst( $type_name );
+			$fields = self::prepare_fields( $fields, $config );
 
-		/**
-		 * Filter the fields with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array<string,FieldConfig> $fields        The array of fields for the object config
-		 * @param \WPGraphQL\Registry\TypeRegistry  $type_registry The TypeRegistry instance
-		 */
-		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $type_registry );
+			// Sort the fields alphabetically by key. This makes reading through docs much easier.
+			ksort( $fields );
+			return $fields;
+		};
 
-		/**
-		 * Filter the fields with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array<string,FieldConfig>            $fields        The array of fields for the object config
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The TypeRegistry instance
-		 */
-		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $type_registry );
-
-		/**
-		 * Sort the fields alphabetically by key. This makes reading through docs much easier
-		 *
-		 * @since 0.0.2
-		 */
-		ksort( $fields );
-
-		return $fields;
+		return $config;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * Called by ::validate_config()
+	 *
+	 * @throws \GraphQL\Error\UserError If the configuration is invalid.
+	 */
+	public function validate( array $config ): void {
+		// Values must be array or callable.
+		if ( ! isset( $config['fields'] ) || ( ! is_array( $config['fields'] ) && ! is_callable( $config['fields'] ) ) ) {
+			throw new \GraphQL\Error\UserError(
+				sprintf(
+					// translators: %s is the type name.
+					esc_html__( 'Input object type "%s" must have a "fields" array or callable.', 'wp-graphql' ),
+					esc_html( $config['name'] )
+				)
+			);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * Validates type config and throws if one of type options is invalid.
 	 *
 	 * This method is overridden from the parent GraphQL\Type\Definition\InputObjectType class

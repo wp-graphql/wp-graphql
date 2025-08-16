@@ -4,27 +4,40 @@ namespace WPGraphQL\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use WPGraphQL\Data\DataSource;
-use WPGraphQL\Registry\TypeRegistry;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface;
+use WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait;
+use WPGraphQL\Registry\TypeAdapters\WithFieldsTrait;
+use WPGraphQL\Registry\TypeAdapters\WithInterfacesTrait;
 
 /**
  * Class WPObjectType
  *
+ * phpcs:disable SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation -- for phpstan type hinting.
+ *
  * @phpstan-import-type ObjectConfig from \GraphQL\Type\Definition\ObjectType
  *
- * Object Types should extend this class to take advantage of the helper methods
- * and consistent filters.
+ * @phpstan-implements \WPGraphQL\Registry\TypeAdapters\TypeAdapterInterface<ObjectConfig>
+
+ * phpcs:enable
  *
  * @package WPGraphQL\Type
  * @since   0.0.5
  */
-class WPObjectType extends ObjectType {
-
-	use WPInterfaceTrait;
+class WPObjectType extends ObjectType implements TypeAdapterInterface {
+	/** @use \WPGraphQL\Registry\TypeAdapters\TypeAdapterTrait<ObjectConfig> */
+	use TypeAdapterTrait;
+	use WithInterfacesTrait;
+	use WithFieldsTrait;
 
 	/**
-	 * Holds the node_interface definition allowing WPObjectTypes
-	 * to easily define themselves as a node type by implementing
-	 * self::$node_interface
+	 * {@inheritDoc}
+	 */
+	public static function get_kind(): string {
+		return 'object';
+	}
+
+	/**
+	 * @deorecated @next-version
 	 *
 	 * @var array<string,mixed>|\WPGraphQL\Type\InterfaceType\Node $node_interface
 	 * @since 0.0.5
@@ -32,76 +45,21 @@ class WPObjectType extends ObjectType {
 	private static $node_interface;
 
 	/**
-	 * Instance of the Type Registry
+	 * Prepares the configuration before passing it to the graphql-php parent constructor.
 	 *
-	 * @var \WPGraphQL\Registry\TypeRegistry
+	 * @param array<string,mixed> $config
 	 */
-	public $type_registry;
+	public function __construct( array $config ) {
+		$config['name'] = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
 
-	/**
-	 * @var array<string, array<string, mixed>>
-	 */
-	public $fields;
+		$config = $this->prepare_config( $config );
 
-	/**
-	 * @var array<\GraphQL\Type\Definition\InterfaceType>
-	 */
-	public $interfaces = [];
-
-	/**
-	 * WPObjectType constructor.
-	 *
-	 * Sets up a WPObjectType instance with the given configuration and type registry.
-	 *
-	 * @param array<string, mixed>             $config The configuration array for setting up the WPObjectType.
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry The type registry to associate with the WPObjectType.
-	 *
-	 * @phpstan-param ObjectConfig $config
-	 *
-	 * @throws \Exception If there is an error during instantiation.
-	 * @since 0.0.5
-	 */
-	public function __construct( array $config, TypeRegistry $type_registry ) {
-
-		/**
-		 * Get the Type Registry
-		 */
-		$this->type_registry = $type_registry;
-
-		/**
-		 * Filter the config of WPObjectType
-		 *
-		 * @param ObjectConfig          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
-		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
-		 */
-		$config = apply_filters( 'graphql_wp_object_type_config', $config, $this );
-
-		$this->config = $config;
-
-		/**
-		 * Set the Types to start with capitals
-		 */
-		$name           = isset( $config['name'] ) ? ucfirst( $config['name'] ) : $this->inferName();
-		$config['name'] = apply_filters( 'graphql_type_name', $name, $config, $this );
-
-		/**
-		 * Set up the fields
-		 *
-		 * @return array<string, array<string, mixed>> $fields
-		 */
-		$config['fields'] = function () use ( $config ) {
-			return ! empty( $this->fields ) ? $this->fields : $this->get_fields( $config, $this->type_registry );
-		};
-
-		/**
-		 * Set up the Interfaces
-		 */
-		$config['interfaces'] = $this->getInterfaces();
+		$this->validate_config( $config );
 
 		/**
 		 * Run an action when the WPObjectType is instantiating
 		 *
-		 * @param array<string,mixed>          $config         Array of configuration options passed to the WPObjectType when instantiating a new type
+		 * @param ObjectConfig                 $config         Array of configuration options passed to the WPObjectType when instantiating a new type
 		 * @param \WPGraphQL\Type\WPObjectType $wp_object_type The instance of the WPObjectType class
 		 */
 		do_action( 'graphql_wp_object_type', $config, $this );
@@ -110,98 +68,77 @@ class WPObjectType extends ObjectType {
 	}
 
 	/**
-	 * Get the interfaces implemented by the ObjectType
+	 * {@inheritDoc}
 	 *
-	 * @return \GraphQL\Type\Definition\InterfaceType[]
+	 * Called by ::prepare_config()
 	 */
-	public function getInterfaces(): array {
-		if ( ! empty( $this->interfaces ) ) {
-			return $this->interfaces;
-		}
-		$this->interfaces = $this->get_implemented_interfaces();
-		return $this->interfaces;
+	public function prepare( array $config ): array {
+		// Do the interfaces first, so we can inherit their fields.
+		$config['interfaces'] = $this->prepare_interfaces( $config );
+
+		/**
+		 * Set up the fields
+		 *
+		 * @return array<string, array<string, mixed>> $fields
+		 */
+		$config['fields'] = static function () use ( $config ) {
+			$fields = is_callable( $config['fields'] ) ? $config['fields']() : $config['fields'];
+
+			// If fields is still empty, set it to an empty array.
+			$fields = is_array( $fields ) ? $fields : [];
+
+			$fields = self::prepare_fields( $fields, $config );
+
+			// Sort the fields alphabetically by key. This makes reading through docs much easier.
+			ksort( $fields );
+
+			return $fields;
+		};
+
+		return $config;
 	}
 
 	/**
-	 * Node_interface
+	 * {@inheritDoc}
 	 *
+	 * Called by ::validate_config()
+	 *
+	 * @throws \GraphQL\Error\UserError If the configuration is invalid.
+	 */
+	public function validate( array $config ): void {
+		// Values must be array or callable.
+		if ( ! isset( $config['fields'] ) || ( ! is_array( $config['fields'] ) && ! is_callable( $config['fields'] ) ) ) {
+			throw new \GraphQL\Error\UserError(
+				sprintf(
+					// translators: %s is the type name.
+					esc_html__( 'Object type "%s" must have a "fields" array or callable.', 'wp-graphql' ),
+					esc_html( $config['name'] )
+				)
+			);
+		}
+	}
+
+	/**
 	 * This returns the node_interface definition allowing
 	 * WPObjectTypes to easily implement the node_interface
 	 *
 	 * @return array<string,mixed>|\WPGraphQL\Type\InterfaceType\Node
 	 * @since 0.0.5
+	 *
+	 * @deprecated @next-version
 	 */
 	public static function node_interface() {
+		_deprecated_function(
+			__FUNCTION__,
+			'@since next-version',
+			esc_html__( 'Use DataSource::get_node_definition() instead.', 'wp-graphql' )
+		);
+
 		if ( null === self::$node_interface ) {
 			$node_interface       = DataSource::get_node_definition();
 			self::$node_interface = $node_interface['Node'];
 		}
 
 		return self::$node_interface;
-	}
-
-	/**
-	 * This function sorts the fields and applies a filter to allow for easily
-	 * extending/modifying the shape of the Schema for the type.
-	 *
-	 * @param array<string,mixed> $fields    The array of fields for the object config
-	 * @param string              $type_name The name of the type to prepare fields for
-	 * @param array<string,mixed> $config    The config for the Object Type
-	 *
-	 * @return array<string,mixed>
-	 * @since 0.0.5
-	 */
-	public function prepare_fields( $fields, $type_name, $config ) {
-
-		/**
-		 * Filter all object fields, passing the $typename as a param
-		 *
-		 * This is useful when several different types need to be easily filtered at once. . .for example,
-		 * if ALL types with a field of a certain name needed to be adjusted, or something to that tune
-		 *
-		 * @param array<string,mixed>              $fields         The array of fields for the object config
-		 * @param string                           $type_name      The name of the object type
-		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
-		 */
-		$fields = apply_filters( 'graphql_object_fields', $fields, $type_name, $this, $this->type_registry );
-
-		/**
-		 * Filter once with lowercase, once with uppercase for Back Compat.
-		 */
-		$lc_type_name = lcfirst( $type_name );
-		$uc_type_name = ucfirst( $type_name );
-
-		/**
-		 * Filter the fields with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array<string,mixed>              $fields         The array of fields for the object config
-		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
-		 */
-		$fields = apply_filters( "graphql_{$lc_type_name}_fields", $fields, $this, $this->type_registry );
-
-		/**
-		 * Filter the fields with the typename explicitly in the filter name
-		 *
-		 * This is useful for more targeted filtering, and is applied after the general filter, to allow for
-		 * more specific overrides
-		 *
-		 * @param array<string,mixed>              $fields         The array of fields for the object config
-		 * @param \WPGraphQL\Type\WPObjectType     $wp_object_type The WPObjectType Class
-		 * @param \WPGraphQL\Registry\TypeRegistry $type_registry  The Type Registry
-		 */
-		$fields = apply_filters( "graphql_{$uc_type_name}_fields", $fields, $this, $this->type_registry );
-
-		/**
-		 * This sorts the fields alphabetically by the key, which is super handy for making the schema readable,
-		 * as it ensures it's not output in just random order
-		 */
-		ksort( $fields );
-
-		return $fields;
 	}
 }

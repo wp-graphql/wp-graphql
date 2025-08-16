@@ -19,17 +19,17 @@ class AssertValidSchemaTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		parent::tearDown();
 	}
 
-	public function testValidSchema() {
-		$this->assertTrue( true );
-	}
-
-	// Validate schema.
-	public function testSchema() {
+	public function testValidSchema(): void {
 		try {
 			$request = new \WPGraphQL\Request();
 
-			$schema = WPGraphQL::get_schema();
 			$this->clearSchema();
+			$schema = WPGraphQL::get_schema();
+			$schema->assertValid();
+
+			$this->clearSchema();
+			$request = new \WPGraphQL\Request();
+			$schema  = WPGraphQL::get_schema();
 			$schema->assertValid();
 
 			// Assert true upon success.

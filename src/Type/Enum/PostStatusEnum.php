@@ -9,7 +9,7 @@ use WPGraphQL\Type\WPEnumType;
  *
  * @package WPGraphQL\Type\Enum
  *
- * @phpstan-import-type PartialWPEnumValueConfig from \WPGraphQL\Type\WPEnumType
+ * @phpstan-import-type WPEnumValueConfig from \WPGraphQL\Type\WPEnumType
  */
 class PostStatusEnum {
 
@@ -34,7 +34,7 @@ class PostStatusEnum {
 	/**
 	 * Returns the values for the enum.
 	 *
-	 * @return array<string,PartialWPEnumValueConfig>
+	 * @return array<string,WPEnumValueConfig>
 	 */
 	private static function get_values(): array {
 		$post_stati = get_post_stati();
