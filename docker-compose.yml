@@ -23,6 +23,7 @@ services:
       MYSQL_DATABASE:      wordpress
       MYSQL_USER:          wordpress
       MYSQL_PASSWORD:      wordpress
+    command: --ssl=0 --require-secure-transport=OFF
     ports:
       - '3306'
     networks:
