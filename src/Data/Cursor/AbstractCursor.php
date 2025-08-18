@@ -81,12 +81,16 @@ abstract class AbstractCursor {
 		 */
 		$offset = $this->get_query_var( 'graphql_' . $cursor . '_cursor' );
 
-		// Handle deprecated use of `graphql_cursor_offset`.
+		// Handle deprecated use of `graphql_cursor_offset`. @todo remove in 3.0.0
 		if ( empty( $offset ) ) {
 			$offset = $this->get_query_var( 'graphql_cursor_offset' );
 
 			if ( ! empty( $offset ) ) {
-				_doing_it_wrong( self::class . "::get_query_var('graphql_cursor_offset')", "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead.", '1.9.0' );
+				_doing_it_wrong(
+					self::class . "::get_query_var('graphql_cursor_offset')",
+					esc_html__( "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead. This will be removed in the next major release", 'wp-graphql' ),
+					'1.9.0'
+				);
 			}
 		}
 

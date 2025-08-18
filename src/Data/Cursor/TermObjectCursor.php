@@ -24,20 +24,6 @@ class TermObjectCursor extends AbstractCursor {
 	 */
 	protected $id_key = 't.term_id';
 
-	/**
-	 * Deprecated in favor of get_query_var()
-	 *
-	 * @param string $name The name of the query var to get
-	 *
-	 * @deprecated 1.9.0
-	 *
-	 * @return mixed|null
-	 */
-	public function get_query_arg( string $name ) {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_query_var()' );
-
-		return $this->get_query_var( $name );
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -68,18 +54,6 @@ class TermObjectCursor extends AbstractCursor {
 		$term = WP_Term::get_instance( $this->cursor_offset );
 
 		return $term instanceof WP_Term ? $term : null;
-	}
-
-	/**
-	 * Deprecated in favor of get_cursor_node().
-	 *
-	 * @return ?\WP_Term
-	 * @deprecated 1.9.0
-	 */
-	public function get_cursor_term() {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' );
-
-		return $this->cursor_node;
 	}
 
 	/**
@@ -220,5 +194,48 @@ class TermObjectCursor extends AbstractCursor {
 		$clause = $this->query_vars['meta_query'][ $by ];
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
+	}
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated 1.9.0
+	 * @codeCoverageIgnore
+	 *
+	 * @param string $name The name of the query var to get
+	 * @return mixed|null
+	 */
+	public function get_query_arg( string $name ) {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				self::class . '::get_query_var()'
+			),
+			'1.9.0'
+		);
+
+		return $this->get_query_var( $name );
+	}
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated 1.9.0
+	 * @codeCoverageIgnore
+	 *
+	 * @return ?\WP_Term
+	 */
+	public function get_cursor_term() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				self::class . '::get_cursor_node()'
+			),
+			'1.9.0'
+		);
+
+		return $this->cursor_node;
 	}
 }
