@@ -36,13 +36,13 @@ jobs:
 
       - name: Generate the Static Schema
         run: |
-          cd /tmp/wordpress/
-          # Output: /tmp/schema.graphql
+          cd /var/www/html
+          # Output: /var/www/html/schema.graphql
           wp graphql generate-static-schema
 
       - name: Upload schema as release artifact
         uses: softprops/action-gh-release@v2
         with:
-          files: /tmp/schema.graphql
+          files: /var/www/html/schema.graphql
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

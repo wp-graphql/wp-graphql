@@ -50,20 +50,16 @@ case "$subcommand" in
                     BUILD_NO_CACHE=--no-cache
                     ;;
                 a )
-                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/Dockerfile \
+                    --target app \
                     -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
                     --build-arg WP_VERSION=${WP_VERSION} \
                     --build-arg PHP_VERSION=${PHP_VERSION} \
                     .
                     ;;
                 t )
-                docker build $BUILD_NO_CACHE -f docker/app.Dockerfile \
-                    -t wp-graphql:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
-                    --build-arg WP_VERSION=${WP_VERSION} \
-                    --build-arg PHP_VERSION=${PHP_VERSION} \
-                    .
-
-                docker build $BUILD_NO_CACHE -f docker/testing.Dockerfile \
+                docker build $BUILD_NO_CACHE -f docker/Dockerfile \
+                    --target testing \
                     -t wp-graphql-testing:${TAG}-wp${WP_VERSION}-php${PHP_VERSION} \
                     --build-arg WP_VERSION=${WP_VERSION} \
                     --build-arg PHP_VERSION=${PHP_VERSION} \
@@ -82,12 +78,13 @@ case "$subcommand" in
                 WP_VERSION=${WP_VERSION} PHP_VERSION=${PHP_VERSION} docker compose up app
                     ;;
                 t )
-                docker compose run --rm \
+                docker compose run \
                     -e COVERAGE=${COVERAGE-} \
                     -e USING_XDEBUG=${USING_XDEBUG-} \
                     -e DEBUG=${DEBUG-} \
                     -e WP_VERSION=${WP_VERSION} \
                     -e PHP_VERSION=${PHP_VERSION} \
+                    -e SUITES=${SUITES-} \
                     testing --scale app=0
                     ;;
                 \? ) print_usage_instructions;;

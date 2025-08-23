@@ -42,18 +42,18 @@ This should output similar to the following:
 
 ```shell
 + install_wp
-+ '[' -d /tmp/wordpress/ ']'
-+ mkdir -p /tmp/wordpress/
++ '[' -d /var/www/html/ ']'
++ mkdir -p /var/www/html/
 + [[ latest == \n\i\g\h\t\l\y ]]
 + [[ latest == \t\r\u\n\k ]]
 + '[' latest == latest ']'
 + local ARCHIVE_NAME=latest
-+ download https://wordpress.org/latest.tar.gz /tmp/wordpress.tar.gz
++ download https://wordpress.org/latest.tar.gz /var/www/html.tar.gz
 ++ which curl
 + '[' /usr/bin/curl ']'
 + curl -s https://wordpress.org/latest.tar.gz
-+ tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C /tmp/wordpress/
-+ download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php /tmp/wordpress//wp-content/db.php
++ tar --strip-components=1 -zxmf /var/www/html.tar.gz -C /var/www/html/
++ download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php /var/www/html//wp-content/db.php
 ++ which curl
 + '[' /usr/bin/curl ']'
 + curl -s https://raw.github.com/markoheijnen/wp-mysqli/master/db.php
@@ -61,30 +61,30 @@ This should output similar to the following:
 ++ uname -s
 + [[ Darwin == \D\a\r\w\i\n ]]
 + local 'ioption=-i .bak'
-+ '[' '!' -d /tmp/wordpress-tests-lib ']'
-+ mkdir -p /tmp/wordpress-tests-lib
-+ svn co --quiet https://develop.svn.wordpress.org/tags/5.5.3/tests/phpunit/includes/ /tmp/wordpress-tests-lib/includes
-+ svn co --quiet https://develop.svn.wordpress.org/tags/5.5.3/tests/phpunit/data/ /tmp/wordpress-tests-lib/data
++ '[' '!' -d /var/www/html-tests-lib ']'
++ mkdir -p /var/www/html-tests-lib
++ svn co --quiet https://develop.svn.wordpress.org/tags/5.5.3/tests/phpunit/includes/ /var/www/html-tests-lib/includes
++ svn co --quiet https://develop.svn.wordpress.org/tags/5.5.3/tests/phpunit/data/ /var/www/html-tests-lib/data
 + '[' '!' -f wp-tests-config.php ']'
-+ download https://develop.svn.wordpress.org/tags/5.5.3/wp-tests-config-sample.php /tmp/wordpress-tests-lib/wp-tests-config.php
++ download https://develop.svn.wordpress.org/tags/5.5.3/wp-tests-config-sample.php /var/www/html-tests-lib/wp-tests-config.php
 ++ which curl
 + '[' /usr/bin/curl ']'
 + curl -s https://develop.svn.wordpress.org/tags/5.5.3/wp-tests-config-sample.php
-++ echo /tmp/wordpress/
+++ echo /var/www/html/
 ++ sed 's:/\+$::'
-+ WP_CORE_DIR=/tmp/wordpress/
-+ sed -i .bak 's:dirname( __FILE__ ) . '\''/src/'\'':'\''/tmp/wordpress//'\'':' /tmp/wordpress-tests-lib/wp-tests-config.php
-+ sed -i .bak s/youremptytestdbnamehere/wptests/ /tmp/wordpress-tests-lib/wp-tests-config.php
-+ sed -i .bak s/yourusernamehere/root/ /tmp/wordpress-tests-lib/wp-tests-config.php
-+ sed -i .bak s/yourpasswordhere/password/ /tmp/wordpress-tests-lib/wp-tests-config.php
-+ sed -i .bak 's|localhost|127.0.0.1|' /tmp/wordpress-tests-lib/wp-tests-config.php
++ WP_CORE_DIR=/var/www/html/
++ sed -i .bak 's:dirname( __FILE__ ) . '\''/src/'\'':'\''/var/www/html//'\'':' /var/www/html-tests-lib/wp-tests-config.php
++ sed -i .bak s/youremptytestdbnamehere/wptests/ /var/www/html-tests-lib/wp-tests-config.php
++ sed -i .bak s/yourusernamehere/root/ /var/www/html-tests-lib/wp-tests-config.php
++ sed -i .bak s/yourpasswordhere/password/ /var/www/html-tests-lib/wp-tests-config.php
++ sed -i .bak 's|localhost|127.0.0.1|' /var/www/html-tests-lib/wp-tests-config.php
 + wait_for_database_connection
 + set +ex
 + install_db
 + '[' true = true ']'
 + return 0
 + configure_wordpress
-+ cd /tmp/wordpress/
++ cd /var/www/html/
 + wp config create --dbname=wptests --dbuser=root --dbpass=password --dbhost=127.0.0.1 --skip-check --force=true
 Success: Generated 'wp-config.php' file.
 + wp core install --url=wpgraphql.test '--title=WPGraphQL Tests' --admin_user=admin --admin_password=password --admin_email=admin@wpgraphql.test --skip-email
@@ -93,9 +93,9 @@ WordPress is already installed.
 Success: Rewrite structure set.
 Success: Rewrite rules flushed.
 + activate_plugin
-+ '[' '!' -d /tmp/wordpress//wp-content/plugins/wp-graphql ']'
-+ ln -s /Users/your-machine/path/to/wp-graphql /tmp/wordpress//wp-content/plugins/wp-graphql
-+ cd /tmp/wordpress/
++ '[' '!' -d /var/www/html//wp-content/plugins/wp-graphql ']'
++ ln -s /Users/your-machine/path/to/wp-graphql /var/www/html//wp-content/plugins/wp-graphql
++ cd /var/www/html/
 + wp plugin activate wp-graphql
 Warning: Plugin 'wp-graphql' is already active.
 Success: Plugin already activated.

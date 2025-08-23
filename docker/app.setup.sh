@@ -10,9 +10,6 @@ fi
 
 set +u
 
-# Ensure mysql is loaded
-dockerize -wait tcp://${DB_HOST}:${DB_HOST_PORT:-3306} -timeout 1m
-
 # Config WordPress
 if [ ! -f "${WP_ROOT_FOLDER}/wp-config.php" ]; then
     wp config create \
@@ -32,14 +29,14 @@ wp config set AUTOMATIC_UPDATER_DISABLED true --allow-root
 
 # Install WP if not yet installed
 if ! $( wp core is-installed --allow-root ); then
-	wp core install \
-		--path="${WP_ROOT_FOLDER}" \
-		--url="${WP_URL}" \
-		--title='Test' \
-		--admin_user="${ADMIN_USERNAME}" \
-		--admin_password="${ADMIN_PASSWORD}" \
-		--admin_email="${ADMIN_EMAIL}" \
-		--allow-root
+    wp core install \
+        --path="${WP_ROOT_FOLDER}" \
+        --url="${WP_URL}" \
+        --title='Test' \
+        --admin_user="${ADMIN_USERNAME}" \
+        --admin_password="${ADMIN_PASSWORD}" \
+        --admin_email="${ADMIN_EMAIL}" \
+        --allow-root
 else
     # Set the WP url accordingly. If running the app vs running tests. Tests failing locally if already had app running, vice/versa.
     wp --allow-root option set SITEURL "${WP_URL}"

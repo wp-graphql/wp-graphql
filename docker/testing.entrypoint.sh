@@ -72,25 +72,15 @@ cd ${PROJECT_DIR}
 # Ensure Apache is running
 service apache2 start
 
-# Ensure everything is loaded
-dockerize \
-    -wait tcp://${DB_HOST}:${DB_HOST_PORT:-3306} \
-    -wait ${WP_URL} \
-    -timeout 1m
-
 # Download c3 for testing.
 if [ ! -f "$PROJECT_DIR/c3.php" ]; then
     echo "Downloading Codeception's c3.php"
     curl -L 'https://raw.github.com/Codeception/c3/2.0/c3.php' > "$PROJECT_DIR/c3.php"
 fi
 
-
-# Install the PHP dependencies
-echo "Running composer update"
-COMPOSER_MEMORY_LIMIT=-1 composer update
+# Install Composer dependencies
 echo "Running composer install"
 COMPOSER_MEMORY_LIMIT=-1 composer install --no-interaction
-
 
 # Install pcov/clobber if PHP7.1+
 if version_gt $PHP_VERSION 7.0 && [[ -n "$COVERAGE" ]] && [[ -z "$USING_XDEBUG" ]]; then
