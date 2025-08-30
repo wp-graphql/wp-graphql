@@ -834,4 +834,48 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 			$this->assertNull( $node['parentId'] );
 		}
 	}
+
+	public function testMenuItemsOrderOnlyAppliedWhenOrderByIsSet() {
+    $menu_location = 'test-order-location';
+    register_nav_menu($menu_location, 'Test Order Location');
+    WPGraphQL::clear_schema();
+
+    // Create menu items
+    $created = $this->create_menu_items('order-test-menu', $menu_location, 3);
+    $query   = $this->getQuery();
+
+    // CASE 1: Query WITHOUT `orderby`
+    $variables = [
+        'where' => [
+            'location' => WPEnumType::get_safe_name($menu_location),
+        ],
+    ];
+    $actual_without_orderby = $this->graphql(compact('query', 'variables'));
+
+    // Assert valid response
+    $this->assertArrayNotHasKey('errors', $actual_without_orderby);
+
+    // Extract orders
+    $orders_without = array_map(
+        static function ($node) {
+            return $node['node']['order'];
+        },
+        $actual_without_orderby['data']['menuItems']['edges']
+    );
+
+    // CASE 2: Query WITH `orderby` set to "ID" and order ASC
+    $variables['where']['orderby'] = 'ID';
+    $variables['where']['order'] = 'ASC';
+    $actual_with_orderby = $this->graphql(compact('query', 'variables'));
+
+    $orders_with = array_map(
+        static function ($node) {
+            return $node['node']['order'];
+        },
+        $actual_with_orderby['data']['menuItems']['edges']
+    );
+
+    // Validate different behavior
+    $this->assertNotEquals($orders_without, $orders_with);
+  }
 }
