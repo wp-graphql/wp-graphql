@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.3.5 - 2025-09-01
+
+### Bug Fixes
+
+- fix: prevent changeset deletions from being synced back to develop ([#3412](https://github.com/jasonbahl/automation-tests/pull/3412))
+- fix: wp 6.8 test failures ([#3410](https://github.com/jasonbahl/automation-tests/pull/3410))
+- fix: Move graphql_root_value filter execution to runtime for access to request params ([#3406](https://github.com/jasonbahl/automation-tests/pull/3406))
+
+### Other Changes
+
+- chore: update npm deps ([#3408](https://github.com/jasonbahl/automation-tests/pull/3408))
+- chore: update composer deps ([#3407](https://github.com/jasonbahl/automation-tests/pull/3407))
+- refactor: prepare deprecations for v3 removal ([#3400](https://github.com/jasonbahl/automation-tests/pull/3400))
+
+
+
 ## v2.3.4 - 2025-08-15
 
 ### Bug Fixes
