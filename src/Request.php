@@ -159,7 +159,6 @@ class Request {
 		// Get the App Context
 		$this->app_context = \WPGraphQL::get_app_context();
 
-		$this->root_value       = $this->get_root_value();
 		$this->validation_rules = $this->get_validation_rules();
 		$this->field_resolver   = $this->get_field_resolver();
 
@@ -651,7 +650,7 @@ class Request {
 			$result = GraphQL::executeQuery(
 				$this->schema,
 				$query,
-				$this->root_value,
+				$this->get_root_value(),
 				$this->app_context,
 				$params->variables ?? null,
 				$params->operation ?? null,
@@ -854,8 +853,8 @@ class Request {
 			->setValidationRules( $this->validation_rules )
 			->setQueryBatching( $this->is_batch_queries_enabled() );
 
-		if ( ! empty( $this->root_value ) ) {
-			$config->setRootValue( $this->root_value );
+		if ( ! empty( $this->get_root_value() ) ) {
+			$config->setRootValue( $this->get_root_value() );
 		}
 
 		if ( ! empty( $this->field_resolver ) ) {

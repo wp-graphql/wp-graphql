@@ -213,20 +213,6 @@ class AppContext {
 	/**
 	 * Retrieves loader assigned to $key
 	 *
-	 * @param string $key The name of the loader to get
-	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 *
-	 * @deprecated Use get_loader instead.
-	 */
-	public function getLoader( $key ) {
-		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_loader()' );
-		return $this->get_loader( $key );
-	}
-
-	/**
-	 * Retrieves loader assigned to $key
-	 *
 	 * @template T of key-of<self::DEFAULT_LOADERS>
 	 *
 	 * @param T|string $key The name of the loader to get.
@@ -270,26 +256,15 @@ class AppContext {
 			return $this->$key;
 		}
 
-		// Warn about accessing the loaders property directly.
+		/** @todo Remove in v3.0.0 */
 		_doing_it_wrong(
 			__METHOD__,
-			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
-			'2.3.2' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in the next major version of WPGraphQL. Use AppContext::get_loader() instead.', 'wp-graphql' ),
+			'2.3.2'
 		);
 
 		// Return the actual loaders array.
 		return $this->loaders;
-	}
-
-	/**
-	 * Returns the $args for the connection the field is a part of
-	 *
-	 * @deprecated use get_connection_args() instead
-	 * @return mixed[]|mixed
-	 */
-	public function getConnectionArgs() {
-		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_connection_args()' );
-		return $this->get_connection_args();
 	}
 
 	/**
@@ -315,10 +290,64 @@ class AppContext {
 	}
 
 	/**
-	 * @return mixed|string|null
+	 * @todo remove in v3.0.0
+	 * @deprecated use get_connection_args() instead
+	 * @codeCoverageIgnore
+	 *
+	 * @return mixed[]|mixed
+	 */
+	public function getConnectionArgs() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name.
+				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( self::class . '::get_connection_args()' )
+			),
+			'0.8.4',
+		);
+		return $this->get_connection_args();
+	}
+
+	/**
+	 * @todo Remove in v3.0.0
+	 * @deprecated Use get_loader instead.
+	 * @codeCoverageIgnore
+	 *
+	 * @param string $key The name of the loader to get
+	 *
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+	 */
+	public function getLoader( $key ) {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name.
+				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( self::class . '::get_loader()' )
+			),
+			'0.8.4',
+		);
+		return $this->get_loader( $key );
+	}
+
+	/**
+	 * @todo Remove in v3.0.0
 	 * @deprecated use get_current_connection instead.
+	 * @codeCoverageIgnore
+	 *
+	 * @return mixed|string|null
 	 */
 	public function getCurrentConnection() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name.
+				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( self::class . '::get_current_connection()' )
+			),
+			'0.8.4',
+		);
 		return $this->get_current_connection();
 	}
 }

@@ -58,10 +58,6 @@ class RequireAuthentication extends QuerySecurityRule {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @param \GraphQL\Validator\QueryValidationContext $context
-	 *
-	 * @return array<string,array<string,callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null)>|(callable(\GraphQL\Language\AST\Node): (\GraphQL\Language\VisitorOperation|void|false|null))>
 	 */
 	public function getVisitor( \GraphQL\Validator\QueryValidationContext $context ): array {
 		$allowed_root_fields = [];
