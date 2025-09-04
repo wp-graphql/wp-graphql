@@ -1686,8 +1686,10 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( in_array( $src, $sources, true ) );
 	}
 
-		// see: https://github.com/wp-graphql/wp-graphql/issues/3397
-	public function testPrintInlineScriptDoesNotBreakEnqueuedScriptsWithFix() {
+		/**
+		 * See: https://github.com/wp-graphql/wp-graphql/issues/3397
+		 */
+		public function testPrintInlineScriptDoesNotBreakEnqueuedScriptsWithFix() {
 
 		$handle = 'test-print-inline-script';
 		$src    = 'test-print-inline-script.js';
