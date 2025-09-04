@@ -190,6 +190,7 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 			'objectIds'           => 'object_ids',
 			'hideEmpty'           => 'hide_empty',
 			'excludeTree'         => 'exclude_tree',
+			// @todo remove in 3.0.0
 			'termTaxonomId'       => 'term_taxonomy_id',
 			'termTaxonomyId'      => 'term_taxonomy_id',
 			'nameLike'            => 'name__like',
@@ -204,14 +205,10 @@ class TermObjectConnectionResolver extends AbstractConnectionResolver {
 		$args       = $this->get_args();
 		$where_args = ! empty( $args['where'] ) ? $args['where'] : null;
 
-		// Deprecate usage of 'termTaxonomId'.
-		if ( ! empty( $where_args['termTaxonomId'] ) ) {
-			_deprecated_argument( 'where.termTaxonomId', '1.11.0', 'The `termTaxonomId` where arg is deprecated. Use `termTaxonomyId` instead.' );
-
-			// Only convert value if 'termTaxonomyId' isnt already set.
-			if ( empty( $where_args['termTaxonomyId'] ) ) {
-				$where_args['termTaxonomyId'] = $where_args['termTaxonomId'];
-			}
+		// Only convert value if 'termTaxonomyId' isnt already set.
+		// @todo Remove in 3.0.0
+		if ( ! empty( $where_args['termTaxonomId'] ) && empty( $where_args['termTaxonomyId'] ) ) {
+			$where_args['termTaxonomyId'] = $where_args['termTaxonomId'];
 		}
 
 		/**

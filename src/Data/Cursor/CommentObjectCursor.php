@@ -24,9 +24,13 @@ class CommentObjectCursor extends AbstractCursor {
 	 * @param array<string,mixed>|\WP_Comment_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
-		// Handle deprecated use of $query.
+		// @todo remove in 3.0.0
 		if ( $query_vars instanceof \WP_Comment_Query ) {
-			_doing_it_wrong( __METHOD__, 'The first argument should be an array of $query_vars, not the WP_Comment_Query object', '1.9.0' );
+			_doing_it_wrong(
+				__METHOD__,
+				esc_html__( 'The first argument should be an array of $query_vars, not the WP_Query object. This will throw an error in the next major release', 'wp-graphql' ),
+				'1.9.0'
+			);
 			$query_vars = $query_vars->query_vars;
 		}
 

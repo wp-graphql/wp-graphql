@@ -4,21 +4,20 @@ namespace WPGraphQL\Type\Union;
 use WPGraphQL\Registry\TypeRegistry;
 
 /**
- * Class TermObjectUnion
- *
- * @package WPGraphQL\Type\Union
- * @deprecated use TermNode interface instead
+ * @todo Remove in 3.0.0
+ * @deprecated 1.14.1
+ * @codeCoverageIgnore
  */
 class TermObjectUnion {
 
 	/**
 	 * Registers the Type
 	 *
-	 * @param \WPGraphQL\Registry\TypeRegistry $type_registry
+	 * @param ?\WPGraphQL\Registry\TypeRegistry $type_registry
 	 *
 	 * @throws \Exception
 	 */
-	public static function register_type( TypeRegistry $type_registry ): void {
+	public static function register_type( ?TypeRegistry $type_registry = null ): void {
 		register_graphql_union_type(
 			'TermObjectUnion',
 			[
@@ -27,14 +26,18 @@ class TermObjectUnion {
 				'description' => static function () {
 					return __( 'Union between the Category, Tag and PostFormatPost types', 'wp-graphql' );
 				},
-				'resolveType' => static function ( $value ) use ( $type_registry ) {
-					_doing_it_wrong( 'TermObjectUnion', esc_attr__( 'The TermObjectUnion GraphQL type is deprecated. Use the TermNode interface instead.', 'wp-graphql' ), '1.14.1' );
+				'resolveType' => static function ( $value ) {
+					_doing_it_wrong(
+						self::class,
+						esc_attr__( 'The TermObjectUnion GraphQL type is deprecated and will be removed in the next version of WordPress. Use the TermNode interface instead.', 'wp-graphql' ),
+						'1.14.1'
+					);
 
 					$type = null;
 					if ( isset( $value->taxonomyName ) ) {
 						$tax_object = get_taxonomy( $value->taxonomyName );
 						if ( isset( $tax_object->graphql_single_name ) ) {
-							$type = $type_registry->get_type( $tax_object->graphql_single_name );
+							$type = \WPGraphQL::get_type_registry()->get_type( $tax_object->graphql_single_name );
 						}
 					}
 

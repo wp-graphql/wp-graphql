@@ -206,21 +206,6 @@ class Router {
 	}
 
 	/**
-	 * DEPRECATED: Returns whether a request is a GraphQL Request. Deprecated
-	 * because it's name is a bit misleading. This will only return if the request
-	 * is a GraphQL request coming from the HTTP endpoint. Internal GraphQL requests
-	 * won't be able to use this to properly determine if the request is a GraphQL request
-	 * or not.
-	 *
-	 * @return bool
-	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
-	 */
-	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' );
-		return self::is_graphql_http_request();
-	}
-
-	/**
 	 * This resolves the http request and ensures that WordPress can respond with the appropriate
 	 * JSON response instead of responding with a template from the standard WordPress Template
 	 * Loading process
@@ -585,5 +570,25 @@ class Router {
 		 * Set the response headers
 		 */
 		self::set_headers();
+	}
+
+	/**
+	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
+	 * @todo remove in v3.0
+	 * @codeCoverageIgnore
+	 *
+	 * @return bool
+	 */
+	public static function is_graphql_request() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				/* translators: %s is the class name */
+				esc_html__( 'This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( self::class . '::is_graphql_http_request()' )
+			),
+			'0.4.1'
+		);
+		return self::is_graphql_http_request();
 	}
 }
