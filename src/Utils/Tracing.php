@@ -125,7 +125,7 @@ class Tracing {
 			return;
 		}
 
-		add_filter( 'do_graphql_request', [ $this, 'init_trace' ] );
+		add_action( 'do_graphql_request', [ $this, 'init_trace' ] );
 		add_action( 'graphql_execute', [ $this, 'end_trace' ], 99, 0 );
 		add_filter( 'graphql_access_control_allow_headers', [ $this, 'return_tracing_headers' ] );
 		add_filter(
@@ -143,14 +143,10 @@ class Tracing {
 
 	/**
 	 * Sets the timestamp and microtime for the start of the request
-	 *
-	 * @return float
 	 */
-	public function init_trace() {
+	public function init_trace(): void {
 		$this->request_start_microtime = microtime( true );
 		$this->request_start_timestamp = $this->format_timestamp( $this->request_start_microtime );
-
-		return $this->request_start_timestamp;
 	}
 
 	/**
