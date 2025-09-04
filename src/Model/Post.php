@@ -809,7 +809,6 @@ class Post extends Model {
 					'sourceUrl'           => function () {
 						return $this->get_source_url_by_size( 'full' );
 					},
-					// @todo Remove in 1.30.0.
 					'sourceUrlsBySize'    => function () {
 						_doing_it_wrong(
 							__METHOD__,
