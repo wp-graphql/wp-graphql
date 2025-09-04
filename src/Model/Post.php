@@ -812,8 +812,8 @@ class Post extends Model {
 					// @todo Remove in 1.30.0.
 					'sourceUrlsBySize'    => function () {
 						_doing_it_wrong(
-							self::class . '->sourceUrlsBySize',
-							'Use the `sourceUrlBySize` callable instead. This will be removed in the next major release.',
+							__METHOD__,
+							'`sourceUrlsBySize` is deprecated. Use the `sourceUrlBySize` callable instead.',
 							'1.29.1'
 						);
 
