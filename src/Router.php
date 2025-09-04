@@ -12,10 +12,10 @@ use WP_User;
  * @package WPGraphQL
  * @since   0.0.1
  *
- * phpcs:disable -- PHPStan annotation. 
+ * phpcs:disable -- PHPStan annotation.
  * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
  * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
- * 
+ *
  * @phpstan-type WPGraphQLResult = SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
  * phpcs:enable
  */
@@ -480,7 +480,14 @@ class Router {
 		self::$request  = new Request();
 
 		try {
+			// Start output buffering to prevent any unwanted output from breaking the JSON response
+			// This addresses issues like plugins calling wp_print_inline_script_tag() during wp_enqueue_scripts
+			ob_start();
+
 			$response = self::$request->execute_http();
+
+			// Discard any captured output that could break the JSON response
+			ob_end_clean();
 
 			// Get the operation params from the request.
 			$params         = self::$request->get_params();
@@ -488,6 +495,10 @@ class Router {
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
 			$variables      = isset( $params->variables ) ? $params->variables : null;
 		} catch ( \Throwable $error ) {
+			// Make sure to clean up the output buffer even if there's an exception
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
 
 			/**
 			 * If there are errors, set the status to 500

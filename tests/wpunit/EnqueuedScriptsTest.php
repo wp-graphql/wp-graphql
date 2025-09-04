@@ -1685,4 +1685,46 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertTrue( in_array( $handle, $handles, true ) );
 		$this->assertTrue( in_array( $src, $sources, true ) );
 	}
+
+		// see: https://github.com/wp-graphql/wp-graphql/issues/3397
+	public function testPrintInlineScriptDoesNotBreakEnqueuedScriptsWithFix() {
+
+		$handle = 'test-print-inline-script';
+		$src    = 'test-print-inline-script.js';
+
+		add_action(
+			'wp_enqueue_scripts',
+			static function () use ( $handle, $src ) {
+				// This call to wp_print_inline_script_tag would break the JSON response
+				// before the fix, but is now handled by Router-level output buffering
+				wp_print_inline_script_tag( 'window.Whoops = 1;' );
+				wp_register_script( $handle, $src );
+				wp_enqueue_script( $handle );
+			}
+		);
+
+		// Execute the GraphQL query and capture any output that would break JSON
+		ob_start();
+		$actual = $this->get_post_query( $this->post_id );
+		$captured_output = ob_get_clean();
+
+		codecept_debug( 'Captured output: ' . var_export( $captured_output, true ) );
+		codecept_debug( 'GraphQL response: ', $actual );
+
+		// The Router-level output buffering should handle unwanted HTML output
+		// The GraphQL response should be valid and contain the expected data
+		$this->assertArrayNotHasKey( 'errors', $actual, 'GraphQL response should not have errors when fix is applied' );
+		$this->assertArrayHasKey( 'post', $actual['data'] );
+		$this->assertArrayHasKey( 'enqueuedScripts', $actual['data']['post'] );
+		$this->assertArrayHasKey( 'nodes', $actual['data']['post']['enqueuedScripts'] );
+
+		// Verify the script was properly enqueued despite the inline script output
+		$scripts = $actual['data']['post']['enqueuedScripts']['nodes'];
+		$handles = wp_list_pluck( $scripts, 'handle' );
+		$this->assertTrue( in_array( $handle, $handles, true ), 'The test script should be properly enqueued' );
+
+		// The key test: we get a valid GraphQL response despite plugins outputting HTML during wp_enqueue_scripts
+		$this->assertIsArray( $actual, 'GraphQL should return a valid array response' );
+		$this->assertArrayHasKey( 'data', $actual, 'GraphQL response should have data key' );
+	}
 }
