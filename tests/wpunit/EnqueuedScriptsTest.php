@@ -1727,4 +1727,5 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertIsArray( $actual, 'GraphQL should return a valid array response' );
 		$this->assertArrayHasKey( 'data', $actual, 'GraphQL response should have data key' );
 	}
+
 }
