@@ -634,6 +634,11 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	 * Test plugins outputting HTML during mutation-specific hooks
 	 */
 	public function testGraphqlMutationHooksOutputDoesNotBreakResponse() {
+		// Set up user with proper capabilities
+		wp_set_current_user( $this->factory()->user->create( [
+			'role' => 'administrator'
+		] ) );
+
 		// Hook into post mutation hooks that plugins might use for debugging
 		add_action( 'graphql_post_object_mutation_update_additional_data', function( $post_id, $input, $post_type_object, $mutation_name ) {
 			echo '<div class="mutation-debug">Post mutation: ' . $mutation_name . ' for post ' . $post_id . '</div>';
@@ -677,6 +682,11 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	 * This simulates real-world scenarios where multiple plugins might be outputting
 	 */
 	public function testComplexNestedWPGraphQLHooksOutputDoesNotBreakResponse() {
+		// Create some test posts to ensure we have data to query
+		$this->factory()->post->create_many( 3, [
+			'post_status' => 'publish'
+		] );
+
 		// Multiple plugins hooking into various WPGraphQL lifecycle events
 		add_action( 'init_graphql_request', function() {
 			echo '<script>window.debugPlugin1 = "init_request";</script>';
