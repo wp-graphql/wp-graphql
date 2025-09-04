@@ -1687,6 +1687,8 @@ class EnqueuedScriptsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 		/**
+		 * Verifies that output from wp_print_inline_script_tag during wp_enqueue_scripts
+		 * does not break the GraphQL JSON response, due to Router-level output buffering.
 		 * See: https://github.com/wp-graphql/wp-graphql/issues/3397
 		 */
 		public function testPrintInlineScriptDoesNotBreakEnqueuedScriptsWithFix() {
