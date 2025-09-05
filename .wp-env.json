@@ -15,7 +15,7 @@
     "tests": {
       "plugins": [
         "./.",
-        "./tests/e2e/plugins/settings-page-spec/"
+        "./tests/e2e/plugins/settings-page-spec"
       ],
       "config": {
         "FS_METHOD": "direct"

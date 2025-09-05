@@ -1,8 +1,19 @@
 <?php
 /**
  * Plugin Name: Settings Page Spec
+ * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: This plugin is specifically used for end-to-end (e2e) testing of the WPGraphQL plugin. It registers settings sections and fields for testing purposes.
+ * Version: 1.0.0
+ * Author: WPGraphQL Team
+ * License: GPL-3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: settings-page-spec
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Register settings sections and fields for testing.
 add_action(
