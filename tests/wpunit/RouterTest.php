@@ -151,12 +151,6 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 	// }
 
 	/**
-	 * Test that Router-level output buffering prevents HTML from breaking GraphQL responses
-	 * This addresses issue #3397 where plugins outputting HTML during GraphQL execution
-	 * would corrupt JSON responses
-	 */
-
-	/**
 	 * Test that content rendering still works correctly with Router-level output buffering
 	 */
 	public function testContentRenderingWorksWithRouterOutputBuffering() {
