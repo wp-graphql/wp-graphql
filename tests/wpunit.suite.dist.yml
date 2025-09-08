@@ -13,10 +13,18 @@ modules:
     WPDb:
       cleanup: false
     WPLoader:
-      multisite: '%MULTISITE%'
-      plugins:
-        - wp-graphql/wp-graphql.php
+      wpRootFolder: "C:/xampp/htdocs/wordpress"  
+      dbName: "wp_graphql_test"   
+      dbHost: "127.0.0.1" 
+      dbUser: "root"   
+      dbPassword: ""                              
+      tablePrefix: "wp_"
+      multisite: '%MULTISITE%'                        
+      # multisite: false
+      # plugins:
+      #   - wp-graphql/wp-graphql.php
       activatePlugins:
         - wp-graphql/wp-graphql.php
-      configFile:
-        - 'tests/_data/config.php'
+      configFile: "tests/_data/config.php"
+      bootstrap: _support/bootstrap.php
+
