@@ -59,7 +59,6 @@ function readChangesets() {
     return [];
   }
 
-  // Only read changesets from the main directory, not from the archive
   const changesetFiles = glob.sync('*.md', { cwd: changesetDir });
 
   if (changesetFiles.length === 0) {
