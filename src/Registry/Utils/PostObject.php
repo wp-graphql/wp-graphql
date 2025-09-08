@@ -136,35 +136,6 @@ class PostObject {
 			];
 		}
 
-		// Previews.
-		if ( ! in_array( $post_type_object->name, [ 'attachment', 'revision' ], true ) ) {
-			$connections['preview'] = [
-				'toType'             => $post_type_object->graphql_single_name,
-				'connectionTypeName' => ucfirst( $post_type_object->graphql_single_name ) . 'ToPreviewConnection',
-				'oneToOne'           => true,
-				'deprecationReason'  => ( true === $post_type_object->publicly_queryable || true === $post_type_object->public ) ? null
-					: sprintf(
-						// translators: %s is the post type's GraphQL name.
-						__( 'The "%s" Type is not publicly queryable and does not support previews. This field will be removed in the future.', 'wp-graphql' ),
-						WPGraphQL\Utils\Utils::format_type_name( $post_type_object->graphql_single_name )
-					),
-				'resolve'            => static function ( Post $post, $args, AppContext $context, ResolveInfo $info ) {
-					if ( $post->isRevision ) {
-						return null;
-					}
-
-					if ( empty( $post->previewRevisionDatabaseId ) ) {
-						return null;
-					}
-
-					$resolver = new PostObjectConnectionResolver( $post, $args, $context, $info, 'revision' );
-					$resolver->set_query_arg( 'p', $post->previewRevisionDatabaseId );
-
-					return $resolver->one_to_one()->get_connection();
-				},
-			];
-		}
-
 		// Revisions.
 		if ( true === post_type_supports( $post_type_object->name, 'revisions' ) ) {
 			$connections['revisions'] = [
@@ -239,43 +210,6 @@ class PostObject {
 					$resolver->set_query_arg( 'object_ids', absint( $object_id ) );
 
 					return $resolver->get_connection();
-				},
-			];
-		}
-
-		// Deprecated connections.
-		if ( ! $post_type_object->hierarchical &&
-			! in_array(
-				$post_type_object->name,
-				[
-					'attachment',
-					'revision',
-				],
-				true
-			) ) {
-			$connections['ancestors'] = [
-				'toType'            => $post_type_object->graphql_single_name,
-				'description'       => static function () {
-					return __( 'The ancestors of the content node.', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'This content type is not hierarchical and typically will not have ancestors', 'wp-graphql' );
-				},
-				'resolve'           => static function () {
-					return null;
-				},
-			];
-			$connections['parent']    = [
-				'toType'            => $post_type_object->graphql_single_name,
-				'oneToOne'          => true,
-				'description'       => static function () {
-					return __( 'The parent of the content node.', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'This content type is not hierarchical and typically will not have a parent', 'wp-graphql' );
-				},
-				'resolve'           => static function () {
-					return null;
 				},
 			];
 		}

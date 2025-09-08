@@ -23,7 +23,7 @@
 	],
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"webonyx/graphql-php": "15.20.0",
+		"webonyx/graphql-php": "15.24.0",
 		"ivome/graphql-relay-php": "0.7.0",
 		"appsero/client": "2.0.4"
 	},
@@ -68,6 +68,7 @@
 			"WPGraphQL\\": "src/"
 		},
 		"classmap": [
+			"deprecated/",
 			"src/WPGraphQL.php"
 		]
 	},

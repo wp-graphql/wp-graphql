@@ -117,9 +117,6 @@ use WPGraphQL\Type\ObjectType\Taxonomy;
 use WPGraphQL\Type\ObjectType\Theme;
 use WPGraphQL\Type\ObjectType\User;
 use WPGraphQL\Type\ObjectType\UserRole;
-use WPGraphQL\Type\Union\MenuItemObjectUnion;
-use WPGraphQL\Type\Union\PostObjectUnion;
-use WPGraphQL\Type\Union\TermObjectUnion;
 use WPGraphQL\Type\WPConnectionType;
 use WPGraphQL\Type\WPEnumType;
 use WPGraphQL\Type\WPInputObjectType;
@@ -387,11 +384,6 @@ class TypeRegistry {
 		DateQueryInput::register_type();
 		PostObjectsConnectionOrderbyInput::register_type();
 		UsersConnectionOrderbyInput::register_type();
-
-		// Deprecated types.
-		MenuItemObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
-		PostObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
-		TermObjectUnion::register_type( $this ); /* @phpstan-ignore staticMethod.deprecatedClass */
 
 		/**
 		 * Register core connections
