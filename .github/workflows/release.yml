@@ -228,6 +228,16 @@ jobs:
           # Fetch all branches
           git fetch origin
 
+          # Determine the current branch and ensure we're on develop for the first part
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "Current branch: $CURRENT_BRANCH"
+
+          # If we're not on develop, switch to it
+          if [[ "$CURRENT_BRANCH" != "develop" ]]; then
+            echo "Switching to develop branch..."
+            git checkout -B develop origin/develop
+          fi
+
           # First commit changes to develop
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "Committing changes to develop first"
