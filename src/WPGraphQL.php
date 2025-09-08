@@ -10,7 +10,6 @@ use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
 use WPGraphQL\Registry\TypeRegistry;
 use WPGraphQL\Router;
-use WPGraphQL\Type\WPObjectType;
 use WPGraphQL\Utils\InstrumentSchema;
 use WPGraphQL\Utils\Preview;
 
@@ -83,6 +82,7 @@ final class WPGraphQL {
 			self::$instance->actions();
 			self::$instance->filters();
 			self::$instance->upgrade();
+			self::$instance->deprecated();
 		}
 
 		/**
@@ -366,32 +366,6 @@ final class WPGraphQL {
 		);
 
 		/**
-		 * Adds back compat support for the `graphql_object_type_interfaces` filter which was renamed
-		 * to support both ObjectTypes and InterfaceTypes
-		 *
-		 * @deprecated
-		 */
-		add_filter(
-			'graphql_type_interfaces',
-			static function ( $interfaces, $config, $type ) {
-				if ( $type instanceof WPObjectType ) {
-					/**
-					 * Filters the interfaces applied to an object type
-					 *
-					 * @param string[]                                                     $interfaces List of interfaces applied to the Object Type
-					 * @param array<string,mixed>                                          $config     The config for the Object Type
-					 * @param \WPGraphQL\Type\WPInterfaceType|\WPGraphQL\Type\WPObjectType $type       The Type instance
-					 */
-					return apply_filters_deprecated( 'graphql_object_type_interfaces', [ $interfaces, $config, $type ], '1.4.1', 'graphql_type_interfaces' );
-				}
-
-				return $interfaces;
-			},
-			10,
-			3
-		);
-
-		/**
 		 * Prevent WPML from redirecting within WPGraphQL requests
 		 *
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/1626#issue-769089073
@@ -408,6 +382,14 @@ final class WPGraphQL {
 			10,
 			1
 		);
+	}
+
+	/**
+	 * Private function to register deprecated functionality.
+	 */
+	private function deprecated(): void {
+		$deprecated = new WPGraphQL\Deprecated();
+		$deprecated->register();
 	}
 
 	/**
@@ -674,7 +656,7 @@ final class WPGraphQL {
 	public static function get_allowed_post_types( $output = 'names', $args = [] ): array {
 		// Support deprecated param order.
 		if ( is_array( $output ) ) {
-			_deprecated_argument( __METHOD__, '1.8.1', '$args should be passed as the second parameter.' );
+			_deprecated_argument( __METHOD__, '1.8.1', 'Passing `$args` to the first parameter will no longer be supported in the next major version of WPGraphQL.' );
 			$args   = $output;
 			$output = 'names';
 		}

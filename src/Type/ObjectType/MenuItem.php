@@ -204,64 +204,6 @@ class MenuItem {
 								return __( 'The locations the menu item\'s Menu is assigned to', 'wp-graphql' );
 							},
 						],
-						'connectedObject'  => [
-							'type'              => 'MenuItemObjectUnion',
-							'deprecationReason' => static function () {
-								return __( 'Deprecated in favor of the connectedNode field', 'wp-graphql' );
-							},
-							'description'       => static function () {
-								return __( 'The object connected to this menu item.', 'wp-graphql' );
-							},
-							'resolve'           => static function ( $menu_item, array $args, AppContext $context, $info ) {
-								$object_id   = intval( get_post_meta( $menu_item->menuItemId, '_menu_item_object_id', true ) );
-								$object_type = get_post_meta( $menu_item->menuItemId, '_menu_item_type', true );
-
-								switch ( $object_type ) {
-									// Post object
-									case 'post_type':
-										$resolved_object = $context->get_loader( 'post' )->load_deferred( $object_id );
-										break;
-
-									// Taxonomy term
-									case 'taxonomy':
-										$resolved_object = $context->get_loader( 'term' )->load_deferred( $object_id );
-										break;
-									default:
-										$resolved_object = null;
-										break;
-								}
-
-								/**
-								 * Allow users to override how nav menu items are resolved.
-								 * This is useful since we often add taxonomy terms to menus
-								 * but would prefer to represent the menu item in other ways,
-								 * e.g., a linked post object (or vice-versa).
-								 *
-								 * @param \WP_Post|\WP_Term                    $resolved_object Post or term connected to MenuItem
-								 * @param array<string,mixed>                  $args            Array of arguments input in the field as part of the GraphQL query
-								 * @param \WPGraphQL\AppContext                $context         Object containing app context that gets passed down the resolve tree
-								 * @param \GraphQL\Type\Definition\ResolveInfo $info            Info about fields passed down the resolve tree
-								 * @param int                                  $object_id       Post or term ID of connected object
-								 * @param string                               $object_type     Type of connected object ("post_type" or "taxonomy")
-								 *
-								 * @since 0.0.30
-								 */
-								return apply_filters_deprecated(
-									'graphql_resolve_menu_item',
-									[
-										$resolved_object,
-										$args,
-										$context,
-										$info,
-										$object_id,
-										$object_type,
-									],
-									'1.22.0',
-									'graphql_pre_resolve_menu_item_connected_node',
-									__( 'Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead.', 'wp-graphql' )
-								);
-							},
-						],
 					];
 				},
 			]

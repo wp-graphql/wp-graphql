@@ -231,6 +231,7 @@ class TermObjects {
 						return __( 'Array of slugs to return term(s) for. Default empty.', 'wp-graphql' );
 					},
 				],
+				// @todo Remove in 3.0.0
 				'termTaxonomId'       => [
 					'type'              => [
 						'list_of' => 'ID',
@@ -239,7 +240,7 @@ class TermObjects {
 						return __( 'Array of term taxonomy IDs, to match when querying terms.', 'wp-graphql' );
 					},
 					'deprecationReason' => static function () {
-						return __( 'Use `termTaxonomyId` instead', 'wp-graphql' );
+						return __( 'Use `termTaxonomyId` instead. This will be removed in the next major version of WPGraphQL.', 'wp-graphql' );
 					},
 				],
 				'termTaxonomyId'      => [

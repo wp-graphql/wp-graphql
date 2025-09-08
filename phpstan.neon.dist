@@ -26,10 +26,6 @@ parameters:
         - phpstan/class-wp-dependency.php
     bootstrapFiles:
         - phpstan/constants.php
-        - wp-graphql.php
-        - access-functions.php
-        - activation.php
-        - deactivation.php
     paths:
         - wp-graphql.php
         - constants.php

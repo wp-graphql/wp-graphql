@@ -6,4 +6,5 @@
 define( 'WPGRAPHQL_PLUGIN_URL', true );
 define( 'WPGRAPHQL_PLUGIN_DIR', './' );
 define( 'WPGRAPHQL_AUTOLOAD', false );
+define( 'WPGRAPHQL_VERSION', '2.3.4' );
 define( 'PHPSTAN', true );
