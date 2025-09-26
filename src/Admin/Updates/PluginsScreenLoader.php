@@ -54,12 +54,10 @@ class PluginsScreenLoader {
 			$update_message .= $this->update_checker->get_untested_plugins_modal( $untested_plugins );
 		}
 
-		// Handle dangling <p> tags from the default update message.
-		$update_message = sprintf( '</p>%s<p class="hidden">', $update_message );
-
 		// Output the JS for the modal.
 		add_action( 'admin_print_footer_scripts', [ $this, 'modal_js' ] );
 
+		// Output the update message directly, without forced paragraph wrapping, to avoid duplicate or broken HTML.
 		echo wp_kses_post( $update_message );
 	}
 
