@@ -12,10 +12,10 @@ use WP_User;
  * @package WPGraphQL
  * @since   0.0.1
  *
- * phpcs:disable -- PHPStan annotation. 
+ * phpcs:disable -- PHPStan annotation.
  * @phpstan-import-type SerializableError from \GraphQL\Executor\ExecutionResult
  * @phpstan-import-type SerializableResult from \GraphQL\Executor\ExecutionResult
- * 
+ *
  * @phpstan-type WPGraphQLResult = SerializableResult|(\GraphQL\Executor\ExecutionResult|array<int,\GraphQL\Executor\ExecutionResult>)
  * phpcs:enable
  */
@@ -203,21 +203,6 @@ class Router {
 		 * @param bool $is_graphql_http_request Whether the request is a GraphQL HTTP Request. Default false.
 		 */
 		return apply_filters( 'graphql_is_graphql_http_request', $is_graphql_http_request );
-	}
-
-	/**
-	 * DEPRECATED: Returns whether a request is a GraphQL Request. Deprecated
-	 * because it's name is a bit misleading. This will only return if the request
-	 * is a GraphQL request coming from the HTTP endpoint. Internal GraphQL requests
-	 * won't be able to use this to properly determine if the request is a GraphQL request
-	 * or not.
-	 *
-	 * @return bool
-	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
-	 */
-	public static function is_graphql_request() {
-		_deprecated_function( __METHOD__, '0.4.1', self::class . 'is_graphql_http_request()' );
-		return self::is_graphql_http_request();
 	}
 
 	/**
@@ -480,7 +465,14 @@ class Router {
 		self::$request  = new Request();
 
 		try {
+			// Start output buffering to prevent any unwanted output from breaking the JSON response
+			// This addresses issues like plugins calling wp_print_inline_script_tag() during wp_enqueue_scripts
+			ob_start();
+
 			$response = self::$request->execute_http();
+
+			// Discard any captured output that could break the JSON response
+			ob_end_clean();
 
 			// Get the operation params from the request.
 			$params         = self::$request->get_params();
@@ -488,6 +480,10 @@ class Router {
 			$operation_name = isset( $params->operation ) ? $params->operation : '';
 			$variables      = isset( $params->variables ) ? $params->variables : null;
 		} catch ( \Throwable $error ) {
+			// Make sure to clean up the output buffer even if there's an exception
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
 
 			/**
 			 * If there are errors, set the status to 500
@@ -574,5 +570,25 @@ class Router {
 		 * Set the response headers
 		 */
 		self::set_headers();
+	}
+
+	/**
+	 * @deprecated 0.4.1 Use Router::is_graphql_http_request instead. This now resolves to it
+	 * @todo remove in v3.0
+	 * @codeCoverageIgnore
+	 *
+	 * @return bool
+	 */
+	public static function is_graphql_request() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				/* translators: %s is the class name */
+				esc_html__( 'This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( self::class . '::is_graphql_http_request()' )
+			),
+			'0.4.1'
+		);
+		return self::is_graphql_http_request();
 	}
 }

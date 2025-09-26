@@ -26,9 +26,13 @@ class PostObjectCursor extends AbstractCursor {
 	 * {@inheritDoc}
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
-		// Handle deprecated use of $query.
+		// @todo remove in 3.0.0
 		if ( $query_vars instanceof \WP_Query ) {
-			_doing_it_wrong( __METHOD__, 'The first argument should be an array of $query_vars, not the WP_Query object', '1.9.0' );
+			_doing_it_wrong(
+				__METHOD__,
+				esc_html__( 'The first argument should be an array of $query_vars, not the WP_Query object. This will throw an error in the next major release', 'wp-graphql' ),
+				'1.9.0'
+			);
 			$query_vars = $query_vars->query_vars;
 		}
 
@@ -68,17 +72,6 @@ class PostObjectCursor extends AbstractCursor {
 		$post = \WP_Post::get_instance( $this->cursor_offset );
 
 		return false !== $post ? $post : null;
-	}
-
-	/**
-	 * @deprecated 1.9.0
-	 *
-	 * @return ?\WP_Post
-	 */
-	public function get_cursor_post() {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' );
-
-		return $this->cursor_node;
 	}
 
 	/**
@@ -282,5 +275,26 @@ class PostObjectCursor extends AbstractCursor {
 		$clause = $this->query_vars['meta_query'][ $by ];
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
+	}
+
+	/**
+	 * @todo Remove in 3.0.0
+	 * @deprecated 1.9.0
+	 * @codeCoverageIgnore
+	 *
+	 * @return ?\WP_Post
+	 */
+	public function get_cursor_post() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				self::class . '::get_cursor_node()'
+			),
+			'1.9.0'
+		);
+
+		return $this->cursor_node;
 	}
 }

@@ -26,7 +26,6 @@ describe('Settings Page', () => {
 
     beforeEach(async ({ page }) => {
         await loginToWordPressAdmin(page);
-        await page.evaluate(() => localStorage.clear());
 
         // Activate the custom plugin for the test
         await activatePlugin(page, pluginSlug);
@@ -97,6 +96,15 @@ describe('Settings Page', () => {
     test('Verify localStorage retains last active tab', async ({ page }) => {
         await visitAdminFacingPage(page, wpAdminUrl + '/admin.php?page=graphql-settings');
         await page.waitForTimeout(500);
+
+        // Clear localStorage to ensure clean test state
+        await page.evaluate(() => {
+            try {
+                localStorage.clear();
+            } catch (e) {
+                // Ignore localStorage access errors
+            }
+        });
 
         // Switch to Section A tab
         await page.locator(selectors.navTabA).click();

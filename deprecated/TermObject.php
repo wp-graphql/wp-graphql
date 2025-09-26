@@ -5,10 +5,9 @@ namespace WPGraphQL\Type\ObjectType;
 use WP_Taxonomy;
 
 /**
- * Class TermObject
- *
- * @package WPGraphQL\Type\Object
+ * @todo Remove in 3.0.0
  * @deprecated 1.12.0
+ * @codeCoverageIgnore
  */
 class TermObject {
 
@@ -22,7 +21,15 @@ class TermObject {
 	 * @deprecated 1.12.0
 	 */
 	public static function register_taxonomy_object_type( WP_Taxonomy $tax_object ) {
-		_deprecated_function( __FUNCTION__, '1.12.0', esc_attr( \WPGraphQL\Registry\Utils\TermObject::class ) . '::register_types()' );
+		_doing_it_wrong(
+			__FUNCTION__,
+			sprintf(
+				// translators: %s is the class name that is deprecated.
+				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
+				esc_html( \WPGraphQL\Registry\Utils\TermObject::class . '::register_types()' ),
+			),
+			'1.12.0'
+		);
 
 		\WPGraphQL\Registry\Utils\TermObject::register_types( $tax_object );
 	}

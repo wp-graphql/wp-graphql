@@ -228,12 +228,41 @@ jobs:
           # Fetch all branches
           git fetch origin
 
+          # Determine the current branch and ensure we're on develop for the first part
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "Current branch: $CURRENT_BRANCH"
+
+          # If we're not on develop, switch to it
+          if [[ "$CURRENT_BRANCH" != "develop" ]]; then
+            echo "Switching to develop branch..."
+            git checkout -B develop origin/develop
+          fi
+
           # First commit changes to develop
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "Committing changes to develop first"
             git add *.php *.md *.txt package.json
             git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
             git push origin develop
+          fi
+
+          # Delete processed changesets on develop before merging to master
+          # This prevents changeset deletions from being synced back to develop later
+          if [ -d ".changesets" ] && [ "$(find .changesets -type f -name "*.md" | wc -l)" -gt 0 ]; then
+            echo "Deleting changesets from develop before merge..."
+            ls -la .changesets/
+
+            # Remove all .md files in the .changesets directory
+            find .changesets -type f -name "*.md" -exec rm -f {} \;
+
+            # Stage and commit the deletions
+            git add -A .changesets/
+            git commit -m "chore: delete changesets before release v${{ steps.version_bump.outputs.version }}"
+            git push origin develop
+
+            echo "Changesets deleted from develop"
+          else
+            echo "No changeset files found to delete"
           fi
 
           # Now switch to master
@@ -392,45 +421,8 @@ jobs:
             echo "Workspace release notes file removed."
           fi
 
-      - name: Delete processed changesets
-        # Only delete changesets if the release was successful or already exists
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && (steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true')
-        run: |
-          # Configure Git
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          # Check if the .changesets directory exists and contains files
-          if [ -d ".changesets" ] && [ "$(find .changesets -type f -name "*.md" | wc -l)" -gt 0 ]; then
-            # List all changesets before deleting (for logging purposes)
-            echo "Changesets found in directory:"
-            ls -la .changesets/
-
-            # Remove all .md files in the .changesets directory
-            find .changesets -type f -name "*.md" -exec rm -f {} \;
-
-            # Check if any files were removed
-            if [ $? -eq 0 ]; then
-              echo "Changesets removed successfully"
-
-              # Stage the deletions
-              git add -A .changesets/
-
-              # Also make sure the release_notes.md file is not staged
-              git reset -- release_notes.md || true
-
-              # Commit the deleted changesets
-              git commit -m "chore: delete changesets after release v${{ steps.version_bump.outputs.version }}"
-              git push origin master
-
-              echo "Deleted changesets for v${{ steps.version_bump.outputs.version }}"
-            else
-              echo "Error removing changesets"
-              exit 1
-            fi
-          else
-            echo "No changeset files found to delete"
-          fi
+      # Changesets are now deleted on develop before the merge to master
+      # This prevents changeset deletions from being synced back to develop
 
       - name: Update develop branch
         if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
