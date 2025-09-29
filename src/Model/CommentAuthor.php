@@ -10,6 +10,7 @@ use WP_Comment;
  *
  * @property ?int    $databaseId
  * @property ?string $email
+ * @property ?string $emailAddress
  * @property ?string $id
  * @property ?string $name
  * @property ?string $url
@@ -38,7 +39,10 @@ class CommentAuthor extends Model {
 				'databaseId' => function () {
 					return ! empty( $this->data->comment_ID ) ? absint( $this->data->comment_ID ) : null;
 				},
-				'email'      => function () {
+				'email'        => function () {
+					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
+				},
+				'emailAddress' => function () {
 					return current_user_can( 'moderate_comments' ) && ! empty( $this->data->comment_author_email ) ? $this->data->comment_author_email : null;
 				},
 				'id'         => function () {
