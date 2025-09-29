@@ -112,6 +112,7 @@ final class Deprecated {
 		$this->graphql_post_types();
 		$this->menu_item_connected_object();
 		$this->send_password_reset_email_user();
+		$this->commenter_email_field();
 	}
 
 	/**
@@ -444,6 +445,40 @@ final class Deprecated {
 				},
 				'resolve'           => static function ( $payload, $args, AppContext $context ) {
 					return ! empty( $payload['id'] ) ? $context->get_loader( 'user' )->load_deferred( $payload['id'] ) : null;
+				},
+			],
+		);
+	}
+
+	/**
+	 * Commenter.email field
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	private function commenter_email_field(): void {
+		register_graphql_field(
+			'Commenter',
+			'email',
+			[
+				'type'              => 'String',
+				'description'       => static function () {
+					return __( 'The email address of the author of a comment.', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety.', 'wp-graphql' );
+				},
+				'resolve'           => static function ( $commenter ) {
+					// Log deprecation warning
+					graphql_debug(
+						sprintf(
+							/* translators: %s: The version number */
+							__( 'WPGraphQL: The field "Commenter.email" is deprecated since version %s and will be removed in 3.0. Use "Commenter.emailAddress" instead.', 'wp-graphql' ),
+							'1.31.0'
+						)
+					);
+
+					// Return the same value as the emailAddress field would
+					return isset( $commenter->email ) ? $commenter->email : null;
 				},
 			],
 		);
