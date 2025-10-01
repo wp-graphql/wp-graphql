@@ -116,6 +116,7 @@ final class Deprecated {
 		$this->comment_author_email_field();
 		$this->comment_to_commenter_connection_edge_email_field();
 		$this->user_mutation_email_input_args();
+		$this->general_settings_email_field();
 	}
 
 	/**
@@ -568,8 +569,8 @@ final class Deprecated {
 	 * Add deprecated email input field to user mutation input types
 	 *
 	 * @param array<string,array<string,mixed>> $fields The input fields
-	 * @param string $type_name The input type name
-	 * @param array<string,mixed> $config The input type config
+	 * @param string                            $type_name The input type name
+	 * @param array<string,mixed>               $config The input type config
 	 * @return array<string,array<string,mixed>>
 	 *
 	 * @todo remove in 3.0.0
@@ -600,5 +601,43 @@ final class Deprecated {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * GeneralSettings.email field
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	private function general_settings_email_field(): void {
+		register_graphql_field(
+			'GeneralSettings',
+			'email',
+			[
+				'type'              => 'String',
+				'description'       => static function () {
+					return __( 'Email address of the site administrator.', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of the `adminEmail` field for better validation and type safety.', 'wp-graphql' );
+				},
+				'resolve'           => static function () {
+					// Log deprecation warning
+					graphql_debug(
+						sprintf(
+							/* translators: %s: The version number */
+							__( 'WPGraphQL: The field "GeneralSettings.email" is deprecated since version %s and will be removed in 3.0. Use "GeneralSettings.adminEmail" instead.', 'wp-graphql' ),
+							'@next-version'
+						)
+					);
+
+					// Check permissions (same as the original admin_email setting)
+					if ( ! current_user_can( 'manage_options' ) ) {
+						throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+					}
+
+					return get_option( 'admin_email' );
+				},
+			],
+		);
 	}
 }

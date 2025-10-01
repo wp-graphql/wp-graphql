@@ -49,19 +49,19 @@ class UserCreate {
 	 */
 	public static function get_input_fields() {
 		return [
-			'password'    => [
+			'password'     => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string that contains the plain text password for the user.', 'wp-graphql' );
 				},
 			],
-			'nicename'    => [
+			'nicename'     => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string that contains a URL-friendly name for the user. The default is the user\'s username.', 'wp-graphql' );
 				},
 			],
-			'websiteUrl'  => [
+			'websiteUrl'   => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-graphql' );
@@ -73,49 +73,49 @@ class UserCreate {
 					return __( 'The user\'s email address with built-in validation and sanitization.', 'wp-graphql' );
 				},
 			],
-			'displayName' => [
+			'displayName'  => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string that will be shown on the site. Defaults to user\'s username. It is likely that you will want to change this, for both appearance and security through obscurity (that is if you dont use and delete the default admin user).', 'wp-graphql' );
 				},
 			],
-			'nickname'    => [
+			'nickname'     => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The user\'s nickname, defaults to the user\'s username.', 'wp-graphql' );
 				},
 			],
-			'firstName'   => [
+			'firstName'    => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The user\'s first name.', 'wp-graphql' );
 				},
 			],
-			'lastName'    => [
+			'lastName'     => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The user\'s last name.', 'wp-graphql' );
 				},
 			],
-			'description' => [
+			'description'  => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string containing content about the user.', 'wp-graphql' );
 				},
 			],
-			'richEditing' => [
+			'richEditing'  => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'A string for whether to enable the rich editor or not. False if not empty.', 'wp-graphql' );
 				},
 			],
-			'registered'  => [
+			'registered'   => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'The date the user registered. Format is Y-m-d H:i:s.', 'wp-graphql' );
 				},
 			],
-			'roles'       => [
+			'roles'        => [
 				'type'        => [
 					'list_of' => 'String',
 				],
@@ -123,25 +123,25 @@ class UserCreate {
 					return __( 'An array of roles to be assigned to the user.', 'wp-graphql' );
 				},
 			],
-			'jabber'      => [
+			'jabber'       => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'User\'s Jabber account.', 'wp-graphql' );
 				},
 			],
-			'aim'         => [
+			'aim'          => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'User\'s AOL IM account.', 'wp-graphql' );
 				},
 			],
-			'yim'         => [
+			'yim'          => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'User\'s Yahoo IM account.', 'wp-graphql' );
 				},
 			],
-			'locale'      => [
+			'locale'       => [
 				'type'        => 'String',
 				'description' => static function () {
 					return __( 'User\'s locale.', 'wp-graphql' );
