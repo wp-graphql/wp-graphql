@@ -628,7 +628,7 @@ final class Deprecated {
 			};
 
 			// Wrap the existing resolver to add deprecation warning
-			$original_resolve = $fields['email']['resolve'] ?? null;
+			$original_resolve           = $fields['email']['resolve'] ?? null;
 			$fields['email']['resolve'] = static function ( $root, $args, $context, $info ) use ( $original_resolve ) {
 				// Log deprecation warning
 				graphql_debug(

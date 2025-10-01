@@ -868,8 +868,6 @@ final class WPGraphQL {
 
 	/**
 	 * Register new EmailAddress fields for settings
-	 *
-	 * @return void
 	 */
 	public function register_email_address_settings_fields(): void {
 		// Register adminEmail field to GeneralSettings
