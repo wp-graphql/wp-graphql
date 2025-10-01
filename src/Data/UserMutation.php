@@ -47,10 +47,10 @@ class UserMutation {
 						return __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-graphql' );
 					},
 				],
-				'email'       => [
-					'type'        => 'String',
+				'emailAddress' => [
+					'type'        => 'EmailAddress',
 					'description' => static function () {
-						return __( 'A string containing the user\'s email address.', 'wp-graphql' );
+						return __( 'The user\'s email address with built-in validation and sanitization.', 'wp-graphql' );
 					},
 				],
 				'displayName' => [
@@ -194,13 +194,14 @@ class UserMutation {
 		}
 
 		/**
-		 * Required fields
+		 * Handle email fields - support both deprecated 'email' and new 'emailAddress'
 		 */
-		if ( ! empty( $input['email'] ) ) {
-			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
+		$email_value = self::resolve_email_input( $input );
+		if ( ! empty( $email_value ) ) {
+			if ( false === is_email( apply_filters( 'pre_user_email', $email_value ) ) ) {
 				throw new UserError( esc_html__( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
 			}
-			$insert_user_args['user_email'] = $input['email'];
+			$insert_user_args['user_email'] = $email_value;
 		}
 
 		if ( ! empty( $input['password'] ) ) {
@@ -232,6 +233,44 @@ class UserMutation {
 		$insert_user_args = apply_filters( 'graphql_user_insert_post_args', $insert_user_args, $input, $mutation_name );
 
 		return $insert_user_args;
+	}
+
+	/**
+	 * Resolve email input from both deprecated 'email' and new 'emailAddress' fields
+	 *
+	 * @param array<string,mixed> $input The mutation input
+	 * @return string|null The resolved email value
+	 * @throws \GraphQL\Error\UserError If both email fields are provided
+	 */
+	public static function resolve_email_input( array $input ): ?string {
+		$has_email = ! empty( $input['email'] );
+		$has_email_address = ! empty( $input['emailAddress'] );
+
+		// If both are provided, throw an error
+		if ( $has_email && $has_email_address ) {
+			throw new UserError(
+				esc_html__( 'Cannot provide both "email" and "emailAddress" fields. Please use "emailAddress" as "email" is deprecated.', 'wp-graphql' )
+			);
+		}
+
+		// If deprecated email field is used, log deprecation warning
+		if ( $has_email ) {
+			graphql_debug(
+				sprintf(
+					/* translators: %s: The version number */
+					__( 'WPGraphQL: The input field "email" is deprecated since version %s and will be removed in 3.0. Use "emailAddress" instead.', 'wp-graphql' ),
+					'@next-version'
+				)
+			);
+			return $input['email'];
+		}
+
+		// Return emailAddress if provided
+		if ( $has_email_address ) {
+			return $input['emailAddress'];
+		}
+
+		return null;
 	}
 
 	/**

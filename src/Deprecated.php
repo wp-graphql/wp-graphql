@@ -115,6 +115,7 @@ final class Deprecated {
 		$this->commenter_email_field();
 		$this->comment_author_email_field();
 		$this->comment_to_commenter_connection_edge_email_field();
+		$this->user_mutation_email_input_args();
 	}
 
 	/**
@@ -551,5 +552,53 @@ final class Deprecated {
 				},
 			],
 		);
+	}
+
+	/**
+	 * User mutation deprecated email input arguments
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	private function user_mutation_email_input_args(): void {
+		// Add deprecated email input to CreateUserInput
+		add_filter( 'graphql_input_fields', [ $this, 'add_deprecated_email_input_to_user_mutations' ], 10, 3 );
+	}
+
+	/**
+	 * Add deprecated email input field to user mutation input types
+	 *
+	 * @param array<string,array<string,mixed>> $fields The input fields
+	 * @param string $type_name The input type name
+	 * @param array<string,mixed> $config The input type config
+	 * @return array<string,array<string,mixed>>
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	public function add_deprecated_email_input_to_user_mutations( array $fields, string $type_name, array $config ): array {
+		// List of user mutation input types that should have deprecated email field
+		$user_mutation_inputs = [
+			'CreateUserInput',
+			'UpdateUserInput',
+			'RegisterUserInput',
+		];
+
+		if ( ! in_array( $type_name, $user_mutation_inputs, true ) ) {
+			return $fields;
+		}
+
+		// Add deprecated email field if it doesn't already exist
+		if ( ! isset( $fields['email'] ) ) {
+			$fields['email'] = [
+				'type'              => 'String',
+				'description'       => static function () {
+					return __( 'A string containing the user\'s email address.', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety.', 'wp-graphql' );
+				},
+			];
+		}
+
+		return $fields;
 	}
 }

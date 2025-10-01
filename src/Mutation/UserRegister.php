@@ -42,10 +42,10 @@ class UserRegister {
 						return __( 'A string that contains the user\'s username.', 'wp-graphql' );
 					},
 				],
-				'email'    => [
-					'type'        => 'String',
+				'emailAddress' => [
+					'type'        => 'EmailAddress',
 					'description' => static function () {
-						return __( 'A string containing the user\'s email address.', 'wp-graphql' );
+						return __( 'The user\'s email address with built-in validation and sanitization.', 'wp-graphql' );
 					},
 				],
 			]
@@ -83,7 +83,9 @@ class UserRegister {
 				throw new UserError( esc_html__( 'A username was not provided.', 'wp-graphql' ) );
 			}
 
-			if ( empty( $input['email'] ) ) {
+			// Check for email using our dual input resolver
+			$email_value = UserMutation::resolve_email_input( $input );
+			if ( empty( $email_value ) ) {
 				throw new UserError( esc_html__( 'An email address was not provided.', 'wp-graphql' ) );
 			}
 
