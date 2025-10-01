@@ -609,35 +609,50 @@ final class Deprecated {
 	 * @todo remove in 3.0.0
 	 */
 	private function general_settings_email_field(): void {
-		register_graphql_field(
-			'GeneralSettings',
-			'email',
-			[
-				'type'              => 'String',
-				'description'       => static function () {
-					return __( 'Email address of the site administrator.', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'Deprecated in favor of the `adminEmail` field for better validation and type safety.', 'wp-graphql' );
-				},
-				'resolve'           => static function () {
-					// Log deprecation warning
-					graphql_debug(
-						sprintf(
-							/* translators: %s: The version number */
-							__( 'WPGraphQL: The field "GeneralSettings.email" is deprecated since version %s and will be removed in 3.0. Use "GeneralSettings.adminEmail" instead.', 'wp-graphql' ),
-							'@next-version'
-						)
-					);
+		// Add deprecation to the existing email field via filter
+		add_filter( 'graphql_GeneralSettings_fields', [ $this, 'deprecate_general_settings_email_field' ], 10, 1 );
+	}
 
-					// Check permissions (same as the original admin_email setting)
-					if ( ! current_user_can( 'manage_options' ) ) {
-						throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
-					}
+	/**
+	 * Add deprecation to the existing GeneralSettings.email field
+	 *
+	 * @param array<string,array<string,mixed>> $fields The GeneralSettings fields
+	 * @return array<string,array<string,mixed>>
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	public function deprecate_general_settings_email_field( array $fields ): array {
+		if ( isset( $fields['email'] ) ) {
+			$fields['email']['deprecationReason'] = static function () {
+				return __( 'Deprecated in favor of the `adminEmail` field for better validation and type safety.', 'wp-graphql' );
+			};
 
-					return get_option( 'admin_email' );
-				},
-			],
-		);
+			// Wrap the existing resolver to add deprecation warning
+			$original_resolve = $fields['email']['resolve'] ?? null;
+			$fields['email']['resolve'] = static function ( $root, $args, $context, $info ) use ( $original_resolve ) {
+				// Log deprecation warning
+				graphql_debug(
+					sprintf(
+						/* translators: %s: The version number */
+						__( 'WPGraphQL: The field "GeneralSettings.email" is deprecated since version %s and will be removed in 3.0. Use "GeneralSettings.adminEmail" instead.', 'wp-graphql' ),
+						'@next-version'
+					)
+				);
+
+				// Call the original resolver if it exists
+				if ( is_callable( $original_resolve ) ) {
+					return $original_resolve( $root, $args, $context, $info );
+				}
+
+				// Fallback resolver (same logic as original)
+				if ( ! current_user_can( 'manage_options' ) ) {
+					throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
+				}
+
+				return get_option( 'admin_email' );
+			};
+		}
+
+		return $fields;
 	}
 }

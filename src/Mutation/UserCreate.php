@@ -70,7 +70,7 @@ class UserCreate {
 			'emailAddress' => [
 				'type'        => 'EmailAddress',
 				'description' => static function () {
-					return __( 'The user\'s email address with built-in validation and sanitization.', 'wp-graphql' );
+					return __( 'The user\'s email address.', 'wp-graphql' );
 				},
 			],
 			'displayName'  => [
