@@ -37,7 +37,7 @@ class CommentAuthor {
 						'emailAddress' => [
 							'type'        => 'EmailAddress',
 							'description' => static function () {
-								return __( 'Email address of the comment author with built-in validation and sanitization.', 'wp-graphql' );
+								return __( 'Email address of the comment author. Only visible to users with comment moderation privileges.', 'wp-graphql' );
 							},
 						],
 						'url'          => [

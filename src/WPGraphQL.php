@@ -5,6 +5,7 @@
  * @package WPGraphQL
  */
 
+use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
@@ -350,8 +351,8 @@ final class WPGraphQL {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
 		$this->setup_types();
 
-		// Filter email settings to use EmailAddress scalar
-		add_filter( 'graphql_allowed_settings_by_group', [ $this, 'filter_email_settings_to_use_email_address_scalar' ], 10, 1 );
+		// Register new EmailAddress fields for settings
+		add_action( 'graphql_register_types', [ $this, 'register_email_address_settings_fields' ] );
 
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
@@ -875,32 +876,30 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Filter email settings to use EmailAddress scalar instead of String
+	 * Register new EmailAddress fields for settings
 	 *
-	 * @param array<string,array<string,mixed>> $allowed_settings_by_group The allowed settings by group
-	 * @return array<string,array<string,mixed>>
+	 * @return void
 	 */
-	public function filter_email_settings_to_use_email_address_scalar( array $allowed_settings_by_group ): array {
-		// List of known email settings that should use EmailAddress scalar
-		$email_setting_keys = [
-			'admin_email',
-			'new_admin_email',
-			// Add more email settings as needed
-		];
-
-		foreach ( $allowed_settings_by_group as $group_name => $settings ) {
-			foreach ( $settings as $setting_key => $setting_config ) {
-				// Check if this setting key is an email setting
-				if ( in_array( $setting_key, $email_setting_keys, true ) ) {
-					// Change the type from 'string' to 'EmailAddress'
-					if ( isset( $setting_config['type'] ) && 'string' === $setting_config['type'] ) {
-						$allowed_settings_by_group[ $group_name ][ $setting_key ]['type'] = 'EmailAddress';
+	public function register_email_address_settings_fields(): void {
+		// Register adminEmail field to GeneralSettings
+		register_graphql_field(
+			'GeneralSettings',
+			'adminEmail',
+			[
+				'type'        => 'EmailAddress',
+				'description' => static function () {
+					return __( 'Email address of the site administrator. Only visible to users with administrative privileges.', 'wp-graphql' );
+				},
+				'resolve'     => static function () {
+					// Check permissions (same as the original admin_email setting)
+					if ( ! current_user_can( 'manage_options' ) ) {
+						throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
 					}
-				}
-			}
-		}
 
-		return $allowed_settings_by_group;
+					return get_option( 'admin_email' );
+				},
+			],
+		);
 	}
 
 	/**

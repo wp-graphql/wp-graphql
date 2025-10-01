@@ -37,7 +37,7 @@ class Comment {
 							'emailAddress' => [
 								'type'        => 'EmailAddress',
 								'description' => static function () {
-									return __( 'Email address representing the author for this particular comment with built-in validation and sanitization.', 'wp-graphql' );
+									return __( 'Email address representing the author for this particular comment. Only visible to users with comment moderation privileges.', 'wp-graphql' );
 								},
 								'resolve'     => static function ( $edge ) {
 									return $edge['source']->commentAuthorEmail ?: null;
