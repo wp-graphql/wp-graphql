@@ -33,7 +33,7 @@ class UserRegister {
 		$input_fields = array_merge(
 			UserCreate::get_input_fields(),
 			[
-				'username' => [
+				'username'     => [
 					'type'        => [
 						'non_null' => 'String',
 					],
