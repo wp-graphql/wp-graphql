@@ -34,10 +34,10 @@ class CommentAuthor {
 								return __( 'The name for the comment author.', 'wp-graphql' );
 							},
 						],
-						'email'        => [
-							'type'        => 'String',
+						'emailAddress' => [
+							'type'        => 'EmailAddress',
 							'description' => static function () {
-								return __( 'The email for the comment author', 'wp-graphql' );
+								return __( 'Email address of the comment author with built-in validation and sanitization.', 'wp-graphql' );
 							},
 						],
 						'url'          => [
