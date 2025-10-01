@@ -67,10 +67,10 @@ class UserCreate {
 					return __( 'A string containing the user\'s URL for the user\'s web site.', 'wp-graphql' );
 				},
 			],
-			'email'       => [
-				'type'        => 'String',
+			'emailAddress' => [
+				'type'        => 'EmailAddress',
 				'description' => static function () {
-					return __( 'A string containing the user\'s email address.', 'wp-graphql' );
+					return __( 'The user\'s email address with built-in validation and sanitization.', 'wp-graphql' );
 				},
 			],
 			'displayName' => [
