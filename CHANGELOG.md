@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.3.7 - 2025-10-01
+
+### Bug Fixes
+
+- fix: Prevent bad string injection in plugin update message (#3318) ([#3419](https://github.com/jasonbahl/automation-tests/pull/3419))
+
+
+
 ## v2.3.6 - 2025-09-08
 
 ### Bug Fixes
