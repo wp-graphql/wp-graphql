@@ -547,23 +547,11 @@ jobs:
         run: |
           composer run-script zip
 
-      - name: Create GitHub Updater compatible artifact
-        run: |
-          # Create a copy of the zip file with GitHub Updater naming convention ($repo-$tag.zip)
-          cp plugin-build/wp-graphql.zip plugin-build/wp-graphql-${{ steps.get_version_info.outputs.tag_name }}.zip
-          echo "Created GitHub Updater compatible artifact: wp-graphql-${{ steps.get_version_info.outputs.tag_name }}.zip"
-
       - name: Upload artifact to workflow
         uses: actions/upload-artifact@v4
         with:
           name: wp-graphql
           path: plugin-build/wp-graphql.zip
-
-      - name: Upload GitHub Updater artifact to workflow
-        uses: actions/upload-artifact@v4
-        with:
-          name: wp-graphql-github-updater-${{ steps.get_version_info.outputs.tag_name }}
-          path: plugin-build/wp-graphql-${{ steps.get_version_info.outputs.tag_name }}.zip
 
       - name: Upload artifact to release
         # Only upload to release if we're not doing a manual deploy
@@ -572,8 +560,6 @@ jobs:
         with:
           # Use the correct tag name (e.g., v2.3.0)
           tag_name: ${{ steps.get_version_info.outputs.tag_name }}
-          files: |
-            plugin-build/wp-graphql.zip
-            plugin-build/wp-graphql-${{ steps.get_version_info.outputs.tag_name }}.zip
+          files: plugin-build/wp-graphql.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
