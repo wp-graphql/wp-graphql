@@ -350,6 +350,9 @@ final class WPGraphQL {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
 		$this->setup_types();
 
+		// Filter email settings to use EmailAddress scalar
+		add_filter( 'graphql_allowed_settings_by_group', [ $this, 'filter_email_settings_to_use_email_address_scalar' ], 10, 1 );
+
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
 		 */
@@ -869,6 +872,35 @@ final class WPGraphQL {
 		 * Return the Schema after applying filters
 		 */
 		return self::$schema;
+	}
+
+	/**
+	 * Filter email settings to use EmailAddress scalar instead of String
+	 *
+	 * @param array<string,array<string,mixed>> $allowed_settings_by_group The allowed settings by group
+	 * @return array<string,array<string,mixed>>
+	 */
+	public function filter_email_settings_to_use_email_address_scalar( array $allowed_settings_by_group ): array {
+		// List of known email settings that should use EmailAddress scalar
+		$email_setting_keys = [
+			'admin_email',
+			'new_admin_email',
+			// Add more email settings as needed
+		];
+
+		foreach ( $allowed_settings_by_group as $group_name => $settings ) {
+			foreach ( $settings as $setting_key => $setting_config ) {
+				// Check if this setting key is an email setting
+				if ( in_array( $setting_key, $email_setting_keys, true ) ) {
+					// Change the type from 'string' to 'EmailAddress'
+					if ( isset( $setting_config['type'] ) && 'string' === $setting_config['type'] ) {
+						$allowed_settings_by_group[ $group_name ][ $setting_key ]['type'] = 'EmailAddress';
+					}
+				}
+			}
+		}
+
+		return $allowed_settings_by_group;
 	}
 
 	/**

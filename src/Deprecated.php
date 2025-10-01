@@ -113,6 +113,8 @@ final class Deprecated {
 		$this->menu_item_connected_object();
 		$this->send_password_reset_email_user();
 		$this->commenter_email_field();
+		$this->comment_author_email_field();
+		$this->comment_to_commenter_connection_edge_email_field();
 	}
 
 	/**
@@ -473,12 +475,79 @@ final class Deprecated {
 						sprintf(
 							/* translators: %s: The version number */
 							__( 'WPGraphQL: The field "Commenter.email" is deprecated since version %s and will be removed in 3.0. Use "Commenter.emailAddress" instead.', 'wp-graphql' ),
-							'1.31.0'
+							'@next-version'
 						)
 					);
 
 					// Return the same value as the emailAddress field would
 					return isset( $commenter->email ) ? $commenter->email : null;
+				},
+			],
+		);
+	}
+
+	/**
+	 * CommentAuthor.email field
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	private function comment_author_email_field(): void {
+		register_graphql_field(
+			'CommentAuthor',
+			'email',
+			[
+				'type'              => 'String',
+				'description'       => static function () {
+					return __( 'The email for the comment author', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety.', 'wp-graphql' );
+				},
+				'resolve'           => static function ( $comment_author ) {
+					// Log deprecation warning
+					graphql_debug(
+						sprintf(
+							/* translators: %s: The version number */
+							__( 'WPGraphQL: The field "CommentAuthor.email" is deprecated since version %s and will be removed in 3.0. Use "CommentAuthor.emailAddress" instead.', 'wp-graphql' ),
+							'@next-version'
+						)
+					);
+
+					// Return the same value as the emailAddress field would
+					return isset( $comment_author->emailAddress ) ? $comment_author->emailAddress : null;
+				},
+			],
+		);
+	}
+
+	/**
+	 * CommentToCommenterConnectionEdge.email field
+	 *
+	 * @todo remove in 3.0.0
+	 */
+	private function comment_to_commenter_connection_edge_email_field(): void {
+		register_graphql_field(
+			'CommentToCommenterConnectionEdge',
+			'email',
+			[
+				'type'              => 'String',
+				'description'       => static function () {
+					return __( 'The email address representing the author for this particular comment', 'wp-graphql' );
+				},
+				'deprecationReason' => static function () {
+					return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety.', 'wp-graphql' );
+				},
+				'resolve'           => static function ( $edge ) {
+					// Log deprecation warning
+					graphql_debug(
+						sprintf(
+							/* translators: %s: The version number */
+							__( 'WPGraphQL: The connection edge field "email" is deprecated since version %s and will be removed in 3.0. Use "emailAddress" instead.', 'wp-graphql' ),
+							'@next-version'
+						)
+					);
+
+					return $edge['source']->commentAuthorEmail ?: null;
 				},
 			],
 		);
