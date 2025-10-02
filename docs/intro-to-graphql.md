@@ -576,7 +576,7 @@ This allows you to:
 1. Validate that any arguments of this type are one of the allowed values
 1. Communicate through the type system that a field will always be one of a finite set of values
 
-Here's what an enum definition might look like in the GraphQL schema language:
+Here's what an enum definition might look like in the GraphQL schema definition language:
 
 ```graphql
 enum Status {
