@@ -1191,4 +1191,113 @@ class PreviewTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// value
 		$this->assertEmpty( get_post_meta( $this->preview, $published_meta_key, true ) );
 	}
+
+	/**
+	 * @see https://github.com/wp-graphql/wp-graphql/pull/3422
+	 */
+	public function testPreviewMetaWithArrayValueAndSingleTrue() {
+		WPGraphQL::clear_schema();
+
+		$meta_key   = 'array_meta_key';
+		$meta_value = [ 'first_value', 'second_value', 'third_value' ];
+		update_post_meta( $this->post, $meta_key, $meta_value );
+
+		register_graphql_field(
+			'Post',
+			'arrayMetaField',
+			[
+				'type'        => [ 'list_of' => 'String' ],
+				'description' => 'Test meta field with array value',
+				'resolve'     => static function ( \WPGraphQL\Model\Post $post ) use ( $meta_key ) {
+					$value = get_post_meta( $post->ID, $meta_key, true );
+					// If we don't wrap in array the query will fail.
+					return is_array( $value ) ? $value : [ $value ];
+				},
+			]
+		);
+
+		wp_set_current_user( $this->admin );
+
+		$query = '
+		query GetPostWithMeta( $id: ID! ) {
+			post( id: $id, idType: DATABASE_ID ) {
+				databaseId
+				arrayMetaField
+				preview {
+					node {
+						databaseId
+						arrayMetaField
+					}
+				}
+			}
+		}';
+
+		// Test with old behavior by removing current method and adding a filter with old method.
+		remove_filter( 'get_post_metadata', [ \WPGraphQL\Utils\Preview::class, 'filter_post_meta_for_previews' ], 10 );
+
+		$fn_old_callback = static function ( $default_value, $object_id, $meta_key_param, $single ) {
+			if ( ! is_graphql_request() ) {
+				return $default_value;
+			}
+
+			$post = get_post( $object_id );
+			if ( ! $post instanceof \WP_Post || 'revision' !== $post->post_type ) {
+				return $default_value;
+			}
+
+			$parent = get_post( $post->post_parent );
+			if ( ! isset( $parent->ID ) || ! absint( $parent->ID ) ) {
+				return $default_value;
+			}
+
+			// Old behavior: returns value directly, causing WP core to extract first element.
+			return get_post_meta( $parent->ID, $meta_key_param, (bool) $single );
+		};
+
+		add_filter(
+			'get_post_metadata',
+			$fn_old_callback,
+			10,
+			4
+		);
+
+		$actual_with_bug = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual_with_bug );
+		$this->assertEquals(
+			[ 'first_value' ],
+			$actual_with_bug['data']['post']['preview']['node']['arrayMetaField'],
+			'Without the fix, array meta returns only first element when single=true'
+		);
+
+		// Remove old behaviour and test new behaviour.
+		remove_filter( 'get_post_metadata', $fn_old_callback );
+		add_filter(
+			'get_post_metadata',
+			[ \WPGraphQL\Utils\Preview::class, 'filter_post_meta_for_previews' ],
+			10,
+			4
+		);
+
+		$actual_with_fix = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [ 'id' => $this->post ],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual_with_fix );
+		$this->assertEquals(
+			$meta_value,
+			$actual_with_fix['data']['post']['preview']['node']['arrayMetaField'],
+			'With the fix, array meta returns complete array even when single=true'
+		);
+
+		WPGraphQL::clear_schema();
+	}
 }
