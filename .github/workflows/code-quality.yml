@@ -5,10 +5,12 @@ on:
     branches:
       - develop
       - master
+      - release/*
   pull_request:
     branches:
       - develop
       - master
+      - release/*
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:
@@ -32,7 +34,7 @@ jobs:
           php-version: 8.2
           tools: composer:v2
           coverage: none
-      
+
       - name: Install dependencies
         uses: ramsey/composer-install@v3
         with:

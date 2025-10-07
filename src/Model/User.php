@@ -8,40 +8,33 @@ use WP_User;
 /**
  * Class User - Models the data for the User object type
  *
- * @property string $id
- * @property int    $databaseId
- * @property array  $capabilities
- * @property string $capKey
- * @property array  $roles
- * @property string $email
- * @property string $firstName
- * @property string $lastName
- * @property array  $extraCapabilities
- * @property string $description
- * @property string $username
- * @property string $name
- * @property string $registeredDate
- * @property string $nickname
- * @property string $url
- * @property string $slug
- * @property string $nicename
- * @property string $locale
- * @property int    $userId
- * @property string $uri
- * @property string $enqueuedScriptsQueue
- * @property string $enqueuedStylesheetsQueue
+ * @property string[]|null $capabilities
+ * @property ?string       $capKey
+ * @property ?int          $databaseId
+ * @property ?string       $description
+ * @property ?string       $email
+ * @property string[]      $enqueuedScriptsQueue
+ * @property string[]      $enqueuedStylesheetsQueue
+ * @property string[]|null $extraCapabilities
+ * @property ?string       $firstName
+ * @property ?string       $id
+ * @property ?string       $lastName
+ * @property ?string       $locale
+ * @property ?string       $name
+ * @property ?string       $nicename
+ * @property ?string       $nickname
+ * @property ?string       $registeredDate
+ * @property string[]|null $roles
+ * @property ?string       $slug
+ * @property string        $uri
+ * @property ?string       $url
+ * @property ?string       $username
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_User>
  */
 class User extends Model {
-
-	/**
-	 * Stores the WP_User object for the incoming data
-	 *
-	 * @var \WP_User $data
-	 */
-	protected $data;
-
 	/**
 	 * The Global Post at time of Model generation
 	 *
@@ -70,19 +63,19 @@ class User extends Model {
 		$this->data      = $user;
 
 		$allowed_restricted_fields = [
-			'isRestricted',
-			'id',
-			'userId',
 			'databaseId',
-			'name',
-			'firstName',
-			'lastName',
 			'description',
+			'enqueuedScriptsQueue',
+			'enqueuedStylesheetsQueue',
+			'firstName',
+			'id',
+			'isRestricted',
+			'lastName',
+			'name',
 			'slug',
 			'uri',
 			'url',
-			'enqueuedScriptsQueue',
-			'enqueuedStylesheetsQueue',
+			'userId',
 		];
 
 		parent::__construct( 'list_users', $allowed_restricted_fields, $user->ID );
@@ -154,12 +147,6 @@ class User extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                       => function () {
-					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
-				},
-				'databaseId'               => function () {
-					return $this->userId;
-				},
 				'capabilities'             => function () {
 					if ( ! empty( $this->data->allcaps ) ) {
 
@@ -182,61 +169,14 @@ class User extends Model {
 				'capKey'                   => function () {
 					return ! empty( $this->data->cap_key ) ? $this->data->cap_key : null;
 				},
-				'roles'                    => function () {
-					return ! empty( $this->data->roles ) ? $this->data->roles : null;
-				},
-				'email'                    => function () {
-					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
-				},
-				'firstName'                => function () {
-					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
-				},
-				'lastName'                 => function () {
-					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
-				},
-				'extraCapabilities'        => function () {
-					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
+				'databaseId'               => function () {
+					return ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null;
 				},
 				'description'              => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
-				'username'                 => function () {
-					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
-				},
-				'name'                     => function () {
-					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
-				},
-				'registeredDate'           => function () {
-					$timestamp = ! empty( $this->data->user_registered ) ? strtotime( $this->data->user_registered ) : null;
-					return ! empty( $timestamp ) ? gmdate( 'c', $timestamp ) : null;
-				},
-				'nickname'                 => function () {
-					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
-				},
-				'url'                      => function () {
-					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
-				},
-				'slug'                     => function () {
-					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
-				},
-				'nicename'                 => function () {
-					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
-				},
-				'locale'                   => function () {
-					$user_locale = get_user_locale( $this->data );
-
-					return ! empty( $user_locale ) ? $user_locale : null;
-				},
-				'shouldShowAdminToolbar'   => function () {
-					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
-
-					return 'true' === $toolbar_preference_meta;
-				},
-				'userId'                   => ! empty( $this->data->ID ) ? absint( $this->data->ID ) : null,
-				'uri'                      => function () {
-					$user_profile_url = get_author_posts_url( $this->data->ID );
-
-					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
+				'email'                    => function () {
+					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
 				'enqueuedScriptsQueue'     => static function () {
 					global $wp_scripts;
@@ -255,6 +195,63 @@ class User extends Model {
 					$wp_styles->queue = [];
 
 					return $queue;
+				},
+				'extraCapabilities'        => function () {
+					return ! empty( $this->data->allcaps ) ? array_keys( $this->data->allcaps ) : null;
+				},
+				'firstName'                => function () {
+					return ! empty( $this->data->first_name ) ? $this->data->first_name : null;
+				},
+				'id'                       => function () {
+					return ( ! empty( $this->data->ID ) ) ? Relay::toGlobalId( 'user', (string) $this->data->ID ) : null;
+				},
+				'lastName'                 => function () {
+					return ! empty( $this->data->last_name ) ? $this->data->last_name : null;
+				},
+				'locale'                   => function () {
+					$user_locale = get_user_locale( $this->data );
+
+					return ! empty( $user_locale ) ? $user_locale : null;
+				},
+				'nicename'                 => function () {
+					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
+				},
+				'name'                     => function () {
+					return ! empty( $this->data->display_name ) ? $this->data->display_name : null;
+				},
+				'nickname'                 => function () {
+					return ! empty( $this->data->nickname ) ? $this->data->nickname : null;
+				},
+				'registeredDate'           => function () {
+					$timestamp = ! empty( $this->data->user_registered ) ? strtotime( $this->data->user_registered ) : null;
+					return ! empty( $timestamp ) ? gmdate( 'c', $timestamp ) : null;
+				},
+				'roles'                    => function () {
+					return ! empty( $this->data->roles ) ? $this->data->roles : null;
+				},
+				'shouldShowAdminToolbar'   => function () {
+					$toolbar_preference_meta = get_user_meta( $this->data->ID, 'show_admin_bar_front', true );
+
+					return 'true' === $toolbar_preference_meta;
+				},
+				'slug'                     => function () {
+					return ! empty( $this->data->user_nicename ) ? $this->data->user_nicename : null;
+				},
+				'uri'                      => function () {
+					$user_profile_url = get_author_posts_url( $this->data->ID );
+
+					return ! empty( $user_profile_url ) ? str_ireplace( home_url(), '', $user_profile_url ) : '';
+				},
+				'url'                      => function () {
+					return ! empty( $this->data->user_url ) ? $this->data->user_url : null;
+				},
+				'username'                 => function () {
+					return ! empty( $this->data->user_login ) ? $this->data->user_login : null;
+				},
+
+				// Deprecated.
+				'userId'                   => function () {
+					return $this->databaseId;
 				},
 			];
 		}

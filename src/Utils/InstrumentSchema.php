@@ -25,12 +25,19 @@ class InstrumentSchema {
 			return $type;
 		}
 
-		$fields = $type->getFields();
+		if ( ! empty( $type->name ) ) {
+			$type->name = ucfirst( esc_html( $type->name ) );
+		}
 
-		$fields                 = ! empty( $fields ) ? self::wrap_fields( $fields, $type->name ) : [];
-		$type->name             = ucfirst( esc_html( $type->name ) );
-		$type->description      = ! empty( $type->description ) ? esc_html( $type->description ) : '';
-		$type->config['fields'] = $fields;
+		if ( ! empty( $type->description ) ) {
+			$type->description = esc_html( $type->description );
+		}
+
+		if ( ! empty( $type->config ) ) {
+			$fields                 = $type->getFields();
+			$fields                 = ! empty( $fields ) && isset( $type->name ) ? self::wrap_fields( $fields, $type->name ) : [];
+			$type->config['fields'] = $fields;
+		}
 
 		return $type;
 	}
@@ -41,10 +48,10 @@ class InstrumentSchema {
 	 * This wraps fields to provide sanitization on fields output by introspection queries
 	 * (description/deprecation reason) and provides hooks to resolvers.
 	 *
-	 * @param mixed[] $fields    The fields configured for a Type
-	 * @param string  $type_name The Type name
+	 * @param \GraphQL\Type\Definition\FieldDefinition[] $fields    The fields configured for a Type
+	 * @param string                                     $type_name The Type name
 	 *
-	 * @return mixed[]
+	 * @return \GraphQL\Type\Definition\FieldDefinition[]
 	 */
 	protected static function wrap_fields( array $fields, string $type_name ) {
 		if ( empty( $fields ) ) {
@@ -195,7 +202,7 @@ class InstrumentSchema {
 	 * @param array<string,mixed>                      $args           The args for the field
 	 * @param \WPGraphQL\AppContext                    $context        The AppContext passed down the ResolveTree
 	 * @param \GraphQL\Type\Definition\ResolveInfo     $info           The ResolveInfo passed down the ResolveTree
-	 * @param mixed|callable|string                    $field_resolver The Resolve function for the field
+	 * @param ?callable                                $field_resolver The Resolve function for the field
 	 * @param string                                   $type_name      The name of the type the fields belong to
 	 * @param string                                   $field_key      The name of the field
 	 * @param \GraphQL\Type\Definition\FieldDefinition $field          The Field Definition for the resolving field
@@ -263,7 +270,7 @@ class InstrumentSchema {
 		if ( isset( $field->config['auth']['allowedRoles'] ) && is_array( $field->config['auth']['allowedRoles'] ) ) {
 			$roles         = ! empty( wp_get_current_user()->roles ) ? wp_get_current_user()->roles : [];
 			$allowed_roles = array_values( $field->config['auth']['allowedRoles'] );
-			if ( empty( array_intersect( array_values( $roles ), array_values( $allowed_roles ) ) ) ) {
+			if ( empty( array_intersect( array_values( $roles ), $allowed_roles ) ) ) {
 				throw new UserError( esc_html( $auth_error ) );
 			}
 		}

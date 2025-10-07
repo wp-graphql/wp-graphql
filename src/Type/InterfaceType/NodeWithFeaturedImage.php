@@ -21,7 +21,9 @@ class NodeWithFeaturedImage {
 		register_graphql_interface_type(
 			'NodeWithFeaturedImage',
 			[
-				'description' => __( 'A node that can have a featured image set', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer.', 'wp-graphql' );
+				},
 				'interfaces'  => [ 'Node' ],
 				'connections' => [
 					'featuredImage' => [
@@ -39,16 +41,22 @@ class NodeWithFeaturedImage {
 						},
 					],
 				],
-				'fields'      => [
-					'featuredImageId'         => [
-						'type'        => 'ID',
-						'description' => __( 'Globally unique ID of the featured image assigned to the node', 'wp-graphql' ),
-					],
-					'featuredImageDatabaseId' => [
-						'type'        => 'Int',
-						'description' => __( 'The database identifier for the featured image node assigned to the content node', 'wp-graphql' ),
-					],
-				],
+				'fields'      => static function () {
+					return [
+						'featuredImageId'         => [
+							'type'        => 'ID',
+							'description' => static function () {
+								return __( 'Globally unique ID of the featured image assigned to the node', 'wp-graphql' );
+							},
+						],
+						'featuredImageDatabaseId' => [
+							'type'        => 'Int',
+							'description' => static function () {
+								return __( 'The database identifier for the featured image node assigned to the content node', 'wp-graphql' );
+							},
+						],
+					];
+				},
 			]
 		);
 	}

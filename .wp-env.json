@@ -1,9 +1,28 @@
 {
-  "core": "WordPress/WordPress",
-  "plugins": [ "." ],
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "core": null,
+  "plugins": [
+    "./."
+  ],
   "themes": [],
-  "port": 8888,
-  "config": {
-    "WP_DEBUG": true
+  "env": {
+    "development": {
+      "config": {
+        "WP_DEBUG": true,
+        "WP_DEVELOPMENT_MODE": "plugin"
+      }
+    },
+    "tests": {
+      "plugins": [
+        "./.",
+        "./tests/e2e/plugins/settings-page-spec"
+      ],
+      "config": {
+        "FS_METHOD": "direct"
+      },
+      "mappings": {
+        "/wp-content/plugins/wp-graphql": "."
+      }
+    }
   }
 }

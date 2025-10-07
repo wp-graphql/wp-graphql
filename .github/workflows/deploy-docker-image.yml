@@ -13,10 +13,22 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php: [ '8.1', '8.0', '7.4', '7.3' ]
-        wordpress: [ '6.5', '6.4', '6.3', '6.2', '6.1', '6.0', '5.9', '5.8', '5.7', '5.6', '5.5' ]
+        php: [ '8.1', '8.0', '7.4' ]
+        wordpress: [ '6.8', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1', '6.0' ]
         include:
           # WordPress versions above the PHP testing matrix.
+          - wordpress: '6.8'
+            php: '8.3'
+          - wordpress: '6.8'
+            php: '8.2'
+          - wordpress: '6.7'
+            php: '8.3'
+          - wordpress: '6.7'
+            php: '8.2'
+          - wordpress: '6.6'
+            php: '8.2'
+          - wordpress: '6.6'
+            php: '8.2'
           - wordpress: '6.5'
             php: '8.3'
           - wordpress: '6.5'
@@ -31,37 +43,28 @@ jobs:
             php: '8.2'
         exclude:
           # WordPress versions that don't have a PHP Docker image available (too new)
+          - wordpress: '6.8'
+            php: '8.0'
+          - wordpress: '6.8'
+            php: '7.4'
+          - wordpress: '6.7'
+            php: '8.0'
+          - wordpress: '6.7'
+            php: '7.4'
+          - wordpress: '6.6'
+            php: '8.0'
+          - wordpress: '6.6'
+            php: '7.4'
           - wordpress: '6.5'
             php: '8.0'
           - wordpress: '6.5'
             php: '7.4'
-          - wordpress: '6.5'
-            php: '7.3'
           - wordpress: '6.4'
             php: '7.4'
-          - wordpress: '6.4'
-            php: '7.3'
           - wordpress: '6.3'
             php: '7.4'
-          - wordpress: '6.3'
-            php: '7.3'
           - wordpress: '6.2'
             php: '7.4'
-          - wordpress: '6.2'
-            php: '7.3'
-          - wordpress: '6.1'
-            php: '7.3'
-          - wordpress: '6.0'
-            php: '7.3'
-          # WordPress versions that don't support PHP versions in the matrix (too old)
-          - wordpress: '5.7'
-            php: '8.1'
-          - wordpress: '5.6'
-            php: '8.1'
-          - wordpress: '5.5'
-            php: '8.1'
-          - wordpress: '5.5'
-            php: '8.0'
 
       fail-fast: false
     name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }}

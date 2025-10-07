@@ -798,4 +798,158 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$this->assertSame( $expected_slug, get_term( $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->slug );
 		$this->assertSame( $expected_description, get_term( $actual['data']['createTag']['tag']['databaseId'], 'post_tag' )->description );
 	}
+
+	/**
+	 * Tests that a child category can be updated to have no parent
+	 */
+	public function testChildCategoryCanBeUpdatedWithNoParent() {
+		wp_set_current_user( $this->admin );
+
+		// First create a parent category
+		$parent_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Parent Category',
+		]);
+
+		// Then create a child category
+		$child_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Child Category',
+			'parent'   => $parent_term_id,
+		]);
+
+		$query = '
+		mutation updateChildCategory($input: UpdateCategoryInput!) {
+			updateCategory(input: $input) {
+				category {
+					id
+					databaseId
+					parentDatabaseId
+				}
+			}
+		}
+		';
+
+		// Test updating with parentId: "0"
+		$variables = [
+			'input' => [
+				'id'       => $child_term_id,
+				'parentId' => "0",
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['updateCategory']['category']['parentDatabaseId'] );
+
+		// Reset the parent
+		wp_update_term( $child_term_id, 'category', [ 'parent' => $parent_term_id ] );
+
+		// Verify the parent was actually set
+		$term = get_term( $child_term_id, 'category' );
+		$this->assertEquals( $parent_term_id, $term->parent, 'Parent was not properly reset between tests' );
+
+		// Test updating with encoded ID "term:0"
+		$variables = [
+			'input' => [
+				'id'       => $child_term_id,
+				'parentId' => 'dGVybTow', // base64 encoded "term:0"
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['updateCategory']['category']['parentDatabaseId'] );
+	}
+
+	/**
+	 * Tests that a child category can be updated to have no parent using parentDatabaseId
+	 */
+	public function testChildCategoryCanBeUpdatedWithNoParentUsingDatabaseId() {
+		wp_set_current_user( $this->admin );
+
+		// First create a parent category
+		$parent_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Parent Category',
+		]);
+
+		// Then create a child category
+		$child_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Child Category',
+			'parent'   => $parent_term_id,
+		]);
+
+		$query = '
+		mutation updateChildCategory($input: UpdateCategoryInput!) {
+			updateCategory(input: $input) {
+				category {
+					id
+					databaseId
+					parentDatabaseId
+				}
+			}
+		}
+		';
+
+		// Test updating with parentDatabaseId: 0
+		$variables = [
+			'input' => [
+				'id'              => $child_term_id,
+				'parentDatabaseId' => 0,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['updateCategory']['category']['parentDatabaseId'] );
+
+		// Reset the parent
+		wp_update_term( $child_term_id, 'category', [ 'parent' => $parent_term_id ] );
+
+		// Verify the parent was actually set
+		$term = get_term( $child_term_id, 'category' );
+		$this->assertEquals( $parent_term_id, $term->parent, 'Parent was not properly reset between tests' );
+	}
+
+	/**
+	 * Tests that an error is thrown when both parentId and parentDatabaseId are provided
+	 */
+	public function testErrorWhenBothParentIdAndParentDatabaseIdProvided() {
+		wp_set_current_user( $this->admin );
+
+		$child_term_id = $this->factory()->term->create([
+			'taxonomy' => 'category',
+			'name'     => 'Test Category',
+		]);
+
+		$query = '
+		mutation updateChildCategory($input: UpdateCategoryInput!) {
+			updateCategory(input: $input) {
+				category {
+					id
+					databaseId
+					parentDatabaseId
+				}
+			}
+		}
+		';
+
+		$variables = [
+			'input' => [
+				'id'              => $child_term_id,
+				'parentId'        => '0',
+				'parentDatabaseId' => 0,
+			],
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$this->assertStringContainsString( 'Please provide only one of parentId or parentDatabaseId', $actual['errors'][0]['message'] );
+	}
 }

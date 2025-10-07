@@ -27,14 +27,19 @@ const selectors = {
     submitButton: '#wp-submit',
 };
 
-export const wpHomeUrl = 'http://localhost:8888';
-export const wpAdminUrl = 'http://localhost:8888/wp-admin';
+export const wpHomeUrl = 'http://localhost:8889';
+export const wpAdminUrl = 'http://localhost:8889/wp-admin';
 
 /**
  * Log in to the WordPress admin dashboard.
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
 export async function loginToWordPressAdmin( page ) {
+    await page.goto( 'http://localhost:8889/wp-admin', {
+        waitUntil: 'networkidle',
+    } );
+
+    // Check if we're already logged in after navigating to admin
     const isLoggedIn = await page.$( '#wpadminbar' );
 
     // If already logged in, return early
@@ -42,9 +47,7 @@ export async function loginToWordPressAdmin( page ) {
         return;
     }
 
-    await page.goto( 'http://localhost:8888/wp-admin', {
-        waitUntil: 'networkidle',
-    } );
+    // If not logged in, fill the login form
     await page.fill( selectors.loginUsername, 'admin' );
     await page.fill( selectors.loginPassword, 'password' );
     await page.click( selectors.submitButton );
@@ -221,4 +224,36 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
         state: 'visible',
     } );
 
+}
+
+/**
+ * Activates the specified plugin in WordPress admin.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page object.
+ * @param {string} slug - The slug of the plugin to activate.
+ * @returns {Promise<void>}
+ */
+export async function activatePlugin(page, slug) {
+    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+    if (!isPluginActive) {
+        await pluginRow.locator('.activate a').click();
+    }
+}
+
+/**
+ * Deactivates the specified plugin in WordPress admin.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page object.
+ * @param {string} slug - The slug of the plugin to deactivate.
+ * @returns {Promise<void>}
+ */
+export async function deactivatePlugin(page, slug) {
+    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+    if (isPluginActive) {
+        await pluginRow.locator('.deactivate a').click();
+    }
 }

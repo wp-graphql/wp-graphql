@@ -3,22 +3,23 @@
  * Plugin Name: WPGraphQL
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
+ * Release Asset: true
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 1.26.0
+ * Version: 2.3.7
  * Text Domain: wp-graphql
  * Domain Path: /languages/
- * Requires at least: 5.0
- * Tested up to: 6.5
- * Requires PHP: 7.1
+ * Requires at least: 6.0
+ * Tested up to: 6.8
+ * Requires PHP: 7.4
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  1.26.0
+ * @version  2.3.7
  */
 
 // Exit if accessed directly.
@@ -62,7 +63,7 @@ function graphql_require_bootstrap_files(): void {
  *
  * Bedrock
  *  - WPGRAPHQL_AUTOLOAD: not defined
- *  - composer deps installed outside of the plugin
+ *  - composer deps installed outside the plugin
  *
  * Normal (.org repo install)
  * - WPGRAPHQL_AUTOLOAD: not defined
@@ -157,27 +158,40 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 /**
- * Initialize the plugin tracker
- *
- * @return void
+ * Initialize the plugin tracker.
  */
-function graphql_init_appsero_telemetry() {
+function graphql_init_appsero_telemetry(): void {
 	// If the class doesn't exist, or code is being scanned by PHPSTAN, move on.
 	if ( ! class_exists( 'Appsero\Client' ) || defined( 'PHPSTAN' ) ) {
 		return;
 	}
 
-	$client   = new Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
-	$insights = $client->insights();
+	// Wrap the Appsero client in a try/catch block to prevent fatal errors
+	try {
+		$client = new \Appsero\Client( 'cd0d1172-95a0-4460-a36a-2c303807c9ef', 'WPGraphQL', __FILE__ );
 
-	// If the Appsero client has the add_plugin_data method, use it
-	if ( method_exists( $insights, 'add_plugin_data' ) ) {
-		// @phpstan-ignore-next-line
-		$insights->add_plugin_data();
+		/**
+		 * @var \Appsero\Insights $insights
+		 *
+		 * @phpstan-ignore varTag.type (The doctype for Appsero\Client::insights() is wrong.)
+		 */
+		$insights = $client->insights();
+
+		// If the Appsero client has the add_plugin_data method, use it
+		if ( method_exists( $insights, 'add_plugin_data' ) ) {
+			$insights->add_plugin_data();
+		}
+
+		$insights->init();
+	} catch ( \Throwable $e ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is intentional here.
+			sprintf(
+			// translators: %s is the error message
+				__( 'Error initializing Appsero: %s', 'wp-graphql' ),
+				$e->getMessage()
+			)
+		);
 	}
-
-	// @phpstan-ignore-next-line
-	$insights->init();
 }
 
 graphql_init_appsero_telemetry();

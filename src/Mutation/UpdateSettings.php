@@ -121,7 +121,9 @@ class UpdateSettings {
 		 */
 		$output_fields['allSettings'] = [
 			'type'        => 'Settings',
-			'description' => __( 'Update all settings.', 'wp-graphql' ),
+			'description' => static function () {
+				return __( 'Update all settings.', 'wp-graphql' );
+			},
 			'resolve'     => static function () {
 				return true;
 			},
@@ -135,7 +137,10 @@ class UpdateSettings {
 				$output_fields[ Utils::format_field_name( $setting_type_name ) ] = [
 					'type'        => $setting_type_name,
 					// translators: %s is the setting type name
-					'description' => sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name ),
+					'description' => static function () use ( $setting_type_name ) {
+						// translators: %s is the setting type name
+						return sprintf( __( 'Update the %s setting.', 'wp-graphql' ), $setting_type_name );
+					},
 					'resolve'     => static function () use ( $setting_type_name ) {
 						return $setting_type_name;
 					},

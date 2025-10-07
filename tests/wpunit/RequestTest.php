@@ -94,11 +94,8 @@ class RequestTest extends \Codeception\TestCase\WPTestCase {
 		$this->factory->post->create();
 
 		$request = new Request( [ 'query' => 'query {}' ] );
+		$this->expectException( \Throwable::class );
 		$results = $request->execute();
-
-		$this->assertArrayHasKey( 'errors', $results );
-		$this->assertArrayNotHasKey( 'data', $results );
-		$this->assertEquals( 1, count( $results['errors'] ) );
 	}
 
 	/**

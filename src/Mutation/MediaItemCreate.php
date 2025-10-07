@@ -35,59 +35,87 @@ class MediaItemCreate {
 		return [
 			'altText'       => [
 				'type'        => 'String',
-				'description' => __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Alternative text to display when mediaItem is not displayed', 'wp-graphql' );
+				},
 			],
 			'authorId'      => [
 				'type'        => 'ID',
-				'description' => __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The userId to assign as the author of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'caption'       => [
 				'type'        => 'String',
-				'description' => __( 'The caption for the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The caption for the mediaItem', 'wp-graphql' );
+				},
 			],
 			'commentStatus' => [
 				'type'        => 'String',
-				'description' => __( 'The comment status for the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The comment status for the mediaItem', 'wp-graphql' );
+				},
 			],
 			'date'          => [
 				'type'        => 'String',
-				'description' => __( 'The date of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The date of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'dateGmt'       => [
 				'type'        => 'String',
-				'description' => __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The date (in GMT zone) of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'description'   => [
 				'type'        => 'String',
-				'description' => __( 'Description of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Description of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'filePath'      => [
 				'type'        => 'String',
-				'description' => __( 'The file name of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The file name of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'fileType'      => [
 				'type'        => 'MimeTypeEnum',
-				'description' => __( 'The file type of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The file type of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'slug'          => [
 				'type'        => 'String',
-				'description' => __( 'The slug of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The slug of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'status'        => [
 				'type'        => 'MediaItemStatusEnum',
-				'description' => __( 'The status of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The status of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'title'         => [
 				'type'        => 'String',
-				'description' => __( 'The title of the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The title of the mediaItem', 'wp-graphql' );
+				},
 			],
 			'pingStatus'    => [
 				'type'        => 'String',
-				'description' => __( 'The ping status for the mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ping status for the mediaItem', 'wp-graphql' );
+				},
 			],
 			'parentId'      => [
 				'type'        => 'ID',
-				'description' => __( 'The ID of the parent object', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the parent object', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -101,7 +129,9 @@ class MediaItemCreate {
 		return [
 			'mediaItem' => [
 				'type'        => 'MediaItem',
-				'description' => __( 'The MediaItem object mutation type.', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The MediaItem object mutation type.', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload, $args, AppContext $context ) {
 					if ( empty( $payload['postObjectId'] ) || ! absint( $payload['postObjectId'] ) ) {
 						return null;
@@ -194,7 +224,9 @@ class MediaItemCreate {
 
 			/**
 			 * Require the file.php file from wp-admin. This file includes the
-			 * download_url and wp_handle_sideload methods
+			 * download_url and wp_handle_sideload methods.
+			 *
+			 * @phpstan-ignore requireOnce.fileNotFound
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -230,7 +262,7 @@ class MediaItemCreate {
 				'type'     => ! empty( $input['fileType'] ) ? $input['fileType'] : wp_check_filetype( $temp_file ),
 				'tmp_name' => $temp_file,
 				'error'    => 0,
-				'size'     => filesize( $temp_file ),
+				'size'     => (int) filesize( $temp_file ),
 			];
 
 			/**
@@ -303,7 +335,9 @@ class MediaItemCreate {
 			}
 
 			/**
-			 * Check if the wp_generate_attachment_metadata method exists and include it if not
+			 * Check if the wp_generate_attachment_metadata method exists and include it if not.
+			 *
+			 * @phpstan-ignore requireOnce.fileNotFound
 			 */
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 

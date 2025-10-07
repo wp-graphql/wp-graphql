@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - develop
+      - release/*
   pull_request:
     branches:
       - develop
       - master
+      - release/*
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:
@@ -45,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "20"
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16

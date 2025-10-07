@@ -22,6 +22,11 @@ class NodeResolver {
 	protected $context;
 
 	/**
+	 * @var string
+	 */
+	protected $route;
+
+	/**
 	 * NodeResolver constructor.
 	 *
 	 * @param \WPGraphQL\AppContext $context
@@ -31,7 +36,8 @@ class NodeResolver {
 	public function __construct( AppContext $context ) {
 		global $wp;
 		$this->wp               = $wp;
-		$this->wp->matched_rule = Router::$route . '/?$';
+		$this->route            = Router::$route . '/?$';
+		$this->wp->matched_rule = $this->route;
 		$this->context          = $context;
 	}
 
@@ -50,22 +56,6 @@ class NodeResolver {
 		if ( ! $this->is_valid_node_type( 'ContentNode' ) ) {
 			return null;
 		}
-
-		/**
-		 * Disabling the following code for now, since add_rewrite_uri() would cause a request to direct to a different valid permalink.
-		 */
-		/* phpcs:disable
-		if ( ! isset( $this->wp->query_vars['uri'] ) ) {
-			return $post;
-		}
-		$permalink    = get_permalink( $post );
-		$parsed_path  = $permalink ? wp_parse_url( $permalink, PHP_URL_PATH ) : null;
-		$trimmed_path = $parsed_path ? rtrim( ltrim( $parsed_path, '/' ), '/' ) : null;
-		$uri_path     = rtrim( ltrim( $this->wp->query_vars['uri'], '/' ), '/' );
-		if ( $trimmed_path !== $uri_path ) {
-			return null;
-		}
-		phpcs:enable */
 
 		if ( empty( $this->wp->query_vars['uri'] ) ) {
 			return $post;
@@ -222,6 +212,7 @@ class NodeResolver {
 
 		// Resolve Post Objects.
 		if ( $queried_object instanceof WP_Post ) {
+
 			// If Page for Posts is set, we need to return the Page archive, not the page.
 			if ( $query->is_posts_page ) {
 				// If were intentionally querying for a something other than a ContentType, we need to return null instead of the archive.
@@ -240,6 +231,10 @@ class NodeResolver {
 
 			// Validate the post before returning it.
 			if ( ! $this->validate_post( $queried_object ) ) {
+				return null;
+			}
+
+			if ( empty( $extra_query_vars ) && isset( $this->wp->query_vars['error'] ) && '404' === $this->wp->query_vars['error'] ) {
 				return null;
 			}
 
@@ -485,7 +480,7 @@ class NodeResolver {
 				}
 			}
 
-			if ( ! empty( $this->wp->matched_rule ) ) {
+			if ( ! empty( $this->wp->matched_rule ) && $this->wp->matched_rule !== $this->route ) {
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );
 
@@ -662,8 +657,7 @@ class NodeResolver {
 		$comment_match = [];
 		// look for a #comment-{$id} anywhere in the uri.
 		if ( preg_match( '/#comment-(\d+)/', $uri, $comment_match ) ) {
-			$comment_id = isset( $comment_match[1] ) ? absint( $comment_match[1] ) : null;
-
+			$comment_id = absint( $comment_match[1] );
 			return ! empty( $comment_id ) ? $comment_id : null;
 		}
 

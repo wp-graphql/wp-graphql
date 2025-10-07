@@ -17,28 +17,36 @@ class NodeWithTitle {
 			'NodeWithTitle',
 			[
 				'interfaces'  => [ 'Node' ],
-				'description' => __( 'A node that NodeWith a title', 'wp-graphql' ),
-				'fields'      => [
-					'title' => [
-						'type'        => 'String',
-						'description' => __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' ),
-						'args'        => [
-							'format' => [
-								'type'        => 'PostObjectFieldFormatEnum',
-								'description' => __( 'Format of the field output', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Content with a dedicated title field. The title typically serves as the main heading and identifier for the content.', 'wp-graphql' );
+				},
+				'fields'      => static function () {
+					return [
+						'title' => [
+							'type'        => 'String',
+							'description' => static function () {
+								return __( 'The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made.', 'wp-graphql' );
+							},
+							'args'        => [
+								'format' => [
+									'type'        => 'PostObjectFieldFormatEnum',
+									'description' => static function () {
+										return __( 'Format of the field output', 'wp-graphql' );
+									},
+								],
 							],
-						],
-						'resolve'     => static function ( $source, $args ) {
-							if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
-								// @codingStandardsIgnoreLine.
-								return $source->titleRaw;
-							}
+							'resolve'     => static function ( $source, $args ) {
+								if ( isset( $args['format'] ) && 'raw' === $args['format'] ) {
+									// @codingStandardsIgnoreLine.
+									return $source->titleRaw;
+								}
 
-							// @codingStandardsIgnoreLine.
-							return $source->titleRendered;
-						},
-					],
-				],
+								// @codingStandardsIgnoreLine.
+								return $source->titleRendered;
+							},
+						],
+					];
+				},
 			]
 		);
 	}

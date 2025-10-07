@@ -461,20 +461,25 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		$post_id = $this->factory->post->create();
 
-		$admin_args         = [
+		$admin_args = [
 			'comment_post_ID'      => $post_id,
 			'comment_content'      => 'Admin Comment',
 			'comment_author_email' => 'admin@test.com',
+			'comment_author_url'   => 'https://example.com',
 			'comment_author_IP'    => '127.0.0.1',
 			'comment_agent'        => 'Admin Agent',
+			'comment_author'       => 'Admin Name',
+
 		];
 		$admin_comment      = $this->createCommentObject( $admin_args );
 		$subscriber_args    = [
 			'comment_post_ID'      => $post_id,
 			'comment_content'      => 'Subscriber Comment',
-			'comment_author_email' => 'subscriber@test.com',
+			'comment_author_email' => 'subscriber@example.com',
+			'comment_author_url'   => 'https://example.com',
 			'comment_author_IP'    => '127.0.0.1',
 			'comment_agent'        => 'Subscriber Agent',
+			'comment_author'       => 'Subscriber Name',
 		];
 		$subscriber_comment = $this->createCommentObject( $subscriber_args );
 
@@ -497,6 +502,14 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 						}
 					}
 				}
+				author {
+				  name
+				  email
+				  url
+				  node {
+				    __typename
+				  }
+				}
 			}
 		}
 		';
@@ -513,6 +526,12 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		];
 		$subscriber_actual = $this->graphql( compact( 'query', 'variables' ) );
 
+		codecept_debug(
+			[
+				'$subscriber_actual' => $subscriber_actual,
+			]
+		);
+
 		$this->assertArrayNotHasKey( 'errors', $admin_actual );
 		$this->assertArrayNotHasKey( 'errors', $subscriber_actual );
 
@@ -526,12 +545,17 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertEquals( $expected_link, $admin_actual['data']['comment']['link'] );
 		$this->assertEquals( str_ireplace( home_url(), '', $expected_link ), $admin_actual['data']['comment']['uri'] );
 
+		$this->assertEquals( $subscriber_args['comment_author'], $subscriber_actual['data']['comment']['author']['name'] );
+		$this->assertEquals( $subscriber_args['comment_author_url'], $subscriber_actual['data']['comment']['author']['url'] );
+
 		if ( true === $should_display ) {
 			$this->assertNotNull( $admin_actual['data']['comment']['authorIp'] );
 			$this->assertNotNull( $admin_actual['data']['comment']['agent'] );
+			$this->assertSame( $subscriber_args['comment_author_email'], $subscriber_actual['data']['comment']['author']['email'] );
 		} else {
 			$this->assertNull( $admin_actual['data']['comment']['authorIp'] );
 			$this->assertNull( $admin_actual['data']['comment']['agent'] );
+			$this->assertNull( $subscriber_actual['data']['comment']['author']['email'] );
 		}
 	}
 
@@ -892,4 +916,322 @@ class CommentObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( apply_filters( 'comment_text', $filtered, null ), $actual['data']['comment']['content'] );
 	}
+
+	public function testDirectCommentQueries() {
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_content' => 'Post object',
+				'post_author'  => $this->admin,
+				'post_status'  => 'publish',
+			]
+		);
+
+		$comment_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Test direct comment query',
+			'comment_approved' => '1',
+		]);
+	
+		$query = '
+		query GetComment($id: ID!) {
+			comment(id: $id) {
+				id
+				content
+				status
+				date
+				author {
+					node {
+						__typename
+					}
+				}
+			}
+		}
+		';
+	
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId('comment', $comment_id),
+		];
+	
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+	
+		wp_delete_post( $post_id, true );
+		wp_delete_comment( $comment_id );
+	
+		$this->assertEquals( apply_filters( 'comment_text', 'Test direct comment query' ), $actual['data']['comment']['content']);
+		$this->assertEquals('APPROVE', $actual['data']['comment']['status']);
+		
+	}
+
+	public function testCommentStatusFiltering() {
+		wp_set_current_user($this->admin); // Ensure we have permission to see all comments
+
+		$post_id = $this->factory()->post->create([
+			'post_content' => 'Post object',
+			'post_author'  => $this->admin,
+			'post_status'  => 'publish',
+		]);
+		
+		// Create approved comment
+		$approved_id = $this->factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Approved comment',
+			'comment_approved' => 1,
+		]);
+	
+		// Create spam comment
+		$spam_comment_id = $this->factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Spam comment',
+			'comment_approved' => 'spam',
+		]);
+	
+		// Create pending comment
+		$pending_comment_id = $this->factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Pending comment',
+			'comment_approved' => '0',
+		]);
+	
+		$query = '
+		query GetComments($status: [CommentStatusEnum]) {
+			comments(where: { statusIn: $status }) {
+				nodes {
+					id
+					content
+					status
+				}
+			}
+		}
+		';
+	
+		// Test APPROVE status only
+		$variables = ['status' => ['APPROVE']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(1, $actual['data']['comments']['nodes']);
+		$this->assertEquals(apply_filters('comment_text', 'Approved comment'), $actual['data']['comments']['nodes'][0]['content']);
+	
+		// Test multiple statuses (APPROVE and SPAM)
+		$variables = ['status' => ['APPROVE', 'SPAM']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(2, $actual['data']['comments']['nodes']);
+	
+		// Test all statuses
+		$variables = ['status' => ['APPROVE', 'SPAM', 'HOLD']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(3, $actual['data']['comments']['nodes']);
+
+		// Set the current user to be public
+		wp_set_current_user( 0 );
+
+		// Test all statuses as a public user
+		$variables = ['status' => ['APPROVE', 'SPAM', 'HOLD']];
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+
+		// only 1 comment should be returned as the public user can only see the approved comment, not the SPAM or pending/HOLD
+		$this->assertCount(1, $actual['data']['comments']['nodes']);
+	
+		// Clean up
+		wp_delete_comment($spam_comment_id);
+		wp_delete_comment($approved_id);
+		wp_delete_comment($pending_comment_id);
+		wp_delete_post($post_id, true);
+
+	}
+
+	// Pseudo test, not actually implemented. Holding for: https://github.com/wp-graphql/wp-graphql/issues/3259
+	public function testCommentDateFiltering() {
+
+		$this->markTestIncomplete( 'placeholder test until https://github.com/wp-graphql/wp-graphql/issues/3259 is worked on' );
+
+		// Create comment from last month
+		$old_comment_id = self::factory()->comment->create([
+			'comment_post_ID' => $this->post_id,
+			'comment_content' => 'Old comment',
+			'comment_date'    => date('Y-m-d H:i:s', strtotime('-1 month')),
+		]);
+	
+		// Create recent comment
+		$new_comment_id = self::factory()->comment->create([
+			'comment_post_ID' => $this->post_id,
+			'comment_content' => 'New comment',
+			'comment_date'    => date('Y-m-d H:i:s'),
+		]);
+	
+		$query = '
+		query GetCommentsByDate($after: String, $before: String) {
+			comments(
+				where: {
+					dateQuery: {
+						after: $after
+						before: $before
+					}
+				}
+			) {
+				nodes {
+					id
+					content
+					date
+				}
+			}
+		}
+		';
+	
+		$variables = [
+			'after' => date('Y-m-d', strtotime('-1 week')),
+			'before' => date('Y-m-d'),
+		];
+	
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+
+		wp_delete_comment( $old_comment_id );
+		wp_delete_comment( $new_comment_id );
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertCount(1, $actual['data']['comments']['nodes']);
+		$this->assertEquals('New comment', $actual['data']['comments']['nodes'][0]['content']);
+	}
+
+
+	public function testCommentCounts() {
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_content' => 'Post object',
+				'post_author'  => $this->admin,
+				'post_status'  => 'publish',
+			]
+		);
+
+		// Create comments with different statuses
+		$approved_comment_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_approved' => '1', // Approved
+		]);
+		
+		
+		$spam_comment_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_approved' => 'spam', // Spam
+		]);
+	
+		$query = '
+		query GetCommentCounts($id: ID!) {
+			post(id: $id) {
+				commentCount
+				commentStatus
+			}
+		}
+		';
+	
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ),
+		];
+	
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertEquals(1, $actual['data']['post']['commentCount']); 
+
+		// delete the comments
+		wp_delete_comment( $approved_comment_id );
+		wp_delete_comment( $spam_comment_id );
+
+		// query again
+		$actual = $this->graphql(['query' => $query, 'variables' => $variables]);
+	
+		// query should succeed, but the commentCount should now be 0
+		$this->assertArrayNotHasKey('errors', $actual);
+		$this->assertEquals(0, $actual['data']['post']['commentCount']); 
+
+		// clean up
+		wp_delete_post( $post_id, true );
+
+	}
+
+	public function testHierarchicalComments() {
+
+		$post_id = $this->factory()->post->create(
+			[
+				'post_content' => 'Post object',
+				'post_author'  => $this->admin,
+				'post_status'  => 'publish',
+			]
+		);
+		// Create parent comment
+		$parent_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Parent comment',
+			'comment_approved' => '1',
+		]);
+	
+		// Create child comment
+		$child_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Child comment',
+			'comment_approved' => '1',
+			'comment_parent' => $parent_id,
+		]);
+	
+		// Create grandchild comment
+		$grandchild_id = self::factory()->comment->create([
+			'comment_post_ID' => $post_id,
+			'comment_content' => 'Grandchild comment',
+			'comment_approved' => '1',
+			'comment_parent' => $child_id,
+		]);
+	
+		$query = '
+		query GetCommentHierarchy($id: ID!) {
+			comment(id: $id) {
+				id
+				content
+				replies {
+					nodes {
+						id
+						content
+						replies {
+							nodes {
+								id
+								content
+							}
+						}
+					}
+				}
+			}
+		}
+		';
+	
+		// Test from grandchild perspective
+		$variables = [
+			'id' => \GraphQLRelay\Relay::toGlobalId( 'comment', $parent_id ),
+		];
+	
+		$actual = $this->graphql([ 'query' => $query, 'variables' => $variables ]);
+	
+		$this->assertArrayNotHasKey('errors', $actual);
+
+		wp_delete_comment( $parent_id );
+		wp_delete_comment( $child_id );
+		wp_delete_comment( $grandchild_id );
+		wp_delete_post( $post_id, true );
+
+		// there should be 1 reply
+		$this->assertCount( 1, $actual['data']['comment']['replies']['nodes']);
+
+		// there should be 1 grandchild reply
+		$this->assertCount( 1, $actual['data']['comment']['replies']['nodes'][0]['replies']['nodes']); 
+	}
+
 }

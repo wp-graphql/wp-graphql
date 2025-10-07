@@ -1100,7 +1100,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
 		// Test with union, where a resolve type is set, but no graphql_union_types.
 		register_post_type(
 			'with_union_kind_two',
@@ -1401,7 +1400,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testExcludeDeleteMutation() {
 
-
 		register_post_type(
 			'without_delete',
 			[
@@ -1443,7 +1441,6 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testExcludeUpdateMutation() {
-
 
 		register_post_type(
 			'without_update',
@@ -1609,7 +1606,7 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// the included field that was not excluded should still remain
 		$this->assertContains( 'testFieldTwo', $field_names );
 
-		unregister_post_type( 'graphql_exclude_fields' );
+		unregister_post_type( 'gql_exclude_fields' );
 	}
 
 	public function testGraphqlSingleNameWithUnderscoresIsAllowed() {
@@ -1683,19 +1680,23 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'query_var'           => true,
 				'rewrite'             => [ 'slug' => 'casinos' ],
 				'supports'            => [ 'editor', 'thumbnail', 'title' ],
-				'label'               => _( 'With Underscores' ),
+				'label'               => __( 'With Underscores' ),
 				'map_meta_cap'        => true,
 			];
 
 			// register the post type with underscore in the graphql_single_name / graphql_plural_name
 			register_post_type( 'with_underscore', $args );
 
-			$request = new \WPGraphQL\Request();
+			new \WPGraphQL\Request();
+
+			$schema = WPGraphQL::get_schema();
 
 			// clean up
 			unregister_post_type( 'with_underscore' );
 
-			$request->schema->assertValid();
+			$this->assertTrue( $schema->hasType( 'With_underscore' ) );
+
+			$schema->assertValid();
 
 			// Assert true upon success.
 			$this->assertTrue( true );
@@ -1730,7 +1731,9 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		$request = new \WPGraphQL\Request();
-		$request->schema->assertValid();
+		$schema  = WPGraphQL::get_schema();
+		$schema->assertValid();
+		$this->assertTrue( $schema->hasType( 'NoPlural' ) );
 
 		self::assertQuerySuccessful(
 			$actual,
@@ -1757,12 +1760,21 @@ class CustomPostTypeTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// assert that the schema is still valid, even though the tax
 		// didn't provide the single/plural name (it will be left out of the schema)
-		$request = new \WPGraphQL\Request();
-		$request->schema->assertValid();
+		new \WPGraphQL\Request();
+		$schema = WPGraphQL::get_schema();
 
 		// Cleanup
 		unregister_post_type( 'cpt_no_single_plural' );
-		$this->clearSchema();
+
+		$schema->assertValid();
+
+		$map = array_keys( $schema->getTypeMap() );
+
+		$this->assertTrue( in_array( 'BootstrapPost', $map, true ) );
+		$this->assertTrue( ! in_array( 'CptNoSinglePlural', $map, true ) );
+
+		// Cleanup
+		unregister_post_type( 'cpt_no_single_plural' );
 	}
 
 	public function testRegisterPostTypeWithUnderscoresAsGraphqlSingleName() {

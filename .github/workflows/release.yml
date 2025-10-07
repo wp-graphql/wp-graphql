@@ -1,0 +1,565 @@
+name: Release Management
+
+on:
+  # Using pull_request_target instead of pull_request for security reasons:
+  # - Runs in the context of the BASE repository, not the fork
+  # - Has access to repository secrets
+  # - Can commit changes to protected branches
+  # - SECURITY NOTE: Be careful when checking out PR code with this event type
+  pull_request_target:
+    types: [closed]
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Force a specific release type (leave empty for auto-detection)"
+        required: false
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+        default: "auto"
+      target_branch:
+        description: "Target branch for manual release (usually develop)"
+        required: false
+        default: "develop"
+      deploy_only:
+        description: "Only deploy an existing tag (skip release creation)"
+        required: false
+        type: boolean
+        default: false
+      deploy_tag:
+        description: "Specific tag to deploy (required if deploy_only is true)"
+        required: false
+        type: string
+        default: ""
+  schedule:
+    # Run on the 1st and 15th of each month
+    - cron: "0 0 1,15 * *"
+
+jobs:
+  prepare-release:
+    # Add debug step before the condition
+    if: |
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only != 'true') ||
+      github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_bump.outputs.version }}
+      release_created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}
+    steps:
+      - name: Debug workflow conditions
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event inputs: ${{ toJSON(github.event.inputs) }}"
+          echo "Deploy only: ${{ github.event.inputs.deploy_only }}"
+          echo "Target branch: ${{ github.event.inputs.target_branch }}"
+          echo "Release type: ${{ github.event.inputs.release_type }}"
+          echo "Current ref: ${{ github.ref }}"
+
+      - name: Set checkout ref
+        id: set_ref
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            echo "ref=master" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "ref=${{ github.event.inputs.target_branch || 'develop' }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=develop" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          # For PR events, check out the master branch
+          # For manual/scheduled events, check out the specified target branch or develop
+          ref: ${{ steps.set_ref.outputs.ref }}
+          # Use a personal access token with repo scope for better permissions
+          token: ${{ secrets.REPO_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for changesets
+        id: check_changesets
+        run: |
+          if [ -d ".changesets" ] && [ "$(ls -A .changesets)" ]; then
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+            echo "No changesets found. Proceeding with release without changesets."
+          fi
+
+      - name: Determine version bump
+        id: version_bump
+        run: |
+          if [[ "${{ github.event.inputs.release_type }}" != "auto" && "${{ github.event.inputs.release_type }}" != "" ]]; then
+            # Use the specified release type
+            npm run version:bump -- --type=${{ github.event.inputs.release_type }}
+          else
+            # Auto-detect release type from changesets, or default to patch if none found
+            if [[ "${{ steps.check_changesets.outputs.has_changesets }}" == "true" ]]; then
+              npm run version:bump
+            else
+              npm run version:bump -- --type=patch
+            fi
+          fi
+
+          # Get the new version after bump (using WPGRAPHQL_VERSION)
+          NEW_VERSION=$(grep -oP "define\(\s*'WPGRAPHQL_VERSION',\s*'\K[^']+" constants.php)
+          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update @since and deprecated version placeholders
+        id: update_since_tags
+        run: |
+          # Run the since-tags update script with the new version to update @since and deprecated version placeholders
+          npm run since-tags:update -- ${{ steps.version_bump.outputs.version }}
+
+          # Check if summary file exists and has content
+          if [ -f "/tmp/since-tags-summary.md" ]; then
+            # Read the summary file
+            SINCE_SUMMARY=$(cat /tmp/since-tags-summary.md)
+
+            # Set the output without any encoding (we'll handle that in the release notes step)
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "summary<<EOF" >> $GITHUB_OUTPUT
+            echo "$SINCE_SUMMARY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Generate release notes BEFORE updating changelog or archiving changesets
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Create a temporary directory outside the repository with proper permissions
+          mkdir -p /tmp/release-notes
+          chmod 777 /tmp/release-notes
+
+          # Initialize release notes content
+          RELEASE_NOTES="## Release Notes"
+          RELEASE_NOTES="${RELEASE_NOTES}"$'\n\n'
+
+          # Check if this is a PR from develop to master
+          if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
+            # Create a temporary file for the PR body
+            printf "%s" '${{ github.event.pull_request.body }}' > /tmp/release-notes/pr_body.md
+
+            # Process the PR body using sed instead of awk
+            PR_CONTENT=$(sed -n '/^## Changelog/,/^This PR contains all changes/p' /tmp/release-notes/pr_body.md | \
+              sed '/^This PR contains all changes/d' | \
+              sed '/^### 🔄 Pending `@since` Tag/,/^###/d')
+
+            # For debugging
+            echo "Extracted PR content:"
+            echo "$PR_CONTENT"
+
+            RELEASE_NOTES="${RELEASE_NOTES}${PR_CONTENT}"
+          else
+            # Generate release notes in markdown format for release body
+            GENERATED_NOTES=$(npm run release:notes 2>/dev/null | grep -v "^>")
+            if [[ -n "$GENERATED_NOTES" ]]; then
+              RELEASE_NOTES="${RELEASE_NOTES}${GENERATED_NOTES}"
+            fi
+          fi
+
+          # Add @since updates section if there are any
+          if [[ "${{ steps.update_since_tags.outputs.has_updates }}" == "true" ]]; then
+            # Store the summary in a variable with proper quoting
+            SINCE_SUMMARY='${{ steps.update_since_tags.outputs.summary }}'
+            RELEASE_NOTES="${RELEASE_NOTES}"$'\n\n'
+            RELEASE_NOTES="${RELEASE_NOTES}${SINCE_SUMMARY}"
+          fi
+
+          # If no content was added (after all attempts), provide default message
+          if [[ "${RELEASE_NOTES}" == "## Release Notes"$'\n\n' ]]; then
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+              RELEASE_NOTES="${RELEASE_NOTES}This release was manually triggered with version bump type: ${{ github.event.inputs.release_type || 'auto' }}"
+            elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+              RELEASE_NOTES="${RELEASE_NOTES}This is a scheduled release."
+            else
+              RELEASE_NOTES="${RELEASE_NOTES}This release was triggered by merging a PR from develop to master."
+            fi
+
+            RELEASE_NOTES="${RELEASE_NOTES}"$'\n\n'
+            RELEASE_NOTES="${RELEASE_NOTES}No changesets were found for this release. This typically means:"$'\n'
+            RELEASE_NOTES="${RELEASE_NOTES}- No features, fixes, or breaking changes were added, or"$'\n'
+            RELEASE_NOTES="${RELEASE_NOTES}- The changes made did not require a changeset"
+          fi
+
+          # Save the release notes to a file that will be used by both the changelog update and release creation
+          echo "$RELEASE_NOTES" > "$GITHUB_WORKSPACE/release_notes.md"
+
+          # For debugging
+          echo "Generated release notes:"
+          cat "$GITHUB_WORKSPACE/release_notes.md"
+
+          # Set the content for GitHub Actions output using jq to properly escape the content
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update changelogs
+        run: |
+          # First, check if this is a breaking change release by using our new script
+          # This will automatically update the upgrade notice section if breaking changes are found
+          npm run upgrade-notice:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+
+          # Now update the changelogs using the same release notes
+          npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+
+      - name: Commit changes to master
+        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Fetch all branches
+          git fetch origin
+
+          # Determine the current branch and ensure we're on develop for the first part
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "Current branch: $CURRENT_BRANCH"
+
+          # If we're not on develop, switch to it
+          if [[ "$CURRENT_BRANCH" != "develop" ]]; then
+            echo "Switching to develop branch..."
+            git checkout -B develop origin/develop
+          fi
+
+          # First commit changes to develop
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "Committing changes to develop first"
+            git add *.php *.md *.txt package.json
+            git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
+            git push origin develop
+          fi
+
+          # Delete processed changesets on develop before merging to master
+          # This prevents changeset deletions from being synced back to develop later
+          if [ -d ".changesets" ] && [ "$(find .changesets -type f -name "*.md" | wc -l)" -gt 0 ]; then
+            echo "Deleting changesets from develop before merge..."
+            ls -la .changesets/
+
+            # Remove all .md files in the .changesets directory
+            find .changesets -type f -name "*.md" -exec rm -f {} \;
+
+            # Stage and commit the deletions
+            git add -A .changesets/
+            git commit -m "chore: delete changesets before release v${{ steps.version_bump.outputs.version }}"
+            git push origin develop
+
+            echo "Changesets deleted from develop"
+          else
+            echo "No changeset files found to delete"
+          fi
+
+          # Now switch to master
+          git checkout -B master origin/master
+
+          # Merge develop into master
+          git merge develop --no-ff -m "release: merge develop into master for v${{ steps.version_bump.outputs.version }}"
+
+          # Push changes to master
+          git push origin master
+
+          # Switch back to develop for subsequent steps
+          git checkout develop
+
+      - name: Create and push tag
+        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Check if tag already exists
+          if git rev-parse "v${{ steps.version_bump.outputs.version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.version_bump.outputs.version }} already exists. Skipping tag creation."
+          else
+            # Create an annotated tag with the changelog as the message
+            git tag -a "v${{ steps.version_bump.outputs.version }}" -m "Release v${{ steps.version_bump.outputs.version }}"
+
+            # Push the tag
+            git push origin "v${{ steps.version_bump.outputs.version }}"
+          fi
+
+      - name: Create GitHub Release
+        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        uses: actions/create-release@v1
+        id: create_release
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+        with:
+          tag_name: v${{ steps.version_bump.outputs.version }}
+          release_name: Release v${{ steps.version_bump.outputs.version }}
+          body_path: ${{ github.workspace }}/release_notes.md
+          draft: false
+          prerelease: false
+
+      - name: Handle release creation failure
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure'
+        id: handle_failure
+        run: |
+          echo "Failed to create release. This could be because the tag already exists."
+          echo "Checking if release exists..."
+
+          RELEASE_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.REPO_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.version_bump.outputs.version }}")
+
+          if [[ "$RELEASE_EXISTS" == "200" ]]; then
+            echo "Release for v${{ steps.version_bump.outputs.version }} already exists. Marking as successful."
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Release creation failed for an unknown reason."
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+
+            # Check for rate limiting
+            RATE_LIMIT=$(curl -s \
+              -H "Authorization: token ${{ secrets.REPO_PAT }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/rate_limit")
+
+            REMAINING=$(echo "$RATE_LIMIT" | jq -r '.resources.core.remaining')
+            RESET_TIME=$(echo "$RATE_LIMIT" | jq -r '.resources.core.reset')
+            RESET_TIME_HUMAN=$(date -d @$RESET_TIME)
+
+            if [[ "$REMAINING" -le 10 ]]; then
+              echo "::warning::GitHub API rate limit is low: $REMAINING requests remaining. Resets at $RESET_TIME_HUMAN"
+            fi
+
+            # Try again with a different approach
+            echo "Attempting to create release using GitHub CLI..."
+
+            # Install GitHub CLI if not already installed
+            if ! command -v gh &> /dev/null; then
+              echo "Installing GitHub CLI..."
+              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable master" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+              sudo apt update
+              sudo apt install gh
+            fi
+
+            # Authenticate with GitHub CLI
+            echo "${{ secrets.REPO_PAT }}" | gh auth login --with-token
+
+            # Verify the release notes file exists
+            if [ -f "${{ github.workspace }}/release_notes.md" ]; then
+              echo "Using release notes from workspace:"
+              cat "${{ github.workspace }}/release_notes.md"
+
+              # Try to create the release with GitHub CLI
+              if gh release create "v${{ steps.version_bump.outputs.version }}" \
+                --title "Release v${{ steps.version_bump.outputs.version }}" \
+                --notes-file "${{ github.workspace }}/release_notes.md"; then
+                echo "Successfully created release using GitHub CLI"
+                echo "release_exists=true" >> $GITHUB_OUTPUT
+              else
+                echo "::error::Failed to create release using GitHub CLI with notes file."
+
+                # Try one more time with inline notes from the output
+                echo "Trying with inline notes..."
+                if gh release create "v${{ steps.version_bump.outputs.version }}" \
+                  --title "Release v${{ steps.version_bump.outputs.version }}" \
+                  --notes "${{ steps.release_notes.outputs.content }}"; then
+                  echo "Successfully created release using GitHub CLI with inline notes"
+                  echo "release_exists=true" >> $GITHUB_OUTPUT
+                else
+                  echo "::error::Failed to create release using all methods. Please check logs for details."
+                  echo "release_exists=false" >> $GITHUB_OUTPUT
+                  exit 1
+                fi
+              fi
+            else
+              echo "Release notes file not found in workspace. Using inline notes..."
+              # Try with inline notes
+              if gh release create "v${{ steps.version_bump.outputs.version }}" \
+                --title "Release v${{ steps.version_bump.outputs.version }}" \
+                --notes "${{ steps.release_notes.outputs.content }}"; then
+                echo "Successfully created release using GitHub CLI with inline notes"
+                echo "release_exists=true" >> $GITHUB_OUTPUT
+              else
+                echo "::error::Failed to create release using all methods. Please check logs for details."
+                echo "release_exists=false" >> $GITHUB_OUTPUT
+                exit 1
+              fi
+            fi
+          fi
+
+      # Add a cleanup step to ensure temporary files are removed
+      # This step runs AFTER the GitHub release is created
+      - name: Cleanup temporary files
+        if: always()
+        run: |
+          # Check if the temporary directory exists before attempting to remove it
+          if [ -d "/tmp/release-notes" ]; then
+            echo "Cleaning up temporary files..."
+            rm -rf /tmp/release-notes
+            echo "Temporary files removed."
+          else
+            echo "No temporary files to clean up."
+          fi
+
+          # Also remove the release notes file from the workspace
+          # This prevents it from being versioned in the repository
+          if [ -f "$GITHUB_WORKSPACE/release_notes.md" ]; then
+            echo "Removing release notes file from workspace..."
+            rm -f "$GITHUB_WORKSPACE/release_notes.md"
+            echo "Workspace release notes file removed."
+          fi
+
+      # Changesets are now deleted on develop before the merge to master
+      # This prevents changeset deletions from being synced back to develop
+
+      - name: Update develop branch
+        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        run: |
+          # Configure Git
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Fetch all branches
+          git fetch --unshallow || git fetch
+
+          # Checkout develop branch
+          git checkout develop
+          git pull
+
+          # Merge master into develop with a descriptive message
+          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
+
+          # Push changes to develop
+          git push origin develop
+
+          echo "Successfully synced master back to develop branch"
+
+      - name: Commit changes to develop
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "release: prepare v${{ steps.version_bump.outputs.version }}"
+          file_pattern: "*.php *.md *.txt package.json"
+          # For manual/scheduled events, commit to the specified target branch or develop
+          branch: ${{ github.event.inputs.target_branch || 'develop' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+
+  deploy-wordpress:
+    # Only need prepare-release if we're not doing a deploy-only run
+    needs: prepare-release
+    # Run this job if:
+    # 1. prepare-release job confirmed the release was created or already exists
+    # 2. OR if we're doing a manual deploy of an existing tag
+    if: |
+      always() &&
+      (
+        (needs.prepare-release.outputs.release_created == 'true') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only == 'true' && github.event.inputs.deploy_tag != '')
+      )
+    name: Deploy to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine tag and version to deploy
+        id: get_version_info
+        run: |
+          if [[ "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
+            DEPLOY_TAG="${{ github.event.inputs.deploy_tag }}"
+            # Ensure deploy_tag starts with 'v' if provided for deploy_only
+            if [[ ! "$DEPLOY_TAG" =~ ^v ]]; then
+              echo "::warning::Deploy tag '${DEPLOY_TAG}' provided for deploy_only does not start with 'v'. Prepending 'v'."
+              DEPLOY_TAG="v${DEPLOY_TAG}"
+            fi
+          else
+            DEPLOY_TAG="v${{ needs.prepare-release.outputs.version }}"
+          fi
+
+          # Validate tag format (vX.Y.Z)
+          if [[ ! "$DEPLOY_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]]; then
+             echo "::error::Invalid tag format: '$DEPLOY_TAG'. Expected format: vX.Y.Z or vX.Y.Z-suffix"
+             exit 1
+          fi
+
+          # Extract version number without 'v'
+          VERSION_NUMBER=$(echo "$DEPLOY_TAG" | sed 's/^v//')
+
+          echo "tag_name=${DEPLOY_TAG}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION_NUMBER}" >> $GITHUB_OUTPUT
+          echo "Deploying Tag: ${DEPLOY_TAG}, Version Number: ${VERSION_NUMBER}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Checkout the specific tag (e.g., v2.3.0)
+          ref: ${{ steps.get_version_info.outputs.tag_name }}
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install Node dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: WordPress Plugin Deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SLUG: wp-graphql
+          # Pass the version number WITHOUT the 'v' prefix (e.g., 2.3.0)
+          VERSION: ${{ steps.get_version_info.outputs.version_number }}
+
+      - name: Create artifact directory
+        run: |
+          mkdir -p plugin-build
+
+      - name: Create plugin artifact
+        run: |
+          composer run-script zip
+
+      - name: Upload artifact to workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp-graphql
+          path: plugin-build/wp-graphql.zip
+
+      - name: Upload artifact to release
+        # Only upload to release if we're not doing a manual deploy
+        if: github.event.inputs.deploy_only != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          # Use the correct tag name (e.g., v2.3.0)
+          tag_name: ${{ steps.get_version_info.outputs.tag_name }}
+          files: plugin-build/wp-graphql.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -18,9 +18,15 @@
 /node_modules
 /packages
 /artifacts
-
+/.changeset
+/scripts
+.cursor
+.changesets
+.husky
+.nvmrc
+.babel.config.cjs
+jest.config.js
 .DS_Store
-.coveralls.yml
 .distignore
 .dockerignore
 .env

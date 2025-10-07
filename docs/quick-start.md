@@ -31,17 +31,49 @@ If you prefer not to install WPGraphQL from the WordPress.org repository, you ca
 
 Installing plugins with [Composer](https://getcomposer.org/), a PHP dependency manager, allows you to avoid committing plugin code into your project's version control.
 
-WPGraphQL is available for installing with Composer from [packagist.org](https://packagist.org/packages/wp-graphql/wp-graphql) and [wpackagist.org](https://wpackagist.org/search?q=wp-graphql\&type=any\&search=).
+WPGraphQL is available for installing with Composer from [wpackagist.org](https://wpackagist.org/search?q=wp-graphql\&type=any\&search=).
 
-The most straight forward way to install WPGraphQL with composer would be to run the following command:
+You can add WPGraphQL as a dependency to your project with the following command: 
 
-```shell
-composer require wp-graphql/wp-graphql
+```bash
+composer require wpackagist-plugin/wp-graphql
 ```
 
-This would add WPGraphQL as a dependency for your project.
+Below is an example of a composer.json file with WPGraphQL added as as a plugin dependency:
 
-The fine folks of [roots.io](https://roots.io/) have written more information on [Using Composer with WordPress](https://roots.io/using-composer-with-wordpress/).
+```json {5-12,14-16,19-21}
+{
+    "name": "your-name/your-project",
+    "description": "Your WordPress Project",
+    "repositories":[
+        {
+            "type":"composer",
+            "url":"https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
+        }
+    ],
+    "require": {
+        "wpackagist-plugin/wp-graphql":"trunk",
+    },
+    "extra": {
+        "installer-paths": {
+            "wp-content/plugins/{$name}/": [
+                "type:wordpress-plugin"
+            ]
+        }
+    }
+}
+```
+
+You can read more about using Composer, Packagist and WPackagist below:
+
+  - [Using Composer with WordPress](https://roots.io/using-composer-with-wordpress/)
+  - [WPackagist.org](https://wpackagist.org/)
+  - [Composer: Basic Usage](https://getcomposer.org/doc/01-basic-usage.md)
+  - [Composer: Package Types](https://getcomposer.org/doc/04-schema.md#type)
 
 #### Download Zip from Github
 
@@ -58,7 +90,7 @@ This install method is recommended for contributors that would like to submit pu
 1. In your command line, navigate to your WordPress plugin directory (`wp-content/plugins`)
 1. Run the following command `git clone git@github.com:wp-graphql/wp-graphql.git`
 1. This will install WPGraphQL to your plugins directory under `/wp-content/plugins/wp-graphql`
-1. Run the following command to install vendor dependencies: `composer install`. (You can also run `composer install --no-dev` to not 1 stall the dev dependencies needed for testing and linting).
+1. Run the following command to install vendor dependencies: `composer install`. (You can also run `composer install --no-dev` to install the dev dependencies needed for testing and linting).
 1. From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the \[Plugin]\(http://codex.wordpress.org administration\_Panels#Plugins) Menu
 1. WPGraphQL should now show up as a plugin.
 1. Click "Activate"

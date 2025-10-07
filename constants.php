@@ -18,7 +18,7 @@ function graphql_setup_constants() {
 
 	// Plugin version.
 	if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-		define( 'WPGRAPHQL_VERSION', '1.26.0' );
+		define( 'WPGRAPHQL_VERSION', '2.3.7' );
 	}
 
 	// Plugin Folder Path.
@@ -33,6 +33,6 @@ function graphql_setup_constants() {
 
 	// The minimum version of PHP this plugin requires to work properly
 	if ( ! defined( 'GRAPHQL_MIN_PHP_VERSION' ) ) {
-		define( 'GRAPHQL_MIN_PHP_VERSION', '7.1' );
+		define( 'GRAPHQL_MIN_PHP_VERSION', '7.4' );
 	}
 }

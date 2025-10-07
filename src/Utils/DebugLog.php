@@ -45,10 +45,16 @@ class DebugLog {
 	/**
 	 * Given a message and a config, a log entry is added to the log
 	 *
-	 * @param mixed|string|mixed[] $message The debug log message
-	 * @param array<string,mixed>  $config Config for the debug log. Set type and any additional information to log
+	 * @template TMessage of mixed|string|mixed[]
+	 * @template TConfig of array<string,mixed>
 	 *
-	 * @return array<string,mixed>
+	 * @param TMessage $message The debug log message
+	 * @param TConfig  $config Config for the debug log. Set type and any additional information to log
+	 *
+	 * @return array<string,array{
+	 *  type:string,
+	 *  message:TMessage,
+	 * }>
 	 */
 	public function add_log_entry( $message, $config = [] ) {
 		if ( empty( $message ) ) {

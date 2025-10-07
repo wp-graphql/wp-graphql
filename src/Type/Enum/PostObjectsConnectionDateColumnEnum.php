@@ -13,15 +13,21 @@ class PostObjectsConnectionDateColumnEnum {
 		register_graphql_enum_type(
 			'PostObjectsConnectionDateColumnEnum',
 			[
-				'description' => __( 'The column to use when filtering by date', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Date field selectors for content filtering. Specifies which date attribute (creation date, modification date) should be used for date-based queries.', 'wp-graphql' );
+				},
 				'values'      => [
 					'DATE'     => [
 						'value'       => 'post_date',
-						'description' => __( 'The date the comment was created in local time.', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The date the comment was created in local time.', 'wp-graphql' );
+						},
 					],
 					'MODIFIED' => [
 						'value'       => 'post_modified',
-						'description' => __( 'The most recent modification date of the comment.', 'wp-graphql' ),
+						'description' => static function () {
+							return __( 'The most recent modification date of the comment.', 'wp-graphql' );
+						},
 					],
 				],
 			]

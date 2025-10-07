@@ -1435,9 +1435,10 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql( compact( 'query' ) );
 
+		codecept_debug( $actual );
 		$this->assertResponseIsValid( $actual );
 		$this->assertArrayHasKey( 'errors', $actual );
-		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['debugMessage'] );
+		$this->assertStringContainsString( 'GraphQL Interface Type `ContentNode` returned `null', $actual['errors'][0]['extensions']['debugMessage'] );
 		$this->assertNull( $actual['data']['contentNodes'] );
 		$this->assertContains( 'post', array_column( $actual['data']['contentTypes']['nodes'], 'name' ) );
 	}
@@ -1708,7 +1709,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertNotContains( 'CreatePostInput', array_column( $actual['data']['__schema']['types'], 'name' ) );
 		$this->assertNotContains( 'CreatePostPayload', array_column( $actual['data']['__schema']['types'], 'name' ) );
 
-
 		// Ensure mutation throws an error.
 		$query = '
 		mutation CreatePost {
@@ -1845,7 +1845,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		}
 		';
 
-
 		$actual = $this->graphql(
 			[
 				'query' => $query,
@@ -1878,7 +1877,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			fieldWithUnderscore
 		}
 		';
-
 
 		$actual = $this->graphql(
 			[
@@ -1921,8 +1919,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-
-
 		$query = '
 		query {
 			testField {
@@ -1930,7 +1926,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			}
 		}
 		';
-
 
 		$actual = $this->graphql(
 			[
@@ -2241,7 +2236,7 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				'fromFieldName'         => 'test_field_with_underscores',
 				'allowFieldUnderscores' => true,
 				'connectionTypeName'    => 'Test_Connection_With_Underscores',
-				'resolve' 			 => static function () {
+				'resolve'               => static function () {
 					return [
 						'nodes' => [],
 						'edges' => [],
@@ -2347,9 +2342,13 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function testRegisterFieldWithNonExistingTypeReturnsErrorWhenFieldIsReferenced() {
 
-		register_graphql_field( 'User', 'fakeField', [
-			'type' => 'NonExistingType'
-		]);
+		register_graphql_field(
+			'User',
+			'fakeField',
+			[
+				'type' => 'NonExistingType',
+			]
+		);
 
 		// This should query without error because the field doesn't impact types queried here
 		$query_one = '{posts{nodes{id}}}';
@@ -2360,29 +2359,39 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// This should return an error because the fakeField is being queried for and it references a non-existent type
 		$query_three = '{users{nodes{id, fakeField}}}';
 
-		$actual = $this->graphql([
-			'query' => $query_one
-		]);
+		$actual = $this->graphql(
+			[
+				'query' => $query_one,
+			]
+		);
 
-		self::assertQuerySuccessful( $actual, [
-			$this->expectedField( 'posts', self::NOT_NULL ),
-		] );
+		self::assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'posts', self::NOT_NULL ),
+			]
+		);
 
-		$actual_two = $this->graphql([
-			'query' => $query_two
-		]);
+		$actual_two = $this->graphql(
+			[
+				'query' => $query_two,
+			]
+		);
 
-		self::assertQuerySuccessful( $actual_two, [
-			$this->expectedField( 'users', self::NOT_NULL ),
-		] );
+		self::assertQuerySuccessful(
+			$actual_two,
+			[
+				$this->expectedField( 'users', self::NOT_NULL ),
+			]
+		);
 
-		// The third query should throw a GraphQL\Error calling out the fact that the field is referencing a non-existent type
 		$this->expectException( GraphQL\Error\Error::class );
-		$this->expectExceptionMessageMatches( "/non-existent/" );
+		$this->expectExceptionMessageMatches( '/non-existent/' );
 
-		$actual_three = $this->graphql([
-			'query' => $query_three
-		]);
-
+		$actual_three = $this->graphql(
+			[
+				'query' => $query_three,
+			]
+		);
 	}
 }

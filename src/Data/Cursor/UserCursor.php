@@ -31,9 +31,13 @@ class UserCursor extends AbstractCursor {
 	 * @param array<string,mixed>|\WP_User_Query $query_vars The query vars to use when building the SQL statement.
 	 */
 	public function __construct( $query_vars, $cursor = 'after' ) {
-		// Handle deprecated use of $query.
+		// @todo remove in 3.0.0
 		if ( $query_vars instanceof WP_User_Query ) {
-			_doing_it_wrong( __FUNCTION__, 'The first argument should be an array of $query_vars, not the WP_Query object', '1.9.0' );
+			_doing_it_wrong(
+				__METHOD__,
+				esc_html__( 'The first argument should be an array of $query_vars, not the WP_Query object. This will throw an error in the next major release', 'wp-graphql' ),
+				'1.9.0'
+			);
 			$query_vars = $query_vars->query_vars;
 		}
 
@@ -85,18 +89,6 @@ class UserCursor extends AbstractCursor {
 		$user = get_user_by( 'id', $this->cursor_offset );
 
 		return false !== $user ? $user : null;
-	}
-
-	/**
-	 * Deprecated in favor of get_cursor_node().
-	 *
-	 * @return ?\WP_User
-	 * @deprecated 1.9.0
-	 */
-	public function get_cursor_user() {
-		_deprecated_function( __METHOD__, '1.9.0', self::class . '::get_cursor_node()' );
-
-		return $this->cursor_node;
 	}
 
 	/**
@@ -159,10 +151,8 @@ class UserCursor extends AbstractCursor {
 	 *
 	 * @param string $by    The order by key
 	 * @param string $order The order direction ASC or DESC
-	 *
-	 * @return void
 	 */
-	private function compare_with( $by, $order ) {
+	private function compare_with( $by, $order ): void {
 		// Bail early, if "key" and "value" provided in query_vars.
 		$key   = $this->get_query_var( "graphql_cursor_compare_by_{$by}_key" );
 		$value = $this->get_query_var( "graphql_cursor_compare_by_{$by}_value" );
@@ -206,10 +196,8 @@ class UserCursor extends AbstractCursor {
 	 *
 	 * @param string $meta_key user meta key
 	 * @param string $order    The comparison string
-	 *
-	 * @return void
 	 */
-	private function compare_with_meta_field( string $meta_key, string $order ) {
+	private function compare_with_meta_field( string $meta_key, string $order ): void {
 		$meta_type  = $this->get_query_var( 'meta_type' );
 		$meta_value = get_user_meta( $this->cursor_offset, $meta_key, true );
 
@@ -250,5 +238,26 @@ class UserCursor extends AbstractCursor {
 		$clause = $this->query_vars['meta_query'][ $by ];
 
 		return empty( $clause['key'] ) ? null : $clause['key'];
+	}
+
+	/**
+	 * @todo remove in 3.0.0
+	 * @deprecated 1.9.0
+	 * @codeCoverageIgnore
+	 *
+	 * @return ?\WP_User
+	 */
+	public function get_cursor_user() {
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				// translators: %s is the method name
+				esc_html__( 'This method will be removed in the next major release. Use %s instead.', 'wp-graphql' ),
+				self::class . '::get_cursor_node()'
+			),
+			'1.9.0'
+		);
+
+		return $this->cursor_node;
 	}
 }

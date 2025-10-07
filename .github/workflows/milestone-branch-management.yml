@@ -1,0 +1,305 @@
+name: Manage Milestone Branches
+
+# This workflow can be triggered in two ways:
+# 1. When a pull request is merged to any branch (typically develop or main)
+# 2. Manually via the GitHub Actions UI using the workflow_dispatch event
+#    - Go to Actions > Generate Changeset > Run workflow
+#    - Enter the PR number and click "Run workflow"
+
+on:
+  # Using pull_request_target instead of pull_request for security reasons:
+  # - Runs in the context of the BASE repository, not the fork
+  # - Has access to repository secrets
+  # - Can commit changes to protected branches
+  # - SECURITY NOTE: Be careful when checking out PR code with this event type
+  pull_request_target:
+    types: [closed]
+    branches:
+      - milestone/*
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to generate changeset for"
+        required: true
+        type: string
+      milestone_branch:
+        description: "Milestone branch (e.g. milestone/custom-scalars)"
+        required: true
+        type: string
+
+jobs:
+  debug-event:
+    runs-on: ubuntu-latest
+    # Always run but exit early if workflow_dispatch
+    steps:
+      - name: Debug Event
+        if: github.event_name == 'pull_request_target'
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "PR merged: ${{ github.event.pull_request.merged }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Head ref: ${{ github.event.pull_request.head.ref }}"
+          echo "PR number: ${{ github.event.pull_request.number }}"
+          echo "PR title: ${{ github.event.pull_request.title }}"
+
+  generate-changeset:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    needs: debug-event
+    if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
+    env:
+      REPO_URL: "https://github.com/${{ github.repository }}"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.milestone_branch || github.event.pull_request.base.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract PR information
+        id: pr_info
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            MILESTONE_NAME=$(echo "${{ github.event.inputs.milestone_branch }}" | sed 's/milestone\///')
+          else
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            MILESTONE_NAME=$(echo "${{ github.event.pull_request.base.ref }}" | sed 's/milestone\///')
+          fi
+
+          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
+
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body')
+          PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login')
+
+          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
+          echo "pr_author=${PR_AUTHOR}" >> $GITHUB_OUTPUT
+          echo "pr_body=${PR_BODY}" >> $GITHUB_OUTPUT
+
+          echo "name=${MILESTONE_NAME}" >> $GITHUB_OUTPUT
+          echo "Extracted milestone name: ${MILESTONE_NAME}"
+
+      - name: Generate changeset for current PR
+        run: |
+          # Check if a changeset already exists for this PR
+          EXISTING_CHANGESETS=$(find .changesets -name "*-pr-${{ steps.pr_info.outputs.pr_number }}.md" -type f)
+
+          if [[ -n "$EXISTING_CHANGESETS" ]]; then
+            echo "Found existing changeset(s) for PR #${{ steps.pr_info.outputs.pr_number }}, updating..."
+            rm $EXISTING_CHANGESETS
+          fi
+
+          # Set the branch ref for milestone detection
+          export GITHUB_REF_NAME=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.milestone_branch || github.event.pull_request.base.ref }}
+
+          # Generate/regenerate the changeset
+          node scripts/generate-changeset.js \
+            --pr="${{ steps.pr_info.outputs.pr_number }}" \
+            --title="${{ steps.pr_info.outputs.pr_title }}" \
+            --author="${{ steps.pr_info.outputs.pr_author }}" \
+            --body="${{ steps.pr_info.outputs.pr_body }}"
+
+          # Commit and push the changeset
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Check if there are changes to commit
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .changesets/
+            git commit -m "chore: update changeset for PR #${{ steps.pr_info.outputs.pr_number }}"
+            git push
+            echo "Changeset updated and pushed for PR #${{ steps.pr_info.outputs.pr_number }}"
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Generate release notes from changesets
+        id: generate_notes
+        run: |
+          # Create a temporary directory for release notes
+          mkdir -p /tmp/release-notes
+
+          # Generate release notes from all changesets to a temporary file
+          npm run release:notes 2>/dev/null | grep -v "^>" > /tmp/release-notes/temp_notes_raw.md
+
+          # Remove the "Found X changesets" line
+          sed -n '/^Found/!p' /tmp/release-notes/temp_notes_raw.md > /tmp/release-notes/temp_notes.md
+
+          # For debugging
+          echo "Generated release notes:"
+          cat /tmp/release-notes/temp_notes.md
+
+      - name: Check for pending @since and deprecated version updates
+        id: check_since
+        run: |
+          # Get the next version from package.json
+          NEXT_VERSION=$(node -p "require('./package.json').version")
+
+          # Run the since-tags script in dry-run mode to check for @since and deprecated version placeholders
+          node scripts/update-since-tags.js "$NEXT_VERSION" --dry-run || true
+
+          # If the summary file exists, read it
+          if [ -f "/tmp/since-tags-summary.md" ]; then
+            SINCE_SUMMARY=$(cat /tmp/since-tags-summary.md)
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "summary<<EOF" >> $GITHUB_OUTPUT
+            echo "$SINCE_SUMMARY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing release PR
+        id: check_pr
+        run: |
+          # Check if there's already a PR from milestone/* to develop
+          PR_LIST=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:${{ github.event.pull_request.base.ref }}&base=develop")
+
+          PR_COUNT=$(echo "$PR_LIST" | jq length)
+
+          if [[ "$PR_COUNT" -gt 0 ]]; then
+            PR_NUMBER=$(echo "$PR_LIST" | jq -r '.[0].number')
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update existing release PR
+        if: steps.check_pr.outputs.exists == 'true'
+        run: |
+          # Update the PR body with the latest changelog
+          PR_NUMBER="${{ steps.check_pr.outputs.number }}"
+
+          # Get current PR data
+          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
+
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+
+          # Create the PR body with proper formatting
+          PR_BODY="## Upcoming Changes"
+          PR_BODY="${PR_BODY}"$'\n\n'
+          PR_BODY="${PR_BODY}$(cat /tmp/release-notes/temp_notes.md)"
+
+          # Add @since updates section if there are any
+          if [[ "${{ steps.check_since.outputs.has_updates }}" == "true" ]]; then
+            # Read the summary from the previous step's output
+            SINCE_SUMMARY='${{ steps.check_since.outputs.summary }}'
+            PR_BODY="${PR_BODY}"$'\n\n'
+            PR_BODY="${PR_BODY}${SINCE_SUMMARY}"
+          fi
+
+          PR_BODY="${PR_BODY}"$'\n\n'
+          PR_BODY="${PR_BODY}This PR contains all changes included in the Milestone. It is automatically updated when new changesets are merged to the "${{ github.event.pull_request.base.ref }}" branch."
+
+          # Use jq to properly escape the content
+          PAYLOAD=$(jq -n --arg body "$PR_BODY" --arg title "$PR_TITLE" '{body: $body, title: $title}')
+
+          # For debugging
+          echo "API Payload:"
+          echo "$PAYLOAD" | jq '.'
+
+          # Update the PR
+          RESPONSE=$(curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}" \
+            -d "$PAYLOAD")
+
+          # Print full response for debugging
+          echo "Full API Response:"
+          echo "$RESPONSE" | jq '.'
+
+          echo "Updated existing milestone PR #${PR_NUMBER} with latest changelog"
+
+      - name: Create new Milestone PR
+        if: steps.check_pr.outputs.exists == 'false'
+        run: |
+          # Get the correct branch ref based on event type
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            HEAD_REF="${{ github.event.inputs.milestone_branch }}"
+          else
+            HEAD_REF="${{ github.event.pull_request.base.ref }}"
+          fi
+
+          # Create the PR body with proper formatting
+          PR_BODY="## Upcoming Changes"
+          PR_BODY="${PR_BODY}"$'\n\n'
+          PR_BODY="${PR_BODY}$(cat /tmp/release-notes/temp_notes.md)"
+
+          # Add @since updates section if there are any
+          if [[ "${{ steps.check_since.outputs.has_updates }}" == "true" ]]; then
+            SINCE_SUMMARY='${{ steps.check_since.outputs.summary }}'
+            PR_BODY="${PR_BODY}"$'\n\n'
+            PR_BODY="${PR_BODY}${SINCE_SUMMARY}"
+          fi
+
+          PR_BODY="${PR_BODY}"$'\n\n'
+          PR_BODY="${PR_BODY}This PR contains all changes that will be included in the next release (${{ steps.pr_info.outputs.name }}). It is automatically updated when new changesets are added to the ${HEAD_REF} branch."
+
+          # Use jq to properly escape the content
+          PAYLOAD=$(jq -n \
+            --arg title "milestone: ${{ steps.pr_info.outputs.name }} 🏁" \
+            --arg head "${HEAD_REF}" \
+            --arg base "develop" \
+            --arg body "$PR_BODY" \
+            '{title: $title, head: $head, base: $base, body: $body}')
+
+          # For debugging
+          echo "API Payload:"
+          echo "$PAYLOAD" | jq '.'
+
+          # Create a new PR from the milestone/* branch to develop
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls" \
+            -d "$PAYLOAD")
+
+          # Print full response for debugging
+          echo "Full API Response:"
+          echo "$RESPONSE" | jq '.'
+
+          # Check for error messages
+          ERROR_MESSAGE=$(echo "$RESPONSE" | jq -r '.message // "No error message"')
+          if [[ "$ERROR_MESSAGE" != "No error message" ]]; then
+            echo "Error creating PR: $ERROR_MESSAGE"
+
+            # Check for more detailed errors
+            ERRORS=$(echo "$RESPONSE" | jq -r '.errors // []')
+            if [[ "$ERRORS" != "[]" ]]; then
+              echo "Detailed errors: $ERRORS"
+            fi
+
+            exit 1
+          fi
+
+          PR_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
+
+          if [[ -z "$PR_NUMBER" || "$PR_NUMBER" == "null" ]]; then
+            echo "Failed to create PR. No PR number returned."
+            exit 1
+          else
+            echo "Created new release PR #${PR_NUMBER} with initial changelog"
+          fi

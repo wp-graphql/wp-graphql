@@ -7,6 +7,18 @@
 # Hidden files for users using VSCode as their IDE.
 .vscode
 
+# Cursor files for users using the Cursor IDE
+
+# Ignore all files under the .cursor directory as users will use this directory for personal IDE configuration
+.cursor/*
+
+# Do not ignore the prd.md file as this helps cursor understand the project and requirements and the community can help maintain it
+!.cursor/prd.md
+
+# Do not ignore the cursor/rules directory as it contains project-specific rules that should be shared with all contributors
+!.cursor/rules
+!.cursor/rules/**
+
 # Composer dependencies. These should be installed on the users machine
 vendor
 
@@ -43,9 +55,6 @@ node_modules
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
 
-# Used to send code coverage to Coveralls
-php-coveralls.phar
-
 # Log files
 .log
 
@@ -57,3 +66,7 @@ c3.php
 
 # output from e2e tests
 artifacts
+
+# Changesets
+# Note: Do NOT ignore .changeset/*.md files as they are needed for release management
+.changeset/pre.json

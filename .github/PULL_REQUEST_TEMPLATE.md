@@ -11,31 +11,16 @@ Thanks for sending a pull request! Please make sure you click the link above to 
 
 -->
 
-What does this implement/fix? Explain your changes.
----------------------------------------------------
-…
+## What does this implement/fix? Explain your changes.
 
 
-Does this close any currently open issues?
-------------------------------------------
+## Does this close any currently open issues?
+
 <!--
 ### Write "closes #{pr number}"
 ### see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
 -->
 
+## Any other comments?
 
-Any relevant logs, error output, GraphiQL screenshots, etc?
--------------------------------------
-<!-- (If it’s long, please paste to https://ghostbin.com/ and insert the link here.) -->
-
-
-Any other comments?
--------------------
-…
-
-
-Where has this been tested?
----------------------------
-**Operating System:** …
-
-**WordPress Version:** …
+<!-- Please add any additional context that would be helpful. Feel free to include screenshots of the GraphiQL IDE or other relevant screenshotes, logs, error output, etc -->

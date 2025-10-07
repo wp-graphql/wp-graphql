@@ -35,11 +35,15 @@ class MediaItemDelete {
 				'type'        => [
 					'non_null' => 'ID',
 				],
-				'description' => __( 'The ID of the mediaItem to delete', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the mediaItem to delete', 'wp-graphql' );
+				},
 			],
 			'forceDelete' => [
 				'type'        => 'Boolean',
-				'description' => __( 'Whether the mediaItem should be force deleted instead of being moved to the trash', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'Whether the mediaItem should be force deleted instead of being moved to the trash', 'wp-graphql' );
+				},
 			],
 		];
 	}
@@ -53,7 +57,9 @@ class MediaItemDelete {
 		return [
 			'deletedId' => [
 				'type'        => 'ID',
-				'description' => __( 'The ID of the deleted mediaItem', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The ID of the deleted mediaItem', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					$deleted = (object) $payload['mediaItemObject'];
 
@@ -62,7 +68,9 @@ class MediaItemDelete {
 			],
 			'mediaItem' => [
 				'type'        => 'MediaItem',
-				'description' => __( 'The mediaItem before it was deleted', 'wp-graphql' ),
+				'description' => static function () {
+					return __( 'The mediaItem before it was deleted', 'wp-graphql' );
+				},
 				'resolve'     => static function ( $payload ) {
 					/** @var \WPGraphQL\Model\Post $deleted */
 					$deleted = $payload['mediaItemObject'];

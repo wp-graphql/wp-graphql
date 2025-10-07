@@ -1,0 +1,78 @@
+{
+  "description": "Rules specific to PHP files in the WPGraphQL project",
+  "file_patterns": ["**/*.php"],
+  "rules": {
+    "coding_standards": "WordPress Coding Standards (WPCS)",
+    "indentation": "tabs",
+    "line_length": 100,
+    "naming_conventions": {
+      "classes": "PascalCase",
+      "methods": "snake_case",
+      "functions": "snake_case",
+      "variables": "snake_case",
+      "constants": "UPPER_SNAKE_CASE"
+    },
+    "php_version": {
+      "min": "7.4",
+      "max": "8.3"
+    },
+    "wordpress_version": {
+      "min": "6.0"
+    },
+    "array_syntax": "short_array_syntax_only",
+    "type_hints": {
+      "use_fully_qualified_class_names_in_annotations": true,
+      "use_docblock_type_hints": true
+    },
+    "namespaces": {
+      "sort_uses_alphabetically": true,
+      "no_unused_imports": true,
+      "no_leading_backslash_in_use": true
+    },
+    "text_domain": "wp-graphql",
+    "common_patterns": {
+      "hooks": "add_action() and add_filter() are used to hook into WordPress and WPGraphQL",
+      "registration": "register_graphql_* functions are used to register types, fields, and mutations",
+      "models": "Model classes extend the WPGraphQL\\Model\\Model class and handle data access and authorization",
+      "resolvers": "Resolver functions determine how to fetch and return data for specific GraphQL fields"
+    },
+    "code_quality": {
+      "no_duplicate_assignments": true,
+      "no_unused_variables": true,
+      "no_useless_variables": true,
+      "no_useless_ternary_operators": true,
+      "use_static_closures_when_possible": true,
+      "no_dead_catch_blocks": true
+    },
+    "class_rules": {
+      "class_constant_visibility_required": true,
+      "no_multi_constant_definition": true,
+      "no_multi_property_definition": true,
+      "use_self_reference_when_possible": true
+    },
+    "documentation": {
+      "docblocks_required": {
+        "classes": true,
+        "methods": true,
+        "functions": true
+      },
+      "param_documentation": {
+        "required": true,
+        "match_type_hints": true
+      },
+      "hooks": {
+        "do_action": {
+          "require_docblock": true,
+          "docblock_format": "/**\n * Description of the action\n *\n * @param {type} $param1 Description of first parameter\n * @param {type} $param2 Description of second parameter\n * ... (for all parameters passed to do_action)\n */",
+          "document_all_args": true
+        },
+        "apply_filters": {
+          "require_docblock": true,
+          "docblock_format": "/**\n * Description of the filter\n *\n * @param {type} $value The value being filtered\n * @param {type} $param1 Description of additional parameter\n * ... (for all additional parameters)\n *\n * @return {type} Description of the return value\n */",
+          "document_all_args": true,
+          "document_return": true
+        }
+      }
+    }
+  }
+}

@@ -7,7 +7,11 @@ use Exception;
 /**
  * Class Model - Abstract class for modeling data for all core types
  *
- * @package WPGraphQL\Model
+ * @property bool $isPrivate
+ * @property bool $isPublic
+ * @property bool $isRestricted
+ *
+ * @template TData
  */
 abstract class Model {
 
@@ -21,7 +25,7 @@ abstract class Model {
 	/**
 	 * Stores the raw data passed to the child class when it's instantiated before it's transformed
 	 *
-	 * @var mixed[]|object|mixed
+	 * @var TData
 	 */
 	protected $data;
 
@@ -134,30 +138,23 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public function __get( $key ) {
-		if ( isset( $this->fields[ $key ] ) ) {
-			/**
-			 * If the property has already been processed and cached to the model
-			 * return the processed value.
-			 *
-			 * Otherwise, if it's a callable, process it and cache the value.
-			 */
-			if ( is_scalar( $this->fields[ $key ] ) || ( is_object( $this->fields[ $key ] ) && ! is_callable( $this->fields[ $key ] ) ) || is_array( $this->fields[ $key ] ) ) {
-				return $this->fields[ $key ];
-			} elseif ( is_callable( $this->fields[ $key ] ) ) {
-				$data       = call_user_func( $this->fields[ $key ] );
-				$this->$key = $data;
-
-				return $data;
-			} else {
-				return $this->fields[ $key ];
-			}
-		} else {
+		if ( ! array_key_exists( $key, $this->fields ) ) {
 			return null;
 		}
+
+		// If the property is a callable, we need to process it.
+		if ( is_callable( $this->fields[ $key ] ) ) {
+			$data       = call_user_func( $this->fields[ $key ] );
+			$this->$key = $data;
+
+			return $data;
+		}
+
+		return $this->fields[ $key ];
 	}
 
 	/**
-	 * Setup the global data for the model to have proper context when resolving.
+	 * Setup the global state before each field is resolved so the Model has the necessary context.
 	 *
 	 * @return void
 	 */
@@ -165,8 +162,9 @@ abstract class Model {
 	}
 
 	/**
-	 * Generic model tear down after the fields are setup. This can be used
-	 * to reset state to where it was before the model was setup.
+	 * Tear-down call that runs after each field is resolved.
+	 *
+	 * This can be used to reset state to where it was before the model was setup.
 	 *
 	 * @return void
 	 */
@@ -179,9 +177,9 @@ abstract class Model {
 	 * @return string
 	 */
 	protected function get_model_name() {
-		$name = static::class;
-
 		if ( empty( $this->model_name ) ) {
+			$name = static::class;
+
 			if ( false !== strpos( static::class, '\\' ) ) {
 				$starting_character = strrchr( static::class, '\\' );
 				if ( ! empty( $starting_character ) ) {
@@ -191,7 +189,7 @@ abstract class Model {
 			$this->model_name = $name . 'Object';
 		}
 
-		return ! empty( $this->model_name ) ? $this->model_name : $name;
+		return $this->model_name;
 	}
 
 	/**
@@ -207,7 +205,7 @@ abstract class Model {
 			 *
 			 * @param string      $restricted_cap The capability to check against
 			 * @param string      $model_name     Name of the model the filter is currently being executed in
-			 * @param mixed       $data           The un-modeled incoming data
+			 * @param TData       $data           The un-modeled incoming data
 			 * @param string|null $visibility     The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner          The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
@@ -222,7 +220,7 @@ abstract class Model {
 			 *
 			 * @param ?bool       $is_private   Whether the model data is private. Defaults to null.
 			 * @param string      $model_name   Name of the model the filter is currently being executed in
-			 * @param mixed       $data         The un-modeled incoming data
+			 * @param TData       $data         The un-modeled incoming data
 			 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
 			 * @param \WP_User $current_user The current user for the session
@@ -242,12 +240,12 @@ abstract class Model {
 			/**
 			 * Filter to determine if the data should be considered private or not
 			 *
-			 * @param bool     $is_private   Whether the model is private
+			 * @param bool        $is_private   Whether the model is private
 			 * @param string      $model_name   Name of the model the filter is currently being executed in
-			 * @param mixed       $data         The un-modeled incoming data
+			 * @param TData       $data         The un-modeled incoming data
 			 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner        The user ID for the owner of this piece of data
-			 * @param \WP_User $current_user The current user for the session
+			 * @param \WP_User    $current_user The current user for the session
 			 *
 			 * @return bool
 			 */
@@ -269,9 +267,9 @@ abstract class Model {
 		 *
 		 * @param string|null $visibility   The visibility that has currently been set for the data at this point
 		 * @param string      $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed       $data         The un-modeled incoming data
+		 * @param TData       $data         The un-modeled incoming data
 		 * @param int|null    $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User $current_user The current user for the session
+		 * @param \WP_User    $current_user The current user for the session
 		 *
 		 * @return string
 		 */
@@ -315,10 +313,10 @@ abstract class Model {
 			 *
 			 * @param string[]    $allowed_restricted_fields The fields to allow when the data is designated as restricted to the current user
 			 * @param string      $model_name                Name of the model the filter is currently being executed in
-			 * @param mixed       $data                      The un-modeled incoming data
+			 * @param TData       $data                      The un-modeled incoming data
 			 * @param string|null $visibility                The visibility that has currently been set for the data at this point
 			 * @param int|null    $owner                     The user ID for the owner of this piece of data
-			 * @param \WP_User $current_user The current user for the session
+			 * @param \WP_User    $current_user The current user for the session
 			 */
 				apply_filters( 'graphql_allowed_fields_on_restricted_type', $this->allowed_restricted_fields, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user )
 			)
@@ -338,83 +336,36 @@ abstract class Model {
 		$clean_array = [];
 		foreach ( $this->fields as $key => $data ) {
 			$clean_array[ $key ] = function () use ( $key, $data ) {
-				if ( is_array( $data ) ) {
-					$callback = ( ! empty( $data['callback'] ) ) ? $data['callback'] : null;
-
-					/**
-					 * Capability to check required for the field
-					 *
-					 * @param string   $capability   The capability to check against to return the field
-					 * @param string   $key          The name of the field on the type
-					 * @param string   $model_name   Name of the model the filter is currently being executed in
-					 * @param mixed    $data         The un-modeled incoming data
-					 * @param string   $visibility   The visibility setting for this piece of data
-					 * @param int|null $owner        The user ID for the owner of this piece of data
-					 * @param \WP_User $current_user The current user for the session
-					 *
-					 * @return string
-					 */
-					$cap_check = ( ! empty( $data['capability'] ) ) ? apply_filters( 'graphql_model_field_capability', $data['capability'], $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user ) : '';
-					if ( ! empty( $cap_check ) ) {
-						if ( ! current_user_can( $data['capability'] ) ) {
-							$callback = null;
-						}
-					}
-				} else {
-					$callback = $data;
-				}
-
 				/**
-				 * Filter to short circuit the callback for any field on a type. Returning anything
-				 * other than null will stop the callback for the field from executing, and will
-				 * return your data or execute your callback instead.
+				 * Filter to short circuit the callback for any field on a type.
 				 *
-				 * @param ?string  $result       The data returned from the callback. Null by default.
+				 * Returning anything other than null will stop the callback for the field from executing,
+				 * and will return your data or execute your callback instead.
+				 *
+				 * @param mixed    $result       The data returned from the callback. Null by default.
 				 * @param string   $key          The name of the field on the type
 				 * @param string   $model_name   Name of the model the filter is currently being executed in
-				 * @param mixed    $data         The un-modeled incoming data
+				 * @param TData    $data         The un-modeled incoming data
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
-				 *
-				 * @return callable|int|string|mixed[]|mixed|null
 				 */
 				$pre = apply_filters( 'graphql_pre_return_field_from_model', null, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
 
 				if ( ! is_null( $pre ) ) {
+					// If the pre filter returns a value, we use that instead of the callback.
 					$result = $pre;
 				} else {
-					if ( is_callable( $callback ) ) {
-						$this->setup();
-						$field = call_user_func( $callback );
-						$this->tear_down();
-					} else {
-						$field = $callback;
-					}
-
-					/**
-					 * Filter the data returned by the default callback for the field
-					 *
-					 * @param string   $field        The data returned from the callback
-					 * @param string   $key          The name of the field on the type
-					 * @param string   $model_name   Name of the model the filter is currently being executed in
-					 * @param mixed    $data         The un-modeled incoming data
-					 * @param string   $visibility   The visibility setting for this piece of data
-					 * @param int|null $owner        The user ID for the owner of this piece of data
-					 * @param \WP_User $current_user The current user for the session
-					 *
-					 * @return mixed
-					 */
-					$result = apply_filters( 'graphql_return_field_from_model', $field, $key, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+					$result = $this->prepare_field( $key, $data );
 				}
 
 				/**
 				 * Hook that fires after the data is returned for the field
 				 *
-				 * @param string   $result       The returned data for the field
+				 * @param mixed    $result       The returned data for the field
 				 * @param string   $key          The name of the field on the type
 				 * @param string   $model_name   Name of the model the filter is currently being executed in
-				 * @param mixed    $data         The un-modeled incoming data
+				 * @param TData    $data         The un-modeled incoming data
 				 * @param string   $visibility   The visibility setting for this piece of data
 				 * @param int|null $owner        The user ID for the owner of this piece of data
 				 * @param \WP_User $current_user The current user for the session
@@ -429,11 +380,87 @@ abstract class Model {
 	}
 
 	/**
-	 * Adds the model visibility fields to the data
+	 * Prepares an individual field for the model.
 	 *
-	 * @return void
+	 * @param string $field_name The name of the field on the type
+	 * @param TData  $field      The field data to prepare.
+	 *
+	 * @return TData
 	 */
-	private function add_model_visibility() {
+	private function prepare_field( string $field_name, $field ) {
+		$can_access_field = $this->current_user_can_access_field( $field_name, $field );
+
+		// If the field is an array with a 'callback', use that as the callback.
+		if ( is_array( $field ) && ! empty( $field['callback'] ) ) {
+			$field = $field['callback'];
+		}
+
+		// If the user doesn't have access to the field, sanitize it to null.
+		if ( ! $can_access_field ) {
+			$field = null;
+		}
+
+		if ( is_callable( $field ) ) {
+			$this->setup();
+			$field = call_user_func( $field );
+			$this->tear_down();
+		}
+
+		/**
+		 * Filter the data returned by the default callback for the field
+		 *
+		 * @param mixed    $field        The data returned from the callback
+		 * @param string   $field_name   The name of the field on the type
+		 * @param string   $model_name   Name of the model the filter is currently being executed in
+		 * @param TData    $data         The un-modeled incoming data
+		 * @param string   $visibility   The visibility setting for this piece of data
+		 * @param int|null $owner        The user ID for the owner of this piece of data
+		 * @param \WP_User $current_user The current user for the session
+		 */
+		return apply_filters( 'graphql_return_field_from_model', $field, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+	}
+
+	/**
+	 * Returns the capability to check for the field, or null if there is no capability set.
+	 *
+	 * @uses 'graphql_model_field_capability' to filter the capability to check for the field.
+	 *
+	 * @param string $field_name The name of the field to check
+	 * @param mixed  $field The original metadata for the field.
+	 */
+	private function current_user_can_access_field( string $field_name, $field ): bool {
+		$capability = '';
+
+		// If the field metadata is an array, check for the capability key
+		if ( is_array( $field ) && isset( $field['capability'] ) ) {
+			$capability = (string) $field['capability'];
+		}
+
+		/**
+		 * Capability to check required for the field
+		 *
+		 * @param string   $capability   The capability to check against to return the field
+		 * @param string   $field_name   The name of the field on the type
+		 * @param string   $model_name   Name of the model the filter is currently being executed in
+		 * @param TData    $data         The un-modeled incoming data
+		 * @param string   $visibility   The visibility setting for this piece of data
+		 * @param int|null $owner        The user ID for the owner of this piece of data
+		 * @param \WP_User $current_user The current user for the session
+		 */
+		$capability = apply_filters( 'graphql_model_field_capability', $capability, $field_name, $this->get_model_name(), $this->data, $this->visibility, $this->owner, $this->current_user );
+
+		if ( empty( $capability ) ) {
+			return true;
+		}
+
+		// @todo add support passing capability args.
+		return current_user_can( $capability );
+	}
+
+	/**
+	 * Adds the model visibility fields to the data
+	 */
+	private function add_model_visibility(): void {
 
 		/**
 		 * @todo: potentially abstract this out into a more central spot
@@ -460,24 +487,11 @@ abstract class Model {
 		}
 
 		/**
-		 * Add support for the deprecated "graphql_return_modeled_data" filter.
-		 *
-		 * @param array<string,mixed>    $fields       The array of fields for the model
-		 * @param string                 $model_name   Name of the model the filter is currently being executed in
-		 * @param string                 $visibility   The visibility setting for this piece of data
-		 * @param ?int                   $owner        The user ID for the owner of this piece of data
-		 * @param \WP_User               $current_user The current user for the session
-		 *
-		 * @deprecated 1.7.0 use "graphql_model_prepare_fields" filter instead, which passes additional context to the filter
-		 */
-		$this->fields = apply_filters_deprecated( 'graphql_return_modeled_data', [ $this->fields, $this->get_model_name(), $this->visibility, $this->owner, $this->current_user ], '1.7.0', 'graphql_model_prepare_fields' );
-
-		/**
 		 * Filter the array of fields for the Model before the object is hydrated with it
 		 *
 		 * @param array<string,mixed>    $fields       The array of fields for the model
 		 * @param string                 $model_name   Name of the model the filter is currently being executed in
-		 * @param mixed                  $data         The un-modeled incoming data
+		 * @param TData                  $data         The un-modeled incoming data
 		 * @param string                 $visibility   The visibility setting for this piece of data
 		 * @param ?int                   $owner        The user ID for the owner of this piece of data
 		 * @param \WP_User               $current_user The current user for the session
@@ -519,11 +533,7 @@ abstract class Model {
 	/**
 	 * Filter the fields returned for the object
 	 *
-	 * @param string|mixed[]|null $fields The field or fields to build in the modeled object. You can
-	 *                                  pass null to build all of the fields, a string to only
-	 *                                  build an object with one field, or an array of field keys
-	 *                                  to build an object with those keys and their respective values.
-	 *
+	 * @param string|string[]|null $fields The field or fields to build in the modeled object. Null to leave all fields.
 	 * @return void
 	 */
 	public function filter( $fields ) {

@@ -2,6 +2,7 @@
 
 namespace WPGraphQL\Admin;
 
+use WPGraphQL\Admin\Extensions\Extensions;
 use WPGraphQL\Admin\GraphiQL\GraphiQL;
 use WPGraphQL\Admin\Settings\Settings;
 
@@ -32,6 +33,11 @@ class Admin {
 	protected $settings;
 
 	/**
+	 * @var \WPGraphQL\Admin\Extensions\Extensions
+	 */
+	protected $extensions;
+
+	/**
 	 * Initialize Admin functionality for WPGraphQL
 	 *
 	 * @return void
@@ -43,8 +49,7 @@ class Admin {
 		$this->admin_enabled    = apply_filters( 'graphql_show_admin', true );
 		$this->graphiql_enabled = apply_filters( 'graphql_enable_graphiql', get_graphql_setting( 'graphiql_enabled', true ) );
 
-		$admin_notices = new AdminNotices();
-		$admin_notices->init();
+		AdminNotices::get_instance();
 
 		// This removes the menu page for WPGraphiQL as it's now built into WPGraphQL
 		if ( $this->graphiql_enabled ) {
@@ -69,5 +74,8 @@ class Admin {
 			$graphiql = new GraphiQL();
 			$graphiql->init();
 		}
+
+		$this->extensions = new Extensions();
+		$this->extensions->init();
 	}
 }

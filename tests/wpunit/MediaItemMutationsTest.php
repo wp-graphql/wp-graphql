@@ -82,7 +82,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->date          = '2017-08-01T15:00:00';
 		$this->dateGmt       = '2017-08-01T21:00:00';
 		$this->description   = 'This is a magic description.';
-		$this->filePath      = 'https://content.wpgraphql.com/wp-content/uploads/2020/12/mgc.gif';
+		$this->filePath      = 'https://raw.githubusercontent.com/wp-graphql/wp-graphql/refs/heads/master/tests/_data/images/test-mgc.gif';
 		$this->fileType      = 'IMAGE_GIF';
 		$this->slug          = 'magic-shia';
 		$this->status        = 'INHERIT';
@@ -357,6 +357,14 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		wp_set_current_user( $this->author );
 		$actual = graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug(
+			[
+				'$actual'    => $actual,
+				'$variables' => $variables,
+			]
+		);
+
 		$this->assertArrayHasKey( 'errors', $actual );
 
 		// Test with permissions
@@ -365,7 +373,15 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// test with database Id
 		$variables['input']['authorId'] = $this->author;
 
-		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$actual = graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug(
+			[
+				'$actual'    => $actual,
+				'$variables' => $variables,
+			]
+		);
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertEquals( $this->author, $actual['data']['createMediaItem']['mediaItem']['author']['node']['databaseId'] );
 
@@ -448,6 +464,8 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// Test with databaseId
 		$actual = $this->createMediaItemMutation();
 
+		codecept_debug( $actual );
+
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
 		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
 		$attachment_url     = wp_get_attachment_url( $attachment_id );
@@ -476,7 +494,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -635,6 +653,9 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 * Do the graphQL request using the above variables for input in the above mutation
 		 */
 		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( $actual );
+
 		$this->assertArrayNotHasKey( 'errors', $actual );
 
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
@@ -661,7 +682,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'parent'       => null,
 					'sourceUrl'    => $attachment_url,
 					'mediaDetails' => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,
@@ -714,6 +735,8 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		 */
 		$actual = $this->createMediaItemMutation();
 
+		codecept_debug( $actual );
+
 		$media_item_id      = $actual['data']['createMediaItem']['mediaItem']['id'];
 		$attachment_id      = $actual['data']['createMediaItem']['mediaItem']['databaseId'];
 		$attachment_url     = wp_get_attachment_url( $attachment_id );
@@ -738,7 +761,7 @@ class MediaItemMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 					'mediaType'     => 'image',
 					'sourceUrl'     => $attachment_url,
 					'mediaDetails'  => [
-						'file'   => $attachment_details['file'],
+						'file'   => basename( $attachment_details['file'] ),
 						'height' => $attachment_details['height'],
 						'meta'   => [
 							'aperture'         => 0.0,

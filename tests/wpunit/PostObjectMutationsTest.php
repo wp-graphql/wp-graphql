@@ -787,12 +787,12 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		$page_id = $this->factory()->post->create( $args );
 
 		$query = '
-		mutation deletePostWithPageIdShouldFail{
-			deletePost( $id:ID! ){
-				post{
-					id
-				}
-			}
+		mutation deletePostWithPageIdShouldFail($id: ID!) {
+		  deletePost(input: {id: $id}) {
+		    post {
+		      id
+		    }
+		  }
 		}
 		';
 
@@ -1297,5 +1297,58 @@ class PostObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		wp_set_current_user( $editor_id );
 		$actual = graphql( compact( 'query', 'variables' ) );
 		$this->assertEquals( \GraphQLRelay\Relay::toGlobalId( 'post', $post_id ), $actual['data']['deletePost']['post']['id'] );
+	}
+
+	public function testCreatePostMutationDoesNotAppendDefaultCategoryIfOtherCategoriesAreInput() {
+
+		// Create a category
+		$category_id = $this->factory()->category->create( [ 'name' => 'Test Category' ] );
+
+		// Create a post with the category
+		$query = '
+		mutation createPost($input:CreatePostInput!){
+			createPost(input:$input){
+				post{
+					id
+					title
+					categories {
+						nodes {
+							id
+							databaseId
+							name
+						}
+					}
+				}
+			}
+		}
+		';
+
+		// get category slug
+		$category = get_category( $category_id );
+		$category_slug = $category->slug;
+
+		$variables = [
+			'input' => [
+				'title'      => 'Test Post',
+				'categories' => [
+					'nodes' => [
+						[ 'slug' => $category_slug ]
+					]
+				],
+			],
+		];
+
+		wp_set_current_user( $this->admin );
+		codecept_debug( [
+			'variables' => $variables,
+		]);
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertEquals( $category_id, $actual['data']['createPost']['post']['categories']['nodes'][0]['databaseId'] );
+
+		// there should only be 1 category (the one we added, not the default one)
+		$this->assertCount( 1, $actual['data']['createPost']['post']['categories']['nodes'] );
+
 	}
 }

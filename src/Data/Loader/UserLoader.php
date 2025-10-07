@@ -72,15 +72,15 @@ class UserLoader extends AbstractDataLoader {
 		$public_only = true;
 
 		$where = get_posts_by_author_sql( $post_types, true, $author_id, $public_only );
-		$ids   = implode( ', ', array_fill( 0, count( $keys ), '%d' ) );
-		$count = count( $keys );
+		$ids   = implode( ', ', $keys );
 
 		global $wpdb;
 
-		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
-				"SELECT DISTINCT `post_author` FROM $wpdb->posts $where AND `post_author` IN ( $ids ) LIMIT $count", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-				$keys
+				"SELECT DISTINCT $wpdb->users.ID FROM $wpdb->posts INNER JOIN $wpdb->users ON post_author = $wpdb->users.ID $where AND post_author IN ( %1\$s ) ORDER BY FIELD( $wpdb->users.ID, %2\$s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder,WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+				$ids,
+				$ids
 			)
 		);
 
@@ -97,7 +97,7 @@ class UserLoader extends AbstractDataLoader {
 		return array_reduce(
 			$results,
 			static function ( $carry, $result ) {
-				$carry[ (int) $result->post_author ] = true;
+				$carry[ (int) $result->ID ] = true;
 				return $carry;
 			},
 			[]

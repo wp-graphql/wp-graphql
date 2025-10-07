@@ -7,39 +7,35 @@ use GraphQLRelay\Relay;
 /**
  * Class Taxonomy - Models data for taxonomies
  *
- * @property string $id
- * @property array  $object_type
- * @property string $name
- * @property string $label
- * @property string $description
- * @property bool   $public
- * @property bool   $hierarchical
- * @property bool   $showUi
- * @property bool   $showInMenu
- * @property bool   $showInNavMenus
- * @property bool   $showCloud
- * @property bool   $showInQuickEdit
- * @property bool   $showInAdminColumn
- * @property bool   $showInRest
- * @property string $restBase
- * @property string $restControllerClass
- * @property bool   $showInGraphql
- * @property string $graphqlSingleName
- * @property string $graphql_single_name
- * @property string $graphqlPluralName
- * @property string $graphql_plural_name
+ * @property string        $description
+ * @property ?string       $graphqlPluralName
+ * @property ?string       $graphqlSingleName
+ * @property bool          $hierarchical
+ * @property ?string       $id
+ * @property ?string       $label
+ * @property ?string       $name
+ * @property string[]|null $object_type
+ * @property bool          $public
+ * @property ?string       $restBase
+ * @property ?string       $restControllerClass
+ * @property bool          $showCloud
+ * @property bool          $showInAdminColumn
+ * @property ?bool         $showInGraphql
+ * @property bool          $showInMenu
+ * @property bool          $showInNavMenus
+ * @property bool          $showInQuickEdit
+ * @property bool          $showInRest
+ * @property bool          $showUi
+ *
+ * Aliases:
+ * @property ?string       $graphql_plural_name
+ * @property ?string       $graphql_single_name
  *
  * @package WPGraphQL\Model
+ *
+ * @extends \WPGraphQL\Model\Model<\WP_Taxonomy>
  */
 class Taxonomy extends Model {
-
-	/**
-	 * Stores the incoming WP_Taxonomy object to be modeled
-	 *
-	 * @var \WP_Taxonomy $data
-	 */
-	protected $data;
-
 	/**
 	 * Taxonomy constructor.
 	 *
@@ -85,47 +81,33 @@ class Taxonomy extends Model {
 	protected function init() {
 		if ( empty( $this->fields ) ) {
 			$this->fields = [
-				'id'                  => function () {
-					return ! empty( $this->data->name ) ? Relay::toGlobalId( 'taxonomy', $this->data->name ) : null;
-				},
-				'object_type'         => function () {
-					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
-				},
-				'name'                => function () {
-					return ! empty( $this->data->name ) ? $this->data->name : null;
-				},
-				'label'               => function () {
-					return ! empty( $this->data->label ) ? $this->data->label : null;
-				},
 				'description'         => function () {
 					return ! empty( $this->data->description ) ? $this->data->description : '';
 				},
-				'public'              => function () {
-					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
+				'graphqlPluralName'   => function () {
+					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+				},
+				'graphqlSingleName'   => function () {
+					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
 				},
 				'hierarchical'        => function () {
 					return true === $this->data->hierarchical;
 				},
-				'showUi'              => function () {
-					return true === $this->data->show_ui;
+				'id'                  => function () {
+					return ! empty( $this->name ) ? Relay::toGlobalId( 'taxonomy', $this->name ) : null;
 				},
-				'showInMenu'          => function () {
-					return true === $this->data->show_in_menu;
+				'label'               => function () {
+					return ! empty( $this->data->label ) ? $this->data->label : null;
 				},
-				'showInNavMenus'      => function () {
-					return true === $this->data->show_in_nav_menus;
+				'name'                => function () {
+					return ! empty( $this->data->name ) ? $this->data->name : null;
 				},
-				'showCloud'           => function () {
-					return true === $this->data->show_tagcloud;
+				'object_type'         => function () {
+					return ! empty( $this->data->object_type ) ? $this->data->object_type : null;
 				},
-				'showInQuickEdit'     => function () {
-					return true === $this->data->show_in_quick_edit;
-				},
-				'showInAdminColumn'   => function () {
-					return true === $this->data->show_admin_column;
-				},
-				'showInRest'          => function () {
-					return true === $this->data->show_in_rest;
+				'public'              => function () {
+					// @todo this is a bug
+					return ! empty( $this->data->public ) ? (bool) $this->data->public : true;
 				},
 				'restBase'            => function () {
 					return ! empty( $this->data->rest_base ) ? $this->data->rest_base : null;
@@ -133,20 +115,37 @@ class Taxonomy extends Model {
 				'restControllerClass' => function () {
 					return ! empty( $this->data->rest_controller_class ) ? $this->data->rest_controller_class : null;
 				},
+				'showCloud'           => function () {
+					return true === $this->data->show_tagcloud;
+				},
+				'showInAdminColumn'   => function () {
+					return true === $this->data->show_admin_column;
+				},
 				'showInGraphql'       => function () {
 					return true === $this->data->show_in_graphql;
 				},
-				'graphqlSingleName'   => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
+				'showInMenu'          => function () {
+					return true === $this->data->show_in_menu;
+				},
+				'showInNavMenus'      => function () {
+					return true === $this->data->show_in_nav_menus;
+				},
+				'showInQuickEdit'     => function () {
+					return true === $this->data->show_in_quick_edit;
+				},
+				'showInRest'          => function () {
+					return true === $this->data->show_in_rest;
+				},
+				'showUi'              => function () {
+					return true === $this->data->show_ui;
+				},
+
+				// Aliases
+				'graphql_plural_name' => function () {
+					return $this->graphqlPluralName;
 				},
 				'graphql_single_name' => function () {
-					return ! empty( $this->data->graphql_single_name ) ? $this->data->graphql_single_name : null;
-				},
-				'graphqlPluralName'   => function () {
-					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
-				},
-				'graphql_plural_name' => function () {
-					return ! empty( $this->data->graphql_plural_name ) ? $this->data->graphql_plural_name : null;
+					return $this->graphqlSingleName;
 				},
 			];
 		}

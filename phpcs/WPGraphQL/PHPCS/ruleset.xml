@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="WPGraphQL" namespace="WPGraphQL\PHPCS">
+    <description>Custom PHPCS rules for WPGraphQL</description>
+
+    <!-- Define our sniff directory -->
+    <config name="installed_paths" value="../../"/>
+
+    <!-- Register our sniffs -->
+    <rule ref="./Sniffs/Functions/VersionParameterSniff.php"/>
+    <rule ref="./Sniffs/Commenting/ValidSinceTagSniff.php"/>
+</ruleset>

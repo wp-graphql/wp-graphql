@@ -38,7 +38,9 @@ class UserUpdate {
 						'non_null' => 'ID',
 					],
 					// translators: the placeholder is the name of the type of post object being updated
-					'description' => __( 'The ID of the user', 'wp-graphql' ),
+					'description' => static function () {
+						return __( 'The ID of the user', 'wp-graphql' );
+					},
 				],
 			],
 			UserCreate::get_input_fields()
