@@ -3,7 +3,7 @@
  * Registers and manages our experimental features.
  *
  * @package WPGraphQL\Experimental
- * @since @todo
+ * @since next-version
  */
 
 namespace WPGraphQL\Experimental;
@@ -77,7 +77,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook.', 'wp-graphql' ),
-				'@todo'
+				'@since next-version'
 			);
 
 			return [];
@@ -96,7 +96,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'@todo'
+				'@since next-version'
 			);
 
 			return [];
@@ -115,7 +115,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'@todo'
+				'@since next-version'
 			);
 
 			return [];
@@ -180,7 +180,7 @@ final class ExperimentRegistry {
 		/**
 		 * Fires after all the experiments have been loaded.
 		 *
-		 * @param array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>               $experiments The list of loaded experiment classes, keyed by experiment slug.
+		 * @param array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>|null          $experiments The list of loaded experiment classes, keyed by experiment slug.
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
 		 */
 		do_action( 'graphql_experiments_loaded', self::$experiments, self::get_experiment_registry() );
@@ -216,5 +216,25 @@ final class ExperimentRegistry {
 
 			self::$active_experiments[ $slug ] = $experiment;
 		}
+	}
+
+	/**
+	 * Reload experiments (useful for testing).
+	 */
+	public function reload_experiments(): void {
+		// Clear the cached active state for all experiments
+		if ( isset( self::$experiments ) ) {
+			foreach ( self::$experiments as $experiment ) {
+				// Clear the cached is_active value using the public method
+				$experiment->clear_active_cache();
+			}
+		}
+
+		// Clear both arrays to force reload
+		self::$active_experiments = [];
+		self::$experiments        = [];
+
+		// Reload experiments
+		$this->load_experiments();
 	}
 }

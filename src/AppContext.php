@@ -239,7 +239,10 @@ class AppContext {
 			}
 		}
 
-		return $this->loaders[ $key ];
+		/** @var \WPGraphQL\Data\Loader\AbstractDataLoader $loader */
+		$loader = $this->loaders[ $key ];
+
+		return $loader;
 	}
 
 	/**

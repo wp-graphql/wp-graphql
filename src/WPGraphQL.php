@@ -78,7 +78,6 @@ final class WPGraphQL {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new self();
 			self::$instance->setup_constants();
-			self::$instance->setup_experiments();
 			self::$instance->includes();
 			self::$instance->actions();
 			self::$instance->filters();
@@ -128,7 +127,7 @@ final class WPGraphQL {
 	/**
 	 * Setup Experiments.
 	 */
-	private function setup_experiments(): void {
+	public function setup_experiments(): void {
 		$experimental = new \WPGraphQL\Experimental\Experimental();
 		$experimental->init();
 	}
@@ -239,6 +238,7 @@ final class WPGraphQL {
 
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+		add_action( 'after_setup_theme', [ $this, 'setup_experiments' ] );
 
 		add_action(
 			'init_graphql_request',
