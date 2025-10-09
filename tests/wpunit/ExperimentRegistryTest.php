@@ -5,6 +5,12 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
+
+		// Clear any experiment settings to ensure clean state
+		update_option( 'graphql_experiments_settings', [] );
+
+		// Reset the registry to ensure a clean slate
+		\WPGraphQL\Experimental\ExperimentRegistry::reset();
 	}
 
 	public function tearDown(): void {
@@ -12,6 +18,9 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$settings = get_option( 'graphql_experiments_settings', [] );
 		$settings['test_experiment_enabled'] = 'off';
 		update_option( 'graphql_experiments_settings', $settings );
+
+		// Reset the registry again
+		\WPGraphQL\Experimental\ExperimentRegistry::reset();
 
 		parent::tearDown();
 	}
@@ -33,6 +42,10 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that experiments can be activated and deactivated
 	 */
 	public function testExperimentActivation() {
+		// Initialize the registry
+		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+		$registry->init();
+
 		// Test that the experiment is initially inactive
 		$this->assertFalse( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' ) );
 

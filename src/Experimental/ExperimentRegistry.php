@@ -237,4 +237,15 @@ final class ExperimentRegistry {
 		// Reload experiments
 		$this->load_experiments();
 	}
+
+	/**
+	 * Reset the experiment registry (useful for testing).
+	 *
+	 * This clears all static properties to ensure a clean slate between tests.
+	 */
+	public static function reset(): void {
+		self::$registry           = null;
+		self::$experiments        = null;
+		self::$active_experiments = null;
+	}
 }
