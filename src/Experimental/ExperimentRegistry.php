@@ -137,14 +137,28 @@ final class ExperimentRegistry {
 
 	/**
 	 * Registers the experiments.
+	 *
+	 * This is where core experiments are registered. Third-party experiments
+	 * can be registered using the 'graphql_experiments_registered_classes' filter.
 	 */
 	protected function register_experiments(): void {
 		$registry = [
+			// TestExperiment: A simple example that adds a testExperiment field to RootQuery.
+			// This serves as both a working example for developers and validates the Experiments API.
 			TestExperiment::get_slug() => TestExperiment::class,
 		];
 
 		/**
 		 * Filters the list of registered experiment classes.
+		 *
+		 * Use this filter to register custom experiments:
+		 *
+		 * ```php
+		 * add_filter( 'graphql_experiments_registered_classes', function( $registry ) {
+		 *     $registry['my-experiment'] = MyExperiment::class;
+		 *     return $registry;
+		 * } );
+		 * ```
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
 		 */

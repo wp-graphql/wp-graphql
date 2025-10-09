@@ -1,8 +1,21 @@
 <?php
 /**
- * An Example Experiment
+ * Test Experiment
+ *
+ * A simple demonstration experiment that shows how the Experiments API works.
+ * When enabled, this adds a single `testExperiment` field to the RootQuery.
+ *
+ * This serves as:
+ * - A working example for developers learning to create experiments
+ * - A test fixture for validating the Experiments API functionality
+ * - A harmless way for users to try enabling/disabling experiments
+ *
+ * For real-world examples of creating experiments, see:
+ * - docs/experiments-creating.md
+ * - Example: EmailAddress scalar experiment
  *
  * @package WPGraphQL\Experimental\Experiment
+ * @since next-version
  */
 
 namespace WPGraphQL\Experimental\Experiment;
@@ -11,6 +24,17 @@ use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 
 /**
  * Class - TestExperiment
+ *
+ * A simple example experiment that adds a `RootQuery.testExperiment` field.
+ *
+ * When enabled, you can query:
+ * ```graphql
+ * query {
+ *   testExperiment
+ * }
+ * ```
+ *
+ * This will return: "This is a test field for the Test Experiment."
  */
 class TestExperiment extends AbstractExperiment {
 	/**
