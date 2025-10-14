@@ -49,7 +49,14 @@ final class Experimental {
 	 */
 	protected function is_enabled(): bool {
 		if ( ! isset( $this->is_enabled ) ) {
-			$this->is_enabled = defined( 'GRAPHQL_EXPERIMENTAL_FEATURES' ) ? (bool) GRAPHQL_EXPERIMENTAL_FEATURES : true;
+			// Check if constant is defined first
+			if ( defined( 'GRAPHQL_EXPERIMENTAL_FEATURES' ) ) {
+				// Constant is defined, use its value (final say)
+				$this->is_enabled = (bool) GRAPHQL_EXPERIMENTAL_FEATURES;
+			} else {
+				// Constant not defined, apply filter with default value
+				$this->is_enabled = apply_filters( 'wpgraphql_experimental_features_enabled', true );
+			}
 		}
 
 		return $this->is_enabled;

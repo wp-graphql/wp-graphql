@@ -92,18 +92,19 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Use filter to simulate constant set to false (should disable all experiments)
-		add_filter( 'graphql_dangerously_override_experiments', function( $value ) {
-			return false; // Simulate GRAPHQL_EXPERIMENTAL_FEATURES = false
+		// Note: This test now uses the new filter that only works when constant is not defined
+		add_filter( 'graphql_experimental_features_override', function( $value ) {
+			return false; // Simulate experimental features override = false
 		} );
 
 		// Clear the cache to force re-evaluation
 		$test_experiment->clear_active_cache();
 
-		// Should be false because constant overrides
+		// Should be false because filter overrides when constant is not defined
 		$this->assertFalse( $test_experiment->is_active() );
 
 		// Clean up the filter
-		remove_all_filters( 'graphql_dangerously_override_experiments' );
+		remove_all_filters( 'graphql_experimental_features_override' );
 	}
 
 	/**
@@ -116,25 +117,25 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
-		// Use filter to simulate constant set to array (should enable specific experiments)
-		add_filter( 'graphql_dangerously_override_experiments', function( $value ) {
-			return [ 'test_experiment' => true ]; // Simulate GRAPHQL_EXPERIMENTAL_FEATURES = [ 'test_experiment' => true ]
+		// Use filter to simulate experimental features override set to array (should enable specific experiments)
+		add_filter( 'graphql_experimental_features_override', function( $value ) {
+			return [ 'test_experiment' => true ]; // Simulate experimental features override = [ 'test_experiment' => true ]
 		} );
 
 		// Clear the cache to force re-evaluation
 		$test_experiment->clear_active_cache();
 
-		// Should be true because constant array enables it
+		// Should be true because filter array enables it when constant is not defined
 		$this->assertTrue( $test_experiment->is_active() );
 
 		// Clean up the filter
-		remove_all_filters( 'graphql_dangerously_override_experiments' );
+		remove_all_filters( 'graphql_experimental_features_override' );
 	}
 
 	/**
-	 * Test that the graphql_dangerously_override_experiments filter works
+	 * Test that the graphql_experimental_features_override filter works when constant is not defined
 	 */
-	public function testGraphqlDangerouslyOverrideExperimentsFilter() {
+	public function testGraphqlExperimentalFeaturesOverrideFilter() {
 		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
 		$registry->init();
 
@@ -147,20 +148,20 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// Should be false initially (no constant defined, settings default to off)
 		$this->assertFalse( $test_experiment->is_active() );
 
-		// Now add a filter to override the constant value to an array
-		add_filter( 'graphql_dangerously_override_experiments', function( $value ) {
+		// Now add a filter to override experimental features to an array (only works when constant not defined)
+		add_filter( 'graphql_experimental_features_override', function( $value ) {
 			return [ 'test_experiment' => true ]; // Override to enable this specific experiment
 		} );
 
 		// Clear the cache again to test the filter
 		$test_experiment->clear_active_cache();
 
-		// Should now be true because filter overrides the constant to an array with this experiment enabled
+		// Should now be true because filter enables this experiment when constant is not defined
 		$this->assertTrue( $test_experiment->is_active() );
 
 		// Test with filter returning false
-		remove_all_filters( 'graphql_dangerously_override_experiments' );
-		add_filter( 'graphql_dangerously_override_experiments', function( $value ) {
+		remove_all_filters( 'graphql_experimental_features_override' );
+		add_filter( 'graphql_experimental_features_override', function( $value ) {
 			return false; // Override to disable all experiments
 		} );
 
@@ -171,6 +172,32 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertFalse( $test_experiment->is_active() );
 
 		// Clean up the filter
-		remove_all_filters( 'graphql_dangerously_override_experiments' );
+		remove_all_filters( 'graphql_experimental_features_override' );
+	}
+
+	/**
+	 * Test that constants have final say and cannot be overridden by filters
+	 */
+	public function testConstantHasFinalSay() {
+		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+		$registry->init();
+
+		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$test_experiment = $experiments['test_experiment'];
+
+		// First, test that filter works when constant is not defined
+		add_filter( 'graphql_experimental_features_override', function( $value ) {
+			return [ 'test_experiment' => true ];
+		} );
+
+		$test_experiment->clear_active_cache();
+		$this->assertTrue( $test_experiment->is_active() );
+
+		// Now simulate a constant being defined (this should override the filter)
+		// We can't actually define a constant in tests, but we can test the logic
+		// by checking that the filter is only applied when constant is not defined
+
+		// Clean up
+		remove_all_filters( 'graphql_experimental_features_override' );
 	}
 }

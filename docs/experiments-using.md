@@ -42,17 +42,17 @@ define( 'GRAPHQL_EXPERIMENTAL_FEATURES', false );
 
 ### Via Code (Filter)
 
-For advanced programmatic control:
+For advanced programmatic control when the constant is not defined:
 
 ```php
-add_filter( 'graphql_dangerously_override_experiments', function( $experiments ) {
+add_filter( 'graphql_experimental_features_override', function( $experiments ) {
     return [
         'email_address_scalar' => true,
     ];
 } );
 ```
 
-⚠️ **Warning**: This filter is called "dangerously" for a reason - it completely bypasses admin settings. Use only if you understand the implications.
+**Important**: This filter only works when the `GRAPHQL_EXPERIMENTAL_FEATURES` constant is not defined. If the constant is defined, it takes precedence and cannot be overridden by filters. This follows WordPress best practices where constants have the "final say" for configuration.
 
 ## Testing Experiments
 

@@ -137,22 +137,11 @@ abstract class AbstractExperiment {
 			return $this->is_active;
 		}
 
-		// Get the experimental features value, allowing it to be filtered
-		$experimental_features = defined( 'GRAPHQL_EXPERIMENTAL_FEATURES' ) ? GRAPHQL_EXPERIMENTAL_FEATURES : null;
+		// Check if constant is defined first (constant has final say)
+		if ( defined( 'GRAPHQL_EXPERIMENTAL_FEATURES' ) ) {
+			$experimental_features = GRAPHQL_EXPERIMENTAL_FEATURES;
 
-		/**
-		 * Filters the GRAPHQL_EXPERIMENTAL_FEATURES constant value.
-		 *
-		 * ⚠️ DANGER: This filter allows developers to override the constant value itself,
-		 * which bypasses the intentional design of hard-coding experiment control.
-		 * Use with extreme caution as it can lead to unexpected behavior and confusion.
-		 *
-		 * @param mixed $experimental_features The experimental features value to use. null means fall through to settings.
-		 */
-		$experimental_features = apply_filters( 'graphql_dangerously_override_experiments', $experimental_features );
-
-		// See if the experiment is set via the constant (or filtered value).
-		if ( null !== $experimental_features ) {
+			// See if the experiment is set via the constant
 			if ( false === $experimental_features ) {
 				// If value is false, disable all experiments
 				$is_active = false;
@@ -164,7 +153,23 @@ abstract class AbstractExperiment {
 				$is_active = null;
 			}
 		} else {
-			$is_active = null;
+			// Constant not defined, apply filter to allow programmatic control
+			$experimental_features = apply_filters( 'graphql_experimental_features_override', null );
+
+			if ( null !== $experimental_features ) {
+				if ( false === $experimental_features ) {
+					// If filtered value is false, disable all experiments
+					$is_active = false;
+				} elseif ( is_array( $experimental_features ) && isset( $experimental_features[ static::get_slug() ] ) ) {
+					// If filtered value is array, check for specific experiment
+					$is_active = (bool) $experimental_features[ static::get_slug() ];
+				} else {
+					// If filtered value is true or other value, fall through to settings
+					$is_active = null;
+				}
+			} else {
+				$is_active = null;
+			}
 		}
 
 		if ( ! isset( $is_active ) ) {

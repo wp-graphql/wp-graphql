@@ -26,7 +26,7 @@ The Experiments API enables WPGraphQL to ship, iterate, and gather feedback on p
   - [x] Experiment slug retrieval via `get_slug()`
   - [x] Experiment config validation (title, description)
   - [x] `GRAPHQL_EXPERIMENTAL_FEATURES` constant behavior (false & array)
-  - [x] `graphql_dangerously_override_experiments` filter
+  - [x] `graphql_experimental_features_override` filter (follows WordPress best practices)
   - [x] Deprecation methods (`is_deprecated()`, `get_deprecation_message()`)
   - [x] Test isolation via `ExperimentRegistry::reset()` method
   - [ ] Experiment slug uniqueness (validation/error handling) - **Deferred** (code review sufficient)

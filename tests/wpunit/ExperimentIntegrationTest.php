@@ -18,7 +18,7 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		delete_option( 'graphql_experiments_settings' );
 
 		// Remove any filters
-		remove_all_filters( 'graphql_dangerously_override_experiments' );
+		remove_all_filters( 'graphql_experimental_features_override' );
 
 		// Reset the registry again
 		\WPGraphQL\Experimental\ExperimentRegistry::reset();
