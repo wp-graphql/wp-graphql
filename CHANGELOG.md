@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.3.8 - 2025-10-14
+
+### Bug Fixes
+
+- fix: post meta array on preview ([#3422](https://github.com/jasonbahl/automation-tests/pull/3422))
+- fix: git updater compatibility ([#3420](https://github.com/jasonbahl/automation-tests/pull/3420))
+- fix: Prevent bad string injection in plugin update message (#3318) ([#3419](https://github.com/jasonbahl/automation-tests/pull/3419))
+
+
+
 ## v2.3.7 - 2025-10-01
 
 ### Bug Fixes
