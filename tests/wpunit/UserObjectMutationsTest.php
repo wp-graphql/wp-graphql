@@ -1157,4 +1157,234 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 */
 		$this->assertFalse( $was_password_change_email_sent );
 	}
+
+	/**
+	 * Test createUser mutation with new emailAddress input
+	 */
+	public function testCreateUserWithEmailAddress() {
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+			mutation CreateUserWithEmailAddress($input: CreateUserInput!) {
+				createUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'username'     => 'testuser_emailaddress',
+				'emailAddress' => 'test@example.com',
+				'password'     => 'testpassword123',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'test@example.com', $response['data']['createUser']['user']['email'] );
+		$this->assertEquals( 'test@example.com', $response['data']['createUser']['user']['emailAddress'] );
+	}
+
+	/**
+	 * Test createUser mutation with deprecated email input (should show deprecation warning)
+	 */
+	public function testCreateUserWithDeprecatedEmail() {
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+			mutation CreateUserWithEmail($input: CreateUserInput!) {
+				createUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'username' => 'testuser_email',
+				'email'    => 'test2@example.com',
+				'password' => 'testpassword123',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'test2@example.com', $response['data']['createUser']['user']['email'] );
+		$this->assertEquals( 'test2@example.com', $response['data']['createUser']['user']['emailAddress'] );
+	}
+
+	/**
+	 * Test createUser mutation with both email and emailAddress inputs (should throw error)
+	 */
+	public function testCreateUserWithBothEmailInputs() {
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+			mutation CreateUserWithBothEmails($input: CreateUserInput!) {
+				createUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'username'     => 'testuser_both',
+				'email'        => 'test3@example.com',
+				'emailAddress' => 'test4@example.com',
+				'password'     => 'testpassword123',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		$this->assertArrayHasKey( 'errors', $response );
+		$this->assertStringContainsString(
+			'Cannot provide both',
+			$response['errors'][0]['message']
+		);
+		$this->assertStringContainsString(
+			'email',
+			$response['errors'][0]['message']
+		);
+		$this->assertStringContainsString(
+			'emailAddress',
+			$response['errors'][0]['message']
+		);
+	}
+
+	/**
+	 * Test updateUser mutation with emailAddress input
+	 */
+	public function testUpdateUserWithEmailAddress() {
+		wp_set_current_user( $this->admin );
+
+		// First create a user
+		$user_id = $this->factory()->user->create( [
+			'user_email' => 'original@example.com',
+		] );
+
+		$mutation = '
+			mutation UpdateUserWithEmailAddress($input: UpdateUserInput!) {
+				updateUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'id'           => \GraphQLRelay\Relay::toGlobalId( 'user', $user_id ),
+				'emailAddress' => 'updated@example.com',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'updated@example.com', $response['data']['updateUser']['user']['email'] );
+		$this->assertEquals( 'updated@example.com', $response['data']['updateUser']['user']['emailAddress'] );
+	}
+
+	/**
+	 * Test registerUser mutation with emailAddress input
+	 */
+	public function testRegisterUserWithEmailAddress() {
+		// Enable user registration
+		if ( is_multisite() ) {
+			update_site_option( 'registration', 'user' );
+		} else {
+			update_option( 'users_can_register', 1 );
+		}
+
+		$mutation = '
+			mutation RegisterUserWithEmailAddress($input: RegisterUserInput!) {
+				registerUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'username'     => 'newuser_emailaddress',
+				'emailAddress' => 'newuser@example.com',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		if ( isset( $response['errors'] ) ) {
+			codecept_debug( 'RegisterUser Errors: ' . print_r( $response['errors'], true ) );
+		}
+
+		$this->assertArrayNotHasKey( 'errors', $response );
+		$this->assertEquals( 'newuser@example.com', $response['data']['registerUser']['user']['email'] );
+		$this->assertEquals( 'newuser@example.com', $response['data']['registerUser']['user']['emailAddress'] );
+
+		// Clean up
+		if ( is_multisite() ) {
+			update_site_option( 'registration', 'none' );
+		} else {
+			update_option( 'users_can_register', 0 );
+		}
+	}
+
+	/**
+	 * Test invalid email validation with emailAddress input
+	 */
+	public function testCreateUserWithInvalidEmailAddress() {
+		wp_set_current_user( $this->admin );
+
+		$mutation = '
+			mutation CreateUserWithInvalidEmailAddress($input: CreateUserInput!) {
+				createUser(input: $input) {
+					user {
+						id
+						email
+						emailAddress
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'input' => [
+				'username'     => 'testuser_invalid',
+				'emailAddress' => 'not-an-email',
+				'password'     => 'testpassword123',
+			],
+		];
+
+		$response = $this->graphql( [ 'query' => $mutation, 'variables' => $variables ] );
+
+		$this->assertArrayHasKey( 'errors', $response );
+		$this->assertStringContainsString(
+			'Value is not a valid email address',
+			$response['errors'][0]['message']
+		);
+	}
 }

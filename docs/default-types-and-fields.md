@@ -13,7 +13,9 @@ De-registering or removing Types from the Schema is not supported.
 
 ## Scalars
 
-WPGraphQL Registers the following Scalars for use throughout the Schema.
+WPGraphQL registers the following Scalars for use throughout the Schema.
+
+### Standard GraphQL Scalars
 
 - **Boolean**
 - **Float**
@@ -21,7 +23,13 @@ WPGraphQL Registers the following Scalars for use throughout the Schema.
 - **Integer**
 - **String**
 
-While WPGraphQL doesn't currently ship with any Custom Scalar types, there is an API to [register custom Scalar types](/functions/register_graphql_scalar/).
+### Custom Scalars
+
+WPGraphQL also provides custom scalar types for enhanced validation and type safety:
+
+- **EmailAddress** - Email validation and sanitization using WordPress's `is_email()` and `sanitize_email()` functions
+
+For more information about custom scalars and how to create your own, see the [Custom Scalars documentation](/docs/custom-scalars/).
 
 ## Interfaces
 
@@ -51,54 +59,54 @@ Next, WPGraphQL registers Interfaces. Interfaces are special Types that declare 
 
 Next, Object Types are registered to represent common Types of data managed in WordPress.
 
--   **RootQuery**
+- **RootQuery**
 
--   **PostObjects**: the GraphQL Type for each post type set to "show\_in\_graphql"
+- **PostObjects**: the GraphQL Type for each post type set to "show_in_graphql"
 
--   **TermObjects**: the GraphQL Type for each Taxonomy set to "show\_in\_graphql"
+- **TermObjects**: the GraphQL Type for each Taxonomy set to "show_in_graphql"
 
--   **RootMutation**
+- **RootMutation**
 
--   **Avatar**
+- **Avatar**
 
--   **Comment**
+- **Comment**
 
--   **CommentAuthor**
+- **CommentAuthor**
 
--   **EnqueuedStylesheet**
+- **EnqueuedStylesheet**
 
--   **EnqueuedScript**
+- **EnqueuedScript**
 
--   **MediaDetails**
+- **MediaDetails**
 
--   **MediaItemMeta**
+- **MediaItemMeta**
 
--   **MediaSize**
+- **MediaSize**
 
--   **Menu**
+- **Menu**
 
--   **MenuItem**
+- **MenuItem**
 
--   **PageInfo**
+- **PageInfo**
 
--   **Plugin**
+- **Plugin**
 
--   **ContentType**
+- **ContentType**
 
--   **PostTypeLabelDetails**
+- **PostTypeLabelDetails**
 
--   **Settings**
+- **Settings**
 
--   **Taxonomy**
+- **Taxonomy**
 
--   **Theme**
+- **Theme**
 
--   **User**
+- **User**
 
--   **UserRole**
+- **UserRole**
 
--   **Templates:**
-    - An Object Type is registered for each Page Template based on it's Template Name.
+- **Templates:**
+  - An Object Type is registered for each Page Template based on it's Template Name.
 
 ## Enums
 
@@ -173,16 +181,17 @@ For example, Connections are registered from the RootQuery to Comments, from Use
 
 WPGraphQL generates the following Mutations:
 
--   **Comments**: `createComment`, `updateComment`, `deleteComment`, `restoreComment`
+- **Comments**: `createComment`, `updateComment`, `deleteComment`, `restoreComment`
 
--   **MediaItem**: `createMediaItem`, `updateMediaItem`, `deleteMediaItem`
+- **MediaItem**: `createMediaItem`, `updateMediaItem`, `deleteMediaItem`
 
--   **User**: `createUser`, `deleteUser`, `updateUser`, `registerUser`, `resetUserPassword`, `sendPasswordResetEmail`
+- **User**: `createUser`, `deleteUser`, `updateUser`, `registerUser`, `resetUserPassword`, `sendPasswordResetEmail`
 
--   **Settings:**`updateSettings`
+- **Settings:**`updateSettings`
 
--   **Post Types:**
-    - create, update and delete mutations are registered for each post type that's set to show in GraphQL.
+- **Post Types:**
 
--   **Taxonomies:**
-    - create, update and delete mutations are registered for each post type that's set to show in GraphQL
+  - create, update and delete mutations are registered for each post type that's set to show in GraphQL.
+
+- **Taxonomies:**
+  - create, update and delete mutations are registered for each post type that's set to show in GraphQL
