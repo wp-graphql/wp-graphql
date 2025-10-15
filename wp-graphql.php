@@ -3,10 +3,11 @@
  * Plugin Name: WPGraphQL
  * Plugin URI: https://github.com/wp-graphql/wp-graphql
  * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
+ * Release Asset: true
  * Description: GraphQL API for WordPress
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com
- * Version: 2.3.6
+ * Version: 2.3.8
  * Text Domain: wp-graphql
  * Domain Path: /languages/
  * Requires at least: 6.0
@@ -18,7 +19,7 @@
  * @package  WPGraphQL
  * @category Core
  * @author   WPGraphQL
- * @version  2.3.6
+ * @version  2.3.8
  */
 
 // Exit if accessed directly.
