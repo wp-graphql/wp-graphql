@@ -1,5 +1,42 @@
 # Changelog
 
+## v2.3.8 - 2025-10-14
+
+### Bug Fixes
+
+- fix: post meta array on preview ([#3422](https://github.com/jasonbahl/automation-tests/pull/3422))
+- fix: git updater compatibility ([#3420](https://github.com/jasonbahl/automation-tests/pull/3420))
+- fix: Prevent bad string injection in plugin update message (#3318) ([#3419](https://github.com/jasonbahl/automation-tests/pull/3419))
+
+
+
+## v2.3.7 - 2025-10-01
+
+### Bug Fixes
+
+- fix: Prevent bad string injection in plugin update message (#3318) ([#3419](https://github.com/jasonbahl/automation-tests/pull/3419))
+
+
+
+## v2.3.6 - 2025-09-08
+
+### Bug Fixes
+
+- fix: update failing e2e tests for graphiql ([#3414](https://github.com/jasonbahl/automation-tests/pull/3414))
+- fix: Prevent printed scripts from breaking GraphQL responses ([#3413](https://github.com/jasonbahl/automation-tests/pull/3413))
+- fix: prevent changeset deletions from being synced back to develop ([#3412](https://github.com/jasonbahl/automation-tests/pull/3412))
+- fix: wp 6.8 test failures ([#3410](https://github.com/jasonbahl/automation-tests/pull/3410))
+- fix: Move graphql_root_value filter execution to runtime for access to request params ([#3406](https://github.com/jasonbahl/automation-tests/pull/3406))
+- fix: make  void and call on  ([#3371](https://github.com/jasonbahl/automation-tests/pull/3371))
+
+### Other Changes
+
+- chore: update npm deps ([#3408](https://github.com/jasonbahl/automation-tests/pull/3408))
+- chore: update composer deps ([#3407](https://github.com/jasonbahl/automation-tests/pull/3407))
+- refactor: prepare deprecations for v3 removal ([#3400](https://github.com/jasonbahl/automation-tests/pull/3400))
+
+
+
 ## v2.3.5 - 2025-09-01
 
 ### Bug Fixes

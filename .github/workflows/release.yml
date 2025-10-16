@@ -1,5 +1,10 @@
 name: Release Management
 
+# Prevent multiple releases from running simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   # Using pull_request_target instead of pull_request for security reasons:
   # - Runs in the context of the BASE repository, not the fork
@@ -49,17 +54,22 @@ jobs:
       github.event_name == 'schedule'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version_bump.outputs.version }}
+      version: ${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}
       release_created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}
+      version_already_exists: ${{ steps.check_version_exists.outputs.version_exists }}
     steps:
       - name: Debug workflow conditions
         run: |
+          echo "=== RELEASE WORKFLOW DEBUG INFO ==="
           echo "Event name: ${{ github.event_name }}"
           echo "Event inputs: ${{ toJSON(github.event.inputs) }}"
           echo "Deploy only: ${{ github.event.inputs.deploy_only }}"
           echo "Target branch: ${{ github.event.inputs.target_branch }}"
           echo "Release type: ${{ github.event.inputs.release_type }}"
           echo "Current ref: ${{ github.ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo "====================================="
 
       - name: Set checkout ref
         id: set_ref
@@ -90,6 +100,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check if version already exists
+        id: check_version_exists
+        run: |
+          # Get current version from constants.php
+          CURRENT_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
+          echo "Current version in constants.php: ${CURRENT_VERSION}"
+
+          # Check if this version already has a tag
+          if git rev-parse "v${CURRENT_VERSION}" >/dev/null 2>&1; then
+            echo "Version v${CURRENT_VERSION} already exists as a tag. Skipping release."
+            echo "version_exists=true" >> $GITHUB_OUTPUT
+            echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "Version v${CURRENT_VERSION} does not exist as a tag. Proceeding with release."
+            echo "version_exists=false" >> $GITHUB_OUTPUT
+            echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for changesets
         id: check_changesets
         run: |
@@ -102,6 +130,7 @@ jobs:
 
       - name: Determine version bump
         id: version_bump
+        if: steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           if [[ "${{ github.event.inputs.release_type }}" != "auto" && "${{ github.event.inputs.release_type }}" != "" ]]; then
             # Use the specified release type
@@ -116,8 +145,14 @@ jobs:
           fi
 
           # Get the new version after bump (using WPGRAPHQL_VERSION)
-          NEW_VERSION=$(grep -oP "define\(\s*'WPGRAPHQL_VERSION',\s*'\K[^']+" constants.php)
+          NEW_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set version for existing releases
+        id: set_existing_version
+        if: steps.check_version_exists.outputs.version_exists == 'true'
+        run: |
+          echo "version=${{ steps.check_version_exists.outputs.current_version }}" >> $GITHUB_OUTPUT
 
       - name: Update @since and deprecated version placeholders
         id: update_since_tags
@@ -220,13 +255,23 @@ jobs:
           npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
       - name: Commit changes to master
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
           # Fetch all branches
           git fetch origin
+
+          # Determine the current branch and ensure we're on develop for the first part
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "Current branch: $CURRENT_BRANCH"
+
+          # If we're not on develop, switch to it
+          if [[ "$CURRENT_BRANCH" != "develop" ]]; then
+            echo "Switching to develop branch..."
+            git checkout -B develop origin/develop
+          fi
 
           # First commit changes to develop
           if [[ -n "$(git status --porcelain)" ]]; then
@@ -268,7 +313,7 @@ jobs:
           git checkout develop
 
       - name: Create and push tag
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -285,10 +330,9 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         uses: actions/create-release@v1
         id: create_release
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
         with:
@@ -299,7 +343,7 @@ jobs:
           prerelease: false
 
       - name: Handle release creation failure
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure' && steps.check_version_exists.outputs.version_exists == 'false'
         id: handle_failure
         run: |
           echo "Failed to create release. This could be because the tag already exists."
@@ -435,6 +479,16 @@ jobs:
           git push origin develop
 
           echo "Successfully synced master back to develop branch"
+
+      - name: Release Summary
+        if: always()
+        run: |
+          echo "=== RELEASE WORKFLOW SUMMARY ==="
+          echo "Version: ${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          echo "Version already existed: ${{ steps.check_version_exists.outputs.version_exists }}"
+          echo "Release created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo "================================="
 
       - name: Commit changes to develop
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
