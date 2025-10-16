@@ -471,3 +471,14 @@ Stuck or have questions?
 ---
 
 Ready to contribute? Start by [creating an experiment proposal issue](https://github.com/wp-graphql/wp-graphql/issues/new) using the "Experiment Proposal" template!
+
+## Pull Request Templates
+
+When implementing your approved experiment, use our specialized PR templates:
+
+1. **Go to**: [Create New Pull Request](https://github.com/wp-graphql/wp-graphql/compare)
+2. **Select**: The default template will show a "chooser" with links to specialized templates
+3. **Click**: The appropriate template link (e.g., "New Experiment Template")
+4. **Fill out**: The template with your implementation details
+
+This ensures your PR includes all the necessary information for efficient review.
