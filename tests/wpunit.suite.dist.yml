@@ -19,4 +19,4 @@ modules:
       activatePlugins:
         - wp-graphql/wp-graphql.php
       configFile:
-        - "tests/_data/config.php"
+        - 'tests/_data/config.php'
