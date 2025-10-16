@@ -25,7 +25,7 @@ Experiments are **not** suitable for:
 Before proposing an experiment:
 
 1. Review [WPGraphQL's vision and scope](https://github.com/wp-graphql/wp-graphql#vision)
-2. Search existing [GitHub Discussions](https://github.com/wp-graphql/wp-graphql/discussions) and [Issues](https://github.com/wp-graphql/wp-graphql/issues)
+2. Search existing [GitHub Issues](https://github.com/wp-graphql/wp-graphql/issues) to avoid duplicates
 3. Read the [Contributing Guide](/docs/contributing)
 4. Understand the [experiment lifecycle](/docs/experiments#experiment-lifecycle)
 
@@ -33,7 +33,7 @@ Before proposing an experiment:
 
 ### Step 1: Propose the Experiment
 
-Start a GitHub Discussion in the "Ideas" category:
+Create a GitHub Issue (a maintainer will add the "experiment" label):
 
 **Title**: `[Experiment Proposal] Email Address Scalar`
 
@@ -123,7 +123,7 @@ Engage with the community:
 - **Address concerns** about scope, implementation, or impact
 - **Build consensus** among maintainers and community
 
-The core team will label your discussion:
+A WPGraphQL maintainer will label your issue:
 
 - `experiment: approved` - Ready to implement
 - `experiment: needs refinement` - More discussion needed
@@ -448,7 +448,7 @@ Document how users should migrate:
 Announce via:
 
 - Release notes
-- GitHub Discussion
+- GitHub Issue
 - Social media
 - Documentation updates
 
@@ -528,7 +528,7 @@ Yes! You'll be:
 
 Stuck or have questions?
 
-- **GitHub Discussions**: Ask in the Ideas category
+- **GitHub Issues**: Create an issue (a maintainer will add the "question" label)
 - **Slack**: Ask in #contributors channel
 - **Office Hours**: Join WPGraphQL office hours (if scheduled)
 - **Mentorship**: Ask if a core member can mentor you
@@ -543,4 +543,4 @@ Stuck or have questions?
 
 ---
 
-Ready to contribute? Start by [proposing your experiment](https://github.com/wp-graphql/wp-graphql/discussions/new?category=ideas)!
+Ready to contribute? Start by [creating an experiment proposal issue](https://github.com/wp-graphql/wp-graphql/issues/new)!

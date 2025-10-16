@@ -353,9 +353,9 @@ Your feedback shapes which experiments graduate to core!
 
    - Tag @wpgraphql on Twitter/X
 
-4. **GitHub Discussions**: Best for detailed feedback and use cases
+4. **GitHub Issues**: Best for detailed feedback and use cases
 
-   - https://github.com/wp-graphql/wp-graphql/discussions
+   - https://github.com/wp-graphql/wp-graphql/issues
 
 ## What Happens When Experiments Graduate
 
@@ -379,7 +379,7 @@ When an experiment is marked for deprecation:
 2. **Documentation updated**: Shows deprecation status and migration path
 3. **Grace period begins**: At least one major release before removal
 4. **Migration guide published**: Instructions for adapting your code
-5. **Community notification**: Announced in release notes and discussions
+5. **Community notification**: Announced in release notes and issues
 
 Example deprecation notice:
 

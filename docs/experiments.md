@@ -134,7 +134,7 @@ This prevents accumulation of experimental code and keeps WPGraphQL maintainable
 
 We love feedback! You can:
 
-1. **GitHub Discussions**: Share detailed thoughts and use cases
+1. **GitHub Issues**: Share detailed thoughts and use cases
 2. **GitHub Issues**: Report bugs or unexpected behavior
 3. **Slack**: Quick questions in the WPGraphQL Slack community
 4. **Twitter/X**: Tag @wpgraphql with your experience
@@ -154,7 +154,7 @@ The current Experiments API is designed for WPGraphQL core features only. Plugin
 Need help with experiments?
 
 - **Documentation**: Check the [Using Experiments](/docs/experiments-using) guide
-- **Community**: Ask in [GitHub Discussions](https://github.com/wp-graphql/wp-graphql/discussions)
+- **Community**: Ask in [GitHub Issues](https://github.com/wp-graphql/wp-graphql/issues)
 - **Issues**: Report bugs in [GitHub Issues](https://github.com/wp-graphql/wp-graphql/issues)
 - **Slack**: Join the [WPGraphQL Community Slack](https://wpgraphql.com/community)
 

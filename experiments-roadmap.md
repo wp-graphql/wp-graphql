@@ -314,7 +314,7 @@ Convert the EmailAddress scalar PR to be an experiment:
 
   - Title: "Custom Scalars: EmailAddress"
   - Description: "Adds EmailAddress scalar type for better type safety and validation"
-  - Link to feedback: GitHub Discussions or issue
+  - Link to feedback: GitHub issue
 
 - [ ] Test experiment workflow:
   - [ ] Enable in settings
@@ -436,7 +436,7 @@ The Experiments API is ready to ship when:
 - ✅ Phase 2.1 (activation messaging) is complete OR explicitly deferred with justification
 - ✅ Phase 2.3 (GraphQL extensions response) is complete OR explicitly deferred with justification
 - ✅ EmailAddress scalar is converted to an experiment and validated
-- ✅ All open discussions resolved (remove `needs: discussion` label)
+- ✅ All open issues resolved (remove `experiment: needs refinement` label)
 - ✅ Final review from @jasonbahl and @justlevine
 - ✅ Changelog entry written
 - ✅ Migration guide for extension developers (if applicable)
@@ -479,7 +479,7 @@ The Experiments API is ready to ship when:
 How will we know the Experiments API is successful?
 
 - **Developer Adoption**: WPGraphQL core uses experiments for at least 2-3 features
-- **Community Feedback**: Clear feedback channels for experiments (GH Discussions, issues)
+- **Community Feedback**: Clear feedback channels for experiments (GitHub issues)
 - **Graduation Rate**: Experiments either graduate to core or get deprecated within 2-3 releases
 - **Reduced Core Bloat**: Experimental features don't pile up indefinitely
 - **User Clarity**: Users understand what experiments are and feel comfortable enabling them
