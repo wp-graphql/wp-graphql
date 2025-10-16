@@ -9,7 +9,9 @@
 namespace WPGraphQL\Experimental;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
+use WPGraphQL\Experimental\Experiment\TestDependantExperiment;
 use WPGraphQL\Experimental\Experiment\TestExperiment;
+use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment;
 
 /**
  * Class - ExperimentRegistry
@@ -35,6 +37,7 @@ final class ExperimentRegistry {
 	 * @var ?array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
 	 */
 	protected static $active_experiments;
+
 
 	/**
 	 * Initializes the Experimental Functionality for WPGraphQL
@@ -125,6 +128,16 @@ final class ExperimentRegistry {
 	}
 
 	/**
+	 * Get all registered experiment classes (before instantiation).
+	 *
+	 * @return array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
+	 */
+	public static function get_registered_experiments(): array {
+		return self::$registry ?? [];
+	}
+
+
+	/**
 	 * Returns whether the experiment is active.
 	 *
 	 * @param string $experiment_name The name of the experiment.
@@ -145,7 +158,15 @@ final class ExperimentRegistry {
 		$registry = [
 			// TestExperiment: A simple example that adds a testExperiment field to RootQuery.
 			// This serves as both a working example for developers and validates the Experiments API.
-			TestExperiment::get_slug() => TestExperiment::class,
+			'test_experiment'                     => TestExperiment::class,
+
+			// TestDependantExperiment: Demonstrates required experiment dependencies.
+			// This experiment requires TestExperiment and shows how required dependencies work.
+			'test-dependant-experiment'           => TestDependantExperiment::class,
+
+			// TestOptionalDependencyExperiment: Demonstrates optional experiment dependencies.
+			// This experiment works independently but provides enhanced functionality when TestExperiment is active.
+			'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
 		];
 
 		/**
@@ -224,12 +245,34 @@ final class ExperimentRegistry {
 
 		self::$experiments[ $slug ] = $experiment;
 
-		// Load the experiment if it is active.
-		if ( $experiment->is_active() ) {
+		// Check if experiment can be loaded based on dependencies
+		if ( $experiment->is_active() && $this->can_load_experiment( $experiment ) ) {
 			$experiment->load();
 
 			self::$active_experiments[ $slug ] = $experiment;
 		}
+	}
+
+	/**
+	 * Check if an experiment can be loaded based on its dependencies.
+	 *
+	 * @param \WPGraphQL\Experimental\Experiment\AbstractExperiment $experiment The experiment to check.
+	 * @return bool True if the experiment can be loaded, false otherwise.
+	 */
+	protected function can_load_experiment( AbstractExperiment $experiment ): bool {
+		$dependencies  = $experiment->get_dependencies();
+		$required_deps = $dependencies['required'] ?? [];
+
+		// Check if all required dependencies are active
+		foreach ( $required_deps as $dep_slug ) {
+			$is_dep_active = self::is_experiment_active( $dep_slug );
+
+			if ( ! $is_dep_active ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -244,9 +287,9 @@ final class ExperimentRegistry {
 			}
 		}
 
-		// Clear both arrays to force reload
-		self::$active_experiments = [];
-		self::$experiments        = [];
+		// Set both arrays to null to force reload
+		self::$active_experiments = null;
+		self::$experiments        = null;
 
 		// Reload experiments
 		$this->load_experiments();

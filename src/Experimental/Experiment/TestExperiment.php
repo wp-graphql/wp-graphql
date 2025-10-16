@@ -55,12 +55,30 @@ class TestExperiment extends AbstractExperiment {
 	}
 
 	/**
+	 * Gets the activation message for this experiment.
+	 *
+	 * @return string The activation message.
+	 */
+	public function get_activation_message(): string {
+		return __( 'Test Experiment activated! The `testExperiment` field is now available in your GraphQL schema. This is only a test experiment to demonstrate the Experiments API.', 'wp-graphql' );
+	}
+
+	/**
+	 * Gets the deactivation message for this experiment.
+	 *
+	 * @return string The deactivation message.
+	 */
+	public function get_deactivation_message(): string {
+		return __( 'Test Experiment deactivated. The `testExperiment` field has been removed from your GraphQL schema.', 'wp-graphql' );
+	}
+
+	/**
 	 * Initializes the experiment.
 	 *
 	 * I.e where you put your hooks.
 	 */
-	public function init(): void {
-		add_action( 'graphql_init', [ $this, 'register_field' ] );
+	protected function init(): void {
+		add_action( 'graphql_register_types', [ $this, 'register_field' ] );
 	}
 
 	/**

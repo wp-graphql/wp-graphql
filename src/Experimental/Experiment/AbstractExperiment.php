@@ -103,6 +103,52 @@ abstract class AbstractExperiment {
 	}
 
 	/**
+	 * Gets the experiment's dependencies.
+	 *
+	 * Override this method to specify dependencies for your experiment.
+	 *
+	 * @return array{required?:array<string>,optional?:array<string>} Array of dependencies.
+	 *         - 'required': Array of experiment slugs that must be active
+	 *         - 'optional': Array of experiment slugs that are recommended but not required
+	 *
+	 * @since next-version
+	 */
+	public function get_dependencies(): array {
+		return [
+			'required' => [],
+			'optional' => [],
+		];
+	}
+
+	/**
+	 * Gets the activation message for this experiment.
+	 *
+	 * Override this method to provide a custom activation message.
+	 * This message will be displayed as an admin notice when the experiment is activated.
+	 *
+	 * @return string|null The activation message, or null for no message.
+	 *
+	 * @since next-version
+	 */
+	public function get_activation_message(): ?string {
+		return null;
+	}
+
+	/**
+	 * Gets the deactivation message for this experiment.
+	 *
+	 * Override this method to provide a custom deactivation message.
+	 * This message will be displayed as an admin notice when the experiment is deactivated.
+	 *
+	 * @return string|null The deactivation message, or null for no message.
+	 *
+	 * @since next-version
+	 */
+	public function get_deactivation_message(): ?string {
+		return null;
+	}
+
+	/**
 	 * Returns the experiment's slug.
 	 *
 	 * This is static so it can be accessed outside of the class instantiation.
@@ -173,9 +219,12 @@ abstract class AbstractExperiment {
 		}
 
 		if ( ! isset( $is_active ) ) {
-			$setting_key = static::get_slug() . '_enabled';
+			// Use the slug() method directly to avoid static caching issues
+			$slug        = static::slug();
+			$setting_key = $slug . '_enabled';
 
-			$is_active = 'on' === get_graphql_setting( $setting_key, 'off', Admin::$option_group );
+			$setting_value = get_graphql_setting( $setting_key, 'off', Admin::$option_group );
+			$is_active     = 'on' === $setting_value;
 
 			/**
 			 * Filters whether the experiment is active.

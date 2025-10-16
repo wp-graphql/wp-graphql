@@ -441,7 +441,11 @@ Add inline documentation:
 
 ### Pattern 1: Experiment Dependencies
 
-If your experiment depends on another experiment:
+WPGraphQL's Experiments API supports both **required** and **optional** dependencies. This allows experiments to depend on other experiments and ensures proper activation/deactivation behavior.
+
+#### Required Dependencies
+
+Required dependencies must be active for the experiment to function. If a required dependency is missing, the experiment will be disabled in the admin UI and won't load.
 
 ```php
 class AdvancedExperiment extends AbstractExperiment {
@@ -457,22 +461,99 @@ class AdvancedExperiment extends AbstractExperiment {
         ];
     }
 
-    protected function init(): void {
-        // Check if dependency is active
-        if ( ! \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'email_address_scalar' ) ) {
-            // Log warning or handle gracefully
-            graphql_debug(
-                __( 'Advanced Feature experiment requires EmailAddress Scalar experiment to be enabled', 'wp-graphql' ),
-                [ 'experiment' => static::slug() ]
-            );
-            return;
-        }
+    /**
+     * Define experiment dependencies.
+     *
+     * @return array{required?:array<string>,optional?:array<string>}
+     */
+    public function get_dependencies(): array {
+        return [
+            'required' => [ 'email_address_scalar' ],
+            'optional' => [],
+        ];
+    }
 
-        // Proceed with initialization
+    protected function init(): void {
+        // The experiment will only reach this point if all required dependencies are active
         add_action( 'graphql_register_types', [ $this, 'register_types' ] );
     }
 }
 ```
+
+#### Optional Dependencies
+
+Optional dependencies enhance functionality but aren't required for the experiment to work. The experiment can adapt its behavior based on whether optional dependencies are available.
+
+```php
+class FlexibleExperiment extends AbstractExperiment {
+
+    protected static function slug(): string {
+        return 'flexible_feature';
+    }
+
+    protected function config(): array {
+        return [
+            'title' => __( 'Flexible Feature', 'wp-graphql' ),
+            'description' => __( 'A feature that works independently but is enhanced by other experiments', 'wp-graphql' ),
+        ];
+    }
+
+    /**
+     * Define experiment dependencies.
+     *
+     * @return array{required?:array<string>,optional?:array<string>}
+     */
+    public function get_dependencies(): array {
+        return [
+            'required' => [],
+            'optional' => [ 'email_address_scalar', 'advanced_feature' ],
+        ];
+    }
+
+    protected function init(): void {
+        add_action( 'graphql_register_types', [ $this, 'register_types' ] );
+    }
+
+    public function register_types(): void {
+        // Check if optional dependencies are active and adapt behavior
+        $email_scalar_active = \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'email_address_scalar' );
+        $advanced_feature_active = \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'advanced_feature' );
+
+        if ( $email_scalar_active ) {
+            // Register enhanced fields that use EmailAddress scalar
+            register_graphql_field( 'RootQuery', 'enhancedEmailField', [
+                'type' => 'EmailAddress',
+                'resolve' => function() {
+                    return 'enhanced@example.com';
+                },
+            ] );
+        } else {
+            // Register basic fields that use String type
+            register_graphql_field( 'RootQuery', 'basicEmailField', [
+                'type' => 'String',
+                'resolve' => function() {
+                    return 'basic@example.com';
+                },
+            ] );
+        }
+    }
+}
+```
+
+#### Dependency Behavior
+
+- **Required Dependencies**: If any required dependency is inactive, the experiment is disabled in the admin UI and won't load
+- **Optional Dependencies**: The experiment works independently but can check for optional dependencies and adapt its behavior
+- **Cascading Deactivation**: When a dependency is deactivated, all experiments that depend on it are also deactivated
+- **UI Feedback**: The admin UI shows dependency status with visual indicators (🔗 for required, ✨ for optional)
+
+#### Real Examples
+
+See the test experiments for working examples:
+
+- **`TestExperiment`**: No dependencies (base experiment)
+- **`TestDependantExperiment`**: Requires `TestExperiment` (demonstrates required dependencies)
+- **`TestOptionalDependencyExperiment`**: Optionally depends on `TestExperiment` (demonstrates optional dependencies)
 
 ### Pattern 2: Feature Flag Within Experiment
 

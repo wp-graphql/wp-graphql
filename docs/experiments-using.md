@@ -122,24 +122,57 @@ foreach ( $experiments as $slug => $experiment ) {
 }
 ```
 
-Or via GraphQL (if the extensions feature is enabled):
+Or via GraphQL response extensions (when debug is enabled):
 
 ```graphql
 query CheckExperiments {
-  # Active experiments appear in response extensions
+  # Active experiments appear in response extensions when GRAPHQL_DEBUG is enabled
   __typename
 }
 ```
 
-Response will include:
+Response will include (when `GRAPHQL_DEBUG` is enabled):
 
 ```json
 {
   "data": { "__typename": "RootQuery" },
   "extensions": {
-    "experiments": ["email_address_scalar"]
+    "experiments": ["test_experiment", "email_address_scalar"]
   }
 }
+```
+
+**Benefits of GraphQL Extensions Response:**
+
+- **Client-side Detection**: Your GraphQL clients can automatically detect which experimental features are available
+- **Debugging**: Easily identify which experiments are active without checking WordPress admin
+- **Team Coordination**: Frontend developers can see experimental features without backend coordination
+- **Development Only**: Only appears when `GRAPHQL_DEBUG` is enabled, keeping production responses clean
+
+**Example Client Usage:**
+
+```javascript
+// JavaScript example - only works when GRAPHQL_DEBUG is enabled
+const response = await fetch('/graphql', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: '{ __typename }' })
+});
+
+const data = await response.json();
+
+if (data.extensions?.experiments?.includes('email_address_scalar')) {
+  // Use the EmailAddress scalar type
+  console.log('EmailAddress scalar is available!');
+}
+```
+
+**Disabling Extensions Response:**
+
+If you need to disable the experiments extensions response:
+
+```php
+add_filter( 'graphql_should_show_experiments_in_extensions', '__return_false' );
 ```
 
 ### Disabling Experiments

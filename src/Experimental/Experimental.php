@@ -37,6 +37,10 @@ final class Experimental {
 		$this->experiment_registry = new ExperimentRegistry();
 		$this->experiment_registry->init();
 
+		// Initialize GraphQL Extensions functionality.
+		$extensions = new Extensions();
+		$extensions->init();
+
 		// Register Admin functionality.
 		if ( is_admin() ) {
 			$admin = new Admin();
