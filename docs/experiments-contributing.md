@@ -33,86 +33,13 @@ Before proposing an experiment:
 
 ### Step 1: Propose the Experiment
 
-Create a GitHub Issue (a maintainer will add the "experiment" label):
+Create a GitHub Issue using the "Experiment Proposal" template (a maintainer will add the "experiment: needs refinement" or "experiment: approved" label):
 
-**Title**: `[Experiment Proposal] Email Address Scalar`
+1. Go to [Create New Issue](https://github.com/wp-graphql/wp-graphql/issues/new)
+2. Select "Experiment Proposal" from the template dropdown
+3. Fill out the template with your proposal details
 
-**Template**:
-
-```markdown
-## Problem Statement
-
-Describe the problem your experiment aims to solve. Be specific about:
-
-- Who experiences this problem
-- When they experience it
-- Why current solutions are inadequate
-
-Example: "String types don't validate email addresses, leading to invalid data being stored. Developers must validate emails in their own code, creating inconsistency across implementations."
-
-## Proposed Solution
-
-Explain what your experiment will do:
-
-- What new types/fields/features it adds
-- How users will interact with it
-- What changes to the schema
-
-Example: "Add an EmailAddress scalar type that validates email format using WordPress's is_email() function. Update User.email field to use this scalar."
-
-## Why an Experiment?
-
-Explain why this should be an experiment rather than a direct core addition:
-
-- Is it a breaking change?
-- Does it need validation at scale?
-- Are there design decisions that need community input?
-
-Example: "This is a breaking change (String → EmailAddress) for the User.email field. We need to validate that the validation logic meets community needs and doesn't create performance issues."
-
-## Implementation Plan
-
-Outline your approach:
-
-- [ ] Create EmailAddressScalarExperiment class
-- [ ] Register EmailAddress scalar type
-- [ ] Update User.email field type
-- [ ] Write comprehensive tests
-- [ ] Document usage and limitations
-
-## Success Criteria
-
-How will we know if this experiment should graduate?
-
-- Positive feedback from at least 5 production users
-- No major bugs after 2 releases
-- Performance impact < 5ms per query
-- Community agrees validation rules are appropriate
-
-## Migration Plan
-
-If this graduates, how will we handle the breaking change?
-
-- Document the String → EmailAddress change
-- Provide examples of updating queries
-- Consider a transition period with both types
-
-## Open Questions
-
-What needs to be decided?
-
-- Should we support custom validation rules via filter?
-- Should we validate on serialize, parseValue, or both?
-- Should other fields (Comment.authorEmail) also use this scalar?
-
-## Feedback Requested
-
-What specific feedback would help?
-
-- Does this solve a real problem for you?
-- Are there edge cases we're missing?
-- Would this break your existing implementation?
-```
+The template includes all the necessary sections to help you structure your proposal effectively.
 
 ### Step 2: Discuss and Refine
 
@@ -543,4 +470,4 @@ Stuck or have questions?
 
 ---
 
-Ready to contribute? Start by [creating an experiment proposal issue](https://github.com/wp-graphql/wp-graphql/issues/new)!
+Ready to contribute? Start by [creating an experiment proposal issue](https://github.com/wp-graphql/wp-graphql/issues/new) using the "Experiment Proposal" template!
