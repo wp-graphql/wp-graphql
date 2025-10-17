@@ -262,7 +262,6 @@ class PluginConnectionResolver extends AbstractConnectionResolver {
 	protected function get_all_plugins(): array {
 		if ( ! isset( $this->all_plugins ) ) {
 			if ( ! function_exists( 'get_plugins' ) ) {
-				// @phpstan-ignore requireOnce.fileNotFound
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
