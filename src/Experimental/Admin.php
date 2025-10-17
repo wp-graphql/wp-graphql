@@ -41,7 +41,10 @@ class Admin {
 			self::$option_group,
 			[
 				'title' => __( 'Experiments 🧪', 'wp-graphql' ),
-				'desc'  => __( 'WPGraphQL Experiments are experimental features that are under active development. They may change, break, or disappear at any time.', 'wp-graphql' ),
+				'desc'  => sprintf(
+					'<div class="notice notice-info inline"><p>%s</p></div>',
+					__( 'WPGraphQL Experiments are experimental features that are under active development, with the goal of shipping them as core WPGraphQL features. They may change, break, or disappear at any time. Enable experiments to test them out and provide feedback. We recommend enabling and testing them in a development environment before enabling them in production.', 'wp-graphql' )
+				),
 			]
 		);
 
