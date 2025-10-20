@@ -89,6 +89,18 @@ Ready to try experiments?
 - **For Developers**: See [Creating Experiments](/docs/experiments-creating) to build your own experiments
 - **For Contributors**: See [Contributing Experiments](/docs/experiments-contributing) to add experiments to WPGraphQL core
 
+### Experiment Documentation
+
+Each experiment includes comprehensive documentation in its own README.md file:
+
+- **What it does**: Clear explanation of the experiment's purpose and functionality
+- **Schema changes**: New types, fields, or modifications introduced
+- **Usage examples**: GraphQL queries demonstrating the experiment in action
+- **Dependencies**: Required and optional dependencies (if any)
+- **Known limitations**: Current constraints or edge cases
+
+When you activate an experiment, a link to its documentation is automatically included in the admin notice, providing immediate access to detailed information about how to use it.
+
 ## Principles
 
 The Experiments API follows these core principles:

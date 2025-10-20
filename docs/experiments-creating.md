@@ -22,6 +22,8 @@ Every experiment consists of:
 4. **Tests**: Comprehensive test coverage
 5. **Documentation**: Inline and external docs
 
+> **📝 Important**: Each experiment should include a `README.md` file in its directory. This README serves as the official documentation for the experiment and is automatically linked in admin notices when the experiment is activated or deactivated. If missing, a debug warning will be logged (when `GRAPHQL_DEBUG` is enabled).
+
 ## Step-by-Step Guide
 
 ### Step 1: Create the Experiment Directory and Files
@@ -43,11 +45,11 @@ Create the main experiment class file `EmailAddressScalarExperiment.php`:
 /**
  * Email Address Scalar Experiment
  *
- * @package WPGraphQL\Experimental\Experiment
+ * @package WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment
  * @since 2.0.0
  */
 
-namespace WPGraphQL\Experimental\Experiment;
+namespace WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 
@@ -525,7 +527,7 @@ Add inline documentation to your experiment class:
  * ## Provide feedback:
  * https://github.com/wp-graphql/wp-graphql/discussions/xxxx
  *
- * @package WPGraphQL\Experimental\Experiment
+ * @package WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment
  * @since 2.0.0
  */
 ```
