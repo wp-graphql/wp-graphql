@@ -9,9 +9,9 @@
 namespace WPGraphQL\Experimental;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
-use WPGraphQL\Experimental\Experiment\TestDependantExperiment;
-use WPGraphQL\Experimental\Experiment\TestExperiment;
-use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment;
+use WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment;
+use WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment;
+use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment;
 
 /**
  * Class - ExperimentRegistry

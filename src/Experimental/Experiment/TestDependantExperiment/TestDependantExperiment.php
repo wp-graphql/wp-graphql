@@ -6,11 +6,13 @@
  * the testExperiment field from its dependency. This serves as a working
  * example of how to create experiments with dependencies.
  *
- * @package WPGraphQL\Experimental\Experiment
+ * @package WPGraphQL\Experimental\Experiment\TestDependantExperiment
  * @since next-version
  */
 
-namespace WPGraphQL\Experimental\Experiment;
+namespace WPGraphQL\Experimental\Experiment\TestDependantExperiment;
+
+use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 
 /**
  * TestDependantExperiment - A demonstration experiment that depends on TestExperiment

@@ -14,11 +14,11 @@
  * - docs/experiments-creating.md
  * - Example: EmailAddress scalar experiment
  *
- * @package WPGraphQL\Experimental\Experiment
+ * @package WPGraphQL\Experimental\Experiment\TestExperiment
  * @since next-version
  */
 
-namespace WPGraphQL\Experimental\Experiment;
+namespace WPGraphQL\Experimental\Experiment\TestExperiment;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 

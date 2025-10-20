@@ -142,6 +142,20 @@ abstract class AbstractExperiment {
 			return $readme_path;
 		}
 
+		// Log a debug warning if README is missing
+		graphql_debug(
+			sprintf(
+				// translators: %1$s: The experiment's slug, %2$s: The expected README path.
+				__( 'Experiment "%1$s" is missing a README.md file. Consider adding documentation at %2$s', 'wp-graphql' ),
+				static::get_slug(),
+				$readme_path
+			),
+			[
+				'experiment'    => static::get_slug(),
+				'expected_path' => $readme_path,
+			]
+		);
+
 		return null;
 	}
 

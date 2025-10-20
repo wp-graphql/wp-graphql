@@ -6,11 +6,13 @@
  * independently but provides enhanced functionality when its optional
  * dependencies are active.
  *
- * @package WPGraphQL\Experimental\Experiment
+ * @package WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment
  * @since next-version
  */
 
-namespace WPGraphQL\Experimental\Experiment;
+namespace WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment;
+
+use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 
 /**
  * TestOptionalDependencyExperiment - Demonstrates optional experiment dependencies
