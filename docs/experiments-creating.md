@@ -24,9 +24,19 @@ Every experiment consists of:
 
 ## Step-by-Step Guide
 
-### Step 1: Create the Experiment Class
+### Step 1: Create the Experiment Directory and Files
 
-Create a new file in `src/Experimental/Experiment/`:
+Each experiment should live in its own directory with at least two files:
+- The main experiment PHP class
+- A README.md file documenting the experiment
+
+Create a new directory in `src/Experimental/Experiment/EmailAddressScalarExperiment/`:
+
+```bash
+mkdir -p src/Experimental/Experiment/EmailAddressScalarExperiment
+```
+
+Create the main experiment class file `EmailAddressScalarExperiment.php`:
 
 ```php
 <?php
@@ -404,9 +414,92 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
 }
 ```
 
-### Step 4: Document the Experiment
+### Step 4: Create the Experiment README
 
-Add inline documentation:
+Each experiment **must** include a README.md file in its directory. This file should document:
+
+- What the experiment does
+- Schema changes it introduces
+- Usage examples
+- Dependencies (if any)
+- Known limitations
+- Migration notes (if applicable)
+
+Create `src/Experimental/Experiment/EmailAddressScalarExperiment/README.md`:
+
+```markdown
+# Email Address Scalar Experiment
+
+**Status**: Active  
+**Slug**: `email_address_scalar`  
+**Since**: 2.0.0
+
+## Overview
+
+This experiment adds a custom EmailAddress scalar type to the GraphQL schema for better validation and type safety when working with email fields.
+
+## What It Does
+
+When activated, this experiment:
+
+1. Registers an `EmailAddress` scalar type that validates email addresses
+2. Updates the `User.email` field to use the EmailAddress scalar
+3. Provides better type safety and validation for email fields
+
+## Schema Changes
+
+### New Types
+
+**`EmailAddress` (Scalar)**
+- Validates email format using WordPress's `is_email()` function
+- Sanitizes email addresses before returning to clients
+- Throws validation errors for invalid email formats
+
+### Modified Fields
+
+**`User.email`**
+- **Before**: `String`
+- **After**: `EmailAddress`
+
+### Example Query
+
+\```graphql
+query GetUser($id: ID!) {
+  user(id: $id) {
+    email # Now returns EmailAddress type with validation
+  }
+}
+\```
+
+## Usage
+
+See the main [Using Experiments](/docs/experiments-using.md) guide for general instructions.
+
+## Dependencies
+
+**Required Dependencies**: None  
+**Optional Dependencies**: None
+
+## Known Limitations
+
+- Only validates format, not email deliverability
+- Uses WordPress's `is_email()` which may differ from HTML5 validation
+- Breaking change if graduating: `String` → `EmailAddress` type change
+
+## Feedback
+
+Please provide feedback on this experiment:
+- GitHub: https://github.com/wp-graphql/wp-graphql/issues
+
+## References
+
+- [What are Experiments?](/docs/experiments.md)
+- [Creating Experiments](/docs/experiments-creating.md)
+\```
+
+### Step 5: Add Inline Documentation to the Class
+
+Add inline documentation to your experiment class:
 
 ```php
 /**
@@ -436,6 +529,54 @@ Add inline documentation:
  * @since 2.0.0
  */
 ```
+
+## Experiment Directory Structure
+
+Each experiment should be organized in its own directory with at least two required files:
+
+```
+src/Experimental/Experiment/
+├── AbstractExperiment.php                    # Base class (don't modify)
+├── YourExperiment/
+│   ├── YourExperiment.php                   # Main experiment class (required)
+│   ├── README.md                            # Documentation (required)
+│   └── helpers/                             # Optional: Additional files
+│       └── validation.php
+├── TestExperiment/
+│   ├── TestExperiment.php
+│   └── README.md
+└── TestDependantExperiment/
+    ├── TestDependantExperiment.php
+    └── README.md
+```
+
+### Required Files
+
+1. **`{ExperimentName}.php`** - The main experiment class
+2. **`README.md`** - Documentation for the experiment (automatically linked in activation messages)
+
+### Benefits of This Structure
+
+- **Organization**: All files related to an experiment are grouped together
+- **Documentation**: README.md provides detailed documentation and is automatically linked when experiments are activated/deactivated
+- **Scalability**: Experiments can include additional files (helpers, assets, tests, etc.)
+- **Discoverability**: Easy to find all files and documentation for an experiment
+
+### README.md Requirements
+
+Each experiment's README.md should include:
+
+- **Overview**: What the experiment does
+- **Schema Changes**: New types, fields, or modifications
+- **Usage Examples**: GraphQL queries showing the experiment in action
+- **Dependencies**: Required and optional dependencies (if any)
+- **Known Limitations**: Current constraints or issues
+- **Status**: Active, Deprecated, or Graduated
+
+See the existing test experiments for examples:
+- `src/Experimental/Experiment/TestExperiment/README.md`
+- `src/Experimental/Experiment/TestDependantExperiment/README.md`
+- `src/Experimental/Experiment/TestOptionalDependencyExperiment/README.md`
 
 ## Advanced Patterns
 

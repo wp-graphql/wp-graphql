@@ -4,17 +4,42 @@ WPGraphQL Experiments API is an API that allows us to experiment with bleeding-e
 
 ## Current Experiments
 
-| Name | Slug | Description |
-|------|------|-------------|
-| Test Experiment | `test_experiment` | A Test experiment that registers the `RootQuery.testExperiment` field to the schema |
+| Name | Slug | Description | Docs |
+|------|------|-------------|------|
+| Test Experiment | `test_experiment` | A Test experiment that registers the `RootQuery.testExperiment` field to the schema | [README](Experiment/TestExperiment/README.md) |
+| Test Dependant Experiment | `test-dependant-experiment` | Demonstrates required experiment dependencies | [README](Experiment/TestDependantExperiment/README.md) |
+| Test Optional Dependency Experiment | `test-optional-dependency-experiment` | Demonstrates optional experiment dependencies | [README](Experiment/TestOptionalDependencyExperiment/README.md) |
 
 ## How it works
 
-Experiments are registered by extending the `WPGraphQL\Experimental\Experiment\AbstractExperiment` class. This class has a few methods that need to be implemented:
+Experiments are registered by extending the `WPGraphQL\Experimental\Experiment\AbstractExperiment` class. Each experiment should be organized in its own directory with at least two files:
 
-- `slug()`: The unique slug for the experiment.
-- `config()`: The experiment configuration. Consists of the `title` and `description` used in the Admin UI toggle.
-- `init()`: The method that is called when the experiment is initialized. This is the entrypoint to the experiment's functionality, i.e. where you would add filters, actions, etc.
+### Directory Structure
+
+```
+src/Experimental/Experiment/
+├── AbstractExperiment.php       # Base class for all experiments
+├── YourExperiment/
+│   ├── YourExperiment.php      # Main experiment class (required)
+│   └── README.md               # Documentation (required)
+└── TestExperiment/
+    ├── TestExperiment.php
+    └── README.md
+```
+
+### Required Methods
+
+Each experiment class must implement:
+
+- `slug()`: The unique slug for the experiment
+- `config()`: The experiment configuration (title, description)
+- `init()`: The initialization method where you add filters, actions, etc.
+
+### Optional Methods
+
+- `get_dependencies()`: Define required and optional experiment dependencies
+- `get_activation_message()`: Custom message shown when experiment is activated
+- `get_deactivation_message()`: Custom message shown when experiment is deactivated
 
 ## Enabling an experiment
 

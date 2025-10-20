@@ -121,6 +121,60 @@ abstract class AbstractExperiment {
 	}
 
 	/**
+	 * Gets the path to the experiment's README.md file.
+	 *
+	 * @return string|null The absolute path to the README.md file, or null if it doesn't exist.
+	 *
+	 * @since next-version
+	 */
+	public function get_readme_path(): ?string {
+		$reflection = new \ReflectionClass( static::class );
+		$class_file = $reflection->getFileName();
+
+		if ( false === $class_file ) {
+			return null;
+		}
+
+		$class_dir   = dirname( $class_file );
+		$readme_path = $class_dir . '/README.md';
+
+		if ( file_exists( $readme_path ) ) {
+			return $readme_path;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Gets a link to view the experiment's README.
+	 *
+	 * @return string|null A markdown/HTML formatted link to the README, or null if README doesn't exist.
+	 *
+	 * @since next-version
+	 */
+	public function get_readme_link(): ?string {
+		$readme_path = $this->get_readme_path();
+
+		if ( null === $readme_path ) {
+			return null;
+		}
+
+		// Get the relative path from the plugin root
+		$plugin_root = dirname( dirname( dirname( __DIR__ ) ) );
+		$relative_path = str_replace( $plugin_root . '/', '', $readme_path );
+
+		// Create a GitHub link if available, or a file path reference
+		$github_base = 'https://github.com/wp-graphql/wp-graphql/blob/develop/';
+		$readme_url  = $github_base . $relative_path;
+
+		return sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+			esc_url( $readme_url ),
+			__( 'View documentation', 'wp-graphql' )
+		);
+	}
+
+	/**
 	 * Gets the activation message for this experiment.
 	 *
 	 * Override this method to provide a custom activation message.

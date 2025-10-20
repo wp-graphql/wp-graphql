@@ -176,17 +176,29 @@ class Admin {
 			if ( 'off' === $old_value && 'on' === $new_value ) {
 				$message = $experiment->get_activation_message();
 				if ( $message ) {
+					// Add README link to custom message if available
+					$readme_link = $experiment->get_readme_link();
+					if ( $readme_link ) {
+						$message .= ' ' . $readme_link;
+					}
 					$messages[] = [
 						'type'    => 'success',
 						'message' => $message,
 					];
 				} else {
-					// Generic activation message
-					$config     = $experiment->get_config();
-					$title      = $config['title'] ?? $experiment->get_slug();
+					// Generic activation message with README link
+					$config      = $experiment->get_config();
+					$title       = $config['title'] ?? $experiment->get_slug();
+					$readme_link = $experiment->get_readme_link();
+					$message     = sprintf( '%s experiment activated.', $title );
+					
+					if ( $readme_link ) {
+						$message .= ' ' . $readme_link;
+					}
+					
 					$messages[] = [
 						'type'    => 'success',
-						'message' => sprintf( '%s experiment activated.', $title ),
+						'message' => $message,
 					];
 				}
 			}
@@ -195,17 +207,29 @@ class Admin {
 			if ( 'on' === $old_value && 'off' === $new_value ) {
 				$message = $experiment->get_deactivation_message();
 				if ( $message ) {
+					// Add README link to custom message if available
+					$readme_link = $experiment->get_readme_link();
+					if ( $readme_link ) {
+						$message .= ' ' . $readme_link;
+					}
 					$messages[] = [
 						'type'    => 'info',
 						'message' => $message,
 					];
 				} else {
-					// Generic deactivation message
-					$config     = $experiment->get_config();
-					$title      = $config['title'] ?? $experiment->get_slug();
+					// Generic deactivation message with README link
+					$config      = $experiment->get_config();
+					$title       = $config['title'] ?? $experiment->get_slug();
+					$readme_link = $experiment->get_readme_link();
+					$message     = sprintf( '%s experiment deactivated.', $title );
+					
+					if ( $readme_link ) {
+						$message .= ' ' . $readme_link;
+					}
+					
 					$messages[] = [
 						'type'    => 'info',
-						'message' => sprintf( '%s experiment deactivated.', $title ),
+						'message' => $message,
 					];
 				}
 			}

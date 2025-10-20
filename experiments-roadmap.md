@@ -610,6 +610,61 @@ Before merging to `develop`:
 
 ---
 
-**Last Updated**: 2025-10-16
+---
+
+## 🎨 Recent Changes (2025-10-20)
+
+### Experiment Directory Structure Refactor
+
+**Status**: ✅ Complete
+
+Each experiment now lives in its own directory with required documentation:
+
+**Old Structure:**
+```
+/Experimental/Experiment/
+  - AbstractExperiment.php
+  - TestExperiment.php
+  - TestDependantExperiment.php
+```
+
+**New Structure:**
+```
+/Experimental/Experiment/
+  - AbstractExperiment.php
+  - TestExperiment/
+    - TestExperiment.php
+    - README.md (required)
+  - TestDependantExperiment/
+    - TestDependantExperiment.php
+    - README.md (required)
+```
+
+**Changes Made:**
+- ✅ Created directories for each experiment
+- ✅ Moved experiment files into their respective directories
+- ✅ Created comprehensive README.md files for all test experiments
+- ✅ Added `get_readme_path()` and `get_readme_link()` methods to `AbstractExperiment`
+- ✅ Updated activation/deactivation messages to automatically include README links
+- ✅ Updated documentation to reflect new structure requirements
+
+**Benefits:**
+- **Better Organization**: Each experiment's files are grouped together
+- **Enforced Documentation**: README.md is now expected for each experiment
+- **Automatic Linking**: README documentation is automatically linked in admin notices
+- **Scalability**: Experiments can easily include multiple files (helpers, assets, tests)
+
+**Migration for Future Experiments:**
+
+All new experiments should follow this structure:
+```bash
+mkdir -p src/Experimental/Experiment/YourExperiment
+touch src/Experimental/Experiment/YourExperiment/YourExperiment.php
+touch src/Experimental/Experiment/YourExperiment/README.md
+```
+
+---
+
+**Last Updated**: 2025-10-20
 **Document Owner**: @jasonbahl
 **Next Review**: After GraphQL extensions implementation (Phase 2.3)
