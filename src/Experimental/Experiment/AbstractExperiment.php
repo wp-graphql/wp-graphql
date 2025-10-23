@@ -174,7 +174,7 @@ abstract class AbstractExperiment {
 		}
 
 		// Get the relative path from the plugin root
-		$plugin_root = dirname( dirname( dirname( __DIR__ ) ) );
+		$plugin_root   = dirname( dirname( dirname( __DIR__ ) ) );
 		$relative_path = str_replace( $plugin_root . '/', '', $readme_path );
 
 		// Create a GitHub link if available, or a file path reference

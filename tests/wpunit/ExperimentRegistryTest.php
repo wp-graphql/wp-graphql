@@ -40,7 +40,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
 		$this->assertIsArray( $experiments );
 		$this->assertArrayHasKey( 'test_experiment', $experiments );
-		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment::class, $experiments['test_experiment'] );
+		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class, $experiments['test_experiment'] );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$this->assertArrayHasKey( 'test_experiment', $experiments );
 
 		$test_experiment = $experiments['test_experiment'];
-		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment::class, $test_experiment );
+		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class, $test_experiment );
 
 		// Test that the experiment reports as inactive initially
 		$this->assertFalse( $test_experiment->is_active() );
@@ -74,7 +74,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 
 		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
 		$this->assertArrayHasKey( 'test-dependant-experiment', $experiments );
-		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestDependantExperiment::class, $experiments['test-dependant-experiment'] );
+		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment::class, $experiments['test-dependant-experiment'] );
 	}
 
 	/**

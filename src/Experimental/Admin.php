@@ -191,11 +191,11 @@ class Admin {
 					$title       = $config['title'] ?? $experiment->get_slug();
 					$readme_link = $experiment->get_readme_link();
 					$message     = sprintf( '%s experiment activated.', $title );
-					
+
 					if ( $readme_link ) {
 						$message .= ' ' . $readme_link;
 					}
-					
+
 					$messages[] = [
 						'type'    => 'success',
 						'message' => $message,
@@ -222,11 +222,11 @@ class Admin {
 					$title       = $config['title'] ?? $experiment->get_slug();
 					$readme_link = $experiment->get_readme_link();
 					$message     = sprintf( '%s experiment deactivated.', $title );
-					
+
 					if ( $readme_link ) {
 						$message .= ' ' . $readme_link;
 					}
-					
+
 					$messages[] = [
 						'type'    => 'info',
 						'message' => $message,

@@ -90,7 +90,7 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Verify we can access experiment properties
 		$test_experiment = $experiments['test_experiment'];
-		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment::class, $test_experiment );
+		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class, $test_experiment );
 		$config = $test_experiment->get_config();
 		$this->assertIsArray( $config );
 		$this->assertArrayHasKey( 'title', $config );
