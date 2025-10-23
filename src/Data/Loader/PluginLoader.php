@@ -37,7 +37,6 @@ class PluginLoader extends AbstractDataLoader {
 		}
 
 		if ( ! function_exists( 'get_plugins' ) ) {
-			// @phpstan-ignore requireOnce.fileNotFound
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 

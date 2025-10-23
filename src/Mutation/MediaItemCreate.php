@@ -225,8 +225,6 @@ class MediaItemCreate {
 			/**
 			 * Require the file.php file from wp-admin. This file includes the
 			 * download_url and wp_handle_sideload methods.
-			 *
-			 * @phpstan-ignore requireOnce.fileNotFound
 			 */
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -336,8 +334,6 @@ class MediaItemCreate {
 
 			/**
 			 * Check if the wp_generate_attachment_metadata method exists and include it if not.
-			 *
-			 * @phpstan-ignore requireOnce.fileNotFound
 			 */
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 

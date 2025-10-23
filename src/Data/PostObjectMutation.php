@@ -482,7 +482,6 @@ class PostObjectMutation {
 		}
 
 		if ( ! function_exists( 'wp_check_post_lock' ) ) {
-			// @phpstan-ignore requireOnce.fileNotFound
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
 
