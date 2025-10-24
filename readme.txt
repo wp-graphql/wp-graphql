@@ -286,6 +286,8 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 = 2.5.0 =
 
+**Note:** Version 2.4.0 was skipped due to an issue with the release automation workflow where the version was bumped twice (once manually and once by the workflow). The fixes included in this release were originally intended for v2.4.0, but to maintain consistency with the WordPress.org deployment, we're releasing as v2.5.0 instead. The workflow has been updated to prevent this issue in future releases.
+
 **New Features**
 
 * feat: Implement WPGraphQL Experiments API (https://github.com/jasonbahl/automation-tests/pull/3428)
