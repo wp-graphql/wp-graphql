@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.3.8
+Stable tag: 2.5.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -284,13 +284,29 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
-= 2.3.8 =
+= 2.5.0 =
+
+**New Features**
+
+* feat: Implement WPGraphQL Experiments API (https://github.com/jasonbahl/automation-tests/pull/3428)
+* feat: Add namespaced get/set API to AppContext (with deprecation for dynamic properties) (https://github.com/jasonbahl/automation-tests/pull/3429)
 
 **Bug Fixes**
 
-* fix: post meta array on preview (https://github.com/jasonbahl/automation-tests/pull/3422)
-* fix: git updater compatibility (https://github.com/jasonbahl/automation-tests/pull/3420)
-* fix: Prevent bad string injection in plugin update message (#3318) (https://github.com/jasonbahl/automation-tests/pull/3419)
+* fix: Release Workflow Version Skipping Issue (https://github.com/jasonbahl/automation-tests/pull/3426)
+* fix: use get_query_args and merge args instead of override via set_query_arg (https://github.com/jasonbahl/automation-tests/pull/3424)
+
+= 2.3.8 =
+
+**New Features**
+
+* feat: Implement WPGraphQL Experiments API (https://github.com/jasonbahl/automation-tests/pull/3428)
+* feat: Add namespaced get/set API to AppContext (with deprecation for dynamic properties) (https://github.com/jasonbahl/automation-tests/pull/3429)
+
+**Bug Fixes**
+
+* fix: Release Workflow Version Skipping Issue (https://github.com/jasonbahl/automation-tests/pull/3426)
+* fix: use get_query_args and merge args instead of override via set_query_arg (https://github.com/jasonbahl/automation-tests/pull/3424)
 
 = 2.3.7 =
 

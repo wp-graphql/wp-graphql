@@ -1,14 +1,30 @@
 # Changelog
 
-## v2.3.8 - 2025-10-14
+## v2.5.0 - 2025-10-24
+
+### New Features
+
+- feat: Implement WPGraphQL Experiments API ([#3428](https://github.com/jasonbahl/automation-tests/pull/3428))
+- feat: Add namespaced get/set API to AppContext (with deprecation for dynamic properties) ([#3429](https://github.com/jasonbahl/automation-tests/pull/3429))
 
 ### Bug Fixes
 
-- fix: post meta array on preview ([#3422](https://github.com/jasonbahl/automation-tests/pull/3422))
-- fix: git updater compatibility ([#3420](https://github.com/jasonbahl/automation-tests/pull/3420))
-- fix: Prevent bad string injection in plugin update message (#3318) ([#3419](https://github.com/jasonbahl/automation-tests/pull/3419))
+- fix: Release Workflow Version Skipping Issue ([#3426](https://github.com/jasonbahl/automation-tests/pull/3426))
+- fix: use get_query_args and merge args instead of override via set_query_arg ([#3424](https://github.com/jasonbahl/automation-tests/pull/3424))
 
 
+
+## v2.3.8 - 2025-10-24
+
+### New Features
+
+- feat: Implement WPGraphQL Experiments API ([#3428](https://github.com/jasonbahl/automation-tests/pull/3428))
+- feat: Add namespaced get/set API to AppContext (with deprecation for dynamic properties) ([#3429](https://github.com/jasonbahl/automation-tests/pull/3429))
+
+### Bug Fixes
+
+- fix: Release Workflow Version Skipping Issue ([#3426](https://github.com/jasonbahl/automation-tests/pull/3426))
+- fix: use get_query_args and merge args instead of override via set_query_arg ([#3424](https://github.com/jasonbahl/automation-tests/pull/3424))
 
 ## v2.3.7 - 2025-10-01
 

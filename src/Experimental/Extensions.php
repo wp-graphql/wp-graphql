@@ -10,7 +10,7 @@ use WPGraphQL\Experimental\ExperimentRegistry;
  * Handles adding active experiments to GraphQL response extensions.
  *
  * @package WPGraphQL\Experimental
- * @since next-version
+ * @since 2.3.8
  */
 class Extensions {
 

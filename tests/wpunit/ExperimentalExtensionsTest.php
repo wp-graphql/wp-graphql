@@ -9,7 +9,7 @@ use WPGraphQL\Experimental\Extensions;
  * Tests for the GraphQL Extensions Response functionality.
  *
  * @package WPGraphQL\Tests\WPUnit
- * @since next-version
+ * @since 2.3.8
  */
 class ExperimentalExtensionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 

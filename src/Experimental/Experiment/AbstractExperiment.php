@@ -5,7 +5,7 @@
  * ALL experiments should extend this class.
  *
  * @package WPGraphQL\Experimental\Experiment
- * @since next-version
+ * @since 2.3.8
  */
 
 namespace WPGraphQL\Experimental\Experiment;
@@ -111,7 +111,7 @@ abstract class AbstractExperiment {
 	 *         - 'required': Array of experiment slugs that must be active
 	 *         - 'optional': Array of experiment slugs that are recommended but not required
 	 *
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get_dependencies(): array {
 		return [
@@ -125,7 +125,7 @@ abstract class AbstractExperiment {
 	 *
 	 * @return string|null The absolute path to the README.md file, or null if it doesn't exist.
 	 *
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get_readme_path(): ?string {
 		$reflection = new \ReflectionClass( static::class );
@@ -164,7 +164,7 @@ abstract class AbstractExperiment {
 	 *
 	 * @return string|null A markdown/HTML formatted link to the README, or null if README doesn't exist.
 	 *
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get_readme_link(): ?string {
 		$readme_path = $this->get_readme_path();
@@ -196,7 +196,7 @@ abstract class AbstractExperiment {
 	 *
 	 * @return string|null The activation message, or null for no message.
 	 *
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get_activation_message(): ?string {
 		return null;
@@ -210,7 +210,7 @@ abstract class AbstractExperiment {
 	 *
 	 * @return string|null The deactivation message, or null for no message.
 	 *
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get_deactivation_message(): ?string {
 		return null;
