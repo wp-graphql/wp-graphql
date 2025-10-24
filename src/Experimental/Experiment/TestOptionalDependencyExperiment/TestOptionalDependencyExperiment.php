@@ -7,7 +7,7 @@
  * dependencies are active.
  *
  * @package WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment
- * @since next-version
+ * @since 2.3.8
  */
 
 namespace WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment;

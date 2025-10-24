@@ -359,7 +359,7 @@ class AppContext {
 					esc_html__( 'Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s', 'wp-graphql' ),
 					esc_html( $name )
 				),
-				'@since next-version'
+				'@since 2.3.8'
 			);
 		}
 
@@ -382,7 +382,7 @@ class AppContext {
 	 * @param string $namespace The namespace to store the value under (e.g., 'my-plugin').
 	 * @param string $key       The key to store the value under within the namespace.
 	 * @param mixed  $value     The value to store.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function set( string $namespace, string $key, $value ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
 		if ( ! isset( $this->store[ $namespace ] ) ) {
@@ -405,7 +405,7 @@ class AppContext {
 	 * @param string $key       The key to retrieve within the namespace.
 	 * @param mixed  $default   Optional. The default value to return if the key doesn't exist. Default null.
 	 * @return mixed The value if it exists, otherwise the default value.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function get( string $namespace, string $key, $default = null ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound, Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Semantically appropriate.
 		return $this->store[ $namespace ][ $key ] ?? $default;
@@ -424,7 +424,7 @@ class AppContext {
 	 * @param string $namespace The namespace to check.
 	 * @param string $key       The key to check within the namespace.
 	 * @return bool True if the key exists, false otherwise.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function has( string $namespace, string $key ): bool { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
 		return isset( $this->store[ $namespace ] ) && array_key_exists( $key, $this->store[ $namespace ] );
@@ -440,7 +440,7 @@ class AppContext {
 	 *
 	 * @param string $namespace The namespace containing the key.
 	 * @param string $key       The key to remove.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function remove( string $namespace, string $key ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
 		if ( isset( $this->store[ $namespace ] ) ) {
@@ -460,7 +460,7 @@ class AppContext {
 	 * ```
 	 *
 	 * @param string $namespace The namespace to clear.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function clear( string $namespace ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
 		unset( $this->store[ $namespace ] );
@@ -481,7 +481,7 @@ class AppContext {
 	 *
 	 * @param string $namespace The namespace to retrieve data from.
 	 * @return array<string,mixed> An array of all key-value pairs in the namespace, or empty array if namespace doesn't exist.
-	 * @since next-version
+	 * @since 2.3.8
 	 */
 	public function all( string $namespace ): array { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
 		return $this->store[ $namespace ] ?? [];

@@ -2,7 +2,7 @@
 
 **Status**: Active  
 **Slug**: `test-optional-dependency-experiment`  
-**Since**: next-version
+**Since**: 2.3.8
 
 ## Overview
 

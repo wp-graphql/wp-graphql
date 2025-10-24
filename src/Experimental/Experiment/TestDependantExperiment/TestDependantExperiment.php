@@ -7,7 +7,7 @@
  * example of how to create experiments with dependencies.
  *
  * @package WPGraphQL\Experimental\Experiment\TestDependantExperiment
- * @since next-version
+ * @since 2.3.8
  */
 
 namespace WPGraphQL\Experimental\Experiment\TestDependantExperiment;

@@ -15,7 +15,7 @@
  * - Example: EmailAddress scalar experiment
  *
  * @package WPGraphQL\Experimental\Experiment\TestExperiment
- * @since next-version
+ * @since 2.3.8
  */
 
 namespace WPGraphQL\Experimental\Experiment\TestExperiment;
