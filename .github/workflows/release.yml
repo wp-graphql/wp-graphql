@@ -158,7 +158,8 @@ jobs:
         id: update_since_tags
         run: |
           # Run the since-tags update script with the new version to update @since and deprecated version placeholders
-          npm run since-tags:update -- ${{ steps.version_bump.outputs.version }}
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          npm run since-tags:update -- "$VERSION"
 
           # Check if summary file exists and has content
           if [ -f "/tmp/since-tags-summary.md" ]; then
@@ -249,10 +250,11 @@ jobs:
         run: |
           # First, check if this is a breaking change release by using our new script
           # This will automatically update the upgrade notice section if breaking changes are found
-          npm run upgrade-notice:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          npm run upgrade-notice:update -- --new-version="$VERSION" --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
           # Now update the changelogs using the same release notes
-          npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          npm run changelogs:update -- --new-version="$VERSION" --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
       - name: Commit changes to master
         if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
@@ -473,7 +475,8 @@ jobs:
           git pull
 
           # Merge master into develop with a descriptive message
-          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${VERSION} [skip ci]"
 
           # Push changes to develop
           git push origin develop
@@ -494,7 +497,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "release: prepare v${{ steps.version_bump.outputs.version }}"
+          commit_message: "release: prepare v${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
           file_pattern: "*.php *.md *.txt package.json"
           # For manual/scheduled events, commit to the specified target branch or develop
           branch: ${{ github.event.inputs.target_branch || 'develop' }}
