@@ -210,18 +210,16 @@ class TermObject {
 					[
 						'toType'  => 'ContentNode',
 						'resolve' => static function ( Term $term, $args, $context, $info ) {
-							$resolver = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
-							$resolver->set_query_arg(
-								'tax_query',
-								[
-									[
-										'taxonomy'         => $term->taxonomyName,
-										'terms'            => [ $term->databaseId ],
-										'field'            => 'term_id',
-										'include_children' => false,
-									],
-								]
-							);
+							$resolver     = new PostObjectConnectionResolver( $term, $args, $context, $info, 'any' );
+							$current_args = $resolver->get_query_args();
+							$tax_query    = $current_args['tax_query'] ?? [];
+							$tax_query[]  = [
+								'taxonomy'         => $term->taxonomyName,
+								'terms'            => [ $term->databaseId ],
+								'field'            => 'term_id',
+								'include_children' => false,
+							];
+							$resolver->set_query_arg( 'tax_query', $tax_query );
 
 							return $resolver->get_connection();
 						},

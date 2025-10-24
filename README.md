@@ -20,6 +20,44 @@ Whether you're a WordPress developer exploring GraphQL or a GraphQL expert divin
 
 ---
 
+### 🎯 **Vision**
+
+WPGraphQL aims to be the **canonical GraphQL API for WordPress**, providing:
+
+- **A complete, flexible GraphQL schema** for accessing WordPress data
+- **Standards-based implementation** following GraphQL and WordPress best practices
+- **An extensible foundation** for plugins to build upon
+- **Production-ready performance** suitable for high-traffic sites
+- **Long-term stability** with semantic versioning and backward compatibility
+
+#### What Belongs in WPGraphQL Core?
+
+**In scope:**
+
+- GraphQL schema for WordPress core features (posts, pages, users, taxonomies, etc.)
+- Performance optimizations that benefit all users
+- Developer APIs for extending the schema
+- Standards and patterns for the WPGraphQL ecosystem
+
+**Candidates for core (via Experiments):**
+
+- Proposed features that need real-world validation before committing
+- Breaking changes that require community feedback
+- Performance improvements that need testing at scale
+- [Learn more about Experiments →](/docs/experiments)
+
+**Better as extensions:**
+
+- Plugin-specific integrations (ACF, Yoast, WooCommerce, etc.)
+- Opinionated workflows or conventions
+- Features specific to particular frameworks or use cases
+
+**The difference:** Experiments are potential core features being validated. Extensions are intentionally separate functionality that should remain as plugins. Experiments may graduate to core or be removed; extensions live independently forever.
+
+This focus keeps WPGraphQL maintainable while enabling a rich ecosystem of extensions.
+
+---
+
 ### 🚀 **Get Started**
 
 1. 📦 Install WPGraphQL: `wp plugin install wp-graphql --activate`

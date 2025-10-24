@@ -133,7 +133,6 @@ class UserDelete {
 			}
 
 			if ( ! function_exists( 'wp_delete_user' ) ) {
-				// @phpstan-ignore requireOnce.fileNotFound
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
@@ -148,11 +147,9 @@ class UserDelete {
 
 				// only include these files for multisite requests
 				if ( ! function_exists( 'wpmu_delete_user' ) ) {
-					// @phpstan-ignore requireOnce.fileNotFound
 					require_once ABSPATH . 'wp-admin/includes/ms.php';
 				}
 				if ( ! function_exists( 'remove_user_from_blog' ) ) {
-					// @phpstan-ignore requireOnce.fileNotFound
 					require_once ABSPATH . 'wp-admin/includes/ms-functions.php';
 				}
 

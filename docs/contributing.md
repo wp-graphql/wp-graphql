@@ -156,17 +156,31 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
    - `fix:` for bug fixes (patch version bump)
    - Add `!` suffix for breaking changes: `feat!:` or `fix!:`
 
-2. Include in your PR description:
+2. **Use the appropriate PR template**:
+
+   - Go to [Create New Pull Request](https://github.com/wp-graphql/wp-graphql/compare)
+   - The default template will show a "chooser" with links to specialized templates
+   - Click the appropriate template link for your contribution type:
+     - 🐛 **Bug Fixes** - For fixing bugs with failing test → fix → passing test workflow
+     - ✨ **Features** - For implementing new WPGraphQL features  
+     - 🧪 **Experiments** - For implementing or updating experiments
+     - 📚 **Documentation** - For documentation improvements
+     - 🔧 **Refactoring** - For code improvements without functional changes
+     - 📦 **Dependencies** - For dependency updates and security fixes
+     - 🛠️ **Maintenance** - For CI/CD, tooling, and configuration updates
+   - Fill out the template with your contribution details
+
+3. Include in your PR description:
 
    - Clear explanation of changes
    - Breaking changes (if any)
    - Upgrade instructions (if breaking)
 
-3. Add `@since next-version` tags to new functions/classes docblocks or use `@next-version` as a version placeholder for deprecation functions
+4. Add `@since next-version` tags to new functions/classes docblocks or use `@next-version` as a version placeholder for deprecation functions
 
    - These will be automatically updated during the release process.
 
-4. **Changeset Generation Process**:
+5. **Changeset Generation Process**:
    - When your PR is ready for review, a maintainer will review it
    - After approval, the maintainer will merge the PR
    - This triggers an automated workflow that:

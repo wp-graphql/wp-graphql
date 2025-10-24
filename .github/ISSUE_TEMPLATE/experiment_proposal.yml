@@ -1,0 +1,135 @@
+name: Experiment Proposal
+description: Propose a new experiment for WPGraphQL core
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Thank you for proposing an experiment for WPGraphQL core!
+
+        Before submitting your proposal, please review the [Contributing Experiments Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/experiments-contributing.md) to understand the process and requirements.
+
+        **Important**: Experiments are for proposed core features that need real-world validation. They are not suitable for plugin-specific features, bug fixes, or minor enhancements.
+
+        Please make sure to search [existing issues](https://github.com/wp-graphql/wp-graphql/issues) to avoid duplicates.
+  - type: input
+    attributes:
+      label: Experiment Title
+      description: A clear, concise title for your experiment (e.g., "Email Address Scalar")
+      placeholder: Email Address Scalar
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Problem Statement
+      description: >-
+        Describe the problem your experiment aims to solve. Be specific about:
+        - Who experiences this problem
+        - When they experience it  
+        - Why current solutions are inadequate
+      placeholder: >-
+        String types don't validate email addresses, leading to invalid data being stored. 
+        Developers must validate emails in their own code, creating inconsistency across implementations.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed Solution
+      description: >-
+        Explain what your experiment will do:
+        - What new types/fields/features it adds
+        - How users will interact with it
+        - What changes to the schema
+      placeholder: >-
+        Add an EmailAddress scalar type that validates email format using WordPress's is_email() function. 
+        Update User.email field to use this scalar.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why an Experiment?
+      description: >-
+        Explain why this should be an experiment rather than a direct core addition:
+        - Is it a breaking change?
+        - Does it need validation at scale?
+        - Are there design decisions that need community input?
+      placeholder: >-
+        This is a breaking change (String → EmailAddress) for the User.email field. 
+        We need to validate that the validation logic meets community needs and doesn't create performance issues.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Implementation Plan
+      description: >-
+        Outline your approach (use checkboxes for tasks):
+      placeholder: >-
+        - [ ] Create EmailAddressScalarExperiment class
+        - [ ] Register EmailAddress scalar type
+        - [ ] Update User.email field type
+        - [ ] Write comprehensive tests
+        - [ ] Document usage and limitations
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Success Criteria
+      description: >-
+        How will we know if this experiment should graduate?
+      placeholder: >-
+        - Positive feedback from at least 5 production users
+        - No major bugs after 2 releases
+        - Performance impact < 5ms per query
+        - Community agrees validation rules are appropriate
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Migration Plan
+      description: >-
+        If this graduates, how will we handle the breaking change?
+      placeholder: >-
+        - Document the String → EmailAddress change
+        - Provide examples of updating queries
+        - Consider a transition period with both types
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Open Questions
+      description: >-
+        What needs to be decided?
+      placeholder: >-
+        - Should we support custom validation rules via filter?
+        - Should we validate on serialize, parseValue, or both?
+        - Should other fields (Comment.authorEmail) also use this scalar?
+  - type: textarea
+    attributes:
+      label: Feedback Requested
+      description: >-
+        What specific feedback would help?
+      placeholder: >-
+        - Does this solve a real problem for you?
+        - Are there edge cases we're missing?
+        - Would this break your existing implementation?
+  - type: checkboxes
+    attributes:
+      label: Please confirm that you have searched existing issues in the repo.
+      description: >-
+        You can do this by searching https://github.com/wp-graphql/wp-graphql/issues.
+      options:
+        - label: 'Yes, I have searched for similar experiment proposals'
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Please confirm this is appropriate for an experiment.
+      description: >-
+        Experiments are for proposed core features that need validation. They are not for plugin-specific features, bug fixes, or minor enhancements.
+      options:
+        - label: 'Yes, this is a proposed core feature that needs real-world validation'
+          required: false
+        - label: 'This involves breaking changes that need community feedback'
+          required: false
+        - label: 'This is a controversial feature that needs community input'
+          required: false
+        - label: 'This is a performance improvement that needs testing at scale'
+          required: false
