@@ -69,6 +69,12 @@ jobs:
           echo "Current ref: ${{ github.ref }}"
           echo "Repository: ${{ github.repository }}"
           echo "Workflow run ID: ${{ github.run_id }}"
+          echo ""
+          echo "Current versions in files:"
+          echo "- constants.php: $(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//" || echo 'not found')"
+          echo "- package.json: $(grep -o '"version": "[^"]*"' package.json | sed 's/"version": "//' | sed 's/"//' || echo 'not found')"
+          echo "- readme.txt: $(grep -o 'Stable tag: [0-9.]*' readme.txt | sed 's/Stable tag: //' || echo 'not found')"
+          echo "- wp-graphql.php: $(grep -o 'Version: [0-9.]*' wp-graphql.php | sed 's/Version: //' || echo 'not found')"
           echo "====================================="
 
       - name: Set checkout ref
@@ -109,13 +115,26 @@ jobs:
 
           # Check if this version already has a tag
           if git rev-parse "v${CURRENT_VERSION}" >/dev/null 2>&1; then
-            echo "Version v${CURRENT_VERSION} already exists as a tag. Skipping release."
-            echo "version_exists=true" >> $GITHUB_OUTPUT
-            echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+            echo "Version v${CURRENT_VERSION} already exists as a tag."
+            
+            # If this is a manual release with an explicit bump type, we should proceed with bumping
+            # Otherwise, we should skip to avoid duplicate releases
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.release_type }}" != "auto" && "${{ github.event.inputs.release_type }}" != "" ]]; then
+              echo "Manual release with explicit bump type requested. Will proceed with version bump."
+              echo "version_exists=false" >> $GITHUB_OUTPUT
+              echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "should_bump=true" >> $GITHUB_OUTPUT
+            else
+              echo "Skipping release to avoid duplicate."
+              echo "version_exists=true" >> $GITHUB_OUTPUT
+              echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "should_bump=false" >> $GITHUB_OUTPUT
+            fi
           else
             echo "Version v${CURRENT_VERSION} does not exist as a tag. Proceeding with release."
             echo "version_exists=false" >> $GITHUB_OUTPUT
             echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+            echo "should_bump=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Check for changesets
@@ -153,6 +172,61 @@ jobs:
         if: steps.check_version_exists.outputs.version_exists == 'true'
         run: |
           echo "version=${{ steps.check_version_exists.outputs.current_version }}" >> $GITHUB_OUTPUT
+
+      - name: Validate version
+        id: validate_version
+        run: |
+          # Get the version we're going to release
+          RELEASE_VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          
+          # Ensure version is not empty
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "::error::Release version is empty! This should not happen."
+            exit 1
+          fi
+          
+          echo "Release version: ${RELEASE_VERSION}"
+          
+          # Check if this version already exists as a tag
+          if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            # This should only happen for existing releases that we're re-deploying
+            if [[ "${{ steps.check_version_exists.outputs.version_exists }}" == "true" ]]; then
+              echo "::warning::Version v${RELEASE_VERSION} already exists. This is expected for re-deployment."
+            else
+              echo "::error::Version v${RELEASE_VERSION} already exists as a tag but was not detected earlier. This is a workflow error."
+              exit 1
+            fi
+          else
+            echo "Version v${RELEASE_VERSION} does not exist yet. Proceeding with new release."
+          fi
+          
+          # Verify version consistency across files
+          CONSTANTS_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
+          PACKAGE_VERSION=$(grep -o '"version": "[^"]*"' package.json | sed 's/"version": "//' | sed 's/"//')
+          README_VERSION=$(grep -o 'Stable tag: [0-9.]*' readme.txt | sed 's/Stable tag: //')
+          PLUGIN_VERSION=$(grep -o 'Version: [0-9.]*' wp-graphql.php | sed 's/Version: //')
+          
+          echo "Version in constants.php: ${CONSTANTS_VERSION}"
+          echo "Version in package.json: ${PACKAGE_VERSION}"
+          echo "Version in readme.txt: ${README_VERSION}"
+          echo "Version in wp-graphql.php: ${PLUGIN_VERSION}"
+          
+          # Check if all versions match
+          if [[ "$CONSTANTS_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$README_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$PLUGIN_VERSION" != "$RELEASE_VERSION" ]]; then
+            echo "::error::Version mismatch detected!"
+            echo "::error::Expected: ${RELEASE_VERSION}"
+            echo "::error::constants.php: ${CONSTANTS_VERSION}"
+            echo "::error::package.json: ${PACKAGE_VERSION}"
+            echo "::error::readme.txt: ${README_VERSION}"
+            echo "::error::wp-graphql.php: ${PLUGIN_VERSION}"
+            exit 1
+          fi
+          
+          echo "✅ All version files are consistent: ${RELEASE_VERSION}"
+          echo "version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Update @since and deprecated version placeholders
         id: update_since_tags
