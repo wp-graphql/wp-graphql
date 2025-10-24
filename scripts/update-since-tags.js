@@ -12,9 +12,10 @@ async function findSinceTodoFiles(pattern = '**/*.php') {
         
         // Define specific directories to scan
         const includePaths = [
-            '*.php',           // Root PHP files
-            'src/**/*.php',    // All PHP files in src directory
-            'tests/**/*.php'   // All PHP files in tests directory
+            '*.php',                                      // Root PHP files
+            'src/**/*.php',                               // All PHP files in src directory
+            'tests/**/*.php',                             // All PHP files in tests directory
+            'src/Experimental/Experiment/**/README.md'    // Experiment README files
         ];
 
         // Define directories to always ignore
@@ -73,11 +74,14 @@ function getSincePlaceholders(content) {
     // Look for both @since placeholders and standalone @next-version
     const sinceRegex = /@since\s+(todo|next-version|tbd)/gi;
     const nextVersionRegex = /@next-version/gi;
+    // Also look for markdown format: **Since**: next-version
+    const markdownSinceRegex = /\*\*Since\*\*:\s+(next-version|todo|tbd)/gi;
     
     const sinceMatches = content.match(sinceRegex) || [];
     const nextVersionMatches = content.match(nextVersionRegex) || [];
+    const markdownMatches = content.match(markdownSinceRegex) || [];
     
-    return sinceMatches.length + nextVersionMatches.length;
+    return sinceMatches.length + nextVersionMatches.length + markdownMatches.length;
 }
 
 /**
@@ -98,10 +102,16 @@ function updateSinceTags(filePath, version, dryRun = false) {
             return { updated: true, count: placeholderCount };
         }
 
-        // First replace @since placeholders
+        // First replace @since placeholders (PHP docblock format)
         content = content.replace(
             /@since\s+(todo|tbd|next-version)/gi,
             `@since ${version}`
+        );
+
+        // Replace markdown format: **Since**: next-version
+        content = content.replace(
+            /(\*\*Since\*\*:\s+)(next-version|todo|tbd)/gi,
+            `$1${version}`
         );
 
         // Then replace all standalone @next-version occurrences

@@ -1,26 +1,36 @@
-<!--
+# WPGraphQL Pull Request Templates
 
-### Your checklist for this pull request
-Thanks for sending a pull request! Please make sure you click the link above to view the contribution guidelines, then fill out the blanks below.
+Please go to the **Preview** tab and select the appropriate template for your contribution:
 
-🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/develop/.github/CONTRIBUTING.md
+## 🐛 **Bug Fixes**
+- **[Bug Fix Template](?expand=1&template=bugfix.md)** - For fixing bugs with failing test → fix → passing test workflow
 
-- [ ] Make sure your PR title follows Conventional Commit standards. See: https://www.conventionalcommits.org/en/v1.0.0/#specification . Allowed prefixes: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
-- [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our master*.
-- [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
+## ✨ **New Features** 
+- **[Feature Template](?expand=1&template=feature.md)** - For implementing new WPGraphQL features
 
--->
+## 🧪 **Experiments**
+- **[New Experiment Template](?expand=1&template=new-experiment.md)** - For implementing approved experiments
+- **[Experiment Update Template](?expand=1&template=experiment-update.md)** - For updating existing experiments
 
-## What does this implement/fix? Explain your changes.
+## 📚 **Documentation**
+- **[Documentation Template](?expand=1&template=documentation.md)** - For documentation improvements
 
+## 🔧 **Code Quality**
+- **[Refactor Template](?expand=1&template=refactor.md)** - For code improvements without functional changes
 
-## Does this close any currently open issues?
+## 📦 **Dependencies & Maintenance**
+- **[Dependency Update Template](?expand=1&template=dependency-update.md)** - For dependency updates and security fixes
+- **[Maintenance Template](?expand=1&template=chore.md)** - For CI/CD, tooling, and configuration updates
 
-<!--
-### Write "closes #{pr number}"
-### see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
--->
+## 📋 **Other Contributions**
+- **[General Template](?expand=1&template=general.md)** - For other types of contributions
 
-## Any other comments?
+---
 
-<!-- Please add any additional context that would be helpful. Feel free to include screenshots of the GraphiQL IDE or other relevant screenshotes, logs, error output, etc -->
+**Instructions:**
+1. Click on the appropriate template link above
+2. The template will load in the PR description
+3. Fill out the template with your contribution details
+4. Submit your pull request
+
+**Need help choosing?** Check our [Contributing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/.github/CONTRIBUTING.md) for more guidance.
