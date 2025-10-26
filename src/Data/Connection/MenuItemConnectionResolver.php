@@ -30,9 +30,36 @@ class MenuItemConnectionResolver extends PostObjectConnectionResolver {
 
 		$menu_locations = get_theme_mod( 'nav_menu_locations' );
 
-		$query_args            = parent::prepare_query_args( $args );
-		$query_args['orderby'] = 'menu_order';
-		$query_args['order']   = isset( $last ) ? 'DESC' : 'ASC';
+		$query_args = parent::prepare_query_args( $args );
+
+		// --- Fix: Handle ordering consistently ---
+		$where   = $args['where'] ?? [];
+		$orderby = $where['orderby'] ?? null;
+		$order   = $where['order'] ?? 'ASC'; // ✅ Default to ASC if not set
+
+		if ( $orderby ) {
+			// Map GraphQL 'orderby' to WP_Query values if needed
+			$orderby_map = [
+				'ID'         => 'ID',
+				'MENU_ORDER' => 'menu_order',
+				'DATE'       => 'date',
+				'TITLE'      => 'title',
+				// add mappings if schema exposes more
+			];
+			$query_args['orderby'] = $orderby_map[ $orderby ] ?? $orderby;
+
+			// Always normalize order (ASC/DESC)
+			$query_args['order'] = strtoupper( $order );
+		} else {
+			// ✅ Explicit default for Menu Items
+			$query_args['orderby'] = 'menu_order';
+			$query_args['order']   = 'ASC';
+		}
+
+		// --- Fix: Prevent exposing drafts to public users ---
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			$query_args['post_status'] = 'publish';
+		}
 
 		if ( isset( $args['where']['parentDatabaseId'] ) ) {
 			$query_args['meta_key']   = '_menu_item_menu_item_parent';
