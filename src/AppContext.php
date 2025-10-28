@@ -137,6 +137,22 @@ class AppContext {
 	private $loader_classes = self::DEFAULT_LOADERS;
 
 	/**
+	 * Stores custom data with namespace isolation.
+	 *
+	 * This is a key-value store where data is organized by namespace to prevent collisions
+	 * between different plugins/extensions.
+	 *
+	 * INTENDED USE: Store temporary, request-scoped state that needs to be passed between
+	 * different phases of GraphQL execution (e.g., directive hooks, middleware, resolver chains).
+	 *
+	 * NOT INTENDED: Storing permanent configuration or replacing existing AppContext properties.
+	 * For configuration, use the 'graphql_app_context_config' filter instead.
+	 *
+	 * @var array<string,array<string,mixed>>
+	 */
+	private $store = [];
+
+	/**
 	 * AppContext constructor.
 	 */
 	public function __construct() {
@@ -213,6 +229,20 @@ class AppContext {
 	/**
 	 * Retrieves loader assigned to $key
 	 *
+	 * @param string $key The name of the loader to get
+	 *
+	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
+	 *
+	 * @deprecated Use get_loader instead.
+	 */
+	public function getLoader( $key ) {
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_loader()' );
+		return $this->get_loader( $key );
+	}
+
+	/**
+	 * Retrieves loader assigned to $key
+	 *
 	 * @template T of key-of<self::DEFAULT_LOADERS>
 	 *
 	 * @param T|string $key The name of the loader to get.
@@ -239,7 +269,9 @@ class AppContext {
 			}
 		}
 
-		return $this->loaders[ $key ];
+		/** @var \WPGraphQL\Data\Loader\AbstractDataLoader $loader */
+		$loader = $this->loaders[ $key ];
+		return $loader;
 	}
 
 	/**
@@ -256,15 +288,26 @@ class AppContext {
 			return $this->$key;
 		}
 
-		/** @todo Remove in v3.0.0 */
+		// Warn about accessing the loaders property directly.
 		_doing_it_wrong(
 			__METHOD__,
-			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in the next major version of WPGraphQL. Use AppContext::get_loader() instead.', 'wp-graphql' ),
-			'2.3.2'
+			esc_html__( 'Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead.', 'wp-graphql' ), //phpcs:ignore PHPCS.Functions.VersionParameter.InvalidVersion -- @todo Fix this smell.
+			'2.3.2' // phpcs:ignore PHPCS.Functions.VersionParameter.OldVersionPlaceholder -- @todo Fix this smell.
 		);
 
 		// Return the actual loaders array.
 		return $this->loaders;
+	}
+
+	/**
+	 * Returns the $args for the connection the field is a part of
+	 *
+	 * @deprecated use get_connection_args() instead
+	 * @return mixed[]|mixed
+	 */
+	public function getConnectionArgs() {
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_connection_args()' );
+		return $this->get_connection_args();
 	}
 
 	/**
@@ -290,64 +333,157 @@ class AppContext {
 	}
 
 	/**
-	 * @todo remove in v3.0.0
-	 * @deprecated use get_connection_args() instead
-	 * @codeCoverageIgnore
-	 *
-	 * @return mixed[]|mixed
-	 */
-	public function getConnectionArgs() {
-		_doing_it_wrong(
-			__METHOD__,
-			sprintf(
-				// translators: %s is the method name.
-				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
-				esc_html( self::class . '::get_connection_args()' )
-			),
-			'0.8.4',
-		);
-		return $this->get_connection_args();
-	}
-
-	/**
-	 * @todo Remove in v3.0.0
-	 * @deprecated Use get_loader instead.
-	 * @codeCoverageIgnore
-	 *
-	 * @param string $key The name of the loader to get
-	 *
-	 * @return \WPGraphQL\Data\Loader\AbstractDataLoader
-	 */
-	public function getLoader( $key ) {
-		_doing_it_wrong(
-			__METHOD__,
-			sprintf(
-				// translators: %s is the method name.
-				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
-				esc_html( self::class . '::get_loader()' )
-			),
-			'0.8.4',
-		);
-		return $this->get_loader( $key );
-	}
-
-	/**
-	 * @todo Remove in v3.0.0
-	 * @deprecated use get_current_connection instead.
-	 * @codeCoverageIgnore
-	 *
 	 * @return mixed|string|null
+	 * @deprecated use get_current_connection instead.
 	 */
 	public function getCurrentConnection() {
-		_doing_it_wrong(
-			__METHOD__,
-			sprintf(
-				// translators: %s is the method name.
-				esc_html__( 'This function will be removed in the next major version of WPGraphQL. Use %s instead.', 'wp-graphql' ),
-				esc_html( self::class . '::get_current_connection()' )
-			),
-			'0.8.4',
-		);
 		return $this->get_current_connection();
+	}
+
+	/**
+	 * Magic setter to warn about setting dynamic properties on AppContext.
+	 *
+	 * This maintains backward compatibility while warning developers to use the new set() method.
+	 *
+	 * @param string $name  The name of the property being set.
+	 * @param mixed  $value The value being assigned to the property.
+	 * @return void
+	 */
+	public function __set( $name, $value ) {
+		// Only warn for truly dynamic properties, not existing defined properties
+		if ( ! property_exists( $this, $name ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					// translators: %s is the name of the property being set.
+					esc_html__( 'Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s', 'wp-graphql' ),
+					esc_html( $name )
+				),
+				'@since 2.3.8'
+			);
+		}
+
+		// Still set the property for backward compatibility
+		$this->$name = $value;
+	}
+
+	/**
+	 * Sets a value in the context store with namespace isolation.
+	 *
+	 * It's strongly recommended to use a unique namespace to avoid collisions with other plugins.
+	 * A good practice is to use your plugin's text domain or a similar unique identifier.
+	 *
+	 * Example:
+	 * ```php
+	 * $context->set( 'my-plugin', 'user-language', 'fr' );
+	 * $context->set( 'my-plugin', 'original-locale', get_locale() );
+	 * ```
+	 *
+	 * @param string $namespace The namespace to store the value under (e.g., 'my-plugin').
+	 * @param string $key       The key to store the value under within the namespace.
+	 * @param mixed  $value     The value to store.
+	 * @since 2.3.8
+	 */
+	public function set( string $namespace, string $key, $value ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
+		if ( ! isset( $this->store[ $namespace ] ) ) {
+			$this->store[ $namespace ] = [];
+		}
+
+		$this->store[ $namespace ][ $key ] = $value;
+	}
+
+	/**
+	 * Gets a value from the context store.
+	 *
+	 * Example:
+	 * ```php
+	 * $language = $context->get( 'my-plugin', 'user-language', 'en' );
+	 * $locale = $context->get( 'my-plugin', 'original-locale' );
+	 * ```
+	 *
+	 * @param string $namespace The namespace to retrieve the value from.
+	 * @param string $key       The key to retrieve within the namespace.
+	 * @param mixed  $default   Optional. The default value to return if the key doesn't exist. Default null.
+	 * @return mixed The value if it exists, otherwise the default value.
+	 * @since 2.3.8
+	 */
+	public function get( string $namespace, string $key, $default = null ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound, Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound -- Semantically appropriate.
+		return $this->store[ $namespace ][ $key ] ?? $default;
+	}
+
+	/**
+	 * Checks if a key exists in the context store.
+	 *
+	 * Example:
+	 * ```php
+	 * if ( $context->has( 'my-plugin', 'user-language' ) ) {
+	 *     $language = $context->get( 'my-plugin', 'user-language' );
+	 * }
+	 * ```
+	 *
+	 * @param string $namespace The namespace to check.
+	 * @param string $key       The key to check within the namespace.
+	 * @return bool True if the key exists, false otherwise.
+	 * @since 2.3.8
+	 */
+	public function has( string $namespace, string $key ): bool { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
+		return isset( $this->store[ $namespace ] ) && array_key_exists( $key, $this->store[ $namespace ] );
+	}
+
+	/**
+	 * Removes a specific key from the context store.
+	 *
+	 * Example:
+	 * ```php
+	 * $context->remove( 'my-plugin', 'temporary-data' );
+	 * ```
+	 *
+	 * @param string $namespace The namespace containing the key.
+	 * @param string $key       The key to remove.
+	 * @since 2.3.8
+	 */
+	public function remove( string $namespace, string $key ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
+		if ( isset( $this->store[ $namespace ] ) ) {
+			unset( $this->store[ $namespace ][ $key ] );
+		}
+	}
+
+	/**
+	 * Clears all data in a specific namespace.
+	 *
+	 * This removes all keys associated with the given namespace.
+	 *
+	 * Example:
+	 * ```php
+	 * // Clear all data for 'my-plugin' namespace
+	 * $context->clear( 'my-plugin' );
+	 * ```
+	 *
+	 * @param string $namespace The namespace to clear.
+	 * @since 2.3.8
+	 */
+	public function clear( string $namespace ): void { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
+		unset( $this->store[ $namespace ] );
+	}
+
+	/**
+	 * Gets all data stored in a specific namespace.
+	 *
+	 * Returns an associative array of all key-value pairs in the namespace.
+	 *
+	 * Example:
+	 * ```php
+	 * $all_data = $context->all( 'my-plugin' );
+	 * foreach ( $all_data as $key => $value ) {
+	 *     // Process each key-value pair
+	 * }
+	 * ```
+	 *
+	 * @param string $namespace The namespace to retrieve data from.
+	 * @return array<string,mixed> An array of all key-value pairs in the namespace, or empty array if namespace doesn't exist.
+	 * @since 2.3.8
+	 */
+	public function all( string $namespace ): array { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- Namespace is semantically appropriate.
+		return $this->store[ $namespace ] ?? [];
 	}
 }

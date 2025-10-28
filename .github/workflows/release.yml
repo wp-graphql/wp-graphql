@@ -1,5 +1,10 @@
 name: Release Management
 
+# Prevent multiple releases from running simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   # Using pull_request_target instead of pull_request for security reasons:
   # - Runs in the context of the BASE repository, not the fork
@@ -49,17 +54,28 @@ jobs:
       github.event_name == 'schedule'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version_bump.outputs.version }}
+      version: ${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}
       release_created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}
+      version_already_exists: ${{ steps.check_version_exists.outputs.version_exists }}
     steps:
       - name: Debug workflow conditions
         run: |
+          echo "=== RELEASE WORKFLOW DEBUG INFO ==="
           echo "Event name: ${{ github.event_name }}"
           echo "Event inputs: ${{ toJSON(github.event.inputs) }}"
           echo "Deploy only: ${{ github.event.inputs.deploy_only }}"
           echo "Target branch: ${{ github.event.inputs.target_branch }}"
           echo "Release type: ${{ github.event.inputs.release_type }}"
           echo "Current ref: ${{ github.ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo ""
+          echo "Current versions in files:"
+          echo "- constants.php: $(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//" || echo 'not found')"
+          echo "- package.json: $(grep -o '"version": "[^"]*"' package.json | sed 's/"version": "//' | sed 's/"//' || echo 'not found')"
+          echo "- readme.txt: $(grep -o 'Stable tag: [0-9.]*' readme.txt | sed 's/Stable tag: //' || echo 'not found')"
+          echo "- wp-graphql.php: $(grep -o 'Version: [0-9.]*' wp-graphql.php | sed 's/Version: //' || echo 'not found')"
+          echo "====================================="
 
       - name: Set checkout ref
         id: set_ref
@@ -90,6 +106,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check if version already exists
+        id: check_version_exists
+        run: |
+          # Get current version from constants.php
+          CURRENT_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
+          echo "Current version in constants.php: ${CURRENT_VERSION}"
+
+          # Check if this version already has a tag
+          if git rev-parse "v${CURRENT_VERSION}" >/dev/null 2>&1; then
+            echo "Version v${CURRENT_VERSION} already exists as a tag."
+            
+            # If this is a manual release with an explicit bump type, we should proceed with bumping
+            # Otherwise, we should skip to avoid duplicate releases
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.release_type }}" != "auto" && "${{ github.event.inputs.release_type }}" != "" ]]; then
+              echo "Manual release with explicit bump type requested. Will proceed with version bump."
+              echo "version_exists=false" >> $GITHUB_OUTPUT
+              echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "should_bump=true" >> $GITHUB_OUTPUT
+            else
+              echo "Skipping release to avoid duplicate."
+              echo "version_exists=true" >> $GITHUB_OUTPUT
+              echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "should_bump=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Version v${CURRENT_VERSION} does not exist as a tag. Proceeding with release."
+            echo "version_exists=false" >> $GITHUB_OUTPUT
+            echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+            echo "should_bump=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for changesets
         id: check_changesets
         run: |
@@ -102,6 +149,7 @@ jobs:
 
       - name: Determine version bump
         id: version_bump
+        if: steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           if [[ "${{ github.event.inputs.release_type }}" != "auto" && "${{ github.event.inputs.release_type }}" != "" ]]; then
             # Use the specified release type
@@ -116,14 +164,76 @@ jobs:
           fi
 
           # Get the new version after bump (using WPGRAPHQL_VERSION)
-          NEW_VERSION=$(grep -oP "define\(\s*'WPGRAPHQL_VERSION',\s*'\K[^']+" constants.php)
+          NEW_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set version for existing releases
+        id: set_existing_version
+        if: steps.check_version_exists.outputs.version_exists == 'true'
+        run: |
+          echo "version=${{ steps.check_version_exists.outputs.current_version }}" >> $GITHUB_OUTPUT
+
+      - name: Validate version
+        id: validate_version
+        run: |
+          # Get the version we're going to release
+          RELEASE_VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          
+          # Ensure version is not empty
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "::error::Release version is empty! This should not happen."
+            exit 1
+          fi
+          
+          echo "Release version: ${RELEASE_VERSION}"
+          
+          # Check if this version already exists as a tag
+          if git rev-parse "v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            # This should only happen for existing releases that we're re-deploying
+            if [[ "${{ steps.check_version_exists.outputs.version_exists }}" == "true" ]]; then
+              echo "::warning::Version v${RELEASE_VERSION} already exists. This is expected for re-deployment."
+            else
+              echo "::error::Version v${RELEASE_VERSION} already exists as a tag but was not detected earlier. This is a workflow error."
+              exit 1
+            fi
+          else
+            echo "Version v${RELEASE_VERSION} does not exist yet. Proceeding with new release."
+          fi
+          
+          # Verify version consistency across files
+          CONSTANTS_VERSION=$(grep -o "define( 'WPGRAPHQL_VERSION', '[^']*'" constants.php | sed "s/define( 'WPGRAPHQL_VERSION', '//" | sed "s/'//")
+          PACKAGE_VERSION=$(grep -o '"version": "[^"]*"' package.json | sed 's/"version": "//' | sed 's/"//')
+          README_VERSION=$(grep -o 'Stable tag: [0-9.]*' readme.txt | sed 's/Stable tag: //')
+          PLUGIN_VERSION=$(grep -o 'Version: [0-9.]*' wp-graphql.php | sed 's/Version: //')
+          
+          echo "Version in constants.php: ${CONSTANTS_VERSION}"
+          echo "Version in package.json: ${PACKAGE_VERSION}"
+          echo "Version in readme.txt: ${README_VERSION}"
+          echo "Version in wp-graphql.php: ${PLUGIN_VERSION}"
+          
+          # Check if all versions match
+          if [[ "$CONSTANTS_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$README_VERSION" != "$RELEASE_VERSION" ]] || \
+             [[ "$PLUGIN_VERSION" != "$RELEASE_VERSION" ]]; then
+            echo "::error::Version mismatch detected!"
+            echo "::error::Expected: ${RELEASE_VERSION}"
+            echo "::error::constants.php: ${CONSTANTS_VERSION}"
+            echo "::error::package.json: ${PACKAGE_VERSION}"
+            echo "::error::readme.txt: ${README_VERSION}"
+            echo "::error::wp-graphql.php: ${PLUGIN_VERSION}"
+            exit 1
+          fi
+          
+          echo "✅ All version files are consistent: ${RELEASE_VERSION}"
+          echo "version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Update @since and deprecated version placeholders
         id: update_since_tags
         run: |
           # Run the since-tags update script with the new version to update @since and deprecated version placeholders
-          npm run since-tags:update -- ${{ steps.version_bump.outputs.version }}
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          npm run since-tags:update -- "$VERSION"
 
           # Check if summary file exists and has content
           if [ -f "/tmp/since-tags-summary.md" ]; then
@@ -214,13 +324,14 @@ jobs:
         run: |
           # First, check if this is a breaking change release by using our new script
           # This will automatically update the upgrade notice section if breaking changes are found
-          npm run upgrade-notice:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          npm run upgrade-notice:update -- --new-version="$VERSION" --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
           # Now update the changelogs using the same release notes
-          npm run changelogs:update -- --new-version=${{ steps.version_bump.outputs.version }} --notes-file="$GITHUB_WORKSPACE/release_notes.md"
+          npm run changelogs:update -- --new-version="$VERSION" --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
       - name: Commit changes to master
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -278,7 +389,7 @@ jobs:
           git checkout develop
 
       - name: Create and push tag
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -295,10 +406,9 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        if: github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
         uses: actions/create-release@v1
         id: create_release
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
         with:
@@ -309,7 +419,7 @@ jobs:
           prerelease: false
 
       - name: Handle release creation failure
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure' && steps.check_version_exists.outputs.version_exists == 'false'
         id: handle_failure
         run: |
           echo "Failed to create release. This could be because the tag already exists."
@@ -439,18 +549,29 @@ jobs:
           git pull
 
           # Merge master into develop with a descriptive message
-          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${{ steps.version_bump.outputs.version }} [skip ci]"
+          VERSION="${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          git merge --no-ff origin/master -m "chore: sync master back to develop after release v${VERSION} [skip ci]"
 
           # Push changes to develop
           git push origin develop
 
           echo "Successfully synced master back to develop branch"
 
+      - name: Release Summary
+        if: always()
+        run: |
+          echo "=== RELEASE WORKFLOW SUMMARY ==="
+          echo "Version: ${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
+          echo "Version already existed: ${{ steps.check_version_exists.outputs.version_exists }}"
+          echo "Release created: ${{ steps.create_release.outcome == 'success' || steps.handle_failure.outputs.release_exists == 'true' }}"
+          echo "Workflow run ID: ${{ github.run_id }}"
+          echo "================================="
+
       - name: Commit changes to develop
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "release: prepare v${{ steps.version_bump.outputs.version }}"
+          commit_message: "release: prepare v${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
           file_pattern: "*.php *.md *.txt package.json"
           # For manual/scheduled events, commit to the specified target branch or develop
           branch: ${{ github.event.inputs.target_branch || 'develop' }}

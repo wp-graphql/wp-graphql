@@ -126,6 +126,14 @@ final class WPGraphQL {
 	}
 
 	/**
+	 * Setup Experiments.
+	 */
+	public function setup_experiments(): void {
+		$experimental = new \WPGraphQL\Experimental\Experimental();
+		$experimental->init();
+	}
+
+	/**
 	 * Include required files.
 	 * Uses composer's autoload
 	 *
@@ -231,6 +239,7 @@ final class WPGraphQL {
 
 		// Initialize Admin functionality
 		add_action( 'after_setup_theme', [ $this, 'init_admin' ] );
+		add_action( 'after_setup_theme', [ $this, 'setup_experiments' ] );
 
 		add_action(
 			'init_graphql_request',

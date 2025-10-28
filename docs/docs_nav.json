@@ -121,8 +121,16 @@
       "href": "/docs/interfaces"
     },
     {
+      "title": "GraphQL Queries",
+      "href": "/docs/graphql-queries"
+    },
+    {
+      "title": "GraphQL Resolvers",
+      "href": "/docs/graphql-resolvers"
+    },
+    {
       "title": "Mutations",
-      "href": "/docs/wpgraphql-mutations"
+      "href": "/docs/graphql-mutations"
     },
     {
       "title": "Performance",
@@ -155,6 +163,28 @@
     {
       "title": "Customizing WP GraphiQL IDE",
       "href": "/docs/customizing-wpgraphiql"
+    },
+    {
+      "title": "WPGraphQL Mutations (Developer)",
+      "href": "/docs/wpgraphql-mutations"
+    }
+  ],
+  "Experiments": [
+    {
+      "title": "What are Experiments?",
+      "href": "/docs/experiments"
+    },
+    {
+      "title": "Using Experiments",
+      "href": "/docs/experiments-using"
+    },
+    {
+      "title": "Creating Experiments",
+      "href": "/docs/experiments-creating"
+    },
+    {
+      "title": "Contributing Experiments",
+      "href": "/docs/experiments-contributing"
     }
   ],
   "Community": [
@@ -175,8 +205,20 @@
       "href": "/docs/faqs"
     },
     {
-      "title": "Support",
-      "href": "/docs/support"
+      "title": "Common Issues",
+      "href": "/docs/common-issues"
+    },
+    {
+      "title": "Known Limitations",
+      "href": "/docs/known-limitations"
+    },
+    {
+      "title": "Compatibility Guide",
+      "href": "/docs/compatibility-guide"
+    },
+    {
+      "title": "Submit Extension",
+      "href": "/docs/submit-extension"
     }
   ]
 }
