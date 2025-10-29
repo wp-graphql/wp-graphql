@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Test\Type\Scalar;
+namespace WPGraphQL\Test\Experiments\EmailAddressScalar;
 
 class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 

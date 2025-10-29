@@ -181,7 +181,7 @@ class MediaItemCreate {
 			 * Then set the url for the uploaded file
 			 */
 			$file_name           = basename( $input['filePath'] );
-			$uploaded_file_url   = $input['filePath'];
+			$uploaded_file_url   = (string) $input['filePath'];
 			$sanitized_file_path = sanitize_file_name( $input['filePath'] );
 
 			// Check that the filetype is allowed
@@ -236,6 +236,13 @@ class MediaItemCreate {
 			if ( 'file' === wp_parse_url( $input['filePath'], PHP_URL_SCHEME ) && ! empty( $file_contents ) ) {
 				$uploaded_file     = wp_upload_bits( $file_name, null, $file_contents );
 				$uploaded_file_url = ( empty( $uploaded_file['error'] ) ? $uploaded_file['url'] : null );
+			}
+
+			/**
+			 * Ensure we have a valid URL before attempting download
+			 */
+			if ( empty( $uploaded_file_url ) ) {
+				throw new UserError( esc_html__( 'Sorry, the file could not be uploaded', 'wp-graphql' ) );
 			}
 
 			/**

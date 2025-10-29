@@ -13,7 +13,6 @@ use WP_User;
  * @property ?int          $databaseId
  * @property ?string       $description
  * @property ?string       $email
- * @property ?string       $emailAddress
  * @property string[]      $enqueuedScriptsQueue
  * @property string[]      $enqueuedStylesheetsQueue
  * @property string[]|null $extraCapabilities
@@ -177,9 +176,6 @@ class User extends Model {
 					return ! empty( $this->data->description ) ? $this->data->description : null;
 				},
 				'email'                    => function () {
-					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
-				},
-				'emailAddress'             => function () {
 					return ! empty( $this->data->user_email ) ? $this->data->user_email : null;
 				},
 				'enqueuedScriptsQueue'     => static function () {

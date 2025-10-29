@@ -104,7 +104,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				}
 				description
 				email
-				emailAddress
 				extraCapabilities
 				firstName
 				id
@@ -173,7 +172,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				],
 				'description'       => null,
 				'email'             => 'test@test.com',
-				'emailAddress'      => 'test@test.com',
 				'extraCapabilities' => [ 'read', 'level_0', 'subscriber' ],
 				'firstName'         => null,
 				'id'                => $global_id,
@@ -334,7 +332,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				capabilities
 				description
 				email
-				emailAddress
 				extraCapabilities
 				firstName
 				id
@@ -372,7 +369,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				'capabilities'      => null,
 				'description'       => $user_args['description'],
 				'email'             => null,
-				'emailAddress'      => null,
 				'extraCapabilities' => null,
 				'firstName'         => $user_args['first_name'],
 				'id'                => $global_id,
@@ -664,7 +660,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				...UserFields
 			}
 		}
-
+		
 		fragment UserFields on User {
 			id
 			userId
@@ -672,18 +668,16 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			slug
 			uri
 			email
-			emailAddress
 		}
 		';
 
 		$expected_user = [
-			'id'           => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
-			'userId'       => $admin->ID,
-			'username'     => $admin->user_login,
-			'slug'         => $admin->user_nicename,
-			'uri'          => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
-			'email'        => $admin->user_email,
-			'emailAddress' => $admin->user_email,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
+			'userId'   => $admin->ID,
+			'username' => $admin->user_login,
+			'slug'     => $admin->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
+			'email'    => $admin->user_email,
 		];
 
 		$actual = $this->graphql(
@@ -718,9 +712,8 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
-		$expected_user['username']     = null;
-		$expected_user['email']        = null;
-		$expected_user['emailAddress'] = null;
+		$expected_user['username'] = null;
+		$expected_user['email']    = null;
 
 		/**
 		 * A subscriber doesn't have permission to query a user
@@ -799,7 +792,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				...UserFields
 			}
 		}
-
+		
 		fragment UserFields on User {
 			id
 			userId
@@ -807,18 +800,16 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			slug
 			uri
 			email
-			emailAddress
 		}
 		';
 
 		$expected_user = [
-			'id'           => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
-			'userId'       => $admin->ID,
-			'username'     => $admin->user_login,
-			'slug'         => $admin->user_nicename,
-			'uri'          => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
-			'email'        => $admin->user_email,
-			'emailAddress' => $admin->user_email,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $admin->ID ),
+			'userId'   => $admin->ID,
+			'username' => $admin->user_login,
+			'slug'     => $admin->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $admin->ID ) ),
+			'email'    => $admin->user_email,
 		];
 
 		wp_set_current_user( 0 );
@@ -831,9 +822,8 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		// As a public user, the email and username should not be returned when querying
 		// for a user. Our expectation is null for these fields.
-		$expected_user['username']     = null;
-		$expected_user['email']        = null;
-		$expected_user['emailAddress'] = null;
+		$expected_user['username'] = null;
+		$expected_user['email']    = null;
 
 		/**
 		 * A subscriber doesn't have permission to query a user
@@ -914,7 +904,7 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 				...UserFields
 			}
 		}
-
+		
 		fragment UserFields on User {
 			id
 			userId
@@ -922,7 +912,6 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 			slug
 			uri
 			email
-			emailAddress
 		}
 		';
 
@@ -933,13 +922,12 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 		);
 
 		$expected_user = [
-			'id'           => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
-			'userId'       => $subscriber->ID,
-			'username'     => $subscriber->user_login,
-			'slug'         => $subscriber->user_nicename,
-			'uri'          => str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ),
-			'email'        => $subscriber->user_email,
-			'emailAddress' => $subscriber->user_email,
+			'id'       => \GraphQLRelay\Relay::toGlobalId( 'user', $subscriber->ID ),
+			'userId'   => $subscriber->ID,
+			'username' => $subscriber->user_login,
+			'slug'     => $subscriber->user_nicename,
+			'uri'      => str_ireplace( home_url(), '', get_author_posts_url( $subscriber->ID ) ),
+			'email'    => $subscriber->user_email,
 		];
 
 		/**
@@ -1032,84 +1020,5 @@ class UserObjectQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertNull( $actual['data']['user'] );
-	}
-
-	/**
-	 * Test that WordPress rejects invalid email addresses at the database level
-	 */
-	public function testInvalidEmailHandling(): void {
-		// Create user with invalid email - WordPress will reject this and store null/empty
-		$user_id = $this->createUserObject([
-			'user_email' => 'not-an-email',
-			'role' => 'author',
-		]);
-
-		// Create a published post so the user becomes publicly queryable
-		$this->factory()->post->create([
-			'post_author' => $user_id,
-			'post_status' => 'publish',
-		]);
-
-		// Verify that WordPress didn't store the invalid email
-		$user = get_user_by( 'id', $user_id );
-		$this->assertEmpty( $user->user_email, 'WordPress should reject invalid email addresses' );
-
-		// Test as authenticated user to bypass privacy restrictions
-		wp_set_current_user( $user_id );
-
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-
-		$query = "
-		query {
-			user(id: \"{$global_id}\") {
-				id
-				email
-				emailAddress
-			}
-		}";
-
-		$response = $this->graphql( compact( 'query' ) );
-
-		// Both fields should return null since WordPress rejected the invalid email
-		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertNull( $response['data']['user']['email'] );
-		$this->assertNull( $response['data']['user']['emailAddress'] );
-	}
-
-	/**
-	 * Test that both email and emailAddress fields return the same value for valid emails
-	 */
-	public function testEmailAndEmailAddressFieldsReturnSameValue(): void {
-		$user_id = $this->createUserObject([
-			'user_email' => 'both@example.com',
-			'role' => 'author',
-		]);
-
-		// Create a published post so the user becomes publicly queryable
-		$this->factory()->post->create([
-			'post_author' => $user_id,
-			'post_status' => 'publish',
-		]);
-
-		// Test as authenticated user to bypass privacy restrictions
-		wp_set_current_user( $user_id );
-
-		$global_id = \GraphQLRelay\Relay::toGlobalId( 'user', $user_id );
-
-		$query = "
-		query {
-			user(id: \"{$global_id}\") {
-				id
-				email
-				emailAddress
-			}
-		}";
-
-		$response = $this->graphql( compact( 'query' ) );
-
-		$this->assertArrayNotHasKey( 'errors', $response );
-		$this->assertEquals( 'both@example.com', $response['data']['user']['email'] );
-		$this->assertEquals( 'both@example.com', $response['data']['user']['emailAddress'] );
-		$this->assertEquals( $response['data']['user']['email'], $response['data']['user']['emailAddress'] );
 	}
 }

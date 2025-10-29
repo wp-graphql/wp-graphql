@@ -3655,16 +3655,16 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.8.2",
+            "version": "v6.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8"
+                "reference": "abeb5a8b58fda7ac21f15ee596f302f2959a7114"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8",
-                "reference": "9c8e22e437463197c1ec0d5eaa9ddd4a0eb6d7f8",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/abeb5a8b58fda7ac21f15ee596f302f2959a7114",
+                "reference": "abeb5a8b58fda7ac21f15ee596f302f2959a7114",
                 "shasum": ""
             },
             "conflict": {
@@ -3700,9 +3700,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.8.2"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.8.3"
             },
-            "time": "2025-07-16T06:41:00+00:00"
+            "time": "2025-09-30T20:58:47+00:00"
         },
         {
             "name": "php-webdriver/webdriver",
@@ -3776,12 +3776,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "8215564d0e8c0496964ded16727b0abfc2445ef6"
+                "reference": "71a1e55c148ec0d248f599faea63044f81a1952c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/8215564d0e8c0496964ded16727b0abfc2445ef6",
-                "reference": "8215564d0e8c0496964ded16727b0abfc2445ef6",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/71a1e55c148ec0d248f599faea63044f81a1952c",
+                "reference": "71a1e55c148ec0d248f599faea63044f81a1952c",
                 "shasum": ""
             },
             "require": {
@@ -3862,7 +3862,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-10-27T23:12:46+00:00"
+            "time": "2025-10-29T00:11:25+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",

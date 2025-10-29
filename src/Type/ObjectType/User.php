@@ -115,10 +115,10 @@ class User {
 								return __( 'Description of the user.', 'wp-graphql' );
 							},
 						],
-						'emailAddress'           => [
-							'type'        => 'EmailAddress',
+						'email'                  => [
+							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Email address of the user.', 'wp-graphql' );
+								return __( 'Email address of the user. This is equivalent to the WP_User->user_email property.', 'wp-graphql' );
 							},
 						],
 						'extraCapabilities'      => [

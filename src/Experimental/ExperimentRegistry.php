@@ -9,6 +9,8 @@
 namespace WPGraphQL\Experimental;
 
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
+use WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment\EmailAddressScalarExperiment;
+use WPGraphQL\Experimental\Experiment\EmailAddressScalarFieldsExperiment\EmailAddressScalarFieldsExperiment;
 use WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment;
 use WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment;
 use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment;
@@ -80,7 +82,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook.', 'wp-graphql' ),
-				'@since 2.3.8'
+				'@since next-version'
 			);
 
 			return [];
@@ -99,7 +101,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'@since 2.3.8'
+				'@since next-version'
 			);
 
 			return [];
@@ -118,7 +120,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'@since 2.3.8'
+				'@since next-version'
 			);
 
 			return [];
@@ -167,6 +169,14 @@ final class ExperimentRegistry {
 			// TestOptionalDependencyExperiment: Demonstrates optional experiment dependencies.
 			// This experiment works independently but provides enhanced functionality when TestExperiment is active.
 			'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
+
+			// EmailAddressScalarExperiment: Registers the EmailAddress scalar type for email validation.
+			// This provides automatic validation using WordPress's is_email() and sanitize_email() functions.
+			'email-address-scalar'                => EmailAddressScalarExperiment::class,
+
+			// EmailAddressScalarFieldsExperiment: Adds emailAddress fields to core types using the EmailAddress scalar.
+			// This experiment requires email-address-scalar to be active.
+			'email-address-scalar-fields'         => EmailAddressScalarFieldsExperiment::class,
 		];
 
 		/**

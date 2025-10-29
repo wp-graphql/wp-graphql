@@ -33,7 +33,7 @@ class UserRegister {
 		$input_fields = array_merge(
 			UserCreate::get_input_fields(),
 			[
-				'username'     => [
+				'username' => [
 					'type'        => [
 						'non_null' => 'String',
 					],
@@ -42,10 +42,12 @@ class UserRegister {
 						return __( 'A string that contains the user\'s username.', 'wp-graphql' );
 					},
 				],
-				'emailAddress' => [
-					'type'        => 'EmailAddress',
+				'email'    => [
+					'type'        => [
+						'non_null' => 'String',
+					],
 					'description' => static function () {
-						return __( 'The user\'s email address.', 'wp-graphql' );
+						return __( 'A string containing the user\'s email address.', 'wp-graphql' );
 					},
 				],
 			]
@@ -83,9 +85,7 @@ class UserRegister {
 				throw new UserError( esc_html__( 'A username was not provided.', 'wp-graphql' ) );
 			}
 
-			// Check for email using our dual input resolver
-			$email_value = UserMutation::resolve_email_input( $input );
-			if ( empty( $email_value ) ) {
+			if ( empty( $input['email'] ) ) {
 				throw new UserError( esc_html__( 'An email address was not provided.', 'wp-graphql' ) );
 			}
 

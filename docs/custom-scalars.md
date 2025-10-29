@@ -35,26 +35,6 @@ Understanding when to create a custom scalar versus using a String type with fie
 - **No Semantic Meaning** - The data is truly just arbitrary text
 - **Legacy Compatibility** - Existing APIs that can't be easily changed
 
-### Example: Why EmailAddress is a Scalar
-
-Email addresses are perfect candidates for custom scalars because:
-
-```graphql
-# ✅ Good: Universal validation, clear type meaning
-type User {
-  emailAddress: EmailAddress # Always validated, always an email
-}
-
-type GeneralSettings {
-  adminEmail: EmailAddress # Same validation rules everywhere
-}
-
-# ❌ Not ideal: Would require field-specific validation
-type User {
-  email: String # What format? How is it validated? Unclear to tools
-}
-```
-
 ### Example: DateTime Scalar with Formatting
 
 A `DateTime` scalar would be perfect because the core data type is universal, but presentation can vary:
@@ -101,13 +81,12 @@ In contrast, these SHOULD be custom scalars because they have universal validati
 # ✅ These deserve custom scalars:
 type Post {
   publishedAt: DateTime # Always a valid date/time
-  authorEmail: EmailAddress # Always a valid email
 }
 ```
 
 ## Available Scalars
 
-- [**EmailAddress**](/docs/scalar-email-address/) - Email validation and sanitization
+WPGraphQL core provides standard GraphQL scalars (String, Int, Float, Boolean, ID). Additional custom scalars may be available through experiments or extensions.
 
 ## Creating Custom Scalars
 
