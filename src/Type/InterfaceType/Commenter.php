@@ -66,10 +66,10 @@ class Commenter {
 								return __( 'The name of the author of a comment.', 'wp-graphql' );
 							},
 						],
-						'emailAddress' => [
-							'type'        => 'EmailAddress',
+						'email'        => [
+							'type'        => 'String',
 							'description' => static function () {
-								return __( 'Email address of the comment author. Only visible to users with comment moderation privileges.', 'wp-graphql' );
+								return __( 'The email address of the author of a comment.', 'wp-graphql' );
 							},
 						],
 						'url'          => [

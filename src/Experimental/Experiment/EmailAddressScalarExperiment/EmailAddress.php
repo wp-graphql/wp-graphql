@@ -1,6 +1,6 @@
 <?php
 
-namespace WPGraphQL\Type\Scalar;
+namespace WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -11,7 +11,7 @@ use GraphQL\Utils\Utils;
 /**
  * Class EmailAddress
  *
- * @package WPGraphQL\Type\Scalar
+ * @package WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment
  */
 class EmailAddress {
 

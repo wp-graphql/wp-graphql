@@ -34,16 +34,16 @@ class Comment {
 						},
 						'oneToOne'    => true,
 						'edgeFields'  => [
-							'emailAddress' => [
-								'type'        => 'EmailAddress',
+							'email'     => [
+								'type'        => 'String',
 								'description' => static function () {
-									return __( 'Email address representing the author for this particular comment. Only visible to users with comment moderation privileges.', 'wp-graphql' );
+									return __( 'Email address representing the author for this particular comment', 'wp-graphql' );
 								},
 								'resolve'     => static function ( $edge ) {
 									return $edge['source']->commentAuthorEmail ?: null;
 								},
 							],
-							'ipAddress'    => [
+							'ipAddress' => [
 								'type'        => 'String',
 								'description' => static function () {
 									return __( 'IP address of the author at the time of making this comment. This field is equivalent to WP_Comment->comment_author_IP and the value matching the "comment_author_IP" column in SQL.', 'wp-graphql' );
@@ -52,7 +52,7 @@ class Comment {
 									return $edge['source']->authorIp ?: null;
 								},
 							],
-							'name'         => [
+							'name'      => [
 								'type'        => 'String',
 								'description' => static function () {
 									return __( 'The display name of the comment author for this particular comment', 'wp-graphql' );
@@ -61,7 +61,7 @@ class Comment {
 									return $edge['source']->commentAuthor;
 								},
 							],
-							'url'          => [
+							'url'       => [
 								'type'        => 'String',
 								'description' => static function () {
 									return __( 'The url entered for the comment author on this particular comment', 'wp-graphql' );

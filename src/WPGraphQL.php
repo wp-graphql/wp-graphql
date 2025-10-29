@@ -5,7 +5,6 @@
  * @package WPGraphQL
  */
 
-use GraphQL\Error\UserError;
 use WPGraphQL\Admin\Admin;
 use WPGraphQL\AppContext;
 use WPGraphQL\Registry\SchemaRegistry;
@@ -350,9 +349,6 @@ final class WPGraphQL {
 	private function filters(): void {
 		// Filter the post_types and taxonomies to show in the GraphQL Schema
 		$this->setup_types();
-
-		// Register new EmailAddress fields for settings
-		add_action( 'graphql_register_types', [ $this, 'register_email_address_settings_fields' ] );
 
 		/**
 		 * Instrument the Schema to provide Resolve Hooks and sanitize Schema output
@@ -873,31 +869,6 @@ final class WPGraphQL {
 		 * Return the Schema after applying filters
 		 */
 		return self::$schema;
-	}
-
-	/**
-	 * Register new EmailAddress fields for settings
-	 */
-	public function register_email_address_settings_fields(): void {
-		// Register adminEmail field to GeneralSettings
-		register_graphql_field(
-			'GeneralSettings',
-			'adminEmail',
-			[
-				'type'        => 'EmailAddress',
-				'description' => static function () {
-					return __( 'Email address of the site administrator. Only visible to users with administrative privileges.', 'wp-graphql' );
-				},
-				'resolve'     => static function () {
-					// Check permissions (same as the original admin_email setting)
-					if ( ! current_user_can( 'manage_options' ) ) {
-						throw new UserError( esc_html__( 'Sorry, you do not have permission to view this setting.', 'wp-graphql' ) );
-					}
-
-					return get_option( 'admin_email' );
-				},
-			],
-		);
 	}
 
 	/**
