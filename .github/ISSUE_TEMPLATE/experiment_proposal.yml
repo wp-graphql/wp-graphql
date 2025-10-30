@@ -46,6 +46,17 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Hypothesis
+      description: >-
+        State what you believe to be true that this experiment will validate. What assumption are you testing?
+        A good hypothesis is specific, testable, and falsifiable.
+      placeholder: >-
+        "The WPGraphQL community wants email fields to use a validated EmailAddress scalar type instead of generic String types, 
+        and they find our proposed deprecation strategy acceptable for migrating existing fields."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: Why an Experiment?
       description: >-
         Explain why this should be an experiment rather than a direct core addition:
