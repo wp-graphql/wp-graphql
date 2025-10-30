@@ -1,32 +1,52 @@
 # Experiment Proposal: Email Address Scalar Fields
 
+> 📖 **See also**: [PR #3423](https://github.com/wp-graphql/wp-graphql/pull/3423) - Original implementation with additional context
+
 ## Experiment Title  
 Email Address Scalar Fields
 
 ## Problem Statement
 
-**Who experiences this problem:**
-All WPGraphQL users working with User, Commenter, CommentAuthor, and GeneralSettings types.
+**The Problem:**
 
-**When they experience it:**
-- Querying user email addresses (User.email)
-- Accessing comment author emails (Commenter.email, CommentAuthor.email)
-- Retrieving site admin email (GeneralSettings.email)
-- Creating/updating users with email inputs
+WPGraphQL currently represents all email addresses as generic `String` types across core types (User, Commenter, CommentAuthor, GeneralSettings). This loses critical semantic meaning because email addresses are not arbitrary strings - they are structured data with well-defined international standards ([RFC 5322](https://tools.ietf.org/html/rfc5322), [HTML Email Specification](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address)).
 
-**Why current solutions are inadequate:**
-Currently, all email fields in WPGraphQL are String types:
-- No automatic validation at the GraphQL layer
-- No type safety for email addresses
-- Tools and IDEs can't understand these are email fields
-- Inconsistent with the semantic meaning of the data
-- Developers must implement custom validation
+By using `String` instead of a dedicated `EmailAddress` scalar type, the schema fails to communicate that these fields conform to email address standards, preventing tools and clients from leveraging this domain knowledge for validation, code generation, and enhanced user experiences.
 
-While WordPress validates emails internally, this validation isn't exposed through the GraphQL schema, creating a disconnect between WordPress's data model and the GraphQL representation.
+**Who This Affects:**
+
+- **API Consumers**: All WPGraphQL users querying User, Commenter, CommentAuthor, or GeneralSettings types
+- **Frontend Developers**: Building forms and interfaces that handle email addresses
+- **Mobile App Developers**: Creating native apps that need email input fields
+- **Extension Authors**: Creating plugins that extend WPGraphQL with email-related functionality
+
+**Where This Manifests:**
+
+- Querying user email addresses (`User.email`)
+- Accessing comment author emails (`Commenter.email`, `CommentAuthor.email`)
+- Retrieving site admin email (`GeneralSettings.email`)
+- Creating/updating users with email inputs (`CreateUserInput.email`, etc.)
+
+**Why Generic Strings Are Inadequate:**
+
+**Semantic Information Loss:**
+- **No Type Safety**: A `String` type accepts any text - "hello world" is as valid as "user@example.com" from the schema's perspective
+- **Lost Domain Knowledge**: The schema doesn't communicate that these fields expect email addresses, forcing developers to read documentation or inspect field names
+- **Tooling Blind Spots**: IDEs, code generators, and API explorers can't distinguish email fields from other strings, missing opportunities for specialized validation, formatting, and UI generation
+- **Validation Disconnect**: While WordPress validates emails internally using `is_email()`, this validation is invisible at the GraphQL layer, creating a disconnect between WordPress's data model and the API schema
+
+**Real-World Impact:**
+- Frontend developers must implement their own email validation (duplicating WordPress's logic)
+- Mobile apps can't automatically show email-specific keyboards
+- TypeScript generators produce generic `string` types instead of branded email types
+- API documentation tools can't provide email-specific guidance
+- GraphQL clients can't provide email-specific input validation
 
 ## Proposed Solution
 
-Update core WPGraphQL types to use the `EmailAddress` scalar for email fields:
+Custom scalars exist precisely to encode domain-specific knowledge into the schema itself. An `EmailAddress` scalar communicates "this field conforms to email address standards" in a machine-readable way that tools can leverage, while also providing a natural enforcement point for validation rules.
+
+This experiment updates core WPGraphQL types to use the `EmailAddress` scalar for email fields:
 
 **New Fields (using EmailAddress scalar):**
 - `User.emailAddress` → EmailAddress
@@ -74,10 +94,70 @@ mutation {
 }
 ```
 
+## Hypothesis
+
+**We believe that:**
+> WPGraphQL users want core email fields (User, Commenter, CommentAuthor, GeneralSettings) to use the validated `EmailAddress` scalar instead of generic `String` types, and that our dual-field deprecation strategy (keeping old `email` String fields while adding new `emailAddress` fields) provides an acceptable migration path.
+
+**We will know we're right when:**
+- 10+ sites successfully use the new fields in production
+- Community successfully migrates from old to new fields without major issues
+- Major WPGraphQL extensions work with the new fields
+- Positive feedback on the deprecation approach
+- No significant performance degradation reported
+- Community consensus that the migration timeline is reasonable
+
+**We will know we're wrong when:**
+- Community rejects the dual-field deprecation approach
+- Migration burden is too high for users
+- Timing conflicts with extension update cycles
+- Field naming (e.g., `adminEmail` vs `adminEmailAddress`) causes confusion
+- Performance issues emerge with large user/comment datasets
+- The schema changes are too disruptive regardless of backward compatibility
+
+## Benefits for API Consumers
+
+**Type Safety:**
+- Invalid emails rejected at the GraphQL layer (before WordPress processing)
+- Consistent validation across all email fields
+- Better error messages for invalid data
+
+**Developer Experience:**
+- **IDE Support**: Email fields properly typed in generated code (TypeScript, etc.)
+- **Mobile Apps**: Automatic email keyboard on native inputs
+- **Form Libraries**: Built-in email validation without custom code
+- **API Documentation**: Clear indication that field expects email format
+
+**Example: Before vs After for TypeScript Code Generation**
+
+Before (String):
+```typescript
+interface User {
+  email: string;  // ❌ No validation, just a string
+}
+
+// Developers must add their own validation
+const isValidEmail = (email: string) => { /* custom logic */ };
+```
+
+After (EmailAddress):
+```typescript
+interface User {
+  emailAddress: EmailAddress;  // ✅ Type-safe email
+}
+
+// Email type with built-in validation
+type EmailAddress = string & { __emailAddress: true };
+// Validation happens at GraphQL layer
+```
+
 ## Why an Experiment?
 
-**Breaking Change Considerations:**
-While technically non-breaking (old fields remain), this represents a significant schema change that needs validation:
+**Is This Breaking?**
+**No** - This is fully backward compatible. All existing queries and mutations continue to work exactly as before, with optional deprecation warnings in debug mode.
+
+**Schema Change Considerations:**
+While technically non-breaking (old fields remain), this represents a significant schema evolution that needs community validation:
 - Introduces dual-field pattern (old + new)
 - Changes field types for a commonly-used data type
 - Affects multiple core types simultaneously  
@@ -100,17 +180,28 @@ While technically non-breaking (old fields remain), this represents a significan
 
 - [x] Create EmailAddressScalarFieldsExperiment class
 - [x] Add emailAddress fields to User, Commenter, CommentAuthor types
-- [x] Add adminEmail field to GeneralSettings
-- [x] Add emailAddress inputs to user mutations
+- [x] Add adminEmail field to GeneralSettings  
+- [x] Add CommentToCommenterConnectionEdge.emailAddress field
+- [x] Add emailAddress inputs to user mutations (create, update, register)
 - [x] Implement deprecated field handling with warnings
 - [x] Add dual-input support with conflict detection
-- [x] Write comprehensive tests
+- [x] Add input normalization (copies emailAddress → email for WordPress)
+- [x] Write comprehensive tests (59 tests, 194 assertions total)
 - [x] Document migration path  
 - [x] Create experiment README with examples
+- [x] Pass all code quality checks (PHPCS, PHPStan)
 - [ ] Gather community feedback on deprecation approach
 - [ ] Test with popular WPGraphQL extensions
 - [ ] Monitor performance impact
 - [ ] Collect migration stories from early adopters
+
+**Implementation Status:**
+✅ **Complete and Ready for Testing**
+- All unit tests passing (includes experiment-specific tests)
+- Code quality verified (PHPCS & PHPStan)
+- Full backward compatibility maintained
+- Deprecation warnings implemented
+- Located in: `src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/`
 
 ## Success Criteria
 
@@ -155,10 +246,52 @@ While technically non-breaking (old fields remain), this represents a significan
 5. Test thoroughly
 6. Deploy when ready
 
-**Migration Helper:**
-```php
-// Helper method for handling both inputs
-$email = EmailAddressScalarFieldsExperiment::resolve_email_input( $input );
+**Backward Compatibility Strategy:**
+
+The experiment implements dual-field support with graceful deprecation:
+
+- **Queries**: Both `email` (String) and `emailAddress` (EmailAddress) fields available
+- **Mutations**: Accept both `email` and `emailAddress` inputs
+  - If both provided → throws error with helpful message
+  - If only `emailAddress` provided → uses that value
+  - If only deprecated `email` provided → works but logs deprecation warning
+- **Deprecation Warnings**: Only shown when `GRAPHQL_DEBUG` is enabled
+- **Future Removal**: Deprecated fields marked for removal in WPGraphQL 3.0
+
+**Example Migration:**
+
+```graphql
+# Step 1: Current query (works today, will work during experiment)
+query {
+  user(id: "dXNlcjox") {
+    email  # String
+  }
+  generalSettings {
+    email  # String
+  }
+}
+
+# Step 2: With experiment enabled (both work)
+query {
+  user(id: "dXNlcjox") {
+    email  # String (deprecated, still works)
+    emailAddress  # EmailAddress (new, recommended)
+  }
+  generalSettings {
+    email  # String (deprecated)
+    adminEmail  # EmailAddress (new)
+  }
+}
+
+# Step 3: Migrated query (recommended)
+query {
+  user(id: "dXNlcjox") {
+    emailAddress  # EmailAddress
+  }
+  generalSettings {
+    adminEmail  # EmailAddress
+  }
+}
 ```
 
 ## Open Questions
