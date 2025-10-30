@@ -36,6 +36,40 @@ class MediaItemSizeEnum {
 			}
 		}
 
+		/**
+		 * If no sizes were found (e.g., on WordPress VIP where intermediate sizes are disabled),
+		 * populate with standard WordPress image sizes as fallbacks.
+		 *
+		 * This ensures MediaItemSizeEnum always has at least one value, which is required by the
+		 * GraphQL specification. Enums must define one or more values.
+		 *
+		 * These fallback sizes represent standard WordPress image sizes that can be used as hints
+		 * when querying media items. WordPress core resolvers (like wp_get_attachment_image_src)
+		 * gracefully handle cases where requested sizes don't exist by falling back to available sizes.
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/3432
+		 */
+		if ( empty( $sizes ) ) {
+			// Define standard WordPress image sizes as fallbacks
+			$fallback_sizes = [ 'thumbnail', 'medium', 'medium_large', 'large', 'full' ];
+
+			foreach ( $fallback_sizes as $fallback_size ) {
+				if ( 'full' === $fallback_size ) {
+					// 'full' represents the original uploaded image and doesn't have fixed dimensions
+					$sizes[ $fallback_size ] = [
+						'width'  => 0,
+						'height' => 0,
+						'crop'   => false,
+					];
+				} else {
+					// Get dimensions from WordPress options for standard sizes
+					$sizes[ $fallback_size ]['width']  = \get_option( $fallback_size . '_size_w' );
+					$sizes[ $fallback_size ]['height'] = \get_option( $fallback_size . '_size_h' );
+					$sizes[ $fallback_size ]['crop']   = (bool) \get_option( $fallback_size . '_crop' );
+				}
+			}
+		}
+
 		// Get only 1 size if found
 		if ( $size ) {
 			if ( isset( $sizes[ $size ] ) ) {
@@ -54,7 +88,9 @@ class MediaItemSizeEnum {
 	 */
 	public static function register_type() {
 		/**
-		 * This returns an empty array on the VIP Go platform.
+		 * Get available image sizes. This may return an empty array on platforms
+		 * like WordPress VIP, but get_image_sizes() now provides fallback values
+		 * to ensure the enum always has at least one value.
 		 */
 		$sizes = self::get_image_sizes();
 
