@@ -80,7 +80,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook.', 'wp-graphql' ),
-				'2.3.8'
+				'2.5.0'
 			);
 
 			return [];
@@ -99,7 +99,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'2.3.8'
+				'2.5.0'
 			);
 
 			return [];
@@ -118,7 +118,7 @@ final class ExperimentRegistry {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
-				'2.3.8'
+				'2.5.0'
 			);
 
 			return [];
