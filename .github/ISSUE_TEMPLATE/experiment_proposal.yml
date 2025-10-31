@@ -20,6 +20,22 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Executive Summary
+      description: >-
+        Provide a high-level overview of the experiment:
+        - What it does and why it matters
+        - Key benefits or strategic value
+        - How it differentiates WPGraphQL (if applicable)
+        - What makes this foundational for future work (if applicable)
+      placeholder: >-
+        This experiment introduces an EmailAddress scalar type to WPGraphQL, serving as a foundational piece 
+        for establishing WPGraphQL's competitive advantage through custom scalar types. While the immediate 
+        benefit is validated email fields, the strategic value includes reduced technical debt, enhanced tooling, 
+        and establishing patterns for future scalars (Date, URL, JSON, etc.).
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: Problem Statement
       description: >-
         Describe the problem your experiment aims to solve. Be specific about:
@@ -39,9 +55,21 @@ body:
         - What new types/fields/features it adds
         - How users will interact with it
         - What changes to the schema
+        - Include schema changes or code examples if helpful
       placeholder: >-
-        Add an EmailAddress scalar type that validates email format using WordPress's is_email() function. 
-        Update User.email field to use this scalar.
+        Add an EmailAddress scalar type that validates email format using WordPress's is_email() function.
+        
+        Schema Changes:
+        ```graphql
+        scalar EmailAddress @specifiedBy(url: "...")
+        ```
+        
+        Usage:
+        ```php
+        register_graphql_field('MyType', 'email', [
+            'type' => 'EmailAddress',
+        ]);
+        ```
     validations:
       required: true
   - type: textarea
@@ -63,11 +91,30 @@ body:
         - Is it a breaking change?
         - Does it need validation at scale?
         - Are there design decisions that need community input?
+        - Are there tradeoffs/friction that need validation?
+        - Does this establish patterns that need real-world testing?
       placeholder: >-
-        This is a breaking change (String → EmailAddress) for the User.email field. 
-        We need to validate that the validation logic meets community needs and doesn't create performance issues.
+        This introduces server-specific custom scalars which have friction (learning curve, tooling fragmentation) 
+        compared to universal GraphQL types. We need to validate that the benefits (semantic types, validation, 
+        reduced tech debt) outweigh the friction. This also establishes patterns for future scalars that need 
+        community validation.
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: Tradeoffs and Considerations
+      description: >-
+        What are the downsides, limitations, or tradeoffs of this approach? 
+        Be honest about friction, limitations, or concerns that need validation.
+        This helps set appropriate expectations and validates whether the value outweighs the costs.
+      placeholder: >-
+        Custom scalars introduce server-specific friction:
+        - Not universal across GraphQL APIs (unlike core types)
+        - Requires server-specific tooling enhancements
+        - Learning curve for developers across multiple APIs
+        - Code generators may need server-specific configuration
+        
+        We need to validate that the benefits outweigh these tradeoffs.
   - type: textarea
     attributes:
       label: Implementation Plan
@@ -115,6 +162,26 @@ body:
         - Should other fields (Comment.authorEmail) also use this scalar?
   - type: textarea
     attributes:
+      label: Testing Examples
+      description: >-
+        Provide practical examples for how to test this experiment:
+        - Code snippets for registering test fields
+        - Example queries/mutations
+        - What to verify
+      placeholder: >-
+        ```php
+        // Test field registration
+        register_graphql_field('RootQuery', 'testEmail', [
+            'type' => 'EmailAddress',
+            'resolve' => fn() => 'test@example.com',
+        ]);
+        ```
+        
+        Test queries:
+        - Query testEmail → should return valid email
+        - Mutation with invalid email → should return validation error
+  - type: textarea
+    attributes:
       label: Feedback Requested
       description: >-
         What specific feedback would help?
@@ -122,6 +189,36 @@ body:
         - Does this solve a real problem for you?
         - Are there edge cases we're missing?
         - Would this break your existing implementation?
+        - Do the benefits outweigh any friction/tradeoffs?
+  - type: textarea
+    attributes:
+      label: Related Links
+      description: >-
+        Links to related PRs, discussions, documentation, or other proposals
+      placeholder: >-
+        - PR #1234: Original implementation
+        - [WPGraphQL vs WP REST API](https://www.wpgraphql.com/docs/wpgraphql-vs-wp-rest-api)
+        - Related experiment: "Email Address Scalar Fields"
+  - type: textarea
+    attributes:
+      label: Implementation Status (if already started)
+      description: >-
+        If you've already started implementation, provide status updates:
+        - What's complete
+        - What's in progress
+        - Branch name
+        - Test coverage
+      placeholder: >-
+        ✅ Complete:
+        - Scalar implementation
+        - Tests (59 tests, 194 assertions)
+        - Documentation
+        
+        ⏳ In Progress:
+        - Community feedback gathering
+        
+        Branch: `experiment/email-scalar`
+        Test Coverage: 100% for scalar validation logic
   - type: checkboxes
     attributes:
       label: Please confirm that you have searched existing issues in the repo.
