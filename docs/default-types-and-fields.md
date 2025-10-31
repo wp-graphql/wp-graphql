@@ -25,10 +25,6 @@ WPGraphQL registers the following Scalars for use throughout the Schema.
 
 ### Custom Scalars
 
-WPGraphQL also provides custom scalar types for enhanced validation and type safety:
-
-- **EmailAddress** - Email validation and sanitization using WordPress's `is_email()` and `sanitize_email()` functions
-
 For more information about custom scalars and how to create your own, see the [Custom Scalars documentation](/docs/custom-scalars/).
 
 ## Interfaces

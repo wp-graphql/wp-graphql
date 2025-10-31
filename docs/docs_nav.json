@@ -104,13 +104,7 @@
     },
     {
       "title": "Custom Scalars",
-      "href": "/docs/custom-scalars",
-      "children": [
-        {
-          "title": "EmailAddress",
-          "href": "/docs/scalar-email-address"
-        }
-      ]
+      "href": "/docs/custom-scalars"
     },
     {
       "title": "Connections",
