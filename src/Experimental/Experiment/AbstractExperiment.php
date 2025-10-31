@@ -247,7 +247,12 @@ abstract class AbstractExperiment {
 	 * Whether the experiment is active.
 	 */
 	public function is_active(): bool {
-		if ( isset( $this->is_active ) ) {
+		// Skip cache if filters are present (e.g., in tests) to allow dynamic enabling/disabling
+		$has_override_filter = has_filter( 'graphql_experimental_features_override' );
+		$has_specific_filter = has_filter( 'wp_graphql_experiment_' . static::get_slug() . '_enabled' );
+
+		// Use cached value only if no dynamic filters are present
+		if ( isset( $this->is_active ) && ! $has_override_filter && ! $has_specific_filter ) {
 			return $this->is_active;
 		}
 
