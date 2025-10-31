@@ -1033,4 +1033,60 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_attachment( $attachment_id, true );
 	}
+
+	/**
+	 * Test that MediaItemSizeEnum has values even when intermediate image sizes are disabled.
+	 * 
+	 * This reproduces the bug on WordPress VIP where get_intermediate_image_sizes() returns
+	 * an empty array, causing MediaItemSizeEnum to have zero values and breaking the schema.
+	 * 
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3432
+	 */
+	public function testMediaItemSizeEnumWithNoIntermediateSizes() {
+		// Filter get_intermediate_image_sizes to return empty array (simulating VIP)
+		add_filter( 'intermediate_image_sizes', function() {
+			return [];
+		}, 999 );
+
+		// Clear and rebuild the schema with the filtered function
+		$this->clearSchema();
+
+		// Introspection query to get MediaItemSizeEnum values
+		$query = '
+		query IntrospectMediaItemSizeEnum {
+			__type(name: "MediaItemSizeEnum") {
+				name
+				kind
+				enumValues {
+					name
+					description
+				}
+			}
+		}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		// Assert no errors in the response
+		$this->assertArrayNotHasKey( 'errors', $actual, 'Schema introspection should not return errors' );
+
+		// Assert the type exists
+		$this->assertNotNull( $actual['data']['__type'], 'MediaItemSizeEnum type should exist in the schema' );
+		$this->assertEquals( 'MediaItemSizeEnum', $actual['data']['__type']['name'] );
+		$this->assertEquals( 'ENUM', $actual['data']['__type']['kind'] );
+
+		// Assert the enum has at least one value (GraphQL spec requirement)
+		$this->assertNotEmpty( 
+			$actual['data']['__type']['enumValues'], 
+			'MediaItemSizeEnum must have at least one value. GraphQL spec requires enums to define one or more values.'
+		);
+
+		// Verify that standard sizes are available as fallbacks
+		$enumValueNames = array_column( $actual['data']['__type']['enumValues'], 'name' );
+		$this->assertContains( 'FULL', $enumValueNames, 'FULL size should always be available' );
+
+		// Clean up the filter
+		remove_all_filters( 'intermediate_image_sizes', 999 );
+		$this->clearSchema();
+	}
 }

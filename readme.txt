@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -284,7 +284,15 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 == Changelog ==
 
+= 2.5.1 =
+
+**Bug Fixes**
+
+* fix: Add fallback sizes to MediaItemSizeEnum when intermediate sizes are disabled (https://github.com/jasonbahl/automation-tests/pull/3433)
+
 = 2.5.0 =
+
+**Note:** Version 2.4.0 was skipped due to an issue with the release automation workflow where the version was bumped twice (once manually and once by the workflow). The fixes included in this release were originally intended for v2.4.0, but to maintain consistency with the WordPress.org deployment, we're releasing as v2.5.0 instead. The workflow has been updated to prevent this issue in future releases.
 
 **New Features**
 
