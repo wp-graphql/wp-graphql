@@ -181,21 +181,8 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 		// Modify existing email field to add deprecation
 		// Preserve the original type structure to avoid breaking schema changes
 		if ( isset( $fields['email'] ) ) {
-			// For RegisterUserInput, ensure email remains String (nullable) to match production schema
-			// The production schema has RegisterUserInput.email as String, not String!
-			// We preserve this to avoid breaking changes. The emailAddress field is required instead.
-			if ( 'RegisterUserInput' === $type_name ) {
-				// Ensure it's String (nullable) - production schema has it as String
-				// If it comes in as non-null (['non_null' => 'String']), convert to nullable
-				$original_type = $fields['email']['type'] ?? 'String';
-				if ( is_array( $original_type ) && isset( $original_type['non_null'] ) ) {
-					// Convert from non-null array structure to nullable string
-					$fields['email']['type'] = 'String';
-				} else {
-					// Already String or something else - ensure it's String
-					$fields['email']['type'] = 'String';
-				}
-			}
+			// The base code now has RegisterUserInput.email as String (nullable) to match production schema
+			// Our filter just needs to add the deprecation reason, preserving the existing type
 			// Add deprecation reason for all user mutation inputs
 			$fields['email']['deprecationReason'] = static function () {
 				return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
