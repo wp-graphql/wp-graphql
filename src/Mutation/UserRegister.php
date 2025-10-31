@@ -43,9 +43,7 @@ class UserRegister {
 					},
 				],
 				'email'    => [
-					'type'        => [
-						'non_null' => 'String',
-					],
+					'type'        => 'String',
 					'description' => static function () {
 						return __( 'A string containing the user\'s email address.', 'wp-graphql' );
 					},
