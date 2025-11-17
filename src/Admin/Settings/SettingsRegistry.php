@@ -550,11 +550,16 @@ class SettingsRegistry {
 	/**
 	 * Sanitize callback for Settings API
 	 *
-	 * @param array<string,mixed> $options settings field args
+	 * @param mixed $options settings field args (can be array or other types when called via WordPress sanitize_option filter)
 	 *
-	 * @return array<string,mixed>
+	 * @return mixed
 	 */
-	public function sanitize_options( array $options ) {
+	public function sanitize_options( $options ) {
+		// If not an array, return as-is (WordPress may pass non-array values via sanitize_option filter)
+		if ( ! is_array( $options ) ) {
+			return $options;
+		}
+
 		if ( ! $options ) {
 			return $options;
 		}
