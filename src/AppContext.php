@@ -359,7 +359,7 @@ class AppContext {
 					esc_html__( 'Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s', 'wp-graphql' ),
 					esc_html( $name )
 				),
-				'2.3.8'
+				'2.5.0'
 			);
 		}
 
