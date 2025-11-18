@@ -137,6 +137,13 @@ jobs:
             echo "should_bump=true" >> $GITHUB_OUTPUT
           fi
 
+          # For PRs merging develop into master, we always want to compute a new version
+          # based on changesets (or default to patch) even if the current version tag exists.
+          if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.ref }}" == "develop" ]]; then
+            echo "PR from develop to master detected. Forcing version bump."
+            echo "should_bump=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for changesets
         id: check_changesets
         run: |
@@ -175,7 +182,7 @@ jobs:
 
       - name: Determine version bump
         id: version_bump
-        if: steps.check_version_exists.outputs.version_exists == 'false'
+        if: steps.check_version_exists.outputs.should_bump == 'true'
         run: |
           # Check if version was already bumped manually
           if [[ "${{ steps.check_manual_bump.outputs.manual_bump_detected }}" == "true" ]]; then
@@ -370,7 +377,7 @@ jobs:
           npm run changelogs:update -- --new-version="$VERSION" --notes-file="$GITHUB_WORKSPACE/release_notes.md"
 
       - name: Commit changes to master
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.should_bump == 'true'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -428,7 +435,7 @@ jobs:
           git checkout develop
 
       - name: Create and push tag
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.should_bump == 'true'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -445,7 +452,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.version_exists == 'false'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.check_version_exists.outputs.should_bump == 'true'
         uses: actions/create-release@v1
         id: create_release
         env:
@@ -458,7 +465,7 @@ jobs:
           prerelease: false
 
       - name: Handle release creation failure
-        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure' && steps.check_version_exists.outputs.version_exists == 'false'
+        if: (github.event_name == 'pull_request_target' || github.event_name == 'workflow_dispatch') && steps.create_release.outcome == 'failure' && steps.check_version_exists.outputs.should_bump == 'true'
         id: handle_failure
         run: |
           echo "Failed to create release. This could be because the tag already exists."
