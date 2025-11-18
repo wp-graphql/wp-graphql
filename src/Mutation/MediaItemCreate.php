@@ -181,7 +181,7 @@ class MediaItemCreate {
 			 * Then set the url for the uploaded file
 			 */
 			$file_name           = basename( $input['filePath'] );
-			$uploaded_file_url   = $input['filePath'];
+			$uploaded_file_url   = (string) $input['filePath'];
 			$sanitized_file_path = sanitize_file_name( $input['filePath'] );
 
 			// Check that the filetype is allowed
@@ -243,7 +243,13 @@ class MediaItemCreate {
 			 * https://developer.wordpress.org/reference/functions/download_url/
 			 */
 			$timeout_seconds = 300;
-			$temp_file       = download_url( $uploaded_file_url, $timeout_seconds );
+
+			// Ensure uploaded_file_url is a string (it may be null if wp_upload_bits failed)
+			if ( empty( $uploaded_file_url ) || ! is_string( $uploaded_file_url ) ) {
+				throw new UserError( esc_html__( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
+			}
+
+			$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
 
 			/**
 			 * Handle the error from download_url if it occurs

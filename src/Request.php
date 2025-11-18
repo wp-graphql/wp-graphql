@@ -245,7 +245,7 @@ class Request {
 			$this->global_post = $GLOBALS['post'];
 		}
 
-		if ( ! empty( $GLOBALS['wp_query'] ) ) {
+		if ( ! empty( $GLOBALS['wp_query'] ) && $GLOBALS['wp_the_query'] instanceof \WP_Query ) {
 			$this->global_wp_the_query = clone $GLOBALS['wp_the_query'];
 		}
 
