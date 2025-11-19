@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.2 - 2025-11-19
+
+### Bug Fixes
+
+- fix: Prevent fatal error when updating options via /wp-admin/options.php  ([#3440](https://github.com/jasonbahl/automation-tests/pull/3440))
+
+
+
 ## v2.5.1 - 2025-10-30
 
 ### Bug Fixes
