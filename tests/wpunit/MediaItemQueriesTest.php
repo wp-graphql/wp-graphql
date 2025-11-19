@@ -1089,4 +1089,209 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_all_filters( 'intermediate_image_sizes', 999 );
 		$this->clearSchema();
 	}
+
+	/**
+	 * Test that media items with "inherit" status and draft parent posts
+	 * are properly marked as private when queried by database_id or slug.
+	 *
+	 * This test reproduces issue #3438 where media items with "inherit" status
+	 * attached to draft posts were accessible when queried by database_id but
+	 * not when queried by slug, causing inconsistent behavior.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3438
+	 */
+	public function testMediaItemWithDraftParentInheritsPrivacy() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for MediaItem Privacy Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This will have "inherit" status by default
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-image',
+				'post_status' => 'inherit',
+			]
+		);
+
+		// Get the attachment slug for testing
+		$attachment = get_post( $attachment_id );
+		$attachment_slug = $attachment->post_name;
+
+		/**
+		 * Query by database_id as a subscriber (should return null - private)
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should not have errors, but mediaItem should be null (private)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['mediaItem'], 'Media item with draft parent should be private when queried by database_id as subscriber' );
+
+		/**
+		 * Query by slug as a subscriber (should return null - private)
+		 */
+		$query = '
+			query GetMediaItemBySlug($id: ID!) {
+				mediaItem(id: $id, idType: SLUG) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $attachment_slug,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should not have errors, but mediaItem should be null (private)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['mediaItem'], 'Media item with draft parent should be private when queried by slug as subscriber' );
+
+		/**
+		 * Query by database_id as an admin (should return the media item - has permissions)
+		 */
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Admin should be able to see it
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Admin should be able to access media item with draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		/**
+		 * Query by slug as an admin (should return the media item - has permissions)
+		 */
+		$query = '
+			query GetMediaItemBySlug($id: ID!) {
+				mediaItem(id: $id, idType: SLUG) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $attachment_slug,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Admin should be able to see it
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Admin should be able to access media item with draft parent by slug' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( $attachment_slug, $actual['data']['mediaItem']['slug'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+	}
+
+	/**
+	 * Test that media items with "inherit" status and published parent posts
+	 * remain public (preserving existing behavior).
+	 */
+	public function testMediaItemWithPublishedParentRemainsPublic() {
+		/**
+		 * Create a published post
+		 */
+		$published_post_id = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Published Post for MediaItem Privacy Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the published post as parent
+		 * This will have "inherit" status by default
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $published_post_id,
+				'post_title'  => 'test-image-published',
+				'post_status' => 'inherit',
+			]
+		);
+
+		// Get the attachment slug for testing
+		$attachment = get_post( $attachment_id );
+		$attachment_slug = $attachment->post_name;
+
+		/**
+		 * Query by database_id as a subscriber (should return the media item - public)
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should be accessible (public)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Media item with published parent should be public' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+	}
 }
