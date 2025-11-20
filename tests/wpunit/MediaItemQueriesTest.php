@@ -1687,4 +1687,165 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertEquals( $attachment_id, $actual['data']['mediaItems']['nodes'][0]['databaseId'] );
 		$this->assertEquals( 'publish', $actual['data']['mediaItems']['nodes'][0]['status'] );
 	}
+
+	/**
+	 * Test that graphql_pre_model_data_is_private filter can make all media items public.
+	 * 
+	 * This test verifies that the filter documented in the PR description works correctly.
+	 * The filter should make all attachments public, even if attached to draft posts.
+	 * 
+	 * @see PR_DESCRIPTION.md - Overriding Behavior section
+	 */
+	public function testGraphqlPreModelDataIsPrivateFilterMakesAttachmentsPublic() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Filter Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This would normally be private for subscribers
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-filter-attachment',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Add the filter to make all media items public
+		 */
+		add_filter(
+			'graphql_pre_model_data_is_private',
+			function( $is_private, $model_name, $data ) {
+				// Make all media items public
+				if ( 'PostObject' === $model_name && isset( $data->post_type ) && 'attachment' === $data->post_type ) {
+					return false; // false = not private (public)
+				}
+				return $is_private; // Return null to use default logic for other types
+			},
+			10,
+			3
+		);
+
+		/**
+		 * Query as subscriber - should now be able to see the attachment
+		 * even though it's attached to a draft parent
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// With the filter, subscriber should be able to see the attachment
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Filter should make attachment public even when attached to draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		// Clean up the filter
+		remove_all_filters( 'graphql_pre_model_data_is_private' );
+	}
+
+	/**
+	 * Test that graphql_data_is_private filter can make all media items public.
+	 * 
+	 * This test verifies that the filter documented in the PR description works correctly.
+	 * The filter should make all attachments public after the privacy check.
+	 * 
+	 * @see PR_DESCRIPTION.md - Overriding Behavior section
+	 */
+	public function testGraphqlDataIsPrivateFilterMakesAttachmentsPublic() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Filter Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This would normally be private for subscribers
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-filter-attachment-2',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Add the filter to make all media items public after privacy check
+		 */
+		add_filter(
+			'graphql_data_is_private',
+			function( $is_private, $model_name, $data ) {
+				if ( 'PostObject' === $model_name && isset( $data->post_type ) && 'attachment' === $data->post_type ) {
+					return false; // Force all attachments to be public
+				}
+				return $is_private;
+			},
+			10,
+			3
+		);
+
+		/**
+		 * Query as subscriber - should now be able to see the attachment
+		 * even though it's attached to a draft parent
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// With the filter, subscriber should be able to see the attachment
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Filter should make attachment public even when attached to draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		// Clean up the filter
+		remove_all_filters( 'graphql_data_is_private' );
+	}
 }
