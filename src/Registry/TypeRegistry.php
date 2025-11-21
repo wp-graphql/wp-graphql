@@ -455,7 +455,7 @@ class TypeRegistry {
 						[
 							'description' => static function () use ( $tax_object, $post_type_object ) {
 								return sprintf(
-										// translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
+									// translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
 									__( 'List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists.', 'wp-graphql' ),
 									$tax_object->graphql_plural_name,
 									$post_type_object->graphql_single_name
@@ -466,7 +466,7 @@ class TypeRegistry {
 									'type'        => 'Id',
 									'description' => static function () use ( $tax_object, $post_type_object ) {
 										return sprintf(
-												// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
+											// translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
 											__( 'The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made.', 'wp-graphql' ),
 											$tax_object->graphql_single_name,
 											$post_type_object->graphql_single_name
@@ -1017,7 +1017,7 @@ class TypeRegistry {
 		if ( ! isset( $field_config['type'] ) ) {
 			graphql_debug(
 				sprintf(
-					/* translators: %s is the Field name. */
+					// translators: %s is the Field name.
 					__( 'The registered field \'%s\' does not have a Type defined. Make sure to define a type for all fields.', 'wp-graphql' ),
 					$field_name
 				),
@@ -1046,7 +1046,7 @@ class TypeRegistry {
 				$type = $this->get_type( $field_config['type'] );
 				if ( ! $type ) {
 					$message = sprintf(
-					/* translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced. */
+						// translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
 						__( 'The field \'%1$s\' on Type \'%2$s\' is configured to return \'%3$s\' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with \'%3$s\', or it needs to be registered to the Schema.', 'wp-graphql' ),
 						$field_config['name'],
 						$type_name,
