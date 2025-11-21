@@ -1089,4 +1089,763 @@ class MediaItemQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		remove_all_filters( 'intermediate_image_sizes', 999 );
 		$this->clearSchema();
 	}
+
+	/**
+	 * Test that media items with "inherit" status and draft parent posts
+	 * are properly marked as private when queried by database_id or slug.
+	 *
+	 * This test reproduces issue #3438 where media items with "inherit" status
+	 * attached to draft posts were accessible when queried by database_id but
+	 * not when queried by slug, causing inconsistent behavior.
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3438
+	 */
+	public function testMediaItemWithDraftParentInheritsPrivacy() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for MediaItem Privacy Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This will have "inherit" status by default
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-image',
+				'post_status' => 'inherit',
+			]
+		);
+
+		// Get the attachment slug for testing
+		$attachment = get_post( $attachment_id );
+		$attachment_slug = $attachment->post_name;
+
+		/**
+		 * Query by database_id as a subscriber (should return null - private)
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should not have errors, but mediaItem should be null (private)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['mediaItem'], 'Media item with draft parent should be private when queried by database_id as subscriber' );
+
+		/**
+		 * Query by slug as a subscriber (should return null - private)
+		 */
+		$query = '
+			query GetMediaItemBySlug($id: ID!) {
+				mediaItem(id: $id, idType: SLUG) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $attachment_slug,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should not have errors, but mediaItem should be null (private)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['mediaItem'], 'Media item with draft parent should be private when queried by slug as subscriber' );
+
+		/**
+		 * Query by database_id as an admin (should return the media item - has permissions)
+		 */
+		wp_set_current_user( $this->admin );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Admin should be able to see it
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Admin should be able to access media item with draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		/**
+		 * Query by slug as an admin (should return the media item - has permissions)
+		 */
+		$query = '
+			query GetMediaItemBySlug($id: ID!) {
+				mediaItem(id: $id, idType: SLUG) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $attachment_slug,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Admin should be able to see it
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Admin should be able to access media item with draft parent by slug' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( $attachment_slug, $actual['data']['mediaItem']['slug'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+	}
+
+	/**
+	 * Test that media items with "inherit" status and published parent posts
+	 * remain public (preserving existing behavior).
+	 */
+	public function testMediaItemWithPublishedParentRemainsPublic() {
+		/**
+		 * Create a published post
+		 */
+		$published_post_id = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Published Post for MediaItem Privacy Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the published post as parent
+		 * This will have "inherit" status by default
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $published_post_id,
+				'post_title'  => 'test-image-published',
+				'post_status' => 'inherit',
+			]
+		);
+
+		// Get the attachment slug for testing
+		$attachment = get_post( $attachment_id );
+		$attachment_slug = $attachment->post_name;
+
+		/**
+		 * Query by database_id as a subscriber (should return the media item - public)
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Should be accessible (public)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Media item with published parent should be public' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+	}
+
+	/**
+	 * Test that featuredImage connection returns the attachment when querying a published post,
+	 * even when the attachment has "inherit" status and is attached to a draft parent post.
+	 * 
+	 * This test verifies the fix for issue #1999 where featuredImage would return null
+	 * even when the attachment exists, because WordPress was filtering out attachments
+	 * with "inherit" status when their parent post was not accessible.
+	 * 
+	 * The bug occurs when:
+	 * 1. An attachment has "inherit" status and is attached to a draft post
+	 * 2. The attachment is used as a featured image for a published post
+	 * 3. WordPress's WP_Query filters out the attachment because it has "inherit" status
+	 *    and the parent (draft post) is not accessible to the current user
+	 * 
+	 * The fix is in NodeWithFeaturedImage.php where we call:
+	 *   $resolver->set_query_arg( 'post_status', 'any' );
+	 * 
+	 * This prevents WordPress from filtering out attachments with "inherit" status.
+	 * The Model's is_private() method handles the privacy check instead.
+	 * 
+	 * To test the bug scenario, we need to ensure prepare_query_args() runs and sets
+	 * post_status='inherit' before set_query_arg() is called. However, in the actual
+	 * code, set_query_arg() is called before get_query_args(), which prevents
+	 * prepare_query_args() from running. This test verifies the fix works correctly.
+	 * 
+	 * With the fix: featuredImage uses post_status='any' and returns the attachment
+	 * when the user has permission (checked by Model's is_private() method).
+	 * 
+	 * Without the fix: If prepare_query_args() runs first, it sets post_status='inherit',
+	 * and WordPress filters out the attachment even for admins who should have access.
+	 */
+	public function testFeaturedImageWithInheritStatusAndDraftParent() {
+		/**
+		 * Create a draft post (this will be the parent of the attachment)
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Featured Image Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with "inherit" status attached to the draft post
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-featured-image',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Create a published post and set the attachment as its featured image
+		 */
+		$published_post_id = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Published Post with Featured Image',
+			]
+		);
+		update_post_meta( $published_post_id, '_thumbnail_id', $attachment_id );
+
+		/**
+		 * Query the published post's featuredImage as a subscriber (should return null - correct behavior)
+		 * Subscribers don't have permission to view draft posts, so they can't see attachments attached to draft posts
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetPostFeaturedImage($id: ID!) {
+				post(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					title
+					featuredImage {
+						node {
+							id
+							databaseId
+							slug
+							status
+						}
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $published_post_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Subscriber should not be able to see the featured image (attachment's parent is draft)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post'], 'Published post should be accessible' );
+		$this->assertNull( $actual['data']['post']['featuredImage'], 'Featured image with draft parent should be null for subscribers' );
+
+		/**
+		 * Query the published post's featuredImage as an admin (should return the attachment - this was broken before the fix)
+		 * Admins have permission to view draft posts, so they should be able to see attachments attached to draft posts
+		 */
+		wp_set_current_user( $this->admin );
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// Admin should be able to see the featured image (has permission to view draft posts)
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['post'], 'Published post should be accessible' );
+		$this->assertNotNull( $actual['data']['post']['featuredImage']['node'], 'Featured image should be accessible for admins even when attached to draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['post']['featuredImage']['node']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['post']['featuredImage']['node']['status'] );
+	}
+
+	/**
+	 * Test that verifies the fix for issue #1999 works correctly through GraphQL queries.
+	 * 
+	 * This test verifies that featuredImage returns the attachment when querying a published post,
+	 * even when the attachment has "inherit" status and is attached to a draft parent post.
+	 * 
+	 * The fix ensures that WordPress returns the attachment (by using post_status='any'),
+	 * and then the Model's is_private() method handles the privacy check.
+	 * 
+	 * Without the fix: featuredImage may return null even for admins in some scenarios.
+	 * With the fix: featuredImage returns the attachment when the user has permission.
+	 * 
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1999
+	 */
+	public function testFeaturedImageBugScenarioWithInheritStatus() {
+		/**
+		 * Create a draft post (this will be the parent of the attachment)
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Bug Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with "inherit" status attached to the draft post
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-bug-attachment',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Create a published post and set the attachment as its featured image
+		 */
+		$published_post_id = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Published Post for Bug Test',
+			]
+		);
+		update_post_meta( $published_post_id, '_thumbnail_id', $attachment_id );
+
+		$query = '
+			query GetPostFeaturedImage($id: ID!) {
+				post(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					title
+					featuredImage {
+						node {
+							id
+							databaseId
+							slug
+							status
+						}
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $published_post_id,
+		];
+
+		// Test with subscriber - Model's is_private() should filter it out
+		wp_set_current_user( $this->subscriber );
+		$actual_subscriber = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual_subscriber );
+		$this->assertNotNull( $actual_subscriber['data']['post'], 'Published post should be accessible' );
+		$this->assertNull( $actual_subscriber['data']['post']['featuredImage'], 'Subscribers should not see featured image attached to draft parent (Model privacy check)' );
+		
+		// Test with admin - should be able to see it
+		wp_set_current_user( $this->admin );
+		$actual_admin = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual_admin );
+		$this->assertNotNull( $actual_admin['data']['post'], 'Published post should be accessible' );
+		// With the fix (post_status='any'), WordPress returns the attachment and Model allows admins to see it
+		$this->assertNotNull( $actual_admin['data']['post']['featuredImage']['node'], 'With the fix (post_status=any), admins can see the featured image' );
+		$this->assertEquals( $attachment_id, $actual_admin['data']['post']['featuredImage']['node']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual_admin['data']['post']['featuredImage']['node']['status'] );
+	}
+
+	/**
+	 * Test that verifies the fix for issue #1999 works with attachments that have 'publish' status.
+	 * 
+	 * This test covers the scenario described in the issue comment where plugins may change
+	 * attachment post_status from 'inherit' to 'publish'. Without the fix, queries would miss
+	 * these attachments because PostObjectConnectionResolver was hardcoded to use post_status='inherit'.
+	 * 
+	 * The fix uses post_status='any' when querying by specific ID, which catches both 'inherit'
+	 * and 'publish' attachments.
+	 * 
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1999#issuecomment-2690840042
+	 */
+	public function testFeaturedImageBugScenarioWithPublishStatus() {
+		/**
+		 * Create a draft post (this will be the parent of the attachment)
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Publish Status Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with "inherit" status (WordPress default)
+		 * attached to the draft post
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-publish-attachment',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Simulate a plugin changing the attachment status from 'inherit' to 'publish'
+		 * This is the scenario described in the issue comment.
+		 * We need to bypass WordPress's default behavior that forces attachments to 'inherit'
+		 * by directly updating the database, simulating what a plugin might do.
+		 */
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->posts,
+			[ 'post_status' => 'publish' ],
+			[ 'ID' => $attachment_id ],
+			[ '%s' ],
+			[ '%d' ]
+		);
+		clean_post_cache( $attachment_id );
+
+		/**
+		 * Verify the status was changed to 'publish'
+		 */
+		$attachment = get_post( $attachment_id );
+		$this->assertEquals( 'publish', $attachment->post_status, 'Attachment status should be publish after plugin change' );
+
+		/**
+		 * Create a published post and set the attachment as its featured image
+		 */
+		$published_post_id = $this->createPostObject(
+			[
+				'post_status' => 'publish',
+				'post_title'  => 'Published Post for Publish Status Test',
+			]
+		);
+		update_post_meta( $published_post_id, '_thumbnail_id', $attachment_id );
+
+		$query = '
+			query GetPostFeaturedImage($id: ID!) {
+				post(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					title
+					featuredImage {
+						node {
+							id
+							databaseId
+							slug
+							status
+						}
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $published_post_id,
+		];
+
+		// Test with subscriber - attachments with 'publish' status are public (not 'inherit'),
+		// so they should be visible even if attached to a draft parent.
+		// This is the documented behavior: "Attachments without inherit status are public"
+		wp_set_current_user( $this->subscriber );
+		$actual_subscriber = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual_subscriber );
+		$this->assertNotNull( $actual_subscriber['data']['post'], 'Published post should be accessible' );
+		// When a plugin changes attachment status to 'publish', it's explicitly making it public
+		$this->assertNotNull( $actual_subscriber['data']['post']['featuredImage']['node'], 'Attachments with publish status are public and visible to subscribers' );
+		$this->assertEquals( $attachment_id, $actual_subscriber['data']['post']['featuredImage']['node']['databaseId'] );
+		$this->assertEquals( 'publish', $actual_subscriber['data']['post']['featuredImage']['node']['status'] );
+		
+		// Test with admin - should also be able to see it
+		// Without the fix: This would return null because post_status='inherit' wouldn't match 'publish'
+		// With the fix: post_status='any' catches both 'inherit' and 'publish' attachments
+		wp_set_current_user( $this->admin );
+		$actual_admin = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual_admin );
+		$this->assertNotNull( $actual_admin['data']['post'], 'Published post should be accessible' );
+		$this->assertNotNull( $actual_admin['data']['post']['featuredImage']['node'], 'With the fix (post_status=any), admins can see attachments with publish status' );
+		$this->assertEquals( $attachment_id, $actual_admin['data']['post']['featuredImage']['node']['databaseId'] );
+		// Verify the status is 'publish' as set by the plugin simulation
+		$this->assertEquals( 'publish', $actual_admin['data']['post']['featuredImage']['node']['status'], 'Status should be publish as set by plugin' );
+	}
+
+	/**
+	 * Test that verifies the fix in PostObjectConnectionResolver.php works when querying mediaItems directly.
+	 * 
+	 * This test queries mediaItems using where: { id: ... } which goes through PostObjectConnectionResolver.
+	 * Without the fix: post_status='inherit' would miss attachments with 'publish' status.
+	 * With the fix: post_status='any' catches attachments regardless of status.
+	 * 
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/1999#issuecomment-2690840042
+	 */
+	public function testMediaItemsQueryWithPublishStatus() {
+		/**
+		 * Create an attachment with "inherit" status (WordPress default)
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_title'  => 'test-media-item-publish',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Simulate a plugin changing the attachment status from 'inherit' to 'publish'
+		 * This is the scenario described in the issue comment
+		 */
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->posts,
+			[ 'post_status' => 'publish' ],
+			[ 'ID' => $attachment_id ],
+			[ '%s' ],
+			[ '%d' ]
+		);
+		clean_post_cache( $attachment_id );
+
+		/**
+		 * Verify the status was changed to 'publish'
+		 */
+		$attachment = get_post( $attachment_id );
+		$this->assertEquals( 'publish', $attachment->post_status, 'Attachment status should be publish after plugin change' );
+
+		/**
+		 * Query mediaItems directly using where: { id: ... }
+		 * This tests the PostObjectConnectionResolver.php fix
+		 */
+		$query = '
+			query GetMediaItemById($id: Int!) {
+				mediaItems(where: { id: $id }) {
+					nodes {
+						id
+						databaseId
+						slug
+						status
+					}
+				}
+			}
+		';
+
+		$variables = [
+			'id' => $attachment_id,
+		];
+
+		// Test with admin - should be able to see it
+		// Without the fix: This would return empty because post_status='inherit' wouldn't match 'publish'
+		// With the fix: post_status='any' catches attachments with 'publish' status
+		wp_set_current_user( $this->admin );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotEmpty( $actual['data']['mediaItems']['nodes'], 'With the fix (post_status=any), mediaItems query should return attachment with publish status' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItems']['nodes'][0]['databaseId'] );
+		$this->assertEquals( 'publish', $actual['data']['mediaItems']['nodes'][0]['status'] );
+	}
+
+	/**
+	 * Test that graphql_pre_model_data_is_private filter can make all media items public.
+	 * 
+	 * This test verifies that the filter documented in the PR description works correctly.
+	 * The filter should make all attachments public, even if attached to draft posts.
+	 * 
+	 * @see PR_DESCRIPTION.md - Overriding Behavior section
+	 */
+	public function testGraphqlPreModelDataIsPrivateFilterMakesAttachmentsPublic() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Filter Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This would normally be private for subscribers
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-filter-attachment',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Add the filter to make all media items public
+		 */
+		add_filter(
+			'graphql_pre_model_data_is_private',
+			function( $is_private, $model_name, $data ) {
+				// Make all media items public
+				if ( 'PostObject' === $model_name && isset( $data->post_type ) && 'attachment' === $data->post_type ) {
+					return false; // false = not private (public)
+				}
+				return $is_private; // Return null to use default logic for other types
+			},
+			10,
+			3
+		);
+
+		/**
+		 * Query as subscriber - should now be able to see the attachment
+		 * even though it's attached to a draft parent
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// With the filter, subscriber should be able to see the attachment
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Filter should make attachment public even when attached to draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		// Clean up the filter
+		remove_all_filters( 'graphql_pre_model_data_is_private' );
+	}
+
+	/**
+	 * Test that graphql_data_is_private filter can make all media items public.
+	 * 
+	 * This test verifies that the filter documented in the PR description works correctly.
+	 * The filter should make all attachments public after the privacy check.
+	 * 
+	 * @see PR_DESCRIPTION.md - Overriding Behavior section
+	 */
+	public function testGraphqlDataIsPrivateFilterMakesAttachmentsPublic() {
+		/**
+		 * Create a draft post
+		 */
+		$draft_post_id = $this->createPostObject(
+			[
+				'post_status' => 'draft',
+				'post_title'  => 'Draft Post for Filter Test',
+			]
+		);
+
+		/**
+		 * Create an attachment with the draft post as parent
+		 * This would normally be private for subscribers
+		 */
+		$attachment_id = $this->createPostObject(
+			[
+				'post_type'   => 'attachment',
+				'post_parent' => $draft_post_id,
+				'post_title'  => 'test-filter-attachment-2',
+				'post_status' => 'inherit',
+			]
+		);
+
+		/**
+		 * Add the filter to make all media items public after privacy check
+		 */
+		add_filter(
+			'graphql_data_is_private',
+			function( $is_private, $model_name, $data ) {
+				if ( 'PostObject' === $model_name && isset( $data->post_type ) && 'attachment' === $data->post_type ) {
+					return false; // Force all attachments to be public
+				}
+				return $is_private;
+			},
+			10,
+			3
+		);
+
+		/**
+		 * Query as subscriber - should now be able to see the attachment
+		 * even though it's attached to a draft parent
+		 */
+		wp_set_current_user( $this->subscriber );
+
+		$query = '
+			query GetMediaItemByDatabaseId($id: ID!) {
+				mediaItem(id: $id, idType: DATABASE_ID) {
+					id
+					databaseId
+					slug
+					status
+				}
+			}
+		';
+
+		$variables = [
+			'id' => (string) $attachment_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		// With the filter, subscriber should be able to see the attachment
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['mediaItem'], 'Filter should make attachment public even when attached to draft parent' );
+		$this->assertEquals( $attachment_id, $actual['data']['mediaItem']['databaseId'] );
+		$this->assertEquals( 'inherit', $actual['data']['mediaItem']['status'] );
+
+		// Clean up the filter
+		remove_all_filters( 'graphql_data_is_private' );
+	}
 }

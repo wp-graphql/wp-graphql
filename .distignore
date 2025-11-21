@@ -24,16 +24,12 @@
 .changesets
 .husky
 .nvmrc
-.babel.config.cjs
-jest.config.js
 .DS_Store
 .distignore
 .dockerignore
 .env
 .env.dist
-.gitattributes
 .gitignore
-.github_changelog_generator
 c3.php
 CHANGELOG.md
 codeception.dist.yml
@@ -41,7 +37,6 @@ codeception.yml
 composer.json
 composer.lock
 docker-compose.yml
-netlify.toml
 package-lock.json
 package.json
 phpcs.xml
@@ -52,4 +47,3 @@ schema.graphql
 webpack.config.js
 phpcs.xml.dist
 .wp-env.json
-.codeclimate.yml
