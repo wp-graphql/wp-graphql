@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.5.3 - 2025-11-24
+
+### Other Changes
+
+- fix(#3438, #1999): Media item privacy inheritance and attachment status queries  ([#3444](https://github.com/jasonbahl/automation-tests/pull/3444))
+- chore: cleanup orphaned files and configs ([#3442](https://github.com/jasonbahl/automation-tests/pull/3442))
+
+
+
 ## v2.5.2 - 2025-11-19
 
 ### Bug Fixes
