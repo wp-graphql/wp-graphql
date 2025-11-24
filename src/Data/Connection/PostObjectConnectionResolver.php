@@ -203,9 +203,18 @@ class PostObjectConnectionResolver extends AbstractConnectionResolver {
 		}
 
 		/**
-		 * If the post_type is "attachment" set the default "post_status" $query_arg to "inherit"
+		 * If the post_type is "attachment", use 'any' status to catch all attachment statuses.
+		 *
+		 * Most attachments have 'inherit' status (default), but plugins may change
+		 * attachment status to 'publish' or other statuses. Using 'any' ensures we catch
+		 * attachments regardless of their status. The Model's is_private() method will handle
+		 * privacy checks based on the attachment's parent and status.
+		 *
+		 * For revisions, keep the default 'inherit' status.
 		 */
-		if ( 'attachment' === $this->post_type || 'revision' === $this->post_type ) {
+		if ( 'attachment' === $this->post_type ) {
+			$query_args['post_status'] = 'any';
+		} elseif ( 'revision' === $this->post_type ) {
 			$query_args['post_status'] = 'inherit';
 		}
 

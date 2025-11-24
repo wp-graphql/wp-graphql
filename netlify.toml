@@ -1,3 +1,0 @@
-[build]
-  base = "docs"
-  publish = "docs/public"
