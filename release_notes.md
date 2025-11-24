@@ -4,8 +4,9 @@
 
 **Bump Type:** patch
 
-### 🐛 Bug Fixes
-- fix: Prevent fatal error when updating options via /wp-admin/options.php  ([#3440](https://github.com/wp-graphql/wp-graphql/pull/3440))
+### 🔄 Other Changes
+- fix(#3438, #1999): Media item privacy inheritance and attachment status queries  ([#3444](https://github.com/wp-graphql/wp-graphql/pull/3444))
+- chore: cleanup orphaned files and configs ([#3442](https://github.com/wp-graphql/wp-graphql/pull/3442))
 
 ### 👏 Contributors
 
