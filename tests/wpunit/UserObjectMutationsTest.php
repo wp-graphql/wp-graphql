@@ -1152,9 +1152,9 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		/**
-		 * Assert that the "Password Changed" email was not sent when the user was registered.
-		 */
-		$this->assertFalse( $was_password_change_email_sent );
-	}
+	/**
+	 * Assert that the "Password Changed" email was not sent when the user was registered.
+	 */
+	$this->assertFalse( $was_password_change_email_sent );
+}
 }

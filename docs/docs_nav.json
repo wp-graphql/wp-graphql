@@ -103,6 +103,10 @@
       "href": "/docs/default-types-and-fields"
     },
     {
+      "title": "Custom Scalars",
+      "href": "/docs/custom-scalars"
+    },
+    {
       "title": "Connections",
       "href": "/docs/connections"
     },

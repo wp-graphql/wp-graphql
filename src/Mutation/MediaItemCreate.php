@@ -239,6 +239,13 @@ class MediaItemCreate {
 			}
 
 			/**
+			 * Ensure we have a valid URL before attempting download
+			 */
+			if ( empty( $uploaded_file_url ) ) {
+				throw new UserError( esc_html__( 'Sorry, the file could not be uploaded', 'wp-graphql' ) );
+			}
+
+			/**
 			 * URL data for the mediaItem, timeout value is the default, see:
 			 * https://developer.wordpress.org/reference/functions/download_url/
 			 */
