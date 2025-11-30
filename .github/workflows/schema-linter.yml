@@ -44,10 +44,11 @@ jobs:
           coverage: none
           tools: composer, wp-cli
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: .nvmrc
+            cache: 'npm'
+            node-version-file: '.nvmrc'
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
