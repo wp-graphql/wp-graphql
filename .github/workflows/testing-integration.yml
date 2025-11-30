@@ -41,18 +41,18 @@ jobs:
         coverage: [ false ]
         include:
           # Latest WordPress + PHP.
-          - wordpress: '6.8'
+          - wp: '6.8'
             php: '8.3'
             coverage: true
-          - wordpress: '6.8'
+          - wp: '6.8'
             php: '8.3'
             multisite: true
           # WordPress versions above the PHP testing matrix.
-          - wordpress: '6.7'
+          - wp: '6.7'
             php: '8.3'
-          - wordpress: '6.6'
+          - wp: '6.6'
             php: '8.3'
-          - wordpress: '6.5'
+          - wp: '6.5'
             php: '8.3'
     env:
       WP_ENV_PHP_VERSION: ${{ matrix.php }}
