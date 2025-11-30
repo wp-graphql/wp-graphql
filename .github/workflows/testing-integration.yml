@@ -95,11 +95,7 @@ jobs:
             timeout_minutes: 10
             max_attempts: 3
             command: |
-                if [ "${{ matrix.coverage }}" == "true" ]; then
-                npm run wp-env start -- --xdebug=coverage
-                else
-                npm run wp-env start
-                fi
+                npm run wp-env start -- ${{ matrix.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Log versions
         run: |
