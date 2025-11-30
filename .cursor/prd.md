@@ -130,7 +130,7 @@ It provides a modern, performant GraphQL API that directly interfaces with WordP
 - WP-CLI support (limited)
 - Composer integration
 - npm package management
-- Docker development environment
+- wp-env (docker) environment
 - CI/CD pipeline support
 
 ## Success Metrics
