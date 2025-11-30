@@ -23,7 +23,7 @@
 			},
 			"mappings": {
 				"/wp-content/plugins/wp-graphql": ".",
-				".env.dist": ".env"
+				"/wp-content/plugins/wp-graphql/.env": ".env.dist"
 			}
 		}
 	},
