@@ -14,11 +14,11 @@ cd $(wp-env install-path)
 RELOAD=false
 
 # Install pdo on tests-cli
-if [[ $(docker compose exec -it -u root tests-cli php -m | grep pdo_mysql) != "pdo_mysql" ]]; then
+if [[ $(docker compose exec -T -u root tests-cli php -m | grep pdo_mysql) != "pdo_mysql" ]]; then
 	echo "Installing: pdo_mysql Extension on tests-cli."
-	docker-compose exec -it -u root tests-cli docker-php-ext-install pdo_mysql
+	docker compose exec -T -u root tests-cli docker-php-ext-install pdo_mysql
 
-	if [[ $(docker compose exec -it -u root tests-cli php -m | grep pdo_mysql) == "pdo_mysql" ]]; then
+	if [[ $(docker compose exec -T -u root tests-cli php -m | grep pdo_mysql) == "pdo_mysql" ]]; then
 		echo "pdo_mysql Extension on tests-cli: Installed."
 	else
 		echo "pdo_mysql Extension on tests-cli: Failed."
