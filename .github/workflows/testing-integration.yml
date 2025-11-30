@@ -119,7 +119,7 @@ jobs:
           npm run ${{ matrix.coverage && 'test:codecept:coverage' || 'test:codecept' }} -- run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
 
       - name: Push Codecoverage to Coveralls.io
-        if: ${{ matrix.coverage == 1 }}
+        if: ${{ matrix.coverage }}
         uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
