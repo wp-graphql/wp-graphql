@@ -5,13 +5,13 @@
 
 actor: FunctionalTester
 modules:
-  enabled:
-    - Asserts
-    - REST
-    - WPBrowser
-    - WPDb
-    - WPLoader
-  config:
-    WPDb:
-      cleanup: false
+    enabled:
+        - Asserts
+        - REST
+        - WPBrowser
+        - WPDb
+        - WPLoader
+    config:
+        WPDb:
+            cleanup: false
 bootstrap: bootstrap.php

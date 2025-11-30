@@ -14,7 +14,7 @@ $settings = $I->grabOptionFromDatabase( 'graphql_general_settings' );
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPost(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			[

@@ -46,9 +46,6 @@ phpcs.xml
 # Config for phpunit. Used to override phpunit.xml.dist
 phpunit.xml
 
-# Files output by Docker
-docker-output
-
 # JavaScript dependencies. Should be installed locally on the machine, not versioned
 node_modules
 
