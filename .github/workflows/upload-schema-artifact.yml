@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup WordPress
         run: |
-          cp env.dist .env
+          cp .env.dist .env
           composer run install-test-env
 
       - name: Generate the Static Schema
