@@ -346,7 +346,7 @@ class PluginConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTes
 		$active_plugin      = 'wp-graphql/wp-graphql.php';
 		global $wp_version;
 
-		$inactive_plugin = 'akismet/akismet.php';
+		$inactive_plugin = 'hello.php';
 
 		wp_set_current_user( $this->admin );
 

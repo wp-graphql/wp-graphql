@@ -3,20 +3,6 @@
 # Suite for unit or integration tests that require WordPress functions and classes.
 actor: WpunitTester
 modules:
-  enabled:
-    - Asserts
-    - WPLoader
-  disabled:
-    - WPDb
-    - WPBrowser
-  config:
-    WPDb:
-      cleanup: false
-    WPLoader:
-      multisite: '%MULTISITE%'
-      plugins:
-        - wp-graphql/wp-graphql.php
-      activatePlugins:
-        - wp-graphql/wp-graphql.php
-      configFile:
-        - 'tests/_data/config.php'
+    enabled:
+        - Asserts
+        - WPLoader

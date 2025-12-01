@@ -31,7 +31,7 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
  * ONLY get the published post in response.
  */
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '

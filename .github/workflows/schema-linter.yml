@@ -28,7 +28,8 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: tests-wordpress
         # Ensure docker waits for mariadb to start
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
@@ -44,16 +45,18 @@ jobs:
           coverage: none
           tools: composer, wp-cli
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: "20"
+            cache: 'npm'
+            node-version-file: '.nvmrc'
 
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
       - name: Setup WordPress
         run: |
+          cp .env.dist .env
           composer run install-test-env
 
       - name: Generate the Static Schema

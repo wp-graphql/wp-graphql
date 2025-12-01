@@ -865,8 +865,8 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testThresholdFieldsQueryVar() {
-		// Get username.
-		$usernames = range( 'a', 'z' );
+		// Get username - should match the uppercase letters used in create_users()
+		$usernames = range( 'A', 'Z' );
 		// Register new posts connection.
 		register_graphql_connection(
 			[
