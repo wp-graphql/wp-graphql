@@ -17,6 +17,46 @@ It's possible that exposing the Schema publicly (in some cases) can leak informa
 
 WPGraphQL disables public Schema Introspection by default, but for users that want to enable it, it can be enabled with one-click from the GraphQL > Settings page in the WordPress dashboard.
 
+## CSRF Protection
+
+WPGraphQL implements multiple layers of protection against Cross-Site Request Forgery (CSRF) attacks:
+
+### CORS Headers
+
+WPGraphQL sets `Access-Control-Allow-Origin: *` without `Access-Control-Allow-Credentials`, which prevents browsers from sending cookies with cross-origin JavaScript requests. This blocks most CSRF attack vectors.
+
+### Nonce Verification
+
+For cookie-authenticated requests, WPGraphQL requires a valid WordPress nonce. This provides defense-in-depth protection, particularly against form-based CSRF attacks that bypass CORS.
+
+**How it works:**
+- Requests with an `Authorization` header (JWT, Application Passwords, etc.) do NOT require a nonce
+- Requests using cookie authentication SHOULD include a nonce via `X-WP-Nonce` header or `_wpnonce` parameter
+- **No nonce provided**: Request is downgraded to guest/unauthenticated (executes but `viewer` is `null`)
+- **"Falsy" nonce** (`null`, `undefined`, empty string): Treated as no nonce, downgraded to guest
+- **Invalid nonce provided** (real but wrong/expired): Request fails with error `"Cookie nonce is invalid"`
+
+This matches the security model of the WordPress REST API.
+
+### For Developers
+
+If you're building a browser-based application that uses cookie authentication:
+
+```javascript
+// Include nonce in your GraphQL requests
+fetch('/graphql', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': wpApiSettings.nonce,
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify({ query: '{ viewer { name } }' }),
+});
+```
+
+See [Authentication and Authorization](/docs/authentication-and-authorization/) for detailed guidance on obtaining and using nonces.
+
 ## Access Control Rights
 
 WordPress core has many access control rights established, and WPGraphQL follows them. Anything that is publicly exposed by WordPress is publicly exposed by WPGraphQL, and any data that requires a user to be authenticated to WordPress to see, WPGraphQL also requires requests to be properly authenticated for users to see.

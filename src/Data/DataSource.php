@@ -352,11 +352,13 @@ class DataSource {
 		$allowed_settings_by_group = [];
 		foreach ( $registered_settings as $key => $setting ) {
 			// Bail if the setting doesn't have a group.
-			if ( empty( $setting['group'] ) ) {
+			if ( ! isset( $setting['group'] ) || empty( $setting['group'] ) ) {
 				continue;
 			}
 
-			$group = self::format_group_name( $setting['group'] );
+			/** @var string $setting_group */
+			$setting_group = $setting['group'];
+			$group         = self::format_group_name( $setting_group );
 
 			if ( ! isset( $setting['type'] ) || ! $type_registry->get_type( $setting['type'] ) ) {
 				continue;
@@ -381,7 +383,7 @@ class DataSource {
 		/**
 		 * Filter the $allowed_settings_by_group to allow enabling or disabling groups in the GraphQL Schema.
 		 *
-		 * @param array<string,array<string,mixed>> $allowed_settings_by_group
+		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_settings_by_group', $allowed_settings_by_group );
 	}
@@ -437,7 +439,7 @@ class DataSource {
 		 * Filter the $allowed_settings to allow some to be enabled or disabled from showing in
 		 * the GraphQL Schema.
 		 *
-		 * @param array<string,array<string,mixed>> $allowed_settings
+		 * @since 0.0.1
 		 */
 		return apply_filters( 'graphql_allowed_setting_groups', $allowed_settings );
 	}

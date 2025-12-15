@@ -39,7 +39,7 @@
 		"codeception/module-webdriver": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"lucatume/wp-browser": "<3.5",
-		"phpcompatibility/php-compatibility": "dev-develop as 9.9.9",
+		"phpcompatibility/php-compatibility": "^9.3",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/extension-installer": "^1.1",
 		"phpstan/phpstan-deprecation-rules": "^2.0.1",

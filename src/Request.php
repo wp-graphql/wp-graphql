@@ -2,7 +2,6 @@
 
 namespace WPGraphQL;
 
-use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
@@ -115,6 +114,14 @@ class Request {
 	protected $query_analyzer;
 
 	/**
+	 * Authentication error stored during before_execute().
+	 * If set, the request should return this error instead of executing the query.
+	 *
+	 * @var \WP_Error|bool|null
+	 */
+	protected $authentication_error = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array<string,mixed> $data The request data (for Non-HTTP requests).
@@ -138,6 +145,15 @@ class Request {
 		 * Filter "is_graphql_request" to return true
 		 */
 		\WPGraphQL::set_is_graphql_request( true );
+
+		/**
+		 * Set up cookie authentication detection.
+		 * This must happen early, before WordPress determines the current user,
+		 * so we can detect if cookie-based auth is being used.
+		 *
+		 * @since 2.6.0
+		 */
+		$this->setup_cookie_auth_detection();
 
 		/**
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
@@ -177,6 +193,25 @@ class Request {
 	 */
 	public function get_query_analyzer(): QueryAnalyzer {
 		return $this->query_analyzer;
+	}
+
+	/**
+	 * Set up cookie authentication detection.
+	 *
+	 * Note: Cookie auth detection is now handled directly in has_authentication_errors()
+	 * by checking for the presence of an Authorization header. If no Authorization header
+	 * is present but the user is logged in, we assume cookie-based auth and require a nonce.
+	 *
+	 * This is more reliable than hooking into auth_cookie_* actions because those actions
+	 * fire during wp_validate_auth_cookie() which happens early in WordPress bootstrap,
+	 * before the Request object is created.
+	 *
+	 * @since 2.6.0
+	 */
+	private function setup_cookie_auth_detection(): void {
+		// No-op: Cookie auth detection is now handled in has_authentication_errors()
+		// by checking for Authorization header presence instead of hooking into
+		// auth_cookie_* actions (which fire too early to catch).
 	}
 
 	/**
@@ -250,6 +285,32 @@ class Request {
 		}
 
 		/**
+		 * Check authentication BEFORE query execution.
+		 *
+		 * This is critical for security - we must validate authentication before
+		 * any data is resolved. If authentication fails or the user is downgraded
+		 * (e.g., cookie auth without nonce), this happens BEFORE execution.
+		 *
+		 * @since 2.6.0 Moved from after_execute() to before_execute()
+		 */
+		$auth_error = $this->has_authentication_errors();
+
+		if ( false !== $auth_error ) {
+			// Store the authentication error for later use in execute methods
+			$this->authentication_error = $auth_error;
+		}
+
+		/**
+		 * Update AppContext->viewer to reflect the current user after auth check.
+		 *
+		 * If the user was downgraded due to missing nonce (CSRF protection),
+		 * the viewer should reflect the guest user, not the originally authenticated user.
+		 *
+		 * @since 2.6.0
+		 */
+		$this->app_context->viewer = wp_get_current_user();
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
@@ -297,30 +358,28 @@ class Request {
 	/**
 	 * Checks authentication errors.
 	 *
-	 * False will mean there are no detected errors and
-	 * execution will continue.
+	 * This method mirrors WordPress core's rest_cookie_check_errors() function
+	 * to provide CSRF protection for cookie-authenticated requests.
 	 *
-	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
-	 * request.
+	 * False will mean there are no detected errors and execution will continue.
+	 * True or WP_Error will prevent execution of the GraphQL request.
 	 *
-	 * @return bool
-	 * @throws \Exception
+	 * @since 0.0.5
+	 * @since 2.6.0 Updated to use WPGraphQL-specific auth cookie detection and support wp_graphql nonce.
+	 *
+	 * @return bool|\WP_Error False if no errors, true or WP_Error if there are errors.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/rest_cookie_check_errors/
 	 */
 	protected function has_authentication_errors() {
 		/**
 		 * Bail if this is not an HTTP request.
 		 *
-		 * Auth for internal requests will happen
-		 * via WordPress internals.
+		 * Auth for internal requests will happen via WordPress internals.
 		 */
 		if ( ! is_graphql_http_request() ) {
 			return false;
 		}
-
-		/**
-		 * Access the global $wp_rest_auth_cookie
-		 */
-		global $wp_rest_auth_cookie;
 
 		/**
 		 * Default state of the authentication errors
@@ -328,21 +387,34 @@ class Request {
 		$authentication_errors = false;
 
 		/**
-		 * Is cookie authentication NOT being used?
-		 *
-		 * If we get an auth error, but the user is still logged in, another auth mechanism
-		 * (JWT, oAuth, etc) must have been used.
+		 * Check if the user is logged in.
+		 * If not logged in, no auth check needed - they're a guest.
 		 */
-		if ( true !== $wp_rest_auth_cookie && is_user_logged_in() ) {
-
-			/**
-			 * Return filtered authentication errors
-			 */
+		if ( ! is_user_logged_in() ) {
 			return $this->filtered_authentication_errors( $authentication_errors );
 		}
 
 		/**
-		 * If the user is not logged in, determine if there's a nonce
+		 * User is logged in. Determine HOW they authenticated.
+		 *
+		 * If an Authorization header is present, a non-cookie auth method was used
+		 * (JWT, Application Passwords, OAuth, etc.). These methods are inherently
+		 * CSRF-safe because they require the token/credentials to be explicitly
+		 * included in the request - they can't be automatically sent by the browser.
+		 */
+		$has_auth_header = ! empty( $_SERVER['HTTP_AUTHORIZATION'] )
+			|| ! empty( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] );
+
+		if ( $has_auth_header ) {
+			// Non-cookie auth - trust it, no nonce required
+			return $this->filtered_authentication_errors( $authentication_errors );
+		}
+
+		/**
+		 * No Authorization header = cookie-based authentication.
+		 * Cookie auth is vulnerable to CSRF, so we require a nonce.
+		 *
+		 * Look for nonce in request param or header.
 		 */
 		$nonce = null;
 
@@ -352,18 +424,90 @@ class Request {
 			$nonce = $_SERVER['HTTP_X_WP_NONCE']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		}
 
-		if ( null === $nonce ) {
-			// No nonce at all, so act as if it's an unauthenticated request.
+		/**
+		 * Treat "falsy" nonce values as "no nonce provided" rather than "invalid nonce".
+		 *
+		 * This handles common JavaScript serialization edge cases where null/undefined
+		 * values get converted to strings like "null" or "undefined", or where an empty
+		 * string is passed. These are clearly not real nonces and should be treated as
+		 * "no nonce" (downgrade to guest) rather than "invalid nonce" (error).
+		 */
+		$empty_nonce_values = [ '', 'null', 'undefined', 'false', '0' ];
+		if ( in_array( $nonce, $empty_nonce_values, true ) ) {
+			$nonce = null;
+		}
+
+		/**
+		 * Filter whether to require a nonce for cookie-based authentication.
+		 *
+		 * By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter)
+		 * for cookie-authenticated requests to prevent CSRF attacks. This matches the
+		 * behavior of the WordPress REST API.
+		 *
+		 * Note: WPGraphQL's CORS headers already mitigate most CSRF attack vectors by
+		 * blocking cross-origin requests with credentials. The nonce requirement provides
+		 * defense-in-depth protection, particularly against form-based CSRF attacks which
+		 * are not blocked by CORS.
+		 *
+		 * Developers may want to disable this requirement in local/development environments
+		 * to allow easier testing via browser URL bar or tools that don't send nonces.
+		 *
+		 * @since 2.4.0
+		 *
+		 * @param bool $require_nonce Whether to require a nonce for cookie auth. Default true.
+		 * @param \WPGraphQL\Request $request The current request instance.
+		 *
+		 * @return bool
+		 */
+		$require_nonce = apply_filters( 'graphql_cookie_auth_require_nonce', true, $this );
+
+		/**
+		 * No nonce provided - downgrade to unauthenticated (unless nonce requirement is disabled).
+		 *
+		 * This is not an error, we just treat the request as if it came from
+		 * an unauthenticated user (CSRF protection).
+		 */
+		if ( null === $nonce && $require_nonce ) {
 			wp_set_current_user( 0 );
+
+			graphql_debug(
+				__( 'No authentication nonce provided. Cookie-authenticated request was downgraded to unauthenticated (public). To execute as an authenticated user, include a valid nonce via the X-WP-Nonce header or _wpnonce query parameter.', 'wp-graphql' ),
+				[ 'type' => 'REQUEST_DOWNGRADED_TO_PUBLIC' ]
+			);
 
 			return $this->filtered_authentication_errors( $authentication_errors );
 		}
 
-		// Check the nonce.
-		$result = wp_verify_nonce( $nonce, 'wp_rest' );
+		// If nonce is not required, allow the authenticated request to proceed
+		if ( null === $nonce && ! $require_nonce ) {
+			return $this->filtered_authentication_errors( $authentication_errors );
+		}
 
-		if ( ! $result ) {
-			throw new Exception( esc_html__( 'Cookie nonce is invalid', 'wp-graphql' ) );
+		/**
+		 * Verify the nonce.
+		 *
+		 * We support both 'wp_graphql' (new) and 'wp_rest' (backward compat) nonces.
+		 * Try wp_graphql first, then fall back to wp_rest for backward compatibility
+		 * with existing WPGraphQL IDE and other tools.
+		 */
+		$nonce_valid = wp_verify_nonce( $nonce, 'wp_graphql' );
+
+		// If wp_graphql nonce failed, try wp_rest for backward compatibility
+		if ( ! $nonce_valid ) {
+			$nonce_valid = wp_verify_nonce( $nonce, 'wp_rest' );
+		}
+
+		if ( ! $nonce_valid ) {
+			graphql_debug(
+				__( 'Invalid authentication nonce provided. The nonce may have expired or been generated for a different user session. Generate a fresh nonce using graphql_get_nonce() or wp_create_nonce("wp_rest").', 'wp-graphql' ),
+				[ 'type' => 'INVALID_NONCE' ]
+			);
+
+			return new \WP_Error(
+				'graphql_cookie_invalid_nonce',
+				__( 'Cookie nonce is invalid', 'wp-graphql' ),
+				[ 'status' => 403 ]
+			);
 		}
 
 		/**
@@ -400,17 +544,16 @@ class Request {
 	 * @param T $response The response from execution.  Array for batch requests, single object for individual requests.
 	 *
 	 * @return T
-	 *
-	 * @throws \Exception
 	 */
 	private function after_execute( $response ) {
 
 		/**
-		 * If there are authentication errors, prevent execution and throw an exception.
+		 * Authentication check has been moved to before_execute() as of 2.6.0.
+		 * This ensures auth is validated BEFORE query execution, not after.
+		 *
+		 * @since 2.6.0 Auth check moved to before_execute()
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/3447
 		 */
-		if ( false !== $this->has_authentication_errors() ) {
-			throw new Exception( esc_html__( 'Authentication Error', 'wp-graphql' ) );
-		}
 
 		/**
 		 * If the params and the $response are both arrays
@@ -622,6 +765,26 @@ class Request {
 		$this->before_execute();
 
 		/**
+		 * If there was an authentication error, return it as a GraphQL error response
+		 * instead of executing the query. This ensures consistent error handling.
+		 */
+		if ( null !== $this->authentication_error ) {
+			$error_message = is_wp_error( $this->authentication_error )
+				? $this->authentication_error->get_error_message()
+				: __( 'Authentication Error', 'wp-graphql' );
+
+			return $this->after_execute(
+				[
+					'errors' => [
+						[
+							'message' => esc_html( $error_message ),
+						],
+					],
+				]
+			);
+		}
+
+		/**
 		 * Filter this to be anything other than null to short-circuit the request.
 		 *
 		 * @param ?SerializableResult $response
@@ -700,6 +863,26 @@ class Request {
 		 * Initialize the GraphQL Request
 		 */
 		$this->before_execute();
+
+		/**
+		 * If there was an authentication error, return it as a GraphQL error response
+		 * instead of executing the query. This ensures consistent error handling.
+		 */
+		if ( null !== $this->authentication_error ) {
+			$error_message = is_wp_error( $this->authentication_error )
+				? $this->authentication_error->get_error_message()
+				: __( 'Authentication Error', 'wp-graphql' );
+
+			return $this->after_execute(
+				[
+					'errors' => [
+						[
+							'message' => esc_html( $error_message ),
+						],
+					],
+				]
+			);
+		}
 
 		/**
 		 * Get the response.
