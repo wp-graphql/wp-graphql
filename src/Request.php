@@ -738,7 +738,16 @@ class Request {
 
 		/**
 		 * If there was an authentication error, return it as a GraphQL error response
-		 * instead of executing the query. This ensures consistent error handling.
+		 * instead of executing the query.
+		 *
+		 * IMPORTANT: This intentionally happens BEFORE the `pre_graphql_execute_request` filter.
+		 * Authentication failures should fail fast for security reasons:
+		 * - Don't give plugins a chance to interfere with or "undo" auth failures
+		 * - Avoid unnecessary filter processing for failed requests
+		 * - Ensure consistent, predictable auth error handling
+		 *
+		 * Plugins that need to observe ALL requests (including auth failures) should use
+		 * earlier hooks like `graphql_before_execute` or `do_graphql_request`.
 		 */
 		if ( null !== $this->authentication_error ) {
 			$error_message = is_wp_error( $this->authentication_error )
