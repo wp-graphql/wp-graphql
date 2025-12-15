@@ -1,33 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Security
-
-- **Fixed**: Cookie authentication now properly requires nonce validation, aligning with WordPress REST API security model and the original intended behavior. This prevents potential CSRF vulnerabilities. ([#3447](https://github.com/wp-graphql/wp-graphql/issues/3447))
-
-### New Features
-
-- `graphql_get_nonce()` - New helper function to generate WPGraphQL nonces for authenticated requests
-- `graphql_cookie_auth_require_nonce` filter - Allows disabling nonce requirement for development/testing environments
-- Support for `wp_graphql` nonce action (with `wp_rest` backward compatibility)
-
-### Changed
-
-- Authentication checks now run BEFORE query execution (previously ran after)
-- Cookie-authenticated requests without a nonce are downgraded to guest (request executes but `viewer` is `null`)
-- "Falsy" nonce values (`null`, `undefined`, empty string, `false`, `0`) are treated as "no nonce" and downgraded to guest
-- Cookie-authenticated requests with an invalid nonce (real but wrong/expired) return an error (`"Cookie nonce is invalid"`)
-- Debug messages added when requests are downgraded (`REQUEST_DOWNGRADED_TO_PUBLIC`) or nonces are invalid (`INVALID_NONCE`)
-
-### Notes
-
-- **WPGraphQL IDE**: Unaffected - already sends nonces
-- **JWT/Application Passwords**: Unaffected - non-cookie auth bypasses nonce check
-- **Custom integrations using cookies**: Add `X-WP-Nonce` header or `_wpnonce` query param with value from `graphql_get_nonce()`
-- **Development/Testing**: Use `graphql_cookie_auth_require_nonce` filter to disable nonce requirement if needed
-
-
 ## v2.5.3 - 2025-11-24
 
 ### Other Changes
