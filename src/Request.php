@@ -147,15 +147,6 @@ class Request {
 		\WPGraphQL::set_is_graphql_request( true );
 
 		/**
-		 * Set up cookie authentication detection.
-		 * This must happen early, before WordPress determines the current user,
-		 * so we can detect if cookie-based auth is being used.
-		 *
-		 * @since 2.6.0
-		 */
-		$this->setup_cookie_auth_detection();
-
-		/**
 		 * Action – intentionally with no context – to indicate a GraphQL Request has started.
 		 * This is a great place for plugins to hook in and modify things that should only
 		 * occur in the context of a GraphQL Request. The base class hooks into this action to
@@ -193,25 +184,6 @@ class Request {
 	 */
 	public function get_query_analyzer(): QueryAnalyzer {
 		return $this->query_analyzer;
-	}
-
-	/**
-	 * Set up cookie authentication detection.
-	 *
-	 * Note: Cookie auth detection is now handled directly in has_authentication_errors()
-	 * by checking for the presence of an Authorization header. If no Authorization header
-	 * is present but the user is logged in, we assume cookie-based auth and require a nonce.
-	 *
-	 * This is more reliable than hooking into auth_cookie_* actions because those actions
-	 * fire during wp_validate_auth_cookie() which happens early in WordPress bootstrap,
-	 * before the Request object is created.
-	 *
-	 * @since 2.6.0
-	 */
-	private function setup_cookie_auth_detection(): void {
-		// No-op: Cookie auth detection is now handled in has_authentication_errors()
-		// by checking for Authorization header presence instead of hooking into
-		// auth_cookie_* actions (which fire too early to catch).
 	}
 
 	/**
