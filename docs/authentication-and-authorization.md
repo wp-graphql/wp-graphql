@@ -98,7 +98,7 @@ Pass the nonce to your JavaScript when enqueueing scripts:
 ```php
 wp_enqueue_script('my-graphql-app', 'path/to/app.js', [], '1.0', true);
 wp_localize_script('my-graphql-app', 'myAppSettings', [
-    'nonce' => wp_create_nonce('wp_rest'),
+    'nonce' => graphql_get_nonce(),
     'graphqlEndpoint' => home_url('/graphql'),
 ]);
 ```
