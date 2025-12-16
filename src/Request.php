@@ -257,13 +257,23 @@ class Request {
 		}
 
 		/**
+		 * Reset authentication error state for this execution.
+		 *
+		 * This ensures each batch item starts with clean auth state, preventing
+		 * errors from one batch item incorrectly persisting to subsequent items.
+		 *
+		 * @since next-version
+		 */
+		$this->authentication_error = null;
+
+		/**
 		 * Check for authentication errors via the graphql_authentication_errors filter.
 		 *
 		 * Note: For HTTP requests, all CSRF protection and nonce validation is
 		 * handled by Router::validate_http_request_authentication() before this
 		 * code runs. This call allows plugins to hook in and indicate auth errors.
 		 *
-		 * @since 2.6.0 CSRF protection and nonce validation moved to Router.
+		 * @since next-version CSRF protection and nonce validation moved to Router.
 		 */
 		$auth_error = $this->has_authentication_errors();
 

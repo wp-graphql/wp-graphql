@@ -699,7 +699,7 @@ class Router {
 		 * By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter)
 		 * for cookie-authenticated requests to prevent CSRF attacks.
 		 *
-		 * @since 2.4.0
+		 * @since next-version
 		 *
 		 * @param bool $require_nonce Whether to require a nonce for cookie auth. Default true.
 		 * @param null $request       The Request instance (null in Router context).
@@ -720,10 +720,10 @@ class Router {
 			/**
 			 * Allow plugins to prevent the downgrade via the graphql_authentication_errors filter.
 			 *
-			 * @param bool|null $authentication_errors Null to allow default behavior, false to preserve auth.
-			 * @param null      $request               The Request instance (null in Router context).
+			 * @param bool|null                $authentication_errors Null to allow default behavior, false to preserve auth.
+			 * @param \WPGraphQL\Request|null  $request               The Request instance (null in Router context).
 			 */
-			$filtered = apply_filters( 'graphql_authentication_errors', null, null );
+			$filtered = apply_filters( 'graphql_authentication_errors', null, self::get_request() );
 
 			// If a plugin explicitly returned false (no errors), preserve authentication
 			if ( false === $filtered ) {

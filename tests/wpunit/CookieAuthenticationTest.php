@@ -604,5 +604,67 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->assertNotNull( $result['data']['viewer'], 'Viewer should not be null - filter should have preserved authentication' );
 		$this->assertEquals( $this->admin_id, $result['data']['viewer']['databaseId'], 'Viewer should be the authenticated admin user' );
 	}
+
+	/**
+	 * Test: Batch requests have independent auth state per item.
+	 *
+	 * This verifies that authentication errors from one batch item do NOT
+	 * incorrectly persist to subsequent batch items. Each item should have
+	 * its auth state evaluated independently.
+	 */
+	public function testBatchRequestsHaveIndependentAuthState(): void {
+		// Track how many times the filter is called
+		$call_count = 0;
+
+		// Filter that returns an error on the first call but not the second
+		add_filter(
+			'graphql_authentication_errors',
+			function ( $errors ) use ( &$call_count ) {
+				$call_count++;
+
+				// First batch item: return an error
+				if ( 1 === $call_count ) {
+					return new \WP_Error(
+						'test_auth_error',
+						'Test authentication error for batch item 1'
+					);
+				}
+
+				// Second batch item: no error
+				return false;
+			}
+		);
+
+		// Execute a batch request with two queries (array of query arrays)
+		$results = graphql(
+			[
+				[
+					'query' => '{ viewer { databaseId } }',
+				],
+				[
+					'query' => '{ posts { nodes { databaseId } } }',
+				],
+			]
+		);
+
+		// Clean up filter
+		remove_all_filters( 'graphql_authentication_errors' );
+
+		// Verify we got batch results
+		$this->assertIsArray( $results, 'Batch request should return an array of results' );
+		$this->assertCount( 2, $results, 'Should have 2 results for 2 batch items' );
+
+		// First item should have an error (from the filter)
+		$this->assertArrayHasKey( 'errors', $results[0], 'First batch item should have an error' );
+		$this->assertStringContainsString(
+			'Test authentication error',
+			$results[0]['errors'][0]['message'],
+			'First batch item error should be from our filter'
+		);
+
+		// Second item should NOT have an error - auth state should be independent
+		$this->assertArrayNotHasKey( 'errors', $results[1], 'Second batch item should NOT have an error - auth state should be independent per batch item' );
+		$this->assertArrayHasKey( 'data', $results[1], 'Second batch item should have data' );
+	}
 }
 
