@@ -128,7 +128,7 @@ WPGraphQL handles missing or invalid nonces differently:
 |----------|----------|
 | **No nonce provided** | Request is **downgraded to guest** - executes as unauthenticated user. `viewer` returns `null`, private data not accessible. |
 | **"Falsy" nonce value** (`null`, `undefined`, empty string, `false`, `0`) | Treated as "no nonce" - **downgraded to guest**. |
-| **Invalid nonce provided** (real but wrong/expired) | Request **fails with error** - returns `"Cookie nonce is invalid"` message. |
+| **Invalid nonce provided** (real but wrong/expired) | Request **fails with HTTP 403** - returns `"Cookie nonce is invalid"` error message. |
 
 This design:
 - Allows public queries to still work when no nonce is provided (e.g., a logged-in user sharing a GraphQL URL)
@@ -150,6 +150,16 @@ add_filter('graphql_cookie_auth_require_nonce', function($require_nonce) {
 ```
 
 ⚠️ **Never disable this in production** - it would expose your site to CSRF attacks.
+
+#### Customizing the Error Status Code
+
+By default, invalid nonce errors return HTTP 403 (Forbidden). If you have legacy clients that expect HTTP 200 with a GraphQL error response, you can customize this:
+
+```php
+add_filter('graphql_authentication_error_status_code', function($status_code, $error) {
+    return 200; // Return 200 instead of 403
+}, 10, 2);
+```
 
 #### When to Use Cookie Auth vs. Other Methods
 

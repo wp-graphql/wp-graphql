@@ -34,7 +34,7 @@ For cookie-authenticated requests, WPGraphQL requires a valid WordPress nonce. T
 - Requests using cookie authentication SHOULD include a nonce via `X-WP-Nonce` header or `_wpnonce` parameter
 - **No nonce provided**: Request is downgraded to guest/unauthenticated (executes but `viewer` is `null`)
 - **"Falsy" nonce** (`null`, `undefined`, empty string): Treated as no nonce, downgraded to guest
-- **Invalid nonce provided** (real but wrong/expired): Request fails with error `"Cookie nonce is invalid"`
+- **Invalid nonce provided** (real but wrong/expired): Request fails with HTTP 403 and error `"Cookie nonce is invalid"`
 
 This matches the security model of the WordPress REST API.
 
