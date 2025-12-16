@@ -56,6 +56,10 @@ RUN sed -i '$d' /usr/local/bin/docker-entrypoint.sh
 # Set up Apache catch all name
 RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
+# Pass Authorization header to PHP (required for Application Passwords, JWT, etc.)
+# Apache doesn't pass this header by default for security reasons
+RUN echo 'SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1' >> /etc/apache2/apache2.conf
+
 # Custom PHP settings
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini \
     ;

@@ -691,6 +691,42 @@ function is_graphql_http_request(): bool {
 }
 
 /**
+ * Generate a WPGraphQL nonce for cookie-based authentication.
+ *
+ * This nonce is required for authenticated GraphQL HTTP requests that use
+ * WordPress cookie authentication. It provides CSRF protection by proving
+ * the request originated from a legitimate WordPress-generated page.
+ *
+ * Example usage in JavaScript:
+ * ```javascript
+ * fetch('/graphql', {
+ *   headers: {
+ *     'Content-Type': 'application/json',
+ *     'X-WP-Nonce': wpGraphQLSettings.nonce
+ *   },
+ *   body: JSON.stringify({ query: '{ viewer { name } }' })
+ * });
+ * ```
+ *
+ * Example usage in PHP for localizing to JavaScript:
+ * ```php
+ * wp_localize_script( 'my-script', 'wpGraphQLSettings', [
+ *   'nonce'    => graphql_get_nonce(),
+ *   'endpoint' => graphql_get_endpoint(),
+ * ] );
+ * ```
+ *
+ * @since 2.6.0
+ *
+ * @return string The WPGraphQL nonce string.
+ *
+ * @see https://github.com/wp-graphql/wp-graphql/issues/3447
+ */
+function graphql_get_nonce(): string {
+	return wp_create_nonce( 'wp_graphql' );
+}
+
+/**
  * Registers a GraphQL Settings Section
  *
  * @param string              $slug   The slug of the group being registered

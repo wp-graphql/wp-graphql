@@ -47,11 +47,130 @@ For applications making requests to the `/graphql` endpoint, you can use:
   - More complex but very secure
   - [OAuth1 Plugin](https://github.com/WP-API/OAuth1)
 
-### 2. WordPress Admin Requests
-When making requests from within the WordPress admin (like WPGraphiQL):
-- Uses WordPress's nonce-based authentication
-- Automatically authenticated via the user's session
-- Example implementation in [WPGraphiQL](https://github.com/wp-graphql/wp-graphiql/blob/82518eafa5f383c5929111431e4a641caace3b57/assets/app/src/App.js#L58-L75)
+### 2. Cookie-Based Authentication (Browser Requests)
+
+When making GraphQL requests from a browser where the user is already logged into WordPress, you can use cookie-based authentication. This is common for:
+- Custom admin pages
+- Frontend JavaScript applications served from WordPress
+- The GraphiQL IDE
+
+**Important:** Cookie-authenticated requests require a **nonce** for CSRF (Cross-Site Request Forgery) protection. This matches the behavior of the WordPress REST API.
+
+#### Why Nonces Are Required
+
+Cookies are automatically sent by the browser with every request to your WordPress site. Without nonce verification, a malicious website could trick a logged-in user's browser into making GraphQL requests on their behalf. The nonce ensures the request originated from your WordPress site.
+
+#### How to Include the Nonce
+
+You can include the nonce in one of two ways:
+
+1. **HTTP Header** (Recommended):
+   ```javascript
+   fetch('/graphql', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       'X-WP-Nonce': wpApiSettings.nonce  // or your nonce variable
+     },
+     body: JSON.stringify({ query: '{ viewer { name } }' })
+   });
+   ```
+
+2. **Query Parameter**:
+   ```
+   /graphql?query={viewer{name}}&_wpnonce=your_nonce_here
+   ```
+
+#### How to Get a Nonce
+
+**Option 1: From WordPress Admin Pages**
+
+On any WordPress admin page, the nonce is available in `wpApiSettings.nonce`:
+
+```javascript
+const nonce = wpApiSettings.nonce;
+```
+
+**Option 2: Using wp_localize_script() in Your Plugin/Theme**
+
+Pass the nonce to your JavaScript when enqueueing scripts:
+
+```php
+wp_enqueue_script('my-graphql-app', 'path/to/app.js', [], '1.0', true);
+wp_localize_script('my-graphql-app', 'myAppSettings', [
+    'nonce' => graphql_get_nonce(),
+    'graphqlEndpoint' => home_url('/graphql'),
+]);
+```
+
+Then in your JavaScript:
+
+```javascript
+fetch(myAppSettings.graphqlEndpoint, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': myAppSettings.nonce,
+    },
+    body: JSON.stringify({ query: '{ viewer { name } }' }),
+});
+```
+
+**Option 3: From the GraphiQL IDE Page**
+
+The GraphiQL IDE page includes the nonce in `wpGraphiQLSettings.nonce`.
+
+#### Requests Without a Valid Nonce
+
+WPGraphQL handles missing or invalid nonces differently:
+
+| Scenario | Behavior |
+|----------|----------|
+| **No nonce provided** | Request is **downgraded to guest** - executes as unauthenticated user. `viewer` returns `null`, private data not accessible. |
+| **"Falsy" nonce value** (`null`, `undefined`, empty string, `false`, `0`) | Treated as "no nonce" - **downgraded to guest**. |
+| **Invalid nonce provided** (real but wrong/expired) | Request **fails with HTTP 403** - returns `"Cookie nonce is invalid"` error message. |
+
+This design:
+- Allows public queries to still work when no nonce is provided (e.g., a logged-in user sharing a GraphQL URL)
+- Gracefully handles JavaScript serialization edge cases (e.g., `JSON.stringify({ nonce: null })` → `"null"`)
+- Rejects requests with tampered or expired nonces that appear to be real authentication attempts
+
+#### Disabling Nonce Requirement (Development Only)
+
+For local development or testing, you can disable the nonce requirement using a filter:
+
+```php
+// WARNING: Only use in development environments!
+add_filter('graphql_cookie_auth_require_nonce', function($require_nonce) {
+    if (wp_get_environment_type() === 'local') {
+        return false;
+    }
+    return $require_nonce;
+});
+```
+
+⚠️ **Never disable this in production** - it would expose your site to CSRF attacks.
+
+#### Customizing the Error Status Code
+
+By default, invalid nonce errors return HTTP 403 (Forbidden). If you have legacy clients that expect HTTP 200 with a GraphQL error response, you can customize this:
+
+```php
+add_filter('graphql_authentication_error_status_code', function($status_code, $error) {
+    return 200; // Return 200 instead of 403
+}, 10, 2);
+```
+
+#### When to Use Cookie Auth vs. Other Methods
+
+| Use Case | Recommended Auth Method |
+|----------|------------------------|
+| WordPress admin pages | Cookie + Nonce |
+| Frontend JS on same domain | Cookie + Nonce |
+| External/headless apps | Application Passwords or JWT |
+| Mobile apps | Application Passwords or JWT |
+| Server-to-server | Application Passwords |
+| CI/CD or automated scripts | Application Passwords |
 
 ### 3. Direct PHP Function Calls
 When using WPGraphQL programmatically within WordPress:

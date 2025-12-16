@@ -59,6 +59,13 @@ echo "export WORDPRESS_DB_USER=${WORDPRESS_DB_USER}" >> /etc/apache2/envvars
 echo "export WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}" >> /etc/apache2/envvars
 echo "export WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}" >> /etc/apache2/envvars
 
+# Set WebDriver URL if not already set (for Chrome browser to access WordPress via Docker network)
+export WP_URL_FOR_WEBDRIVER="${WP_URL_FOR_WEBDRIVER:-http://testing}"
+export CHROMEDRIVER_HOST="${CHROMEDRIVER_HOST:-chrome}"
+export CHROMEDRIVER_PORT="${CHROMEDRIVER_PORT:-4444}"
+# Browser name: 'chromium' for ARM64 (seleniarm), 'chrome' for AMD64 (selenium)
+export WEBDRIVER_BROWSER="${WEBDRIVER_BROWSER:-chromium}"
+
 # Run app setup scripts.
 . app-setup.sh
 . app-post-setup.sh

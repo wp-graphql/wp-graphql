@@ -72,6 +72,16 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 == Upgrade Notice ==
 
+= 2.6.0 =
+
+This release aligns cookie authentication with the WordPress REST API pattern. Cookie-authenticated requests now require a nonce (`X-WP-Nonce` header or `_wpnonce` parameter) to execute as an authenticated user. Requests without a valid nonce will be downgraded to guest access (`viewer: null`).
+
+**Not affected:** JWT authentication, Application Passwords, OAuth, or any authentication using the `Authorization` header. The built-in GraphiQL IDE is also unaffected as it already sends nonces.
+
+**Action required:** If you have custom JavaScript making GraphQL requests with cookie authentication, add the nonce header. See the [built-in GraphiQL IDE fetcher](https://github.com/wp-graphql/wp-graphql/blob/develop/packages/wpgraphiql/utils/fetcher.js) for an example implementation.
+
+For development/testing, you can temporarily disable the requirement with: `add_filter('graphql_cookie_auth_require_nonce', '__return_false');`
+
 = 2.0.0 =
 
 **BREAKING CHANGE UPDATE**
