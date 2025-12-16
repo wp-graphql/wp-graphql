@@ -356,10 +356,50 @@ class CookieAuthenticationCest {
 			)
 		);
 
-		$I->seeResponseCodeIs( 200 ); // GraphQL returns 200 even for errors
+		$I->seeResponseCodeIs( 403 ); // Invalid nonce returns 403 Forbidden
 		$response = json_decode( $I->grabResponse(), true );
 
 		$I->assertArrayHasKey( 'errors', $response, 'Invalid nonce should return error' );
+	}
+
+	/**
+	 * Test: Authentication error returns 403 by default.
+	 *
+	 * The status code can be filtered to 200 for legacy clients that expect 200 with a GraphQL
+	 * error response body. Use the 'graphql_authentication_error_status_code' filter in your
+	 * plugin or theme to customize this behavior.
+	 *
+	 * @param AcceptanceTester $I
+	 */
+	public function authErrorStatusCodeIs403ByDefault( AcceptanceTester $I ) {
+		$I->wantTo( 'verify auth error returns 403 by default (filterable via graphql_authentication_error_status_code)' );
+
+		// Login as admin
+		$I->loginAs( 'testadmin', 'password' );
+
+		// Send invalid nonce
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->haveHttpHeader( 'X-WP-Nonce', 'another-invalid-nonce' );
+
+		$I->sendPOST(
+			'graphql',
+			json_encode(
+				[
+					'query' => '{
+						viewer {
+							databaseId
+						}
+					}',
+				]
+			)
+		);
+
+		// Default status is 403 Forbidden.
+		// Use 'graphql_authentication_error_status_code' filter to change to 200 for legacy clients.
+		$I->seeResponseCodeIs( 403 );
+		$response = json_decode( $I->grabResponse(), true );
+
+		$I->assertArrayHasKey( 'errors', $response, 'Should return error in response body' );
 	}
 
 	/**

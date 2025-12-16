@@ -104,7 +104,13 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	}
 
 	/**
-	 * Helper to simulate an HTTP request context
+	 * Helper to simulate an HTTP request context.
+	 *
+	 * This sets up the environment to look like an HTTP request and runs
+	 * Router::validate_http_request_authentication() to simulate what happens
+	 * when a real HTTP request comes through the /graphql endpoint.
+	 *
+	 * Call this AFTER setting up the user and any nonces, but BEFORE calling graphql().
 	 */
 	private function simulate_http_request(): void {
 		$_SERVER['HTTP_HOST']   = 'localhost';
@@ -114,6 +120,19 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		// The filter is checked first in is_graphql_http_request() and
 		// short-circuits other checks that may not work in test environment
 		add_filter( 'graphql_pre_is_graphql_http_request', '__return_true' );
+	}
+
+	/**
+	 * Helper to run the Router's authentication validation.
+	 *
+	 * This simulates what Router::process_http_request() does before creating
+	 * a Request object. Call this AFTER simulate_http_request() and setting
+	 * up nonces, but BEFORE calling graphql().
+	 *
+	 * @return \WP_Error|null WP_Error if invalid nonce, null otherwise.
+	 */
+	private function run_router_auth_validation(): ?\WP_Error {
+		return \WPGraphQL\Router::validate_http_request_authentication();
 	}
 
 	/**
@@ -175,6 +194,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		// DO NOT provide a nonce - this should trigger downgrade
 
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
+
 		$query = '
 			query {
 				viewer {
@@ -211,6 +233,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		// Provide a valid nonce (supports both wp_graphql and wp_rest for backward compat)
 		$_REQUEST['_wpnonce'] = wp_create_nonce( 'wp_graphql' );
+
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
 
 		$query = '
 			query {
@@ -249,6 +274,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		// Provide wp_rest nonce (backward compatibility)
 		$_REQUEST['_wpnonce'] = wp_create_nonce( 'wp_rest' );
 
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
+
 		$query = '
 			query {
 				viewer {
@@ -284,6 +312,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		// Provide nonce via header
 		$_SERVER['HTTP_X_WP_NONCE'] = wp_create_nonce( 'wp_graphql' );
 
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
+
 		$query = '
 			query {
 				viewer {
@@ -308,7 +339,7 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * Test: Cookie auth with invalid nonce should return error.
 	 *
 	 * When a user provides an invalid nonce with cookie auth,
-	 * the request should return a GraphQL error response.
+	 * Router::validate_http_request_authentication() returns a WP_Error.
 	 */
 	public function testCookieAuthWithInvalidNonceReturnsError(): void {
 		$this->simulate_http_request();
@@ -322,23 +353,49 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		// Provide an INVALID nonce
 		$_REQUEST['_wpnonce'] = 'invalid-nonce-12345';
 
-		$query = '
-			query {
-				viewer {
-					databaseId
-				}
-			}
-		';
+		// Run Router's auth validation - should return WP_Error for invalid nonce
+		$auth_error = $this->run_router_auth_validation();
 
-		$result = $this->graphql( [ 'query' => $query ] );
-
-		// Should return a GraphQL error response
-		$this->assertArrayHasKey( 'errors', $result, 'Invalid nonce should produce an error' );
+		// Should return a WP_Error
+		$this->assertInstanceOf(
+			WP_Error::class,
+			$auth_error,
+			'Invalid nonce should return WP_Error from Router'
+		);
 		$this->assertStringContainsStringIgnoringCase(
 			'nonce',
-			$result['errors'][0]['message'],
+			$auth_error->get_error_message(),
 			'Error message should mention nonce'
 		);
+	}
+
+	/**
+	 * Test: Authentication error status code can be filtered.
+	 *
+	 * The graphql_authentication_error_status_code filter allows clients
+	 * to change the HTTP status code from 403 to 200 for legacy compatibility.
+	 */
+	public function testAuthErrorStatusCodeFilterExists(): void {
+		$auth_error = new WP_Error(
+			'graphql_cookie_invalid_nonce',
+			'Cookie nonce is invalid',
+			[ 'status' => 403 ]
+		);
+
+		// Default should be 403
+		$default_status = apply_filters( 'graphql_authentication_error_status_code', 403, $auth_error );
+		$this->assertEquals( 403, $default_status, 'Default status code should be 403' );
+
+		// Add filter to change to 200
+		add_filter( 'graphql_authentication_error_status_code', function ( $status_code, $error ) {
+			return 200;
+		}, 10, 2 );
+
+		$filtered_status = apply_filters( 'graphql_authentication_error_status_code', 403, $auth_error );
+		$this->assertEquals( 200, $filtered_status, 'Filter should allow changing status to 200' );
+
+		// Clean up
+		remove_all_filters( 'graphql_authentication_error_status_code' );
 	}
 
 	/**
@@ -357,6 +414,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->simulate_cookie_auth();
 
 		// No nonce - should be downgraded BEFORE query runs
+
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
 
 		// Query for draft posts (only admins can see drafts)
 		$query = '
@@ -397,6 +457,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		$this->simulate_cookie_auth();
 
 		// No nonce provided - should trigger downgrade
+
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
 
 		$captured_viewer = null;
 
@@ -476,6 +539,9 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		// No cookie auth, no nonce
 
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		$this->run_router_auth_validation();
+
 		$query = '
 			query {
 				posts {
@@ -497,6 +563,8 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	 * Test: The graphql_authentication_errors filter still works.
 	 *
 	 * Plugins should be able to hook into authentication handling.
+	 * This verifies that a plugin can use the filter to allow authentication
+	 * to proceed even without a nonce (e.g., custom auth plugins).
 	 */
 	public function testAuthenticationErrorsFilterStillWorks(): void {
 		$this->simulate_http_request();
@@ -507,28 +575,34 @@ class CookieAuthenticationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 		// Simulate cookie auth detection
 		$this->simulate_cookie_auth();
 
-		// No nonce provided
+		// No nonce provided - normally this would downgrade to guest
 
 		// Hook to allow auth anyway (like a custom auth plugin might do)
+		// This filter is called by Router::validate_http_request_authentication()
 		add_filter(
 			'graphql_authentication_errors',
 			function ( $errors ) {
-				// Return false to indicate no errors
+				// Return false to indicate no errors - allow auth to proceed
 				return false;
 			},
 			20
 		);
 
-		$query = '{ viewer { databaseId } }';
+		// Run Router's auth validation (simulates what happens in HTTP requests)
+		// The filter above should prevent the downgrade
+		$this->run_router_auth_validation();
+
+		$query  = '{ viewer { databaseId } }';
 		$result = $this->graphql( [ 'query' => $query ] );
 
 		// Remove filter before assertions
 		remove_all_filters( 'graphql_authentication_errors' );
 
-		// The filter should have allowed the request through
-		// Note: This test verifies the filter exists and is called,
-		// but the actual behavior depends on the implementation
+		// The filter should have allowed the authenticated request through
 		$this->assertArrayHasKey( 'data', $result );
+		$this->assertArrayNotHasKey( 'errors', $result );
+		$this->assertNotNull( $result['data']['viewer'], 'Viewer should not be null - filter should have preserved authentication' );
+		$this->assertEquals( $this->admin_id, $result['data']['viewer']['databaseId'], 'Viewer should be the authenticated admin user' );
 	}
 }
 

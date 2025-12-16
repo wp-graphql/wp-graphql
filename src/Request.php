@@ -257,13 +257,13 @@ class Request {
 		}
 
 		/**
-		 * Check authentication BEFORE query execution.
+		 * Check for authentication errors via the graphql_authentication_errors filter.
 		 *
-		 * This is critical for security - we must validate authentication before
-		 * any data is resolved. If authentication fails or the user is downgraded
-		 * (e.g., cookie auth without nonce), this happens BEFORE execution.
+		 * Note: For HTTP requests, all CSRF protection and nonce validation is
+		 * handled by Router::validate_http_request_authentication() before this
+		 * code runs. This call allows plugins to hook in and indicate auth errors.
 		 *
-		 * @since 2.6.0 Moved from after_execute() to before_execute()
+		 * @since 2.6.0 CSRF protection and nonce validation moved to Router.
 		 */
 		$auth_error = $this->has_authentication_errors();
 
@@ -328,164 +328,25 @@ class Request {
 	}
 
 	/**
-	 * Checks authentication errors.
+	 * Checks authentication errors via the graphql_authentication_errors filter.
 	 *
-	 * This method mirrors WordPress core's rest_cookie_check_errors() function
-	 * to provide CSRF protection for cookie-authenticated requests.
+	 * As of 2.6.0, all CSRF protection and nonce validation for HTTP requests is
+	 * handled by Router::validate_http_request_authentication() BEFORE any GraphQL
+	 * hooks fire. This method now only provides:
+	 * - Plugin integration via the graphql_authentication_errors filter
 	 *
-	 * False will mean there are no detected errors and execution will continue.
-	 * True or WP_Error will prevent execution of the GraphQL request.
+	 * False means no errors and execution continues.
+	 * True or WP_Error prevents execution of the GraphQL request.
 	 *
 	 * @since 0.0.5
-	 * @since 2.6.0 Updated to use WPGraphQL-specific auth cookie detection and support wp_graphql nonce.
+	 * @since 2.6.0 CSRF protection and nonce validation moved to Router.
 	 *
 	 * @return bool|\WP_Error False if no errors, true or WP_Error if there are errors.
 	 *
-	 * @see https://developer.wordpress.org/reference/functions/rest_cookie_check_errors/
+	 * @see Router::validate_http_request_authentication()
 	 */
 	protected function has_authentication_errors() {
-		/**
-		 * Bail if this is not an HTTP request.
-		 *
-		 * Auth for internal requests will happen via WordPress internals.
-		 */
-		if ( ! is_graphql_http_request() ) {
-			return false;
-		}
-
-		/**
-		 * Default state of the authentication errors
-		 */
-		$authentication_errors = false;
-
-		/**
-		 * Check if the user is logged in.
-		 * If not logged in, no auth check needed - they're a guest.
-		 */
-		if ( ! is_user_logged_in() ) {
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		/**
-		 * User is logged in. Determine HOW they authenticated.
-		 *
-		 * If an Authorization header is present, a non-cookie auth method was used
-		 * (JWT, Application Passwords, OAuth, etc.). These methods are inherently
-		 * CSRF-safe because they require the token/credentials to be explicitly
-		 * included in the request - they can't be automatically sent by the browser.
-		 */
-		$has_auth_header = ! empty( $_SERVER['HTTP_AUTHORIZATION'] )
-			|| ! empty( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] );
-
-		if ( $has_auth_header ) {
-			// Non-cookie auth - trust it, no nonce required
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		/**
-		 * No Authorization header = cookie-based authentication.
-		 * Cookie auth is vulnerable to CSRF, so we require a nonce.
-		 *
-		 * Look for nonce in request param or header.
-		 */
-		$nonce = null;
-
-		if ( isset( $_REQUEST['_wpnonce'] ) ) {
-			$nonce = $_REQUEST['_wpnonce']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		} elseif ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
-			$nonce = $_SERVER['HTTP_X_WP_NONCE']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		}
-
-		/**
-		 * Treat "falsy" nonce values as "no nonce provided" rather than "invalid nonce".
-		 *
-		 * This handles common JavaScript serialization edge cases where null/undefined
-		 * values get converted to strings like "null" or "undefined", or where an empty
-		 * string is passed. These are clearly not real nonces and should be treated as
-		 * "no nonce" (downgrade to guest) rather than "invalid nonce" (error).
-		 */
-		$empty_nonce_values = [ '', 'null', 'undefined', 'false', '0' ];
-		if ( in_array( $nonce, $empty_nonce_values, true ) ) {
-			$nonce = null;
-		}
-
-		/**
-		 * Filter whether to require a nonce for cookie-based authentication.
-		 *
-		 * By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter)
-		 * for cookie-authenticated requests to prevent CSRF attacks. This matches the
-		 * behavior of the WordPress REST API.
-		 *
-		 * Note: WPGraphQL's CORS headers already mitigate most CSRF attack vectors by
-		 * blocking cross-origin requests with credentials. The nonce requirement provides
-		 * defense-in-depth protection, particularly against form-based CSRF attacks which
-		 * are not blocked by CORS.
-		 *
-		 * Developers may want to disable this requirement in local/development environments
-		 * to allow easier testing via browser URL bar or tools that don't send nonces.
-		 *
-		 * @since 2.4.0
-		 *
-		 * @param bool $require_nonce Whether to require a nonce for cookie auth. Default true.
-		 * @param \WPGraphQL\Request $request The current request instance.
-		 *
-		 * @return bool
-		 */
-		$require_nonce = apply_filters( 'graphql_cookie_auth_require_nonce', true, $this );
-
-		/**
-		 * No nonce provided - downgrade to unauthenticated (unless nonce requirement is disabled).
-		 *
-		 * This is not an error, we just treat the request as if it came from
-		 * an unauthenticated user (CSRF protection).
-		 */
-		if ( null === $nonce && $require_nonce ) {
-			wp_set_current_user( 0 );
-
-			graphql_debug(
-				__( 'No authentication nonce provided. Cookie-authenticated request was downgraded to unauthenticated (public). To execute as an authenticated user, include a valid nonce via the X-WP-Nonce header or _wpnonce query parameter.', 'wp-graphql' ),
-				[ 'type' => 'REQUEST_DOWNGRADED_TO_PUBLIC' ]
-			);
-
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		// If nonce is not required, allow the authenticated request to proceed
-		if ( null === $nonce && ! $require_nonce ) {
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		/**
-		 * Verify the nonce.
-		 *
-		 * We support both 'wp_graphql' (new) and 'wp_rest' (backward compat) nonces.
-		 * Try wp_graphql first, then fall back to wp_rest for backward compatibility
-		 * with existing WPGraphQL IDE and other tools.
-		 */
-		$nonce_valid = wp_verify_nonce( $nonce, 'wp_graphql' );
-
-		// If wp_graphql nonce failed, try wp_rest for backward compatibility
-		if ( ! $nonce_valid ) {
-			$nonce_valid = wp_verify_nonce( $nonce, 'wp_rest' );
-		}
-
-		if ( ! $nonce_valid ) {
-			graphql_debug(
-				__( 'Invalid authentication nonce provided. The nonce may have expired or been generated for a different user session. Generate a fresh nonce using graphql_get_nonce() or wp_create_nonce("wp_rest").', 'wp-graphql' ),
-				[ 'type' => 'INVALID_NONCE' ]
-			);
-
-			return new \WP_Error(
-				'graphql_cookie_invalid_nonce',
-				__( 'Cookie nonce is invalid', 'wp-graphql' ),
-				[ 'status' => 403 ]
-			);
-		}
-
-		/**
-		 * Return the filtered authentication errors
-		 */
-		return $this->filtered_authentication_errors( $authentication_errors );
+		return $this->filtered_authentication_errors( false );
 	}
 
 	/**
