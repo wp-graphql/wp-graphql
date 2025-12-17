@@ -7,6 +7,17 @@ npm run wp-env run tests-cli -- wp rewrite structure /%postname%/ --hard
 npm run wp-env run cli -- wp rewrite flush --hard
 npm run wp-env run tests-cli  -- wp rewrite flush --hard
 
+# Disable auto-updates via wp-config (matches old Docker setup)
+# These constants are loaded before mu-plugins, so they're more reliable
+npm run wp-env run tests-cli -- wp config set WP_AUTO_UPDATE_CORE false --raw --type=constant
+npm run wp-env run tests-cli -- wp config set AUTOMATIC_UPDATER_DISABLED true --raw --type=constant
+
+# Explicitly deactivate maintenance mode if active (matches old Docker setup)
+npm run wp-env run tests-cli -- wp maintenance-mode deactivate 2>/dev/null || echo "Maintenance mode already inactive or command not available"
+
+# Remove .maintenance file if it exists
+npm run wp-env run tests-cli -- rm -f /var/www/html/.maintenance 2>/dev/null || true
+
 # Fix internal Docker URL resolution and prevent maintenance mode for acceptance/functional tests
 # - wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
 #   the container (only port 80 works internally). This mu-plugin rewrites URLs
@@ -46,28 +57,37 @@ echo "Installed test fixes mu-plugin"
 # Get install Path for docker compose commands
 cd $(npx wp-env install-path)
 
-# Enable HTTP Authorization header passthrough for Apache
-# This must be in Apache's main config, not .htaccess (matches old Docker setup)
-# See: https://github.com/wp-graphql/wp-graphql/pull/3448
+# Configure Apache (matches old Docker setup)
 for container in tests-wordpress wordpress; do
-	echo "Configuring Apache Authorization header passthrough for $container..."
+	echo "Configuring Apache for $container..."
+	
+	# Set ServerName to prevent Apache warnings (matches old Docker setup)
+	if ! docker compose exec -T $container grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null; then
+		echo "Setting ServerName localhost..."
+		docker compose exec -T -u root $container bash -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
+	fi
 	
 	# Ensure mod_setenvif is enabled (required for SetEnvIf directive)
 	echo "Enabling mod_setenvif..."
 	docker compose exec -T -u root $container a2enmod setenvif 2>/dev/null || echo "mod_setenvif already enabled or failed"
 	
+	# Enable HTTP Authorization header passthrough
+	# This must be in Apache's main config, not .htaccess (matches old Docker setup)
+	# See: https://github.com/wp-graphql/wp-graphql/pull/3448
 	if ! docker compose exec -T $container grep -q "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf 2>/dev/null; then
 		echo "Adding SetEnvIf directive to Apache config..."
 		docker compose exec -T -u root $container bash -c 'echo "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1" >> /etc/apache2/apache2.conf'
-		echo "Gracefully reloading Apache..."
-		docker compose exec -T -u root $container apache2ctl graceful
-		echo "Done."
 	else
 		echo "Authorization header passthrough already configured."
 	fi
-	# Verify it was added
+	
+	# Reload Apache to apply changes
+	echo "Reloading Apache..."
+	docker compose exec -T -u root $container apache2ctl graceful
+	
+	# Verify config
 	echo "Verifying Apache config:"
-	docker compose exec -T $container grep "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf || echo "WARNING: SetEnvIf not found in Apache config!"
+	docker compose exec -T $container grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
 done
 
 # Wait for Apache to stabilize after config changes
