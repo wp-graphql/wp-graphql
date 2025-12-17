@@ -22,16 +22,6 @@ jobs:
   run:
     runs-on: ubuntu-latest
     name: Lint WPGraphQL Schema
-    services:
-      mariadb:
-        image: mariadb:10
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: tests-wordpress
-        # Ensure docker waits for mariadb to start
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout
@@ -43,7 +33,10 @@ jobs:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
           coverage: none
-          tools: composer, wp-cli
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
 
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -51,22 +44,23 @@ jobs:
             cache: 'npm'
             node-version-file: '.nvmrc'
 
+      - name: Install NPM dependencies
+        run: npm ci
+
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
-      - name: Setup WordPress
-        run: |
-          cp .env.dist .env
-          # Override DB_HOST for GitHub Actions (service container is on 127.0.0.1)
-          sed -i 's/DB_HOST=tests-mysql/DB_HOST=127.0.0.1/g' .env
-          sed -i 's/TEST_DB_HOST=tests-mysql/TEST_DB_HOST=127.0.0.1/g' .env
-          composer run install-test-env
+      - name: Start wp-env
+        run: npm run wp-env start
+
+      - name: Run setup script
+        run: bash bin/setup-wp-env.sh
 
       - name: Generate the Static Schema
         run: |
-          cd /tmp/wordpress/
-          # Output: /tmp/schema.graphql
-          wp graphql generate-static-schema
+          npm run wp-env run cli -- wp graphql generate-static-schema --output=/var/www/html/schema.graphql
+          # Copy schema out of container
+          npm run wp-env run cli -- cat /var/www/html/schema.graphql > /tmp/schema.graphql
 
       - name: Lint the Static Schema
         run: |
