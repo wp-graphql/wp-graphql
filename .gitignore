@@ -52,6 +52,9 @@ node_modules
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
 
+# Local wp-env overrides. Used to override .wp-env.json for local testing
+.wp-env.override.json
+
 # Log files
 .log
 

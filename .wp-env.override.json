@@ -1,5 +1,0 @@
-{
-    "core": "WordPress/WordPress#6.9",
-    "phpVersion": "8.4",
-    "multisite": true
-}
