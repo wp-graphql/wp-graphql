@@ -5,6 +5,7 @@ paths:
     support: tests/_support
     envs: tests/_envs
 params:
+    - env
     - .env
 actor_suffix: Tester
 settings:

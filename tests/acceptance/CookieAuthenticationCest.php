@@ -29,6 +29,14 @@ class CookieAuthenticationCest {
 	 * @param AcceptanceTester $I
 	 */
 	public function _before( AcceptanceTester $I ) {
+		// Clear any existing session state to prevent pollution between tests
+		$I->resetCookie( 'wordpress_logged_in_' );
+		$I->resetCookie( 'wordpress_sec_' );
+		$I->resetCookie( 'wordpress_' );
+		$I->deleteHeader( 'Cookie' );
+		$I->deleteHeader( 'X-WP-Nonce' );
+		$I->deleteHeader( 'Authorization' );
+
 		// Create admin user
 		$this->admin_id = $I->haveUserInDatabase( 'testadmin', 'administrator', [ 'user_pass' => 'password' ] );
 
@@ -53,6 +61,21 @@ class CookieAuthenticationCest {
 				'post_author'  => $this->admin_id,
 			]
 		);
+	}
+
+	/**
+	 * Clean up after each test
+	 *
+	 * @param AcceptanceTester $I
+	 */
+	public function _after( AcceptanceTester $I ) {
+		// Clear session state to prevent pollution to next test
+		$I->resetCookie( 'wordpress_logged_in_' );
+		$I->resetCookie( 'wordpress_sec_' );
+		$I->resetCookie( 'wordpress_' );
+		$I->deleteHeader( 'Cookie' );
+		$I->deleteHeader( 'X-WP-Nonce' );
+		$I->deleteHeader( 'Authorization' );
 	}
 
 	/**
