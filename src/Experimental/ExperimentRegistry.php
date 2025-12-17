@@ -72,7 +72,7 @@ final class ExperimentRegistry {
 	 *
 	 * @return \WPGraphQL\Experimental\ExperimentRegistry|null The primary registry instance, or null if not initialized.
 	 */
-	public static function get_instance(): ?ExperimentRegistry {
+	public static function get_instance(): ?self {
 		return self::$instance;
 	}
 
@@ -83,7 +83,7 @@ final class ExperimentRegistry {
 	 *
 	 * @param \WPGraphQL\Experimental\ExperimentRegistry|null $instance The instance to set as primary.
 	 */
-	public static function set_instance( ?ExperimentRegistry $instance ): void {
+	public static function set_instance( ?self $instance ): void {
 		self::$instance = $instance;
 	}
 
@@ -192,8 +192,8 @@ final class ExperimentRegistry {
 	 * This method allows programmatic registration of experiments, which is useful
 	 * for testing or for registering experiments after the initial registration phase.
 	 *
-	 * @param string $slug       The experiment slug.
-	 * @param string $class_name The fully-qualified class name for the experiment.
+	 * @param string                                                              $slug       The experiment slug.
+	 * @param class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment> $class_name The fully-qualified class name for the experiment.
 	 */
 	public function register_experiment( string $slug, string $class_name ): void {
 		// Initialize registry if not set

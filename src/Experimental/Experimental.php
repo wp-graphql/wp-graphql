@@ -21,7 +21,7 @@ final class Experimental {
 	/**
 	 * The Experiment Registry instance
 	 *
-	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 * @var ?\WPGraphQL\Experimental\ExperimentRegistry
 	 */
 	protected $experiment_registry;
 

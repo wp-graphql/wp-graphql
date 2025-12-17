@@ -49,7 +49,7 @@ class Admin {
 		);
 
 		// Get all registered experiment classes and instantiate them for the admin UI
-		$registry = ExperimentRegistry::get_instance();
+		$registry               = ExperimentRegistry::get_instance();
 		$registered_experiments = $registry ? $registry->get_registered_experiments() : [];
 		$experiments            = [];
 
@@ -144,7 +144,7 @@ class Admin {
 		$new_settings = is_array( $new_value ) ? $new_value : [];
 
 		// Get all registered experiments
-		$registry = ExperimentRegistry::get_instance();
+		$registry               = ExperimentRegistry::get_instance();
 		$registered_experiments = $registry ? $registry->get_registered_experiments() : [];
 		$changed_experiments    = [];
 
@@ -425,7 +425,7 @@ class Admin {
 	 * @return \WPGraphQL\Experimental\Experiment\AbstractExperiment|null The experiment instance or null if not found.
 	 */
 	private function get_experiment_by_slug( string $slug ): ?AbstractExperiment {
-		$registry = ExperimentRegistry::get_instance();
+		$registry    = ExperimentRegistry::get_instance();
 		$experiments = $registry ? $registry->get_experiments() : [];
 		return $experiments[ $slug ] ?? null;
 	}

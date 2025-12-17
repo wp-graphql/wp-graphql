@@ -251,11 +251,6 @@ class MediaItemCreate {
 			 */
 			$timeout_seconds = 300;
 
-			// Ensure uploaded_file_url is a string (it may be null if wp_upload_bits failed)
-			if ( empty( $uploaded_file_url ) || ! is_string( $uploaded_file_url ) ) {
-				throw new UserError( esc_html__( 'Sorry, the URL for this file is invalid, it must be a valid URL', 'wp-graphql' ) );
-			}
-
 			$temp_file = download_url( $uploaded_file_url, $timeout_seconds );
 
 			/**
