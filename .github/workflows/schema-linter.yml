@@ -59,8 +59,10 @@ jobs:
       - name: Generate the Static Schema
         run: |
           npm run wp-env run cli -- wp graphql generate-static-schema --output=/var/www/html/schema.graphql
-          # Copy schema out of container
-          npm run wp-env run cli -- cat /var/www/html/schema.graphql > /tmp/schema.graphql
+          # Copy schema out of container using docker cp
+          CONTAINER_ID=$(docker ps -qf "name=cli")
+          docker cp "$CONTAINER_ID:/var/www/html/schema.graphql" /tmp/schema.graphql
+          echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Lint the Static Schema
         run: |
