@@ -170,17 +170,9 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 
 		codecept_debug( $actual );
 
-		$this->assertQuerySuccessful(
-			$actual,
-			[
-				$this->expectedNode(
-					'themes.nodes',
-					[
-						'__typename' => 'Theme',
-					]
-				),
-			]
-		);
+		$this->assertResponseIsValid( $actual );
+		$this->assertNotEmpty( $actual['data']['themes']['nodes'] );
+		$this->assertEquals( 'Theme', $actual['data']['themes']['nodes'][0]['__typename'] );
 	}
 
 	public function testRootQueryToUserRolesConnection() {

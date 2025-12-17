@@ -94,7 +94,7 @@ See our [GraphQL Mutations guide](/docs/graphql-mutations/) for detailed example
 You can test using:
 1. The built-in GraphiQL IDE
 2. Codeception tests (for plugin development)
-3. Docker testing environment
+3. Docker (via wp-env) testing environment
 4. Local development environment with debugging enabled
 
 For detailed testing instructions, see our [Testing guide](/docs/testing/).

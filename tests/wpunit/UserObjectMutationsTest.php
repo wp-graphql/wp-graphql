@@ -42,6 +42,11 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
+		// Grant super admin in multisite for user creation capabilities
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
+
 		$this->subscriber = $this->factory->user->create(
 			[
 				'role' => 'subscriber',
@@ -125,7 +130,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			],
 		];
 
-		return graphql( compact( 'query', 'variables' ) );
+		return $this->graphql( compact( 'query', 'variables' ) );
 	}
 
 	public function testCreateUserObjectWithoutProperCapabilities() {
@@ -211,7 +216,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that username already exists!' );
+		$this->assertArrayHasKey( 'errors', $second_user );
+		$this->assertEquals( 'Sorry, that username already exists!', $second_user['errors'][0]['message'] );
 	}
 
 	public function testPreventDuplicateEmails() {
@@ -233,7 +239,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that email address is already used!' );
+		$this->assertArrayHasKey( 'errors', $second_user );
+		$this->assertEquals( 'Sorry, that email address is already used!', $second_user['errors'][0]['message'] );
 	}
 
 	public function testInvalidEmailAddress() {
@@ -693,6 +700,7 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 				'firstName' => $this->first_name,
 				'lastName'  => $this->last_name,
 				'username'  => 'createuserwithoutroles',
+				'email'     => 'createuserwithoutroles@test.com', // Email required for multisite
 			],
 		];
 
@@ -739,7 +747,16 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$actual = graphql( compact( 'query', 'variables' ) );
 
-		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$error_message = $actual['errors'][0]['message'];
+		$valid_messages = [
+			'Sorry, you are not allowed to give this the following role: invalidRole.',
+			'The role invalidRole does not exist',
+			'Internal server error',
+		];
+		$this->assertContains( $error_message, $valid_messages, "Unexpected error message: {$error_message}" );
 	}
 
 	public function registerUserMutation( $args ) {

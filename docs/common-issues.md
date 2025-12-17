@@ -760,7 +760,7 @@ For more information about plugin compatibility and integration:
    post_max_size = 64M
    ```
 
-### Docker Environment
+### Docker Environment (@wordpress/env)
 
 1. **Container Communication**
 
@@ -770,16 +770,15 @@ For more information about plugin compatibility and integration:
    - PHP extensions missing in container
 
    **Solutions:**
-   ```yaml
-   # Example docker-compose.yml adjustments
-   services:
-     wordpress:
-       image: wordpress:php8.0
-       volumes:
-         - ./wp-content:/var/www/html/wp-content
-       environment:
-         WORDPRESS_DEBUG: 1
-         PHP_INI_MEMORY_LIMIT: 256M
+   - restarting `wp-env` or the Docker containers directly.
+   - Inspecting the container logs for errors.
+   - Interacting with the container shell using `npm run wp-env:cli` or `npm run wp-env --{wp-env commands}`.
+
+   ```shell
+   # Example terminal commands
+   npm run wp-env stop && npm run wp-env start
+   npm run wp-env:cli -- composer version
+   npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql -- vendor/bin/codecept clean
    ```
 
 2. **Development Tools Integration**

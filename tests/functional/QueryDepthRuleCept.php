@@ -47,7 +47,7 @@ $query = '
 ';
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => $query,
@@ -76,7 +76,7 @@ $I->haveOptionInDatabase( 'graphql_general_settings', $options );
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => $query,

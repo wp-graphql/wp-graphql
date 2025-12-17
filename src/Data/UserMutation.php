@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -206,7 +205,9 @@ class UserMutation {
 		if ( ! empty( $input['password'] ) ) {
 			$insert_user_args['user_pass'] = $input['password'];
 		} else {
-			$insert_user_args['user_pass'] = null;
+			// WP 6.9+ requires a password when creating users.
+			// Generate a random one if not provided - user can reset it later.
+			$insert_user_args['user_pass'] = wp_generate_password();
 		}
 
 		if ( ! empty( $input['username'] ) ) {
@@ -271,7 +272,7 @@ class UserMutation {
 	 * @param int      $user_id The ID of the user
 	 * @param string[] $roles   List of roles that need to get added to the user
 	 *
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError
 	 */
 	private static function add_user_roles( $user_id, $roles ): void {
 		if ( empty( $roles ) || ! is_array( $roles ) || ! current_user_can( 'edit_user', $user_id ) ) {
@@ -287,10 +288,10 @@ class UserMutation {
 				if ( true === $verified ) {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
-					throw new Exception( esc_html( $verified->get_error_message() ) );
+					throw new UserError( esc_html( $verified->get_error_message() ) );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new Exception( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
+					throw new UserError( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
 				}
 			}
 		}

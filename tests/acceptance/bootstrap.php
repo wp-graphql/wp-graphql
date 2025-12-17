@@ -1,8 +1,8 @@
 <?php
 /**
- * Bootstrap file for functional tests.
+ * Bootstrap file for acceptance tests.
  *
- * @package WPGraphQL\Tests\Functional
+ * @package WPGraphQL\Tests\Acceptance
  */
 
 /**

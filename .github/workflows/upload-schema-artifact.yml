@@ -14,7 +14,8 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: tests-wordpress
         # Ensure docker waits for mariadb to start
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
@@ -32,6 +33,7 @@ jobs:
 
       - name: Setup WordPress
         run: |
+          cp .env.dist .env
           composer run install-test-env
 
       - name: Generate the Static Schema

@@ -16,9 +16,12 @@ on:
       - '**.php'
       - 'composer.json'
       - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.wp-env.json'
+      - 'bin/**'
       - 'tests/**'
       - 'codeception.dist.yml'
-      - 'docker-compose.yml'
       - '!docs/**'
 
 # Cancel previous workflow run groups that have not completed.
@@ -29,94 +32,134 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  continuous_integration:
-    name: WordPress ${{ matrix.wordpress }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
+  codeception:
+    name: WordPress ${{ matrix.wp }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: [ '8.2', '8.1' ]
-        wordpress: [ '6.8', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
+        php: [ '8.2', '8.1', '8.0', '7.4' ]
+        wp: [ '6.8', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
         multisite: [ false ]
+        coverage: [ false ]
         include:
           # Latest WordPress + PHP.
-          - wordpress: '6.8'
-            php: '8.3'
-            coverage: 1
-          - wordpress: '6.8'
-            php: '8.3'
+          - wp: '6.9'
+            php: '8.4'
+            coverage: true
+          - wp: '6.9'
+            php: '8.4'
             multisite: true
           # WordPress versions above the PHP testing matrix.
-          - wordpress: '6.7'
+          - wp: '6.8'
             php: '8.3'
-          - wordpress: '6.6'
+          - wp: '6.7'
             php: '8.3'
-          - wordpress: '6.5'
+          - wp: '6.6'
             php: '8.3'
-          # Lowest PHP version for WordPress versions in matrix.
-          - wordpress: '6.4'
-            php: '8.0'
-          - wordpress: '6.3'
-            php: '8.0'
-          - wordpress: '6.2'
-            php: '8.0'
-          - wordpress: '6.1'
-            php: '7.4'
-          # Older WordPress versions with highest + lowest PHP versions.
-          - wordpress: '6.0'
-            php: '8.1'
-          - wordpress: '6.0'
-            php: '7.4'
+          - wp: '6.5'
+            php: '8.3'
+    env:
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
+      WP_ENV_CORE: ${{ matrix.wp == 'trunk' && 'WordPress/WordPress' || format( 'https://wordpress.org/wordpress-{0}.zip', matrix.wp ) }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Configure environment variables
+        run: |
+            echo "PHP_FPM_UID=$(id -u)" >> "$GITHUB_ENV"
+            echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+            show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+            persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           extensions: json, mbstring
 
-      - name: Install dependencies
-        uses: ramsey/composer-install@v3
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          composer-options: "--no-dev"
+            cache: 'npm'
+            node-version-file: '.nvmrc'
 
-      - name: Build "testing" Docker Image
-        env:
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-        run: composer build-test
+      - name: Install NPM dependencies
+        run: npm ci
 
-      - name: Run Functional Tests w/ Docker.
-        env:
-          COVERAGE: ${{ matrix.coverage }}
-          USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
-          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          SUITES: functional
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-        run: composer run-test
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-${{ matrix.php }}-${{ matrix.wp }}
 
-      - name: Run WPUnit Tests w/ Docker.
+      - name: Start the Docker testing environment
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+            timeout_minutes: 10
+            max_attempts: 3
+            command: |
+                npm run wp-env start -- ${{ matrix.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      - name: Run setup script (ensure lifecycle script ran)
+        run: |
+            bash bin/setup-wp-env.sh
+
+      - name: Log versions
+        run: |
+            npm run wp-env -- run cli php -- -v
+            npm run wp-env -- run cli wp core version
+
+      - name: Verify test environment
+        run: |
+            echo "Checking mu-plugin installation..."
+            npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
+            echo "Checking site URL..."
+            npm run wp-env run tests-cli -- wp option get siteurl
+            echo "Testing GraphQL endpoint..."
+            npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
+
+      - name: Run Acceptance Tests
+        run: |
+          npm run test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
+
+      - name: Run Functional Tests
+        run: |
+          npm run test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      - name: Run WPUnit Tests
         env:
-          COVERAGE: ${{ matrix.coverage }}
-          USING_XDEBUG: ${{ matrix.coverage }}
-          DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG || matrix.debug }}
-          SKIP_TESTS_CLEANUP: ${{ matrix.coverage }}
-          PHP_VERSION: ${{ matrix.php }}
-          WP_VERSION: ${{ matrix.wordpress }}
-          MULTISITE: ${{ matrix.multisite }}
-        run: composer run-test
+          MULTISITE: ${{ matrix.multisite && 'true' || '' }}
+        run: |
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'MULTISITE=${{ matrix.multisite && 'true' || 'false' }} vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}'
+
+      - name: Upload test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+            name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}
+            path: tests/_output/*.fail.html
+            if-no-files-found: ignore
 
       - name: Push Codecoverage to Coveralls.io
-        if: ${{ matrix.coverage == 1 }}
-        uses: coverallsapp/github-action@v2
+        if: ${{ matrix.coverage }}
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             file: tests/_output/coverage.xml
             flag-name: wpunit
             format: clover
+
+      - name: Upload HTML coverage report as artifact
+        if: ${{ matrix.coverage }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+            name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}
+            path: tests/_output/html
+            overwrite: true
