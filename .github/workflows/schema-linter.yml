@@ -57,6 +57,9 @@ jobs:
       - name: Setup WordPress
         run: |
           cp .env.dist .env
+          # Override DB_HOST for GitHub Actions (service container is on 127.0.0.1)
+          sed -i 's/DB_HOST=tests-mysql/DB_HOST=127.0.0.1/g' .env
+          sed -i 's/TEST_DB_HOST=tests-mysql/TEST_DB_HOST=127.0.0.1/g' .env
           composer run install-test-env
 
       - name: Generate the Static Schema
