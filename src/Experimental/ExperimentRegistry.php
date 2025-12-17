@@ -20,33 +20,71 @@ use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptio
  */
 final class ExperimentRegistry {
 	/**
+	 * The primary registry instance for global access.
+	 *
+	 * This allows static methods to work for backward compatibility
+	 * while still supporting isolated instances for testing.
+	 *
+	 * @var ?\WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected static $instance;
+
+	/**
 	 * The registered experiments.
 	 *
 	 * @var ?array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
 	 */
-	protected static $registry;
+	protected $registry;
 
 	/**
 	 * The initialized experiments.
 	 *
 	 * @var ?array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
 	 */
-	protected static $experiments;
+	protected $experiments;
 
 	/**
 	 * The active experiments.
 	 *
 	 * @var ?array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
 	 */
-	protected static $active_experiments;
+	protected $active_experiments;
 
 
 	/**
 	 * Initializes the Experimental Functionality for WPGraphQL
+	 *
+	 * @param bool $set_as_primary Whether to set this instance as the primary (global) instance.
+	 *                              Set to false for isolated test instances.
 	 */
-	public function init(): void {
+	public function init( bool $set_as_primary = true ): void {
 		$this->register_experiments();
 		$this->load_experiments();
+
+		// Set this as the primary instance for global access (unless explicitly disabled for testing)
+		if ( $set_as_primary ) {
+			self::$instance = $this;
+		}
+	}
+
+	/**
+	 * Gets the primary registry instance.
+	 *
+	 * @return \WPGraphQL\Experimental\ExperimentRegistry|null The primary registry instance, or null if not initialized.
+	 */
+	public static function get_instance(): ?ExperimentRegistry {
+		return self::$instance;
+	}
+
+	/**
+	 * Sets the primary registry instance.
+	 *
+	 * Useful for testing to set a specific instance as the primary.
+	 *
+	 * @param \WPGraphQL\Experimental\ExperimentRegistry|null $instance The instance to set as primary.
+	 */
+	public static function set_instance( ?ExperimentRegistry $instance ): void {
+		self::$instance = $instance;
 	}
 
 	/**
@@ -73,12 +111,12 @@ final class ExperimentRegistry {
 	}
 
 	/**
-	 * Checks whether the experiment is enabled.
+	 * Gets the registry of experiment classes.
 	 *
 	 * @return array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
 	 */
-	public static function get_experiment_registry(): array {
-		if ( ! isset( self::$registry ) ) {
+	public function get_experiment_registry(): array {
+		if ( ! isset( $this->registry ) ) {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook.', 'wp-graphql' ),
@@ -88,7 +126,7 @@ final class ExperimentRegistry {
 			return [];
 		}
 
-		return self::$registry;
+		return $this->registry;
 	}
 
 	/**
@@ -96,8 +134,8 @@ final class ExperimentRegistry {
 	 *
 	 * @return array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
 	 */
-	public static function get_experiments(): array {
-		if ( ! isset( self::$experiments ) ) {
+	public function get_experiments(): array {
+		if ( ! isset( $this->experiments ) ) {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
@@ -107,7 +145,7 @@ final class ExperimentRegistry {
 			return [];
 		}
 
-		return self::$experiments;
+		return $this->experiments;
 	}
 
 	/**
@@ -115,8 +153,8 @@ final class ExperimentRegistry {
 	 *
 	 * @return array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>
 	 */
-	public static function get_active_experiments(): array {
-		if ( ! isset( self::$active_experiments ) ) {
+	public function get_active_experiments(): array {
+		if ( ! isset( $this->active_experiments ) ) {
 			_doing_it_wrong(
 				__METHOD__,
 				esc_html__( 'Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook.', 'wp-graphql' ),
@@ -126,7 +164,7 @@ final class ExperimentRegistry {
 			return [];
 		}
 
-		return self::$active_experiments;
+		return $this->active_experiments;
 	}
 
 	/**
@@ -134,18 +172,67 @@ final class ExperimentRegistry {
 	 *
 	 * @return array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>>
 	 */
-	public static function get_registered_experiments(): array {
-		return self::$registry ?? [];
+	public function get_registered_experiments(): array {
+		return $this->registry ?? [];
 	}
 
+	/**
+	 * Get a single registered experiment class by slug.
+	 *
+	 * @param string $slug The experiment slug.
+	 * @return class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>|null The experiment class name, or null if not found.
+	 */
+	public function get_registered_experiment( string $slug ): ?string {
+		return $this->registry[ $slug ] ?? null;
+	}
+
+	/**
+	 * Register a new experiment class.
+	 *
+	 * This method allows programmatic registration of experiments, which is useful
+	 * for testing or for registering experiments after the initial registration phase.
+	 *
+	 * @param string $slug       The experiment slug.
+	 * @param string $class_name The fully-qualified class name for the experiment.
+	 */
+	public function register_experiment( string $slug, string $class_name ): void {
+		// Initialize registry if not set
+		if ( ! isset( $this->registry ) ) {
+			$this->registry = [];
+		}
+
+		$this->registry[ $slug ] = $class_name;
+	}
+
+	/**
+	 * Unregister an experiment by slug.
+	 *
+	 * This method allows programmatic removal of experiments, which is useful
+	 * for testing or for removing experiments dynamically.
+	 *
+	 * @param string $slug The experiment slug to unregister.
+	 */
+	public function unregister_experiment( string $slug ): void {
+		if ( isset( $this->registry[ $slug ] ) ) {
+			unset( $this->registry[ $slug ] );
+		}
+
+		if ( isset( $this->experiments[ $slug ] ) ) {
+			unset( $this->experiments[ $slug ] );
+		}
+
+		if ( isset( $this->active_experiments[ $slug ] ) ) {
+			unset( $this->active_experiments[ $slug ] );
+		}
+	}
 
 	/**
 	 * Returns whether the experiment is active.
 	 *
 	 * @param string $experiment_name The name of the experiment.
 	 */
-	public static function is_experiment_active( string $experiment_name ): bool {
-		$active_experiments = self::get_active_experiments();
+	public function is_experiment_active( string $experiment_name ): bool {
+		$active_experiments = $this->get_active_experiments();
 
 		return isset( $active_experiments[ $experiment_name ] );
 	}
@@ -193,14 +280,14 @@ final class ExperimentRegistry {
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
 		 */
-		self::$registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
+		$this->registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
 
 		/**
 		 * Fires after the experiment classes have been registered.
 		 *
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
 		 */
-		do_action( 'graphql_experiments_registered', self::$registry );
+		do_action( 'graphql_experiments_registered', $this->registry );
 	}
 
 	/**
@@ -208,15 +295,15 @@ final class ExperimentRegistry {
 	 */
 	protected function load_experiments(): void {
 		// Bail if experiments have already been initialized.
-		if ( isset( self::$experiments ) && isset( self::$active_experiments ) ) {
+		if ( isset( $this->experiments ) && isset( $this->active_experiments ) ) {
 			return;
 		}
 
 		// Initialize the experiments.
-		self::$experiments        = [];
-		self::$active_experiments = [];
+		$this->experiments        = [];
+		$this->active_experiments = [];
 
-		$experiment_classes = self::get_experiment_registry();
+		$experiment_classes = $this->get_experiment_registry();
 
 		foreach ( $experiment_classes as $slug => $class_name ) {
 			$this->load_experiment( $slug, $class_name );
@@ -228,7 +315,7 @@ final class ExperimentRegistry {
 		 * @param array<string,\WPGraphQL\Experimental\Experiment\AbstractExperiment>|null          $experiments The list of loaded experiment classes, keyed by experiment slug.
 		 * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry The list of registered experiment classes, keyed by experiment slug.
 		 */
-		do_action( 'graphql_experiments_loaded', self::$experiments, self::get_experiment_registry() );
+		do_action( 'graphql_experiments_loaded', $this->experiments, $this->get_experiment_registry() );
 	}
 
 	/**
@@ -253,13 +340,13 @@ final class ExperimentRegistry {
 			return;
 		}
 
-		self::$experiments[ $slug ] = $experiment;
+		$this->experiments[ $slug ] = $experiment;
 
 		// Check if experiment can be loaded based on dependencies
 		if ( $experiment->is_active() && $this->can_load_experiment( $experiment ) ) {
 			$experiment->load();
 
-			self::$active_experiments[ $slug ] = $experiment;
+			$this->active_experiments[ $slug ] = $experiment;
 		}
 	}
 
@@ -275,7 +362,7 @@ final class ExperimentRegistry {
 
 		// Check if all required dependencies are active
 		foreach ( $required_deps as $dep_slug ) {
-			$is_dep_active = self::is_experiment_active( $dep_slug );
+			$is_dep_active = $this->is_experiment_active( $dep_slug );
 
 			if ( ! $is_dep_active ) {
 				return false;
@@ -290,16 +377,16 @@ final class ExperimentRegistry {
 	 */
 	public function reload_experiments(): void {
 		// Clear the cached active state for all experiments
-		if ( isset( self::$experiments ) ) {
-			foreach ( self::$experiments as $experiment ) {
+		if ( isset( $this->experiments ) ) {
+			foreach ( $this->experiments as $experiment ) {
 				// Clear the cached is_active value using the public method
 				$experiment->clear_active_cache();
 			}
 		}
 
 		// Set both arrays to null to force reload
-		self::$active_experiments = null;
-		self::$experiments        = null;
+		$this->active_experiments = null;
+		$this->experiments        = null;
 
 		// Reload experiments
 		$this->load_experiments();
@@ -308,11 +395,11 @@ final class ExperimentRegistry {
 	/**
 	 * Reset the experiment registry (useful for testing).
 	 *
-	 * This clears all static properties to ensure a clean slate between tests.
+	 * This clears all instance properties to ensure a clean slate between tests.
 	 */
-	public static function reset(): void {
-		self::$registry           = null;
-		self::$experiments        = null;
-		self::$active_experiments = null;
+	public function reset(): void {
+		$this->registry           = null;
+		$this->experiments        = null;
+		$this->active_experiments = null;
 	}
 }

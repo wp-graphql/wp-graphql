@@ -2,6 +2,13 @@
 
 class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	/**
+	 * The ExperimentRegistry instance for tests.
+	 *
+	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected $registry;
+
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
@@ -9,8 +16,8 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// Clear any experiment settings to ensure clean state
 		update_option( 'graphql_experiments_settings', [] );
 
-		// Reset the registry to ensure a clean slate
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Create a fresh registry instance for each test
+		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
 	}
 
 	public function tearDown(): void {
@@ -19,8 +26,8 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$settings['test_experiment_enabled'] = 'off';
 		update_option( 'graphql_experiments_settings', $settings );
 
-		// Reset the registry again
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Clear the primary instance
+		\WPGraphQL\Experimental\ExperimentRegistry::set_instance( null );
 
 		parent::tearDown();
 	}
@@ -29,10 +36,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that experiment configuration is properly validated
 	 */
 	public function testExperimentConfigValidation() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Test that config is properly loaded
@@ -50,10 +56,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that experiment slug is properly retrieved
 	 */
 	public function testExperimentSlug() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Test that slug is properly retrieved
@@ -65,10 +70,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that experiment deprecation methods work correctly
 	 */
 	public function testExperimentDeprecation() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Test that experiment is not deprecated by default
@@ -80,10 +84,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that GRAPHQL_EXPERIMENTAL_FEATURES constant behavior works
 	 */
 	public function testGraphqlExperimentalFeaturesConstant() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Even if settings say it's enabled, constant should override
@@ -111,10 +114,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that GRAPHQL_EXPERIMENTAL_FEATURES array behavior works
 	 */
 	public function testGraphqlExperimentalFeaturesArray() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Use filter to simulate experimental features override set to array (should enable specific experiments)
@@ -136,10 +138,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that the graphql_experimental_features_override filter works when constant is not defined
 	 */
 	public function testGraphqlExperimentalFeaturesOverrideFilter() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// Clear the cache to force re-evaluation
@@ -179,10 +180,9 @@ class AbstractExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that constants have final say and cannot be overridden by filters
 	 */
 	public function testConstantHasFinalSay() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$test_experiment = $experiments['test_experiment'];
 
 		// First, test that filter works when constant is not defined

@@ -33,9 +33,6 @@ class ExperimentalExtensionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	public function setUp(): void {
 		parent::setUp();
 		
-		// Clear any existing experiments
-		ExperimentRegistry::reset();
-		
 		// Create instances
 		$this->extensions = new Extensions();
 		$this->registry = new ExperimentRegistry();
@@ -46,8 +43,8 @@ class ExperimentalExtensionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 * Clean up after each test.
 	 */
 	public function tearDown(): void {
-		// Clear experiments
-		ExperimentRegistry::reset();
+		// Clear the primary instance
+		ExperimentRegistry::set_instance( null );
 		
 		// Clear schema
 		$this->clearSchema();

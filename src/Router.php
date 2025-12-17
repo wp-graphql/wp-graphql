@@ -699,7 +699,7 @@ class Router {
 		 * By default, WPGraphQL requires a nonce (X-WP-Nonce header or _wpnonce parameter)
 		 * for cookie-authenticated requests to prevent CSRF attacks.
 		 *
-		 * @since next-version
+		 * @since 2.5.4
 		 *
 		 * @param bool $require_nonce Whether to require a nonce for cookie auth. Default true.
 		 * @param null $request       The Request instance (null in Router context).

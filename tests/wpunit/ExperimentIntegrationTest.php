@@ -2,6 +2,13 @@
 
 class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	/**
+	 * The ExperimentRegistry instance for tests.
+	 *
+	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected $registry;
+
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
@@ -9,8 +16,8 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Clear any experiment settings
 		delete_option( 'graphql_experiments_settings' );
 
-		// Reset the registry to ensure a clean slate
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Create a fresh registry instance for each test
+		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
 	}
 
 	public function tearDown(): void {
@@ -19,9 +26,6 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Remove any filters
 		remove_all_filters( 'graphql_experimental_features' );
-
-		// Reset the registry again
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
 
 		parent::tearDown();
 	}
@@ -59,12 +63,11 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Activate the test experiment via settings
 		update_option( 'graphql_experiments_settings', [ 'test_experiment_enabled' => 'on' ] );
 
-		// Create a fresh registry instance
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		// Initialize the fresh registry instance
+		$this->registry->init();
 
 		// Get the experiment
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$this->assertArrayHasKey( 'test_experiment', $experiments );
 
 		// Verify the experiment is now active
@@ -78,11 +81,10 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 	 */
 	public function testMultipleExperimentsCanBeRegistered() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Get all registered experiments
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 
 		// We should have at least one experiment registered
 		$this->assertNotEmpty( $experiments );
@@ -96,4 +98,3 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		$this->assertArrayHasKey( 'title', $config );
 	}
 }
-

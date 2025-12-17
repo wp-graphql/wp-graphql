@@ -155,6 +155,14 @@ class RootQueryConnectionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCa
 	}
 
 	public function testRootQueryToThemesConnection() {
+		// Check if themes are available in this environment
+		$themes = wp_get_themes();
+		if ( empty( $themes ) ) {
+			$this->markTestSkipped( 'No themes available in this test environment.' );
+		}
+
+		// Themes require theme-related capabilities to view (except for active theme)
+		wp_set_current_user( $this->admin );
 
 		$query = '
 		{

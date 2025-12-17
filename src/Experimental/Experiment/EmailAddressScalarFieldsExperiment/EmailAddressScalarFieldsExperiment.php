@@ -180,23 +180,18 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 
 		// Modify existing email field to add deprecation
 		// Preserve the original type structure to avoid breaking schema changes
+		// Use strings instead of callables to ensure deprecation shows in introspection
 		if ( isset( $fields['email'] ) ) {
 			// The base code now has RegisterUserInput.email as String (nullable) to match production schema
 			// Our filter just needs to add the deprecation reason, preserving the existing type
 			// Add deprecation reason for all user mutation inputs
-			$fields['email']['deprecationReason'] = static function () {
-				return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-			};
+			$fields['email']['deprecationReason'] = __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
 		} else {
 			// Add deprecated email field if it doesn't exist
 			$fields['email'] = [
 				'type'              => 'String',
-				'description'       => static function () {
-					return __( 'A string containing the user\'s email address.', 'wp-graphql' );
-				},
-				'deprecationReason' => static function () {
-					return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-				},
+				'description'       => __( 'A string containing the user\'s email address.', 'wp-graphql' ),
+				'deprecationReason' => __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' ),
 			];
 		}
 
@@ -211,9 +206,9 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 	 */
 	public function deprecate_general_settings_email_field( array $fields ): array {
 		if ( isset( $fields['email'] ) ) {
-			$fields['email']['deprecationReason'] = static function () {
-				return __( 'Deprecated in favor of the `adminEmail` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-			};
+			// Use a string instead of callable to ensure deprecation shows in introspection
+			// (prepare_config_for_introspection sets callable deprecationReason to null for non-introspection queries)
+			$fields['email']['deprecationReason'] = __( 'Deprecated in favor of the `adminEmail` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
 
 			// Wrap the existing resolver to add deprecation warning
 			$original_resolve           = $fields['email']['resolve'] ?? null;
@@ -248,9 +243,8 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 	 */
 	public function deprecate_commenter_email_field( array $fields ): array {
 		if ( isset( $fields['email'] ) ) {
-			$fields['email']['deprecationReason'] = static function () {
-				return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-			};
+			// Use a string instead of callable to ensure deprecation shows in introspection
+			$fields['email']['deprecationReason'] = __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
 
 			// Wrap the existing resolver to add deprecation warning
 			$original_resolve           = $fields['email']['resolve'] ?? null;
@@ -281,9 +275,8 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 	 */
 	public function deprecate_comment_author_email_field( array $fields ): array {
 		if ( isset( $fields['email'] ) ) {
-			$fields['email']['deprecationReason'] = static function () {
-				return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-			};
+			// Use a string instead of callable to ensure deprecation shows in introspection
+			$fields['email']['deprecationReason'] = __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
 
 			// Wrap the existing resolver to add deprecation warning
 			$original_resolve           = $fields['email']['resolve'] ?? null;
@@ -314,9 +307,8 @@ class EmailAddressScalarFieldsExperiment extends AbstractExperiment {
 	 */
 	public function deprecate_comment_edge_email_field( array $fields ): array {
 		if ( isset( $fields['email'] ) ) {
-			$fields['email']['deprecationReason'] = static function () {
-				return __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
-			};
+			// Use a string instead of callable to ensure deprecation shows in introspection
+			$fields['email']['deprecationReason'] = __( 'Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version.', 'wp-graphql' );
 
 			// Wrap the existing resolver to add deprecation warning
 			$original_resolve           = $fields['email']['resolve'] ?? null;

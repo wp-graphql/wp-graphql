@@ -4,6 +4,13 @@ namespace WPGraphQL\Test\Experiments\EmailAddressScalar;
 
 class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	/**
+	 * The ExperimentRegistry instance for tests.
+	 *
+	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected $registry;
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -17,12 +24,9 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$settings['email-address-scalar_enabled'] = 'on';
 		\update_option( 'graphql_experiments_settings', $settings );
 
-		// Reset experiments to pick up the new settings
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
-
-		// Re-initialize experiments
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		// Create a fresh registry instance and initialize
+		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+		$this->registry->init();
 
 		// Clear schema again to pick up experiment changes
 		$this->clearSchema();
@@ -43,8 +47,8 @@ class EmailAddressTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Remove debug mode filter
 		\remove_filter( 'graphql_debug', '__return_true', 99999 );
 
-		// Reset experiments
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Clear the primary instance
+		\WPGraphQL\Experimental\ExperimentRegistry::set_instance( null );
 
 		parent::tearDown();
 	}

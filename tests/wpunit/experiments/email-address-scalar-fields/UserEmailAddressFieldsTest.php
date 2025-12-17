@@ -20,26 +20,38 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 	public $admin;
 
+	/**
+	 * The ExperimentRegistry instance for tests.
+	 *
+	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected $registry;
+
 	public function setUp(): void {
 		
 		// Enable debug mode
 		\add_filter( 'graphql_debug', '__return_true', 99999 );
 
-		parent::setUp();
+		// Enable experiments via filters (more reliable than database options in tests)
+		\add_filter( 'wp_graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
+		\add_filter( 'wp_graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
 
-		// Enable both experiments via database option
+		// Also set database options for consistency
 		$settings = \get_option( 'graphql_experiments_settings', [] );
 		$settings['email-address-scalar_enabled'] = 'on';
 		$settings['email-address-scalar-fields_enabled'] = 'on';
 		\update_option( 'graphql_experiments_settings', $settings );
 
-		// Reset experiments to pick up the new settings
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Clear schema before parent setup to ensure clean state
+		\WPGraphQL::clear_schema();
 
-		// Re-initialize experiments
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		parent::setUp();
+
+		// Create a fresh registry instance and initialize
+		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+		$this->registry->init();
 		
+		// Clear schema again after experiments are loaded
 		$this->clearSchema();
 
 		// Create an admin user for testing
@@ -54,7 +66,11 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 	public function tearDown(): void {
-		// Disable the experiments
+		// Remove experiment enabling filters
+		\remove_filter( 'wp_graphql_experiment_email-address-scalar_enabled', '__return_true', 99999 );
+		\remove_filter( 'wp_graphql_experiment_email-address-scalar-fields_enabled', '__return_true', 99999 );
+
+		// Disable the experiments in database
 		$settings = \get_option( 'graphql_experiments_settings', [] );
 		$settings['email-address-scalar_enabled'] = 'off';
 		$settings['email-address-scalar-fields_enabled'] = 'off';
@@ -62,6 +78,12 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 
 		// Remove debug mode filter
 		\remove_filter( 'graphql_debug', '__return_true', 99999 );
+
+		// Clear the primary instance
+		\WPGraphQL\Experimental\ExperimentRegistry::set_instance( null );
+
+		// Clear schema
+		$this->clearSchema();
 
 		parent::tearDown();
 	}
@@ -351,10 +373,11 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		}
 
 		// Verify the adminEmail field exists via introspection
+		// Note: includeDeprecated: true is required to see deprecated fields
 		$introspectionQuery = '
 			query {
 				__type(name: "GeneralSettings") {
-					fields {
+					fields(includeDeprecated: true) {
 						name
 						isDeprecated
 						deprecationReason
@@ -395,4 +418,3 @@ class UserEmailAddressFieldsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 		}
 	}
 }
-
