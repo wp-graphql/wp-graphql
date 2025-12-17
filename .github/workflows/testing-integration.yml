@@ -134,8 +134,10 @@ jobs:
           npm run test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Run WPUnit Tests
+        env:
+          MULTISITE: ${{ matrix.multisite && 'true' || '' }}
         run: |
-          npm run ${{ matrix.coverage && 'test:codecept:coverage' || 'test:codecept' }} -- run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'MULTISITE=${{ matrix.multisite && 'true' || 'false' }} vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}'
 
       - name: Upload test failure artifacts
         if: failure()
