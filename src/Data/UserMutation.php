@@ -2,7 +2,6 @@
 
 namespace WPGraphQL\Data;
 
-use Exception;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ResolveInfo;
 use WPGraphQL\AppContext;
@@ -271,7 +270,7 @@ class UserMutation {
 	 * @param int      $user_id The ID of the user
 	 * @param string[] $roles   List of roles that need to get added to the user
 	 *
-	 * @throws \Exception
+	 * @throws \GraphQL\Error\UserError
 	 */
 	private static function add_user_roles( $user_id, $roles ): void {
 		if ( empty( $roles ) || ! is_array( $roles ) || ! current_user_can( 'edit_user', $user_id ) ) {
