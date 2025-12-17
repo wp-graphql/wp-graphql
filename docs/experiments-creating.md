@@ -195,29 +195,41 @@ class EmailAddressScalarExperiment extends AbstractExperiment {
 
 ### Step 2: Register the Experiment
 
-Add your experiment to `src/Experimental/ExperimentRegistry.php`:
+Add your experiment to the `$registry` array in `src/Experimental/ExperimentRegistry.php`:
 
 ```php
 protected function register_experiments(): void {
     $registry = [
-        TestExperiment::get_slug()                => TestExperiment::class,
-        EmailAddressScalarExperiment::get_slug() => EmailAddressScalarExperiment::class,
+        // Production experiments
+        'email-address-scalar'        => EmailAddressScalarExperiment::class,
+        'email-address-scalar-fields' => EmailAddressScalarFieldsExperiment::class,
+
+        // Add your new experiment here
+        'your-experiment-slug'        => YourExperiment::class,
+
+        // ============================================================================
+        // EXAMPLE EXPERIMENTS (commented out by default)
+        // ============================================================================
+        // These are working examples for developers. Uncomment to enable.
+        // 'test_experiment' => TestExperiment::class,
+        // 'test-dependant-experiment' => TestDependantExperiment::class,
+        // 'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
     ];
 
     /**
      * Filters the list of registered experiment classes.
-     *
-     * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry
      */
-    self::$registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
-
-    /**
-     * Fires after experiments are registered.
-     *
-     * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry
-     */
-    do_action( 'graphql_experiments_registered', self::$registry );
+    $this->registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
 }
+```
+
+**Alternative**: You can also register experiments via filter (useful for plugins or testing):
+
+```php
+add_filter( 'graphql_experiments_registered_classes', function( $registry ) {
+    $registry['my-experiment'] = MyExperiment::class;
+    return $registry;
+} );
 ```
 
 ### Step 3: Write Comprehensive Tests
@@ -580,10 +592,25 @@ Each experiment's README.md should include:
 - **Known Limitations**: Current constraints or issues
 - **Status**: Active, Deprecated, or Graduated
 
-See the existing test experiments for examples:
-- `src/Experimental/Experiment/TestExperiment/README.md`
-- `src/Experimental/Experiment/TestDependantExperiment/README.md`
-- `src/Experimental/Experiment/TestOptionalDependencyExperiment/README.md`
+### Example Experiments (Available as References)
+
+WPGraphQL includes several **example experiments** that are commented out by default in production but serve as practical, working references for developers:
+
+- `src/Experimental/Experiment/TestExperiment/` - A simple example with no dependencies
+- `src/Experimental/Experiment/TestDependantExperiment/` - Demonstrates required dependencies
+- `src/Experimental/Experiment/TestOptionalDependencyExperiment/` - Demonstrates optional dependencies
+
+Each includes a README.md documenting its purpose and behavior. To enable these examples for testing:
+
+1. Uncomment the imports and registrations in `src/Experimental/ExperimentRegistry.php`, or
+2. Register them via the `graphql_experiments_registered_classes` filter:
+
+```php
+add_filter( 'graphql_experiments_registered_classes', function( $registry ) {
+    $registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+    return $registry;
+} );
+```
 
 ## Advanced Patterns
 
@@ -698,11 +725,13 @@ class FlexibleExperiment extends AbstractExperiment {
 
 #### Real Examples
 
-See the test experiments for working examples:
+The codebase includes working example experiments that demonstrate these patterns (commented out by default, available as references):
 
-- **`TestExperiment`**: No dependencies (base experiment)
-- **`TestDependantExperiment`**: Requires `TestExperiment` (demonstrates required dependencies)
-- **`TestOptionalDependencyExperiment`**: Optionally depends on `TestExperiment` (demonstrates optional dependencies)
+- **`TestExperiment`**: No dependencies (base experiment) - `src/Experimental/Experiment/TestExperiment/`
+- **`TestDependantExperiment`**: Requires `TestExperiment` - `src/Experimental/Experiment/TestDependantExperiment/`
+- **`TestOptionalDependencyExperiment`**: Optionally depends on `TestExperiment` - `src/Experimental/Experiment/TestOptionalDependencyExperiment/`
+
+These examples are intentionally commented out in production but can be enabled for learning or testing. See the "Example Experiments" section above for how to enable them.
 
 ### Pattern 2: Feature Flag Within Experiment
 
