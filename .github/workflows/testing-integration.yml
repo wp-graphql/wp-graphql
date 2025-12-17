@@ -142,14 +142,14 @@ jobs:
             npm run wp-env run tests-cli -- ping -c 2 tests-wordpress || echo "Ping failed (expected in some Docker setups)"
 
       - name: Run Acceptance Tests
-        # DEBUG: Temporarily enabled on WP 6.2 to capture failure artifacts
+        # Run on WP 6.6+ and WP 6.2 for debugging
         if: ${{ matrix.wp == '6.9' || matrix.wp == '6.8' || matrix.wp == '6.7' || matrix.wp == '6.6' || matrix.wp == '6.2' || matrix.wp == 'trunk' }}
         run: |
           npm run test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
         continue-on-error: ${{ matrix.wp == '6.2' }}
 
       - name: Run Functional Tests
-        # DEBUG: Temporarily enabled on WP 6.2 to capture failure artifacts
+        # Run on WP 6.6+ and WP 6.2 for debugging
         if: ${{ matrix.wp == '6.9' || matrix.wp == '6.8' || matrix.wp == '6.7' || matrix.wp == '6.6' || matrix.wp == '6.2' || matrix.wp == 'trunk' }}
         run: |
           npm run test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
