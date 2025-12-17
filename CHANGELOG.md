@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.4 - 2025-12-17
+
+### Bug Fixes
+
+- fix: align cookie authentication with WordPress REST API pattern ([#3448](https://github.com/jasonbahl/automation-tests/pull/3448))
+
+
+
 ## v2.5.3 - 2025-11-24
 
 ### Other Changes
