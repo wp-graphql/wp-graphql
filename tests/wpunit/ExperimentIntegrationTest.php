@@ -16,8 +16,22 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 		// Clear any experiment settings
 		delete_option( 'graphql_experiments_settings' );
 
+		// Register test experiments via filter (they're commented out by default in production)
+		add_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
+
 		// Create a fresh registry instance for each test
 		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+	}
+
+	/**
+	 * Register test experiments for testing purposes.
+	 *
+	 * @param array $registry The experiment registry.
+	 * @return array The modified registry with test experiments.
+	 */
+	public function register_test_experiments( array $registry ): array {
+		$registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+		return $registry;
 	}
 
 	public function tearDown(): void {
@@ -26,6 +40,7 @@ class ExperimentIntegrationTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestC
 
 		// Remove any filters
 		remove_all_filters( 'graphql_experimental_features' );
+		remove_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
 
 		parent::tearDown();
 	}

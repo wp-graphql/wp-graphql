@@ -17,11 +17,14 @@ use WPGraphQL\Experimental\Admin;
  */
 abstract class AbstractExperiment {
 	/**
-	 * The experiment unique slug.
+	 * The experiment unique slugs, keyed by class name.
 	 *
-	 * @var ?string
+	 * This is an array to prevent static property inheritance issues where
+	 * all subclasses would share the same cached slug value.
+	 *
+	 * @var array<class-string<self>,string>
 	 */
-	protected static $slug;
+	protected static $slugs = [];
 
 	/**
 	 * The experiment's configuration.
@@ -224,7 +227,9 @@ abstract class AbstractExperiment {
 	 * @throws \Exception If the experiment is missing a slug.
 	 */
 	public static function get_slug(): string {
-		if ( ! isset( static::$slug ) ) {
+		$class = static::class;
+
+		if ( ! isset( self::$slugs[ $class ] ) ) {
 			$slug = static::slug();
 
 			if ( empty( $slug ) ) {
@@ -232,15 +237,15 @@ abstract class AbstractExperiment {
 					sprintf(
 						/* translators: %s: The experiment's class name. */
 						esc_html__( 'The experiment %s is missing a slug. Ensure a valid `slug` is defined in the ::slug() method.', 'wp-graphql' ),
-						static::class
+						$class
 					)
 				);
 			}
 
-			static::$slug = $slug;
+			self::$slugs[ $class ] = $slug;
 		}
 
-		return static::$slug;
+		return self::$slugs[ $class ];
 	}
 
 	/**

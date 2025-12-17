@@ -11,9 +11,11 @@ namespace WPGraphQL\Experimental;
 use WPGraphQL\Experimental\Experiment\AbstractExperiment;
 use WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment\EmailAddressScalarExperiment;
 use WPGraphQL\Experimental\Experiment\EmailAddressScalarFieldsExperiment\EmailAddressScalarFieldsExperiment;
-use WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment;
-use WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment;
-use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment;
+
+// Uncomment these imports to enable the example/test experiments:
+// use WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment;
+// use WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment;
+// use WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment;
 
 /**
  * Class - ExperimentRegistry
@@ -245,25 +247,31 @@ final class ExperimentRegistry {
 	 */
 	protected function register_experiments(): void {
 		$registry = [
-			// TestExperiment: A simple example that adds a testExperiment field to RootQuery.
-			// This serves as both a working example for developers and validates the Experiments API.
-			'test_experiment'                     => TestExperiment::class,
-
-			// TestDependantExperiment: Demonstrates required experiment dependencies.
-			// This experiment requires TestExperiment and shows how required dependencies work.
-			'test-dependant-experiment'           => TestDependantExperiment::class,
-
-			// TestOptionalDependencyExperiment: Demonstrates optional experiment dependencies.
-			// This experiment works independently but provides enhanced functionality when TestExperiment is active.
-			'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
-
 			// EmailAddressScalarExperiment: Registers the EmailAddress scalar type for email validation.
 			// This provides automatic validation using WordPress's is_email() and sanitize_email() functions.
-			'email-address-scalar'                => EmailAddressScalarExperiment::class,
+			'email-address-scalar'        => EmailAddressScalarExperiment::class,
 
 			// EmailAddressScalarFieldsExperiment: Adds emailAddress fields to core types using the EmailAddress scalar.
 			// This experiment requires email-address-scalar to be active.
-			'email-address-scalar-fields'         => EmailAddressScalarFieldsExperiment::class,
+			'email-address-scalar-fields' => EmailAddressScalarFieldsExperiment::class,
+
+			// ============================================================================
+			// EXAMPLE EXPERIMENTS (commented out by default)
+			// ============================================================================
+			// The following experiments are examples that demonstrate how to create experiments.
+			// Uncomment them (and their imports above) to see how they work.
+			// See: src/Experimental/Experiment/TestExperiment/README.md for documentation.
+			//
+			// TestExperiment: A simple example that adds a testExperiment field to RootQuery.
+			// 'test_experiment' => TestExperiment::class,
+			//
+			// TestDependantExperiment: Demonstrates required experiment dependencies.
+			// This experiment requires TestExperiment and shows how required dependencies work.
+			// 'test-dependant-experiment' => TestDependantExperiment::class,
+			//
+			// TestOptionalDependencyExperiment: Demonstrates optional experiment dependencies.
+			// This experiment works independently but provides enhanced functionality when TestExperiment is active.
+			// 'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
 		];
 
 		/**

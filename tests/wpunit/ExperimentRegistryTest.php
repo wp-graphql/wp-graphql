@@ -16,8 +16,24 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// Clear any experiment settings to ensure clean state
 		update_option( 'graphql_experiments_settings', [] );
 
+		// Register test experiments via filter (they're commented out by default in production)
+		add_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
+
 		// Create a fresh registry instance for each test
 		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+	}
+
+	/**
+	 * Register test experiments for testing purposes.
+	 *
+	 * @param array $registry The experiment registry.
+	 * @return array The modified registry with test experiments.
+	 */
+	public function register_test_experiments( array $registry ): array {
+		$registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+		$registry['test-dependant-experiment'] = \WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment::class;
+		$registry['test-optional-dependency-experiment'] = \WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment::class;
+		return $registry;
 	}
 
 	public function tearDown(): void {
@@ -30,6 +46,9 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$settings['test-dependant-experiment_enabled'] = 'off';
 		$settings['test-optional-dependency-experiment_enabled'] = 'off';
 		update_option( 'graphql_experiments_settings', $settings );
+
+		// Remove the filter
+		remove_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
 
 		parent::tearDown();
 	}
