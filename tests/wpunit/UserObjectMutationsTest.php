@@ -42,6 +42,11 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
+		// Grant super admin in multisite for user creation capabilities
+		if ( is_multisite() ) {
+			grant_super_admin( $this->admin );
+		}
+
 		$this->subscriber = $this->factory->user->create(
 			[
 				'role' => 'subscriber',
