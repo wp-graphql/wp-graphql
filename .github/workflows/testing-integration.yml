@@ -118,49 +118,27 @@ jobs:
 
       - name: Verify test environment
         run: |
-            echo "=== Docker version ==="
-            docker --version
-            echo "=== Docker compose version ==="
-            docker compose version
-            echo "=== Container list ==="
-            docker ps
-            echo "=== Checking mu-plugin installation ==="
+            echo "Checking mu-plugin installation..."
             npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
-            echo "=== Checking mu-plugin content ==="
-            npm run wp-env run tests-cli -- cat /var/www/html/wp-content/mu-plugins/wp-env-url-fix.php || echo "mu-plugin not found!"
-            echo "=== Checking site URL ==="
+            echo "Checking site URL..."
             npm run wp-env run tests-cli -- wp option get siteurl
-            echo "=== Test HTTP request to WordPress ==="
-            npm run wp-env run tests-cli -- curl -s -o /dev/null -w "%{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D || echo "Request failed"
-            echo "=== Full response from WordPress homepage ==="
-            npm run wp-env run tests-cli -- curl -s -I http://tests-wordpress/ || echo "Request failed"
-            echo "=== Check Apache config for Authorization ==="
-            npm run wp-env run tests-cli -- cat /etc/apache2/apache2.conf | grep -A2 -B2 "Authorization" || echo "No Authorization config found"
-            echo "=== Test login page access ==="
-            npm run wp-env run tests-cli -- curl -s -I http://tests-wordpress/wp-login.php || echo "Login page request failed"
-            echo "=== Check network connectivity between containers ==="
-            npm run wp-env run tests-cli -- ping -c 2 tests-wordpress || echo "Ping failed (expected in some Docker setups)"
+            echo "Testing GraphQL endpoint..."
+            npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
 
       - name: Run Acceptance Tests
-        # Testing WP 6.2 to see if setup script changes fix CI issues
-        if: ${{ matrix.wp == '6.9' || matrix.wp == '6.8' || matrix.wp == '6.7' || matrix.wp == '6.6' || matrix.wp == '6.2' || matrix.wp == 'trunk' }}
         run: |
           npm run test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
-        continue-on-error: ${{ matrix.wp == '6.2' }}
 
       - name: Run Functional Tests
-        # Testing WP 6.2 to see if setup script changes fix CI issues
-        if: ${{ matrix.wp == '6.9' || matrix.wp == '6.8' || matrix.wp == '6.7' || matrix.wp == '6.6' || matrix.wp == '6.2' || matrix.wp == 'trunk' }}
         run: |
           npm run test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
-        continue-on-error: ${{ matrix.wp == '6.2' }}
 
       - name: Run WPUnit Tests
         run: |
           npm run ${{ matrix.coverage && 'test:codecept:coverage' || 'test:codecept' }} -- run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
 
       - name: Upload test failure artifacts
-        if: failure() || (matrix.wp == '6.2')
+        if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
             name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}

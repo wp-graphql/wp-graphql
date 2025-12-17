@@ -18,19 +18,16 @@ npm run wp-env run tests-cli -- wp maintenance-mode deactivate 2>/dev/null || ec
 # Remove .maintenance file if it exists
 npm run wp-env run tests-cli -- rm -f /var/www/html/.maintenance 2>/dev/null || true
 
-# Fix internal Docker URL resolution and prevent maintenance mode for acceptance/functional tests
-# - wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
-#   the container (only port 80 works internally). This mu-plugin rewrites URLs
-#   so WPBrowser's loginAs() can follow WordPress-generated URLs correctly.
-# - Prevents maintenance mode from blocking test requests
+# Fix internal Docker URL resolution for acceptance/functional tests
+# wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
+# the container (only port 80 works internally). This mu-plugin rewrites URLs
+# so WPBrowser's loginAs() can follow WordPress-generated URLs correctly.
 npm run wp-env run tests-cli -- bash -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cat > /var/www/html/wp-content/mu-plugins/wp-env-url-fix.php << '\''MUPLUGIN'\''
 <?php
 /**
- * Plugin Name: WP-ENV Test Fixes
- * Description: Fixes internal Docker URL resolution and prevents maintenance mode for tests
+ * Plugin Name: WP-ENV URL Fix
+ * Description: Fixes internal Docker URL resolution for tests
  */
-
-// Fix internal Docker URL resolution
 function wpgraphql_wpenv_fix_url( $url ) {
     return preg_replace( "#https?://(localhost|tests-wordpress):8889#", "http://tests-wordpress", $url );
 }
@@ -38,20 +35,8 @@ add_filter( "site_url", "wpgraphql_wpenv_fix_url", 1 );
 add_filter( "home_url", "wpgraphql_wpenv_fix_url", 1 );
 add_filter( "wp_login_url", "wpgraphql_wpenv_fix_url", 1 );
 add_filter( "admin_url", "wpgraphql_wpenv_fix_url", 1 );
-
-// Prevent maintenance mode during tests
-add_filter( "enable_maintenance_mode", "__return_false" );
-add_filter( "wp_auto_update_core", "__return_false" );
-add_filter( "auto_update_plugin", "__return_false" );
-add_filter( "auto_update_theme", "__return_false" );
-
-// Remove any stale maintenance file on each request
-$maintenance_file = ABSPATH . ".maintenance";
-if ( file_exists( $maintenance_file ) ) {
-    @unlink( $maintenance_file );
-}
 MUPLUGIN
-echo "Installed test fixes mu-plugin"
+echo "Installed URL fix mu-plugin"
 '
 
 # Get install Path for docker compose commands
