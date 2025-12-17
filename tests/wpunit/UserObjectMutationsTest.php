@@ -216,7 +216,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that username already exists!' );
+		$this->assertArrayHasKey( 'errors', $second_user );
+		$this->assertEquals( 'Sorry, that username already exists!', $second_user['errors'][0]['message'] );
 	}
 
 	public function testPreventDuplicateEmails() {
@@ -238,7 +239,8 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 			]
 		);
 
-		$this->assertEquals( $second_user['errors'][0]['message'], 'Sorry, that email address is already used!' );
+		$this->assertArrayHasKey( 'errors', $second_user );
+		$this->assertEquals( 'Sorry, that email address is already used!', $second_user['errors'][0]['message'] );
 	}
 
 	public function testInvalidEmailAddress() {

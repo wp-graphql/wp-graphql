@@ -22,7 +22,7 @@
 		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
 		"test:unit": "wp-scripts test-unit-js",
 		"test:codecept": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- vendor/bin/codecept",
-		"test:codecept:acceptance": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run acceptance \"$@\"' --",
+		"test:codecept:wpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run wpunit \"$@\"' --",
 		"test:codecept:functional": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run functional \"$@\"' --",
 		"test:codecept:coverage": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'XDEBUG_MODE=coverage vendor/bin/codecept \"$@\"' --",
 		"format": "wp-scripts format",
