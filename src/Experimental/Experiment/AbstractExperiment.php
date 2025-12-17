@@ -237,7 +237,7 @@ abstract class AbstractExperiment {
 					sprintf(
 						/* translators: %s: The experiment's class name. */
 						esc_html__( 'The experiment %s is missing a slug. Ensure a valid `slug` is defined in the ::slug() method.', 'wp-graphql' ),
-						$class
+						esc_html( $class )
 					)
 				);
 			}
