@@ -60,7 +60,9 @@ jobs:
         run: |
           npm run wp-env run cli -- wp graphql generate-static-schema --output=/var/www/html/schema.graphql
           # Copy schema out of container using docker cp
-          CONTAINER_ID=$(docker ps -qf "name=cli")
+          # Find the WordPress cli container (name contains 'cli' but not 'tests-cli')
+          CONTAINER_ID=$(docker ps --format '{{.Names}}' | grep -E 'cli$' | head -1)
+          echo "Using container: $CONTAINER_ID"
           docker cp "$CONTAINER_ID:/var/www/html/schema.graphql" /tmp/schema.graphql
           echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
