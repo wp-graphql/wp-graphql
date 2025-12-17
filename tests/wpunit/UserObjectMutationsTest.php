@@ -745,7 +745,16 @@ class UserObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 
 		$actual = graphql( compact( 'query', 'variables' ) );
 
-		$this->assertTrue( ( 'Sorry, you are not allowed to give this the following role: invalidRole.' === $actual['errors'][0]['message'] ) || ( 'Internal server error' === $actual['errors'][0]['message'] ) );
+		codecept_debug( $actual );
+
+		$this->assertArrayHasKey( 'errors', $actual );
+		$error_message = $actual['errors'][0]['message'];
+		$valid_messages = [
+			'Sorry, you are not allowed to give this the following role: invalidRole.',
+			'The role invalidRole does not exist',
+			'Internal server error',
+		];
+		$this->assertContains( $error_message, $valid_messages, "Unexpected error message: {$error_message}" );
 	}
 
 	public function registerUserMutation( $args ) {

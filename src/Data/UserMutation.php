@@ -287,10 +287,10 @@ class UserMutation {
 				if ( true === $verified ) {
 					$user->add_role( $role );
 				} elseif ( is_wp_error( $verified ) ) {
-					throw new Exception( esc_html( $verified->get_error_message() ) );
+					throw new UserError( esc_html( $verified->get_error_message() ) );
 				} elseif ( false === $verified ) {
 					// Translators: The placeholder is the name of the user role
-					throw new Exception( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
+					throw new UserError( esc_html( sprintf( __( 'The %s role cannot be added to this user', 'wp-graphql' ), $role ) ) );
 				}
 			}
 		}
