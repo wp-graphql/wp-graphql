@@ -54,6 +54,24 @@ modules:
       adminPassword: '%ADMIN_PASSWORD%'
       adminPath: '/wp-admin'
       cookies: false
+    WPWebDriver:
+      url: '%WP_URL%'
+      wpRootFolder: '%WP_ROOT_FOLDER%'
+      adminUsername: '%ADMIN_USERNAME%'
+      adminPassword: '%ADMIN_PASSWORD%'
+      adminPath: '/wp-admin'
+      browser: '%WEBDRIVER_BROWSER%'
+      host: '%CHROMEDRIVER_HOST%'
+      port: '%CHROMEDRIVER_PORT%'
+      window_size: 1920x1080
+      capabilities:
+        browserName: '%WEBDRIVER_BROWSER%'
+        goog:chromeOptions:
+          args:
+            - '--headless'
+            - '--disable-gpu'
+            - '--no-sandbox'
+            - '--disable-dev-shm-usage'
     REST:
       depends: WPBrowser
       url: '%WP_URL%'

@@ -2,7 +2,6 @@
 
 namespace WPGraphQL;
 
-use Exception;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
@@ -113,6 +112,14 @@ class Request {
 	 * @var \WPGraphQL\Utils\QueryAnalyzer
 	 */
 	protected $query_analyzer;
+
+	/**
+	 * Authentication error stored during before_execute().
+	 * If set, the request should return this error instead of executing the query.
+	 *
+	 * @var \WP_Error|bool|null
+	 */
+	protected $authentication_error = null;
 
 	/**
 	 * Constructor
@@ -250,6 +257,42 @@ class Request {
 		}
 
 		/**
+		 * Reset authentication error state for this execution.
+		 *
+		 * This ensures each batch item starts with clean auth state, preventing
+		 * errors from one batch item incorrectly persisting to subsequent items.
+		 *
+		 * @since next-version
+		 */
+		$this->authentication_error = null;
+
+		/**
+		 * Check for authentication errors via the graphql_authentication_errors filter.
+		 *
+		 * Note: For HTTP requests, all CSRF protection and nonce validation is
+		 * handled by Router::validate_http_request_authentication() before this
+		 * code runs. This call allows plugins to hook in and indicate auth errors.
+		 *
+		 * @since next-version CSRF protection and nonce validation moved to Router.
+		 */
+		$auth_error = $this->has_authentication_errors();
+
+		if ( false !== $auth_error ) {
+			// Store the authentication error for later use in execute methods
+			$this->authentication_error = $auth_error;
+		}
+
+		/**
+		 * Update AppContext->viewer to reflect the current user after auth check.
+		 *
+		 * If the user was downgraded due to missing nonce (CSRF protection),
+		 * the viewer should reflect the guest user, not the originally authenticated user.
+		 *
+		 * @since 2.6.0
+		 */
+		$this->app_context->viewer = wp_get_current_user();
+
+		/**
 		 * If the request is a batch request it will come back as an array
 		 */
 		if ( is_array( $this->params ) ) {
@@ -295,81 +338,25 @@ class Request {
 	}
 
 	/**
-	 * Checks authentication errors.
+	 * Checks authentication errors via the graphql_authentication_errors filter.
 	 *
-	 * False will mean there are no detected errors and
-	 * execution will continue.
+	 * As of 2.6.0, all CSRF protection and nonce validation for HTTP requests is
+	 * handled by Router::validate_http_request_authentication() BEFORE any GraphQL
+	 * hooks fire. This method now only provides:
+	 * - Plugin integration via the graphql_authentication_errors filter
 	 *
-	 * Anything else (true, WP_Error, thrown exception, etc) will prevent execution of the GraphQL
-	 * request.
+	 * False means no errors and execution continues.
+	 * True or WP_Error prevents execution of the GraphQL request.
 	 *
-	 * @return bool
-	 * @throws \Exception
+	 * @since 0.0.5
+	 * @since 2.6.0 CSRF protection and nonce validation moved to Router.
+	 *
+	 * @return bool|\WP_Error False if no errors, true or WP_Error if there are errors.
+	 *
+	 * @see Router::validate_http_request_authentication()
 	 */
 	protected function has_authentication_errors() {
-		/**
-		 * Bail if this is not an HTTP request.
-		 *
-		 * Auth for internal requests will happen
-		 * via WordPress internals.
-		 */
-		if ( ! is_graphql_http_request() ) {
-			return false;
-		}
-
-		/**
-		 * Access the global $wp_rest_auth_cookie
-		 */
-		global $wp_rest_auth_cookie;
-
-		/**
-		 * Default state of the authentication errors
-		 */
-		$authentication_errors = false;
-
-		/**
-		 * Is cookie authentication NOT being used?
-		 *
-		 * If we get an auth error, but the user is still logged in, another auth mechanism
-		 * (JWT, oAuth, etc) must have been used.
-		 */
-		if ( true !== $wp_rest_auth_cookie && is_user_logged_in() ) {
-
-			/**
-			 * Return filtered authentication errors
-			 */
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		/**
-		 * If the user is not logged in, determine if there's a nonce
-		 */
-		$nonce = null;
-
-		if ( isset( $_REQUEST['_wpnonce'] ) ) {
-			$nonce = $_REQUEST['_wpnonce']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		} elseif ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
-			$nonce = $_SERVER['HTTP_X_WP_NONCE']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		}
-
-		if ( null === $nonce ) {
-			// No nonce at all, so act as if it's an unauthenticated request.
-			wp_set_current_user( 0 );
-
-			return $this->filtered_authentication_errors( $authentication_errors );
-		}
-
-		// Check the nonce.
-		$result = wp_verify_nonce( $nonce, 'wp_rest' );
-
-		if ( ! $result ) {
-			throw new Exception( esc_html__( 'Cookie nonce is invalid', 'wp-graphql' ) );
-		}
-
-		/**
-		 * Return the filtered authentication errors
-		 */
-		return $this->filtered_authentication_errors( $authentication_errors );
+		return $this->filtered_authentication_errors( false );
 	}
 
 	/**
@@ -400,17 +387,16 @@ class Request {
 	 * @param T $response The response from execution.  Array for batch requests, single object for individual requests.
 	 *
 	 * @return T
-	 *
-	 * @throws \Exception
 	 */
 	private function after_execute( $response ) {
 
 		/**
-		 * If there are authentication errors, prevent execution and throw an exception.
+		 * Authentication check has been moved to before_execute() as of 2.6.0.
+		 * This ensures auth is validated BEFORE query execution, not after.
+		 *
+		 * @since 2.6.0 Auth check moved to before_execute()
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/3447
 		 */
-		if ( false !== $this->has_authentication_errors() ) {
-			throw new Exception( esc_html__( 'Authentication Error', 'wp-graphql' ) );
-		}
 
 		/**
 		 * If the params and the $response are both arrays
@@ -622,6 +608,35 @@ class Request {
 		$this->before_execute();
 
 		/**
+		 * If there was an authentication error, return it as a GraphQL error response
+		 * instead of executing the query.
+		 *
+		 * IMPORTANT: This intentionally happens BEFORE the `pre_graphql_execute_request` filter.
+		 * Authentication failures should fail fast for security reasons:
+		 * - Don't give plugins a chance to interfere with or "undo" auth failures
+		 * - Avoid unnecessary filter processing for failed requests
+		 * - Ensure consistent, predictable auth error handling
+		 *
+		 * Plugins that need to observe ALL requests (including auth failures) should use
+		 * earlier hooks like `graphql_before_execute` or `do_graphql_request`.
+		 */
+		if ( null !== $this->authentication_error ) {
+			$error_message = is_wp_error( $this->authentication_error )
+				? $this->authentication_error->get_error_message()
+				: __( 'Authentication Error', 'wp-graphql' );
+
+			return $this->after_execute(
+				[
+					'errors' => [
+						[
+							'message' => esc_html( $error_message ),
+						],
+					],
+				]
+			);
+		}
+
+		/**
 		 * Filter this to be anything other than null to short-circuit the request.
 		 *
 		 * @param ?SerializableResult $response
@@ -700,6 +715,26 @@ class Request {
 		 * Initialize the GraphQL Request
 		 */
 		$this->before_execute();
+
+		/**
+		 * If there was an authentication error, return it as a GraphQL error response
+		 * instead of executing the query. This ensures consistent error handling.
+		 */
+		if ( null !== $this->authentication_error ) {
+			$error_message = is_wp_error( $this->authentication_error )
+				? $this->authentication_error->get_error_message()
+				: __( 'Authentication Error', 'wp-graphql' );
+
+			return $this->after_execute(
+				[
+					'errors' => [
+						[
+							'message' => esc_html( $error_message ),
+						],
+					],
+				]
+			);
+		}
 
 		/**
 		 * Get the response.

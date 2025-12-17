@@ -30,6 +30,10 @@ fi
 wp config set WP_AUTO_UPDATE_CORE false --allow-root
 wp config set AUTOMATIC_UPDATER_DISABLED true --allow-root
 
+# Set environment type to 'local' to enable features that require HTTPS in production
+# This is needed for Application Passwords to work without HTTPS
+wp config set WP_ENVIRONMENT_TYPE 'local' --allow-root
+
 # Install WP if not yet installed
 if ! $( wp core is-installed --allow-root ); then
 	wp core install \
@@ -47,3 +51,13 @@ else
 fi
 
 echo "Running WordPress version: $(wp core version --allow-root) at $(wp option get home --allow-root)"
+
+# Ensure .htaccess passes Authorization header to PHP (required for Application Passwords, JWT, etc.)
+# Apache doesn't pass this header by default for security reasons
+HTACCESS_FILE="${WP_ROOT_FOLDER}/.htaccess"
+AUTH_RULE='SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1'
+
+if [ ! -f "$HTACCESS_FILE" ] || ! grep -q "HTTP_AUTHORIZATION" "$HTACCESS_FILE"; then
+    echo "Adding Authorization header passthrough to .htaccess"
+    echo -e "# Pass Authorization header to PHP\n${AUTH_RULE}\n\n$(cat $HTACCESS_FILE 2>/dev/null || echo '')" > "$HTACCESS_FILE"
+fi
