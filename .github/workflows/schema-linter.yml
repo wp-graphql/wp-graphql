@@ -50,6 +50,11 @@ jobs:
       - name: Setup GraphQL Schema Linter
         run: npm install -g graphql-schema-linter@^3.0 graphql@^16
 
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-wp-latest
+
       - name: Start wp-env
         run: npm run wp-env start
 
