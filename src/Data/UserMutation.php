@@ -205,7 +205,9 @@ class UserMutation {
 		if ( ! empty( $input['password'] ) ) {
 			$insert_user_args['user_pass'] = $input['password'];
 		} else {
-			$insert_user_args['user_pass'] = null;
+			// WP 6.9+ requires a password when creating users.
+			// Generate a random one if not provided - user can reset it later.
+			$insert_user_args['user_pass'] = wp_generate_password();
 		}
 
 		if ( ! empty( $input['username'] ) ) {

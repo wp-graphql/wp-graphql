@@ -7,6 +7,7 @@ Requires PHP: 7.4
 Stable tag: 2.5.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Author: WPGraphQL, WordPress.org
 
 WPGraphQL adds a flexible and powerful GraphQL API to WordPress, enabling efficient querying and interaction with your site's data.
 
