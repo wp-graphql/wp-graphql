@@ -46,14 +46,14 @@ phpcs.xml
 # Config for phpunit. Used to override phpunit.xml.dist
 phpunit.xml
 
-# Files output by Docker
-docker-output
-
 # JavaScript dependencies. Should be installed locally on the machine, not versioned
 node_modules
 
 # Config for Codeception. Used to override the codeception.dist.yml
 codeception.yml
+
+# Local wp-env overrides. Used to override .wp-env.json for local testing
+.wp-env.override.json
 
 # Log files
 .log

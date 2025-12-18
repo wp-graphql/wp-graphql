@@ -81,6 +81,21 @@ To see which experiments are currently available:
 2. Review the [Experiments README](https://github.com/wp-graphql/wp-graphql/tree/develop/src/Experimental) on GitHub
 3. Check release notes for the `Experimental` badge
 
+### Example Experiments (For Developers)
+
+WPGraphQL includes several **example experiments** that are commented out by default in the codebase. These serve as practical, working examples for developers learning to create experiments:
+
+- **TestExperiment**: A simple example that adds a `testExperiment` field to RootQuery
+- **TestDependantExperiment**: Demonstrates required experiment dependencies
+- **TestOptionalDependencyExperiment**: Demonstrates optional experiment dependencies
+
+These examples are located in `src/Experimental/Experiment/` and can be enabled by:
+
+1. Uncommenting the imports and registrations in `src/Experimental/ExperimentRegistry.php`
+2. Or registering them via the `graphql_experiments_registered_classes` filter
+
+See [Creating Experiments](/docs/experiments-creating.md) for more details on using these examples as inspiration for your own experiments.
+
 ## Getting Started
 
 Ready to try experiments?

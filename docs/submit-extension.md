@@ -16,7 +16,7 @@ To submit a WPGraphQL extension for review:
 1. **Fork** the [WPGraphQL GitHub repository](https://github.com/wp-graphql/wp-graphql).
 2. **Create a new branch** for your extension submission.
 3. **Modify** the `./src/Admin/Extensions/Registry.php` file: Add your plugin's details to the array returned by the `Registry::get_extensions()` method.
-4. **Validate** your change by ensuring `composer check-cs` and `composer phpstan` pass.
+4. **Validate** your change by ensuring `npm run lint:php` and `npm run lint:php:stan` pass.
 5. **Submit a Pull Request (PR)** for review.
 
 ### Alternate Submission Methods

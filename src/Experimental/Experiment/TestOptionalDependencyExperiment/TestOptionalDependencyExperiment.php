@@ -112,7 +112,8 @@ class TestOptionalDependencyExperiment extends AbstractExperiment {
 				'description' => __( 'A test field that demonstrates optional dependencies. Returns enhanced data if TestExperiment is active, basic data otherwise.', 'wp-graphql' ),
 				'resolve'     => static function () {
 					// Check if our optional dependency is active
-					$test_experiment_active = \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' );
+					$registry               = \WPGraphQL\Experimental\ExperimentRegistry::get_instance();
+					$test_experiment_active = $registry ? $registry->is_experiment_active( 'test_experiment' ) : false;
 
 					if ( $test_experiment_active ) {
 						// Enhanced functionality when optional dependency is available

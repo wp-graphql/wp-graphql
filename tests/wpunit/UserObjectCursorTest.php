@@ -83,7 +83,9 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function create_users() {
 
-		$alphabet = range( 'A', 'Z' );
+		// Use lowercase to ensure consistency between single-site and multisite
+		// (multisite sanitizes usernames to lowercase)
+		$alphabet = range( 'a', 'z' );
 
 		// Initialize with the default user
 		$created_user_ids = [ 1 ];
@@ -865,7 +867,7 @@ class UserObjectCursorTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	public function testThresholdFieldsQueryVar() {
-		// Get username.
+		// Get username - lowercase to match WordPress sanitized usernames (required for multisite)
 		$usernames = range( 'a', 'z' );
 		// Register new posts connection.
 		register_graphql_connection(

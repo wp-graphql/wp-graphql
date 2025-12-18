@@ -70,19 +70,13 @@ Triggered when a PR is labeled with `ready-for-changeset`:
 - Compiles assets and dependencies
 - Prepares for distribution
 
-### 2. Docker Image Deploy (`deploy-docker-image.yml`)
-
-- Builds Docker images for testing
-- Publishes to GitHub Container Registry
-- Used for development and testing environments
-
-### 3. Schema Artifact Upload (`upload-schema-artifact.yml`)
+### 2. Schema Artifact Upload (`upload-schema-artifact.yml`)
 
 - Generates schema artifacts
 - Uploads schema for documentation
 - Used for schema tracking and validation
 
-### 4. Release Process (`release.yml`)
+### 3. Release Process (`release.yml`)
 
 Handles the complete release process:
 

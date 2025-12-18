@@ -74,17 +74,6 @@
 	},
 	"scripts": {
 		"install-test-env": "bash bin/install-test-env.sh",
-		"docker-build": "bash bin/run-docker.sh build",
-		"docker-run": "bash bin/run-docker.sh run",
-		"docker-destroy": "docker compose down",
-		"build-and-run": [
-			"@docker-build",
-			"@docker-run"
-		],
-		"build-app": "@docker-build -a",
-		"build-test": "@docker-build -t",
-		"run-app": "@docker-run -a",
-		"run-test": "@docker-run -t",
 		"lint": "vendor/bin/phpcs",
 		"phpcs-i": [
 			"php ./vendor/bin/phpcs -i"

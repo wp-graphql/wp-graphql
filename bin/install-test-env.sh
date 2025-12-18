@@ -10,46 +10,32 @@ source .env
 
 print_usage_instruction() {
 	echo "Ensure that .env file exist in project root directory exists."
-	echo "And run the following 'composer build-test' in the project root directory"
+	echo "And run the following 'composer install-test-env' in the project root directory"
 	exit 1
 }
 
-if [[ -z "$TEST_DB_NAME" ]]; then
-	echo "TEST_DB_NAME not found"
+if [[ -z "$DB_NAME" ]]; then
+	echo "DB_NAME not found"
 	print_usage_instruction
-else
-	DB_NAME=$TEST_DB_NAME
-fi
-if [[ -z "$TEST_DB_USER" ]]; then
-	echo "TEST_DB_USER not found"
-	print_usage_instruction
-else
-	DB_USER=$TEST_DB_USER
 fi
 
-DB_HOST=${TEST_DB_HOST-localhost}
-DB_PASS=${TEST_DB_PASSWORD-""}
-WP_VERSION=${WP_VERSION-latest}
 TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
-WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
-WP_CORE_DIR=${TEST_WP_ROOT_FOLDER-$TMPDIR/wordpress/}
+WP_VERSION=${WP_VERSION:-"latest"}
 PLUGIN_DIR=$(pwd)
-DB_SERVE_NAME=${DB_SERVE_NAME-wpgatsby_serve}
-SKIP_DB_CREATE=${SKIP_DB_CREATE-false}
 
 download() {
-    if [ `which curl` ]; then
-        curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
-        wget -nv -O "$2" "$1"
-    fi
+	if [ `which curl` ]; then
+		curl -s "$1" > "$2";
+	elif [ `which wget` ]; then
+		wget -nv -O "$2" "$1"
+	fi
 }
 
+# Get the version of WordPress to install.
 if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
 	WP_BRANCH=${WP_VERSION%\-*}
 	WP_TESTS_TAG="branches/$WP_BRANCH"
-
 elif [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+$ ]]; then
 	WP_TESTS_TAG="branches/$WP_VERSION"
 elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
@@ -76,17 +62,17 @@ set -ex
 
 install_wp() {
 
-	if [ -d $WP_CORE_DIR ]; then
+	if [ -d $WP_ROOT_FOLDER ]; then
 		return;
 	fi
 
-	mkdir -p $WP_CORE_DIR
+	mkdir -p $WP_ROOT_FOLDER
 
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 		mkdir -p $TMPDIR/wordpress-nightly
 		download https://wordpress.org/nightly-builds/wordpress-latest.zip  $TMPDIR/wordpress-nightly/wordpress-nightly.zip
 		unzip -q $TMPDIR/wordpress-nightly/wordpress-nightly.zip -d $TMPDIR/wordpress-nightly/
-		mv $TMPDIR/wordpress-nightly/wordpress/* $WP_CORE_DIR
+		mv $TMPDIR/wordpress-nightly/wordpress/* $WP_ROOT_FOLDER
 	else
 		if [ $WP_VERSION == 'latest' ]; then
 			local ARCHIVE_NAME='latest'
@@ -110,10 +96,10 @@ install_wp() {
 			local ARCHIVE_NAME="wordpress-$WP_VERSION"
 		fi
 		download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  $TMPDIR/wordpress.tar.gz
-		tar --strip-components=1 -zxmf $TMPDIR/wordpress.tar.gz -C $WP_CORE_DIR
+		tar --strip-components=1 -zxmf $TMPDIR/wordpress.tar.gz -C $WP_ROOT_FOLDER
 	fi
 
-	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
+	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_ROOT_FOLDER/wp-content/db.php
 }
 
 install_db() {
@@ -122,7 +108,7 @@ install_db() {
 		return 0
 	fi
 
-	# parse DB_HOST for port or socket references
+	# parse the host for port or socket references
 	local PARTS=(${DB_HOST//\:/ })
 	local DB_HOSTNAME=${PARTS[0]};
 	local DB_SOCK_OR_PORT=${PARTS[1]};
@@ -139,25 +125,25 @@ install_db() {
 	fi
 
 	# create database
-	RESULT=`mysql -u $DB_USER --password="$DB_PASS" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"$EXTRA`
+	RESULT=`mysql -u $DB_USER --password="$DB_PASSWORD" --skip-column-names -e "SHOW DATABASES LIKE '$DB_NAME'"$EXTRA`
 	if [ "$RESULT" != $DB_NAME ]; then
-			mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+			mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASSWORD"$EXTRA
 	fi
 }
 
 configure_wordpress() {
-    cd $WP_CORE_DIR
-    wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" --skip-check --force=true
-    wp core install --url="$WP_DOMAIN" --title="WPGraphQL Tests" --admin_user="$ADMIN_USERNAME" --admin_password="$ADMIN_PASSWORD" --admin_email="$ADMIN_EMAIL"
-    wp rewrite structure '/%year%/%monthnum%/%postname%/'
+	cd $WP_ROOT_FOLDER
+	wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASSWORD" --dbhost="$DB_HOST" --skip-check --force=true
+	wp core install --url="$WP_URL" --title="WPGraphQL Tests" --admin_user="$ADMIN_USERNAME" --admin_password="$ADMIN_PASSWORD" --admin_email="$ADMIN_EMAIL"
+	wp rewrite structure '/%year%/%monthnum%/%postname%/'
 }
 
 setup_plugin() {
 
 	# Add this repo as a plugin to the repo
-	if [ ! -d $WP_CORE_DIR/wp-content/plugins/wp-graphql ]; then
-		ln -s $PLUGIN_DIR $WP_CORE_DIR/wp-content/plugins/wp-graphql
-		cd $WP_CORE_DIR/wp-content/plugins
+	if [ ! -d $WP_ROOT_FOLDER/wp-content/plugins/wp-graphql ]; then
+		ln -s $PLUGIN_DIR $WP_ROOT_FOLDER/wp-content/plugins/wp-graphql
+		cd $WP_ROOT_FOLDER/wp-content/plugins
 		pwd
 		ls
 	fi
@@ -166,7 +152,7 @@ setup_plugin() {
 
 	composer install
 
-	cd $WP_CORE_DIR
+	cd $WP_ROOT_FOLDER
 
 	wp plugin list
 

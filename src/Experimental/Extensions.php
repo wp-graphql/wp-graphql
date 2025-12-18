@@ -69,8 +69,9 @@ class Extensions {
 			return $response;
 		}
 
-		// Get active experiments
-		$active_experiments = ExperimentRegistry::get_active_experiments();
+		// Get active experiments from the registry instance
+		$registry           = ExperimentRegistry::get_instance();
+		$active_experiments = $registry ? $registry->get_active_experiments() : [];
 
 		// If no experiments are active, don't add anything to extensions
 		if ( empty( $active_experiments ) ) {

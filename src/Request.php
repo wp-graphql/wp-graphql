@@ -262,7 +262,7 @@ class Request {
 		 * This ensures each batch item starts with clean auth state, preventing
 		 * errors from one batch item incorrectly persisting to subsequent items.
 		 *
-		 * @since next-version
+		 * @since 2.5.4
 		 */
 		$this->authentication_error = null;
 
@@ -273,7 +273,7 @@ class Request {
 		 * handled by Router::validate_http_request_authentication() before this
 		 * code runs. This call allows plugins to hook in and indicate auth errors.
 		 *
-		 * @since next-version CSRF protection and nonce validation moved to Router.
+		 * @since 2.5.4 CSRF protection and nonce validation moved to Router.
 		 */
 		$auth_error = $this->has_authentication_errors();
 
