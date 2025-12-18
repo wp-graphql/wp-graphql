@@ -195,29 +195,41 @@ class EmailAddressScalarExperiment extends AbstractExperiment {
 
 ### Step 2: Register the Experiment
 
-Add your experiment to `src/Experimental/ExperimentRegistry.php`:
+Add your experiment to the `$registry` array in `src/Experimental/ExperimentRegistry.php`:
 
 ```php
 protected function register_experiments(): void {
     $registry = [
-        TestExperiment::get_slug()                => TestExperiment::class,
-        EmailAddressScalarExperiment::get_slug() => EmailAddressScalarExperiment::class,
+        // Production experiments
+        'email-address-scalar'        => EmailAddressScalarExperiment::class,
+        'email-address-scalar-fields' => EmailAddressScalarFieldsExperiment::class,
+
+        // Add your new experiment here
+        'your-experiment-slug'        => YourExperiment::class,
+
+        // ============================================================================
+        // EXAMPLE EXPERIMENTS (commented out by default)
+        // ============================================================================
+        // These are working examples for developers. Uncomment to enable.
+        // 'test_experiment' => TestExperiment::class,
+        // 'test-dependant-experiment' => TestDependantExperiment::class,
+        // 'test-optional-dependency-experiment' => TestOptionalDependencyExperiment::class,
     ];
 
     /**
      * Filters the list of registered experiment classes.
-     *
-     * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry
      */
-    self::$registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
-
-    /**
-     * Fires after experiments are registered.
-     *
-     * @param array<string,class-string<\WPGraphQL\Experimental\Experiment\AbstractExperiment>> $registry
-     */
-    do_action( 'graphql_experiments_registered', self::$registry );
+    $this->registry = apply_filters( 'graphql_experiments_registered_classes', $registry );
 }
+```
+
+**Alternative**: You can also register experiments via filter (useful for plugins or testing):
+
+```php
+add_filter( 'graphql_experiments_registered_classes', function( $registry ) {
+    $registry['my-experiment'] = MyExperiment::class;
+    return $registry;
+} );
 ```
 
 ### Step 3: Write Comprehensive Tests
@@ -232,6 +244,13 @@ Create `tests/wpunit/EmailAddressScalarExperimentTest.php`:
  */
 class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+    /**
+     * The ExperimentRegistry instance for tests.
+     *
+     * @var \WPGraphQL\Experimental\ExperimentRegistry
+     */
+    protected $registry;
+
     public function setUp(): void {
         parent::setUp();
         $this->clearSchema();
@@ -239,13 +258,16 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
         // Clear experiment settings
         update_option( 'graphql_experiments_settings', [] );
 
-        // Reset the registry
-        \WPGraphQL\Experimental\ExperimentRegistry::reset();
+        // Create a fresh registry instance for each test
+        $this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
     }
 
     public function tearDown(): void {
         update_option( 'graphql_experiments_settings', [] );
-        \WPGraphQL\Experimental\ExperimentRegistry::reset();
+
+        // Clear the primary instance
+        \WPGraphQL\Experimental\ExperimentRegistry::set_instance( null );
+
         parent::tearDown();
     }
 
@@ -258,9 +280,8 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
             'email_address_scalar_enabled' => 'on'
         ] );
 
-        // Initialize registry
-        $registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-        $registry->init();
+        // Initialize the registry instance
+        $this->registry->init();
 
         // Query for the scalar type
         $query = '
@@ -284,9 +305,8 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
      * Test that EmailAddress scalar doesn't exist when experiment is disabled
      */
     public function testEmailAddressScalarNotPresentWhenDisabled() {
-        // Don't enable the experiment
-        $registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-        $registry->init();
+        // Don't enable the experiment - just initialize the registry
+        $this->registry->init();
 
         $query = '
             query IntrospectEmailAddress {
@@ -310,8 +330,7 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
             'email_address_scalar_enabled' => 'on'
         ] );
 
-        $registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-        $registry->init();
+        $this->registry->init();
 
         $valid_emails = [
             'test@example.com',
@@ -345,8 +364,7 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
             'email_address_scalar_enabled' => 'on'
         ] );
 
-        $registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-        $registry->init();
+        $this->registry->init();
 
         $invalid_emails = [
             'notanemail',
@@ -380,8 +398,7 @@ class EmailAddressScalarExperimentTest extends \Tests\WPGraphQL\TestCase\WPGraph
             'email_address_scalar_enabled' => 'on'
         ] );
 
-        $registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-        $registry->init();
+        $this->registry->init();
 
         $query = '
             query IntrospectUserEmailField {
@@ -575,10 +592,25 @@ Each experiment's README.md should include:
 - **Known Limitations**: Current constraints or issues
 - **Status**: Active, Deprecated, or Graduated
 
-See the existing test experiments for examples:
-- `src/Experimental/Experiment/TestExperiment/README.md`
-- `src/Experimental/Experiment/TestDependantExperiment/README.md`
-- `src/Experimental/Experiment/TestOptionalDependencyExperiment/README.md`
+### Example Experiments (Available as References)
+
+WPGraphQL includes several **example experiments** that are commented out by default in production but serve as practical, working references for developers:
+
+- `src/Experimental/Experiment/TestExperiment/` - A simple example with no dependencies
+- `src/Experimental/Experiment/TestDependantExperiment/` - Demonstrates required dependencies
+- `src/Experimental/Experiment/TestOptionalDependencyExperiment/` - Demonstrates optional dependencies
+
+Each includes a README.md documenting its purpose and behavior. To enable these examples for testing:
+
+1. Uncomment the imports and registrations in `src/Experimental/ExperimentRegistry.php`, or
+2. Register them via the `graphql_experiments_registered_classes` filter:
+
+```php
+add_filter( 'graphql_experiments_registered_classes', function( $registry ) {
+    $registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+    return $registry;
+} );
+```
 
 ## Advanced Patterns
 
@@ -659,8 +691,9 @@ class FlexibleExperiment extends AbstractExperiment {
 
     public function register_types(): void {
         // Check if optional dependencies are active and adapt behavior
-        $email_scalar_active = \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'email_address_scalar' );
-        $advanced_feature_active = \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'advanced_feature' );
+        $registry = \WPGraphQL\Experimental\ExperimentRegistry::get_instance();
+        $email_scalar_active = $registry ? $registry->is_experiment_active( 'email_address_scalar' ) : false;
+        $advanced_feature_active = $registry ? $registry->is_experiment_active( 'advanced_feature' ) : false;
 
         if ( $email_scalar_active ) {
             // Register enhanced fields that use EmailAddress scalar
@@ -692,11 +725,13 @@ class FlexibleExperiment extends AbstractExperiment {
 
 #### Real Examples
 
-See the test experiments for working examples:
+The codebase includes working example experiments that demonstrate these patterns (commented out by default, available as references):
 
-- **`TestExperiment`**: No dependencies (base experiment)
-- **`TestDependantExperiment`**: Requires `TestExperiment` (demonstrates required dependencies)
-- **`TestOptionalDependencyExperiment`**: Optionally depends on `TestExperiment` (demonstrates optional dependencies)
+- **`TestExperiment`**: No dependencies (base experiment) - `src/Experimental/Experiment/TestExperiment/`
+- **`TestDependantExperiment`**: Requires `TestExperiment` - `src/Experimental/Experiment/TestDependantExperiment/`
+- **`TestOptionalDependencyExperiment`**: Optionally depends on `TestExperiment` - `src/Experimental/Experiment/TestOptionalDependencyExperiment/`
+
+These examples are intentionally commented out in production but can be enabled for learning or testing. See the "Example Experiments" section above for how to enable them.
 
 ### Pattern 2: Feature Flag Within Experiment
 
@@ -743,7 +778,7 @@ Before submitting an experiment, ensure:
 - [ ] **Error messages** are clear and helpful
 - [ ] **Performance** is acceptable (no N+1 queries, etc.)
 - [ ] **Conflicts** with other experiments are handled
-- [ ] **Test isolation** works (uses `ExperimentRegistry::reset()`)
+- [ ] **Test isolation** works (uses fresh registry instances per test)
 
 ## Common Mistakes to Avoid
 
@@ -820,7 +855,8 @@ protected function init(): void {
 
 ```php
 // In WordPress console or temporary code
-$active = \WPGraphQL\Experimental\ExperimentRegistry::get_active_experiments();
+$registry = \WPGraphQL\Experimental\ExperimentRegistry::get_instance();
+$active = $registry ? $registry->get_active_experiments() : [];
 wp_send_json( array_keys( $active ) );
 ```
 

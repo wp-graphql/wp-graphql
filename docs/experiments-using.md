@@ -115,7 +115,8 @@ See which experiments are currently active:
 
 ```php
 // In your code
-$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_active_experiments();
+$registry = \WPGraphQL\Experimental\ExperimentRegistry::get_instance();
+$experiments = $registry ? $registry->get_active_experiments() : [];
 
 foreach ( $experiments as $slug => $experiment ) {
     echo "Active: " . $experiment->get_config()['title'];

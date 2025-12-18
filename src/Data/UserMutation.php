@@ -192,9 +192,6 @@ class UserMutation {
 			$insert_user_args['locale'] = $input['locale'];
 		}
 
-		/**
-		 * Required fields
-		 */
 		if ( ! empty( $input['email'] ) ) {
 			if ( false === is_email( apply_filters( 'pre_user_email', $input['email'] ) ) ) {
 				throw new UserError( esc_html__( 'The email address you are trying to use is invalid', 'wp-graphql' ) );
