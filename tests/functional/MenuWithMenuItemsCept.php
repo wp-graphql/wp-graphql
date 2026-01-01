@@ -48,7 +48,7 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 // Query for the menu.
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '

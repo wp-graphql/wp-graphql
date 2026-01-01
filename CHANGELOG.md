@@ -1,12 +1,15 @@
 # Changelog
 
-## v2.5.4 - 2025-12-17
+## v2.5.4 - 2026-01-01
 
-### Bug Fixes
+### New Features
 
-- fix: align cookie authentication with WordPress REST API pattern ([#3448](https://github.com/jasonbahl/automation-tests/pull/3448))
+- feat: refactor experiment registry for better testability ([#3453](https://github.com/jasonbahl/automation-tests/pull/3453))
 
+### Other Changes
 
+- release: next version 📦 ([#3452](https://github.com/jasonbahl/automation-tests/pull/3452))
+- ci: replace custom docker with wp-env ([#3451](https://github.com/jasonbahl/automation-tests/pull/3451))
 
 ## v2.5.3 - 2025-11-24
 

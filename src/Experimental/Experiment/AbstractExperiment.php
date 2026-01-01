@@ -17,11 +17,14 @@ use WPGraphQL\Experimental\Admin;
  */
 abstract class AbstractExperiment {
 	/**
-	 * The experiment unique slug.
+	 * The experiment unique slugs, keyed by class name.
 	 *
-	 * @var ?string
+	 * This is an array to prevent static property inheritance issues where
+	 * all subclasses would share the same cached slug value.
+	 *
+	 * @var array<class-string<self>,string>
 	 */
-	protected static $slug;
+	protected static $slugs = [];
 
 	/**
 	 * The experiment's configuration.
@@ -224,7 +227,9 @@ abstract class AbstractExperiment {
 	 * @throws \Exception If the experiment is missing a slug.
 	 */
 	public static function get_slug(): string {
-		if ( ! isset( static::$slug ) ) {
+		$class = static::class;
+
+		if ( ! isset( self::$slugs[ $class ] ) ) {
 			$slug = static::slug();
 
 			if ( empty( $slug ) ) {
@@ -232,22 +237,27 @@ abstract class AbstractExperiment {
 					sprintf(
 						/* translators: %s: The experiment's class name. */
 						esc_html__( 'The experiment %s is missing a slug. Ensure a valid `slug` is defined in the ::slug() method.', 'wp-graphql' ),
-						static::class
+						esc_html( $class )
 					)
 				);
 			}
 
-			static::$slug = $slug;
+			self::$slugs[ $class ] = $slug;
 		}
 
-		return static::$slug;
+		return self::$slugs[ $class ];
 	}
 
 	/**
 	 * Whether the experiment is active.
 	 */
 	public function is_active(): bool {
-		if ( isset( $this->is_active ) ) {
+		// Skip cache if filters are present (e.g., in tests) to allow dynamic enabling/disabling
+		$has_override_filter = has_filter( 'graphql_experimental_features_override' );
+		$has_specific_filter = has_filter( 'wp_graphql_experiment_' . static::get_slug() . '_enabled' );
+
+		// Use cached value only if no dynamic filters are present
+		if ( isset( $this->is_active ) && ! $has_override_filter && ! $has_specific_filter ) {
 			return $this->is_active;
 		}
 

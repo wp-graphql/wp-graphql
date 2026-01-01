@@ -405,7 +405,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 						'generalSettingsTimeFormat'        => $this->generalSettingsTimeFormat,
 						'generalSettingsTimezone'          => $this->generalSettingsTimezone,
 						'generalSettingsTitle'             => $this->generalSettingsTitle,
-						'generalSettingsUrl'               => 'http://localhost',
+						'generalSettingsUrl'               => untrailingslashit( get_site_url() ),
 						'readingSettingsPostsPerPage'      => $this->readingSettingsPostsPerPage,
 						'writingSettingsDefaultCategory'   => $this->writingSettingsDefaultCategory,
 						'writingSettingsDefaultPostFormat' => $this->writingSettingsDefaultPostFormat,
@@ -424,7 +424,7 @@ class SettingsMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase 
 						'timeFormat'  => $this->generalSettingsTimeFormat,
 						'timezone'    => $this->generalSettingsTimezone,
 						'title'       => $this->generalSettingsTitle,
-						'url'         => 'http://localhost',
+						'url'         => untrailingslashit( get_site_url() ),
 					],
 					'readingSettings'    => [
 						'postsPerPage' => $this->readingSettingsPostsPerPage,

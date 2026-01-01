@@ -210,7 +210,7 @@ class AppContext {
 			);
 
 			/**
-			 * @deprecated next-version in favor of graphql_data_loader_classes.
+			 * @deprecated 2.3.2 in favor of graphql_data_loader_classes.
 			 * @todo Remove in a future version.
 			 *
 			 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext

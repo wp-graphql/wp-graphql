@@ -1,6 +1,7 @@
 name: Code Quality
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop
@@ -12,39 +13,74 @@ on:
       - master
       - release/*
 
-# Cancel previous workflow run groups that have not completed.
+# Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
-  # Group workflow runs by workflow name, along with the head branch ref of the pull request
-  # or otherwise the branch or tag ref.
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
-    name: Check code
+  # Runs PHP static analysis tests.
+  #
+  # Violations are reported inline with annotations.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up PHP.
+  # - Configures caching for PHP static analysis scans.
+  # - Installs Composer dependencies.
+  # - Makes Composer packages available globally.
+  # - Runs PHPStan static analysis (with Pull Request annotations).
+  # - Saves the PHPStan result cache.
+  phpstan:
+    name: Run PHP static analysis
+    runs-on: ubuntu-24.04
+    permissions:
+        contents: read
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        - name: Checkout repository
+          uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+          with:
+              show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+              persist-credentials: false
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          tools: composer:v2
-          coverage: none
+        - name: Set up PHP
+          uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
+          with:
+              php-version: 8.3
+              coverage: none
+              tools: cs2pr
 
-      - name: Install dependencies
-        uses: ramsey/composer-install@v3
-        with:
-          composer-options: "--no-progress"
+        # This date is used to ensure that the PHPCS cache is cleared at least once every week.
+        # http://man7.org/linux/man-pages/man1/date.1.html
+        - name: "Get last Monday's date"
+          id: get-date
+          run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
-      - name: Run PHPStan
-        # If STEP_DEBUG is enabled, PHPStan will run in debug mode.
-        run: |
-          if [ "${{ secrets.ACTIONS_STEP_DEBUG }}" = "true" ]; then
-            php vendor/bin/phpstan analyse --memory-limit=2G --debug
-          else
-            composer run-script phpstan
-          fi
+        - name: Cache PHP Static Analysis scan cache
+          uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+          with:
+              path: tests/_output # This is defined in the base.neon file.
+              key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+              restore-keys: |
+                  phpstan-result-cache-
+
+        - name: Install Composer dependencies
+          uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+
+        - name: Make Composer packages available globally
+          run: echo "${PWD}/vendor/bin" >> "$GITHUB_PATH"
+
+        - name: Run PHP static analysis tests
+          id: phpstan
+          run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+
+        - name: Save result cache
+          uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+          if: ${{ !cancelled() }}
+          with:
+              path: tests/_output
+              key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
