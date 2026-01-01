@@ -297,9 +297,14 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 = 2.5.4 =
 
-**Bug Fixes**
+**New Features**
 
-* fix: align cookie authentication with WordPress REST API pattern (https://github.com/jasonbahl/automation-tests/pull/3448)
+* feat: refactor experiment registry for better testability (https://github.com/jasonbahl/automation-tests/pull/3453)
+
+**Other Changes**
+
+* release: next version 📦 (https://github.com/jasonbahl/automation-tests/pull/3452)
+* ci: replace custom docker with wp-env (https://github.com/jasonbahl/automation-tests/pull/3451)
 
 = 2.5.3 =
 
