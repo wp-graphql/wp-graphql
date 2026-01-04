@@ -61,8 +61,8 @@
 			"phpstan/extension-installer": true
 		}
 	},
-  "minimum-stability": "dev",
-  "prefer-stable": true,
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"autoload": {
 		"files": [],
 		"psr-4": {
