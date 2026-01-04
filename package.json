@@ -11,8 +11,8 @@
 		"test": "tests"
 	},
 	"engines": {
-		"node": ">=20",
-		"npm": ">=8"
+		"node": ">=22",
+		"npm": ">=10"
 	},
 	"scripts": {
 		"check-engines": "wp-scripts check-engines",
@@ -72,7 +72,7 @@
 		"@playwright/test": "^1.57.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^15.0.7",
-		"@types/node": "^20.19.27",
+		"@types/node": "^22.19.3",
 		"@wordpress/babel-preset-default": "^7.42.0",
 		"@wordpress/env": "^10.37.0",
 		"@wordpress/jest-preset-default": "^12.37.0",
@@ -96,8 +96,10 @@
 		"package.json": "sort-package-json"
 	},
 	"overrides": {
-		"react": "18.2.0",
-		"react-dom": "18.2.0"
+		"@babel/runtime": "^7.27.6",
+		"webpack-dev-server@<=5.2.0": ">=5.2.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1"
 	},
 	"version": "2.5.4"
 }
