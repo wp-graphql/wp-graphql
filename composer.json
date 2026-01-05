@@ -23,9 +23,9 @@
 	],
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"webonyx/graphql-php": "15.24.0",
+		"webonyx/graphql-php": "15.29.3",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "2.0.4"
+		"appsero/client": "2.0.5"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
@@ -39,14 +39,13 @@
 		"codeception/module-webdriver": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"lucatume/wp-browser": "<3.5",
-		"phpcompatibility/php-compatibility": "^9.3",
-		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpcompatibility/phpcompatibility-wp": "^3.0.0-alpha",
 		"phpstan/extension-installer": "^1.1",
 		"phpstan/phpstan-deprecation-rules": "^2.0.1",
 		"phpstan/phpstan": "~2.1.2",
 		"phpunit/phpunit": "^9.5",
 		"slevomat/coding-standard": "^8.9",
-		"szepeviktor/phpstan-wordpress": "~2.0.1",
+		"szepeviktor/phpstan-wordpress": "^2.0.1",
 		"wp-cli/wp-cli-bundle": "^2.8",
 		"wp-graphql/wp-graphql-testcase": "^3.0",
 		"composer/semver": "^3.0"
@@ -62,6 +61,8 @@
 			"phpstan/extension-installer": true
 		}
 	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"autoload": {
 		"files": [],
 		"psr-4": {
