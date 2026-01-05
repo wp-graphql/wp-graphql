@@ -1,6 +1,6 @@
 <?php
 
-class PostTypeObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PostTypeObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $current_time;
 	public $current_date;

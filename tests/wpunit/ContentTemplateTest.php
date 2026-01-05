@@ -2,7 +2,12 @@
 
 class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
-	public $template_slugs = [ // These are the slugs of the files in tests/_data/templates
+	/**
+	 * These are the slugs of the files in tests/_data/templates
+	 *
+	 * @var string[]
+	 */
+	public $template_slugs = [
 		'custom',
 		'custom-i18n',
 		'תבנית-שלי',
@@ -10,6 +15,7 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+
 		// Copy the custom templates to the theme
 		foreach ( $this->template_slugs as $template_slug ) {
 			$custom_template      = codecept_data_dir( "templates/$template_slug.php" );

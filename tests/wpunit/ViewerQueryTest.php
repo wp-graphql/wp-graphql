@@ -1,6 +1,6 @@
 <?php
 
-class ViewerQueryTest extends \Codeception\TestCase\WPTestCase {
+class ViewerQueryTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();

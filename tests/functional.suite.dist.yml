@@ -8,10 +8,12 @@ modules:
     enabled:
         - Asserts
         - REST
-        - WPBrowser
-        - WPDb
-        - WPLoader
+        - lucatume\WPBrowser\Module\WPBrowser
+        - lucatume\WPBrowser\Module\WPDb
+        - lucatume\WPBrowser\Module\WPLoader
     config:
-        WPDb:
+        lucatume\WPBrowser\Module\WPDb:
             cleanup: false
+        lucatume\WPBrowser\Module\WPLoader:
+            loadOnly: true
 bootstrap: bootstrap.php

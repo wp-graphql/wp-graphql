@@ -1,6 +1,6 @@
 <?php
 
-class MenuItemConnectionResolverTest extends \Codeception\TestCase\WPTestCase {
+class MenuItemConnectionResolverTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before

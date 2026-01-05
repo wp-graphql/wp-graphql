@@ -5,4 +5,4 @@ actor: WpunitTester
 modules:
     enabled:
         - Asserts
-        - WPLoader
+        - lucatume\WPBrowser\Module\WPLoader

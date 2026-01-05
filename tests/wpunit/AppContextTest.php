@@ -166,6 +166,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testDynamicPropertiesCanBeSetAndRetrieved() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedIncorrectUsage( 'WPGraphQL\AppContext::__set' );
+
 		// Set a dynamic property
 		$context->custom_property = 'custom_value';
 
@@ -178,6 +180,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testExistingPublicPropertiesCanBeSet() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedIncorrectUsage( 'WPGraphQL\AppContext::__set' );
 
 		// Set existing public properties
 		$context->viewer  = 'test_viewer';
@@ -197,6 +201,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testDeprecatedGetLoaderMethodStillWorks() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+
 		// Suppress deprecation notice for this test
 		$post_loader = @$context->getLoader( 'post' );
 		$this->assertInstanceOf( \WPGraphQL\Data\Loader\PostObjectLoader::class, $post_loader );
@@ -207,6 +213,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testDeprecatedGetConnectionArgsMethodStillWorks() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		$context->currentConnection                     = 'testConnection';
 		$context->connectionArgs['testConnection'] = [ 'first' => 5 ];
@@ -222,6 +230,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testDeprecatedGetCurrentConnectionMethodStillWorks() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getCurrentConnection' );
 
 		$context->currentConnection = 'testConnection';
 
@@ -240,6 +250,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testSetAndGetWithVariousDataTypes() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		// Test with string
 		$context->set( 'test-plugin', 'string-key', 'string value' );
@@ -280,6 +293,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testGetReturnsDefaultValueWhenKeyDoesntExist() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
+
 		// Test with default value
 		$this->assertEquals( 'default', $context->get( 'test-plugin', 'non-existent', 'default' ) );
 		$this->assertEquals( 123, $context->get( 'test-plugin', 'non-existent', 123 ) );
@@ -294,6 +310,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testHasReturnsCorrectBoolean() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		// Should return false for non-existent key
 		$this->assertFalse( $context->has( 'test-plugin', 'non-existent' ) );
@@ -316,6 +335,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testRemoveCorrectlyRemovesKeys() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
+
 		// Set a value
 		$context->set( 'test-plugin', 'key-to-remove', 'value' );
 		$this->assertTrue( $context->has( 'test-plugin', 'key-to-remove' ) );
@@ -334,6 +356,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testClearRemovesEntireNamespace() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		// Set multiple values in namespace
 		$context->set( 'test-plugin', 'key1', 'value1' );
@@ -363,6 +388,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testAllReturnsAllKeysInNamespace() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
+
 		// Empty namespace should return empty array
 		$this->assertEquals( [], $context->all( 'test-plugin' ) );
 
@@ -389,6 +417,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testNamespaceIsolation() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		// Set same key in different namespaces
 		$context->set( 'plugin-a', 'shared-key', 'value-a' );
@@ -418,6 +449,8 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testDynamicPropertyDeprecationNoticeIsTriggered() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedIncorrectUsage( 'WPGraphQL\AppContext::__set' );
+
 		// Capture the doing_it_wrong notice
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 
@@ -436,6 +469,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function testExistingPropertiesDontTriggerDeprecation() {
 		$context = new \WPGraphQL\AppContext();
 
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
+
 		// Setting existing properties should not trigger deprecation
 		// We can't easily test for absence of notice, but we verify properties work
 		$context->viewer  = 'test_viewer';
@@ -452,6 +488,10 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testDynamicPropertiesStillWorkAlongsideNewAPI() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
+		$this->setExpectedIncorrectUsage( 'WPGraphQL\AppContext::__set' );
 
 		// Suppress deprecation for this test
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
@@ -475,6 +515,9 @@ class AppContextTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 */
 	public function testDirectiveLikePattern() {
 		$context = new \WPGraphQL\AppContext();
+
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getLoader' );
+		$this->setExpectedDeprecated( 'WPGraphQL\AppContext::getConnectionArgs' );
 
 		// Simulate a directive storing original state before execution
 		$original_locale = 'en_US';

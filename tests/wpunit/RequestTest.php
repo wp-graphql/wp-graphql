@@ -2,7 +2,7 @@
 
 use WPGraphQL\Request;
 
-class RequestTest extends \Codeception\TestCase\WPTestCase {
+class RequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();

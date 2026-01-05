@@ -1,6 +1,6 @@
 <?php
 
-class DataConfigTest extends \Codeception\TestCase\WPTestCase {
+class DataConfigTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 

@@ -1,6 +1,6 @@
 <?php
 
-class ShouldShowAdminToolbarQueryTest extends \Codeception\TestCase\WPTestCase {
+class ShouldShowAdminToolbarQueryTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
