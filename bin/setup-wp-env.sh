@@ -7,10 +7,14 @@ npm run wp-env run tests-cli -- wp rewrite structure /%postname%/ --hard
 npm run wp-env run cli -- wp rewrite flush --hard
 npm run wp-env run tests-cli  -- wp rewrite flush --hard
 
-# Disable auto-updates via wp-config (matches old Docker setup)
-# These constants are loaded before mu-plugins, so they're more reliable
-npm run wp-env run tests-cli -- wp config set WP_AUTO_UPDATE_CORE false --raw --type=constant
-npm run wp-env run tests-cli -- wp config set AUTOMATIC_UPDATER_DISABLED true --raw --type=constant
+# Delete default WordPress content to ensure consistent test state
+# The "Hello world!" post and default comment can interfere with test assertions
+npm run wp-env run tests-cli -- wp post delete 1 --force 2>/dev/null || true
+npm run wp-env run tests-cli -- wp comment delete 1 --force 2>/dev/null || true
+
+# Auto-update constants are now set in tests/_data/config.php which is loaded
+# by Codeception's WPLoader. Setting them here in wp-config.php causes
+# "constant already defined" warnings since config.php loads first.
 
 # Explicitly deactivate maintenance mode if active (matches old Docker setup)
 npm run wp-env run tests-cli -- wp maintenance-mode deactivate 2>/dev/null || echo "Maintenance mode already inactive or command not available"

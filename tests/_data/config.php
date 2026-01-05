@@ -7,8 +7,18 @@
  * @package WPGraphQL/Tests
  */
 
-define( 'AUTOMATIC_UPDATER_DISABLED', true );
-define( 'GRAPHQL_DEBUG', true );
-define( 'WP_AUTO_UPDATE_CORE', false );
-define( 'WP_HTTP_BLOCK_EXTERNAL', false );
-define( 'WPGRAPHQL_AUTOLOAD', false );
+if ( ! defined( 'AUTOMATIC_UPDATER_DISABLED' ) ) {
+	define( 'AUTOMATIC_UPDATER_DISABLED', true );
+}
+if ( ! defined( 'GRAPHQL_DEBUG' ) ) {
+	define( 'GRAPHQL_DEBUG', true );
+}
+if ( ! defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+	define( 'WP_AUTO_UPDATE_CORE', false );
+}
+if ( ! defined( 'WP_HTTP_BLOCK_EXTERNAL' ) ) {
+	define( 'WP_HTTP_BLOCK_EXTERNAL', false );
+}
+if ( ! defined( 'WPGRAPHQL_AUTOLOAD' ) ) {
+	define( 'WPGRAPHQL_AUTOLOAD', false );
+}

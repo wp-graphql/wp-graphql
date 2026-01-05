@@ -107,10 +107,6 @@ jobs:
             command: |
                 npm run wp-env start -- ${{ matrix.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
-      - name: Run setup script (ensure lifecycle script ran)
-        run: |
-            bash bin/setup-wp-env.sh
-
       - name: Log versions
         run: |
             npm run wp-env -- run cli php -- -v
