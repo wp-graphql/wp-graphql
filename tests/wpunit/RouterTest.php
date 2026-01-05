@@ -8,7 +8,11 @@ class RouterTest extends WPTestCase {
 		// before
 		parent::setUp();
 
-		// your set up methods here
+		// The twentytwentyone theme hooks the_block_template_skip_link to wp_footer,
+		// which was deprecated in WordPress 6.4. Expect the deprecation to avoid test failures.
+		if ( function_exists( 'the_block_template_skip_link' ) && has_action( 'wp_footer', 'the_block_template_skip_link' ) ) {
+			$this->setExpectedDeprecated( 'the_block_template_skip_link' );
+		}
 	}
 
 	public function tearDown(): void {
@@ -252,7 +256,6 @@ class RouterTest extends WPTestCase {
 		// Some plugins trigger wp_footer during API requests
 		add_action( 'graphql_execute', function() {
 			ob_start();
-			$this->setExpectedDeprecated( 'the_block_template_skip_link' );
 			do_action( 'wp_footer' );
 			$output = ob_get_clean();
 			if ( $output ) {
