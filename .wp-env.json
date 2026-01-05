@@ -14,6 +14,9 @@
 			}
 		},
 		"tests": {
+			"themes": [
+				"https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip"
+			],
 			"plugins": [
 				"./.",
 				"./tests/e2e/plugins/settings-page-spec"
