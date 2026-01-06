@@ -436,4 +436,212 @@ class ContentTemplateTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Log for debugging
 		codecept_debug( 'Template response: ' . print_r( $template, true ) );
 	}
+
+	/**
+	 * Skip test unless a block theme is active.
+	 *
+	 * @param string $reason Additional context.
+	 */
+	private function skipIfNotBlockTheme( string $reason = '' ): void {
+		if ( ! $this->is_block_theme ) {
+			$message = 'This test requires a block theme (FSE theme).';
+			if ( $reason ) {
+				$message .= ' ' . $reason;
+			}
+			$this->markTestSkipped( $message );
+		}
+	}
+
+	/**
+	 * Helper to create a custom block template for testing.
+	 *
+	 * Block templates are stored as wp_template custom post types and associated
+	 * with a theme via the wp_theme taxonomy.
+	 *
+	 * @param string $slug  Template slug (e.g., 'custom-test-template').
+	 * @param string $title Template title/name (can include i18n characters).
+	 * @return int|WP_Error Template post ID or WP_Error on failure.
+	 */
+	private function createBlockTemplate( string $slug, string $title ) {
+		$template_id = wp_insert_post(
+			[
+				'post_type'    => 'wp_template',
+				'post_name'    => $slug,
+				'post_title'   => $title,
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:post-content /-->',
+			]
+		);
+
+		if ( ! is_wp_error( $template_id ) ) {
+			// Associate template with the current theme
+			wp_set_object_terms( $template_id, wp_get_theme()->get_stylesheet(), 'wp_theme' );
+		}
+
+		return $template_id;
+	}
+
+	/**
+	 * Test that custom block templates (created via Site Editor) are exposed in GraphQL.
+	 *
+	 * Block themes allow users to create custom templates via the Site Editor.
+	 * These are stored as wp_template post types. WPGraphQL should expose them
+	 * just like it exposes classic PHP templates.
+	 */
+	public function testBlockThemeCustomTemplate(): void {
+		$this->skipIfNotBlockTheme( 'Custom block templates are specific to block themes.' );
+
+		$template_slug  = 'test-custom-block-template';
+		$template_title = 'Test Custom Block Template';
+
+		// Create a custom block template
+		$template_id = $this->createBlockTemplate( $template_slug, $template_title );
+		$this->assertNotWPError( $template_id, 'Failed to create block template' );
+
+		// Clear schema cache to pick up new template
+		$this->clearSchema();
+
+		// Query the schema for available template types
+		$query = '
+			query GetContentTemplateTypes {
+				__type(name:"ContentTemplate"){
+					possibleTypes{
+						name
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+
+		$possible_types = wp_list_pluck( $actual['data']['__type']['possibleTypes'], 'name' );
+
+		// The custom template should be registered
+		$expected_type = \WPGraphQL\Utils\Utils::format_type_name_for_wp_template( $template_title, $template_slug );
+		
+		codecept_debug( 'Block template slug: ' . $template_slug );
+		codecept_debug( 'Block template title: ' . $template_title );
+		codecept_debug( 'Expected GraphQL type: ' . $expected_type );
+		codecept_debug( 'Available types: ' . print_r( $possible_types, true ) );
+
+		$this->assertContains(
+			$expected_type,
+			$possible_types,
+			sprintf( 'Custom block template "%s" should be exposed as GraphQL type "%s"', $template_title, $expected_type )
+		);
+
+		// Cleanup
+		wp_delete_post( $template_id, true );
+	}
+
+	/**
+	 * Test that block templates with i18n names are handled correctly.
+	 *
+	 * Users can create block templates with non-ASCII names via the Site Editor.
+	 * WPGraphQL should handle these gracefully, similar to how it handles
+	 * classic i18n templates.
+	 */
+	public function testBlockThemeI18nTemplate(): void {
+		$this->skipIfNotBlockTheme( 'Block template i18n testing is specific to block themes.' );
+
+		$template_slug  = 'test-i18n-block-template';
+		$template_title = 'カスタムブロックテンプレート'; // "Custom Block Template" in Japanese
+
+		// Create a custom block template with i18n title
+		$template_id = $this->createBlockTemplate( $template_slug, $template_title );
+		$this->assertNotWPError( $template_id, 'Failed to create i18n block template' );
+
+		// Clear schema cache
+		$this->clearSchema();
+
+		// Create a page and assign the template
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_title'   => 'Page with i18n Block Template',
+				'post_content' => 'Testing i18n block template',
+				'post_status'  => 'publish',
+				'meta_input'   => [
+					'_wp_page_template' => $template_slug,
+				],
+			]
+		);
+
+		$query = $this->getQuery();
+
+		$variables = [
+			'id' => $page_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		codecept_debug( 'i18n Block Template Result: ' . print_r( $actual, true ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $page_id, $actual['data']['contentNode']['databaseId'] );
+
+		// The template name should be the i18n name
+		$this->assertSame( $template_title, $actual['data']['contentNode']['template']['templateName'] );
+
+		// Cleanup
+		wp_delete_post( $template_id, true );
+	}
+
+	/**
+	 * Test assigning a block theme's built-in template to a page.
+	 *
+	 * Block themes come with built-in templates (e.g., page-no-title in twentytwentyfive).
+	 * This test verifies that assigning one of these templates works correctly.
+	 */
+	public function testBlockThemeBuiltInTemplate(): void {
+		$this->skipIfNotBlockTheme( 'Built-in block templates are specific to block themes.' );
+
+		// Get available templates for pages
+		$available_templates = wp_get_theme()->get_page_templates( null, 'page' );
+
+		// Skip if no templates available (unlikely for block themes)
+		if ( empty( $available_templates ) ) {
+			$this->markTestSkipped( 'No page templates available in the current block theme.' );
+		}
+
+		// Use the first available template
+		$template_slug = array_key_first( $available_templates );
+		$template_name = $available_templates[ $template_slug ];
+
+		codecept_debug( 'Testing with block theme template: ' . $template_slug . ' => ' . $template_name );
+
+		// Create a page with the built-in template assigned
+		$page_id = $this->factory()->post->create(
+			[
+				'post_type'    => 'page',
+				'post_title'   => 'Page with Built-in Block Template',
+				'post_content' => 'Testing built-in block template',
+				'post_status'  => 'publish',
+				'meta_input'   => [
+					'_wp_page_template' => $template_slug,
+				],
+			]
+		);
+
+		$query = $this->getQuery();
+
+		$variables = [
+			'id' => $page_id,
+		];
+
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertSame( $page_id, $actual['data']['contentNode']['databaseId'] );
+
+		// Verify the template info
+		$expected_type = \WPGraphQL\Utils\Utils::format_type_name_for_wp_template( $template_name, $template_slug );
+		
+		$this->assertSame( $expected_type, $actual['data']['contentNode']['template']['__typename'] );
+		$this->assertSame( $template_name, $actual['data']['contentNode']['template']['templateName'] );
+
+		codecept_debug( 'Built-in template response: ' . print_r( $actual['data']['contentNode']['template'], true ) );
+	}
 }
