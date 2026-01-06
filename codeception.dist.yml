@@ -88,6 +88,7 @@ modules:
             adminEmail: "%TEST_ADMIN_EMAIL%"
             multisite: "%MULTISITE%"
             title: "Test"
+            theme: "%TEST_THEME%"
             plugins:
                 - wp-graphql/wp-graphql.php
             activatePlugins:

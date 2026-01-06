@@ -10,7 +10,7 @@ class RouterTest extends WPTestCase {
 		/**
 		 * Remove the_block_template_skip_link from wp_footer if present.
 		 *
-		 * WHY THIS IS NOT A HACK:
+		 * WHY THIS IS NOT A "HACK":
 		 * -----------------------
 		 * The twentytwentyone theme (required for ContentTemplateTest) hooks
 		 * `the_block_template_skip_link` to `wp_footer`. This function was deprecated

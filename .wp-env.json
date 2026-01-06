@@ -5,7 +5,10 @@
 		"./.",
 		"https://downloads.wordpress.org/plugin/wpgraphql-ide.latest-stable.zip"
 	],
-	"themes": [],
+	"themes": [
+		"https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip",
+		"https://downloads.wordpress.org/theme/twentytwentyfive.latest-stable.zip"
+	],
 	"env": {
 		"development": {
 			"config": {

@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   codeception:
-    name: WordPress ${{ matrix.wp }} on PHP ${{ matrix.php }} ${{ matrix.multisite && 'Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
+    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }} / ${{ matrix.theme }} ${{ matrix.multisite && '/ Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,23 +42,33 @@ jobs:
         wp: [ '6.8', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
         multisite: [ false ]
         coverage: [ false ]
+        # Use twentytwentyone (classic theme) for older WP to test classic templates
+        # Use twentytwentyfive (block theme) for WP 6.7+ to test real-world block theme behavior
+        theme: [ 'twentytwentyone' ]
         include:
-          # Latest WordPress + PHP.
+          # Latest WordPress + PHP with block theme (twentytwentyfive)
           - wp: '6.9'
             php: '8.4'
+            theme: 'twentytwentyfive'
             coverage: true
           - wp: '6.9'
             php: '8.4'
+            theme: 'twentytwentyfive'
             multisite: true
-          # WordPress versions above the PHP testing matrix.
+          # WordPress 6.7+ with block theme
           - wp: '6.8'
             php: '8.3'
+            theme: 'twentytwentyfive'
           - wp: '6.7'
             php: '8.3'
+            theme: 'twentytwentyfive'
+          # WordPress 6.5-6.6 with classic theme
           - wp: '6.6'
             php: '8.3'
+            theme: 'twentytwentyone'
           - wp: '6.5'
             php: '8.3'
+            theme: 'twentytwentyone'
     env:
       WP_ENV_PHP_VERSION: ${{ matrix.php }}
       WP_ENV_CORE: ${{ matrix.wp == 'trunk' && 'WordPress/WordPress' || format( 'https://wordpress.org/wordpress-{0}.zip', matrix.wp ) }}
@@ -112,12 +122,20 @@ jobs:
             npm run wp-env -- run cli php -- -v
             npm run wp-env -- run cli wp core version
 
+      - name: Activate test theme
+        run: |
+            echo "Activating theme: ${{ matrix.theme }}"
+            npm run wp-env run tests-cli -- wp theme activate ${{ matrix.theme }}
+            npm run wp-env run tests-cli -- wp theme list
+
       - name: Verify test environment
         run: |
             echo "Checking mu-plugin installation..."
             npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
             echo "Checking site URL..."
             npm run wp-env run tests-cli -- wp option get siteurl
+            echo "Active theme..."
+            npm run wp-env run tests-cli -- wp theme status
             echo "Testing GraphQL endpoint..."
             npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
 
@@ -132,8 +150,9 @@ jobs:
       - name: Run WPUnit Tests
         env:
           MULTISITE: ${{ matrix.multisite && 'true' || '' }}
+          TEST_THEME: ${{ matrix.theme }}
         run: |
-          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'MULTISITE=${{ matrix.multisite && 'true' || 'false' }} vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}'
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- bash -c 'MULTISITE=${{ matrix.multisite && 'true' || 'false' }} TEST_THEME=${{ matrix.theme }} vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}'
 
       - name: Upload test failure artifacts
         if: failure()
