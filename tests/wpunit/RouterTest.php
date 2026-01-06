@@ -9,8 +9,10 @@ class RouterTest extends WPTestCase {
 		parent::setUp();
 
 		// The twentytwentyone theme hooks the_block_template_skip_link to wp_footer,
-		// which was deprecated in WordPress 6.4. Expect the deprecation to avoid test failures.
-		if ( function_exists( 'the_block_template_skip_link' ) && has_action( 'wp_footer', 'the_block_template_skip_link' ) ) {
+		// which was deprecated in WordPress 6.4. Only expect the deprecation on WP 6.4+.
+		if ( function_exists( 'the_block_template_skip_link' ) 
+			&& has_action( 'wp_footer', 'the_block_template_skip_link' ) 
+			&& version_compare( get_bloginfo( 'version' ), '6.4', '>=' ) ) {
 			$this->setExpectedDeprecated( 'the_block_template_skip_link' );
 		}
 	}
