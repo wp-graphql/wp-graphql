@@ -471,7 +471,6 @@ class RouterTest extends WPTestCase {
 
 		// Cleanup
 		remove_all_actions( 'init_graphql_request' );
-
 	}
 
 	/**
