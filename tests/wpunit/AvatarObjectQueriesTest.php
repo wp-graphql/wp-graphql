@@ -1,6 +1,6 @@
 <?php
 
-class AvatarObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class AvatarObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $admin;
 

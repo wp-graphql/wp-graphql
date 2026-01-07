@@ -337,6 +337,7 @@ class AppContext {
 	 * @deprecated use get_current_connection instead.
 	 */
 	public function getCurrentConnection() {
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_current_connection()' );
 		return $this->get_current_connection();
 	}
 

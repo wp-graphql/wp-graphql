@@ -212,7 +212,9 @@ class MenuItemConnectionQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLT
 
 		// Run the GraphQL Query
 		$expected = array_slice( $wp_query, 0, 2, false );
-		$actual   = $this->graphql( compact( 'query', 'variables' ) );
+
+		$this->setExpectedIncorrectUsage( 'WPGraphQL\Type\Union\MenuItemObjectUnion' );
+		$actual = $this->graphql( compact( 'query', 'variables' ) );
 
 		$this->assertValidPagination( $expected, $actual );
 		$this->assertEquals( false, $actual['data']['menuItems']['pageInfo']['hasPreviousPage'] );
