@@ -8,34 +8,10 @@ class RouterTest extends WPTestCase {
 		parent::setUp();
 
 		/**
-		 * Remove the_block_template_skip_link from wp_footer if present.
+		 * This function was deprecated in WP6.4, but is used by TT1.
+		 * We unhook `the_block_template_skip_link`here so we don't need to litter the tests with `->setExpectedDeprecated()` calls that are irrelevant to the plugin's or tests' usage of apply_filters( 'wp_footer' ).
 		 *
-		 * WHY THIS IS NOT A "HACK":
-		 * -----------------------
-		 * The twentytwentyone theme (required for ContentTemplateTest) hooks
-		 * `the_block_template_skip_link` to `wp_footer`. This function was deprecated
-		 * in WordPress 6.4.
-		 *
-		 * The RouterTest tests verify that WPGraphQL's output buffering properly handles
-		 * stray HTML output (echo statements) during GraphQL execution - preventing plugins
-		 * or themes that accidentally output HTML from corrupting JSON responses.
-		 *
-		 * The deprecation notice from `the_block_template_skip_link`:
-		 * - Goes to PHP error logs, NOT to the response body
-		 * - Does NOT affect WPGraphQL's output buffering (which handles echoed content)
-		 * - Is unrelated to what these tests are verifying
-		 *
-		 * The WordPress test framework (WP_UnitTestCase) tracks deprecation notices and
-		 * fails tests when unexpected deprecations occur. This is test framework behavior,
-		 * not a WPGraphQL bug.
-		 *
-		 * PRODUCTION IMPACT: None. Users with twentytwentyone on WP 6.4+ may see
-		 * deprecation notices in their logs (a WordPress/theme issue), but WPGraphQL's
-		 * output buffering will still properly handle any actual HTML output and return
-		 * valid JSON responses.
-		 *
-		 * The tests still fully verify output buffering by adding their own HTML output
-		 * to wp_footer, wp_head, graphql_execute, and other hooks.
+		 * @todo Remove this once we no longer need to test against twentytwentyone.
 		 */
 		if ( function_exists( 'the_block_template_skip_link' ) ) {
 			remove_action( 'wp_footer', 'the_block_template_skip_link' );
