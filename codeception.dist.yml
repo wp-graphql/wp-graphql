@@ -88,6 +88,8 @@ modules:
             adminEmail: "%TEST_ADMIN_EMAIL%"
             multisite: "%MULTISITE%"
             title: "Test"
+            # Theme to load for tests. Defaults to twentytwentyone in .env.dist.
+            # CI matrix overrides this to test both classic and block themes.
             theme: "%TEST_THEME%"
             plugins:
                 - wp-graphql/wp-graphql.php
