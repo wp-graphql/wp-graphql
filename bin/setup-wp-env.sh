@@ -26,13 +26,29 @@ npm run wp-env run tests-cli -- rm -f /var/www/html/.maintenance 2>/dev/null || 
 # wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
 # the container (only port 80 works internally). This mu-plugin rewrites URLs
 # so WPBrowser's loginAs() can follow WordPress-generated URLs correctly.
+#
+# IMPORTANT: This fix is ONLY applied when the request comes from Codeception tests
+# (identified by X_TEST_REQUEST or X_WPBROWSER_REQUEST headers). Playwright e2e tests
+# run outside Docker and need localhost:8889 URLs, so we must NOT rewrite for them.
 npm run wp-env run tests-cli -- bash -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cat > /var/www/html/wp-content/mu-plugins/wp-env-url-fix.php << '\''MUPLUGIN'\''
 <?php
 /**
  * Plugin Name: WP-ENV URL Fix
- * Description: Fixes internal Docker URL resolution for tests
+ * Description: Fixes internal Docker URL resolution for Codeception tests
  */
 function wpgraphql_wpenv_fix_url( $url ) {
+    // Only apply URL fix for Codeception tests (WPBrowser).
+    // These tests run inside Docker and send specific headers.
+    // Playwright e2e tests run outside Docker and need localhost URLs.
+    $is_codeception_request = (
+        ! empty( $_SERVER["HTTP_X_TEST_REQUEST"] ) ||
+        ! empty( $_SERVER["HTTP_X_WPBROWSER_REQUEST"] )
+    );
+
+    if ( ! $is_codeception_request ) {
+        return $url;
+    }
+
     return preg_replace( "#https?://(localhost|tests-wordpress):8889#", "http://tests-wordpress", $url );
 }
 add_filter( "site_url", "wpgraphql_wpenv_fix_url", 1 );
