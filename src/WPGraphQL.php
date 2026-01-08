@@ -14,10 +14,11 @@ use WPGraphQL\Utils\InstrumentSchema;
 use WPGraphQL\Utils\Preview;
 
 /**
- * Class WPGraphQL
+ * Core bootstrap class for WPGraphQL.
  *
- * This is the one true WPGraphQL class
+ * Handles plugin initialization and core setup.
  */
+
 final class WPGraphQL {
 
 	/**
