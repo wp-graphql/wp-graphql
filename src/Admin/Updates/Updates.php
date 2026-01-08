@@ -135,6 +135,7 @@ final class Updates {
 			return;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constructed from WPGRAPHQL_PLUGIN_DIR constant + hardcoded string, validated with file_exists()
 		$asset_file = include $asset_path;
 
 		wp_enqueue_style(

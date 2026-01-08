@@ -41,8 +41,6 @@ final class Extensions {
 
 	/**
 	 * Whether the JavaScript build assets are available.
-	 *
-	 * @var bool
 	 */
 	private bool $build_assets_available;
 
@@ -119,6 +117,7 @@ final class Extensions {
 			return;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constructed from WPGRAPHQL_PLUGIN_DIR constant + hardcoded string, validated with file_exists()
 		$asset_file = include $asset_path;
 
 		wp_enqueue_style(

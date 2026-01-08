@@ -43,11 +43,9 @@ class GraphiQL {
 	 * - 'has_style': Whether a .css file accompanies the .js
 	 * - 'script_deps': WP script handles this asset depends on
 	 * - 'style_deps': WP style handles this asset's CSS depends on
-	 *
-	 * @var array<string,array<string,mixed>>
 	 */
 	protected const CORE_ASSETS = [
-		'wp-graphiql' => [
+		'wp-graphiql'     => [
 			'file'        => 'index',
 			'has_style'   => false,
 			'script_deps' => [],
@@ -72,17 +70,15 @@ class GraphiQL {
 	 * - Auth Switch: Toggle between authenticated/public API requests
 	 * - Query Composer: Build queries using a visual form interface
 	 * - Fullscreen Toggle: Expand GraphiQL to fill the browser window
-	 *
-	 * @var array<string,array<string,mixed>>
 	 */
 	protected const EXTENSION_ASSETS = [
-		'wp-graphiql-auth-switch' => [
+		'wp-graphiql-auth-switch'       => [
 			'file'        => 'graphiqlAuthSwitch',
 			'has_style'   => false,
 			'script_deps' => [ 'wp-graphiql', 'wp-graphiql-app' ],
 			'style_deps'  => [],
 		],
-		'wp-graphiql-query-composer' => [
+		'wp-graphiql-query-composer'    => [
 			'file'        => 'graphiqlQueryComposer',
 			'has_style'   => true,
 			'script_deps' => [ 'wp-graphiql', 'wp-graphiql-app' ],
@@ -353,8 +349,6 @@ class GraphiQL {
 	 *
 	 * @param string              $handle The WordPress script/style handle.
 	 * @param array<string,mixed> $config The asset configuration from CORE_ASSETS or EXTENSION_ASSETS.
-	 *
-	 * @return void
 	 */
 	protected function enqueue_asset( string $handle, array $config ): void {
 		$file       = $config['file'];
@@ -365,6 +359,7 @@ class GraphiQL {
 			return;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constructed from WPGRAPHQL_PLUGIN_DIR constant + hardcoded string, validated with file_exists()
 		$asset_file = include $asset_path;
 
 		// Enqueue the script
