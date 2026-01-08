@@ -107,15 +107,23 @@ class Settings {
 				'value'             => ! empty( $custom_endpoint ) ? $custom_endpoint : null,
 				'default'           => ! empty( $custom_endpoint ) ? $custom_endpoint : 'graphql',
 				'disabled'          => ! empty( $custom_endpoint ),
-				'sanitize_callback' => static function ( $value ) {
-					if ( empty( $value ) ) {
-						add_settings_error( 'graphql_endpoint', 'required', __( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ), 'error' );
+			'sanitize_callback' => static function ( $value ) {
+	$value = sanitize_text_field( wp_unslash( $value ) );
 
-						return 'graphql';
-					}
+	if ( empty( $value ) ) {
+		add_settings_error(
+			'graphql_endpoint',
+			'required',
+			__( 'The "GraphQL Endpoint" field is required and cannot be blank. The default endpoint is "graphql"', 'wp-graphql' ),
+			'error'
+		);
 
-					return $value;
-				},
+		return 'graphql';
+	}
+
+	return $value;
+},
+
 			]
 		);
 
