@@ -1,0 +1,39 @@
+# Codecov configuration
+# https://docs.codecov.com/docs/codecov-yaml
+
+# Fix path prefixes from Docker container paths to repo-relative paths
+fixes:
+  - "/var/www/html/wp-content/plugins/wp-graphql/::"
+
+coverage:
+  status:
+    project:
+      default:
+        # Allow coverage to drop by up to 1% without failing
+        threshold: 1%
+    patch:
+      default:
+        # Require new code to have at least some coverage
+        threshold: 1%
+
+comment:
+  # Show coverage diff in PR comments
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true
+
+# Group coverage by test type (for future matrix coverage)
+flags:
+  wpunit:
+    paths:
+      - src/
+    carryforward: true
+  acceptance:
+    paths:
+      - src/
+    carryforward: true
+  functional:
+    paths:
+      - src/
+    carryforward: true
+

@@ -162,7 +162,15 @@ jobs:
             path: tests/_output/*.fail.html
             if-no-files-found: ignore
 
-      - name: Push Codecoverage to Coveralls.io
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.coverage }}
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        with:
+            files: tests/_output/coverage.xml
+            flags: wpunit
+            fail_ci_if_error: false
+
+      - name: Upload coverage to Coveralls
         if: ${{ matrix.coverage }}
         uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
@@ -170,6 +178,7 @@ jobs:
             file: tests/_output/coverage.xml
             flag-name: wpunit
             format: clover
+            base-path: /var/www/html/wp-content/plugins/wp-graphql/
 
       - name: Upload HTML coverage report as artifact
         if: ${{ matrix.coverage }}
