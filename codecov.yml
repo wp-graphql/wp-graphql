@@ -22,17 +22,27 @@ comment:
   behavior: default
   require_changes: true
 
-# Group coverage by test type (for future matrix coverage)
+# Group coverage by test type and configuration
 flags:
   wpunit:
     paths:
       - src/
     carryforward: true
-  acceptance:
+  # Theme flags
+  twentytwentyfive:
     paths:
       - src/
     carryforward: true
-  functional:
+  twentytwentyone:
+    paths:
+      - src/
+    carryforward: true
+  # Multisite flags
+  single:
+    paths:
+      - src/
+    carryforward: true
+  multisite:
     paths:
       - src/
     carryforward: true
