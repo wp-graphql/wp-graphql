@@ -104,6 +104,9 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
+      - name: Build JavaScript assets
+        run: npm run build
+
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
         with:
