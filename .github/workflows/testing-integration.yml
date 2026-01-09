@@ -1,3 +1,39 @@
+# ===========================================
+# TESTING INTEGRATION WORKFLOW
+# ===========================================
+#
+# MATRIX STRATEGY:
+# ----------------
+# We use a "boundary testing" approach rather than testing every PHP × WP combination.
+# The rationale: if tests pass at version boundaries (oldest + newest), they almost
+# certainly pass for versions in between. This reduces CI time from ~40 jobs to ~8-18
+# while maintaining confidence in compatibility.
+#
+# TWO MATRIX MODES:
+# - MINIMAL (PRs to develop): ~8 jobs for quick feedback
+# - FULL (merges + release PRs): ~18 jobs for thorough pre-release testing
+#
+# COVERAGE STRATEGY:
+# Code coverage is collected from 4 configurations on the latest WP/PHP:
+# - Block theme (twentytwentyfive) × single site
+# - Block theme (twentytwentyfive) × multisite
+# - Classic theme (twentytwentyone) × single site
+# - Classic theme (twentytwentyone) × multisite
+# This ensures we capture code paths specific to themes and multisite.
+#
+# EXPERIMENTAL JOBS:
+# WordPress trunk (nightly) is tested but allowed to fail. This gives us early
+# warning of upcoming breaking changes without blocking PRs.
+#
+# VERSION MAINTENANCE:
+# Update this matrix when new WP/PHP versions are released:
+# - WordPress releases ~3x/year: https://wordpress.org/about/roadmap/
+# - PHP support: https://www.php.net/supported-versions.php
+# - WP PHP requirements: https://make.wordpress.org/core/handbook/references/php-compatibility-and-target-versions/
+#
+# Last updated: 2026-01-09
+# ===========================================
+
 name: Testing Integration
 
 on:
@@ -32,59 +68,84 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  codeception:
-    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }} / ${{ matrix.theme }} ${{ matrix.multisite && '/ Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }}
+  # Determine which matrix to use based on event type
+  setup-matrix:
+    name: Setup Test Matrix
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          # Use full matrix for:
+          # - Push events (merges to develop/master)
+          # - Release PRs (PRs targeting master, like "release: next version")
+          # Use minimal matrix for:
+          # - Regular PRs targeting develop
+          
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "develop" ]]; then
+            # ===========================================
+            # MINIMAL MATRIX (~8 jobs)
+            # For regular PRs - provides quick feedback
+            # ===========================================
+            # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos
+            # - 3 boundary jobs: Current stable, mid-range, oldest supported
+            # - 1 experimental: WordPress trunk (allowed to fail)
+            echo 'matrix={
+              "include": [
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyfive", "multisite": false, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyfive", "multisite": true, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyone", "multisite": false, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyone", "multisite": true, "coverage": true, "experimental": false },
+                { "wp": "6.8", "php": "8.3", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.5", "php": "8.1", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.1", "php": "7.4", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "trunk", "php": "8.4", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": true }
+              ]
+            }' | tr -d '\n' >> $GITHUB_OUTPUT
+          else
+            # ===========================================
+            # FULL MATRIX (~18 jobs)
+            # For merges to develop/master and release PRs
+            # Provides thorough testing before releases
+            # ===========================================
+            # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos
+            # - 6 PHP version jobs: All supported PHP versions on latest stable WP
+            # - 7 WP version jobs: All supported WP versions (one PHP each)
+            # - 1 experimental: WordPress trunk (allowed to fail)
+            echo 'matrix={
+              "include": [
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyfive", "multisite": false, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyfive", "multisite": true, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyone", "multisite": false, "coverage": true, "experimental": false },
+                { "wp": "6.9", "php": "8.4", "theme": "twentytwentyone", "multisite": true, "coverage": true, "experimental": false },
+                { "wp": "6.8", "php": "8.4", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.8", "php": "8.3", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.8", "php": "8.2", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.8", "php": "8.1", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.8", "php": "8.0", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.8", "php": "7.4", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.7", "php": "8.3", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.6", "php": "8.3", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.5", "php": "8.2", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.4", "php": "8.1", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.3", "php": "8.0", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.2", "php": "7.4", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "6.1", "php": "7.4", "theme": "twentytwentyone", "multisite": false, "coverage": false, "experimental": false },
+                { "wp": "trunk", "php": "8.4", "theme": "twentytwentyfive", "multisite": false, "coverage": false, "experimental": true }
+              ]
+            }' | tr -d '\n' >> $GITHUB_OUTPUT
+          fi
+
+  codeception:
+    name: WP ${{ matrix.wp }} / PHP ${{ matrix.php }} / ${{ matrix.theme }} ${{ matrix.multisite && '/ Multisite' || '' }} ${{ matrix.coverage && '(Coverage)' || '' }} ${{ matrix.experimental && '🧪' || '' }}
+    needs: setup-matrix
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       fail-fast: false
-      matrix:
-        php: [ '8.2', '8.1', '8.0', '7.4' ]
-        wp: [ '6.8', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1' ]
-        multisite: [ false ]
-        coverage: [ false ]
-        # Use twentytwentyone (classic theme) for older WP to test classic templates
-        # Use twentytwentyfive (block theme) for WP 6.7+ to test real-world block theme behavior
-        theme: [ 'twentytwentyone' ]
-        include:
-          # Coverage matrix: test both themes × multisite on latest WP/PHP
-          # Block theme (twentytwentyfive) - single site
-          - wp: '6.9'
-            php: '8.4'
-            theme: 'twentytwentyfive'
-            multisite: false
-            coverage: true
-          # Block theme (twentytwentyfive) - multisite
-          - wp: '6.9'
-            php: '8.4'
-            theme: 'twentytwentyfive'
-            multisite: true
-            coverage: true
-          # Classic theme (twentytwentyone) - single site
-          - wp: '6.9'
-            php: '8.4'
-            theme: 'twentytwentyone'
-            multisite: false
-            coverage: true
-          # Classic theme (twentytwentyone) - multisite
-          - wp: '6.9'
-            php: '8.4'
-            theme: 'twentytwentyone'
-            multisite: true
-            coverage: true
-          # WordPress 6.7+ with block theme
-          - wp: '6.8'
-            php: '8.3'
-            theme: 'twentytwentyfive'
-          - wp: '6.7'
-            php: '8.3'
-            theme: 'twentytwentyfive'
-          # WordPress 6.5-6.6 with classic theme
-          - wp: '6.6'
-            php: '8.3'
-            theme: 'twentytwentyone'
-          - wp: '6.5'
-            php: '8.3'
-            theme: 'twentytwentyone'
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     env:
       WP_ENV_PHP_VERSION: ${{ matrix.php }}
       WP_ENV_CORE: ${{ matrix.wp == 'trunk' && 'WordPress/WordPress' || format( 'https://wordpress.org/wordpress-{0}.zip', matrix.wp ) }}
