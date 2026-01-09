@@ -1,6 +1,7 @@
 {
 	"name": "wpgraphql-monorepo",
 	"private": true,
+	"packageManager": "npm@10.8.2",
 	"description": "Monorepo for WPGraphQL and official extensions",
 	"repository": {
 		"type": "git",
