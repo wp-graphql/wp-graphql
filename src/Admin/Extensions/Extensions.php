@@ -40,9 +40,16 @@ final class Extensions {
 	private array $extensions;
 
 	/**
+	 * Whether the JavaScript build assets are available.
+	 */
+	private bool $build_assets_available;
+
+	/**
 	 * Initialize Extensions functionality for WPGraphQL.
 	 */
 	public function init(): void {
+		$this->build_assets_available = file_exists( WPGRAPHQL_PLUGIN_DIR . 'build/extensions.asset.php' );
+
 		add_action( 'admin_menu', [ $this, 'register_admin_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
@@ -64,16 +71,37 @@ final class Extensions {
 
 	/**
 	 * Render the admin page content.
+	 *
+	 * When build assets are missing, we show helpful instructions instead of
+	 * a broken interface.
 	 */
 	public function render_admin_page(): void {
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
-		echo '<div style="margin-top: 20px;" id="wpgraphql-extensions"></div>';
+
+		if ( ! $this->build_assets_available ) {
+			$message = sprintf(
+				/* translators: 1: npm ci command, 2: npm run build command, 3: releases URL */
+				__( 'The Extensions page requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href="%3$s" target="_blank">download a release</a> that includes pre-built assets.', 'wp-graphql' ),
+				'<code>npm ci</code>',
+				'<code>npm run build</code>',
+				'https://github.com/wp-graphql/wp-graphql/releases'
+			);
+			echo '<div class="notice notice-warning inline" style="margin-top: 20px;"><p>' . wp_kses_post( $message ) . '</p></div>';
+		} else {
+			echo '<div style="margin-top: 20px;" id="wpgraphql-extensions"></div>';
+		}
+
 		echo '</div>';
 	}
 
 	/**
 	 * Enqueue the necessary scripts and styles for the extensions page.
+	 *
+	 * The /build directory is gitignored and only generated via `npm run build`.
+	 * Users who install via WordPress.org or GitHub releases have pre-built assets,
+	 * but those who clone the repo or install via Composer need to build manually.
+	 * We check for asset existence to prevent fatal errors in development environments.
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */
@@ -82,7 +110,15 @@ final class Extensions {
 			return;
 		}
 
-		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/extensions.asset.php';
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/extensions.asset.php';
+
+		// Bail if build assets don't exist (e.g., dev install without running npm build)
+		if ( ! file_exists( $asset_path ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constructed from WPGRAPHQL_PLUGIN_DIR constant + hardcoded string, validated with file_exists()
+		$asset_file = include $asset_path;
 
 		wp_enqueue_style(
 			'wpgraphql-extensions',
