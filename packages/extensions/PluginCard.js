@@ -69,7 +69,7 @@ const PluginCard = ({ plugin }) => {
                 </div>
                 <div className="action-links">
                     <ul className="plugin-action-buttons">
-                        {host.includes('wordpress.org') && (
+                        {/^(.*\.)?wordpress\.org$/i.test(host) && (
                             <li>
                                 <button
                                     type="button"
@@ -82,7 +82,7 @@ const PluginCard = ({ plugin }) => {
                                 </button>
                             </li>
                         )}
-                        {host.includes('github.com') && (
+                        {/^(.*\.)?github\.com$/i.test(host) && (
                             <li>
                                 <a
                                     href={plugin.plugin_url}

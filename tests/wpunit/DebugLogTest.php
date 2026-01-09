@@ -1,5 +1,5 @@
 <?php
-class DebugLogTest extends \Codeception\TestCase\WPTestCase {
+class DebugLogTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $admin;
 

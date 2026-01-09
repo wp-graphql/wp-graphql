@@ -23,31 +23,23 @@
 	],
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"webonyx/graphql-php": "15.24.0",
+		"webonyx/graphql-php": "15.29.3",
 		"ivome/graphql-relay-php": "0.7.0",
-		"appsero/client": "2.0.4"
+		"appsero/client": "2.0.5"
 	},
 	"require-dev": {
 		"automattic/vipwpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"codeception/module-asserts": "^1.0",
-		"codeception/module-cli": "^1.0",
-		"codeception/module-db": "^1.0",
-		"codeception/module-filesystem": "^1.0",
-		"codeception/module-phpbrowser": "^1.0",
-		"codeception/module-rest": "^1.2",
-		"codeception/module-webdriver": "^1.0",
-		"codeception/util-universalframework": "^1.0",
-		"lucatume/wp-browser": "<3.5",
-		"phpcompatibility/php-compatibility": "^9.3",
-		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"codeception/module-rest": "^2.0",
+		"lucatume/wp-browser": "^3.7.0",
+		"phpcompatibility/phpcompatibility-wp": "^3.0.0-alpha",
 		"phpstan/extension-installer": "^1.1",
 		"phpstan/phpstan-deprecation-rules": "^2.0.1",
 		"phpstan/phpstan": "~2.1.2",
 		"phpunit/phpunit": "^9.5",
 		"slevomat/coding-standard": "^8.9",
-		"szepeviktor/phpstan-wordpress": "~2.0.1",
-		"wp-cli/wp-cli-bundle": "^2.8",
+		"szepeviktor/phpstan-wordpress": "^2.0.1",
+		"wp-cli/wp-cli-bundle": "^2.12",
 		"wp-graphql/wp-graphql-testcase": "^3.0",
 		"composer/semver": "^3.0"
 	},
@@ -62,6 +54,8 @@
 			"phpstan/extension-installer": true
 		}
 	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"autoload": {
 		"files": [],
 		"psr-4": {
@@ -74,17 +68,6 @@
 	},
 	"scripts": {
 		"install-test-env": "bash bin/install-test-env.sh",
-		"docker-build": "bash bin/run-docker.sh build",
-		"docker-run": "bash bin/run-docker.sh run",
-		"docker-destroy": "docker compose down",
-		"build-and-run": [
-			"@docker-build",
-			"@docker-run"
-		],
-		"build-app": "@docker-build -a",
-		"build-test": "@docker-build -t",
-		"run-app": "@docker-run -a",
-		"run-test": "@docker-run -t",
 		"lint": "vendor/bin/phpcs",
 		"phpcs-i": [
 			"php ./vendor/bin/phpcs -i"
@@ -99,6 +82,7 @@
 			"phpstan analyze --ansi --memory-limit=2G -v"
 		],
 		"build-plugin": [
+			"@php -r \"if (!is_dir('build')) { echo 'WARNING: build/ directory missing. Run npm ci && npm run build first.\\n'; exit(1); }\"",
 			"composer install --no-dev && composer run-script zip && composer install"
 		],
 		"zip": [
@@ -106,6 +90,12 @@
 			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
 			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
 			"rm -rf plugin-build/wp-graphql/"
+		],
+		"post-install-cmd": [
+			"@php -r \"if (is_dir('packages') && !is_dir('build') && !getenv('CI')) { echo '\\n⚠️  Note: JavaScript assets not found. For GraphiQL IDE, run: npm ci && npm run build\\n\\n'; }\""
+		],
+		"post-update-cmd": [
+			"@php -r \"if (is_dir('packages') && !is_dir('build') && !getenv('CI')) { echo '\\n⚠️  Note: JavaScript assets not found. For GraphiQL IDE, run: npm ci && npm run build\\n\\n'; }\""
 		]
 	},
 	"autoload-dev": {

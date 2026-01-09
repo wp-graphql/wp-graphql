@@ -101,7 +101,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Install dependencies
         run: npm ci
@@ -398,7 +398,8 @@ jobs:
           # First commit changes to develop
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "Committing changes to develop first"
-            git add *.php *.md *.txt package.json
+            # Use -A to stage all changes including files in subdirectories (src/, tests/, etc.)
+            git add -A
             git commit -m "release: prepare v${{ steps.version_bump.outputs.version }}"
             git push origin develop
           fi
@@ -619,7 +620,8 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "release: prepare v${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
-          file_pattern: "*.php *.md *.txt package.json"
+          # Include all PHP files (root and subdirectories), markdown, txt, and package.json
+          file_pattern: "*.php src/**/*.php tests/**/*.php *.md *.txt package.json"
           # For manual/scheduled events, commit to the specified target branch or develop
           branch: ${{ github.event.inputs.target_branch || 'develop' }}
         env:
@@ -684,7 +686,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Install Subversion
         run: sudo apt-get update && sudo apt-get install -y subversion

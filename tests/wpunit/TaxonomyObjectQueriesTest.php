@@ -1,6 +1,6 @@
 <?php
 
-class TaxonomyObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class TaxonomyObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $admin;
 

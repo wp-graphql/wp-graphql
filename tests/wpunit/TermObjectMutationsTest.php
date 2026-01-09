@@ -361,6 +361,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 	}
 
 	public function testTermIdNotReturningAfterCreate() {
+		$this->setExpectedIncorrectUsage( 'WP_Object_Cache::delete' );
 
 		/**
 		 * Filter the term response to simulate a failure with the response of a term creation mutation
@@ -387,7 +388,7 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		/**
 		 * Cleanup by removing the filter
 		 */
-		remove_filter( 'term_id_filter', '__return_false' );
+		remove_all_filters( 'term_id_filter' );
 
 		/**
 		 * Now let's filter to mimic the response returning a WP_Error to make sure we also respond with an error
@@ -419,6 +420,9 @@ class TermObjectMutationsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCas
 		 * Assert that we have an error because the response to the deletion responded with a WP_Error
 		 */
 		$this->assertArrayHasKey( 'errors', $actual );
+
+		// Cleanup by removing the filter
+		remove_all_filters( 'get_post_tag' );
 	}
 
 	public function testCreateTagWithNoName() {

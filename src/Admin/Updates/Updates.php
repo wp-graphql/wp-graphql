@@ -108,7 +108,12 @@ final class Updates {
 	}
 
 	/**
-	 * Registers the admin assets.
+	 * Registers the admin assets for update-related screens.
+	 *
+	 * The /build directory is gitignored and only generated via `npm run build`.
+	 * Users who install via WordPress.org or GitHub releases have pre-built assets,
+	 * but those who clone the repo or install via Composer need to build manually.
+	 * We check for asset existence to prevent fatal errors in development environments.
 	 */
 	public function register_assets(): void {
 		$screen          = get_current_screen();
@@ -122,7 +127,16 @@ final class Updates {
 			return;
 		}
 
-		$asset_file = include WPGRAPHQL_PLUGIN_DIR . 'build/updates.asset.php';
+		$asset_path = WPGRAPHQL_PLUGIN_DIR . 'build/updates.asset.php';
+		$css_path   = WPGRAPHQL_PLUGIN_DIR . 'build/updates.css';
+
+		// Bail if build assets don't exist (e.g., dev install without running npm build)
+		if ( ! file_exists( $asset_path ) || ! file_exists( $css_path ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is constructed from WPGRAPHQL_PLUGIN_DIR constant + hardcoded string, validated with file_exists()
+		$asset_file = include $asset_path;
 
 		wp_enqueue_style(
 			'wp-graphql-admin-updates',

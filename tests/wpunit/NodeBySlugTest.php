@@ -64,7 +64,7 @@ class NodeBySlugTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 	public function tearDown(): void {
 		wp_delete_post( $this->post );
-		wp_delete_post( $this->custom_post_type );
+		wp_delete_post( $this->custom_type );
 		wp_delete_user( $this->user );
 
 		unregister_post_type( 'by_slug_cpt' );

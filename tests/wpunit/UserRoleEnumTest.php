@@ -2,7 +2,7 @@
 
 use WPGraphQL\Type\Enum\UserRoleEnum;
 
-class UserRoleEnumTest extends \Codeception\TestCase\WPTestCase {
+class UserRoleEnumTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before

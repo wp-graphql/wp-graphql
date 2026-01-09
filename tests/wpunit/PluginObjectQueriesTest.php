@@ -1,6 +1,6 @@
 <?php
 
-class PluginObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class PluginObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $admin;
 

@@ -21,7 +21,7 @@ $I->havePostInDatabase(
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPost(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			[

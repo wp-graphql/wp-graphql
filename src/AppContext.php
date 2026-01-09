@@ -210,7 +210,7 @@ class AppContext {
 			);
 
 			/**
-			 * @deprecated next-version in favor of graphql_data_loader_classes.
+			 * @deprecated 2.3.2 in favor of graphql_data_loader_classes.
 			 * @todo Remove in a future version.
 			 *
 			 * @param array<string,\WPGraphQL\Data\Loader\AbstractDataLoader> $loaders The loaders accessible in the AppContext
@@ -337,6 +337,7 @@ class AppContext {
 	 * @deprecated use get_current_connection instead.
 	 */
 	public function getCurrentConnection() {
+		_deprecated_function( __METHOD__, '0.8.4', self::class . '::get_current_connection()' );
 		return $this->get_current_connection();
 	}
 

@@ -9,6 +9,8 @@ WPGraphQL Experiments API is an API that allows us to experiment with bleeding-e
 | Test Experiment | `test_experiment` | A Test experiment that registers the `RootQuery.testExperiment` field to the schema | [README](Experiment/TestExperiment/README.md) |
 | Test Dependant Experiment | `test-dependant-experiment` | Demonstrates required experiment dependencies | [README](Experiment/TestDependantExperiment/README.md) |
 | Test Optional Dependency Experiment | `test-optional-dependency-experiment` | Demonstrates optional experiment dependencies | [README](Experiment/TestOptionalDependencyExperiment/README.md) |
+| Email Address Scalar | `email-address-scalar` | Registers the EmailAddress scalar type for validating email addresses | [README](Experiment/EmailAddressScalarExperiment/README.md) |
+| Email Address Scalar Fields | `email-address-scalar-fields` | Adds emailAddress fields to core types (requires email-address-scalar) | [README](Experiment/EmailAddressScalarFieldsExperiment/README.md) |
 
 ## How it works
 

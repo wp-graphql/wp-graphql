@@ -25,12 +25,6 @@ class AccessFunctionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::tearDown();
 	}
 
-	public function testGraphQLPhpVersion() {
-
-		$contents = file_get_contents( dirname( __DIR__, 2 ) . '/vendor/webonyx/graphql-php/CHANGELOG.md' );
-		codecept_debug( $contents );
-	}
-
 	/**
 	 * Tests whether custom scalars can be registered and used in the Schema
 	 *

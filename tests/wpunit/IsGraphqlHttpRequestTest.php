@@ -1,6 +1,6 @@
 <?php
 
-class IsGraphqlHttpRequestTest extends \Codeception\TestCase\WPTestCase {
+class IsGraphqlHttpRequestTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	/**
 	 * Must match with the one in the codeception config

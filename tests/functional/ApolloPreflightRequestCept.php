@@ -5,7 +5,7 @@ $I->wantTo( 'Send a preflight Options request like Apollo and check the response
 
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendOPTIONS( 'http://localhost/graphql' );
+$I->sendOPTIONS( TEST_GRAPHQL_ENDPOINT );
 
 $I->seeResponseCodeIs( 200 );
 

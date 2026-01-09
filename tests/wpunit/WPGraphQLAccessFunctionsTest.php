@@ -1,6 +1,6 @@
 <?php
 
-class WPGraphQLAccessFunctionsTest extends \Codeception\TestCase\WPTestCase {
+class WPGraphQLAccessFunctionsTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();

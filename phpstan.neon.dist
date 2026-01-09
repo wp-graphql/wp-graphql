@@ -37,3 +37,9 @@ parameters:
       analyseAndScan:
         - node_modules (?)
 
+    # Ignore errors for build assets that may not exist during static analysis.
+    # These files are gitignored and only generated via `npm run build`.
+    # The code validates with file_exists() before including, so this is safe.
+    ignoreErrors:
+        - '#Path in include\(\) ".*build/.*\.asset\.php" is not a file or it does not exist#'
+

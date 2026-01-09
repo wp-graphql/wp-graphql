@@ -1,6 +1,6 @@
 <?php
 
-class PostObjectNestedMutationsTest extends \Codeception\TestCase\WPTestCase {
+class PostObjectNestedMutationsTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $title;
 	public $content;

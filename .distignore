@@ -12,8 +12,6 @@
 /img
 /phpstan
 /tests
-/docker
-/docker-output
 /tests
 /node_modules
 /packages
@@ -26,17 +24,16 @@
 .nvmrc
 .DS_Store
 .distignore
-.dockerignore
 .env
 .env.dist
 .gitignore
 c3.php
 CHANGELOG.md
 codeception.dist.yml
+codecov.yml
 codeception.yml
 composer.json
 composer.lock
-docker-compose.yml
 package-lock.json
 package.json
 phpcs.xml
