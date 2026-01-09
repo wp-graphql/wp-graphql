@@ -7,13 +7,15 @@ This document will be most useful for developers that want to contribute to WPGr
 
 In order to run tests, you must [clone the plugin from GitHub](https://github.com/wp-graphql/wp-graphql). Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
 
+> **Note**: WPGraphQL is now a monorepo. For detailed testing instructions, see the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md) in the repository root.
+
 ## Testing with `wp-env`
 
 The easiest way to run tests is to use the included `wp-env` setup. This uses Docker to create a local WordPress environment with WPGraphQL installed as a plugin.
 
 ### Prerequesites
 
-- Node.js 20.x (LTS) and npm >= 8 (NVM recommended)
+- Node.js 22+ and npm >= 10 (NVM recommended)
 - Docker
 - Git
 
@@ -23,9 +25,10 @@ The easiest way to run tests is to use the included `wp-env` setup. This uses Do
 
    ```shell
    git clone git@github.com:wp-graphql/wp-graphql.git
+   cd wp-graphql
    ```
 
-2. Change into the project folder and install the NPM dependencies:
+2. Install the NPM dependencies (from the repository root):
 
    ```shell
    ## If you're using nvm, make sure to use the correct Node.js version:
@@ -37,21 +40,19 @@ The easiest way to run tests is to use the included `wp-env` setup. This uses Do
 
 3. Start the `wp-env` environment to download and set up the Docker containers for WordPress:
 
-   (If you're not using `wp-env` you can skip this step.)
-
    ```shell
    npm run wp-env start
    ```
 
    When finished, the WordPress development site will be available at http://localhost:8888 and the WP Admin Dashboard will be available at http://localhost:8888/wp-admin/. You can log in to the admin using the username `admin` and password `password`.
 
-   However, before the plugin will work, you need to install the Composer dependencies and build the plugin.
+   Composer dependencies are automatically installed when the environment starts.
 
-4. Install the Composer dependencies and build the plugin:
+4. (Optional) Manually install Composer dependencies:
 
    ```shell
    ## To install Composer dependencies inside the Docker container:
-   npm run wp-env:cli -- composer install
+   npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- composer install
 
 ### Custom Test Environments
 
@@ -70,36 +71,36 @@ For more information on using and overriding `wp-env` settings, see the [`@wordp
 
 ### Running the Tests
 
-To access Codeception and run tests inside the `wp-env` Docker container, use the following command:
+To access Codeception and run tests inside the `wp-env` Docker container, use the following commands from the repository root:
 
 ```shell
-npm run test:codecept -- <suites> [options]
+## WPUnit tests
+npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
 
-## With coverage
-npm run test:codecept:coverage -- <suites> [options]
+## Acceptance tests
+npm run -w @wpgraphql/wp-graphql test:codecept:acceptance
+
+## Functional tests
+npm run -w @wpgraphql/wp-graphql test:codecept:functional
 ```
-
-This is functionally the same as running `vendor/bin/codecept` directly, but it runs the command inside the Docker container where WordPress and WPGraphQL are installed.
 
 For example:
 
 ```shell
-## WPUnit tests
-npm run test:codecept -- run wpunit
-## with coverage
-npm run test:codecept:coverage -- run wpunit
+## Run all WPUnit tests
+npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
 
 ## Just a single test file
-npm run test:codecept -- run tests/wpunit/AccessFunctionsTest.php
+npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- tests/wpunit/AccessFunctionsTest.php
 
 ## Or a single test within a file
-npm run test:codecept -- run tests/wpunit/AccessFunctionsTest.php:testCustomScalarCanBeUsedInSchema
+npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- tests/wpunit/AccessFunctionsTest.php:testCustomScalarCanBeUsedInSchema
 
-## Functional tests with verbose debugging
-npm run test:codecept -- functional -vvv
+## With verbose debugging
+npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- --debug
 
-## To clean up old test outputs
-npm run test:codecept:clean
+## With a specific theme
+TEST_THEME=twentytwentyfive npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
 ```
 
 ## Testing Locally with Codeception
@@ -117,20 +118,25 @@ On some machines, running tests directly with Codeception may be faster than usi
 
 WPGraphQL includes a script to install a local test environment, using the environment variables you provide in a `.env` file.
 
-1. Copy the `.env.dist` file to a new file named `.env` in the root of the WPGraphQL plugin, and update variables to match your local database setup.
+1. Navigate to the WPGraphQL plugin directory:
 
-2. Run the test environment setup script:
+   ```shell
+   cd plugins/wp-graphql
+   ```
+
+2. Copy the `.env.dist` file to a new file named `.env` and update variables to match your local database setup.
+
+3. Run the test environment setup script:
 
    ```shell
    composer install-test-env
    ```
 
    The script will download and install a local WordPress installation in the provided directory, set up the database, and install WPGraphQL.
-```
 
 ### Configure Test Suites
 
-Within the `/tests/` directory of WPGraphQL are the Codeception `.yml` configuration files.
+Within the `plugins/wp-graphql/tests/` directory are the Codeception `.yml` configuration files.
 
 To run tests locally, copy the `.yml` file for the test suite you want to run and rename it without the `.dist`.
 
@@ -149,7 +155,7 @@ The other fields should be able to remain the same, but update as necessary.
 
 ### Install Composer Dependencies
 
-Run the following script from the root of the WPGraphQL plugin:
+Run the following from the WPGraphQL plugin directory (`plugins/wp-graphql/`):
 
 ```shell
 composer install
@@ -159,7 +165,7 @@ This installs the dev dependencies needed to run the tests.
 
 ### Run the tests
 
-To run the tests, run the following commands (you can use `control + c` to exit):
+To run the tests from the plugin directory, use the following commands (you can use `control + c` to exit):
 
 ```shell
 vendor/bin/codecept run wpunit
