@@ -192,16 +192,6 @@ jobs:
             flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
             fail_ci_if_error: false
 
-      - name: Upload coverage to Coveralls
-        if: ${{ matrix.coverage }}
-        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
-        with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            file: tests/_output/coverage.xml
-            flag-name: ${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
-            format: clover
-            parallel: true
-
       - name: Upload HTML coverage report as artifact
         if: ${{ matrix.coverage }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -209,16 +199,3 @@ jobs:
             name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
             path: tests/_output/html
             overwrite: true
-
-  # Signal Coveralls that all parallel coverage uploads are complete
-  coverage-finished:
-    name: Coverage Finished
-    needs: codeception
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Finish Coveralls parallel build
-        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
-        with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            parallel-finished: true
