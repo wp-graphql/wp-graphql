@@ -30,6 +30,7 @@
 c3.php
 CHANGELOG.md
 codeception.dist.yml
+codecov.yml
 codeception.yml
 composer.json
 composer.lock
