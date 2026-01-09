@@ -67,10 +67,18 @@ WPGraphQL uses [`@wordpress/env`](https://www.npmjs.com/package/@wordpress/env) 
    nvm install && nvm use
 
    ## Then install the NPM dependencies:
-   npm install
+   npm ci
    ```
 
-3. Start the `wp-env` environment to download and set up the Docker containers for WordPress:
+3. Build the JavaScript assets (required for GraphiQL IDE and Extensions page):
+
+   ```shell
+   npm run build
+   ```
+
+   > **Note:** The `/build` directory is gitignored. You must run this step for the GraphiQL IDE to function. If you skip this step, you'll see a helpful message in the admin with instructions.
+
+4. Start the `wp-env` environment to download and set up the Docker containers for WordPress:
 
    (If you're not using `wp-env` you can skip this step.)
 
@@ -80,9 +88,9 @@ WPGraphQL uses [`@wordpress/env`](https://www.npmjs.com/package/@wordpress/env) 
 
    When finished, the WordPress development site will be available at http://localhost:8888 and the WP Admin Dashboard will be available at http://localhost:8888/wp-admin/. You can log in to the admin using the username `admin` and password `password`.
 
-   Composer dependencies are automatically installed when the environment starts.
+   Composer dependencies are automatically installed when the environment starts via the `afterStart` lifecycle script.
 
-4. (Optional) Manually install Composer dependencies:
+5. (Optional) Manually install Composer dependencies if needed:
 
    ```shell
    ## To install Composer dependencies inside the Docker container:
