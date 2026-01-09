@@ -14,8 +14,8 @@ on:
       - "1.x/master"
       - next-major
     paths:
-      - 'packages/**'
-      - 'src/Admin/GraphiQL/**'
+      - 'plugins/wp-graphql/packages/**'
+      - 'plugins/wp-graphql/src/Admin/GraphiQL/**'
       - '.github/workflows/graphiql-e2e-tests.yml'
 
 # Cancel previous workflow run groups that have not completed.
@@ -51,12 +51,13 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           composer-options: "--no-progress"
+          working-directory: plugins/wp-graphql
 
       - name: Install JavaScript dependencies
         run: npm ci
 
       - name: Build Assets
-        run: npm run build
+        run: npm run -w @wpgraphql/wp-graphql build
 
       - name: Install Playwright dependencies
         run: |
@@ -66,7 +67,7 @@ jobs:
         run: npm run wp-env -- start
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: npm run -w @wpgraphql/wp-graphql test:e2e
 
       - name: Stop WordPress Environment
         run: npm run wp-env -- stop

@@ -5,6 +5,8 @@ title: "Contributing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run the docker container locally as well as utilize xdebug for debugging and tracing.
 
+> **Note**: WPGraphQL is now a monorepo. For detailed setup instructions, see the [Development Setup Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/DEVELOPMENT.md) in the repository root.
+
 ## Development Workflow
 
 WPGraphQL uses several automated processes to maintain consistency and quality:
@@ -40,7 +42,7 @@ In order to continue, you should follow steps to setup your local development en
 ### Prerequisites
 
 Ensure you have the following installed on your local machine:
-- Node.js 20.x (LTS) and npm >= 8 (NVM recommended)
+- Node.js 22+ and npm >= 10 (NVM recommended)
 - Docker
 - Git
 - PHP 7.4+ and Composer (if you prefer to run the Composer tools locally)
@@ -55,9 +57,10 @@ WPGraphQL uses [`@wordpress/env`](https://www.npmjs.com/package/@wordpress/env) 
 
    ```shell
    git clone git@github.com:wp-graphql/wp-graphql.git
+   cd wp-graphql
    ```
 
-2. Change into the project folder and install the NPM dependencies:
+2. Install the NPM dependencies (from the repository root):
 
    ```shell
    ## If you're using nvm, make sure to use the correct Node.js version:
@@ -77,16 +80,16 @@ WPGraphQL uses [`@wordpress/env`](https://www.npmjs.com/package/@wordpress/env) 
 
    When finished, the WordPress development site will be available at http://localhost:8888 and the WP Admin Dashboard will be available at http://localhost:8888/wp-admin/. You can log in to the admin using the username `admin` and password `password`.
 
-   However, before the plugin will work, you need to install the Composer dependencies and build the plugin.
+   Composer dependencies are automatically installed when the environment starts.
 
-4. Install the Composer dependencies and build the plugin:
+4. (Optional) Manually install Composer dependencies:
 
    ```shell
    ## To install Composer dependencies inside the Docker container:
-   npm run wp-env:cli -- composer install
+   npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- composer install
 
    ## Or: if you're running Composer locally:
-   composer install
+   composer -d plugins/wp-graphql install
    ```
 
 ### Using XDebug
@@ -104,7 +107,7 @@ You can also connect your IDE to XDebug.
 
 The following example is for Visual Studio Code (VSCode) using the [PHP Debug extension](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug)
 
-Create or add the following configuration to your `.vscode/launch.json` in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
+Create or add the following configuration to your `.vscode/launch.json` in the repository root. Restart VSCode. Start the debug listener before running the app or testing images.
 
 ```jsonc
 {
@@ -122,8 +125,8 @@ Create or add the following configuration to your `.vscode/launch.json` in the r
         "show_hidden": 1
       },
       "pathMappings": {
-        "/var/www/html/wp-content/plugins/wp-graphql": "${workspaceFolder}",
-        # If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through. For example:
+        "/var/www/html/wp-content/plugins/wp-graphql": "${workspaceFolder}/plugins/wp-graphql",
+        // If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through. For example:
         "/var/www/html": "/path/to/your/local/wordpress"
       }
     }

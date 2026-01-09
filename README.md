@@ -1,6 +1,6 @@
-<img src="./img/logo.png" alt="WPGraphQL Logo" width="96" height="96" style="max-width: 96px; max-height: 96px;">
+<img src="./plugins/wp-graphql/img/logo.png" alt="WPGraphQL Logo" width="96" height="96" style="max-width: 96px; max-height: 96px;">
 
-# WPGraphQL
+# WPGraphQL Monorepo
 
 [![Total Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/downloads)](https://packagist.org/packages/wp-graphql/wp-graphql)
 [![Monthly Downloads](https://poser.pugx.org/wp-graphql/wp-graphql/d/monthly)](https://packagist.org/packages/wp-graphql/wp-graphql)
@@ -18,6 +18,31 @@
 WPGraphQL provides an extendable GraphQL API for any WordPress site, unlocking modern development workflows.
 
 Whether you're a WordPress developer exploring GraphQL or a GraphQL expert diving into WordPress, WPGraphQL simplifies data interaction and empowers your development workflow.
+
+---
+
+### 📁 **Repository Structure**
+
+This is a monorepo containing the WPGraphQL ecosystem of plugins:
+
+```
+wp-graphql/
+├── plugins/
+│   └── wp-graphql/          # WPGraphQL core plugin
+├── .wp-env.json             # Shared WordPress environment config
+├── package.json             # Root workspace configuration
+└── turbo.json               # Turborepo build orchestration
+```
+
+**For end users**: Nothing changes! Install WPGraphQL from WordPress.org, Composer, or download the release zip.
+
+**For contributors**: Clone the repo and run:
+```bash
+npm install           # Install dependencies (uses workspaces)
+npm run wp-env start  # Start WordPress environment with all plugins
+```
+
+📚 See the [Development Guide](./docs/DEVELOPMENT.md) for detailed setup instructions.
 
 ---
 
@@ -78,17 +103,24 @@ This focus keeps WPGraphQL maintainable while enabling a rich ecosystem of exten
 - **Optimized Performance**: Query only the data you need. Collect multiple resources in one request, reducing round-trips. Use [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache) for enhanced performance and network-level caching and cache-invalidation.
 - **Developer Tools**: Explore the schema with tools like the [GraphiQL IDE](https://www.wpgraphql.com/docs/wp-graphiql) and [WordPress Playground](https://wordpress.org/plugins/wp-graphql/?preview=1).
 
-![graphiql-ide-example.gif](img/graphiql-ide-example.gif)
+![graphiql-ide-example.gif](plugins/wp-graphql/img/graphiql-ide-example.gif)
 
 ---
 
 ### 📖 **Documentation**
 
+**For Users:**
 - [Quick Start](https://www.wpgraphql.com/docs/quick-start)
 - [Intro to GraphQL](https://wpgraphql.com/docs/intro-to-graphql)
 - [Intro to WordPress](https://wpgraphql.com/docs/intro-to-wordpress)
 - [Extensions](https://www.wpgraphql.com/extensions)
 - [Advanced Topics](https://www.wpgraphql.com/docs/wpgraphql-concepts)
+
+**For Contributors:**
+- [Development Setup](./docs/DEVELOPMENT.md) - Local environment setup
+- [Contributing Guide](./docs/CONTRIBUTING.md) - How to contribute
+- [Testing Guide](./docs/TESTING.md) - Running tests
+- [Architecture](./docs/ARCHITECTURE.md) - Codebase overview
 
 ---
 

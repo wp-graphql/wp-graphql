@@ -7,8 +7,8 @@ on:
   push:
     # Build GraphiQL only if changes were made to "packages" or "build" directory
     paths:
-      - "packages/**"
-      - "build/**"
+      - "plugins/wp-graphql/packages/**"
+      - "plugins/wp-graphql/build/**"
     branches:
       - develop
       - master
@@ -30,7 +30,7 @@ jobs:
       - name: Install NPM Dependencies and Build the GraphiQL App
         id: install-and-build
         run: |
-          npm ci && npm run build
+          npm ci && npm run -w @wpgraphql/wp-graphql build
 
       # Setup Git Config
       - name: setup git config
@@ -42,7 +42,7 @@ jobs:
       - name: Commit built GraphiQL
         id: commit-changes
         run: |
-          git add --force build
+          git add --force plugins/wp-graphql/build
           set +e  # Grep succeeds with nonzero exit codes to show results.
           git status | grep modified
           if [ $? -eq 0 ]

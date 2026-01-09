@@ -108,7 +108,7 @@ jobs:
           echo "$PR_BODY" > "$TEMP_DIR/pr-body.txt"
 
           # Format PR body using our script
-          node scripts/utils/format-pr-body.js "$(cat $TEMP_DIR/pr-body.txt)" > "$TEMP_DIR/formatted-body.txt"
+          node plugins/wp-graphql/scripts/utils/format-pr-body.js "$(cat $TEMP_DIR/pr-body.txt)" > "$TEMP_DIR/formatted-body.txt"
 
           # Output the values with proper escaping
           {
@@ -138,7 +138,7 @@ jobs:
           fi
 
           # Generate/regenerate the changeset using the formatted body from file
-          node scripts/generate-changeset.js \
+          node plugins/wp-graphql/scripts/generate-changeset.js \
             --pr="${{ steps.pr_info.outputs.pr_number }}" \
             --title="${{ steps.pr_info.outputs.pr_title }}" \
             --author="${{ steps.pr_info.outputs.pr_author }}" \
@@ -187,7 +187,7 @@ jobs:
           mkdir -p /tmp/release-notes
 
           # Generate release notes from all changesets to a temporary file
-          npm run release:notes 2>/dev/null | grep -v "^>" > /tmp/release-notes/temp_notes_raw.md
+          npm run -w @wpgraphql/wp-graphql release:notes 2>/dev/null | grep -v "^>" > /tmp/release-notes/temp_notes_raw.md
 
           # Remove the "Found X changesets" line
           sed -n '/^Found/!p' /tmp/release-notes/temp_notes_raw.md > /tmp/release-notes/temp_notes.md
@@ -200,10 +200,10 @@ jobs:
         id: check_since
         run: |
           # Get the next version from package.json
-          NEXT_VERSION=$(node -p "require('./package.json').version")
+          NEXT_VERSION=$(node -p "require('./plugins/wp-graphql/package.json').version")
 
           # Run the since-tags script in dry-run mode to check for @since and deprecated version placeholders
-          node scripts/update-since-tags.js "$NEXT_VERSION" --dry-run || true
+          node plugins/wp-graphql/scripts/update-since-tags.js "$NEXT_VERSION" --dry-run || true
 
           # If the summary file exists, read it
           if [ -f "/tmp/since-tags-summary.md" ]; then

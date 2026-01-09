@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+# ===========================================
+# WPGraphQL Monorepo - wp-env Setup Script
+# ===========================================
+# This script runs automatically via the afterStart lifecycle hook
+# in .wp-env.json when `npm run wp-env start` is executed.
+
+echo "=== Setting up WPGraphQL development environment ==="
+
+# Install Composer dependencies for each plugin
+echo "Installing Composer dependencies for plugins..."
+npm run wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
+
 ## Flush permalinks
 npm run wp-env run cli -- wp rewrite structure /%postname%/ --hard
 npm run wp-env run tests-cli -- wp rewrite structure /%postname%/ --hard
