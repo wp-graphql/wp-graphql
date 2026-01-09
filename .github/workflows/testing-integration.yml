@@ -239,19 +239,24 @@ jobs:
             path: tests/_output/*.fail.html
             if-no-files-found: ignore
 
-      - name: Push Codecoverage to Coveralls.io
+      - name: Fix coverage paths
         if: ${{ matrix.coverage }}
-        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        run: |
+            # Strip Docker container path prefix from coverage report
+            sed -i 's|/var/www/html/wp-content/plugins/wp-graphql/||g' tests/_output/coverage.xml
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.coverage }}
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            file: tests/_output/coverage.xml
-            flag-name: wpunit
-            format: clover
+            files: tests/_output/coverage.xml
+            flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
+            fail_ci_if_error: false
 
       - name: Upload HTML coverage report as artifact
         if: ${{ matrix.coverage }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-            name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}
+            name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
             path: tests/_output/html
             overwrite: true
