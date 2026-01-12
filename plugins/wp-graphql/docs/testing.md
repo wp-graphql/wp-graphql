@@ -103,6 +103,29 @@ npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- --debug
 TEST_THEME=twentytwentyfive npm run -w @wpgraphql/wp-graphql test:codecept:wpunit
 ```
 
+## Smoke Tests
+
+Smoke tests are lightweight tests that verify the plugin works correctly without running the full test suite. They're useful for quickly validating builds.
+
+```shell
+## Run smoke tests against a running WordPress environment
+./bin/smoke-test.sh
+
+## With a custom endpoint
+./bin/smoke-test.sh --endpoint http://wpgraphql.local/graphql
+
+## With verbose output
+./bin/smoke-test.sh --verbose
+```
+
+Smoke tests verify:
+- GraphQL endpoint responds
+- Introspection works
+- Basic queries (posts, pages, users, etc.) work
+- Site settings are accessible
+
+See the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md#smoke-tests) for more details.
+
 ## Testing Locally with Codeception
 
 On some machines, running tests directly with Codeception may be faster than using Docker. If for performance or any other reasons you want to run tests directly on your machine, you can follow the instructions below.

@@ -1,0 +1,149 @@
+# ===========================================
+# SMOKE TEST WORKFLOW
+# ===========================================
+#
+# PURPOSE:
+# Validates the production zip artifact works correctly by:
+# 1. Building the plugin zip (same as release process)
+# 2. Installing it in a clean WordPress environment
+# 3. Running smoke tests to verify core functionality
+#
+# This catches issues that unit tests might miss:
+# - Missing files from .distignore
+# - Build/bundling problems
+# - Activation errors
+# - Missing dependencies in production
+#
+# LOCAL USAGE:
+# You can run smoke tests locally:
+#   npm run wp-env start
+#   ./bin/smoke-test.sh
+#
+# ===========================================
+
+name: Smoke Test
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - develop
+      - master
+      - release/*
+    paths:
+      - '.github/workflows/smoke-test.yml'
+      - 'plugins/wp-graphql/**/*.php'
+      - 'plugins/wp-graphql/composer.json'
+      - 'plugins/wp-graphql/.distignore'
+      - 'plugins/wp-graphql/package.json'
+      - 'plugins/wp-graphql/packages/**'
+      - 'plugins/wp-graphql/webpack.config.js'
+      - 'package.json'
+      - '.wp-env.json'
+      - 'bin/smoke-test.sh'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Smoke Test (WP ${{ matrix.wp }} / PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Test on latest stable
+          - wp: "6.8"
+            php: "8.3"
+          # Test on oldest supported
+          - wp: "6.1"
+            php: "7.4"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          extensions: json, mbstring
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: plugins/wp-graphql
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build JavaScript assets
+        run: npm run build
+
+      - name: Build plugin zip
+        working-directory: plugins/wp-graphql
+        run: composer run-script zip
+
+      - name: Verify zip contents
+        run: |
+          echo "📦 Verifying zip was created..."
+          ls -la plugin-build/
+          echo ""
+          echo "📋 Zip contents:"
+          unzip -l plugin-build/wp-graphql.zip | head -50
+
+      # Create a minimal wp-env config that uses ONLY the zip
+      - name: Create wp-env config for zip testing
+        run: |
+          cat > .wp-env.override.json << 'EOF'
+          {
+            "plugins": ["./plugin-build/wp-graphql.zip"]
+          }
+          EOF
+
+      - name: Start WordPress environment
+        env:
+          WP_ENV_PHP_VERSION: ${{ matrix.php }}
+          WP_ENV_CORE: ${{ format('https://wordpress.org/wordpress-{0}.zip', matrix.wp) }}
+        run: npm run wp-env start
+
+      - name: Verify plugin is active
+        run: |
+          echo "📦 Installed plugins:"
+          npm run wp-env -- run cli wp plugin list
+          echo ""
+          npm run wp-env -- run cli wp plugin is-active wp-graphql
+
+      - name: Run smoke tests
+        run: |
+          # Run smoke tests against the WordPress container
+          ./bin/smoke-test.sh --verbose
+
+      - name: Check for PHP errors
+        if: always()
+        run: |
+          echo "📋 Checking for PHP errors..."
+          npm run wp-env -- run cli cat /var/www/html/wp-content/debug.log 2>/dev/null || echo "No debug.log found"
+
+      - name: Upload tested zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp-graphql-smoke-tested-${{ matrix.wp }}-${{ matrix.php }}
+          path: plugin-build/wp-graphql.zip
+
+      - name: Stop WordPress environment
+        if: always()
+        run: npm run wp-env stop
