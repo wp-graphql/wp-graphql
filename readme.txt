@@ -4,7 +4,7 @@ Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.5.4
+Stable tag: 2.6.0
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Author: WPGraphQL, WordPress.org
@@ -75,13 +75,19 @@ Learn more about how [Appsero collects and uses this data](https://appsero.com/p
 
 = 2.6.0 =
 
-This release aligns cookie authentication with the WordPress REST API pattern. Cookie-authenticated requests now require a nonce (`X-WP-Nonce` header or `_wpnonce` parameter) to execute as an authenticated user. Requests without a valid nonce will be downgraded to guest access (`viewer: null`).
+**New Features**
 
-**Not affected:** JWT authentication, Application Passwords, OAuth, or any authentication using the `Authorization` header. The built-in GraphiQL IDE is also unaffected as it already sends nonces.
+* feat: refactor experiment registry for better testability (https://github.com/jasonbahl/automation-tests/pull/3453)
 
-**Action required:** If you have custom JavaScript making GraphQL requests with cookie authentication, add the nonce header. See the [built-in GraphiQL IDE fetcher](https://github.com/wp-graphql/wp-graphql/blob/develop/packages/wpgraphiql/utils/fetcher.js) for an example implementation.
+**Other Changes**
 
-For development/testing, you can temporarily disable the requirement with: `add_filter('graphql_cookie_auth_require_nonce', '__return_false');`
+* ci: optimize CI matrix with minimal/full modes (https://github.com/jasonbahl/automation-tests/pull/3465)
+* ci: evaluate Codecov alongside Coveralls for code coverage (https://github.com/jasonbahl/automation-tests/pull/3463)
+* ci: gitignore build directory and improve asset loading (https://github.com/jasonbahl/automation-tests/pull/3461)
+* test: only apply URL rewriting for Codeception tests, not Playwright e2e (https://github.com/jasonbahl/automation-tests/pull/3460)
+* test: bump Codeception to v3.7 (https://github.com/jasonbahl/automation-tests/pull/3456)
+* chore: update node, npm, and composer deps (https://github.com/jasonbahl/automation-tests/pull/3454)
+* ci: replace custom docker with wp-env (https://github.com/jasonbahl/automation-tests/pull/3451)
 
 = 2.0.0 =
 
