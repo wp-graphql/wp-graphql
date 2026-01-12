@@ -1,6 +1,6 @@
 <?php
 
-class PreresolveTest extends \Codeception\TestCase\WPTestCase {
+class PreresolveTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		parent::setUp();

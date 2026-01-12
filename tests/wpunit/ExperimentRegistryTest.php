@@ -2,6 +2,13 @@
 
 class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
+	/**
+	 * The ExperimentRegistry instance for tests.
+	 *
+	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 */
+	protected $registry;
+
 	public function setUp(): void {
 		parent::setUp();
 		$this->clearSchema();
@@ -9,8 +16,24 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		// Clear any experiment settings to ensure clean state
 		update_option( 'graphql_experiments_settings', [] );
 
-		// Reset the registry to ensure a clean slate
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Register test experiments via filter (they're commented out by default in production)
+		add_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
+
+		// Create a fresh registry instance for each test
+		$this->registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+	}
+
+	/**
+	 * Register test experiments for testing purposes.
+	 *
+	 * @param array $registry The experiment registry.
+	 * @return array The modified registry with test experiments.
+	 */
+	public function register_test_experiments( array $registry ): array {
+		$registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+		$registry['test-dependant-experiment'] = \WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment::class;
+		$registry['test-optional-dependency-experiment'] = \WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment::class;
+		return $registry;
 	}
 
 	public function tearDown(): void {
@@ -24,8 +47,8 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		$settings['test-optional-dependency-experiment_enabled'] = 'off';
 		update_option( 'graphql_experiments_settings', $settings );
 
-		// Reset the registry again
-		\WPGraphQL\Experimental\ExperimentRegistry::reset();
+		// Remove the filter
+		remove_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
 
 		parent::tearDown();
 	}
@@ -34,10 +57,9 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that experiments are registered correctly
 	 */
 	public function testExperimentRegistration() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$this->assertIsArray( $experiments );
 		$this->assertArrayHasKey( 'test_experiment', $experiments );
 		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class, $experiments['test_experiment'] );
@@ -48,14 +70,13 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testExperimentActivation() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Test that the experiment is initially inactive
-		$this->assertFalse( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' ) );
+		$this->assertFalse( $this->registry->is_experiment_active( 'test_experiment' ) );
 
 		// Test that we can get the experiment instance
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$this->assertArrayHasKey( 'test_experiment', $experiments );
 
 		$test_experiment = $experiments['test_experiment'];
@@ -69,10 +90,9 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 * Test that dependent experiments are registered correctly
 	 */
 	public function testDependentExperimentRegistration() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		$this->assertArrayHasKey( 'test-dependant-experiment', $experiments );
 		$this->assertInstanceOf( \WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment::class, $experiments['test-dependant-experiment'] );
 	}
@@ -82,8 +102,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testDependentExperimentRequiresDependency() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate only the dependent experiment (not its dependency)
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -91,16 +110,16 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments to pick up the new settings
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// The dependent experiment should not be active because its dependency is not active
-		$this->assertFalse( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test-dependant-experiment' ) );
+		$this->assertFalse( $this->registry->is_experiment_active( 'test-dependant-experiment' ) );
 
 		// The dependent experiment should be registered but not loaded
-		$registered_experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiment_registry();
+		$registered_experiments = $this->registry->get_experiment_registry();
 		$this->assertArrayHasKey( 'test-dependant-experiment', $registered_experiments );
 		
-		$active_experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_active_experiments();
+		$active_experiments = $this->registry->get_active_experiments();
 		$this->assertArrayNotHasKey( 'test-dependant-experiment', $active_experiments );
 	}
 
@@ -109,8 +128,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testDependentExperimentLoadsWithDependency() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate both the dependency and the dependent experiment
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -119,15 +137,15 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments to pick up the new settings
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 
 		// Both experiments should be active
-		$this->assertTrue( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' ) );
-		$this->assertTrue( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test-dependant-experiment' ) );
+		$this->assertTrue( $this->registry->is_experiment_active( 'test_experiment' ) );
+		$this->assertTrue( $this->registry->is_experiment_active( 'test-dependant-experiment' ) );
 
 		// Both experiments should be in the active experiments array
-		$active_experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_active_experiments();
+		$active_experiments = $this->registry->get_active_experiments();
 		$this->assertArrayHasKey( 'test_experiment', $active_experiments );
 		$this->assertArrayHasKey( 'test-dependant-experiment', $active_experiments );
 	}
@@ -137,8 +155,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testDependentExperimentDeactivatedWhenDependencyDeactivated() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate both experiments
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -147,34 +164,33 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// Both should be active
-		$this->assertTrue( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' ) );
-		$this->assertTrue( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test-dependant-experiment' ) );
+		$this->assertTrue( $this->registry->is_experiment_active( 'test_experiment' ) );
+		$this->assertTrue( $this->registry->is_experiment_active( 'test-dependant-experiment' ) );
 
 		// Deactivate the dependency
 		$settings['test_experiment_enabled'] = 'off';
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// The dependency should be inactive
-		$this->assertFalse( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test_experiment' ) );
+		$this->assertFalse( $this->registry->is_experiment_active( 'test_experiment' ) );
 		
 		// The dependent experiment should also be inactive (even though it's still enabled in settings)
-		$this->assertFalse( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test-dependant-experiment' ) );
+		$this->assertFalse( $this->registry->is_experiment_active( 'test-dependant-experiment' ) );
 	}
 
 	/**
 	 * Test that experiments can specify their dependencies correctly
 	 */
 	public function testExperimentDependencies() {
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
-		$experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_experiments();
+		$experiments = $this->registry->get_experiments();
 		
 		// TestExperiment should have no dependencies
 		$test_experiment = $experiments['test_experiment'];
@@ -200,8 +216,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testOptionalDependencyExperimentWorksIndependently() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate only the optional dependency experiment (not its optional dependency)
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -209,13 +224,13 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments to pick up the new settings
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// The optional dependency experiment should be active even without its optional dependency
-		$this->assertTrue( \WPGraphQL\Experimental\ExperimentRegistry::is_experiment_active( 'test-optional-dependency-experiment' ) );
+		$this->assertTrue( $this->registry->is_experiment_active( 'test-optional-dependency-experiment' ) );
 
 		// It should be in the active experiments array
-		$active_experiments = \WPGraphQL\Experimental\ExperimentRegistry::get_active_experiments();
+		$active_experiments = $this->registry->get_active_experiments();
 		$this->assertArrayHasKey( 'test-optional-dependency-experiment', $active_experiments );
 	}
 
@@ -224,8 +239,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testGraphQLFieldRegistration() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate TestExperiment
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -233,7 +247,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// The testExperiment field should be available in the schema
 		$schema = \WPGraphQL::get_schema();
@@ -248,8 +262,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testDependentGraphQLFieldRegistration() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate both TestExperiment and TestDependantExperiment
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -258,7 +271,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// Both fields should be available in the schema
 		$schema = \WPGraphQL::get_schema();
@@ -274,8 +287,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 	 */
 	public function testOptionalDependencyGraphQLFieldRegistration() {
 		// Initialize the registry
-		$registry = new \WPGraphQL\Experimental\ExperimentRegistry();
-		$registry->init();
+		$this->registry->init();
 
 		// Activate only TestOptionalDependencyExperiment
 		$settings = get_option( 'graphql_experiments_settings', [] );
@@ -283,7 +295,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// The testOptionalDependency field should be available
 		$schema = \WPGraphQL::get_schema();
@@ -297,7 +309,7 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		update_option( 'graphql_experiments_settings', $settings );
 
 		// Reload experiments
-		$registry->reload_experiments();
+		$this->registry->reload_experiments();
 
 		// Clear schema cache to pick up new fields
 		$this->clearSchema();
@@ -309,5 +321,84 @@ class ExperimentRegistryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase
 		
 		$this->assertArrayHasKey( 'testExperiment', $fields );
 		$this->assertArrayHasKey( 'testOptionalDependency', $fields );
+	}
+
+	/**
+	 * Test that experiments can be registered programmatically
+	 */
+	public function testRegisterExperimentProgrammatically() {
+		// Initialize the registry
+		$this->registry->init();
+
+		// Get initial count of registered experiments
+		$initial_experiments = $this->registry->get_registered_experiments();
+		$initial_count = count( $initial_experiments );
+
+		// Register a new experiment programmatically
+		$this->registry->register_experiment( 'custom-test-experiment', \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class );
+
+		// Verify the experiment was registered
+		$registered_experiments = $this->registry->get_registered_experiments();
+		$this->assertCount( $initial_count + 1, $registered_experiments );
+		$this->assertArrayHasKey( 'custom-test-experiment', $registered_experiments );
+
+		// Verify we can get the registered experiment class
+		$experiment_class = $this->registry->get_registered_experiment( 'custom-test-experiment' );
+		$this->assertEquals( \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class, $experiment_class );
+	}
+
+	/**
+	 * Test that experiments can be unregistered programmatically
+	 */
+	public function testUnregisterExperimentProgrammatically() {
+		// Initialize the registry
+		$this->registry->init();
+
+		// Verify test_experiment is registered
+		$this->assertArrayHasKey( 'test_experiment', $this->registry->get_registered_experiments() );
+		$this->assertArrayHasKey( 'test_experiment', $this->registry->get_experiments() );
+
+		// Unregister the experiment
+		$this->registry->unregister_experiment( 'test_experiment' );
+
+		// Verify the experiment was unregistered from all arrays
+		$this->assertArrayNotHasKey( 'test_experiment', $this->registry->get_registered_experiments() );
+		$this->assertArrayNotHasKey( 'test_experiment', $this->registry->get_experiments() );
+		$this->assertArrayNotHasKey( 'test_experiment', $this->registry->get_active_experiments() );
+
+		// Verify get_registered_experiment returns null for unregistered experiment
+		$this->assertNull( $this->registry->get_registered_experiment( 'test_experiment' ) );
+	}
+
+	/**
+	 * Test that get_registered_experiment returns null for non-existent experiments
+	 */
+	public function testGetRegisteredExperimentReturnsNullForNonExistent() {
+		$this->registry->init();
+
+		$experiment_class = $this->registry->get_registered_experiment( 'non-existent-experiment' );
+		$this->assertNull( $experiment_class );
+	}
+
+	/**
+	 * Test that each test has an isolated registry instance
+	 */
+	public function testRegistryIsolation() {
+		// This test verifies that changes in one test don't affect others
+		// by checking that we start with a fresh registry
+		$this->registry->init();
+
+		// Register a custom experiment
+		$this->registry->register_experiment( 'isolation-test-experiment', \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class );
+
+		// Verify it's registered on this instance
+		$this->assertArrayHasKey( 'isolation-test-experiment', $this->registry->get_registered_experiments() );
+
+		// Create a new registry instance to verify isolation
+		$new_registry = new \WPGraphQL\Experimental\ExperimentRegistry();
+		$new_registry->init();
+
+		// The custom experiment should not exist on the new instance
+		$this->assertArrayNotHasKey( 'isolation-test-experiment', $new_registry->get_registered_experiments() );
 	}
 }

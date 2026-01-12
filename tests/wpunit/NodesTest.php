@@ -1,6 +1,6 @@
 <?php
 
-class NodesTest extends \Codeception\TestCase\WPTestCase {
+class NodesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $admin;
 

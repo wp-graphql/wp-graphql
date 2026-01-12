@@ -37,7 +37,7 @@ class CommentAuthor {
 						'email'        => [
 							'type'        => 'String',
 							'description' => static function () {
-								return __( 'The email for the comment author', 'wp-graphql' );
+								return __( 'The email for the comment author.', 'wp-graphql' );
 							},
 						],
 						'url'          => [

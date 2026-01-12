@@ -1,6 +1,6 @@
 <?php
 
-class UserRoleObjectQueriesTest extends \Codeception\TestCase\WPTestCase {
+class UserRoleObjectQueriesTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	private $admin;
 	public $request;

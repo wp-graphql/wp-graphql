@@ -42,7 +42,6 @@ class WPGraphQLTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	 * @covers WPGraphQL::setup_constants()
 	 */
 	public function testSetupConstants() {
-		do_action( 'init' );
 		$this->assertTrue( defined( 'WPGRAPHQL_VERSION' ) );
 		$this->assertTrue( defined( 'WPGRAPHQL_PLUGIN_DIR' ) );
 		$this->assertTrue( defined( 'WPGRAPHQL_PLUGIN_URL' ) );

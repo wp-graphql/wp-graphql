@@ -49,7 +49,7 @@ $I->wantTo( 'verify unauthenticated requests work for public data' );
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '{
@@ -96,7 +96,7 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
 $I->haveHttpHeader( 'X-WP-Nonce', 'invalid-nonce-12345' );
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '{
@@ -135,7 +135,7 @@ $I->deleteHeader( 'X-WP-Nonce' );
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '{
@@ -171,7 +171,7 @@ $I->haveHttpHeader( 'Content-Type', 'application/json' );
 // No nonce header
 
 $I->sendPOST(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query' => '{

@@ -1,12 +1,21 @@
 <?php
 
-class RouterTest extends \Codeception\TestCase\WPTestCase {
+use lucatume\WPBrowser\TestCase\WPTestCase;
+
+class RouterTest extends WPTestCase {
 
 	public function setUp(): void {
-		// before
 		parent::setUp();
 
-		// your set up methods here
+		/**
+		 * This function was deprecated in WP6.4, but is used by TT1.
+		 * We unhook `the_block_template_skip_link`here so we don't need to litter the tests with `->setExpectedDeprecated()` calls that are irrelevant to the plugin's or tests' usage of apply_filters( 'wp_footer' ).
+		 *
+		 * @todo Remove this once we no longer need to test against twentytwentyone.
+		 */
+		if ( function_exists( 'the_block_template_skip_link' ) ) {
+			remove_action( 'wp_footer', 'the_block_template_skip_link' );
+		}
 	}
 
 	public function tearDown(): void {
@@ -89,6 +98,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 				return true;
 			}
 		);
+
+		// Cleanup
+		remove_all_filters( 'graphql_request_results' );
 	}
 
 	/**
@@ -190,6 +202,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		// Verify content filtering still works (content should contain our filtered text)
 		$content = $actual['data']['post']['content'];
 		$this->assertStringContainsString( 'This content was filtered and should appear in the response.', $content );
+
+		// Cleanup
+		remove_all_filters( 'the_content' );
 	}
 
 	/**
@@ -268,6 +283,8 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+		remove_all_actions( 'wp_footer' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -306,6 +323,10 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -334,6 +355,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'shutdown' );
 	}
 
 	/**
@@ -375,6 +399,11 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'wp_enqueue_scripts' );
+		remove_all_actions( 'graphql_execute' );
+		remove_all_filters( 'wp_die_handler' );
 	}
 
 	/**
@@ -408,6 +437,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_init' );
 	}
 
 	/**
@@ -436,6 +468,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'init_graphql_request' );
 	}
 
 	/**
@@ -467,6 +502,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_before_resolve_field' );
 	}
 
 	/**
@@ -498,6 +536,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_after_resolve_field' );
 	}
 
 	/**
@@ -533,6 +574,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**
@@ -563,6 +607,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_process_http_request' );
 	}
 
 	/**
@@ -592,6 +639,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_response_set_headers' );
 	}
 
 	/**
@@ -622,6 +672,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'posts', $actual['data'] );
+
+		// Cleanup
+		remove_all_filters( 'graphql_schema' );
 	}
 
 	/**
@@ -669,6 +722,9 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertArrayHasKey( 'data', $actual );
 		$this->assertArrayHasKey( 'createPost', $actual['data'] );
+
+		// Cleanup
+		remove_all_actions( 'graphql_post_object_mutation_update_additional_data' );
 	}
 
 	/**
@@ -732,6 +788,13 @@ class RouterTest extends \Codeception\TestCase\WPTestCase {
 		// Verify we got the expected data structure despite all the HTML output
 		$this->assertIsArray( $actual['data']['posts']['nodes'] );
 		$this->assertGreaterThan( 0, count($actual['data']['posts']['nodes']) );
+
+		// Cleanup
+		remove_all_actions( 'init_graphql_request' );
+		remove_all_actions( 'graphql_before_resolve_field' );
+		remove_all_filters( 'graphql_pre_return_field_from_model' );
+		remove_all_actions( 'graphql_after_resolve_field' );
+		remove_all_actions( 'graphql_execute' );
 	}
 
 	/**

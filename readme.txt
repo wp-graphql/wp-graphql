@@ -2,11 +2,12 @@
 Contributors: jasonbahl, tylerbarnes1, ryankanner, chopinbach, kidunot89, justlevine
 Tags: GraphQL, Headless, REST API, Decoupled, React
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 2.5.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Author: WPGraphQL, WordPress.org
 
 WPGraphQL adds a flexible and powerful GraphQL API to WordPress, enabling efficient querying and interaction with your site's data.
 
@@ -296,9 +297,14 @@ Composer dependencies are no longer versioned in Github. Recommended install sou
 
 = 2.5.4 =
 
-**Bug Fixes**
+**New Features**
 
-* fix: align cookie authentication with WordPress REST API pattern (https://github.com/jasonbahl/automation-tests/pull/3448)
+* feat: refactor experiment registry for better testability (https://github.com/jasonbahl/automation-tests/pull/3453)
+
+**Other Changes**
+
+* release: next version 📦 (https://github.com/jasonbahl/automation-tests/pull/3452)
+* ci: replace custom docker with wp-env (https://github.com/jasonbahl/automation-tests/pull/3451)
 
 = 2.5.3 =
 

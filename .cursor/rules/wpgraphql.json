@@ -175,10 +175,6 @@
         "description": "Contains scripts used in CI"
       },
       {
-        "directory": "docker/",
-        "description": "Contains configuration for running WPGraphQL in Docker"
-      },
-      {
         "directory": "img",
         "description": "Contains images used in documentation"
       },
@@ -213,8 +209,8 @@
         "description": "PHPStan configuration"
       },
       {
-        "file": "docker-compose.yml",
-        "description": "Docker environment configuration"
+        "file": ".wp-env.json",
+        "description": "@wordpress/env (Docker) configuration for local development and testing"
       },
       {
         "file": ".wordpress-org/blueprints/blueprint.json",

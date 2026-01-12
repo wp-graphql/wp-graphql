@@ -1,5 +1,5 @@
 <?php
-class ModelUserTest extends \Codeception\TestCase\WPTestCase {
+class ModelUserTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public $administrator;
 	public $author;

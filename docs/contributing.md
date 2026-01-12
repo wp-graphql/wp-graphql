@@ -5,17 +5,6 @@ title: "Contributing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run the docker container locally as well as utilize xdebug for debugging and tracing.
 
-## Requirements
-
-- Node.js >= 20 (LTS)
-- npm >= 8
-- Docker
-- Composer
-- PHP 7.4+
-
-> [!NOTE]
-> WPGraphQL uses Node.js for development tooling, including testing, changelog generation, and release automation.
-
 ## Development Workflow
 
 WPGraphQL uses several automated processes to maintain consistency and quality:
@@ -44,85 +33,88 @@ WPGraphQL uses several automated processes to maintain consistency and quality:
    - Version management validation
    - Release simulation
 
-In order to continue, you should follow steps to setup Docker running on your machine.
+In order to continue, you should follow steps to setup your local development environment.
 
-### Build the WordPress Site
+## Local Setup
 
-The `app` docker image starts a running WordPress site with the local wp-graphql directory installed and activated. Local changes to the source code are immediately reflected in the app.
+### Prerequisites
 
-First step, clone the source for wp-graphql from GitHub.
+Ensure you have the following installed on your local machine:
+- Node.js 20.x (LTS) and npm >= 8 (NVM recommended)
+- Docker
+- Git
+- PHP 7.4+ and Composer (if you prefer to run the Composer tools locally)
 
-```shell
-git clone git@github.com:wp-graphql/wp-graphql.git
-```
+You can use Docker and the `wp-env` tool to set up a local development environment, instead of manually installing the specific testing versions of WordPress, PHP, and Composer. For more information, see the [wp-env documentation](https://developer.wordpress.org/block-editor/packages/packages-env/).
 
-Build the plugin and dependencies:
+### Installation
 
-```shell
-composer install
-```
+WPGraphQL uses [`@wordpress/env`](https://www.npmjs.com/package/@wordpress/env) to manage the local WordPress development and testing environment using Docker.
 
-Or if you don't have Composer installed or prefer building it in a Docker instance:
+1. Clone the repository:
 
-```shell
-docker run -v $PWD:/app composer --ignore-platform-reqs install
-```
+   ```shell
+   git clone git@github.com:wp-graphql/wp-graphql.git
+   ```
 
-Build the app and testing Docker images:
+2. Change into the project folder and install the NPM dependencies:
 
-```shell
-composer build-app
-composer build-test
-```
+   ```shell
+   ## If you're using nvm, make sure to use the correct Node.js version:
+   nvm install && nvm use
 
-In one terminal window, start the WordPress app:
+   ## Then install the NPM dependencies:
+   npm ci
+   ```
 
-```shell
-composer run-app
-```
+3. Build the JavaScript assets (required for GraphiQL IDE and Extensions page):
 
-In your web browser, open the site, [http://localhost:8091](). And the WP admin at [http://localhost:8091/wp-admin](). Username is `admin`. Password is `password`.
+   ```shell
+   npm run build
+   ```
+
+   > **Note:** The `/build` directory is gitignored. You must run this step for the GraphiQL IDE to function. If you skip this step, you'll see a helpful message in the admin with instructions.
+
+4. Start the `wp-env` environment to download and set up the Docker containers for WordPress:
+
+   (If you're not using `wp-env` you can skip this step.)
+
+   ```shell
+   npm run wp-env start
+   ```
+
+   When finished, the WordPress development site will be available at http://localhost:8888 and the WP Admin Dashboard will be available at http://localhost:8888/wp-admin/. You can log in to the admin using the username `admin` and password `password`.
+
+   However, before the plugin will work, you need to install the Composer dependencies.
+
+5. Install the Composer dependencies:
+
+   ```shell
+   ## To install Composer dependencies inside the Docker container:
+   npm run wp-env:cli -- composer install
+
+   ## Or: if you're running Composer locally:
+   composer install
+   ```
 
 ### Using XDebug
 
-#### Local WordPress Site With XDebug
-
-Use the environment variable `USING_XDEBUG` to start the Docker image and WordPress with XDebug configured to use port 9003 to communicate with your IDE.
+XDebug is installed via the `wp-env` environment, but is turned off by default. You can enable XDebug by passing the `--xdebug` flag when starting the `wp-env` environment.
 
 ```shell
-export USING_XDEBUG=1
-composer run-app
+# To turn it on:
+npm run wp-env start -- --xdebug
+
+# Or enable specific modes with a comma-separated list:
+npm run wp-env start -- --profile,trace,debug
 ```
+You can also connect your IDE to XDebug.
 
-You should see output in the terminal like the following examples that indicate XDebug is indeed enabled and running in the app:
-
-```shell
-app_1      | Enabling XDebug 3
-app_1      | [01-Apr-2021 04:43:53 UTC] Xdebug: [Step Debug] Could not connect to debugging client. Tried: host.docker.internal:9003 (through xdebug.client_host/xdebug.client_port) :-(
-```
-
-Start your IDE, like VSCode. Enable XDebug and set breakpoints. Load pages in your browsers and you should experience the IDE pausing the page load and showing the breakpoint.
-
-#### Using XDebug with Unit Tests
-
-See the testing page on running the unit test suite. These instructions show how to enable XDebug for those unit tests and allow debugging in an IDE.
-
-Use the environment variable `USING_XDEBUG` to run tests with XDebug configured to use port 9003 to communicate with your IDE.
-
-```shell
-export USING_XDEBUG=1
-composer run-tests
-```
-
-Use the environment variable `SUITES` to specify individual test files for quicker runs.
-
-#### Configure VSCode IDE Launch File
+The following example is for Visual Studio Code (VSCode) using the [PHP Debug extension](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug)
 
 Create or add the following configuration to your `.vscode/launch.json` in the root directory. Restart VSCode. Start the debug listener before running the app or testing images.
 
-If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through.
-
-```json
+```jsonc
 {
   "version": "0.2.0",
   "configurations": [
@@ -139,7 +131,8 @@ If you have WordPress core files in a directory for local development, you can a
       },
       "pathMappings": {
         "/var/www/html/wp-content/plugins/wp-graphql": "${workspaceFolder}",
-        "/var/www/html": "${workspaceFolder}/wordpress"
+        # If you have WordPress core files in a directory for local development, you can add the location to the `pathMappings` for debug step through. For example:
+        "/var/www/html": "/path/to/your/local/wordpress"
       }
     }
   ]

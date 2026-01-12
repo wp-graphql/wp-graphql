@@ -59,7 +59,7 @@ $I->havePostInDatabase(
  * Set the content-type so we get a proper response from the API
  */
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendPOST( 'http://localhost/graphql', json_encode( [ 'query' => $query ] ) );
+$I->sendPOST( TEST_GRAPHQL_ENDPOINT, json_encode( [ 'query' => $query ] ) );
 
 verifyResponse( $I );
 
@@ -74,7 +74,7 @@ $query_vars = http_build_query(
 );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendGET( "http://localhost/graphql?{$query_vars}" );
+$I->sendGET( TEST_GRAPHQL_ENDPOINT . '?' . $query_vars );
 
 verifyResponse( $I );
 
@@ -91,6 +91,6 @@ $query_vars = http_build_query(
 );
 
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
-$I->sendGET( "http://localhost/graphql?{$query_vars}" );
+$I->sendGET( TEST_GRAPHQL_ENDPOINT . '?' . $query_vars );
 
 verifyResponse( $I );

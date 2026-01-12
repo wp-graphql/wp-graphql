@@ -21,7 +21,7 @@ final class Experimental {
 	/**
 	 * The Experiment Registry instance
 	 *
-	 * @var \WPGraphQL\Experimental\ExperimentRegistry
+	 * @var ?\WPGraphQL\Experimental\ExperimentRegistry
 	 */
 	protected $experiment_registry;
 
@@ -64,5 +64,14 @@ final class Experimental {
 		}
 
 		return $this->is_enabled;
+	}
+
+	/**
+	 * Gets the Experiment Registry instance.
+	 *
+	 * @return \WPGraphQL\Experimental\ExperimentRegistry|null The registry instance, or null if not initialized.
+	 */
+	public function get_experiment_registry(): ?ExperimentRegistry {
+		return $this->experiment_registry ?? null;
 	}
 }

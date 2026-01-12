@@ -37,7 +37,7 @@ class Comment {
 							'email'     => [
 								'type'        => 'String',
 								'description' => static function () {
-									return __( 'The email address representing the author for this particular comment', 'wp-graphql' );
+									return __( 'Email address representing the author for this particular comment', 'wp-graphql' );
 								},
 								'resolve'     => static function ( $edge ) {
 									return $edge['source']->commentAuthorEmail ?: null;

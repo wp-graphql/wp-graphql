@@ -32,9 +32,9 @@ class ExperimentalExtensionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		
-		// Clear any existing experiments
-		ExperimentRegistry::reset();
+
+		// Register test experiments via filter (they're commented out by default in production)
+		add_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
 		
 		// Create instances
 		$this->extensions = new Extensions();
@@ -43,11 +43,27 @@ class ExperimentalExtensionsTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTest
 	}
 
 	/**
+	 * Register test experiments for testing purposes.
+	 *
+	 * @param array $registry The experiment registry.
+	 * @return array The modified registry with test experiments.
+	 */
+	public function register_test_experiments( array $registry ): array {
+		$registry['test_experiment'] = \WPGraphQL\Experimental\Experiment\TestExperiment\TestExperiment::class;
+		$registry['test-dependant-experiment'] = \WPGraphQL\Experimental\Experiment\TestDependantExperiment\TestDependantExperiment::class;
+		$registry['test-optional-dependency-experiment'] = \WPGraphQL\Experimental\Experiment\TestOptionalDependencyExperiment\TestOptionalDependencyExperiment::class;
+		return $registry;
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	public function tearDown(): void {
-		// Clear experiments
-		ExperimentRegistry::reset();
+		// Clear the primary instance
+		ExperimentRegistry::set_instance( null );
+		
+		// Remove the filter
+		remove_filter( 'graphql_experiments_registered_classes', [ $this, 'register_test_experiments' ] );
 		
 		// Clear schema
 		$this->clearSchema();

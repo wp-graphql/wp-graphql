@@ -64,7 +64,7 @@ function getQuery() {
 // query page 1
 $I->haveHttpHeader( 'Content-Type', 'application/json' );
 $I->sendPost(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query'     => getQuery(),
@@ -91,7 +91,7 @@ $I->assertSame( $comment_ids[1], $response_array['data']['comments']['nodes'][1]
 
 // send query for page 2
 $I->sendPost(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query'     => getQuery(),
@@ -117,7 +117,7 @@ $I->assertSame( $comment_ids[3], $page_2_response_array['data']['comments']['nod
 
 // send query for page 3
 $I->sendPost(
-	'http://localhost/graphql',
+	TEST_GRAPHQL_ENDPOINT,
 	json_encode(
 		[
 			'query'     => getQuery(),

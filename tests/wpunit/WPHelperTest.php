@@ -2,7 +2,7 @@
 
 use WPGraphQL\Server\WPHelper;
 
-class WPHelperTest extends \Codeception\TestCase\WPTestCase {
+class WPHelperTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	private function get_example_params() {
 		return [

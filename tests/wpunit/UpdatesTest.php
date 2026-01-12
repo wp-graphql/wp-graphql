@@ -28,6 +28,28 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		parent::setUp();
 
 		wp_cache_delete( 'plugins', 'plugins' );
+
+		// Filter out unrelated test plugins from possible dependents.
+		add_filter(
+			'graphql_get_possible_dependents',
+			static function ( $plugins, $all_plugins ) {
+				$test_plugin_patterns = [
+					'settings-page-spec/', // E2E test plugin in wp-env
+				];
+
+				foreach ( array_keys( $plugins ) as $plugin_path ) {
+					foreach ( $test_plugin_patterns as $pattern ) {
+						if ( str_contains( $plugin_path, $pattern ) ) {
+							unset( $plugins[ $plugin_path ] );
+						}
+					}
+				}
+
+				return $plugins;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -42,6 +64,9 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		wp_cache_delete( 'plugins', 'plugins' );
 
 		$this->reset_current_screen();
+
+		// Clean up the filter added in setUp
+		remove_all_filters( 'graphql_get_possible_dependents' );
 
 		parent::tearDown();
 	}

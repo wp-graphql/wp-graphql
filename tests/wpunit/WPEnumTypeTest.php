@@ -2,7 +2,7 @@
 
 use WPGraphQL\Type\WPEnumType;
 
-class WPEnumTypeTest extends \Codeception\TestCase\WPTestCase {
+class WPEnumTypeTest extends \lucatume\WPBrowser\TestCase\WPTestCase {
 
 	public function setUp(): void {
 		// before

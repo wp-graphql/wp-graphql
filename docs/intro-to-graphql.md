@@ -92,17 +92,17 @@ One thing you might have noticed is that the "User" type had an "id" field and a
 
 As [Eve Porcello's brother describes it](https://twitter.com/eveporcello/status/1300963959307001858?s=20), the GraphQL Schema is like a restaurant menu, and a GraphQL query is like the order.
 
-The GraphQL Schema describes what's *possible* to be asked for. The Query asks for specific fields that are needed. Much like a server at a restaurant takes your order, goes to the kitchen and brings back the specific items you ordered, the GraphQL server takes the Query and returns data matching the fields that were requested.
+The GraphQL Schema describes what's _possible_ to be asked for. The Query asks for specific fields that are needed. Much like a server at a restaurant takes your order, goes to the kitchen and brings back the specific items you ordered, the GraphQL server takes the Query and returns data matching the fields that were requested.
 
 ## GraphQL Concepts
 
 The following sections will introduce some concepts of GraphQL and provide resources to learn more about them.
 
-GraphQL can be implemented in many programming languages as an API for *any* back-end. WPGraphQL is just one implementation of GraphQL using WordPress as the application and data layer.
+GraphQL can be implemented in many programming languages as an API for _any_ back-end. WPGraphQL is just one implementation of GraphQL using WordPress as the application and data layer.
 
 There are many things that the GraphQL specification doesn't prescribe, such as Schema design, fetching data behind the scenes, and more. These decisions are made by each individual implementation of a GraphQL server. To learn more about specific concepts of the WPGraphQL implementation, you can read about [WPGraphQL Concepts page](/docs/wpgraphql-concepts/).
 
-Because GraphQL can be implemented in many ways, the following sections will attempt to speak to general GraphQL concepts that apply to *any* GraphQL implementation.
+Because GraphQL can be implemented in many ways, the following sections will attempt to speak to general GraphQL concepts that apply to _any_ GraphQL implementation.
 
 ### GraphQL Query Language
 
@@ -114,7 +114,7 @@ Queries and Mutations are the primary operations that can be made against a Grap
 
 Queries allow users to ask for data, while Mutations allow for data to be changed.
 
-> Technically, GraphQL doesn't enforce this, but it's best practice. It is *possible* to have Mutations that don't change underlying data or Queries that *do* change underlying data, but in general, if the intent of an operation is to change data, it should be in the GraphQL Schema as a Mutation.
+> Technically, GraphQL doesn't enforce this, but it's best practice. It is _possible_ to have Mutations that don't change underlying data or Queries that _do_ change underlying data, but in general, if the intent of an operation is to change data, it should be in the GraphQL Schema as a Mutation.
 
 In this section, we'll break down various features of the GraphQL Query Language. After reading this, you should feel comfortable interacting with just about any GraphQL API you come across.
 
@@ -135,7 +135,7 @@ And returned the following response:
 ```json
 {
   "data": {
-     "hello": "World"
+    "hello": "World"
   }
 }
 ```
@@ -162,9 +162,9 @@ In this query, I'm asking for the field `me`, but this returns an Object, so I m
 {
   "data": {
     "me": {
-      "name": "Sarah",
-    },
-  },
+      "name": "Sarah"
+    }
+  }
 }
 ```
 
@@ -255,10 +255,10 @@ Aliases are a powerful feature of GraphQL that allow you to change the name of a
 
 ```graphql
 {
-  person( id: 1 ) {
+  person(id: 1) {
     name
   }
-  anotherPerson: person( id: 2 ) {
+  anotherPerson: person(id: 2) {
     name
   }
 }
@@ -291,7 +291,7 @@ query GetPersonById {
 }
 ```
 
-In this example, `query` is the *operation type* and `GetPersonById` is the *operation name.*
+In this example, `query` is the _operation type_ and `GetPersonById` is the _operation name._
 
 While operation names are not required, they're best practice. Having an operation name can make it easier to identify queries in your codebase or in server side logs of operations, etc. Additionally, operation names are required if you want to pass variables to a query.
 
@@ -301,12 +301,12 @@ Variables allow for arguments to be dynamic, while allowing the Query to be a st
 
 It's not a good idea to concatenate the Query string to accomplish this as that would require run-time alterations to the query and could also make it difficult to diagnose when a query is problematic, as all queries would actually be unique queries.
 
-Instead, GraphQL provides a feature called *variables*.
+Instead, GraphQL provides a feature called _variables_.
 
 Let's take the example above that included an argument, and convert it to use a variable:
 
 ```graphql
-query GetPersonById($id:Int!) {
+query GetPersonById($id: Int!) {
   person(id: $id) {
     name(includeSurname: true)
   }
@@ -346,7 +346,7 @@ Let's look at an example of two queries where we need to get header and footer m
 
 ```graphql
 query GET_MENUS {
-  headerMenus: menuItems(where: {location: PRIMARY_MENU}) {
+  headerMenus: menuItems(where: { location: PRIMARY_MENU }) {
     edges {
       node {
         id
@@ -356,7 +356,7 @@ query GET_MENUS {
       }
     }
   }
-  footerMenu: menuItems(where: {location: FOOTER}) {
+  footerMenu: menuItems(where: { location: FOOTER }) {
     edges {
       node {
         id
@@ -376,10 +376,10 @@ Here `MenuItem` is the type, which is constant. We will cover below on how we ca
 
 ```graphql
 fragment MenuFragment on MenuItem {
-    id
-    label
-    url
-    path
+  id
+  label
+  url
+  path
 }
 ```
 
@@ -393,14 +393,14 @@ Let's put this together and try it in GraphiQL
 
 ```graphql
 query GET_MENUS {
-  headerMenus: menuItems(where: {location: PRIMARY_MENU}) {
+  headerMenus: menuItems(where: { location: PRIMARY_MENU }) {
     edges {
       node {
         ...MenuItem
       }
     }
   }
-  footerMenu: menuItems(where: {location: FOOTER}) {
+  footerMenu: menuItems(where: { location: FOOTER }) {
     edges {
       node {
         ...MenuItem
@@ -426,7 +426,7 @@ The following sections will introduce you to concepts related to GraphQL Schemas
 
 At the heart of GraphQL is a Schema that is made up of Types, and Types consist of fields.
 
-The Schema is the contract between the Client and the Server and exposes what is *possible* to be asked for, and the client uses the Schema to ask for exactly what it needs.
+The Schema is the contract between the Client and the Server and exposes what is _possible_ to be asked for, and the client uses the Schema to ask for exactly what it needs.
 
 GraphQL can be implemented in just about any programming language and can work with just about any data source you could think of.
 
@@ -460,7 +460,7 @@ If this Schema were implemented, the following query would be a valid query.
 
 #### Object Types and Fields
 
-In the above snippet the `Query` type was defined. This is a *GraphQL Object Type* which means it's a Type in the Schema that has fields. Object Types are typically the most common Type in a GraphQL Schema.
+In the above snippet the `Query` type was defined. This is a _GraphQL Object Type_ which means it's a Type in the Schema that has fields. Object Types are typically the most common Type in a GraphQL Schema.
 
 On the `Query` type we defined a `hello` field. Fields are how we define what a GraphQL consumer can ask for from the API. In our case, we defined the `hello` field as a `String`, which is the contract between the server and the consumers that when the `hello` field is asked for, a string will be returned.
 
@@ -472,7 +472,7 @@ It's possible to define a field that returns a list. Using the SDL, that might l
 
 ```graphql
 type Query {
-  listOfStrings: [ String ]
+  listOfStrings: [String]
 }
 ```
 
@@ -489,7 +489,7 @@ And in response they might get:
 ```json
 {
   "data": {
-    "listOfStrings": [ "String One", "String Two" ]
+    "listOfStrings": ["String One", "String Two"]
   }
 }
 ```
@@ -504,16 +504,16 @@ However, if there was no data to resolve, or the requesting user didn't have per
 }
 ```
 
-Fields can be defined as *non-nullable*, which means that the GraphQL API promises to *always* return a value when the field is asked for. In SDL, the `!` represents non-null.
+Fields can be defined as _non-nullable_, which means that the GraphQL API promises to _always_ return a value when the field is asked for. In SDL, the `!` represents non-null.
 
 ```graphql
-type Query { 
-  listOfStrings: [ String ]
+type Query {
+  listOfStrings: [String]
   nonNullString: String!
 }
 ```
 
-Given this Schema, any query for the field `nonNullString` will *always* return a String and never a *null*.
+Given this Schema, any query for the field `nonNullString` will _always_ return a String and never a _null_.
 
 > It's important to note, however, that an empty string is still a string.
 
@@ -535,7 +535,7 @@ This field could then be queried like so:
 
 ```graphql
 {
-  fieldWithArgument( name: "JSON Bahl" )
+  fieldWithArgument(name: "JSON Bahl")
 }
 ```
 
@@ -547,7 +547,7 @@ At the root of the GraphQL Schema is a Query Type, but there can also be a Mutat
 
 Query and Mutation types are the same as all other Object Types, the difference is that they are at the root of the Schema and serve as the entry point to the API.
 
-Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for retrieving data, and Mutations for *changing* data.
+Technically, Mutations are almost identical to Queries too. There's nothing in the GraphQL spec that prevents Queries from writing data to a data source, and there's nothing that requires Mutations to write data to an underlying data source, but it's best practice to design a GraphQL Schema to use Queries for retrieving data, and Mutations for _changing_ data.
 
 #### Scalar Types
 
@@ -565,18 +565,18 @@ Most GraphQL implementations ([including WPGraphQL](/functions/register_graphql_
 
 For example, you may want to register a `Date` Scalar that behaves similar to a String, but enforces different validation rules.
 
-> As of writing this, WPGraphQL doesn't provide any custom scalars out of the box, but may in the future.
+WPGraphQL provides custom scalar types out of the box, such as the `EmailAddress` scalar for email validation. See the [Custom Scalars documentation](/docs/custom-scalars/) for more information.
 
 #### Enumeration Types
 
-Typically referred to as *Enum Types*, these are a special kind of Scalar that is limited to a specific set of values.
+Typically referred to as _Enum Types_, these are a special kind of Scalar that is limited to a specific set of values.
 
 This allows you to:
 
 1. Validate that any arguments of this type are one of the allowed values
 1. Communicate through the type system that a field will always be one of a finite set of values
 
-Here's what an enum definition might look like in the GraphQL schema language:
+Here's what an enum definition might look like in the GraphQL schema definition language:
 
 ```graphql
 enum Status {
@@ -590,7 +590,7 @@ This means that wherever the `Status` Type is used in the Schema, it would be ex
 
 #### Interfaces
 
-An *Interface* is an abstract type that includes a certain set of fields that a type must include to implement the interface.
+An _Interface_ is an abstract type that includes a certain set of fields that a type must include to implement the interface.
 
 For example, if we had a Schema for animals, we might have a `Dog` and `Cat` Type, and they might share an `Animal` Interface, which would declare common fields, such as `name` and `color`.
 
@@ -623,7 +623,7 @@ Interfaces are useful when you want to return an object or set of objects, but t
 
 ```graphql
 type Query {
-  animals: [ Animal ]
+  animals: [Animal]
 }
 ```
 
@@ -634,10 +634,10 @@ One could query:
   animals {
     name
     color
-    ...on Dog {
+    ... on Dog {
       barkVolume
     }
-    ...on Cat {
+    ... on Cat {
       meowVolume
     }
   }
@@ -664,11 +664,11 @@ In this case, a query could be executed like so:
 {
   search(text: "do") {
     __typename
-    ...on BlogPost {
+    ... on BlogPost {
       title
       excerpt
     }
-    ...on Animal {
+    ... on Animal {
       name
       color
     }
@@ -685,7 +685,7 @@ And the results might look like so:
       {
         "__typename": "BlogPost",
         "title": "Dogs favorite activities",
-        "excerpt": "A blog post about dogs favorite activities",
+        "excerpt": "A blog post about dogs favorite activities"
       },
       {
         "__typename": "Dog",
@@ -723,17 +723,14 @@ This Schema would enable a Mutation operation like so:
 
 ```graphql
 mutation {
-  submitForm( input: { 
-    name: "Testy McTestface",
-    email: "test@example.com"
-  }) { 
+  submitForm(input: { name: "Testy McTestface", email: "test@example.com" }) {
     success
     errors
   }
 }
 ```
 
-Input Types are similar to Object Types, but Input Types can only be used for input, not for querying. Additionally, while fields of Object Types can have arguments, fields of Input Types cannot. Thus, Input Types and Output Types cannot be shared in the Schema. For example, you could not create one Type and use that Type as an input *and* as a queryable Type.
+Input Types are similar to Object Types, but Input Types can only be used for input, not for querying. Additionally, while fields of Object Types can have arguments, fields of Input Types cannot. Thus, Input Types and Output Types cannot be shared in the Schema. For example, you could not create one Type and use that Type as an input _and_ as a queryable Type.
 
 ## Learning More
 
