@@ -86,10 +86,10 @@
 			"composer install --no-dev && composer run-script zip && composer install"
 		],
 		"zip": [
-			"mkdir -p plugin-build/wp-graphql",
-			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wp-graphql/ --delete --delete-excluded -v",
-			"cd plugin-build ; zip -r wp-graphql.zip wp-graphql",
-			"rm -rf plugin-build/wp-graphql/"
+			"mkdir -p ../../plugin-build/wp-graphql",
+			"rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wp-graphql/ --delete --delete-excluded -v",
+			"cd ../../plugin-build ; zip -r wp-graphql.zip wp-graphql",
+			"rm -rf ../../plugin-build/wp-graphql/"
 		],
 		"post-install-cmd": [
 			"@php -r \"if (is_dir('packages') && !is_dir('build') && !getenv('CI')) { echo '\\n⚠️  Note: JavaScript assets not found. For GraphiQL IDE, run: npm ci && npm run build\\n\\n'; }\""

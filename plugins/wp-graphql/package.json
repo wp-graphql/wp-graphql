@@ -43,7 +43,8 @@
 		"changelogs:update": "node scripts/update-changelogs.js",
 		"release:prepare": "npm run version:bump && npm run changelogs:update",
 		"upgrade-notice:update": "node scripts/update-upgrade-notice.js",
-		"since-tags:update": "node scripts/update-since-tags.js"
+		"since-tags:update": "node scripts/update-since-tags.js",
+		"zip": "composer run-script build-plugin"
 	},
 	"dependencies": {
 		"@ant-design/icons": "5.6.1",

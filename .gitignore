@@ -49,6 +49,9 @@ phpunit.xml
 # JavaScript dependencies. Should be installed locally on the machine, not versioned
 node_modules
 
+# Turborepo cache
+.turbo
+
 # Built JavaScript assets. Should be generated via `npm run build`
 # These are built during release/deployment workflows
 build

@@ -18,6 +18,11 @@
 		"test:unit": {},
 		"lint": {},
 		"lint:php": {},
-		"lint:js": {}
+		"lint:js": {},
+		"zip": {
+			"dependsOn": ["build"],
+			"outputs": ["../../plugin-build/**"],
+			"cache": false
+		}
 	}
 }
