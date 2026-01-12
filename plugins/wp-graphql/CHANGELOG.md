@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.6.0 - 2026-01-12
+
+### New Features
+
+- feat: refactor experiment registry for better testability ([#3453](https://github.com/jasonbahl/automation-tests/pull/3453))
+
+### Other Changes
+
+- ci: optimize CI matrix with minimal/full modes ([#3465](https://github.com/jasonbahl/automation-tests/pull/3465))
+- ci: evaluate Codecov alongside Coveralls for code coverage ([#3463](https://github.com/jasonbahl/automation-tests/pull/3463))
+- ci: gitignore build directory and improve asset loading ([#3461](https://github.com/jasonbahl/automation-tests/pull/3461))
+- test: only apply URL rewriting for Codeception tests, not Playwright e2e ([#3460](https://github.com/jasonbahl/automation-tests/pull/3460))
+- test: bump Codeception to v3.7 ([#3456](https://github.com/jasonbahl/automation-tests/pull/3456))
+- chore: update node, npm, and composer deps ([#3454](https://github.com/jasonbahl/automation-tests/pull/3454))
+- ci: replace custom docker with wp-env ([#3451](https://github.com/jasonbahl/automation-tests/pull/3451))
+
+
+
 ## v2.5.4 - 2026-01-01
 
 ### New Features
