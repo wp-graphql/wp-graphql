@@ -12,10 +12,21 @@ function formatPrBody(content) {
     return '';
   }
 
-  // Remove HTML comments and their content using regex
-  // This handles both single-line and multi-line comments
-  let formatted = content
-    .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
+  let formatted = content;
+
+  // Remove HTML comments iteratively to handle nested/malformed cases
+  // This prevents incomplete sanitization where partial markers like "<!-" could remain
+  let previousLength;
+  do {
+    previousLength = formatted.length;
+    formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
+  } while (formatted.length !== previousLength);
+
+  // Remove any remaining partial HTML comment markers that could be malicious
+  // This catches orphaned "<!--" or "-->" that weren't part of complete comments
+  formatted = formatted
+    .replace(/<!--/g, '')
+    .replace(/-->/g, '')
     .replace(/^[\s\r\n]+|[\s\r\n]+$/g, ''); // Trim whitespace
 
   return formatted;

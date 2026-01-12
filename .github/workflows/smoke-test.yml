@@ -106,11 +106,21 @@ jobs:
           unzip -l plugin-build/wp-graphql.zip | head -50
 
       # Create a minimal wp-env config that uses ONLY the zip
+      # We override all plugin paths and disable lifecycle scripts to avoid
+      # the afterStart script trying to run composer in a zip-installed plugin
       - name: Create wp-env config for zip testing
         run: |
           cat > .wp-env.override.json << 'EOF'
           {
-            "plugins": ["./plugin-build/wp-graphql.zip"]
+            "plugins": ["./plugin-build/wp-graphql.zip"],
+            "lifecycleScripts": {
+              "afterStart": null
+            },
+            "env": {
+              "tests": {
+                "plugins": ["./plugin-build/wp-graphql.zip"]
+              }
+            }
           }
           EOF
 
