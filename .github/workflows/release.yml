@@ -724,7 +724,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wp-graphql
-          path: plugins/wp-graphql/plugin-build/wp-graphql.zip
+          path: plugin-build/wp-graphql.zip
 
       - name: Upload artifact to release
         # Only upload to release if we're not doing a manual deploy
@@ -733,6 +733,6 @@ jobs:
         with:
           # Use the correct tag name (e.g., v2.3.0)
           tag_name: ${{ steps.get_version_info.outputs.tag_name }}
-          files: plugins/wp-graphql/plugin-build/wp-graphql.zip
+          files: plugin-build/wp-graphql.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
