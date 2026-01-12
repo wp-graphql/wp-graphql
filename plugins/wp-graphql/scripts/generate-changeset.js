@@ -147,8 +147,9 @@ const generateChangeset = async ({
   const milestone = getMilestoneName(branchRef);
 
   // Sanitize the inputs to handle special characters
-  const sanitizedTitle = title.replace(/`/g, '\\`');
-  const sanitizedBody = body.replace(/`/g, '\\`');
+  // Escape backslashes first, then backticks to prevent injection
+  const sanitizedTitle = title.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+  const sanitizedBody = body.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
 
   const changesetData = {
     title: sanitizedTitle,

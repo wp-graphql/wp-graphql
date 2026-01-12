@@ -16,6 +16,15 @@ const glob = require('glob');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
+/**
+ * Escape special characters in a string for use in a regular expression
+ * @param {string} string - The string to escape
+ * @returns {string} The escaped string safe for use in RegExp
+ */
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
   .option('new-version', {
@@ -287,12 +296,13 @@ function updateGitHubChangelog(newContent, version) {
   const existingContent = fs.readFileSync(changelogPath, 'utf8');
 
   // Check if this version already exists in the changelog
-  const versionRegex = new RegExp(`## v${version} - \\d{4}-\\d{2}-\\d{2}`);
+  const escapedVersion = escapeRegExp(version);
+  const versionRegex = new RegExp(`## v${escapedVersion} - \\d{4}-\\d{2}-\\d{2}`);
   const versionExists = versionRegex.test(existingContent);
 
   if (versionExists) {
     // Extract the existing entry for this version
-    const existingEntryRegex = new RegExp(`(## v${version} - \\d{4}-\\d{2}-\\d{2}[\\s\\S]*?)(?=## v|$)`);
+    const existingEntryRegex = new RegExp(`(## v${escapedVersion} - \\d{4}-\\d{2}-\\d{2}[\\s\\S]*?)(?=## v|$)`);
     const existingEntryMatch = existingContent.match(existingEntryRegex);
     const existingEntry = existingEntryMatch ? existingEntryMatch[1].trim() : '';
 
@@ -354,14 +364,15 @@ function updateWordPressReadme(newContent, version, groups) {
   }
 
   // Check if this version already exists in the changelog
-  const versionRegex = new RegExp(`= ${version} =`);
+  const escapedVersion = escapeRegExp(version);
+  const versionRegex = new RegExp(`= ${escapedVersion} =`);
   const versionExists = versionRegex.test(existingContent);
 
   let updatedContent = existingContent;
 
   if (versionExists) {
     // Extract the existing entry for this version
-    const existingEntryRegex = new RegExp(`(= ${version} =[\\s\\S]*?)(?== \\d|$)`);
+    const existingEntryRegex = new RegExp(`(= ${escapedVersion} =[\\s\\S]*?)(?== \\d|$)`);
     const existingEntryMatch = existingContent.match(existingEntryRegex);
     const existingEntry = existingEntryMatch ? existingEntryMatch[1].trim() : '';
 
@@ -390,12 +401,12 @@ function updateWordPressReadme(newContent, version, groups) {
 
     if (upgradeNoticeMatch) {
       // Check if this version already has an upgrade notice
-      const versionNoticeRegex = new RegExp(`= ${version} =`);
+      const versionNoticeRegex = new RegExp(`= ${escapedVersion} =`);
       const versionNoticeExists = versionNoticeRegex.test(upgradeNoticeMatch[2]);
 
       if (versionNoticeExists) {
         // Replace existing upgrade notice for this version
-        const existingNoticeRegex = new RegExp(`(= ${version} =[\\s\\S]*?)(?== \\d|$)`);
+        const existingNoticeRegex = new RegExp(`(= ${escapedVersion} =[\\s\\S]*?)(?== \\d|$)`);
         updatedContent = updatedContent.replace(existingNoticeRegex, upgradeNotice);
       } else {
         // Add new upgrade notice at the beginning of the section
@@ -455,7 +466,8 @@ function cleanupDuplicateEntries() {
       console.log(`Cleaning up duplicate entries for v${version} in CHANGELOG.md`);
 
       // Find all entries for this version
-      const regex = new RegExp(`(## v${version} - \\d{4}-\\d{2}-\\d{2}[\\s\\S]*?)(?=## v|$)`, 'g');
+      const escapedVer = escapeRegExp(version);
+      const regex = new RegExp(`(## v${escapedVer} - \\d{4}-\\d{2}-\\d{2}[\\s\\S]*?)(?=## v|$)`, 'g');
       const matches = [...content.matchAll(regex)];
 
       if (matches.length > 1) {
@@ -504,7 +516,8 @@ function cleanupDuplicateEntries() {
       duplicateChangelogVersions.forEach(version => {
         console.log(`Cleaning up duplicate entries for v${version} in Changelog section`);
 
-        const regex = new RegExp(`(= ${version} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
+        const escapedVer = escapeRegExp(version);
+        const regex = new RegExp(`(= ${escapedVer} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
         const matches = [...changelogContent.matchAll(regex)];
 
         if (matches.length > 1) {
@@ -539,7 +552,8 @@ function cleanupDuplicateEntries() {
       duplicateUpgradeVersions.forEach(version => {
         console.log(`Cleaning up duplicate entries for v${version} in Upgrade Notice section`);
 
-        const regex = new RegExp(`(= ${version} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
+        const escapedVer = escapeRegExp(version);
+        const regex = new RegExp(`(= ${escapedVer} =[\\s\\S]*?)(?=\\n= \\d|$)`, 'g');
         const matches = [...upgradeContent.matchAll(regex)];
 
         if (matches.length > 1) {

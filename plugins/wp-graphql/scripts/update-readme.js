@@ -17,6 +17,15 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const glob = require('glob');
 
+/**
+ * Escape special characters in a string for use in a regular expression
+ * @param {string} string - The string to escape
+ * @returns {string} The escaped string safe for use in RegExp
+ */
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
   .option('version', {
@@ -255,7 +264,8 @@ function updateReadme(newContent, version, upgradeNotice = '') {
       const existingNotices = upgradeNoticeSection[1].trim();
 
       // Check if this version's notice already exists
-      const versionNoticeRegex = new RegExp(`= ${version} =([\\s\\S]*?)(?=\\n= |$)`);
+      const escapedVersion = escapeRegExp(version);
+      const versionNoticeRegex = new RegExp(`= ${escapedVersion} =([\\s\\S]*?)(?=\\n= |$)`);
       const hasVersionNotice = versionNoticeRegex.test(existingNotices);
 
       if (!hasVersionNotice) {
@@ -284,7 +294,8 @@ function updateReadme(newContent, version, upgradeNotice = '') {
     const fullChangelogLink = changelogMatch[2].match(/\n----\n\nView Full Changelog:.*$/);
 
     // Check if this version already exists in the changelog
-    const versionEntryRegex = new RegExp(`= ${version} =([\\s\\S]*?)(?=\\n= |$)`);
+    const escapedVer = escapeRegExp(version);
+    const versionEntryRegex = new RegExp(`= ${escapedVer} =([\\s\\S]*?)(?=\\n= |$)`);
     const hasVersionEntry = versionEntryRegex.test(changelogMatch[2]);
 
     if (!hasVersionEntry) {

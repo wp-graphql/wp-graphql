@@ -16,6 +16,15 @@ const path = require('path');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
+/**
+ * Escape special characters in a string for use in a regular expression
+ * @param {string} string - The string to escape
+ * @returns {string} The escaped string safe for use in RegExp
+ */
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Parse command line arguments
 const argv = yargs(hideBin(process.argv))
   .option('new-version', {
@@ -116,7 +125,8 @@ function updateUpgradeNotice(version, breakingChanges) {
     
     if (upgradeNoticeMatch) {
       // Check if this version's notice already exists
-      const versionNoticeRegex = new RegExp(`= ${version} =([\\s\\S]*?)(?=\\n= |$)`);
+      const escapedVersion = escapeRegExp(version);
+      const versionNoticeRegex = new RegExp(`= ${escapedVersion} =([\\s\\S]*?)(?=\\n= |$)`);
       const hasVersionNotice = versionNoticeRegex.test(upgradeNoticeMatch[2]);
       
       if (!hasVersionNotice) {

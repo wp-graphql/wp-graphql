@@ -14,7 +14,7 @@
 #   ./bin/smoke-test.sh
 #
 # Options:
-#   --endpoint URL    GraphQL endpoint URL (default: http://localhost/graphql)
+#   --endpoint URL    GraphQL endpoint URL (default: http://localhost:8888/graphql)
 #   --verbose         Show full responses
 #   --help            Show this help message
 #
@@ -30,7 +30,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default values
-ENDPOINT="http://localhost/graphql"
+# wp-env exposes WordPress on port 8888 by default
+ENDPOINT="http://localhost:8888/graphql"
 VERBOSE=false
 PASSED=0
 FAILED=0
