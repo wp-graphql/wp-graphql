@@ -16,8 +16,13 @@
 #
 # LOCAL USAGE:
 # You can run smoke tests locally:
-#   npm run wp-env start
-#   ./bin/smoke-test.sh
+#   1. Build the zip: cd plugins/wp-graphql && composer run-script zip
+#   2. Start wp-env: npm run wp-env start
+#   3. Copy zip to container: docker cp plugin-build/wp-graphql.zip $(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1):/tmp/wp-graphql.zip
+#   4. Install plugin: npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
+#   5. Flush permalinks: npm run wp-env -- run cli wp rewrite flush --hard
+#   6. Enable introspection: npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
+#   7. Run tests: ./bin/smoke-test.sh
 #
 # ===========================================
 
@@ -105,30 +110,63 @@ jobs:
           echo "📋 Zip contents:"
           unzip -l plugin-build/wp-graphql.zip | head -50
 
-      # Create a minimal wp-env config that uses ONLY the zip
-      # We override all plugin paths and disable lifecycle scripts to avoid
-      # the afterStart script trying to run composer in a zip-installed plugin
+      # Create a minimal wp-env config with NO plugins
+      # We'll install the zip manually via WP-CLI for reliable testing
       - name: Create wp-env config for zip testing
         run: |
           cat > .wp-env.override.json << 'EOF'
           {
-            "plugins": ["./plugin-build/wp-graphql.zip"],
+            "plugins": [],
             "lifecycleScripts": {
               "afterStart": null
             },
+            "mappings": {},
             "env": {
+              "development": {
+                "plugins": [],
+                "mappings": {}
+              },
               "tests": {
-                "plugins": ["./plugin-build/wp-graphql.zip"]
+                "plugins": [],
+                "mappings": {}
               }
             }
           }
           EOF
+          echo "📋 Created .wp-env.override.json:"
+          cat .wp-env.override.json
+          echo ""
+          echo "🔍 Validating JSON syntax..."
+          python3 -c "import json; json.load(open('.wp-env.override.json')); print('✅ JSON is valid')"
+
+      - name: Clean wp-env cache
+        run: |
+          # Ensure no stale wp-env state interferes with the smoke test
+          npm run wp-env destroy -- --force || true
+          # Clear the wp-env cache directory to ensure zip is freshly extracted
+          rm -rf ~/.wp-env || true
 
       - name: Start WordPress environment
         env:
           WP_ENV_PHP_VERSION: ${{ matrix.php }}
           WP_ENV_CORE: ${{ format('https://wordpress.org/wordpress-{0}.zip', matrix.wp) }}
         run: npm run wp-env start
+
+      - name: Install plugin from zip via WP-CLI
+        run: |
+          echo "📦 Copying zip to container..."
+          CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
+          docker cp plugin-build/wp-graphql.zip "$CONTAINER_NAME":/tmp/wp-graphql.zip
+          
+          echo "📦 Installing plugin from zip..."
+          npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
+          
+          echo "🔄 Flushing permalinks..."
+          npm run wp-env -- run cli wp rewrite structure '/%postname%/' --hard
+          npm run wp-env -- run cli wp rewrite flush --hard
+          
+          echo "⚙️ Enabling public introspection..."
+          npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
 
       - name: Verify plugin is active
         run: |
