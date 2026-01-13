@@ -37,8 +37,18 @@ const argv = yargs(hideBin(process.argv))
  * 
  * @returns {Array} Array of changeset objects
  */
+/**
+ * Get the repo root directory (relative to this script's location)
+ * Scripts are in plugins/wp-graphql/scripts/, so root is 3 levels up
+ *
+ * @returns {string} Path to repo root
+ */
+function getRepoRoot() {
+  return path.join(__dirname, '..', '..', '..');
+}
+
 function readChangesets() {
-  const changesetDir = path.join(process.cwd(), '.changesets');
+  const changesetDir = path.join(getRepoRoot(), '.changesets');
   
   if (!fs.existsSync(changesetDir)) {
     console.log('No .changesets directory found.');

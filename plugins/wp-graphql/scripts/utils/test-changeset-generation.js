@@ -42,12 +42,16 @@ Additional benefits:
   // Add more test cases here as needed
 ];
 
+// Get the repo root directory (relative to this script's location)
+// This script is in plugins/wp-graphql/scripts/utils/, so root is 4 levels up
+const repoRoot = path.join(__dirname, '..', '..', '..', '..');
+
 // Create temporary directory
 const tempDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'changeset-test-'));
 console.log('Created temp directory:', tempDir);
 
 // Ensure .changesets directory exists
-const changesetDir = path.join(process.cwd(), '.changesets');
+const changesetDir = path.join(repoRoot, '.changesets');
 if (!fs.existsSync(changesetDir)) {
   fs.mkdirSync(changesetDir);
   console.log('Created .changesets directory');

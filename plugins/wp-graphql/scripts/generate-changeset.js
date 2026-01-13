@@ -128,6 +128,16 @@ const getMilestoneName = (branchRef) => {
 };
 
 /**
+ * Get the repo root directory (relative to this script's location)
+ * Scripts are in plugins/wp-graphql/scripts/, so root is 3 levels up
+ *
+ * @returns {string} Path to repo root
+ */
+function getRepoRoot() {
+  return path.join(__dirname, '..', '..', '..');
+}
+
+/**
  * Generate a changeset file
  */
 const generateChangeset = async ({
@@ -138,7 +148,7 @@ const generateChangeset = async ({
   branchRef
 }) => {
   // Create .changesets directory if it doesn't exist
-  const changesetDir = path.join(process.cwd(), '.changesets');
+  const changesetDir = path.join(getRepoRoot(), '.changesets');
   await fs.ensureDir(changesetDir);
 
   // Extract PR information
