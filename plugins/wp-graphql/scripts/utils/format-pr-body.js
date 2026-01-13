@@ -22,12 +22,17 @@ function formatPrBody(content) {
     formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
   } while (formatted.length !== previousLength);
 
-  // Remove any remaining partial HTML comment markers that could be malicious
-  // This catches orphaned "<!--" or "-->" that weren't part of complete comments
-  formatted = formatted
-    .replace(/<!--/g, '')
-    .replace(/-->/g, '')
-    .replace(/^[\s\r\n]+|[\s\r\n]+$/g, ''); // Trim whitespace
+  // Remove any remaining partial HTML comment markers that could be malicious.
+  // This catches orphaned "<!--" or "-->" / "--!>" that weren't part of complete comments
+  // newly-adjacent characters could form fresh "<!--" or "-->" sequences.
+  let prevFormatted;
+    .replace(/--!? >/g, '') // Remove both "-->" and "--!>" sequences
+    prevFormatted = formatted;
+    formatted = formatted.replace(/<!--/g, '').replace(/-->/g, '');
+  } while (formatted !== prevFormatted);
+
+  // Trim leading/trailing whitespace
+  formatted = formatted.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
 
   return formatted;
 }
