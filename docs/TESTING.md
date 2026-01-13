@@ -188,6 +188,92 @@ $admin_id = $this->factory()->user->create(['role' => 'administrator']);
 wp_set_current_user($admin_id);
 ```
 
+## Smoke Tests
+
+Smoke tests validate that the production plugin zip works correctly. These are lightweight tests that verify core functionality without running the full test suite.
+
+### Running Smoke Tests Locally
+
+For basic local testing (plugin already installed via wp-env):
+
+```bash
+# Start your WordPress environment
+npm run wp-env start
+
+# Run smoke tests against the local environment
+./bin/smoke-test.sh
+
+# Or specify a custom endpoint
+./bin/smoke-test.sh --endpoint http://wpgraphql.local/graphql
+
+# With verbose output (shows full responses)
+./bin/smoke-test.sh --verbose
+```
+
+### Testing the Production Zip Artifact
+
+To test the actual production zip (mimicking what CI does):
+
+```bash
+# 1. Build the zip
+cd plugins/wp-graphql && composer run-script zip && cd ../..
+
+# 2. Start wp-env with a clean config (no plugins pre-installed)
+cat > .wp-env.override.json << 'EOF'
+{
+  "plugins": [],
+  "lifecycleScripts": { "afterStart": null }
+}
+EOF
+npm run wp-env start
+
+# 3. Copy zip to container and install via WP-CLI
+CONTAINER=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
+docker cp plugin-build/wp-graphql.zip "$CONTAINER":/tmp/wp-graphql.zip
+npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
+
+# 4. Flush permalinks and enable introspection
+npm run wp-env -- run cli wp rewrite flush --hard
+npm run wp-env -- run cli wp option update graphql_general_settings \
+  '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
+
+# 5. Run smoke tests
+./bin/smoke-test.sh
+
+# 6. Clean up override file when done
+rm .wp-env.override.json
+```
+
+### What Smoke Tests Verify
+
+| Test | Description |
+|------|-------------|
+| GraphQL endpoint | Basic connectivity check |
+| Introspection | Schema introspection works |
+| Posts query | Can query posts |
+| Pages query | Can query pages |
+| Users query | Can query users |
+| GeneralSettings | Can query site settings |
+| ContentTypes | Can query content types |
+| Taxonomies | Can query taxonomies |
+| Menus | Can query menus (empty is OK) |
+| MediaItems | Can query media items |
+
+### CI Smoke Tests
+
+The `smoke-test.yml` workflow:
+1. Builds the production plugin zip
+2. Starts a clean WordPress environment (no plugins pre-installed)
+3. Installs the plugin from the zip via WP-CLI
+4. Flushes permalinks and enables public introspection
+5. Runs all smoke tests
+
+This catches issues that unit tests might miss:
+- Missing files from `.distignore`
+- Build/bundling problems
+- Activation errors
+- Missing production dependencies
+
 ## CI/CD Testing
 
 Tests run automatically on:
