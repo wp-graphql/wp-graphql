@@ -23,10 +23,10 @@ function formatPrBody(content) {
   } while (formatted.length !== previousLength);
 
   // Remove any remaining partial HTML comment markers that could be malicious.
-  // Use an iterative loop to avoid incomplete multi-character sanitization where
+  // This catches orphaned "<!--" or "-->" / "--!>" that weren't part of complete comments
   // newly-adjacent characters could form fresh "<!--" or "-->" sequences.
   let prevFormatted;
-  do {
+    .replace(/--!? >/g, '') // Remove both "-->" and "--!>" sequences
     prevFormatted = formatted;
     formatted = formatted.replace(/<!--/g, '').replace(/-->/g, '');
   } while (formatted !== prevFormatted);
