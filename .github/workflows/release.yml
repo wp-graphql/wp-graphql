@@ -621,7 +621,7 @@ jobs:
         with:
           commit_message: "release: prepare v${{ steps.version_bump.outputs.version || steps.set_existing_version.outputs.version }}"
           # Include all PHP files (root and subdirectories), markdown, txt, and package.json
-          file_pattern: "plugins/wp-graphql/**/*.php plugins/wp-graphql/*.md plugins/wp-graphql/*.txt plugins/wp-graphql/package.json"
+          file_pattern: "plugins/wp-graphql/*.php plugins/wp-graphql/**/*.php plugins/wp-graphql/*.md plugins/wp-graphql/*.txt plugins/wp-graphql/package.json"
           # For manual/scheduled events, commit to the specified target branch or develop
           branch: ${{ github.event.inputs.target_branch || 'develop' }}
         env:

@@ -203,7 +203,7 @@ jobs:
           NEXT_VERSION=$(node -p "require('./plugins/wp-graphql/package.json').version")
 
           # Run the since-tags script in dry-run mode to check for @since and deprecated version placeholders
-          node plugins/wp-graphql/scripts/update-since-tags.js "$NEXT_VERSION" --dry-run || true
+          npm run -w @wpgraphql/wp-graphql since-tags:update -- "$NEXT_VERSION" --dry-run || true
 
           # If the summary file exists, read it
           if [ -f "/tmp/since-tags-summary.md" ]; then
