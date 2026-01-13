@@ -57,6 +57,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.wp-env.json'
+      - 'bin/**'
       - 'plugins/wp-graphql/bin/**'
       - 'plugins/wp-graphql/tests/**'
       - 'plugins/wp-graphql/codeception.dist.yml'
