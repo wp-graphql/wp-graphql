@@ -15,14 +15,12 @@
 # - Missing dependencies in production
 #
 # LOCAL USAGE:
-# You can run smoke tests locally:
-#   1. Build the zip: cd plugins/wp-graphql && composer run-script zip
-#   2. Start wp-env: npm run wp-env start
-#   3. Copy zip to container: docker cp plugin-build/wp-graphql.zip $(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1):/tmp/wp-graphql.zip
-#   4. Install plugin: npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
-#   5. Flush permalinks: npm run wp-env -- run cli wp rewrite flush --hard
-#   6. Enable introspection: npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
-#   7. Run tests: ./bin/smoke-test.sh
+# For basic smoke testing against your running wp-env:
+#   npm run wp-env start
+#   ./bin/smoke-test.sh
+#
+# To test the production zip artifact (mimicking CI):
+#   See docs/TESTING.md#testing-the-production-zip-artifact
 #
 # ===========================================
 

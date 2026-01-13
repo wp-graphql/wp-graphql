@@ -124,7 +124,9 @@ Smoke tests verify:
 - Basic queries (posts, pages, users, etc.) work
 - Site settings are accessible
 
-See the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md#smoke-tests) for more details.
+### Testing the Production Zip
+
+To test the actual production zip artifact (mimicking CI), you need to install the plugin via WP-CLI rather than mounting it via wp-env. See the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md#testing-the-production-zip-artifact) for detailed instructions.
 
 ## Testing Locally with Codeception
 
