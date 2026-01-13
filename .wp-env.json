@@ -23,6 +23,10 @@
 			],
 			"config": {
 				"FS_METHOD": "direct"
+			},
+			"mappings": {
+				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
+				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist"
 			}
 		}
 	},
