@@ -6,7 +6,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### 1. Code Quality Checks (`code-quality.yml`)
 
-- Runs static analysis and code quality checks
+- Runs static analysis and code quality checks (PHPStan)
 - Ensures code meets quality standards
 - Identifies potential issues and improvements
 
@@ -20,82 +20,79 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 - Validates GraphQL schema structure
 - Ensures schema follows GraphQL best practices
-- Prevents breaking schema changes
+- Compares schema against previous releases to detect breaking changes
 
 ### 4. Testing Integration (`testing-integration.yml`)
 
-- Runs comprehensive integration tests
+- Runs comprehensive integration tests via Codeception
 - Tests across multiple PHP and WordPress versions
-- Validates core functionality
+- Uses "boundary testing" approach for efficiency (~8 jobs for PRs, ~18 for merges)
+- Collects code coverage from multiple configurations
 
 ### 5. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
 
-- End-to-end testing of GraphiQL interface
+- End-to-end testing of GraphiQL interface using Playwright
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 6. CodeQL Analysis (`codeql-analysis.yml`)
+### 6. Smoke Test (`smoke-test.yml`)
+
+- Validates the production zip artifact works correctly
+- Builds the plugin zip (same as release process)
+- Installs it in a clean WordPress environment
+- Runs smoke tests to verify core functionality
+
+### 7. CodeQL Analysis (`codeql-analysis.yml`)
 
 - Performs security analysis
 - Identifies potential vulnerabilities
 - Runs on schedule and on code changes
 
-## PR and Changeset Process
+## PR Validation
 
-### 1. PR Validation (`lint-pr.yml`)
+### PR Title Validation (`lint-pr.yml`)
 
-- Validates PR titles follow conventional commit format
+- Validates PR titles follow [conventional commit](https://www.conventionalcommits.org/) format
 - Ensures proper scoping and breaking change indicators
+- Blocks breaking change markers (`!`) on non-release types (only `feat!`, `fix!`, `perf!` allowed)
 - Runs on PR creation and updates
 
-### 2. Changeset Generation (`changeset-generation.yml`)
+## Release Process
 
-Triggered when a PR is labeled with `ready-for-changeset`:
+### Release Please (`release-please.yml`)
 
-1. Validates:
-   - PR title format
-   - Required PR description sections
-2. Generates a changeset file containing:
-   - Version bump type (patch/minor/major)
-   - PR reference
-   - Breaking change indicators
-   - Upgrade instructions
-3. Creates or updates a collection PR with the changeset
+We use [release-please](https://github.com/googleapis/release-please) for automated releases:
 
-## Build and Deploy
+1. **On Push to Master**: release-please analyzes commits and creates/updates a Release PR
+2. **Release PR Contents**:
+   - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
+   - Auto-generated changelog from commit messages
+   - Version updates across all configured files
+3. **On Release PR Merge**:
+   - Creates GitHub Release with changelog
+   - Deploys to WordPress.org
+   - Uploads schema artifact
 
-### 1. GraphiQL Build (`build-graphiql.yml`)
+### Schema Artifact Upload (`upload-schema-artifact.yml`)
+
+- Generates GraphQL schema artifact on release
+- Uploads schema to GitHub Release
+- Used for schema tracking and breaking change detection
+
+## Build
+
+### GraphiQL Build (`build-graphiql.yml`)
 
 - Builds the GraphiQL interface
 - Compiles assets and dependencies
 - Prepares for distribution
 
-### 2. Schema Artifact Upload (`upload-schema-artifact.yml`)
-
-- Generates schema artifacts
-- Uploads schema for documentation
-- Used for schema tracking and validation
-
-### 3. Release Process (`release.yml`)
-
-Handles the complete release process:
-
-1. Version Management
-   - Bumps versions across files
-   - Updates @since tags
-   - Syncs versions across package.json and PHP files
-2. Changelog Generation
-   - Compiles changes from changesets
-   - Generates formatted changelog
-3. Distribution
-   - Creates GitHub release
-   - Deploys to WordPress.org
-   - Updates stable/beta tags as needed
+## Workflow Flow
 
 ```mermaid
 flowchart TD
-    %% PR and Changeset Process
-    PR[PR Created] --> LPR[Lint PR]
+    %% PR Process
+    PR[PR Created] --> LPR[Lint PR Title]
     LPR --> QA[Quality Checks]
     QA --> Tests[Run Tests]
 
@@ -104,32 +101,28 @@ flowchart TD
     QA --> WCS[WP Coding Standards]
     QA --> SL[Schema Linter]
     QA --> SEC[Security Analysis]
+    QA --> SM[Smoke Test]
 
     %% Tests
     Tests --> INT[Integration Tests]
     Tests --> E2E[GraphiQL E2E]
 
-    %% Changeset Process
-    PR --> |ready-for-changeset| GC[Generate Changeset]
-    GC --> CPR[Create Changeset PR]
-
-    %% Release Process
-    CPR --> |Merged| REL[Release Process]
-    REL --> VB[Version Bump]
-    VB --> CL[Generate Changelog]
-    CL --> DR[Deploy Release]
-    DR --> WO[WordPress.org]
-    DR --> GH[GitHub Release]
+    %% Merge and Release
+    PR --> |Squash Merged| MASTER[master branch]
+    MASTER --> RP[release-please]
+    RP --> |Creates/Updates| RPR[Release PR]
+    RPR --> |Merged| REL[Create Release]
+    REL --> WO[Deploy to WordPress.org]
+    REL --> SA[Upload Schema Artifact]
+    REL --> GH[GitHub Release]
 ```
 
 ## Workflow Dependencies
 
-Some workflows depend on others or specific conditions:
-
-- Integration tests must pass before releases
-- Code quality checks must pass before PR merges
-- Changeset generation requires proper PR formatting
-- Release process depends on successful changeset merging
+- All quality checks and tests must pass before PR can be merged
+- PRs are squash merged with the PR title becoming the commit message
+- release-please uses commit messages to determine version bumps
+- WordPress.org deployment depends on successful release creation
 
 ## Contributing
 

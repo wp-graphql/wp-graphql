@@ -3,16 +3,12 @@ name: GraphiQL E2E Tests
 on:
   push:
     branches:
-      - develop
       - master
-      - "1.x/master"
-      - next-major
+      - release/*
   pull_request:
     branches:
-      - develop
       - master
-      - "1.x/master"
-      - next-major
+      - release/*
     paths:
       - 'plugins/wp-graphql/packages/**'
       - 'plugins/wp-graphql/src/Admin/GraphiQL/**'

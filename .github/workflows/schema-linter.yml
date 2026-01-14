@@ -3,11 +3,10 @@ name: Schema Linter
 on:
   push:
     branches:
-      - develop
+      - master
       - release/*
   pull_request:
     branches:
-      - develop
       - master
       - release/*
 
