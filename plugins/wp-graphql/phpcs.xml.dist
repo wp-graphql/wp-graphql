@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPGraphQL" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+	<description>Coding standards for the WPGraphQL plugin</description>
+
+	<!-- What to scan: include any root-level PHP files, and the /src folder -->
+	<file>./access-functions.php</file>
+	<file>./activation.php</file>
+	<file>./constants.php</file>
+	<file>./deactivation.php</file>
+	<file>./wp-graphql.php</file>
+	<file>./src</file>
+	<exclude-pattern>./phpstan/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<!--How to scan: include CLI args so you don't need to pass them manually -->
+	<!--Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
+	<!--
+		p flag: Show progress of the run.
+		s flag: Show sniff codes in all reports.
+	-->
+	<arg value="sp"/>
+	<!-- Strip the file paths down to the relevant bit -->
+	<arg name="basepath" value="./"/>
+	<!-- Enable colors in report -->
+	<arg name="colors" />
+	<!-- Only lint php files by default -->
+	<arg name="extensions" value="php" />
+	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
+	<arg name="cache" value="tests/_output/cache.json" />
+	<!-- Check 20 files in parallel. -->
+	<arg name="parallel" value="20" />
+	<!-- Set severity to 1 to see everything that isn't effectively turned off. -->
+	<arg name="severity" value="1" />
+
+	<!-- Ruleset Config: set these to match your project constraints-->
+
+	<!--
+		Tests for PHP version compatibility.
+		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#Recomended-additional-rulesets
+	-->
+	<config name="testVersion" value="7.4-"/>
+
+	<!--
+		Tests for WordPress version compatibility.
+		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
+	-->
+	<config name="minimum_wp_version" value="6.0"/>
+
+	<!-- Rules -->
+
+	<!-- Load PHPCompatibilityWP standards -->
+	<rule ref="PHPCompatibilityWP" />
+
+	<!-- Load WordPress VIP Go standards - for use with projects on the (newer) VIP Go platform. -->
+	<rule ref="WordPress-VIP-Go">
+		<!-- Deprecated. @todo: remove after PHPCS4-->
+		<exclude name="WordPressVIPMinimum.JS" />
+	</rule>
+
+	<!-- Load WordPress Coding standards -->
+	<rule ref="WordPress">
+		<!-- Definitely should not be added back -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.Files.FileName"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="WordPress.WP.Capabilities.Undetermined" />
+		<!-- Deprecated. @todo: remove in PHPCS v4-->
+		<exclude name="Generic.Functions.CallTimePassByReference" />
+
+		<!-- Include only once we support PHP 8.3 and above -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint" />
+
+		<!-- This would be a breaking change to fix-->
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+	</rule>
+
+	<!-- Tests for inline documentation of code -->
+	<rule ref="WordPress-Docs">
+		<!-- Conflicts with FQCN -->
+		<exclude name="Squiz.Commenting.FunctionComment.IncorrectTypeHint" />
+		<!-- Conflicts with b/c in AbstractConnectionResolver -->
+		<exclude name="Squiz.Commenting.FunctionComment.InvalidNoReturn" />
+		<!-- Better handled by SlevomatCodingStandard.TypeHints.PropertyTypeHint -->
+		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
+
+		<!-- Should probably be added back -->
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing" />
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
+		<exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+	</rule>
+
+	<!-- Enforce short array syntax -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- Check for superfluous whitespace - These are suppressed in VIP-GO.-->
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+		<severity>5</severity>
+	</rule>
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
+		<severity>5</severity>
+	</rule>
+
+	<!-- Slevomat Coding Standards-->
+	<rule ref="SlevomatCodingStandard.Arrays">
+		<!-- Conflicts with WPCS -->
+		<exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace"/>
+		<!-- Semantic sorting is a valid pattern -->
+		<exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys"/>
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Classes.ModernClassNameReference">
+		<properties>
+			<!-- Doesn't use PHPCompatibility-->
+			<property name="enableOnObjects" value="false"/>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Classes.RequireSelfReference" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowConstructorPropertyPromotion" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiConstantDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowMultiPropertyDefinition" />
+	<rule ref="SlevomatCodingStandard.Classes.DisallowStringExpressionPropertyFetch" />
+	<rule ref="SlevomatCodingStandard.Classes.ClassConstantVisibility" />
+	<rule ref="SlevomatCodingStandard.Classes.UselessLateStaticBinding" />
+
+	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator" />
+
+	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.DisallowNonCapturingCatch" />
+	<rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly" />
+
+	<rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure" />
+	<rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue" />
+
+	<rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+		<properties>
+			<property name="caseSensitive" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation">
+		<properties>
+			<property name="ignoredAnnotationNames" type="array">
+				<element value="@phpstan-var" />
+				<element value="@phpstan-param" />
+				<element value="@phpstan-return" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
+	<rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+
+	<rule ref="SlevomatCodingStandard.PHP.OptimizedFunctionsWithoutUnpacking" />
+	<rule ref="SlevomatCodingStandard.PHP.TypeCast" />
+
+	<rule ref="SlevomatCodingStandard.TypeHints">
+		<!-- Array syntax is preferred -->
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
+		<!-- Deprecated and will be removed in Slevomat v9 -->
+		<exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat" />
+		<!-- WP dependencies are too loosely typed to implement these safely. Breaking change. -->
+		<exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint" />
+		<!-- Depends on Squiz.Commenting.FunctionComment.MissingParamComment -->
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation" />
+
+		<!-- Should probably be added back. -->
+		<exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing" />
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable" />
+	<rule ref="SlevomatCodingStandard.Variables.UnusedVariable" >
+		<properties>
+			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true" />
+		</properties>
+	</rule>
+	<rule ref="SlevomatCodingStandard.Variables.UselessVariable" />
+	<!-- Individual rule configuration -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-graphql" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+		<properties>
+			<property name="blank_line_check" value="true"/>
+		</properties>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+	</rule>
+	<rule ref="./phpcs/WPGraphQL/PHPCS/Sniffs/Functions/VersionParameterSniff.php"/>
+	<rule ref="./phpcs/WPGraphQL/PHPCS/Sniffs/Commenting/ValidSinceTagSniff.php"/>
+</ruleset>
