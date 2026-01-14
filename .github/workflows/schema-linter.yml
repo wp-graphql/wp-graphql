@@ -90,14 +90,42 @@ jobs:
           echo "Previous tagged schema ${{ steps.get-latest-tag.outputs.tag }}"
 
       - name: Get Previous Released Schema
-        run: curl 'https://github.com/wp-graphql/wp-graphql/releases/download/${{ steps.get-latest-tag.outputs.tag }}/schema.graphql' -L  --output /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql
+        id: get-previous-schema
+        run: |
+          SCHEMA_URL="https://github.com/wp-graphql/wp-graphql/releases/download/${{ steps.get-latest-tag.outputs.tag }}/schema.graphql"
+          echo "Downloading schema from: $SCHEMA_URL"
+          
+          # Download with error checking
+          HTTP_CODE=$(curl -sL -w "%{http_code}" "$SCHEMA_URL" -o /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql)
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::warning::Could not download previous schema (HTTP $HTTP_CODE). Schema comparison will be skipped."
+            echo "schema_available=false" >> $GITHUB_OUTPUT
+          else
+            # Verify it's actually a GraphQL schema (not an HTML error page)
+            if head -1 /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql | grep -q "^type\|^schema\|^\""; then
+              echo "Previous schema downloaded successfully"
+              echo "schema_available=true" >> $GITHUB_OUTPUT
+            else
+              echo "::warning::Downloaded file is not a valid GraphQL schema. Schema comparison will be skipped."
+              echo "schema_available=false" >> $GITHUB_OUTPUT
+            fi
+          fi
 
       # https://github.com/marketplace/actions/graphql-inspector
       - name: Install Schema Inspector
+        if: steps.get-previous-schema.outputs.schema_available == 'true'
         run: |
           npm install @graphql-inspector/config @graphql-inspector/cli graphql
 
       - name: Run Schema Inspector
+        if: steps.get-previous-schema.outputs.schema_available == 'true'
         run: |
           # This schema and previous release schema
           node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql
+      
+      - name: Schema comparison skipped
+        if: steps.get-previous-schema.outputs.schema_available != 'true'
+        run: |
+          echo "::notice::Schema comparison was skipped because the previous release (${{ steps.get-latest-tag.outputs.tag }}) does not have a schema.graphql artifact."
+          echo "This is expected for the first release after enabling schema artifact uploads."
