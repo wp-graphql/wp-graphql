@@ -1,9 +1,9 @@
 <!--
-🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/develop/.github/CONTRIBUTING.md
+🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/master/docs/CONTRIBUTING.md
 
 ### Your checklist for this documentation pull request
 - [ ] Make sure your PR title follows Conventional Commit standards (use `docs:` prefix). See: https://www.conventionalcommits.org/en/v1.0.0/#specification
-- [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our develop*.
+- [ ] Make sure you are making a pull request against the **master branch** (left side). Also you should start *your branch* off *our master*.
 - [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
 - [ ] Documentation is accurate and up-to-date
 - [ ] Grammar and spelling have been checked

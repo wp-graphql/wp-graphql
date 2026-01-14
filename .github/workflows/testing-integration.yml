@@ -10,8 +10,8 @@
 # while maintaining confidence in compatibility.
 #
 # TWO MATRIX MODES:
-# - MINIMAL (PRs to develop): ~8 jobs for quick feedback
-# - FULL (merges + release PRs): ~18 jobs for thorough pre-release testing
+# - MINIMAL (regular PRs): ~8 jobs for quick feedback
+# - FULL (merges to master + release PRs): ~18 jobs for thorough pre-release testing
 #
 # COVERAGE STRATEGY:
 # Code coverage is collected from 4 configurations on the latest WP/PHP:
@@ -39,12 +39,10 @@ name: Testing Integration
 on:
   push:
     branches:
-      - develop
       - master
       - release/*
   pull_request:
     branches:
-      - develop
       - master
       - release/*
     paths:
@@ -82,12 +80,21 @@ jobs:
         id: set-matrix
         run: |
           # Use full matrix for:
-          # - Push events (merges to develop/master)
-          # - Release PRs (PRs targeting master, like "release: next version")
+          # - Push events (merges to master)
+          # - Release PRs (PRs from release-please with title starting with "chore: release")
           # Use minimal matrix for:
-          # - Regular PRs targeting develop
+          # - Regular PRs targeting master
           
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "develop" ]]; then
+          # Check if this is a release-please PR (full matrix needed for release validation)
+          IS_RELEASE_PR="false"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            if [[ "$PR_TITLE" == chore:\ release* ]]; then
+              IS_RELEASE_PR="true"
+            fi
+          fi
+          
+          if [[ "${{ github.event_name }}" == "pull_request" && "$IS_RELEASE_PR" == "false" ]]; then
             # ===========================================
             # MINIMAL MATRIX (~8 jobs)
             # For regular PRs - provides quick feedback
@@ -110,7 +117,7 @@ jobs:
           else
             # ===========================================
             # FULL MATRIX (~18 jobs)
-            # For merges to develop/master and release PRs
+            # For merges to master and release-please PRs
             # Provides thorough testing before releases
             # ===========================================
             # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos

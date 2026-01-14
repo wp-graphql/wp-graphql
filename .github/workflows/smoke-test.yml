@@ -29,12 +29,10 @@ name: Smoke Test
 on:
   push:
     branches:
-      - develop
       - master
       - release/*
   pull_request:
     branches:
-      - develop
       - master
       - release/*
     paths:
