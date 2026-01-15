@@ -78,7 +78,7 @@ Proposed → Active → Feedback → Decision
 To see which experiments are currently available:
 
 1. Navigate to **GraphQL > Settings > Experiments** in your WordPress admin
-2. Review the [Experiments README](https://github.com/wp-graphql/wp-graphql/tree/develop/src/Experimental) on GitHub
+2. Review the [Experiments README](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql/src/Experimental) on GitHub
 3. Check release notes for the `Experimental` badge
 
 ### Example Experiments (For Developers)

@@ -432,7 +432,7 @@ We need to have the connection resolver return something other than null.
 
 WPGraphQL has an AbstractConnectionResolver that helps facilitate resolving connections. 
 
-You can see all the ConnectionResolvers in core WPGraphQL here: https://github.com/wp-graphql/wp-graphql/tree/develop/src/Data/Connection
+You can see all the ConnectionResolvers in core WPGraphQL here: https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql/src/Data/Connection
 
 Let's define a `NotificationConnectionResolver` class to help resolve connection queries for Notifications.
 

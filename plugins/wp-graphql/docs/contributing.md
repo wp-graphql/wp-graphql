@@ -5,7 +5,7 @@ title: "Contributing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run the docker container locally as well as utilize xdebug for debugging and tracing.
 
-> **Note**: WPGraphQL is now a monorepo. For detailed setup instructions, see the [Development Setup Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/DEVELOPMENT.md) in the repository root.
+> **Note**: WPGraphQL is now a monorepo. For detailed setup instructions, see the [Development Setup Guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/DEVELOPMENT.md) in the repository root.
 
 ## Development Workflow
 
@@ -17,11 +17,11 @@ WPGraphQL uses several automated processes to maintain consistency and quality:
    - Breaking changes use `!` suffix (e.g., `feat!:`)
    - See [Conventional Commits](https://www.conventionalcommits.org/) for more details
 
-2. **Automated Changesets**
+2. **Automated Releases**
 
-   - Generated automatically when PRs are merged
-   - Based on PR title and description
-   - Includes breaking changes and upgrade notes
+   - release-please creates Release PRs automatically
+   - Changelog generated from PR titles
+   - Version bumps determined by commit types
 
 3. **Version Management**
 
@@ -142,15 +142,16 @@ Create or add the following configuration to your `.vscode/launch.json` in the r
 }
 ```
 
-## Changesets and Releases
+## Releases
 
-WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and changelogs. When contributing:
+WPGraphQL uses [release-please](https://github.com/googleapis/release-please) for automated versioning and releases. When contributing:
 
 1. Your PR title must follow [conventional commits](https://www.conventionalcommits.org/) format:
 
    - `feat:` for new features (minor version bump)
    - `fix:` for bug fixes (patch version bump)
    - Add `!` suffix for breaking changes: `feat!:` or `fix!:`
+   - Non-release types: `docs:`, `chore:`, `ci:`, `test:`, `refactor:` (no version bump)
 
 2. **Use the appropriate PR template**:
 
@@ -176,12 +177,8 @@ WPGraphQL uses [changesets](../.changeset/README.md) to manage versioning and ch
 
    - These will be automatically updated during the release process.
 
-5. **Changeset Generation Process**:
-   - When your PR is ready for review, a maintainer will review it
-   - After approval, the maintainer will merge the PR
-   - This triggers an automated workflow that:
-     - Creates a changeset based on your PR title and description
-     - Adds the changeset to the develop branch
-     - Creates/updates a PR from the develop branch to master
-   - When one or more changesets are collected, they'll be released together
-   - Merging the PR containing multiple changesets will trigger a release workflow that will publish and deploy the plugin
+5. **Release Process**:
+   - PRs are merged to `main` via squash merge (PR title becomes commit message)
+   - release-please analyzes commits and creates/updates a Release PR
+   - The Release PR accumulates changes and shows the upcoming version bump
+   - When the Release PR is merged, a GitHub release is created and the plugin is deployed to WordPress.org

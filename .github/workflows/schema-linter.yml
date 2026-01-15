@@ -3,11 +3,11 @@ name: Schema Linter
 on:
   push:
     branches:
-      - master
+      - main
       - release/*
   pull_request:
     branches:
-      - master
+      - main
       - release/*
 
 # Cancel previous workflow run groups that have not completed.

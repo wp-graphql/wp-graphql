@@ -63,7 +63,7 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 We use [release-please](https://github.com/googleapis/release-please) for automated releases:
 
-1. **On Push to Master**: release-please analyzes commits and creates/updates a Release PR
+1. **On Push to Main**: release-please analyzes commits and creates/updates a Release PR
 2. **Release PR Contents**:
    - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
    - Auto-generated changelog from commit messages
@@ -108,8 +108,8 @@ flowchart TD
     Tests --> E2E[GraphiQL E2E]
 
     %% Merge and Release
-    PR --> |Squash Merged| MASTER[master branch]
-    MASTER --> RP[release-please]
+    PR --> |Squash Merged| MAIN[main branch]
+    MAIN --> RP[release-please]
     RP --> |Creates/Updates| RPR[Release PR]
     RPR --> |Merged| REL[Create Release]
     REL --> WO[Deploy to WordPress.org]

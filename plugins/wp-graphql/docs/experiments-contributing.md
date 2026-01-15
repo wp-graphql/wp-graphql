@@ -466,7 +466,7 @@ Stuck or have questions?
 - [Using Experiments Guide](/docs/experiments-using)
 - [Contributing Guide](/docs/contributing)
 - [Testing Guide](/docs/testing)
-- [Code Standards](https://github.com/wp-graphql/wp-graphql/blob/develop/phpcs.xml.dist)
+- [Code Standards](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/phpcs.xml.dist)
 
 ---
 

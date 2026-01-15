@@ -7,7 +7,7 @@ This document will be most useful for developers that want to contribute to WPGr
 
 In order to run tests, you must [clone the plugin from GitHub](https://github.com/wp-graphql/wp-graphql). Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
 
-> **Note**: WPGraphQL is now a monorepo. For detailed testing instructions, see the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md) in the repository root.
+> **Note**: WPGraphQL is now a monorepo. For detailed testing instructions, see the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/TESTING.md) in the repository root.
 
 ## Testing with `wp-env`
 
@@ -126,7 +126,7 @@ Smoke tests verify:
 
 ### Testing the Production Zip
 
-To test the actual production zip artifact (mimicking CI), you need to install the plugin via WP-CLI rather than mounting it via wp-env. See the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/TESTING.md#testing-the-production-zip-artifact) for detailed instructions.
+To test the actual production zip artifact (mimicking CI), you need to install the plugin via WP-CLI rather than mounting it via wp-env. See the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/TESTING.md#testing-the-production-zip-artifact) for detailed instructions.
 
 ## Testing Locally with Codeception
 

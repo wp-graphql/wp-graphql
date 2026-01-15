@@ -18,7 +18,7 @@ An over-simplified summary of the WPGraphQL lifecycle looks something like the f
 
 Most users of WPGraphQL will be interacting with it from the site's `/graphql` endpoint.
 
-The endpoint is created by the [WPGraphQL Router Class](https://github.com/wp-graphql/wp-graphql/blob/develop/src/Router.php). The default Route is `/graphql` but can be changed via filter or the WPGraphQL Settings page. Additionally, for sites that do not have pretty permalinks enabled, the endpoint can be queried at `/index.php?graphql`.
+The endpoint is created by the [WPGraphQL Router Class](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/src/Router.php). The default Route is `/graphql` but can be changed via filter or the WPGraphQL Settings page. Additionally, for sites that do not have pretty permalinks enabled, the endpoint can be queried at `/index.php?graphql`.
 
 The Router determines whether the request is a GraphQL HTTP Request.
 

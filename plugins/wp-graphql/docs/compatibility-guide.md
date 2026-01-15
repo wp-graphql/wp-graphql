@@ -9,7 +9,7 @@ This guide outlines compatibility requirements and considerations when using WPG
 
 ## WordPress Compatibility
 
-WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.com/wp-graphql/wp-graphql/blob/master/.github/workflows/testing-integration.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
+WPGraphQL requires WordPress 6.0 or higher. We [actively test](https://github.com/wp-graphql/wp-graphql/blob/main/.github/workflows/testing-integration.yml) and support against newer versions of WordPress. For the best experience and support, we strongly recommend keeping WordPress updated to the latest stable version.
 
 ### Version Requirements
 

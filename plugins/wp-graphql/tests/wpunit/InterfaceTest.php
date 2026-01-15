@@ -1154,7 +1154,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql([ 'query' => $query ]);
 
-		// On master branch, this would pass without debug messages
+		// Before PR #3383, this would pass without debug messages
 		// With PR #3383, this should have debug messages about type conflicts
 		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about type conflicts');
 		$this->assertStringContainsString('expected to be of type "String"', $actual['extensions']['debug'][0]['message']);
@@ -1300,7 +1300,7 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$actual = $this->graphql([ 'query' => $query ]);
 
-		// On master branch, this would pass without debug messages
+		// Before PR #3383, this would pass without debug messages
 		// With PR #3383, this should have debug messages about type conflicts
 		$this->assertNotEmpty($actual['extensions']['debug'], 'The interface should have debug messages about nested type conflicts');
 		$this->assertStringContainsString('expected to be of type', $actual['extensions']['debug'][0]['message']);
@@ -1443,8 +1443,8 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug('Found inheritedField:');
 		codecept_debug($inheritedField);
 
-		// On master branch, this might not have all arguments
-		// On PR branch, it should have all arguments from the inheritance chain
+		// Before this PR, this might not have all arguments
+		// After this PR, it should have all arguments from the inheritance chain
 		$argNames = array_map(function($arg) {
 			return $arg['name'];
 		}, $inheritedField['args']);
@@ -1521,8 +1521,8 @@ class InterfaceTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		codecept_debug('Field query response:');
 		codecept_debug($actual);
 
-		// On master branch, this might fail if arguments aren't properly merged
-		// On PR branch, it should succeed
+		// Before this fix, this might fail if arguments aren't properly merged
+		// After this fix, it should succeed
 		$this->assertQuerySuccessful($actual, [
 			$this->expectedField('testInheritance.inheritedField', 'parent: parent value, child: child value, object: object value')
 		], 'The query should be valid with all arguments from the inheritance chain');

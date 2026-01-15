@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
       - release/*
   pull_request:
     branches:
-      - master
+      - main
       - release/*
 
 # Cancels all previous workflow runs for pull requests that have not completed.

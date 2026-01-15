@@ -11,7 +11,7 @@
 #
 # TWO MATRIX MODES:
 # - MINIMAL (regular PRs): ~8 jobs for quick feedback
-# - FULL (merges to master + release PRs): ~18 jobs for thorough pre-release testing
+# - FULL (merges to main + release PRs): ~18 jobs for thorough pre-release testing
 #
 # COVERAGE STRATEGY:
 # Code coverage is collected from 4 configurations on the latest WP/PHP:
@@ -39,11 +39,11 @@ name: Testing Integration
 on:
   push:
     branches:
-      - master
+      - main
       - release/*
   pull_request:
     branches:
-      - master
+      - main
       - release/*
     paths:
       - '.github/workflows/testing-integration.yml'
@@ -80,10 +80,10 @@ jobs:
         id: set-matrix
         run: |
           # Use full matrix for:
-          # - Push events (merges to master)
+          # - Push events (merges to main)
           # - Release PRs (PRs from release-please with title starting with "chore: release")
           # Use minimal matrix for:
-          # - Regular PRs targeting master
+          # - Regular PRs targeting main
           
           # Check if this is a release-please PR (full matrix needed for release validation)
           IS_RELEASE_PR="false"
@@ -117,7 +117,7 @@ jobs:
           else
             # ===========================================
             # FULL MATRIX (~18 jobs)
-            # For merges to master and release-please PRs
+            # For merges to main and release-please PRs
             # Provides thorough testing before releases
             # ===========================================
             # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos
