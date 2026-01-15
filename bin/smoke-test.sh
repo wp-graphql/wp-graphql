@@ -133,55 +133,58 @@ echo ""
 log_info "Endpoint: $ENDPOINT"
 echo ""
 
+# Note: We use `|| true` after each run_test to prevent `set -e` from
+# exiting on test failure. This allows all tests to run and show the summary.
+
 # Test 1: Basic connectivity
 run_test "GraphQL endpoint responds" \
     "{ __typename }" \
-    '"data"'
+    '"data"' || true
 
 # Test 2: Introspection works
 run_test "Introspection query" \
     "{ __schema { queryType { name } } }" \
-    '"queryType"'
+    '"queryType"' || true
 
 # Test 3: Posts query
 run_test "Posts query" \
     "{ posts { nodes { id title } } }" \
-    '"nodes"'
+    '"nodes"' || true
 
 # Test 4: Pages query  
 run_test "Pages query" \
     "{ pages { nodes { id title } } }" \
-    '"nodes"'
+    '"nodes"' || true
 
 # Test 5: Users query
 run_test "Users query" \
     "{ users { nodes { id name } } }" \
-    '"nodes"'
+    '"nodes"' || true
 
 # Test 6: General settings
 run_test "GeneralSettings query" \
     "{ generalSettings { title url } }" \
-    '"generalSettings"'
+    '"generalSettings"' || true
 
 # Test 7: Content types
 run_test "ContentTypes query" \
     "{ contentTypes { nodes { name } } }" \
-    '"contentTypes"'
+    '"contentTypes"' || true
 
 # Test 8: Taxonomies
 run_test "Taxonomies query" \
     "{ taxonomies { nodes { name } } }" \
-    '"taxonomies"'
+    '"taxonomies"' || true
 
 # Test 9: Menus (should return empty but not error)
 run_test "Menus query" \
     "{ menus { nodes { id name } } }" \
-    '"menus"'
+    '"menus"' || true
 
 # Test 10: Media items
 run_test "MediaItems query" \
     "{ mediaItems { nodes { id title } } }" \
-    '"mediaItems"'
+    '"mediaItems"' || true
 
 # ===========================================
 # Summary
