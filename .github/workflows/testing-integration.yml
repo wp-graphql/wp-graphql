@@ -91,7 +91,9 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_TITLE="${{ github.event.pull_request.title }}"
             # Match "chore: release" or "chore(scope): release" patterns
-            if [[ "$PR_TITLE" =~ ^chore(\([^)]+\))?:\ release ]]; then
+            # Store regex in variable to avoid bash parsing issues with special characters
+            RELEASE_PATTERN='^chore(\([^)]+\))?:[[:space:]]release'
+            if [[ "$PR_TITLE" =~ $RELEASE_PATTERN ]]; then
               IS_RELEASE_PR="true"
             fi
           fi
