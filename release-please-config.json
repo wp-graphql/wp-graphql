@@ -43,6 +43,21 @@
           "type": "generic",
           "path": "readme.txt",
           "glob": false
+        },
+        {
+          "type": "generic",
+          "path": "*.php",
+          "glob": true
+        },
+        {
+          "type": "generic",
+          "path": "src/**/*.php",
+          "glob": true
+        },
+        {
+          "type": "generic",
+          "path": "src/Experimental/Experiment/**/README.md",
+          "glob": true
         }
       ]
     }

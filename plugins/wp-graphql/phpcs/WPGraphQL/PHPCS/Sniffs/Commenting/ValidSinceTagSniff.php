@@ -20,8 +20,7 @@ class ValidSinceTagSniff implements Sniff
      * @var array<string>
      */
     private $validPlaceholders = [
-        'next-version',
-        'todo',
+        'x-release-please-version',
     ];
 
     public function __construct()
@@ -84,33 +83,20 @@ class ValidSinceTagSniff implements Sniff
 
         // Check if it's a valid placeholder
         if (in_array($version, $this->validPlaceholders, true)) {
-            // If using old placeholders, suggest next-version
-            if ($version !== 'next-version') {
-                $fix = $phpcsFile->addFixableWarning(
-                    'Please use "@since next-version" instead of "@since %s"',
-                    $versionPtr,
-                    'OldVersionPlaceholder',
-                    [$version]
-                );
-
-                if ($fix === true) {
-                    $this->fixVersion($phpcsFile, $versionPtr, $version, 'next-version');
-                }
-            }
             return;
         }
 
         // Validate semver
         if (!$this->isValidSemver($version)) {
             $fix = $phpcsFile->addFixableError(
-                'Version for @since tag must be a valid semver version or "next-version" but got "%s"',
+                'Version for @since tag must be a valid semver version or "x-release-please-version" but got "%s"',
                 $versionPtr,
                 'InvalidVersion',
                 [$version]
             );
 
             if ($fix === true) {
-                $this->fixVersion($phpcsFile, $versionPtr, $version, 'next-version');
+                $this->fixVersion($phpcsFile, $versionPtr, $version, 'x-release-please-version');
             }
         }
     }

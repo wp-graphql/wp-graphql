@@ -25,8 +25,8 @@ WPGraphQL uses several automated processes to maintain consistency and quality:
 
 3. **Version Management**
 
-   - Automatically updates version numbers
-   - Updates `@since next-version` / `@next-version` tags to the appropriate version during the release process
+   - Automatically updates version numbers via release-please
+   - Updates `@since x-release-please-version` placeholders to the actual version during the release process
    - Maintains changelog in multiple formats (CHANGELOG.md, readme.txt)
 
 4. **Testing**
@@ -173,9 +173,26 @@ WPGraphQL uses [release-please](https://github.com/googleapis/release-please) fo
    - Breaking changes (if any)
    - Upgrade instructions (if breaking)
 
-4. Add `@since next-version` tags to new functions/classes docblocks or use `@next-version` as a version placeholder for deprecation functions
+4. Add `@since x-release-please-version` tags to new functions/classes docblocks:
 
-   - These will be automatically updated during the release process.
+   ```php
+   /**
+    * My new function.
+    *
+    * @since x-release-please-version
+    * @param string $param Description.
+    * @return string
+    */
+   function my_new_function( $param ) { ... }
+   ```
+
+   For deprecation functions, use `x-release-please-version` as the version parameter:
+
+   ```php
+   _deprecated_function( __FUNCTION__, 'x-release-please-version', 'new_function' );
+   ```
+
+   - These placeholders are automatically replaced with the actual version by release-please during the release process.
 
 5. **Release Process**:
    - PRs are merged to `main` via squash merge (PR title becomes commit message)

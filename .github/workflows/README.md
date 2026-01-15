@@ -68,10 +68,11 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
    - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
    - Auto-generated changelog from commit messages
    - Version updates across all configured files
+   - `@since x-release-please-version` placeholders replaced with actual version (native to release-please)
 3. **On Release PR Merge**:
    - Creates GitHub Release with changelog
    - Deploys to WordPress.org
-   - Uploads schema artifact
+   - Uploads zip artifact to release
 
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)
 
@@ -113,7 +114,7 @@ flowchart TD
     RP --> |Creates/Updates| RPR[Release PR]
     RPR --> |Merged| REL[Create Release]
     REL --> WO[Deploy to WordPress.org]
-    REL --> SA[Upload Schema Artifact]
+    REL --> ZIP[Upload Zip Artifact]
     REL --> GH[GitHub Release]
 ```
 
