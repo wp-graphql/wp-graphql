@@ -3,7 +3,7 @@
 # ===========================================
 #
 # This workflow uses Google's release-please to automate releases:
-# 1. On push to master, release-please analyzes commits since last release
+# 1. On push to main, release-please analyzes commits since last release
 # 2. It creates/updates a Release PR with version bump and changelog
 # 3. When the Release PR is merged, it creates a GitHub release and tag
 # 4. The deploy job then publishes to WordPress.org
@@ -26,7 +26,7 @@ name: Release Please
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
     inputs:
       debug:
@@ -104,7 +104,7 @@ jobs:
           if [[ -n "$(git status --porcelain)" ]]; then
             git add -A
             git commit -m "chore: update @since tags for v${{ needs.release-please.outputs['wp-graphql--version'] }}"
-            git push origin HEAD:master
+            git push origin HEAD:main
           else
             echo "No @since tag updates needed"
           fi
@@ -118,7 +118,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: main
           fetch-depth: 0
 
       - name: Setup PHP

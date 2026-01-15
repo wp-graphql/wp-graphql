@@ -67,7 +67,7 @@ For example, in WordPress core, users that have not published posts are only vis
 
 To help facilitate what data is publicly exposed and what data is considered private, WPGraphQL has a "Model Layer". Each type of object (Posts, Terms, Users, Comments, etc) have a WPGraphQL Model that is responsible for permission checks. Anytime an object is asked for from the Graph, the Model determines if the object is allowed to be returned to the requesting user, and if so, what specific fields can be returned. The Model Layer takes into consideration many things when determining if the object should be considered public or private.
 
-Some things the [Model Layer](https://github.com/wp-graphql/wp-graphql/tree/develop/src/Model) will consider before returning an object:
+Some things the [Model Layer](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql/src/Model) will consider before returning an object:
 
 - Is the Request for data authenticated or public?
 - What is the state of the object being requested (is it published, draft, etc)?
@@ -103,7 +103,7 @@ For remote HTTP requests to the `/graphql` endpoint, existing authentication plu
 - https://github.com/WP-API/Basic-Auth (even though it’s labeled for the REST API, it works well with WPGraphQL – but not recommended for non-SSL connections)
 - https://github.com/WP-API/OAuth1 (labeled for use with the WP REST API, but works well with WPGraphQL)
 
-If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/master/packages/graphiql-auth-switch).
+If the remote request is within the WordPress admin, such as the WPGraphiQL plugin, you can use the existing Auth nonce as seen in action [here](https://github.com/wp-graphql/wp-graphiql/blob/main/packages/graphiql-auth-switch).
 
 For non-remote requests (PHP function calls), if the context of the request is already authenticated, such as an Admin page in the WordPress dashboard, existing WordPress authentication can be used, taking advantage of the existing session. For example, if you wanted to use a GraphQL query to populate a dashboard page, you could send your query to the `do_graphql_request( $query )` function, and since the request is already authenticated, GraphQL will execute with the current user set, and will resolve fields that the users has permission to resolve.
 

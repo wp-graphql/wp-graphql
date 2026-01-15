@@ -277,8 +277,8 @@ This catches issues that unit tests might miss:
 ## CI/CD Testing
 
 Tests run automatically on:
-- Pull requests to `develop` or `master`
-- Pushes to `develop` or `master`
+- Pull requests to `main`
+- Pushes to `main`
 
 ### Test Matrix
 

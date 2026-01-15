@@ -60,7 +60,7 @@ WPGraphQL ships with 3 features (Auth Switch, Fullscreen Toggle, and Query Compo
 using the extension architecture. The code can serve as an example for how you might approach building
 an extension.
 
-You can find the code for these extensions [here](https://github.com/wp-graphql/wp-graphql/tree/develop/packages/).
+You can find the code for these extensions [here](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql/packages/).
 
 Below, is documentation on the hooks and filters provided by the codebase:
 

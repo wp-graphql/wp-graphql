@@ -170,7 +170,7 @@ register_graphql_connection([
 | `code-quality.yml` | PR, Push | PHPStan analysis |
 | `wordpress-coding-standards.yml` | PR, Push | PHPCS linting |
 | `schema-linter.yml` | PR, Push | GraphQL schema validation |
-| `release.yml` | Merge to master | Version bump, release |
+| `release-please.yml` | Push to main | Automated releases via release-please |
 
 ### Testing Strategy
 
@@ -182,11 +182,12 @@ Tests run across a matrix of configurations:
 
 ### Release Process
 
-1. PRs merged to `develop` generate changesets
-2. Changesets accumulate until release
-3. PR from `develop` to `master` triggers release
-4. Version bumped, changelog generated
-5. Tag created, deployed to WordPress.org
+We use [release-please](https://github.com/googleapis/release-please) for automated releases:
+
+1. PRs are merged to `main` with conventional commit titles
+2. release-please creates/updates a Release PR with changelog and version bump
+3. When the Release PR is merged, a GitHub release is created
+4. The release triggers deployment to WordPress.org
 
 ## Future Plugins
 
