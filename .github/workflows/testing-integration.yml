@@ -86,10 +86,12 @@ jobs:
           # - Regular PRs targeting main
           
           # Check if this is a release-please PR (full matrix needed for release validation)
+          # release-please generates titles like: "chore(main): release wp-graphql 2.7.0"
           IS_RELEASE_PR="false"
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_TITLE="${{ github.event.pull_request.title }}"
-            if [[ "$PR_TITLE" == chore:\ release* ]]; then
+            # Match "chore: release" or "chore(scope): release" patterns
+            if [[ "$PR_TITLE" =~ ^chore(\([^)]+\))?:\ release ]]; then
               IS_RELEASE_PR="true"
             fi
           fi
