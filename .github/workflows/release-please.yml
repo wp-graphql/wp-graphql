@@ -5,8 +5,9 @@
 # This workflow uses Google's release-please to automate releases:
 # 1. On push to main, release-please analyzes commits since last release
 # 2. It creates/updates a Release PR with version bump and changelog
-# 3. When the Release PR is merged, it creates a GitHub release and tag
-# 4. The deploy job then publishes to WordPress.org
+# 3. @since tags are updated in the Release PR (via update-since-tags.yml)
+# 4. When the Release PR is merged, it creates a GitHub release and tag
+# 5. The deploy job then publishes to WordPress.org
 #
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
@@ -70,48 +71,9 @@ jobs:
           echo "wp-graphql--version: ${{ steps.release.outputs['plugins/wp-graphql--version'] }}"
           echo "=============================="
 
-  # Update @since tags after release PR is created but before release
-  update-since-tags:
-    name: Update @since Tags
-    needs: release-please
-    if: ${{ needs.release-please.outputs['wp-graphql--release_created'] == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release-please.outputs['wp-graphql--tag_name'] }}
-          token: ${{ secrets.REPO_PAT }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Update @since tags
-        run: |
-          VERSION="${{ needs.release-please.outputs['wp-graphql--version'] }}"
-          npm run -w @wpgraphql/wp-graphql since-tags:update -- "$VERSION"
-
-      - name: Commit @since tag updates
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add -A
-            git commit -m "chore: update @since tags for v${{ needs.release-please.outputs['wp-graphql--version'] }}"
-            git push origin HEAD:main
-          else
-            echo "No @since tag updates needed"
-          fi
-
   deploy-wp-graphql:
     name: Deploy WPGraphQL to WordPress.org
-    needs: [release-please, update-since-tags]
+    needs: release-please
     if: ${{ needs.release-please.outputs['wp-graphql--release_created'] == 'true' }}
     runs-on: ubuntu-latest
     steps:

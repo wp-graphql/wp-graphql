@@ -1,0 +1,99 @@
+# ===========================================
+# UPDATE @SINCE TAGS IN RELEASE PR
+# ===========================================
+#
+# This workflow updates @since placeholders in the codebase when a
+# release-please Release PR is created or updated.
+#
+# HOW IT WORKS:
+# 1. Detects release-please PRs by branch name pattern
+# 2. Extracts the upcoming version from the updated manifest
+# 3. Updates @since next-version and @next-version placeholders
+# 4. Commits changes back to the Release PR branch
+#
+# This ensures @since tags are included in the Release PR, so when
+# it's merged, the tag and release include the updated tags.
+#
+# ===========================================
+
+name: Update @since Tags
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-since-tags:
+    name: Update @since Tags in Release PR
+    # Only run on release-please PRs (branch pattern: release-please--branches--main--components--*)
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.REPO_PAT }}
+          fetch-depth: 0
+
+      - name: Check if last commit was from this workflow
+        id: check-commit
+        run: |
+          LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$LAST_COMMIT_MSG" == "chore: update @since tags"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Last commit was @since tag update, skipping to avoid loop"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract version from manifest
+        if: steps.check-commit.outputs.skip != 'true'
+        id: version
+        run: |
+          # Read version from the release-please manifest (updated in the PR)
+          VERSION=$(jq -r '.["plugins/wp-graphql"]' .release-please-manifest.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Setup Node.js
+        if: steps.check-commit.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        if: steps.check-commit.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Update @since tags
+        if: steps.check-commit.outputs.skip != 'true'
+        id: update
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Updating @since tags to version $VERSION"
+          npm run -w @wpgraphql/wp-graphql since-tags:update -- "$VERSION"
+          
+          # Check if any files were changed
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+            echo "No @since tag updates needed"
+          fi
+
+      - name: Commit @since tag updates
+        if: steps.check-commit.outputs.skip != 'true' && steps.update.outputs.updated == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add -A
+          git commit -m "chore: update @since tags for v${{ steps.version.outputs.version }}"
+          git push
