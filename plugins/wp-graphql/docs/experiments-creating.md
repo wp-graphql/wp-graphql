@@ -46,7 +46,7 @@ Create the main experiment class file `EmailAddressScalarExperiment.php`:
  * Email Address Scalar Experiment
  *
  * @package WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment
- * @since 2.0.0
+ * @since x-release-please-version
  */
 
 namespace WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment;
@@ -451,7 +451,7 @@ Create `src/Experimental/Experiment/EmailAddressScalarExperiment/README.md`:
 
 **Status**: Active  
 **Slug**: `email_address_scalar`  
-**Since**: 2.0.0
+**Since**: x-release-please-version
 
 ## Overview
 
@@ -545,7 +545,7 @@ Add inline documentation to your experiment class:
  * https://github.com/wp-graphql/wp-graphql/discussions/xxxx
  *
  * @package WPGraphQL\Experimental\Experiment\EmailAddressScalarExperiment
- * @since 2.0.0
+ * @since x-release-please-version
  */
 ```
 
@@ -591,6 +591,7 @@ Each experiment's README.md should include:
 - **Dependencies**: Required and optional dependencies (if any)
 - **Known Limitations**: Current constraints or issues
 - **Status**: Active, Deprecated, or Graduated
+- **Since**: Use `x-release-please-version` as a placeholder (automatically replaced during release)
 
 ### Example Experiments (Available as References)
 

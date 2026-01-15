@@ -68,18 +68,11 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
    - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
    - Auto-generated changelog from commit messages
    - Version updates across all configured files
-3. **@since Tags Updated**: The `update-since-tags.yml` workflow updates `@since` placeholders in the Release PR
-4. **On Release PR Merge**:
-   - Creates GitHub Release with changelog (includes @since updates)
+   - `@since x-release-please-version` placeholders replaced with actual version (native to release-please)
+3. **On Release PR Merge**:
+   - Creates GitHub Release with changelog
    - Deploys to WordPress.org
    - Uploads zip artifact to release
-
-### Update @since Tags (`update-since-tags.yml`)
-
-- Automatically runs when release-please creates/updates a Release PR
-- Updates `@since next-version` and `@next-version` placeholders to the actual version
-- Commits changes back to the Release PR
-- Ensures @since tags are included in the release tag and all artifacts
 
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)
 
@@ -119,8 +112,6 @@ flowchart TD
     PR --> |Squash Merged| MAIN[main branch]
     MAIN --> RP[release-please]
     RP --> |Creates/Updates| RPR[Release PR]
-    RPR --> SINCE[Update @since Tags]
-    SINCE --> RPR
     RPR --> |Merged| REL[Create Release]
     REL --> WO[Deploy to WordPress.org]
     REL --> ZIP[Upload Zip Artifact]
