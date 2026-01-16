@@ -8,27 +8,20 @@
  * @returns {string} The string with HTML comments removed
  */
 function removeHtmlComments(str) {
-  let result = '';
-  let i = 0;
-  while (i < str.length) {
-    if (str.slice(i, i + 4) === '<!--') {
-      let j = i + 4;
-      while (j < str.length && str.slice(j, j + 3) !== '-->') {
-        j++;
-      }
-      if (j < str.length) {
-        i = j + 3;
-      } else {
-        // Malformed comment, skip the opening and continue
-        result += str[i];
-        i++;
-      }
+  // Remove complete comments and malformed openings
+  let result = str;
+  while (result.includes('<!--')) {
+    let start = result.indexOf('<!--');
+    let end = result.indexOf('-->', start + 4);
+    if (end !== -1) {
+      result = result.slice(0, start) + result.slice(end + 3);
     } else {
-      result += str[i];
-      i++;
+      result = result.slice(0, start) + result.slice(start + 4);
     }
   }
-  return result;
+
+  // Remove partial markers
+  return result.replace(/<!--|-->|-->!/g, '');
 }
 
 /**
