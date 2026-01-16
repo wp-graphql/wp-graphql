@@ -4,11 +4,11 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ## Code Quality & Testing
 
-### 1. Code Quality Checks (`lint.yml` and `reusable-lint.yml`)
+### 1. Code Quality Checks (`lint.yml` and `lint-reusable.yml`)
 - Checks for:
   - WordPress Coding Standards compliance using PHPCS
   - Static type and error checking with PHPStan
-- `lint.yml` triggers the reusable workflow defined in `reusable-lint.yml` for each plugin in the matrix.
+- `lint.yml` triggers the reusable workflow defined in `lint-reusable.yml` for each plugin in the matrix.
 
 ### 2. Schema Linting (`schema-linter.yml`)
 
@@ -99,7 +99,6 @@ flowchart TD
     QA --> E2E[GraphiQL E2E Tests]
 
     %% Linting
-    Lint --> ESL[ESLint]
     Lint --> CS["PHPCS (WP Coding Standards)"]
     Lint --> STAN[PHPStan]
 
