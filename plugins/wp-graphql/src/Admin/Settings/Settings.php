@@ -139,11 +139,18 @@ class Settings {
 					'default' => 'on',
 				],
 				[
-					'name'    => 'batch_limit',
-					'label'   => __( 'Batch Query Limit', 'wp-graphql' ),
-					'desc'    => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
-					'type'    => 'number',
-					'default' => 10,
+					'name'              => 'batch_limit',
+					'label'             => __( 'Batch Query Limit', 'wp-graphql' ),
+					'desc'              => __( 'If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution.', 'wp-graphql' ),
+					'type'              => 'number',
+					'default'           => 10,
+					'sanitize_callback' => static function ( $value ) {
+						// If the entered value is not a positive integer, default to 10
+						if ( ! absint( $value ) ) {
+							$value = 10;
+						}
+						return absint( $value );
+					},
 				],
 				[
 					'name'    => 'query_depth_enabled',
@@ -219,11 +226,27 @@ class Settings {
 					'default' => 'off',
 				],
 				[
-					'name'    => 'tracing_user_role',
-					'label'   => __( 'Tracing Role', 'wp-graphql' ),
-					'desc'    => __( 'If Tracing is enabled, this limits it to requests from users with the specified User Role.', 'wp-graphql' ),
-					'type'    => 'user_role_select',
-					'default' => 'administrator',
+					'name'              => 'tracing_user_role',
+					'label'             => __( 'Tracing Role', 'wp-graphql' ),
+					'desc'              => __( 'If Tracing is enabled, this limits it to requests from users with the specified User Role.', 'wp-graphql' ),
+					'type'              => 'user_role_select',
+					'default'           => 'administrator',
+					'sanitize_callback' => static function ( $value ) {
+						$value = sanitize_text_field( $value );
+
+						// 'any' is a special valid value
+						if ( 'any' === $value ) {
+							return $value;
+						}
+
+						// Validate against actual WordPress roles
+						$roles = wp_roles()->get_names();
+						if ( ! array_key_exists( $value, $roles ) ) {
+							return 'administrator';
+						}
+
+						return $value;
+					},
 				],
 				[
 					'name'    => 'query_logs_enabled',
@@ -233,11 +256,27 @@ class Settings {
 					'default' => 'off',
 				],
 				[
-					'name'    => 'query_log_user_role',
-					'label'   => __( 'Query Log Role', 'wp-graphql' ),
-					'desc'    => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
-					'type'    => 'user_role_select',
-					'default' => 'administrator',
+					'name'              => 'query_log_user_role',
+					'label'             => __( 'Query Log Role', 'wp-graphql' ),
+					'desc'              => __( 'If Query Logs are enabled, this limits them to requests from users with the specified User Role.', 'wp-graphql' ),
+					'type'              => 'user_role_select',
+					'default'           => 'administrator',
+					'sanitize_callback' => static function ( $value ) {
+						$value = sanitize_text_field( $value );
+
+						// 'any' is a special valid value
+						if ( 'any' === $value ) {
+							return $value;
+						}
+
+						// Validate against actual WordPress roles
+						$roles = wp_roles()->get_names();
+						if ( ! array_key_exists( $value, $roles ) ) {
+							return 'administrator';
+						}
+
+						return $value;
+					},
 				],
 				[
 					'name'     => 'public_introspection_enabled',
