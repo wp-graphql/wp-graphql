@@ -9,29 +9,34 @@ This directory contains GitHub Actions workflows that automate our development, 
   - WordPress Coding Standards compliance using PHPCS
   - Static type and error checking with PHPStan
 - `lint.yml` triggers the reusable workflow defined in `reusable-lint.yml` for each plugin in the matrix.
-- `reusable-lint.yml`:
 
-### 2. Testing Integration (`testing-integration.yml`)
+### 2. Schema Linting (`schema-linter.yml`)
+
+- Validates GraphQL schema structure
+- Ensures schema follows GraphQL best practices
+- Compares schema against previous releases to detect breaking changes
+
+### 3. Testing Integration (`testing-integration.yml`)
 
 - Runs comprehensive integration tests via Codeception
 - Tests across multiple PHP and WordPress versions
 - Uses "boundary testing" approach for efficiency (~8 jobs for PRs, ~18 for merges)
 - Collects code coverage from multiple configurations
 
-### 3. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
+### 4. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
 
 - End-to-end testing of GraphiQL interface using Playwright
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 4. Smoke Test (`smoke-test.yml`)
+### 5. Smoke Test (`smoke-test.yml`)
 
 - Validates the production zip artifact works correctly
 - Builds the plugin zip (same as release process)
 - Installs it in a clean WordPress environment
 - Runs smoke tests to verify core functionality
 
-### 5. CodeQL Analysis (`codeql-analysis.yml`)
+### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
 - Performs security analysis
 - Identifies potential vulnerabilities
@@ -87,6 +92,7 @@ flowchart TD
 
     %% Quality Checks
     QA --> Lint[Lint Code]
+    QA --> SL[Schema Linter]
     QA --> SEC[Security Analysis]
     QA --> SM[Smoke Test]
     QA --> INT[Integration Tests]
