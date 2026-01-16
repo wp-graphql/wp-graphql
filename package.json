@@ -17,6 +17,7 @@
     "node": ">=22",
     "npm": ">=10"
   },
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "check-engines": "wp-scripts check-engines",
     "build": "wp-scripts build",
@@ -30,9 +31,9 @@
     "test:codecept:functional": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run functional \"$@\"' --",
     "test:codecept:coverage": "wp-env run tests-cli --env-cwd=wp-content/plugins/$(basename \"$(pwd)\")/ -- bash -c 'XDEBUG_MODE=coverage vendor/bin/codecept \"$@\"' --",
     "format": "wp-scripts format",
-    "lint:php:fix": "npm run lint:php:fix --workspaces --if-present",
-    "lint:php:stan": "npm run lint:php:stan --workspaces --if-present",
-    "lint:php": "npm run lint:php --workspaces --if-present",
+    "lint:php:fix": "turbo run lint:php:fix",
+    "lint:php:stan": "turbo run lint:php:stan",
+    "lint:php": "turbo run lint:php",
     "lint:js:fix": "wp-scripts lint-js --fix ./packages",
     "lint:js": "wp-scripts lint-js ./packages",
     "wp-env": "wp-env",
@@ -92,6 +93,7 @@
     "js-yaml": "^4.1.1",
     "lint-staged": "^16.2.7",
     "sort-package-json": "^3.6.0",
+    "turbo": "^2.3.0",
     "webpack-remove-empty-scripts": "^1.1.1",
     "yargs": "^18.0.0"
   },

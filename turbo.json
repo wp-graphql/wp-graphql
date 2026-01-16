@@ -18,6 +18,8 @@
 		"test:unit": {},
 		"lint": {},
 		"lint:php": {},
+		"lint:php:fix": {},
+		"lint:php:stan": {},
 		"lint:js": {},
 		"zip": {
 			"dependsOn": ["build"],
