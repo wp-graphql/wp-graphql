@@ -3,6 +3,35 @@
  */
 
 /**
+ * Remove HTML comments from a string
+ * @param {string} str The string to process
+ * @returns {string} The string with HTML comments removed
+ */
+function removeHtmlComments(str) {
+  let result = '';
+  let i = 0;
+  while (i < str.length) {
+    if (str.slice(i, i + 4) === '<!--') {
+      let j = i + 4;
+      while (j < str.length && str.slice(j, j + 3) !== '-->') {
+        j++;
+      }
+      if (j < str.length) {
+        i = j + 3;
+      } else {
+        // Malformed comment, skip the opening and continue
+        result += str[i];
+        i++;
+      }
+    } else {
+      result += str[i];
+      i++;
+    }
+  }
+  return result;
+}
+
+/**
  * Format PR body content by removing HTML comments and escaping special characters
  * @param {string} content The PR body content to format
  * @returns {string} The formatted content
@@ -14,22 +43,8 @@ function formatPrBody(content) {
 
   let formatted = content;
 
-  // Remove HTML comments iteratively to handle nested/malformed cases
-  // This prevents incomplete sanitization where partial markers like "<!-" could remain
-  let previousLength;
-  do {
-    previousLength = formatted.length;
-    formatted = formatted.replace(/<!--[\s\S]*?-->/g, '');
-  } while (formatted.length !== previousLength);
-
-  // Remove any remaining partial HTML comment markers that could be malicious.
-  // This catches orphaned "<!--" or "-->" / "--!>" that weren't part of complete comments
-  // newly-adjacent characters could form fresh "<!--" or "-->" sequences.
-  let prevFormatted;
-  do {
-    prevFormatted = formatted;
-    formatted = formatted.replace(/<!--/g, '').replace(/--!?>/g, '');
-  } while (formatted !== prevFormatted);
+  // Remove HTML comments
+  formatted = removeHtmlComments(formatted);
 
   // Trim leading/trailing whitespace
   formatted = formatted.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
