@@ -6,7 +6,7 @@ body:
       value: >-
         Thank you for proposing an experiment for WPGraphQL core!
 
-        Before submitting your proposal, please review the [Contributing Experiments Guide](https://github.com/wp-graphql/wp-graphql/blob/develop/docs/experiments-contributing.md) to understand the process and requirements.
+        Before submitting your proposal, please review the [Contributing Experiments Guide](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql/docs/experiments-contributing.md) to understand the process and requirements.
 
         **Important**: Experiments are for proposed core features that need real-world validation. They are not suitable for plugin-specific features, bug fixes, or minor enhancements.
 

@@ -3,25 +3,24 @@ name: Upload Schema Artifact
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to upload schema to (e.g., v2.6.0)'
+        required: true
+        type: string
 
 jobs:
   run:
     runs-on: ubuntu-latest
     name: Generate and Upload WPGraphQL Schema Artifact
-    services:
-      mariadb:
-        image: mariadb:10
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: tests-wordpress
-        # Ensure docker waits for mariadb to start
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # When manually triggered, checkout the specified tag
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Setup PHP w/ Composer & WP-CLI
         uses: shivammathur/setup-php@v2
@@ -29,22 +28,49 @@ jobs:
           php-version: 8.2
           extensions: mbstring, intl, bcmath, exif, gd, mysqli, opcache, zip, pdo_mysql
           coverage: none
-          tools: composer, wp-cli
+          tools: composer:v2
 
-      - name: Setup WordPress
-        run: |
-          cp .env.dist .env
-          composer run install-test-env
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: plugins/wp-graphql
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+            cache: 'npm'
+            node-version-file: '.nvmrc'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-wp-latest
+
+      - name: Start wp-env
+        run: npm run wp-env start
+
+      - name: Run setup script
+        run: bash bin/setup-wp-env.sh
 
       - name: Generate the Static Schema
         run: |
-          cd /tmp/wordpress/
-          # Output: /tmp/schema.graphql
-          wp graphql generate-static-schema
+          npm run wp-env run cli -- wp graphql generate-static-schema --output=/var/www/html/schema.graphql
+          # Copy schema out of container using docker cp
+          echo "Available containers:"
+          docker ps --format '{{.Names}}'
+          # Find the WordPress cli container (contains 'cli' but not 'tests')
+          CONTAINER_ID=$(docker ps --format '{{.Names}}' | grep 'cli' | grep -v 'tests' | head -1)
+          echo "Using container: $CONTAINER_ID"
+          docker cp "$CONTAINER_ID:/var/www/html/schema.graphql" /tmp/schema.graphql
+          echo "Schema generated: $(wc -l < /tmp/schema.graphql) lines"
 
       - name: Upload schema as release artifact
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.event.release.tag_name }}
           files: /tmp/schema.graphql
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

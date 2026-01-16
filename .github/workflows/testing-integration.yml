@@ -10,8 +10,8 @@
 # while maintaining confidence in compatibility.
 #
 # TWO MATRIX MODES:
-# - MINIMAL (PRs to develop): ~8 jobs for quick feedback
-# - FULL (merges + release PRs): ~18 jobs for thorough pre-release testing
+# - MINIMAL (regular PRs): ~8 jobs for quick feedback
+# - FULL (merges to main + release PRs): ~18 jobs for thorough pre-release testing
 #
 # COVERAGE STRATEGY:
 # Code coverage is collected from 4 configurations on the latest WP/PHP:
@@ -39,26 +39,27 @@ name: Testing Integration
 on:
   push:
     branches:
-      - develop
-      - master
+      - main
       - release/*
   pull_request:
     branches:
-      - develop
-      - master
+      - main
       - release/*
     paths:
       - '.github/workflows/testing-integration.yml'
-      - '**.php'
-      - 'composer.json'
-      - 'composer.lock'
+      - 'plugins/wp-graphql/**/*.php'
+      - 'plugins/wp-graphql/composer.json'
+      - 'plugins/wp-graphql/composer.lock'
+      - 'plugins/wp-graphql/package.json'
+      - 'plugins/wp-graphql/package-lock.json'
       - 'package.json'
       - 'package-lock.json'
       - '.wp-env.json'
       - 'bin/**'
-      - 'tests/**'
-      - 'codeception.dist.yml'
-      - '!docs/**'
+      - 'plugins/wp-graphql/bin/**'
+      - 'plugins/wp-graphql/tests/**'
+      - 'plugins/wp-graphql/codeception.dist.yml'
+      - '!plugins/wp-graphql/docs/**'
 
 # Cancel previous workflow run groups that have not completed.
 concurrency:
@@ -79,12 +80,25 @@ jobs:
         id: set-matrix
         run: |
           # Use full matrix for:
-          # - Push events (merges to develop/master)
-          # - Release PRs (PRs targeting master, like "release: next version")
+          # - Push events (merges to main)
+          # - Release PRs (PRs from release-please with title starting with "chore: release")
           # Use minimal matrix for:
-          # - Regular PRs targeting develop
+          # - Regular PRs targeting main
           
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "develop" ]]; then
+          # Check if this is a release-please PR (full matrix needed for release validation)
+          # release-please generates titles like: "chore(main): release wp-graphql 2.7.0"
+          IS_RELEASE_PR="false"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            # Match "chore: release" or "chore(scope): release" patterns
+            # Store regex in variable to avoid bash parsing issues with special characters
+            RELEASE_PATTERN='^chore(\([^)]+\))?:[[:space:]]release'
+            if [[ "$PR_TITLE" =~ $RELEASE_PATTERN ]]; then
+              IS_RELEASE_PR="true"
+            fi
+          fi
+          
+          if [[ "${{ github.event_name }}" == "pull_request" && "$IS_RELEASE_PR" == "false" ]]; then
             # ===========================================
             # MINIMAL MATRIX (~8 jobs)
             # For regular PRs - provides quick feedback
@@ -107,7 +121,7 @@ jobs:
           else
             # ===========================================
             # FULL MATRIX (~18 jobs)
-            # For merges to develop/master and release PRs
+            # For merges to main and release-please PRs
             # Provides thorough testing before releases
             # ===========================================
             # - 4 coverage jobs: Latest WP/PHP with all theme × multisite combos
@@ -171,6 +185,8 @@ jobs:
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: plugins/wp-graphql
 
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -221,11 +237,11 @@ jobs:
 
       - name: Run Acceptance Tests
         run: |
-          npm run test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
+          npm run -w @wpgraphql/wp-graphql test:codecept:acceptance -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ matrix.coverage && '--coverage --coverage-xml' || '' }}
 
       - name: Run Functional Tests
         run: |
-          npm run test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+          npm run -w @wpgraphql/wp-graphql test:codecept:functional -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Run WPUnit Tests
         env:
@@ -239,20 +255,20 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
             name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}
-            path: tests/_output/*.fail.html
+            path: plugins/wp-graphql/tests/_output/*.fail.html
             if-no-files-found: ignore
 
       - name: Fix coverage paths
         if: ${{ matrix.coverage }}
         run: |
             # Strip Docker container path prefix from coverage report
-            sed -i 's|/var/www/html/wp-content/plugins/wp-graphql/||g' tests/_output/coverage.xml
+            sed -i 's|/var/www/html/wp-content/plugins/wp-graphql/||g' plugins/wp-graphql/tests/_output/coverage.xml
 
       - name: Upload coverage to Codecov
         if: ${{ matrix.coverage }}
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-            files: tests/_output/coverage.xml
+            files: plugins/wp-graphql/tests/_output/coverage.xml
             flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
             fail_ci_if_error: false
 
@@ -261,5 +277,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
             name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
-            path: tests/_output/html
+            path: plugins/wp-graphql/tests/_output/html
             overwrite: true

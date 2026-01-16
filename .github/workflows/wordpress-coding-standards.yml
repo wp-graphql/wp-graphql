@@ -4,13 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - develop
-      - master
+      - main
       - release/*
   pull_request:
     branches:
-      - develop
-      - master
+      - main
       - release/*
 
 # Cancel previous workflow run groups that have not completed.
@@ -62,18 +60,21 @@ jobs:
           - name: Cache PHPCS scan cache
             uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
             with:
-                path: tests/_output/phpcs-cache.json
-                key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles('**/composer.json', 'phpcs.xml.dist') }}
+                path: plugins/wp-graphql/tests/_output/phpcs-cache.json
+                key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles('plugins/wp-graphql/composer.json', 'plugins/wp-graphql/phpcs.xml.dist') }}
 
           # Since Composer dependencies are installed using `composer update` and no lock file is in version control,
           # passing a custom cache suffix ensures that the cache is flushed at least once per week.
           - name: Install Composer dependencies
             uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+            with:
+                working-directory: plugins/wp-graphql
 
           - name: Run PHPCS
             id: phpcs
+            working-directory: plugins/wp-graphql
             run: composer check-cs -- --report-full --report-checkstyle=./tests/_output/phpcs-report.xml
 
           - name: Show PHPCS results in PR
             if: ${{ always() && steps.phpcs.outcome == 'failure' }}
-            run: cs2pr ./tests/_output/phpcs-report.xml
+            run: cs2pr ./plugins/wp-graphql/tests/_output/phpcs-report.xml

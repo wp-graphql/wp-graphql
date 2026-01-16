@@ -1,10 +1,10 @@
 <!--
-🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/develop/.github/CONTRIBUTING.md
+🚨 Please review the guidelines for contributing to this repository: https://github.com/wp-graphql/wp-graphql/blob/main/docs/CONTRIBUTING.md
 
 ### Your checklist for this refactoring pull request
 - [ ] Make sure your PR title follows Conventional Commit standards (use `refactor:` prefix). See: https://www.conventionalcommits.org/en/v1.0.0/#specification
-- [ ] Make sure you are making a pull request against the **develop branch** (left side). Also you should start *your branch* off *our develop*.
-- [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your master!
+- [ ] Make sure you are making a pull request against the **main branch** (left side). Also you should start *your branch* off *our main*.
+- [ ] Make sure you are requesting to pull request from a **topic/feature/bugfix branch** (right side). Don't pull request from your main!
 - [ ] No functional changes (behavior remains the same)
 - [ ] All existing tests pass
 - [ ] Performance is maintained or improved

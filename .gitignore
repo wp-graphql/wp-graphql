@@ -49,6 +49,9 @@ phpunit.xml
 # JavaScript dependencies. Should be installed locally on the machine, not versioned
 node_modules
 
+# Turborepo cache
+.turbo
+
 # Built JavaScript assets. Should be generated via `npm run build`
 # These are built during release/deployment workflows
 build
@@ -58,6 +61,9 @@ codeception.yml
 
 # Local wp-env overrides. Used to override .wp-env.json for local testing
 .wp-env.override.json
+
+# Generated wp-env config for CI smoke tests
+.wp-env.smoke-test.json
 
 # Log files
 .log

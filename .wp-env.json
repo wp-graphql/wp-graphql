@@ -2,7 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
 	"core": null,
 	"plugins": [
-		"./.",
+		"./plugins/wp-graphql",
 		"https://downloads.wordpress.org/plugin/wpgraphql-ide.latest-stable.zip"
 	],
 	"themes": [
@@ -18,15 +18,15 @@
 		},
 		"tests": {
 			"plugins": [
-				"./.",
-				"./tests/e2e/plugins/settings-page-spec"
+				"./plugins/wp-graphql",
+				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
 			],
 			"config": {
 				"FS_METHOD": "direct"
 			},
 			"mappings": {
-				"/wp-content/plugins/wp-graphql": ".",
-				"/wp-content/plugins/wp-graphql/.env": ".env.dist"
+				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
+				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist"
 			}
 		}
 	},
