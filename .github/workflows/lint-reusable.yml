@@ -137,7 +137,7 @@ jobs:
           coverage: none
           tools: cs2pr
 
-      # This date is used to ensure that the PHPCS cache is cleared at least once every week.
+      # This date is used to ensure that the PHPStan result cache is cleared at least once every week.
       # http://man7.org/linux/man-pages/man1/date.1.html
       - name: "Get last Monday's date"
         id: get-date
