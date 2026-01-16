@@ -78,6 +78,8 @@ jobs:
       - name: Install Composer dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: ${{ inputs.plugin_path }}
 
       - name: Run PHPCS
         id: phpcs
@@ -156,6 +158,8 @@ jobs:
       - name: Install Composer dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: ${{ inputs.plugin_path }}
 
       - name: Make Composer packages available globally
         if: steps.changed-files.outputs.any_changed == 'true'
