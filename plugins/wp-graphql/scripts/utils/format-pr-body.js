@@ -26,9 +26,9 @@ function formatPrBody(content) {
   // This catches orphaned "<!--" or "-->" / "--!>" that weren't part of complete comments
   // newly-adjacent characters could form fresh "<!--" or "-->" sequences.
   let prevFormatted;
-    .replace(/--!? >/g, '') // Remove both "-->" and "--!>" sequences
+  do {
     prevFormatted = formatted;
-    formatted = formatted.replace(/<!--/g, '').replace(/-->/g, '');
+    formatted = formatted.replace(/<!--/g, '').replace(/--!?>/g, '');
   } while (formatted !== prevFormatted);
 
   // Trim leading/trailing whitespace
