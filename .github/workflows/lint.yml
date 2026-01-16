@@ -10,8 +10,8 @@ on:
       - main
       - release/*
     paths:
-      - ".github/workflows/test.reusable.yml"
-      - ".github/workflows/test.yml"
+      - ".github/workflows/lint-reusable.yml"
+      - ".github/workflows/lint.yml"
       - "bin/**"
       - "plugins/**"
       - ".nvmrc"
