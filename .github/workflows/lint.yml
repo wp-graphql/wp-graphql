@@ -30,6 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # @todo: source this from .release-please-config.json after the other plugins are migrated.
         plugin: ["wp-graphql"]
     uses: ./.github/workflows/lint-reusable.yml
     with:
