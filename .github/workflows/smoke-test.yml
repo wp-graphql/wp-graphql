@@ -77,10 +77,12 @@ jobs:
           tools: composer:v2
           extensions: json, mbstring
 
-      - name: Install Composer dependencies
+      - name: Install Composer dependencies (production)
         uses: ramsey/composer-install@v3
         with:
           working-directory: plugins/wp-graphql
+          # Use --no-dev to match the production release build
+          composer-options: "--no-dev --optimize-autoloader"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
