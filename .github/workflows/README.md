@@ -68,11 +68,25 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
    - Deploys to WordPress.org
    - Uploads zip artifact to release
 
+### Update Release PR (`update-release-pr.yml`)
+
+- Triggers when release-please creates/updates a Release PR
+- Checks for breaking changes in the CHANGELOG
+- Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
+- Ensures WordPress.org users see warnings before upgrading
+
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)
 
 - Generates GraphQL schema artifact on release
 - Uploads schema to GitHub Release
 - Used for schema tracking and breaking change detection
+
+### Test Release Scripts (`test-scripts.yml`)
+
+- Tests the monorepo release scripts in `scripts/`
+- Runs on push/PR when scripts change
+- Runs monthly to catch environment-related issues
+- Can be triggered manually
 
 ## Build
 
@@ -106,7 +120,8 @@ flowchart TD
     PR --> |Squash Merged| MAIN[main branch]
     MAIN --> RP[release-please]
     RP --> |Creates/Updates| RPR[Release PR]
-    RPR --> |Merged| REL[Create Release]
+    RPR --> URP[Update Upgrade Notice]
+    URP --> |Merged| REL[Create Release]
     REL --> WO[Deploy to WordPress.org]
     REL --> ZIP[Upload Zip Artifact]
     REL --> GH[GitHub Release]
