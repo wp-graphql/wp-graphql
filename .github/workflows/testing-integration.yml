@@ -219,7 +219,7 @@ jobs:
       - name: Cache Docker images
         uses: ScribeMD/docker-cache@0.5.0
         with:
-          key: docker-${{ runner.os }}-${{ matrix.php }}-${{ matrix.wp }}
+          key: docker-${{ runner.os }}-${{ matrix.php }}-${{ matrix.wp }}-${{ hashFiles('.wp-env.json') }}
 
       - name: Start the Docker testing environment
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
