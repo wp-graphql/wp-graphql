@@ -28,9 +28,9 @@ updates:
       semver-minor-days: 7
       semver-patch-days: 7
     groups:
-      composer-minor-patch:
+      npm-minor-patch:
         update-types: [minor, patch]
-      composer-major:
+      npm-major:
         update-types: [major]
 
   # GitHub Actions: 1x weekly.
