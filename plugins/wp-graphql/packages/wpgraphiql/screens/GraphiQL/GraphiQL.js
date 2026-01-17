@@ -61,7 +61,7 @@ const isValidJson = (str) => {
  * @returns
  */
 const GraphiQLScreen = () => {
-  let graphiql = useRef(null);
+  const graphiqlRef = useRef(null);
 
   const appContext = useAppContext();
   const graphiqlContext = useGraphiQLContext();
@@ -142,9 +142,7 @@ const GraphiQLScreen = () => {
       }
 
       <GraphiQL
-        ref={(node) => {
-          graphiql = node;
-        }}
+        ref={graphiqlRef}
         fetcher={(params) => {
           return fetcher(params);
         }}
@@ -167,7 +165,7 @@ const GraphiQLScreen = () => {
         }}
       >
         <GraphiQL.Toolbar>
-          <GraphiQLToolbar graphiql={() => graphiql} />
+          <GraphiQLToolbar graphiql={() => graphiqlRef.current} />
         </GraphiQL.Toolbar>
         <GraphiQL.Logo>{<></>}</GraphiQL.Logo>
       </GraphiQL>
