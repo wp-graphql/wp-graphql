@@ -73,13 +73,12 @@ jobs:
   setup-matrix:
     name: Setup Test Matrix
     runs-on: ubuntu-latest
+    container: alpine:latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Set matrix
+        shell: sh
         id: set-matrix
         run: |
           # Use full matrix for:
