@@ -18,9 +18,12 @@ updates:
       composer-dev-major:
         dependency-type: 'development'
         update-types: [major]
-      composer-patch:
+      composer-minor-patch:
         dependency-type: 'production'
-        update-types: [patch]
+        update-types: [minor, patch]
+      composer-major:
+        dependency-type: 'production'
+        update-types: [major]
 
   # NPM: 1x weekly for minor/patch, 1x monthly for major.
   - package-ecosystem: 'npm'
