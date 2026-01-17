@@ -1,4 +1,5 @@
 version: 2
+
 updates:
   # Composer: 1x weekly for minor/patch, 1x monthly for major.
   - package-ecosystem: 'composer'
@@ -11,10 +12,15 @@ updates:
       semver-minor-days: 7
       semver-patch-days: 7
     groups:
-      composer-minor-patch:
+      composer-dev-minor-patch:
+        dependency-type: 'development'
         update-types: [minor, patch]
-      composer-major:
+      composer-dev-major:
+        dependency-type: 'development'
         update-types: [major]
+      composer-patch:
+        dependency-type: 'production'
+        update-types: [patch]
 
   # NPM: 1x weekly for minor/patch, 1x monthly for major.
   - package-ecosystem: 'npm'
