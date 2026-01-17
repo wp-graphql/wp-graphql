@@ -76,6 +76,14 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            package.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
       - name: Set matrix
         id: set-matrix
         run: |
