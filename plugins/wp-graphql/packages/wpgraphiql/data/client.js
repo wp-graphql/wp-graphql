@@ -1,5 +1,5 @@
-import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
-import { getNonce } from "../context/AppContext";
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { getNonce } from '../context/AppContext';
 
 /**
  * Create an Apollo Client with proper authentication headers.
@@ -15,21 +15,21 @@ import { getNonce } from "../context/AppContext";
  * @returns {ApolloClient} Configured Apollo Client instance
  */
 export const client = (uri) => {
-  const nonce = getNonce();
+	const nonce = getNonce();
 
-  const httpLink = new HttpLink({
-    uri,
-    credentials: "include",
-    headers: nonce
-      ? {
-          "X-WP-Nonce": nonce,
-        }
-      : {},
-  });
+	const httpLink = new HttpLink({
+		uri,
+		credentials: 'include',
+		headers: nonce
+			? {
+					'X-WP-Nonce': nonce,
+				}
+			: {},
+	});
 
-  return new ApolloClient({
-    link: httpLink,
-    connectToDevTools: true,
-    cache: new InMemoryCache({}),
-  });
+	return new ApolloClient({
+		link: httpLink,
+		connectToDevTools: true,
+		cache: new InMemoryCache({}),
+	});
 };

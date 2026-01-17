@@ -12,56 +12,64 @@ import { __ } from '@wordpress/i18n';
  * @param {Function} activatePlugin - Function to activate the plugin.
  * @returns {{buttonText: string, buttonDisabled: boolean, buttonOnClick: Function|null}} The button details.
  */
-export const getButtonDetails = (host, plugin_url, isInstalled, isActive, installing, activating, activatePlugin) => {
-    let buttonText;
-    let buttonDisabled = false;
-    let buttonOnClick = null;
+export const getButtonDetails = (
+	host,
+	plugin_url,
+	isInstalled,
+	isActive,
+	installing,
+	activating,
+	activatePlugin
+) => {
+	let buttonText;
+	let buttonDisabled = false;
+	let buttonOnClick = null;
 
-    /**
-     * Opens a new browser window with the specified URL.
-     *
-     * @param {string} url - The URL to open.
-     * @returns {Function} A function that opens the URL in a new window.
-     */
-    const openLink = (url) => () => window.open(url, '_blank');
+	/**
+	 * Opens a new browser window with the specified URL.
+	 *
+	 * @param {string} url - The URL to open.
+	 * @returns {Function} A function that opens the URL in a new window.
+	 */
+	const openLink = (url) => () => window.open(url, '_blank');
 
-    if (installing) {
-        buttonText = __('Installing...', 'wp-graphql');
-        buttonDisabled = true;
-    } else if (activating) {
-        buttonText = __('Activating...', 'wp-graphql');
-        buttonDisabled = true;
-    } else if (isActive) {
-        buttonText = __('Active', 'wp-graphql');
-        buttonDisabled = true;
-    } else if (isInstalled) {
-        buttonText = __('Activate', 'wp-graphql');
-        buttonOnClick = activatePlugin;
-    } else {
-        const domain = new URL(plugin_url).hostname.toLowerCase();
+	if (installing) {
+		buttonText = __('Installing...', 'wp-graphql');
+		buttonDisabled = true;
+	} else if (activating) {
+		buttonText = __('Activating...', 'wp-graphql');
+		buttonDisabled = true;
+	} else if (isActive) {
+		buttonText = __('Active', 'wp-graphql');
+		buttonDisabled = true;
+	} else if (isInstalled) {
+		buttonText = __('Activate', 'wp-graphql');
+		buttonOnClick = activatePlugin;
+	} else {
+		const domain = new URL(plugin_url).hostname.toLowerCase();
 
-        switch (true) {
-            case /github\.com$/.test(domain):
-                buttonText = __('View on GitHub', 'wp-graphql');
-                buttonOnClick = openLink(plugin_url);
-                break;
-            case /bitbucket\.org$/.test(domain):
-                buttonText = __('View on Bitbucket', 'wp-graphql');
-                buttonOnClick = openLink(plugin_url);
-                break;
-            case /gitlab\.com$/.test(domain):
-                buttonText = __('View on GitLab', 'wp-graphql');
-                buttonOnClick = openLink(plugin_url);
-                break;
-            case /wordpress\.org$/.test(domain):
-                buttonText = __('Install & Activate', 'wp-graphql');
-                buttonOnClick = activatePlugin;
-                break;
-            default:
-                buttonText = __('View Plugin', 'wp-graphql');
-                buttonOnClick = openLink(plugin_url);
-        }
-    }
+		switch (true) {
+			case /github\.com$/.test(domain):
+				buttonText = __('View on GitHub', 'wp-graphql');
+				buttonOnClick = openLink(plugin_url);
+				break;
+			case /bitbucket\.org$/.test(domain):
+				buttonText = __('View on Bitbucket', 'wp-graphql');
+				buttonOnClick = openLink(plugin_url);
+				break;
+			case /gitlab\.com$/.test(domain):
+				buttonText = __('View on GitLab', 'wp-graphql');
+				buttonOnClick = openLink(plugin_url);
+				break;
+			case /wordpress\.org$/.test(domain):
+				buttonText = __('Install & Activate', 'wp-graphql');
+				buttonOnClick = activatePlugin;
+				break;
+			default:
+				buttonText = __('View Plugin', 'wp-graphql');
+				buttonOnClick = openLink(plugin_url);
+		}
+	}
 
-    return { buttonText, buttonDisabled, buttonOnClick };
+	return { buttonText, buttonDisabled, buttonOnClick };
 };

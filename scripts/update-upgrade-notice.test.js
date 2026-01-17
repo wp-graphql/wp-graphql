@@ -2,7 +2,7 @@
 
 /**
  * Tests for update-upgrade-notice.js
- * 
+ *
  * Run with: node scripts/update-upgrade-notice.test.js
  */
 
@@ -18,75 +18,75 @@ const TEST_DIR = path.join(__dirname, '..', '.test-upgrade-notice');
  * Setup test directory with test files
  */
 function setup() {
-  if (fs.existsSync(TEST_DIR)) {
-    fs.rmSync(TEST_DIR, { recursive: true });
-  }
-  fs.mkdirSync(TEST_DIR, { recursive: true });
+	if (fs.existsSync(TEST_DIR)) {
+		fs.rmSync(TEST_DIR, { recursive: true });
+	}
+	fs.mkdirSync(TEST_DIR, { recursive: true });
 }
 
 /**
  * Cleanup test directory
  */
 function cleanup() {
-  if (fs.existsSync(TEST_DIR)) {
-    fs.rmSync(TEST_DIR, { recursive: true });
-  }
+	if (fs.existsSync(TEST_DIR)) {
+		fs.rmSync(TEST_DIR, { recursive: true });
+	}
 }
 
 /**
  * Create test CHANGELOG.md
  */
 function createChangelog(content) {
-  fs.writeFileSync(path.join(TEST_DIR, 'CHANGELOG.md'), content);
+	fs.writeFileSync(path.join(TEST_DIR, 'CHANGELOG.md'), content);
 }
 
 /**
  * Create test readme.txt
  */
 function createReadme(content) {
-  fs.writeFileSync(path.join(TEST_DIR, 'readme.txt'), content);
+	fs.writeFileSync(path.join(TEST_DIR, 'readme.txt'), content);
 }
 
 /**
  * Read readme.txt content
  */
 function readReadme() {
-  return fs.readFileSync(path.join(TEST_DIR, 'readme.txt'), 'utf8');
+	return fs.readFileSync(path.join(TEST_DIR, 'readme.txt'), 'utf8');
 }
 
 /**
  * Run the script with given arguments
  */
 function runScript(version) {
-  const cmd = `node "${SCRIPT_PATH}" --version=${version} --plugin-dir=.test-upgrade-notice`;
-  try {
-    const output = execSync(cmd, { 
-      cwd: path.join(__dirname, '..'),
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
-    return { success: true, output };
-  } catch (error) {
-    return { success: false, output: error.stdout || error.message };
-  }
+	const cmd = `node "${SCRIPT_PATH}" --version=${version} --plugin-dir=.test-upgrade-notice`;
+	try {
+		const output = execSync(cmd, {
+			cwd: path.join(__dirname, '..'),
+			encoding: 'utf8',
+			stdio: ['pipe', 'pipe', 'pipe'],
+		});
+		return { success: true, output };
+	} catch (error) {
+		return { success: false, output: error.stdout || error.message };
+	}
 }
 
 /**
  * Test helper to run a test case
  */
 function test(name, fn) {
-  try {
-    setup();
-    fn();
-    console.log(`✅ ${name}`);
-    return true;
-  } catch (error) {
-    console.log(`❌ ${name}`);
-    console.log(`   Error: ${error.message}`);
-    return false;
-  } finally {
-    cleanup();
-  }
+	try {
+		setup();
+		fn();
+		console.log(`✅ ${name}`);
+		return true;
+	} catch (error) {
+		console.log(`❌ ${name}`);
+		console.log(`   Error: ${error.message}`);
+		return false;
+	} finally {
+		cleanup();
+	}
 }
 
 // ===========================================
@@ -94,9 +94,10 @@ function test(name, fn) {
 // ===========================================
 
 const tests = [
-  // Test 1: Basic breaking changes extraction
-  () => test('extracts breaking changes from standard release-please format', () => {
-    createChangelog(`# Changelog
+	// Test 1: Basic breaking changes extraction
+	() =>
+		test('extracts breaking changes from standard release-please format', () => {
+			createChangelog(`# Changelog
 
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v3.0.0) (2026-01-20)
 
@@ -110,7 +111,7 @@ const tests = [
 * Add new feature ([#125](https://github.com/wp-graphql/wp-graphql/pull/125))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -119,21 +120,37 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('Found 2 breaking change(s)'), 'Should find 2 breaking changes');
-    
-    const readme = readReadme();
-    assert(readme.includes('== Upgrade Notice =='), 'Should add Upgrade Notice section');
-    assert(readme.includes('= 3.0.0 ='), 'Should include version header');
-    assert(readme.includes('Remove deprecated query'), 'Should include first breaking change');
-    assert(readme.includes('Change default behavior'), 'Should include second breaking change');
-    assert(readme.includes('#123'), 'Should preserve PR link');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('Found 2 breaking change(s)'),
+				'Should find 2 breaking changes'
+			);
 
-  // Test 2: No breaking changes
-  () => test('handles version with no breaking changes', () => {
-    createChangelog(`# Changelog
+			const readme = readReadme();
+			assert(
+				readme.includes('== Upgrade Notice =='),
+				'Should add Upgrade Notice section'
+			);
+			assert(
+				readme.includes('= 3.0.0 ='),
+				'Should include version header'
+			);
+			assert(
+				readme.includes('Remove deprecated query'),
+				'Should include first breaking change'
+			);
+			assert(
+				readme.includes('Change default behavior'),
+				'Should include second breaking change'
+			);
+			assert(readme.includes('#123'), 'Should preserve PR link');
+		}),
+
+	// Test 2: No breaking changes
+	() =>
+		test('handles version with no breaking changes', () => {
+			createChangelog(`# Changelog
 
 ## [2.1.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v2.1.0) (2026-01-20)
 
@@ -146,7 +163,7 @@ Stable tag: 2.0.0
 * Fix bug ([#126](https://github.com/wp-graphql/wp-graphql/pull/126))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -155,17 +172,24 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('2.1.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('No breaking changes'), 'Should report no breaking changes');
-    
-    const readme = readReadme();
-    assert(!readme.includes('== Upgrade Notice =='), 'Should NOT add Upgrade Notice section');
-  }),
+			const result = runScript('2.1.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('No breaking changes'),
+				'Should report no breaking changes'
+			);
 
-  // Test 3: Version not found in changelog
-  () => test('handles version not found in changelog', () => {
-    createChangelog(`# Changelog
+			const readme = readReadme();
+			assert(
+				!readme.includes('== Upgrade Notice =='),
+				'Should NOT add Upgrade Notice section'
+			);
+		}),
+
+	// Test 3: Version not found in changelog
+	() =>
+		test('handles version not found in changelog', () => {
+			createChangelog(`# Changelog
 
 ## [2.0.0](https://github.com/wp-graphql/wp-graphql/compare/v1.0.0...v2.0.0) (2026-01-20)
 
@@ -174,7 +198,7 @@ Stable tag: 2.0.0
 * Add new feature
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -183,14 +207,18 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('No changelog entry found'), 'Should report version not found');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('No changelog entry found'),
+				'Should report version not found'
+			);
+		}),
 
-  // Test 4: Update existing upgrade notice
-  () => test('updates existing upgrade notice for same version', () => {
-    createChangelog(`# Changelog
+	// Test 4: Update existing upgrade notice
+	() =>
+		test('updates existing upgrade notice for same version', () => {
+			createChangelog(`# Changelog
 
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v3.0.0) (2026-01-20)
 
@@ -199,7 +227,7 @@ Stable tag: 2.0.0
 * New breaking change ([#127](https://github.com/wp-graphql/wp-graphql/pull/127))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Upgrade Notice ==
@@ -218,20 +246,30 @@ Please review these changes before upgrading.
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('Updated existing upgrade notice'), 'Should update existing notice');
-    
-    const readme = readReadme();
-    assert(readme.includes('New breaking change'), 'Should contain new breaking change');
-    // Count occurrences of "= 3.0.0 =" to ensure no duplicates
-    const matches = readme.match(/= 3\.0\.0 =/g);
-    assert(matches && matches.length === 1, 'Should have exactly one version header');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('Updated existing upgrade notice'),
+				'Should update existing notice'
+			);
 
-  // Test 5: Alternative breaking changes header format
-  () => test('handles alternative BREAKING CHANGES header (without emoji)', () => {
-    createChangelog(`# Changelog
+			const readme = readReadme();
+			assert(
+				readme.includes('New breaking change'),
+				'Should contain new breaking change'
+			);
+			// Count occurrences of "= 3.0.0 =" to ensure no duplicates
+			const matches = readme.match(/= 3\.0\.0 =/g);
+			assert(
+				matches && matches.length === 1,
+				'Should have exactly one version header'
+			);
+		}),
+
+	// Test 5: Alternative breaking changes header format
+	() =>
+		test('handles alternative BREAKING CHANGES header (without emoji)', () => {
+			createChangelog(`# Changelog
 
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v3.0.0) (2026-01-20)
 
@@ -240,7 +278,7 @@ Please review these changes before upgrading.
 * Remove old API ([#128](https://github.com/wp-graphql/wp-graphql/pull/128))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -249,14 +287,18 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('Found 1 breaking change(s)'), 'Should find breaking change');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('Found 1 breaking change(s)'),
+				'Should find breaking change'
+			);
+		}),
 
-  // Test 6: Version format without brackets
-  () => test('handles version without brackets in changelog', () => {
-    createChangelog(`# Changelog
+	// Test 6: Version format without brackets
+	() =>
+		test('handles version without brackets in changelog', () => {
+			createChangelog(`# Changelog
 
 ## 3.0.0 (2026-01-20)
 
@@ -265,7 +307,7 @@ Stable tag: 2.0.0
 * Breaking change without brackets ([#129](https://github.com/wp-graphql/wp-graphql/pull/129))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -274,14 +316,18 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    assert(result.output.includes('Found 1 breaking change(s)'), 'Should find breaking change');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+			assert(
+				result.output.includes('Found 1 breaking change(s)'),
+				'Should find breaking change'
+			);
+		}),
 
-  // Test 7: Multiple versions in changelog
-  () => test('extracts breaking changes for correct version only', () => {
-    createChangelog(`# Changelog
+	// Test 7: Multiple versions in changelog
+	() =>
+		test('extracts breaking changes for correct version only', () => {
+			createChangelog(`# Changelog
 
 ## [4.0.0](https://github.com/wp-graphql/wp-graphql/compare/v3.0.0...v4.0.0) (2026-02-01)
 
@@ -302,7 +348,7 @@ Stable tag: 2.0.0
 * Some feature
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -311,19 +357,26 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    
-    const readme = readReadme();
-    assert(readme.includes('Version 3 breaking change'), 'Should include v3 breaking change');
-    assert(!readme.includes('Version 4 breaking change'), 'Should NOT include v4 breaking change');
-    assert(readme.includes('#100'), 'Should include correct PR link');
-    assert(!readme.includes('#200'), 'Should NOT include v4 PR link');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
 
-  // Test 8: Scoped breaking changes (e.g., **resolver:**)
-  () => test('preserves scope prefix in breaking changes', () => {
-    createChangelog(`# Changelog
+			const readme = readReadme();
+			assert(
+				readme.includes('Version 3 breaking change'),
+				'Should include v3 breaking change'
+			);
+			assert(
+				!readme.includes('Version 4 breaking change'),
+				'Should NOT include v4 breaking change'
+			);
+			assert(readme.includes('#100'), 'Should include correct PR link');
+			assert(!readme.includes('#200'), 'Should NOT include v4 PR link');
+		}),
+
+	// Test 8: Scoped breaking changes (e.g., **resolver:**)
+	() =>
+		test('preserves scope prefix in breaking changes', () => {
+			createChangelog(`# Changelog
 
 ## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/v2.0.0...v3.0.0) (2026-01-20)
 
@@ -333,7 +386,7 @@ Stable tag: 2.0.0
 * **types:** Remove deprecated type ([#131](https://github.com/wp-graphql/wp-graphql/pull/131))
 `);
 
-    createReadme(`=== Test Plugin ===
+			createReadme(`=== Test Plugin ===
 Stable tag: 2.0.0
 
 == Changelog ==
@@ -342,13 +395,19 @@ Stable tag: 2.0.0
 * Initial release
 `);
 
-    const result = runScript('3.0.0');
-    assert(result.success, 'Script should succeed');
-    
-    const readme = readReadme();
-    assert(readme.includes('**resolver:**'), 'Should preserve resolver scope');
-    assert(readme.includes('**types:**'), 'Should preserve types scope');
-  }),
+			const result = runScript('3.0.0');
+			assert(result.success, 'Script should succeed');
+
+			const readme = readReadme();
+			assert(
+				readme.includes('**resolver:**'),
+				'Should preserve resolver scope'
+			);
+			assert(
+				readme.includes('**types:**'),
+				'Should preserve types scope'
+			);
+		}),
 ];
 
 // ===========================================
@@ -361,11 +420,11 @@ let passed = 0;
 let failed = 0;
 
 for (const testFn of tests) {
-  if (testFn()) {
-    passed++;
-  } else {
-    failed++;
-  }
+	if (testFn()) {
+		passed++;
+	} else {
+		failed++;
+	}
 }
 
 console.log(`\n${'─'.repeat(50)}`);

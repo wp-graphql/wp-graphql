@@ -60,11 +60,11 @@ jobs:
       matrix:
         include:
           # Test on latest stable
-          - wp: "6.8"
-            php: "8.3"
+          - wp: '6.8'
+            php: '8.3'
           # Test on oldest supported
-          - wp: "6.1"
-            php: "7.4"
+          - wp: '6.1'
+            php: '7.4'
 
     steps:
       - name: Checkout repository
@@ -82,7 +82,7 @@ jobs:
         with:
           working-directory: plugins/wp-graphql
           # Use --no-dev to match the production release build
-          composer-options: "--no-dev --optimize-autoloader"
+          composer-options: '--no-dev --optimize-autoloader'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -155,14 +155,14 @@ jobs:
           echo "📦 Copying zip to container..."
           CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
           docker cp plugin-build/wp-graphql.zip "$CONTAINER_NAME":/tmp/wp-graphql.zip
-          
+
           echo "📦 Installing plugin from zip..."
           npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
-          
+
           echo "🔄 Flushing permalinks..."
           npm run wp-env -- run cli wp rewrite structure '/%postname%/' --hard
           npm run wp-env -- run cli wp rewrite flush --hard
-          
+
           echo "⚙️ Enabling public introspection..."
           npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
 

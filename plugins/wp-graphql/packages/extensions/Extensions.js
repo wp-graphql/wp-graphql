@@ -8,23 +8,26 @@ import PluginCard from './PluginCard';
  * @return {JSX.Element} The Extensions component.
  */
 const Extensions = () => {
-    const [extensions, setExtensions] = useState([]);
+	const [extensions, setExtensions] = useState([]);
 
-    useEffect(() => {
-        if (window.wpgraphqlExtensions && window.wpgraphqlExtensions.extensions) {
-            setExtensions(window.wpgraphqlExtensions.extensions);
-        }
-    }, []);
+	useEffect(() => {
+		if (
+			window.wpgraphqlExtensions &&
+			window.wpgraphqlExtensions.extensions
+		) {
+			setExtensions(window.wpgraphqlExtensions.extensions);
+		}
+	}, []);
 
-    return (
-        <div className="wp-clearfix">
-            <div className="plugin-cards">
-                {extensions.map((extension) => (
-                    <PluginCard key={extension.plugin_url} plugin={extension} />
-                ))}
-            </div>
-        </div>
-    );
+	return (
+		<div className="wp-clearfix">
+			<div className="plugin-cards">
+				{extensions.map((extension) => (
+					<PluginCard key={extension.plugin_url} plugin={extension} />
+				))}
+			</div>
+		</div>
+	);
 };
 
 export default Extensions;

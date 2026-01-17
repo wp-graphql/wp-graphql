@@ -22,9 +22,9 @@
  * @type {Selectors}
  */
 const selectors = {
-    loginUsername: '#user_login',
-    loginPassword: '#user_pass',
-    submitButton: '#wp-submit',
+	loginUsername: '#user_login',
+	loginPassword: '#user_pass',
+	submitButton: '#wp-submit',
 };
 
 export const wpHomeUrl = 'http://localhost:8889';
@@ -34,24 +34,24 @@ export const wpAdminUrl = 'http://localhost:8889/wp-admin';
  * Log in to the WordPress admin dashboard.
  * @param {import('@playwright/test').Page} page The Playwright page object.
  */
-export async function loginToWordPressAdmin( page ) {
-    await page.goto( 'http://localhost:8889/wp-admin', {
-        waitUntil: 'networkidle',
-    } );
+export async function loginToWordPressAdmin(page) {
+	await page.goto('http://localhost:8889/wp-admin', {
+		waitUntil: 'networkidle',
+	});
 
-    // Check if we're already logged in after navigating to admin
-    const isLoggedIn = await page.$( '#wpadminbar' );
+	// Check if we're already logged in after navigating to admin
+	const isLoggedIn = await page.$('#wpadminbar');
 
-    // If already logged in, return early
-    if ( isLoggedIn ) {
-        return;
-    }
+	// If already logged in, return early
+	if (isLoggedIn) {
+		return;
+	}
 
-    // If not logged in, fill the login form
-    await page.fill( selectors.loginUsername, 'admin' );
-    await page.fill( selectors.loginPassword, 'password' );
-    await page.click( selectors.submitButton );
-    await page.waitForSelector( '#wpadminbar' ); // Confirm login by waiting for the admin bar
+	// If not logged in, fill the login form
+	await page.fill(selectors.loginUsername, 'admin');
+	await page.fill(selectors.loginPassword, 'password');
+	await page.click(selectors.submitButton);
+	await page.waitForSelector('#wpadminbar'); // Confirm login by waiting for the admin bar
 }
 
 /**
@@ -59,18 +59,20 @@ export async function loginToWordPressAdmin( page ) {
  * @param {import('@playwright/test').Page} page  The Playwright page object.
  * @param {string}                          query The GraphQL query to type.
  */
-export async function typeQuery( page, query = '' ) {
+export async function typeQuery(page, query = '') {
+	const selector = '.query-editor .cm-s-graphiql';
 
-    const selector = '.query-editor .cm-s-graphiql';
+	// Set the value
+	await page.evaluate(
+		async ({ query, selector }) => {
+			const editor = document.querySelector(selector).CodeMirror;
+			await editor.setValue(query);
+		},
+		{ query, selector }
+	);
 
-    // Set the value
-    await page.evaluate( async ({ query, selector }) => {
-        const editor = document.querySelector(selector).CodeMirror;
-        await editor.setValue( query );
-    }, { query, selector });
-
-    // Wait for the value to be set
-    await page.waitForTimeout( 500 );
+	// Wait for the value to be set
+	await page.waitForTimeout(500);
 }
 
 /**
@@ -78,16 +80,16 @@ export async function typeQuery( page, query = '' ) {
  * @param {import('@playwright/test').Page} page      The Playwright page object.
  * @param {Object}                          variables The GraphQL variables to type (as an object).
  */
-export async function typeVariables( page, variables ) {
-    const variablesString = JSON.stringify( variables, null, 2 );
-    // remove trailing curly brace. As users type, the IDE adds a trailing brace, so we're going to trim it
-    // as a user wouldn't actually type an extra trailing brace
-    const trimmedVariableString = variablesString.substring( 0, -1 );
-    await page.click( '[data-name="variables"]' );
-    const variablesSelector =
-        '.graphiql-editor-tool[aria-label="Variables"]:not(.hidden)';
-    await clearCodeMirror( page, variablesSelector );
-    await page.keyboard.type( trimmedVariableString );
+export async function typeVariables(page, variables) {
+	const variablesString = JSON.stringify(variables, null, 2);
+	// remove trailing curly brace. As users type, the IDE adds a trailing brace, so we're going to trim it
+	// as a user wouldn't actually type an extra trailing brace
+	const trimmedVariableString = variablesString.substring(0, -1);
+	await page.click('[data-name="variables"]');
+	const variablesSelector =
+		'.graphiql-editor-tool[aria-label="Variables"]:not(.hidden)';
+	await clearCodeMirror(page, variablesSelector);
+	await page.keyboard.type(trimmedVariableString);
 }
 
 /**
@@ -95,19 +97,19 @@ export async function typeVariables( page, variables ) {
  * @param {import('@playwright/test').Page} page      The Playwright page object.
  * @param {string}                          variables The GraphQL variables to type (as a string).
  */
-export async function pasteVariables( page, variables ) {
-    const trimmedVariableString = variablesString.substring( 0, -1 );
+export async function pasteVariables(page, variables) {
+	const trimmedVariableString = variablesString.substring(0, -1);
 
-    // open the variable editor
-    await page.click( '[data-name="variables"]' );
-    // await clearCodeMirror(page, variablesSelector);
+	// open the variable editor
+	await page.click('[data-name="variables"]');
+	// await clearCodeMirror(page, variablesSelector);
 
-    // set the value on the CodeMirror editor
-    const variablesSelector =
-        '.graphiql-editor-tool[aria-label="Variables"]:not(.hidden) .cm-s-graphiql';
-    const variableEditor = await page.locator( variablesSelector );
-    const variableEditorInstance = variableEditor.CodeMirror;
-    await variableEditorInstance.setValue( trimmedVariableString );
+	// set the value on the CodeMirror editor
+	const variablesSelector =
+		'.graphiql-editor-tool[aria-label="Variables"]:not(.hidden) .cm-s-graphiql';
+	const variableEditor = await page.locator(variablesSelector);
+	const variableEditorInstance = variableEditor.CodeMirror;
+	await variableEditorInstance.setValue(trimmedVariableString);
 }
 
 /**
@@ -115,115 +117,114 @@ export async function pasteVariables( page, variables ) {
  * @param {import('@playwright/test').Page} page     The Playwright page object.
  * @param {string}                          selector The CSS selector for the CodeMirror editor.
  */
-export async function clearCodeMirror( page, selector ) {
-    await page.click( selector );
-    // Use the appropriate select all command based on the OS
-    const selectAllCommand =
-        process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
-    await page.keyboard.press( selectAllCommand ); // Select all text
-    await page.keyboard.press( 'Backspace' ); // Clear the selection
+export async function clearCodeMirror(page, selector) {
+	await page.click(selector);
+	// Use the appropriate select all command based on the OS
+	const selectAllCommand =
+		process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
+	await page.keyboard.press(selectAllCommand); // Select all text
+	await page.keyboard.press('Backspace'); // Clear the selection
 }
-export async function visitPublicFacingPage( page ) {
-    await page.goto( wpHomeUrl, { waitUntil: 'networkidle' } );
-}
-
-export async function visitAdminFacingPage( page, path = null ) {
-
-    if ( ! path ) {
-        path = wpAdminUrl;
-    }
-    await page.goto( path, { waitUntil: 'networkidle' } );
+export async function visitPublicFacingPage(page) {
+	await page.goto(wpHomeUrl, { waitUntil: 'networkidle' });
 }
 
-export async function visitPluginsPage( page ) {
-    await page.goto( `${ wpAdminUrl }/plugins.php`, {
-        waitUntil: 'networkidle',
-    } );
+export async function visitAdminFacingPage(page, path = null) {
+	if (!path) {
+		path = wpAdminUrl;
+	}
+	await page.goto(path, { waitUntil: 'networkidle' });
 }
 
-export async function openDrawer( page ) {
-    const isDrawerVisible = await page
-        .locator( '.graphiql-container' )
-        .isVisible();
-    if ( ! isDrawerVisible ) {
-        await page.waitForSelector( '.EditorDrawerButton', {
-            state: 'visible',
-        } );
-        await clickDrawerButton( page );
-        await page.waitForSelector( '.graphiql-container', {
-            state: 'visible',
-        } );
-    }
+export async function visitPluginsPage(page) {
+	await page.goto(`${wpAdminUrl}/plugins.php`, {
+		waitUntil: 'networkidle',
+	});
 }
 
-export async function closeDrawer( page ) {
-    const isDrawerVisible = await page
-        .locator( '.graphiql-container' )
-        .isVisible();
-
-    if ( isDrawerVisible ) {
-        const overlay = await page.locator( '[vaul-overlay]' );
-        if ( overlay ) {
-            await overlay.click();
-        }
-        await expect( page.locator( '.graphiql-container' ) ).toBeHidden();
-        await page.waitForSelector( '.EditorDrawerButton', {
-            state: 'visible',
-        } );
-        await clickDrawerCloseButton( page );
-        await page.waitForSelector( '.graphiql-container', {
-            state: 'hidden',
-        } );
-    }
+export async function openDrawer(page) {
+	const isDrawerVisible = await page
+		.locator('.graphiql-container')
+		.isVisible();
+	if (!isDrawerVisible) {
+		await page.waitForSelector('.EditorDrawerButton', {
+			state: 'visible',
+		});
+		await clickDrawerButton(page);
+		await page.waitForSelector('.graphiql-container', {
+			state: 'visible',
+		});
+	}
 }
 
-export async function clickDrawerButton( page ) {
-    await page.click( '.EditorDrawerButton' );
+export async function closeDrawer(page) {
+	const isDrawerVisible = await page
+		.locator('.graphiql-container')
+		.isVisible();
+
+	if (isDrawerVisible) {
+		const overlay = await page.locator('[vaul-overlay]');
+		if (overlay) {
+			await overlay.click();
+		}
+		await expect(page.locator('.graphiql-container')).toBeHidden();
+		await page.waitForSelector('.EditorDrawerButton', {
+			state: 'visible',
+		});
+		await clickDrawerCloseButton(page);
+		await page.waitForSelector('.graphiql-container', {
+			state: 'hidden',
+		});
+	}
 }
 
-export async function clickDrawerCloseButton( page ) {
-    await page.click( '.EditorDrawerCloseButton' );
+export async function clickDrawerButton(page) {
+	await page.click('.EditorDrawerButton');
 }
 
-export async function executeQuery( page ) {
-    await page.click( '.graphiql-execute-button' );
+export async function clickDrawerCloseButton(page) {
+	await page.click('.EditorDrawerCloseButton');
 }
 
-export async function selectAndClearTextUsingKeyboard( page, selector ) {
-    await page.click( selector ); // Focus the element
-
-    // Determine the operating system to use the correct "Select All" shortcut
-    const selectAllCommand =
-        process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
-    await page.keyboard.press( selectAllCommand ); // Select all text using OS-specific shortcut
-    await page.keyboard.press( 'Backspace' ); // Clear selected text
+export async function executeQuery(page) {
+	await page.click('.graphiql-execute-button');
 }
 
-export async function loadGraphiQL( page, queryParams = { query: null, variables: null, isQueryComposerOpen: null } ) {
+export async function selectAndClearTextUsingKeyboard(page, selector) {
+	await page.click(selector); // Focus the element
 
-    const {
-        query,
-        variables,
-        isQueryComposerOpen,
-    } = queryParams;
+	// Determine the operating system to use the correct "Select All" shortcut
+	const selectAllCommand =
+		process.platform === 'darwin' ? 'Meta+A' : 'Control+A';
+	await page.keyboard.press(selectAllCommand); // Select all text using OS-specific shortcut
+	await page.keyboard.press('Backspace'); // Clear selected text
+}
 
-    let _queryParams = '';
+export async function loadGraphiQL(
+	page,
+	queryParams = { query: null, variables: null, isQueryComposerOpen: null }
+) {
+	const { query, variables, isQueryComposerOpen } = queryParams;
 
-    if ( query ) {
-        _queryParams += `&query=${encodeURIComponent( query )}`;
-    }
+	let _queryParams = '';
 
-    if ( variables ) {
-        _queryParams += `&variables=${encodeURIComponent( JSON.stringify( variables ) )}`;
-    }
+	if (query) {
+		_queryParams += `&query=${encodeURIComponent(query)}`;
+	}
 
-    _queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? "true" : "false" }`
+	if (variables) {
+		_queryParams += `&variables=${encodeURIComponent(JSON.stringify(variables))}`;
+	}
 
-    await visitAdminFacingPage( page, wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}` );
-    await page.waitForSelector( '.graphiql-container', {
-        state: 'visible',
-    } );
+	_queryParams += `&isQueryComposerOpen=${isQueryComposerOpen ? 'true' : 'false'}`;
 
+	await visitAdminFacingPage(
+		page,
+		wpAdminUrl + `/admin.php?page=graphiql-ide${_queryParams}`
+	);
+	await page.waitForSelector('.graphiql-container', {
+		state: 'visible',
+	});
 }
 
 /**
@@ -234,12 +235,12 @@ export async function loadGraphiQL( page, queryParams = { query: null, variables
  * @returns {Promise<void>}
  */
 export async function activatePlugin(page, slug) {
-    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
-    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
-    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
-    if (!isPluginActive) {
-        await pluginRow.locator('.activate a').click();
-    }
+	await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+	const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+	const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+	if (!isPluginActive) {
+		await pluginRow.locator('.activate a').click();
+	}
 }
 
 /**
@@ -250,10 +251,10 @@ export async function activatePlugin(page, slug) {
  * @returns {Promise<void>}
  */
 export async function deactivatePlugin(page, slug) {
-    await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
-    const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
-    const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
-    if (isPluginActive) {
-        await pluginRow.locator('.deactivate a').click();
-    }
+	await visitAdminFacingPage(page, wpAdminUrl + '/plugins.php');
+	const pluginRow = page.locator(`tr[data-slug="${slug}"]`);
+	const isPluginActive = await pluginRow.locator('.deactivate').isVisible();
+	if (isPluginActive) {
+		await pluginRow.locator('.deactivate a').click();
+	}
 }

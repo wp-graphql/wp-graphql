@@ -12,6 +12,11 @@ echo "=== Setting up WPGraphQL development environment ==="
 echo "Installing Composer dependencies for plugins..."
 npm run wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
 
+# Install test themes (using WP-CLI to get correct slugs, not .latest-stable suffix)
+echo "Installing test themes..."
+npm run wp-env run tests-cli -- wp theme install twentytwentyone --force 2>/dev/null || echo "twentytwentyone already installed"
+npm run wp-env run tests-cli -- wp theme install twentytwentyfive --force 2>/dev/null || echo "twentytwentyfive already installed"
+
 ## Flush permalinks
 npm run wp-env run cli -- wp rewrite structure /%postname%/ --hard
 npm run wp-env run tests-cli -- wp rewrite structure /%postname%/ --hard

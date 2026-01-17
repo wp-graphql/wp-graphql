@@ -42,8 +42,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-            cache: 'npm'
-            node-version-file: '.nvmrc'
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci
@@ -95,10 +95,10 @@ jobs:
         run: |
           SCHEMA_URL="https://github.com/wp-graphql/wp-graphql/releases/download/${{ steps.get-latest-tag.outputs.tag }}/schema.graphql"
           echo "Downloading schema from: $SCHEMA_URL"
-          
+
           # Download with error checking
           HTTP_CODE=$(curl -sL -w "%{http_code}" "$SCHEMA_URL" -o /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql)
-          
+
           if [ "$HTTP_CODE" != "200" ]; then
             echo "::warning::Could not download previous schema (HTTP $HTTP_CODE). Schema comparison will be skipped."
             echo "schema_available=false" >> $GITHUB_OUTPUT
@@ -124,7 +124,7 @@ jobs:
         run: |
           # This schema and previous release schema
           node_modules/.bin/graphql-inspector diff /tmp/${{ steps.get-latest-tag.outputs.tag }}.graphql /tmp/schema.graphql
-      
+
       - name: Schema comparison skipped
         if: steps.get-previous-schema.outputs.schema_available != 'true'
         run: |

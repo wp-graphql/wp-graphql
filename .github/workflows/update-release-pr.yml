@@ -42,7 +42,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
 
       - name: Extract version from PR
         id: version
@@ -50,16 +50,16 @@ jobs:
           # Extract version from the PR title or branch name
           # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
           # Branch names are like "release-please--branches--main--components--wp-graphql"
-          
+
           # Try to get version from PR title first
           PR_TITLE="${{ github.event.pull_request.title }}"
           VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          
+
           if [ -z "$VERSION" ]; then
             # Fallback: extract from CHANGELOG.md (first version header)
             VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' plugins/wp-graphql/CHANGELOG.md | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           fi
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 

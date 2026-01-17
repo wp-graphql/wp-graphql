@@ -1,0 +1,16 @@
+# Repository files and folders to ignore
+**/.changesets
+**/.git
+**/.hg
+**/.husky
+**/.svn
+
+# Test and build output folders
+**/build
+**/tests/_output
+
+# Ignore dependencies folders
+**/node_modules
+**/vendor
+**/composer.lock
+**/package-lock.json

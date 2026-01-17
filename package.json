@@ -16,6 +16,7 @@
 	},
 	"scripts": {
 		"build": "turbo run build",
+		"format": "wp-scripts format",
 		"start": "turbo run start",
 		"test": "turbo run test",
 		"test:scripts": "node scripts/update-upgrade-notice.test.js",
@@ -30,6 +31,8 @@
 	},
 	"devDependencies": {
 		"@wordpress/env": "^10.37.0",
+		"@wordpress/prettier-config": "^4.38.0",
+		"@wordpress/scripts": "^31.3.0",
 		"husky": "^9.1.7",
 		"turbo": "^2.3.3"
 	}

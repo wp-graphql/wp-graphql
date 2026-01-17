@@ -1,5 +1,9 @@
 import { describe, test, expect } from '@playwright/test';
-import { loginToWordPressAdmin, visitAdminFacingPage, wpAdminUrl } from '../utils';
+import {
+	loginToWordPressAdmin,
+	visitAdminFacingPage,
+	wpAdminUrl,
+} from '../utils';
 
 /**
  * @file graphql-settings-page.spec.js
@@ -7,20 +11,30 @@ import { loginToWordPressAdmin, visitAdminFacingPage, wpAdminUrl } from '../util
  */
 
 describe('GraphQL Settings Page', () => {
+	test('Renders and saves settings as expected', async ({ page }) => {
+		await loginToWordPressAdmin(page);
+		await visitAdminFacingPage(
+			page,
+			wpAdminUrl + '/admin.php?page=graphql-settings'
+		);
 
-    test('Renders and saves settings as expected', async ({ page }) => {
-        await loginToWordPressAdmin(page);
-        await visitAdminFacingPage(page, wpAdminUrl + '/admin.php?page=graphql-settings');
+		// Verify that the settings page loaded
+		await expect(
+			page.getByRole('heading', {
+				name: 'WPGraphQL General Settings',
+				exact: true,
+			})
+		).toBeVisible();
 
-        // Verify that the settings page loaded
-        await expect(page.getByRole('heading', { name: 'WPGraphQL General Settings', exact: true })).toBeVisible();
+		// Verify that the default values are populated
+		const tracingUserRoleSelect = page.locator(
+			'select[name="graphql_general_settings[tracing_user_role]"]'
+		);
+		const queryLogUserRoleSelect = page.locator(
+			'select[name="graphql_general_settings[query_log_user_role]"]'
+		);
 
-        // Verify that the default values are populated
-        const tracingUserRoleSelect = page.locator('select[name="graphql_general_settings[tracing_user_role]"]');
-        const queryLogUserRoleSelect = page.locator('select[name="graphql_general_settings[query_log_user_role]"]');
-
-        await expect(tracingUserRoleSelect).toHaveValue('administrator');
-        await expect(queryLogUserRoleSelect).toHaveValue('administrator');
-    });
-
+		await expect(tracingUserRoleSelect).toHaveValue('administrator');
+		await expect(queryLogUserRoleSelect).toHaveValue('administrator');
+	});
 });
