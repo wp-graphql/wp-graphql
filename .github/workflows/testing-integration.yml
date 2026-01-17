@@ -100,7 +100,7 @@ jobs:
           # - Release PRs (PRs from release-please with title starting with "chore: release")
           # Use minimal matrix for:
           # - Regular PRs targeting main
-          
+
           # Check if this is a release-please PR (full matrix needed for release validation)
           # release-please generates titles like: "chore(main): release wp-graphql 2.7.0"
           IS_RELEASE_PR="false"
@@ -113,7 +113,7 @@ jobs:
               IS_RELEASE_PR="true"
             fi
           fi
-          
+
           if [[ "${{ github.event_name }}" == "pull_request" && "$IS_RELEASE_PR" == "false" ]]; then
             # ===========================================
             # MINIMAL MATRIX (~8 jobs)
@@ -183,14 +183,14 @@ jobs:
     steps:
       - name: Configure environment variables
         run: |
-            echo "PHP_FPM_UID=$(id -u)" >> "$GITHUB_ENV"
-            echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
+          echo "PHP_FPM_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
 
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-            show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
-            persist-credentials: false
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
 
       - name: Set up PHP
         uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
@@ -207,8 +207,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-            cache: 'npm'
-            node-version-file: '.nvmrc'
+          cache: 'npm'
+          node-version-file: '.nvmrc'
 
       - name: Install NPM dependencies
         run: npm ci
@@ -224,32 +224,32 @@ jobs:
       - name: Start the Docker testing environment
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
-            timeout_minutes: 10
-            max_attempts: 3
-            command: |
-                npm run wp-env start -- ${{ matrix.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            npm run wp-env start -- ${{ matrix.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Log versions
         run: |
-            npm run wp-env -- run cli php -- -v
-            npm run wp-env -- run cli wp core version
+          npm run wp-env -- run cli php -- -v
+          npm run wp-env -- run cli wp core version
 
       - name: Activate test theme
         run: |
-            echo "Activating theme: ${{ matrix.theme }}"
-            npm run wp-env run tests-cli -- wp theme activate ${{ matrix.theme }}
-            npm run wp-env run tests-cli -- wp theme list
+          echo "Activating theme: ${{ matrix.theme }}"
+          npm run wp-env run tests-cli -- wp theme activate ${{ matrix.theme }}
+          npm run wp-env run tests-cli -- wp theme list
 
       - name: Verify test environment
         run: |
-            echo "Checking mu-plugin installation..."
-            npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
-            echo "Checking site URL..."
-            npm run wp-env run tests-cli -- wp option get siteurl
-            echo "Active theme..."
-            npm run wp-env run tests-cli -- wp theme status
-            echo "Testing GraphQL endpoint..."
-            npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
+          echo "Checking mu-plugin installation..."
+          npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
+          echo "Checking site URL..."
+          npm run wp-env run tests-cli -- wp option get siteurl
+          echo "Active theme..."
+          npm run wp-env run tests-cli -- wp theme status
+          echo "Testing GraphQL endpoint..."
+          npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
 
       - name: Run Acceptance Tests
         run: |
@@ -270,28 +270,28 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-            name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}
-            path: plugins/wp-graphql/tests/_output/*.fail.html
-            if-no-files-found: ignore
+          name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}
+          path: plugins/wp-graphql/tests/_output/*.fail.html
+          if-no-files-found: ignore
 
       - name: Fix coverage paths
         if: ${{ matrix.coverage }}
         run: |
-            # Strip Docker container path prefix from coverage report
-            sed -i 's|/var/www/html/wp-content/plugins/wp-graphql/||g' plugins/wp-graphql/tests/_output/coverage.xml
+          # Strip Docker container path prefix from coverage report
+          sed -i 's|/var/www/html/wp-content/plugins/wp-graphql/||g' plugins/wp-graphql/tests/_output/coverage.xml
 
       - name: Upload coverage to Codecov
         if: ${{ matrix.coverage }}
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-            files: plugins/wp-graphql/tests/_output/coverage.xml
-            flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
-            fail_ci_if_error: false
+          files: plugins/wp-graphql/tests/_output/coverage.xml
+          flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
+          fail_ci_if_error: false
 
       - name: Upload HTML coverage report as artifact
         if: ${{ matrix.coverage }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-            name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
-            path: plugins/wp-graphql/tests/_output/html
-            overwrite: true
+          name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
+          path: plugins/wp-graphql/tests/_output/html
+          overwrite: true

@@ -3,7 +3,7 @@
 
 # Fix path prefixes from Docker container paths to repo-relative paths
 fixes:
-  - "/var/www/html/wp-content/plugins/wp-graphql/::"
+  - '/var/www/html/wp-content/plugins/wp-graphql/::'
 
 coverage:
   status:
@@ -18,7 +18,7 @@ coverage:
 
 comment:
   # Show coverage diff in PR comments
-  layout: "reach,diff,flags,files"
+  layout: 'reach,diff,flags,files'
   behavior: default
   require_changes: true
 
@@ -46,4 +46,3 @@ flags:
     paths:
       - src/
     carryforward: true
-

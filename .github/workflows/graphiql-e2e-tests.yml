@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies
         uses: ramsey/composer-install@v3
         with:
-          composer-options: "--no-progress"
+          composer-options: '--no-progress'
           working-directory: plugins/wp-graphql
 
       - name: Install JavaScript dependencies
@@ -57,7 +57,7 @@ jobs:
 
       - name: Install Playwright dependencies
         run: |
-            npx playwright install chromium firefox webkit --with-deps
+          npx playwright install chromium firefox webkit --with-deps
 
       - name: Start WordPress Environment
         run: npm run wp-env -- start

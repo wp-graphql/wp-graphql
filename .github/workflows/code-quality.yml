@@ -35,53 +35,53 @@ jobs:
     name: Run PHP static analysis
     runs-on: ubuntu-24.04
     permissions:
-        contents: read
+      contents: read
     timeout-minutes: 20
 
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-          with:
-              show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
-              persist-credentials: false
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
 
-        - name: Set up PHP
-          uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
-          with:
-              php-version: 8.3
-              coverage: none
-              tools: cs2pr
+      - name: Set up PHP
+        uses: shivammathur/setup-php@ec406be512d7077f68eed36e63f4d91bc006edc4 # v2.35.4
+        with:
+          php-version: 8.3
+          coverage: none
+          tools: cs2pr
 
-        # This date is used to ensure that the PHPCS cache is cleared at least once every week.
-        # http://man7.org/linux/man-pages/man1/date.1.html
-        - name: "Get last Monday's date"
-          id: get-date
-          run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
+      # This date is used to ensure that the PHPCS cache is cleared at least once every week.
+      # http://man7.org/linux/man-pages/man1/date.1.html
+      - name: "Get last Monday's date"
+        id: get-date
+        run: echo "date=$(/bin/date -u --date='last Mon' "+%F")" >> "$GITHUB_OUTPUT"
 
-        - name: Cache PHP Static Analysis scan cache
-          uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
-          with:
-              path: plugins/wp-graphql/tests/_output # This is defined in the base.neon file.
-              key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
-              restore-keys: |
-                  phpstan-result-cache-
+      - name: Cache PHP Static Analysis scan cache
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: plugins/wp-graphql/tests/_output # This is defined in the base.neon file.
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+          restore-keys: |
+            phpstan-result-cache-
 
-        - name: Install Composer dependencies
-          uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
-          with:
-              working-directory: plugins/wp-graphql
-
-        - name: Make Composer packages available globally
-          run: echo "${PWD}/plugins/wp-graphql/vendor/bin" >> "$GITHUB_PATH"
-
-        - name: Run PHP static analysis tests
-          id: phpstan
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
           working-directory: plugins/wp-graphql
-          run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
 
-        - name: Save result cache
-          uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
-          if: ${{ !cancelled() }}
-          with:
-              path: plugins/wp-graphql/tests/_output
-              key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
+      - name: Make Composer packages available globally
+        run: echo "${PWD}/plugins/wp-graphql/vendor/bin" >> "$GITHUB_PATH"
+
+      - name: Run PHP static analysis tests
+        id: phpstan
+        working-directory: plugins/wp-graphql
+        run: phpstan analyse -vvv --error-format=checkstyle | cs2pr
+
+      - name: Save result cache
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        if: ${{ !cancelled() }}
+        with:
+          path: plugins/wp-graphql/tests/_output
+          key: 'phpstan-result-cache-${{ runner.os }}-date-${{ steps.get-date.outputs.date }}'
