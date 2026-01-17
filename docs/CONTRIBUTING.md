@@ -119,6 +119,9 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 - Version numbers are updated automatically by release-please
 - `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
 - Changelogs are generated from PR titles (via squash merge commits)
+- **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+
+> **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
 
 ## Working with the Monorepo
 
