@@ -21,9 +21,10 @@ updates:
       composer-minor-patch:
         dependency-type: 'production'
         update-types: [minor, patch]
-      composer-major:
+      # We don't bundle minor or major production assets, so they're tested individually.
+      composer-patch:
         dependency-type: 'production'
-        update-types: [major]
+        update-types: [patch]
 
   # NPM: 1x weekly for minor/patch, 1x monthly for major.
   - package-ecosystem: 'npm'
