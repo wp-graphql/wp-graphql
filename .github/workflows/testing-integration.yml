@@ -75,22 +75,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-    env:
-      # Disable all npm/node behaviors - this job doesn't need node
-      HUSKY: 0
-      npm_config_ignore_scripts: true
-      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
-      COREPACK_ENABLE_STRICT: 0
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            package.json
-            package-lock.json
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
       - name: Set matrix
         id: set-matrix
         run: |
