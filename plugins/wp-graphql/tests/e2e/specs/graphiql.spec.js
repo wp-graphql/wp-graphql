@@ -139,12 +139,6 @@ test.describe('GraphiQL', () => {
         const unformattedQuery = '{posts{nodes{id title date}}}';
         await typeQuery(page, unformattedQuery);
 
-        // Get the query before prettifying
-        const queryBefore = await page.evaluate(() => {
-            const editor = document.querySelector('.query-editor .cm-s-graphiql').CodeMirror;
-            return editor.getValue();
-        });
-
         // Click the Prettify button
         const prettifyButton = page.locator("xpath=//button[contains(text(), 'Prettify')]");
         await prettifyButton.click();
@@ -177,15 +171,6 @@ test.describe('GraphiQL', () => {
         await typeQuery(page, `{posts{nodes{id}}}`);
         await page.click(selectors.executeQueryButton);
         await page.waitForLoadState('networkidle');
-
-        // Verify the history panel is not visible initially
-        const historyPanel = page.locator('.historyPaneWrap');
-        const isHistoryInitiallyVisible = await page.evaluate(() => {
-            const wrapper = document.querySelector('.historyPaneWrap');
-            if (!wrapper) return false;
-            const style = window.getComputedStyle(wrapper);
-            return style.display !== 'none' && style.visibility !== 'hidden';
-        });
 
         // Click the History button
         const historyButton = page.locator("xpath=//button[contains(text(), 'History')]");
