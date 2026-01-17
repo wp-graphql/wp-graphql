@@ -34,15 +34,6 @@
 		"lint:js:fix": "wp-scripts lint-js --fix ./packages",
 		"lint:js": "wp-scripts lint-js ./packages",
 		"wp-env:cli": "npm run --prefix ../.. wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql/ --",
-		"changeset:generate": "node scripts/generate-changeset.js",
-		"changeset:analyze": "node scripts/analyze-changesets.js",
-		"release:notes": "node scripts/generate-release-notes.js",
-		"version:bump": "node scripts/bump-version.js",
-		"changelog:update": "node scripts/update-changelog.js",
-		"readme:update": "node scripts/update-readme.js",
-		"changelogs:update": "node scripts/update-changelogs.js",
-		"release:prepare": "npm run version:bump && npm run changelogs:update",
-		"upgrade-notice:update": "node scripts/update-upgrade-notice.js",
 		"zip": "composer run-script build-plugin"
 	},
 	"dependencies": {
@@ -76,19 +67,11 @@
 		"@wordpress/env": "^10.37.0",
 		"@wordpress/jest-preset-default": "^12.37.0",
 		"@wordpress/scripts": "^27.9.0",
-		"archiver": "^7.0.1",
 		"babel-jest": "^30.2.0",
 		"babel-plugin-inline-json-import": "^0.3.2",
-		"chalk": "^4.1.2",
-		"concurrently": "^9.2.1",
-		"dotenv": "^17.2.3",
-		"fs-extra": "^11.3.3",
-		"glob": "^13.0.0",
-		"js-yaml": "^4.1.1",
 		"lint-staged": "^16.2.7",
 		"sort-package-json": "^3.6.0",
-		"webpack-remove-empty-scripts": "^1.1.1",
-		"yargs": "^18.0.0"
+		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
