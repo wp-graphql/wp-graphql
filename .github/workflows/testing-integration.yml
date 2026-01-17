@@ -234,10 +234,10 @@ jobs:
           npm run wp-env -- run cli php -- -v
           npm run wp-env -- run cli wp core version
 
-      - name: Install and activate test theme
+      - name: Activate test theme
         run: |
-          echo "Installing theme: ${{ matrix.theme }}"
-          npm run wp-env run tests-cli -- wp theme install ${{ matrix.theme }} --activate
+          echo "Activating theme: ${{ matrix.theme }}"
+          npm run wp-env run tests-cli -- wp theme activate ${{ matrix.theme }}
           npm run wp-env run tests-cli -- wp theme list
 
       - name: Verify test environment
