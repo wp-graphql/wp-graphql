@@ -1,0 +1,92 @@
+# ===========================================
+# UPDATE RELEASE PR WORKFLOW
+# ===========================================
+#
+# This workflow runs when release-please creates or updates a Release PR.
+# It handles tasks that release-please doesn't do natively:
+#
+# 1. Updates the Upgrade Notice section in readme.txt if there are breaking changes
+#
+# The workflow identifies release-please PRs by:
+# - Branch name starting with "release-please--"
+# - Label "autorelease: pending"
+#
+# ===========================================
+
+name: Update Release PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-upgrade-notice:
+    name: Update Upgrade Notice
+    # Only run on release-please PRs
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Extract version from PR
+        id: version
+        run: |
+          # Extract version from the PR title or branch name
+          # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
+          # Branch names are like "release-please--branches--main--components--wp-graphql"
+          
+          # Try to get version from PR title first
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          
+          if [ -z "$VERSION" ]; then
+            # Fallback: extract from CHANGELOG.md (first version header)
+            VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' plugins/wp-graphql/CHANGELOG.md | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Update Upgrade Notice
+        if: steps.version.outputs.version != ''
+        run: |
+          node scripts/update-upgrade-notice.js \
+            --version=${{ steps.version.outputs.version }} \
+            --plugin-dir=plugins/wp-graphql
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet plugins/wp-graphql/readme.txt; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to readme.txt"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in readme.txt"
+            git diff plugins/wp-graphql/readme.txt
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add plugins/wp-graphql/readme.txt
+          git commit -m "chore: update upgrade notice for breaking changes"
+          git push
