@@ -132,5 +132,77 @@ test.describe('GraphiQL', () => {
         expect(isHiddenAgain).toBeTruthy();
     });
 
+    test('prettify button formats the query', async ({ page }) => {
+        await loadGraphiQL(page);
+
+        // Type an unformatted query (all on one line, no spacing)
+        const unformattedQuery = '{posts{nodes{id title date}}}';
+        await typeQuery(page, unformattedQuery);
+
+        // Click the Prettify button
+        const prettifyButton = page.locator("xpath=//button[contains(text(), 'Prettify')]");
+        await prettifyButton.click();
+        await page.waitForTimeout(500);
+
+        // Get the query after prettifying
+        const queryAfter = await page.evaluate(() => {
+            const editor = document.querySelector('.query-editor .cm-s-graphiql').CodeMirror;
+            return editor.getValue();
+        });
+
+        // The prettified query should have newlines (be multi-line)
+        expect(queryAfter).toContain('\n');
+
+        // The prettified query should have proper indentation (spaces)
+        expect(queryAfter).toMatch(/\s{2,}/); // At least 2 spaces for indentation
+
+        // The prettified query should still contain the same fields
+        expect(queryAfter).toContain('posts');
+        expect(queryAfter).toContain('nodes');
+        expect(queryAfter).toContain('id');
+        expect(queryAfter).toContain('title');
+        expect(queryAfter).toContain('date');
+    });
+
+    test('history button opens the history panel', async ({ page }) => {
+        await loadGraphiQL(page);
+
+        // First, execute a query so there's something in history
+        await typeQuery(page, `{posts{nodes{id}}}`);
+        await page.click(selectors.executeQueryButton);
+        await page.waitForLoadState('networkidle');
+
+        // Click the History button
+        const historyButton = page.locator("xpath=//button[contains(text(), 'History')]");
+        await historyButton.click();
+        await page.waitForTimeout(500);
+
+        // Verify the history panel is now visible
+        const isHistoryVisible = await page.evaluate(() => {
+            const wrapper = document.querySelector('.historyPaneWrap');
+            if (!wrapper) return false;
+            const style = window.getComputedStyle(wrapper);
+            return style.display !== 'none' && style.visibility !== 'hidden';
+        });
+        expect(isHistoryVisible).toBeTruthy();
+
+        // The history panel should contain history-related elements
+        const historyTitle = page.locator('.history-title');
+        await expect(historyTitle).toBeVisible();
+
+        // Click History again to toggle it closed
+        await historyButton.click();
+        await page.waitForTimeout(500);
+
+        // Verify the history panel is hidden again
+        const isHistoryHiddenAgain = await page.evaluate(() => {
+            const wrapper = document.querySelector('.historyPaneWrap');
+            if (!wrapper) return true; // If not found, consider it hidden
+            const style = window.getComputedStyle(wrapper);
+            return style.display === 'none' || style.visibility === 'hidden' || style.width === '0px';
+        });
+        expect(isHistoryHiddenAgain).toBeTruthy();
+    });
+
 });
 

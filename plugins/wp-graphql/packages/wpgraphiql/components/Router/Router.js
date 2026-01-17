@@ -137,7 +137,7 @@ const Router = (props) => {
     screen: StringParam,
   });
 
-  const { endpoint, schema, setSchema, setSchemaLoading } = useAppContext();
+  const { endpoint, schema, setSchema, setSchemaLoading, setSchemaError, urlMismatch } = useAppContext();
 
   const { screen } = queryParams;
 
@@ -150,27 +150,70 @@ const Router = (props) => {
 
     const remoteQuery = getIntrospectionQuery();
 
-    const querySucccess = (res) => {
-        const clientSchema = res?.data ? buildClientSchema(res.data) : null;
-        if (clientSchema !== schema) {
-          setSchema(clientSchema);
-        }
+    const querySuccess = (res) => {
+      // Check if response contains errors
+      if (res?.errors?.length > 0) {
+        const errorMessage = res.errors.map((e) => e.message).join("; ");
+        console.error(`GraphQL introspection errors: ${errorMessage}`);
+        setSchemaError({
+          message: errorMessage,
+          type: "graphql",
+          urlMismatch,
+        });
         setSchemaLoading(false);
+        return;
       }
 
-    const queryFailure = (res) => {
-      console.error(`Failure running getIntrospectionQuery: ${JSON.stringify(res, null, 2)}`);
+      const clientSchema = res?.data ? buildClientSchema(res.data) : null;
+      if (clientSchema !== schema) {
+        setSchema(clientSchema);
+        setSchemaError(null);
+      }
       setSchemaLoading(false);
-    }
+    };
+
+    const queryFailure = (error) => {
+      console.error(`Failure running getIntrospectionQuery:`, error);
+
+      // Extract error message
+      let errorMessage = "Failed to load schema";
+      let errorType = "network";
+
+      if (error?.networkError) {
+        // Network errors (CORS, connection refused, etc.)
+        if (error.networkError.result?.errors) {
+          // Server returned an error response (like 403)
+          errorMessage = error.networkError.result.errors
+            .map((e) => e.message)
+            .join("; ");
+          errorType = "auth";
+        } else if (error.networkError.message) {
+          errorMessage = error.networkError.message;
+        }
+      } else if (error?.graphQLErrors?.length > 0) {
+        errorMessage = error.graphQLErrors.map((e) => e.message).join("; ");
+        errorType = "graphql";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      setSchemaError({
+        message: errorMessage,
+        type: errorType,
+        urlMismatch,
+      });
+      setSchemaLoading(false);
+    };
 
     setSchemaLoading(true);
+    setSchemaError(null);
     client(endpoint)
-        .query({
-          query: gql`
+      .query({
+        query: gql`
           ${remoteQuery}
         `,
-        })
-        .then(querySucccess, queryFailure);
+      })
+      .then(querySuccess, queryFailure);
   }, [endpoint]);
 
   const getActiveScreenName = () => {

@@ -19,6 +19,7 @@
 		"format": "wp-scripts format",
 		"start": "turbo run start",
 		"test": "turbo run test",
+		"test:scripts": "node scripts/update-upgrade-notice.test.js",
 		"lint": "turbo run lint",
 		"zip": "turbo run zip",
 		"zip:wp-graphql": "composer -d plugins/wp-graphql run-script build-plugin",
