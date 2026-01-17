@@ -75,7 +75,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+    env:
+      # Disable npm lifecycle scripts and husky - this job only needs bash
+      HUSKY: 0
+      npm_config_ignore_scripts: true
     steps:
+      # Checkout needed because GitHub Actions auto-runs npm for PRs with package.json changes
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            package.json
+            package-lock.json
+          sparse-checkout-cone-mode: false
+
       - name: Set matrix
         id: set-matrix
         run: |
