@@ -17,7 +17,7 @@ updates:
         update-types: [major]
 
   # NPM: 1x weekly for minor/patch, 1x monthly for major.
-  - package-ecosystem: 'composer'
+  - package-ecosystem: 'npm'
     directories:
       - '/'
       # @todo add other plugin directories when their dependency trees are stabilized.
