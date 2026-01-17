@@ -76,14 +76,16 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     env:
-      # Disable husky hooks during this job - no node_modules installed
+      # Disable all npm/node behaviors - this job doesn't need node
       HUSKY: 0
+      npm_config_ignore_scripts: true
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            package.json
+            .gitignore
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
