@@ -21,10 +21,6 @@
 				"./plugins/wp-graphql",
 				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
 			],
-			"themes": [
-				"https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip",
-				"https://downloads.wordpress.org/theme/twentytwentyfive.latest-stable.zip"
-			],
 			"config": {
 				"FS_METHOD": "direct"
 			},
