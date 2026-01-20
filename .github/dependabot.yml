@@ -40,7 +40,8 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
-      npm-major:
+      npm-dev-major:
+        dependency-type: 'development'
         update-types: [major]
 
   # GitHub Actions: 1x weekly.
