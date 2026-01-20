@@ -171,7 +171,7 @@ jobs:
             echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
 
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
             show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
             persist-credentials: false
@@ -189,7 +189,7 @@ jobs:
           working-directory: plugins/wp-graphql
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
             cache: 'npm'
             node-version-file: '.nvmrc'
@@ -252,7 +252,7 @@ jobs:
 
       - name: Upload test failure artifacts
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
             name: test-failures-php${{ matrix.php }}-wp${{ matrix.wp }}${{ matrix.multisite && '-multisite' || '' }}
             path: plugins/wp-graphql/tests/_output/*.fail.html
@@ -266,7 +266,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ matrix.coverage }}
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
             files: plugins/wp-graphql/tests/_output/coverage.xml
             flags: wpunit,${{ matrix.theme }},${{ matrix.multisite && 'multisite' || 'single' }}
@@ -274,7 +274,7 @@ jobs:
 
       - name: Upload HTML coverage report as artifact
         if: ${{ matrix.coverage }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
             name: wp-code-coverage-${{ matrix.php }}-${{ matrix.wp }}-${{ matrix.theme }}-${{ matrix.multisite && 'multisite' || 'single' }}
             path: plugins/wp-graphql/tests/_output/html
