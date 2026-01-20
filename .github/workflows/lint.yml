@@ -1,0 +1,38 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths:
+      - ".github/workflows/lint-reusable.yml"
+      - ".github/workflows/lint.yml"
+      - "bin/**"
+      - "plugins/**"
+      - ".nvmrc"
+      - "package.json"
+      - "package-lock.json"
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        # @todo: source this from .release-please-config.json after the other plugins are migrated.
+        plugin: ["wp-graphql"]
+    uses: ./.github/workflows/lint-reusable.yml
+    with:
+      plugin_path: plugins/${{ matrix.plugin }}
+      plugin_name: ${{ matrix.plugin }}

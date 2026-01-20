@@ -4,45 +4,39 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ## Code Quality & Testing
 
-### 1. Code Quality Checks (`code-quality.yml`)
+### 1. Code Quality Checks (`lint.yml` and `lint-reusable.yml`)
+- Checks for:
+  - WordPress Coding Standards compliance using PHPCS
+  - Static type and error checking with PHPStan
+- `lint.yml` triggers the reusable workflow defined in `lint-reusable.yml` for each plugin in the matrix.
 
-- Runs static analysis and code quality checks (PHPStan)
-- Ensures code meets quality standards
-- Identifies potential issues and improvements
-
-### 2. WordPress Coding Standards (`wordpress-coding-standards.yml`)
-
-- Validates code against WordPress Coding Standards
-- Ensures consistent code style across the project
-- Runs PHPCS with WordPress-specific ruleset
-
-### 3. Schema Linting (`schema-linter.yml`)
+### 2. Schema Linting (`schema-linter.yml`)
 
 - Validates GraphQL schema structure
 - Ensures schema follows GraphQL best practices
 - Compares schema against previous releases to detect breaking changes
 
-### 4. Testing Integration (`testing-integration.yml`)
+### 3. Testing Integration (`testing-integration.yml`)
 
 - Runs comprehensive integration tests via Codeception
 - Tests across multiple PHP and WordPress versions
 - Uses "boundary testing" approach for efficiency (~8 jobs for PRs, ~18 for merges)
 - Collects code coverage from multiple configurations
 
-### 5. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
+### 4. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
 
 - End-to-end testing of GraphiQL interface using Playwright
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 6. Smoke Test (`smoke-test.yml`)
+### 5. Smoke Test (`smoke-test.yml`)
 
 - Validates the production zip artifact works correctly
 - Builds the plugin zip (same as release process)
 - Installs it in a clean WordPress environment
 - Runs smoke tests to verify core functionality
 
-### 7. CodeQL Analysis (`codeql-analysis.yml`)
+### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
 - Performs security analysis
 - Identifies potential vulnerabilities
@@ -108,19 +102,19 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 flowchart TD
     %% PR Process
     PR[PR Created] --> LPR[Lint PR Title]
-    LPR --> QA[Quality Checks]
-    QA --> Tests[Run Tests]
+    PR --> QA[Quality Checks]
 
     %% Quality Checks
-    QA --> CQ[Code Quality]
-    QA --> WCS[WP Coding Standards]
+    QA --> Lint[Lint Code]
     QA --> SL[Schema Linter]
     QA --> SEC[Security Analysis]
     QA --> SM[Smoke Test]
+    QA --> INT[Integration Tests]
+    QA --> E2E[GraphiQL E2E Tests]
 
-    %% Tests
-    Tests --> INT[Integration Tests]
-    Tests --> E2E[GraphiQL E2E]
+    %% Linting
+    Lint --> CS["PHPCS (WP Coding Standards)"]
+    Lint --> STAN[PHPStan]
 
     %% Merge and Release
     PR --> |Squash Merged| MAIN[main branch]
