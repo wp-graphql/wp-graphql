@@ -24,7 +24,7 @@ jobs:
       any_changed_phpstan: ${{ steps.changed-files-phpstan.outputs.any_changed }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -141,7 +141,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
