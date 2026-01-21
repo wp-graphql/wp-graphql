@@ -257,7 +257,7 @@ final class WPGraphQL {
 	}
 
 	/**
-	 * Registers WPCLI commands.
+	 * Registers WP-CLI commands.
 	 *
 	 * @since x-release-please-version
 	 */
