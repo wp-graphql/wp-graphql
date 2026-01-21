@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class - WPGraphQL_CLI_Command
  *
  * @deprecated since x-release-please-version Use \WPGraphQL\CLI\Commands instead.
+ * @codeCoverageIgnore
  */
 class WPGraphQL_CLI_Command extends \WPGraphQL\CLI\Commands {
 
