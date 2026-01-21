@@ -151,10 +151,6 @@ function graphql_cannot_load_admin_notice_callback(): void {
 	);
 }
 
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once plugin_dir_path( __FILE__ ) . 'cli/wp-cli.php';
-}
-
 /**
  * Initialize the plugin tracker.
  */
