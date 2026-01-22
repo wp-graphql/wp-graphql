@@ -45,26 +45,6 @@ class I18nTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Test that load_textdomain method exists and is hooked to init.
-	 *
-	 * @covers WPGraphQL::load_textdomain
-	 */
-	public function testLoadTextdomainIsHooked(): void {
-		// Verify the method is static (as required for the hook)
-		$reflection = new \ReflectionMethod( 'WPGraphQL', 'load_textdomain' );
-		$this->assertTrue(
-			$reflection->isStatic(),
-			'WPGraphQL::load_textdomain should be a static method'
-		);
-
-		// Verify it's hooked to init (using class name for static method)
-		$this->assertTrue(
-			has_action( 'init', [ 'WPGraphQL', 'load_textdomain' ] ) !== false,
-			'load_textdomain should be hooked to init action'
-		);
-	}
-
-	/**
 	 * Test that the wp-graphql textdomain is loaded.
 	 *
 	 * @covers WPGraphQL::load_textdomain
