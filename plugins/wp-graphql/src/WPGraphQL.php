@@ -83,6 +83,7 @@ final class WPGraphQL {
 			self::$instance->filters();
 			self::$instance->upgrade();
 			self::$instance->deprecated();
+			self::$instance->commands();
 		}
 
 		/**
@@ -253,6 +254,19 @@ final class WPGraphQL {
 
 		// Initialize Update functionality.
 		( new \WPGraphQL\Admin\Updates\Updates() )->init();
+	}
+
+	/**
+	 * Registers WP-CLI commands.
+	 *
+	 * @since x-release-please-version
+	 */
+	private function commands(): void {
+		if ( ! class_exists( 'WP_CLI' ) || ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+			return;
+		}
+
+		\WP_CLI::add_command( 'graphql', \WPGraphQL\CLI\Commands::class );
 	}
 
 	/**
