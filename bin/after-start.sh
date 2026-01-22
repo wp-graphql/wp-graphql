@@ -62,35 +62,35 @@ install_pcov() {
 configure_apache() {
 	local ENV_NAME="$1"
 
-	echo "Configuring Apache for $container..."
+	echo "Configuring Apache for $ENV_NAME..."
 	
 	# Set ServerName to prevent Apache warnings (matches old Docker setup)
-	if ! docker compose exec -T $container grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null; then
+	if ! docker compose exec -T $ENV_NAME grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null; then
 		echo "Setting ServerName localhost..."
-		docker compose exec -T -u root $container bash -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
+		docker compose exec -T -u root $ENV_NAME bash -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
 	fi
 	
 	# Ensure mod_setenvif is enabled (required for SetEnvIf directive)
 	echo "Enabling mod_setenvif..."
-	docker compose exec -T -u root $container a2enmod setenvif 2>/dev/null || echo "mod_setenvif already enabled or failed"
+	docker compose exec -T -u root $ENV_NAME a2enmod setenvif 2>/dev/null || echo "mod_setenvif already enabled or failed"
 	
 	# Enable HTTP Authorization header passthrough
 	# This must be in Apache's main config, not .htaccess (matches old Docker setup)
 	# See: https://github.com/wp-graphql/wp-graphql/pull/3448
-	if ! docker compose exec -T $container grep -q "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf 2>/dev/null; then
+	if ! docker compose exec -T $ENV_NAME grep -q "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf 2>/dev/null; then
 		echo "Adding SetEnvIf directive to Apache config..."
-		docker compose exec -T -u root $container bash -c 'echo "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1" >> /etc/apache2/apache2.conf'
+		docker compose exec -T -u root $ENV_NAME bash -c 'echo "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1" >> /etc/apache2/apache2.conf'
 	else
 		echo "Authorization header passthrough already configured."
 	fi
 	
 	# Reload Apache to apply changes
 	echo "Reloading Apache..."
-	docker compose exec -T -u root $container apache2ctl graceful
+	docker compose exec -T -u root $ENV_NAME apache2ctl graceful
 	
 	# Verify config
 	echo "Verifying Apache config:"
-	docker compose exec -T $container grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
+	docker compose exec -T $ENV_NAME grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
 }
 
 # Fix internal Docker URL resolution for acceptance/functional tests
