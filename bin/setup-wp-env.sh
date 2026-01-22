@@ -178,10 +178,10 @@ create_url_fix_mu_plugin
 # Get install Path for docker compose commands
 cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
-# Configure Apache (matches old Docker setup)
-for container in tests-wordpress wordpress; do
-	configure_apache "$container"
-done
+# Configure Apache (in parallel) to match old Docker setup
+configure_apache "tests-wordpress" &
+configure_apache "wordpress" &
+wait
 
 # Wait for Apache to stabilize after config changes
 echo "Waiting for Apache to stabilize..."
