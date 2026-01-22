@@ -7,22 +7,19 @@
 # in .wp-env.json when `npm run wp-env start` is executed.
 # It is triggered by bin/after-start.sh.
 
-# Setups a plugin
+# Setups a plugin.
+# Expects to be run from the plugin root directory.
+#
 # Arguments:
 #   $1 - Plugin slug (directory name under wp-content/plugins)
 setup_plugin() {
 	local plugin_slug=$1
-	local plugin_path="wp-content/plugins/${plugin_slug}"
-	local current_dir=$(pwd)
 
 	echo "Setting up plugin: ${plugin_slug}"
 
 	# Install Composer dependencies for the plugin
 	echo "Installing Composer dependencies for ${plugin_slug}..."
-	cd "$plugin_path" || exit 1
 	composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
-
-	cd "$current_dir" || exit 1
 }
 
 # Sets up WordPress environment
