@@ -35,8 +35,8 @@ on:
         required: false
         type: boolean
         default: false
-      redeploy_version:
-        description: "Re-deploy an existing release (e.g., wp-graphql/v2.7.0 or 2.7.0). Leave empty to run normal release-please workflow."
+      redeploy_tag:
+        description: "Re-deploy an existing release using full tag format (e.g., wp-graphql/v2.7.0). Leave empty to run normal release-please workflow."
         required: false
         type: string
         default: ""
@@ -48,16 +48,14 @@ permissions:
 jobs:
   release-please:
     name: Release Please
-    if: github.event.inputs.redeploy_version == '' || github.event_name != 'workflow_dispatch'
+    if: github.event.inputs.redeploy_tag == '' || github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
-      wp-graphql--release_created: ${{ steps.release.outputs['plugins/wp-graphql--release_created'] }}
-      wp-graphql--tag_name: ${{ steps.release.outputs['plugins/wp-graphql--tag_name'] }}
-      wp-graphql--version: ${{ steps.release.outputs['plugins/wp-graphql--version'] }}
-      wp-graphql--major: ${{ steps.release.outputs['plugins/wp-graphql--major'] }}
-      wp-graphql--minor: ${{ steps.release.outputs['plugins/wp-graphql--minor'] }}
-      wp-graphql--patch: ${{ steps.release.outputs['plugins/wp-graphql--patch'] }}
+      # Output all release-please outputs for dynamic component detection
+      release_outputs: ${{ toJSON(steps.release.outputs) }}
+      # Components that had releases created
+      components: ${{ steps.components.outputs.components }}
     steps:
       - name: Run release-please
         uses: googleapis/release-please-action@v4
@@ -67,65 +65,155 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      - name: Detect components with releases
+        id: components
+        run: |
+          echo "=== DETECTING COMPONENTS WITH RELEASES ==="
+          COMPONENTS=""
+          
+          # Parse release-please outputs to find components with releases_created == 'true'
+          # Output format: plugins/{package}--release_created
+          for key in $(echo '${{ toJSON(steps.release.outputs) }}' | jq -r 'keys[]'); do
+            if [[ "$key" == *"--release_created" ]]; then
+              # Extract package path (e.g., plugins/wp-graphql)
+              PACKAGE_PATH=$(echo "$key" | sed 's/--release_created$//')
+              RELEASE_CREATED=$(echo '${{ toJSON(steps.release.outputs) }}' | jq -r ".[\"$key\"]")
+              
+              if [[ "$RELEASE_CREATED" == "true" ]]; then
+                # Extract component name from package path (e.g., wp-graphql from plugins/wp-graphql)
+                COMPONENT=$(echo "$PACKAGE_PATH" | sed 's|plugins/||')
+                if [[ -z "$COMPONENTS" ]]; then
+                  COMPONENTS="$COMPONENT"
+                else
+                  COMPONENTS="$COMPONENTS $COMPONENT"
+                fi
+                echo "Found release for component: $COMPONENT (package: $PACKAGE_PATH)"
+              fi
+            fi
+          done
+          
+          if [[ -z "$COMPONENTS" ]]; then
+            echo "No components with releases found"
+            echo "components=" >> $GITHUB_OUTPUT
+          else
+            echo "Components to deploy: $COMPONENTS"
+            # Convert to JSON array for matrix
+            COMPONENTS_JSON=$(echo "$COMPONENTS" | tr ' ' '\n' | jq -R . | jq -s .)
+            echo "components=$COMPONENTS_JSON" >> $GITHUB_OUTPUT
+            echo "components_list=$COMPONENTS" >> $GITHUB_OUTPUT
+          fi
+          echo "=============================="
+
       - name: Debug release-please outputs
         if: ${{ inputs.debug || github.event_name == 'workflow_dispatch' }}
         run: |
           echo "=== RELEASE PLEASE OUTPUTS ==="
           echo "releases_created: ${{ steps.release.outputs.releases_created }}"
-          echo "wp-graphql--release_created: ${{ steps.release.outputs['plugins/wp-graphql--release_created'] }}"
-          echo "wp-graphql--tag_name: ${{ steps.release.outputs['plugins/wp-graphql--tag_name'] }}"
-          echo "wp-graphql--version: ${{ steps.release.outputs['plugins/wp-graphql--version'] }}"
+          echo "Components with releases: ${{ steps.components.outputs.components_list }}"
           echo "=============================="
 
-  deploy-wp-graphql:
-    name: Deploy WPGraphQL to WordPress.org
+  detect-deploy-components:
+    name: Detect Components to Deploy
     needs: release-please
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      components: ${{ steps.detect.outputs.components }}
+    steps:
+      - name: Detect components for deployment
+        id: detect
+        run: |
+          if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
+            # Re-deploy: extract component from full tag format (e.g., wp-graphql/v2.7.0)
+            TAG="${{ github.event.inputs.redeploy_tag }}"
+            
+            if [[ "$TAG" != *"/"* ]]; then
+              echo "::error::redeploy_tag must be in full format: component/vX.Y.Z (e.g., wp-graphql/v2.7.0)"
+              exit 1
+            fi
+            
+            COMPONENT=$(echo "$TAG" | sed 's|/v.*||')
+            echo "Re-deploying component: $COMPONENT (tag: $TAG)"
+            echo "components=[\"$COMPONENT\"]" >> $GITHUB_OUTPUT
+          else
+            # New release: use components detected from release-please
+            COMPONENTS="${{ needs.release-please.outputs.components }}"
+            if [[ -n "$COMPONENTS" && "$COMPONENTS" != "null" && "$COMPONENTS" != "" ]]; then
+              echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+            else
+              echo "No components to deploy"
+              echo "components=[]" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  deploy-plugin:
+    name: Deploy ${{ matrix.component }} to WordPress.org
+    needs: [release-please, detect-deploy-components]
     if: |
       always() &&
       (
-        (needs.release-please.result == 'success' && needs.release-please.outputs['wp-graphql--release_created'] == 'true') ||
-        (github.event_name == 'workflow_dispatch' && github.event.inputs.redeploy_version != '')
+        (needs.release-please.result == 'success' && needs.detect-deploy-components.outputs.components != '[]') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.redeploy_tag != '')
       )
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: ${{ fromJSON(needs.detect-deploy-components.outputs.components) }}
     steps:
-      - name: Determine version and tag
-        id: version_info
+      - name: Determine version, tag, and component info
+        id: plugin_info
         run: |
-          if [[ "${{ github.event.inputs.redeploy_version }}" != "" ]]; then
-            INPUT="${{ github.event.inputs.redeploy_version }}"
+          COMPONENT="${{ matrix.component }}"
+          PACKAGE_PATH="plugins/${COMPONENT}"
+          
+          if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
+            # Re-deploy: extract version from full tag format (e.g., wp-graphql/v2.7.0)
+            TAG="${{ github.event.inputs.redeploy_tag }}"
+            VERSION=$(echo "$TAG" | sed 's|.*/v\?||')
             
-            # Check if input is already a full tag (contains /)
-            if [[ "$INPUT" == *"/"* ]]; then
-              # Full tag format (e.g., wp-graphql/v2.7.0)
-              TAG="$INPUT"
-              # Extract version by removing component/v prefix
-              VERSION=$(echo "$TAG" | sed 's|.*/v\?||')
-            else
-              # Just version number (e.g., 2.7.0 or v2.7.0)
-              VERSION="$INPUT"
-              # Remove 'v' prefix if present
-              VERSION="${VERSION#v}"
-              # Construct full tag (assumes wp-graphql for now, but could be made configurable)
-              TAG="wp-graphql/v${VERSION}"
+            # Verify component matches matrix
+            COMPONENT_FROM_TAG=$(echo "$TAG" | sed 's|/v.*||')
+            if [[ "$COMPONENT_FROM_TAG" != "$COMPONENT" ]]; then
+              echo "::warning::Component mismatch: tag has $COMPONENT_FROM_TAG but matrix has $COMPONENT"
             fi
             
             echo "version=${VERSION}" >> $GITHUB_OUTPUT
             echo "tag_name=${TAG}" >> $GITHUB_OUTPUT
             echo "is_redeploy=true" >> $GITHUB_OUTPUT
-            echo "Re-deploying version: ${VERSION} (tag: ${TAG})"
+            echo "package_path=${PACKAGE_PATH}" >> $GITHUB_OUTPUT
+            echo "Re-deploying: ${COMPONENT} v${VERSION} (tag: ${TAG})"
           else
-            VERSION="${{ needs.release-please.outputs['wp-graphql--version'] }}"
-            TAG="${{ needs.release-please.outputs['wp-graphql--tag_name'] }}"
+            # New release: get from release-please outputs
+            PACKAGE_KEY="plugins/${COMPONENT}"
+            VERSION_KEY="${PACKAGE_KEY}--version"
+            TAG_KEY="${PACKAGE_KEY}--tag_name"
+            
+            # Parse from release-please outputs JSON
+            RELEASE_OUTPUTS='${{ needs.release-please.outputs.release_outputs }}'
+            VERSION=$(echo "$RELEASE_OUTPUTS" | jq -r ".[\"$VERSION_KEY\"] // empty")
+            TAG=$(echo "$RELEASE_OUTPUTS" | jq -r ".[\"$TAG_KEY\"] // empty")
+            
+            if [[ -z "$VERSION" || -z "$TAG" ]]; then
+              echo "::error::Could not find version/tag for component $COMPONENT in release-please outputs"
+              exit 1
+            fi
+            
             echo "version=${VERSION}" >> $GITHUB_OUTPUT
             echo "tag_name=${TAG}" >> $GITHUB_OUTPUT
             echo "is_redeploy=false" >> $GITHUB_OUTPUT
-            echo "Deploying new release: ${VERSION} (tag: ${TAG})"
+            echo "package_path=${PACKAGE_PATH}" >> $GITHUB_OUTPUT
+            echo "Deploying new release: ${COMPONENT} v${VERSION} (tag: ${TAG})"
           fi
+          
+          echo "Component: $COMPONENT"
+          echo "Package path: $PACKAGE_PATH"
+          echo "Version: ${{ steps.plugin_info.outputs.version }}"
+          echo "Tag: ${{ steps.plugin_info.outputs.tag_name }}"
 
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          ref: ${{ steps.version_info.outputs.is_redeploy == 'true' && steps.version_info.outputs.tag_name || 'main' }}
+          ref: ${{ steps.plugin_info.outputs.is_redeploy == 'true' && steps.plugin_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
 
       - name: Setup PHP
@@ -144,39 +232,81 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y subversion
 
       - name: Install PHP dependencies
-        working-directory: plugins/wp-graphql
+        working-directory: ${{ steps.plugin_info.outputs.package_path }}
         run: composer install --no-dev --optimize-autoloader
 
       - name: Install Node dependencies and build
         run: |
           npm ci
-          npm run -w @wpgraphql/wp-graphql build
+          # Try to build the specific component
+          # First, try to detect the workspace name from the plugin's package.json
+          PLUGIN_DIR="${{ steps.plugin_info.outputs.package_path }}"
+          COMPONENT="${{ matrix.component }}"
+          
+          if [[ -f "${PLUGIN_DIR}/package.json" ]]; then
+            # Try to extract workspace name from package.json
+            WORKSPACE_NAME=$(cat "${PLUGIN_DIR}/package.json" | jq -r '.name // empty' 2>/dev/null || echo "")
+            
+            if [[ -n "$WORKSPACE_NAME" ]]; then
+              echo "📦 Detected workspace name: ${WORKSPACE_NAME}"
+              if npm run -w "${WORKSPACE_NAME}" build; then
+                echo "✅ Built using workspace: ${WORKSPACE_NAME}"
+              else
+                echo "⚠️  Workspace build failed, trying fallback methods..."
+                # Fallback: try common workspace pattern
+                if npm run -w "@wpgraphql/${COMPONENT}" build 2>/dev/null; then
+                  echo "✅ Built using @wpgraphql/${COMPONENT} workspace"
+                else
+                  echo "⚠️  No matching workspace found - skipping build step"
+                fi
+              fi
+            else
+              # No workspace name in package.json, try common pattern
+              echo "📦 No workspace name in package.json, trying @wpgraphql/${COMPONENT}"
+              if npm run -w "@wpgraphql/${COMPONENT}" build 2>/dev/null; then
+                echo "✅ Built using @wpgraphql/${COMPONENT} workspace"
+              else
+                echo "⚠️  No matching workspace found - skipping build step"
+              fi
+            fi
+          else
+            echo "⚠️  No package.json found in ${PLUGIN_DIR} - skipping build step"
+          fi
 
       - name: Create clean build directory for deployment
-        working-directory: plugins/wp-graphql
+        working-directory: ${{ steps.plugin_info.outputs.package_path }}
         run: |
-          echo "📦 Creating clean build directory using .distignore..."
+          COMPONENT="${{ matrix.component }}"
+          PLUGIN_DIR="${{ steps.plugin_info.outputs.package_path }}"
+          BUILD_DIR="../../plugin-build/${COMPONENT}"
+          
+          echo "📦 Creating clean build directory for ${COMPONENT} using .distignore..."
           echo "This ensures only production files are included (respects .distignore)"
           
-          # Create the build directory (same as zip script does)
-          mkdir -p ../../plugin-build/wp-graphql
+          # Create the build directory
+          mkdir -p "${BUILD_DIR}"
           
-          # Use rsync with .distignore to create a clean copy (same as zip script)
+          # Use rsync with .distignore to create a clean copy
           # This respects .distignore and excludes node_modules, packages, etc.
-          rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wp-graphql/ --delete --delete-excluded -v
+          if [[ -f ".distignore" ]]; then
+            rsync -rc --exclude-from=.distignore --exclude=plugin-build . "${BUILD_DIR}/" --delete --delete-excluded -v
+          else
+            echo "⚠️  Warning: .distignore not found in ${PLUGIN_DIR}, copying all files"
+            rsync -rc --exclude=plugin-build . "${BUILD_DIR}/" --delete --delete-excluded -v
+          fi
           
-          echo "✅ Clean build directory created at plugin-build/wp-graphql"
+          echo "✅ Clean build directory created at ${BUILD_DIR}"
           echo "📋 Verifying no node_modules in build directory..."
-          if find ../../plugin-build/wp-graphql -type d -name "node_modules" 2>/dev/null | grep -q .; then
+          if find "${BUILD_DIR}" -type d -name "node_modules" 2>/dev/null | grep -q .; then
             echo "⚠️  Warning: node_modules found in build directory!"
-            find ../../plugin-build/wp-graphql -type d -name "node_modules" 2>/dev/null | head -5
+            find "${BUILD_DIR}" -type d -name "node_modules" 2>/dev/null | head -5
             exit 1
           else
             echo "✅ No node_modules found in build directory"
           fi
           
           echo "📦 Files in build directory:"
-          ls -la ../../plugin-build/wp-graphql | head -20
+          ls -la "${BUILD_DIR}" | head -20
 
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
@@ -184,35 +314,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SLUG: wp-graphql
-          BUILD_DIR: plugin-build/wp-graphql
-          VERSION: ${{ steps.version_info.outputs.version }}
+          SLUG: ${{ matrix.component }}
+          BUILD_DIR: plugin-build/${{ matrix.component }}
+          VERSION: ${{ steps.plugin_info.outputs.version }}
 
       - name: Create plugin zip artifact
         run: |
           cd plugin-build
-          zip -r wp-graphql.zip wp-graphql
+          zip -r ${{ matrix.component }}.zip ${{ matrix.component }}
 
       - name: Upload artifact to workflow
         uses: actions/upload-artifact@v6
         with:
-          name: wp-graphql
-          path: plugin-build/wp-graphql.zip
+          name: ${{ matrix.component }}
+          path: plugin-build/${{ matrix.component }}.zip
 
       - name: Upload artifact to release
-        if: steps.version_info.outputs.is_redeploy == 'false'
+        if: steps.plugin_info.outputs.is_redeploy == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version_info.outputs.tag_name }}
-          files: plugin-build/wp-graphql.zip
+          tag_name: ${{ steps.plugin_info.outputs.tag_name }}
+          files: plugin-build/${{ matrix.component }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release Summary
         run: |
           echo "=== RELEASE SUMMARY ==="
-          echo "Version: ${{ steps.version_info.outputs.version }}"
-          echo "Tag: ${{ steps.version_info.outputs.tag_name }}"
-          echo "Is Re-deploy: ${{ steps.version_info.outputs.is_redeploy }}"
+          echo "Component: ${{ matrix.component }}"
+          echo "Version: ${{ steps.plugin_info.outputs.version }}"
+          echo "Tag: ${{ steps.plugin_info.outputs.tag_name }}"
+          echo "Is Re-deploy: ${{ steps.plugin_info.outputs.is_redeploy }}"
           echo "Deployed to WordPress.org: ✅"
           echo "======================="
