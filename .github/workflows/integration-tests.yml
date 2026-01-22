@@ -103,12 +103,12 @@ jobs:
   # ===========================================
 
   # Job naming strategy:
-  # - Parent job name includes WP + PHP: "wp-graphql: WP 6.9 / PHP 8.4"
-  # - Child job name shows theme + modifiers: "twentytwentyfive (Coverage)"
-  # - GitHub concatenates these, giving: "wp-graphql: WP 6.9 / PHP 8.4 / twentytwentyfive (Coverage)"
-  # Note: GitHub's sidebar groups by parent job name, so version info appears there.
+  # - Parent job name: "Integration: plugin / WP X.X / PHP X.X"
+  # - Child job name: "PHP X.X - theme (modifiers)" (from reusable workflow)
+  # - Full name in branch protection: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / PHP 8.4 - twentytwentyfive 📊"
+  # Note: PHP is duplicated due to GitHub UI limitations with reusable workflow sidebar display.
   wp-graphql:
-    name: "wp-graphql: ${{ matrix.name }}"
+    name: "Integration: ${{ matrix.name }}"
     needs: detect-changes
     if: needs.detect-changes.outputs.wp-graphql == 'true' || github.event_name == 'workflow_dispatch'
     strategy:
@@ -116,53 +116,53 @@ jobs:
       matrix:
         include:
           # Coverage jobs: Latest WP/PHP with all theme × multisite combinations
-          - name: "WP 6.9 / PHP 8.4"
+          - name: "wp-graphql / WP 6.9 / PHP 8.4"
             php: "8.4"
             wp: "6.9"
             theme: twentytwentyfive
             multisite: false
             coverage: true
-          - name: "WP 6.9 / PHP 8.4"
+          - name: "wp-graphql / WP 6.9 / PHP 8.4"
             php: "8.4"
             wp: "6.9"
             theme: twentytwentyfive
             multisite: true
             coverage: true
-          - name: "WP 6.9 / PHP 8.4"
+          - name: "wp-graphql / WP 6.9 / PHP 8.4"
             php: "8.4"
             wp: "6.9"
             theme: twentytwentyone
             multisite: false
             coverage: true
-          - name: "WP 6.9 / PHP 8.4"
+          - name: "wp-graphql / WP 6.9 / PHP 8.4"
             php: "8.4"
             wp: "6.9"
             theme: twentytwentyone
             multisite: true
             coverage: true
           # Boundary: Current stable
-          - name: "WP 6.8 / PHP 8.3"
+          - name: "wp-graphql / WP 6.8 / PHP 8.3"
             php: "8.3"
             wp: "6.8"
             theme: twentytwentyfive
             multisite: false
             coverage: false
           # Boundary: Mid-range
-          - name: "WP 6.5 / PHP 8.1"
+          - name: "wp-graphql / WP 6.5 / PHP 8.1"
             php: "8.1"
             wp: "6.5"
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Boundary: Oldest supported
-          - name: "WP 6.1 / PHP 7.4"
+          - name: "wp-graphql / WP 6.1 / PHP 7.4"
             php: "7.4"
             wp: "6.1"
             theme: twentytwentyone
             multisite: false
             coverage: false
           # Experimental: WordPress trunk (allowed to fail)
-          - name: "WP trunk / PHP 8.4"
+          - name: "wp-graphql / WP trunk / PHP 8.4"
             php: "8.4"
             wp: trunk
             theme: twentytwentyfive

@@ -43,10 +43,10 @@ on:
 
 jobs:
   # Job naming strategy:
-  # The parent workflow sets name to "plugin: WP X.X / PHP X.X" (version info).
+  # The parent workflow sets name to "Integration: plugin / WP X.X / PHP X.X".
   # However, GitHub's sidebar only shows partial names for reusable workflow groups.
   # So we include PHP in the child job name too for visibility when expanded.
-  # Full header: "wp-graphql: WP 6.9 / PHP 8.4 / PHP 8.4 - twentytwentyfive 📊"
+  # Full header: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / PHP 8.4 - twentytwentyfive 📊"
   # Yes, PHP is duplicated, but this ensures it's visible somewhere in the UI.
   #
   # Runs integration tests for a WordPress plugin using Codeception.
