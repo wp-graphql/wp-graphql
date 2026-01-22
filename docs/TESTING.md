@@ -30,7 +30,7 @@ npm run wp-env start
 # With PCOV code coverage enabled
 PCOV_ENABLED=1 npm run wp-env start
 
-# With XDebug debugging enabled
+# With Xdebug debugging enabled
 npm run wp-env start -- --xdebug
 ```
 
