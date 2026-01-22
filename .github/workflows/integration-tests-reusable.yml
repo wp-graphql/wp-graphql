@@ -44,9 +44,9 @@ on:
 jobs:
   # Job naming strategy:
   # The parent workflow sets name to "Integration: plugin / WP X.X / PHP X.X".
-  # The child job name shows theme + modifiers (no PHP to avoid duplication).
-  # Full header: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / twentytwentyfive 📊"
-  # Note: GitHub's sidebar may not show all info, but header/branch protection will.
+  # The child job name includes WP version for sidebar visibility, then theme + modifiers.
+  # Full header: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / WP 6.9 / twentytwentyfive 📊"
+  # Note: WP version appears twice but ensures it's visible in GitHub's sidebar.
   #
   # Runs integration tests for a WordPress plugin using Codeception.
   #
@@ -60,7 +60,7 @@ jobs:
   # - Runs Acceptance, Functional, and WPUnit tests.
   # - Uploads test failure artifacts and code coverage reports.
   test:
-    name: "${{ inputs.theme }}${{ inputs.multisite && ' (Multisite)' || '' }}${{ inputs.coverage && ' 📊' || '' }}${{ inputs.experimental && ' 🧪' || '' }}"
+    name: "WP ${{ inputs.wp }} / ${{ inputs.theme }}${{ inputs.multisite && ' (Multisite)' || '' }}${{ inputs.coverage && ' 📊' || '' }}${{ inputs.experimental && ' 🧪' || '' }}"
     runs-on: ubuntu-24.04
     continue-on-error: ${{ inputs.experimental }}
     permissions:
