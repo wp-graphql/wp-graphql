@@ -19,7 +19,7 @@ setup_plugin() {
 
 	# Install Composer dependencies for the plugin
 	echo "Installing Composer dependencies for ${plugin_slug}..."
-	cd plugin_path || exit 1
+	cd "$plugin_path" || exit 1
 	composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
 
 	cd "$current_dir" || exit 1
