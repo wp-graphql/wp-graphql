@@ -36,7 +36,7 @@ on:
         type: boolean
         default: false
       redeploy_version:
-        description: "Re-deploy an existing release (e.g., 2.7.0). Leave empty to run normal release-please workflow."
+        description: "Re-deploy an existing release (e.g., wp-graphql/v2.7.0 or 2.7.0). Leave empty to run normal release-please workflow."
         required: false
         type: string
         default: ""
@@ -92,10 +92,23 @@ jobs:
         id: version_info
         run: |
           if [[ "${{ github.event.inputs.redeploy_version }}" != "" ]]; then
-            VERSION="${{ github.event.inputs.redeploy_version }}"
-            # Remove 'v' prefix if present
-            VERSION="${VERSION#v}"
-            TAG="wp-graphql/v${VERSION}"
+            INPUT="${{ github.event.inputs.redeploy_version }}"
+            
+            # Check if input is already a full tag (contains /)
+            if [[ "$INPUT" == *"/"* ]]; then
+              # Full tag format (e.g., wp-graphql/v2.7.0)
+              TAG="$INPUT"
+              # Extract version by removing component/v prefix
+              VERSION=$(echo "$TAG" | sed 's|.*/v\?||')
+            else
+              # Just version number (e.g., 2.7.0 or v2.7.0)
+              VERSION="$INPUT"
+              # Remove 'v' prefix if present
+              VERSION="${VERSION#v}"
+              # Construct full tag (assumes wp-graphql for now, but could be made configurable)
+              TAG="wp-graphql/v${VERSION}"
+            fi
+            
             echo "version=${VERSION}" >> $GITHUB_OUTPUT
             echo "tag_name=${TAG}" >> $GITHUB_OUTPUT
             echo "is_redeploy=true" >> $GITHUB_OUTPUT
