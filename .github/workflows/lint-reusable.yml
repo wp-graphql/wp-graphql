@@ -31,7 +31,7 @@ jobs:
 
       - name: Get changed files for PHPCS
         id: changed-files-phpcs
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             .github/workflows/lint-reusable.yml
@@ -43,7 +43,7 @@ jobs:
 
       - name: Get changed files for PHPStan
         id: changed-files-phpstan
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             .github/workflows/lint-reusable.yml
