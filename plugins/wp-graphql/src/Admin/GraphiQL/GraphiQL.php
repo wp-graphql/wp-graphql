@@ -371,6 +371,9 @@ class GraphiQL {
 			true
 		);
 
+		// Set up script translations for i18n
+		wp_set_script_translations( $handle, 'wp-graphql', WPGRAPHQL_PLUGIN_DIR . 'languages' );
+
 		// Enqueue the style if this asset has one
 		if ( ! empty( $config['has_style'] ) ) {
 			wp_enqueue_style(

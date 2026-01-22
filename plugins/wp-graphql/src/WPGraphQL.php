@@ -204,6 +204,9 @@ final class WPGraphQL {
 			}
 		);
 
+		// Load plugin textdomain for translations
+		add_action( 'init', [ self::class, 'load_textdomain' ], 0 );
+
 		// Initialize the plugin url constant
 		// see: https://developer.wordpress.org/reference/functions/plugins_url/#more-information
 		add_action( 'init', [ $this, 'setup_plugin_url' ] );
@@ -321,6 +324,19 @@ final class WPGraphQL {
 		if ( ! defined( 'WPGRAPHQL_PLUGIN_URL' ) ) {
 			define( 'WPGRAPHQL_PLUGIN_URL', plugin_dir_url( dirname( __DIR__ ) . '/wp-graphql.php' ) );
 		}
+	}
+
+	/**
+	 * Load the plugin textdomain for translations.
+	 *
+	 * @since 2.7.0
+	 */
+	public static function load_textdomain(): void {
+		load_plugin_textdomain(
+			'wp-graphql',
+			false,
+			dirname( plugin_basename( WPGRAPHQL_PLUGIN_FILE ) ) . '/languages/'
+		);
 	}
 
 	/**

@@ -124,6 +124,20 @@ npm run build
 npm run -w @wpgraphql/wp-graphql build
 ```
 
+## Internationalization (i18n)
+
+WPGraphQL supports internationalization. Translation files are in `plugins/wp-graphql/languages/`.
+
+```bash
+# Regenerate the POT file (extracts translatable strings from PHP)
+npm run -w @wpgraphql/wp-graphql i18n:pot
+
+# Generate JSON translation files for JavaScript (from PO files)
+npm run -w @wpgraphql/wp-graphql i18n:json
+```
+
+The POT file is automatically regenerated during releases via the `update-release-pr` workflow.
+
 ## Custom Environment Configuration
 
 Create a `.wp-env.override.json` file in the root to customize the environment:
