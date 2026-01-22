@@ -144,17 +144,6 @@ wait
 # Install the URL fix mu-plugin on tests-cli environment
 create_url_fix_mu_plugin
 
-# Install pdo_mysql extension in the tests-cli environment
-CONTAINER_ID="$(docker ps | grep tests-cli  | awk '{print $1}')"
-if [[ -n "$CONTAINER_ID" ]]; then
-	install_pdo_mysql "$CONTAINER_ID" "tests-cli"
-fi
-
-if [[ "$PCOV_ENABLED" == "1" ]]; then
-	# Install pcov extension in the tests-cli environment
-	install_pcov "tests-cli"
-fi
-
 # Get install Path for docker compose commands
 cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
@@ -185,3 +174,14 @@ echo "Verifying WordPress is responding:"
 docker compose exec -T tests-cli wp option get siteurl || echo "WARNING: WordPress not responding!"
 
 cd -
+
+# Install pdo_mysql extension in the tests-cli environment
+CONTAINER_ID="$(docker ps | grep tests-cli  | awk '{print $1}')"
+if [[ -n "$CONTAINER_ID" ]]; then
+	install_pdo_mysql "$CONTAINER_ID" "tests-cli"
+fi
+
+if [[ "$PCOV_ENABLED" == "1" ]]; then
+	# Install pcov extension in the tests-cli environment
+	install_pcov "tests-cli"
+fi

@@ -7,21 +7,6 @@
 # in .wp-env.json when `npm run wp-env start` is executed.
 # It is triggered by bin/after-start.sh.
 
-# Setups a plugin.
-# Expects to be run from the plugin root directory.
-#
-# Arguments:
-#   $1 - Plugin slug (directory name under wp-content/plugins)
-setup_plugin() {
-	local plugin_slug=$1
-
-	echo "Setting up plugin: ${plugin_slug}"
-
-	# Install Composer dependencies for the plugin
-	echo "Installing Composer dependencies for ${plugin_slug}..."
-	composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
-}
-
 # Sets up WordPress environment
 post_setup() {
 	echo "=== Setting up WPGraphQL development environment ==="
@@ -42,5 +27,4 @@ post_setup() {
 	rm -f /var/www/html/.maintenance 2>/dev/null || true
 }
 
-setup_plugin "wp-graphql"
 post_setup
