@@ -103,7 +103,7 @@ The `afterStart` lifecycle hook runs setup automatically:
 ```json
 {
   "lifecycleScripts": {
-    "afterStart": "bash bin/setup-wp-env.sh"
+    "afterStart": "bash bin/after-start.sh"
   }
 }
 ```

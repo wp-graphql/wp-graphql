@@ -118,7 +118,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            npm run wp-env start -- ${{ inputs.coverage && '--xdebug=coverage' || '' }} ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+            ${{ inputs.coverage && 'PCOV_ENABLED=1 ' || '' }}npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
 
       - name: Log versions
         run: |

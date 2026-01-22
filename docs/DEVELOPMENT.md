@@ -43,7 +43,8 @@ wp-graphql/
 │       ├── docs/             # User documentation (→ wpgraphql.com)
 │       └── package.json      # Plugin-specific npm config
 ├── bin/
-│   └── setup-wp-env.sh       # Shared environment setup script
+│   ├── after-start.sh        # Environment setup script for wp-env
+│   └── setup.sh              # Container setup script run by after-start.sh
 ├── docs/                     # Contributor documentation (this folder)
 ├── .wp-env.json              # WordPress environment config
 ├── package.json              # Root workspace config

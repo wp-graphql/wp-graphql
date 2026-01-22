@@ -27,10 +27,10 @@ Tests run inside Docker containers managed by `wp-env`. The test environment inc
 # Standard start
 npm run wp-env start
 
-# With code coverage enabled
-npm run wp-env start -- --xdebug=coverage
+# With PCOV code coverage enabled
+PCOV_ENABLED=1 npm run wp-env start
 
-# With debugging enabled
+# With XDebug debugging enabled
 npm run wp-env start -- --xdebug
 ```
 
@@ -97,7 +97,7 @@ Generate code coverage reports:
 
 ```bash
 # Start with coverage enabled
-npm run wp-env start -- --xdebug=coverage
+PCOV_ENABLED=1 npm run wp-env start
 
 # Run tests with coverage
 npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- --coverage --coverage-xml
