@@ -35,6 +35,11 @@ on:
         required: false
         type: boolean
         default: false
+      redeploy_version:
+        description: "Re-deploy an existing release (e.g., 2.7.0). Leave empty to run normal release-please workflow."
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -43,6 +48,7 @@ permissions:
 jobs:
   release-please:
     name: Release Please
+    if: github.event.inputs.redeploy_version == '' || github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
@@ -74,13 +80,39 @@ jobs:
   deploy-wp-graphql:
     name: Deploy WPGraphQL to WordPress.org
     needs: release-please
-    if: ${{ needs.release-please.outputs['wp-graphql--release_created'] == 'true' }}
+    if: |
+      always() &&
+      (
+        (needs.release-please.result == 'success' && needs.release-please.outputs['wp-graphql--release_created'] == 'true') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.redeploy_version != '')
+      )
     runs-on: ubuntu-latest
     steps:
+      - name: Determine version and tag
+        id: version_info
+        run: |
+          if [[ "${{ github.event.inputs.redeploy_version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.redeploy_version }}"
+            # Remove 'v' prefix if present
+            VERSION="${VERSION#v}"
+            TAG="wp-graphql/v${VERSION}"
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "tag_name=${TAG}" >> $GITHUB_OUTPUT
+            echo "is_redeploy=true" >> $GITHUB_OUTPUT
+            echo "Re-deploying version: ${VERSION} (tag: ${TAG})"
+          else
+            VERSION="${{ needs.release-please.outputs['wp-graphql--version'] }}"
+            TAG="${{ needs.release-please.outputs['wp-graphql--tag_name'] }}"
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "tag_name=${TAG}" >> $GITHUB_OUTPUT
+            echo "is_redeploy=false" >> $GITHUB_OUTPUT
+            echo "Deploying new release: ${VERSION} (tag: ${TAG})"
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ${{ steps.version_info.outputs.is_redeploy == 'true' && steps.version_info.outputs.tag_name || 'main' }}
           fetch-depth: 0
 
       - name: Setup PHP
@@ -141,7 +173,7 @@ jobs:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
           BUILD_DIR: plugin-build/wp-graphql
-          VERSION: ${{ needs.release-please.outputs['wp-graphql--version'] }}
+          VERSION: ${{ steps.version_info.outputs.version }}
 
       - name: Create plugin zip artifact
         run: |
@@ -155,9 +187,10 @@ jobs:
           path: plugin-build/wp-graphql.zip
 
       - name: Upload artifact to release
+        if: steps.version_info.outputs.is_redeploy == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.release-please.outputs['wp-graphql--tag_name'] }}
+          tag_name: ${{ steps.version_info.outputs.tag_name }}
           files: plugin-build/wp-graphql.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -165,7 +198,8 @@ jobs:
       - name: Release Summary
         run: |
           echo "=== RELEASE SUMMARY ==="
-          echo "Version: ${{ needs.release-please.outputs['wp-graphql--version'] }}"
-          echo "Tag: ${{ needs.release-please.outputs['wp-graphql--tag_name'] }}"
+          echo "Version: ${{ steps.version_info.outputs.version }}"
+          echo "Tag: ${{ steps.version_info.outputs.tag_name }}"
+          echo "Is Re-deploy: ${{ steps.version_info.outputs.is_redeploy }}"
           echo "Deployed to WordPress.org: ✅"
           echo "======================="
