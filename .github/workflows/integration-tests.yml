@@ -104,9 +104,8 @@ jobs:
 
   # Job naming strategy:
   # - Parent job name: "Integration: plugin / WP X.X / PHP X.X"
-  # - Child job name: "PHP X.X - theme (modifiers)" (from reusable workflow)
-  # - Full name in branch protection: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / PHP 8.4 - twentytwentyfive 📊"
-  # Note: PHP is duplicated due to GitHub UI limitations with reusable workflow sidebar display.
+  # - Child job name: "theme (modifiers)" (from reusable workflow)
+  # - Full name in branch protection: "Integration: wp-graphql / WP 6.9 / PHP 8.4 / twentytwentyfive 📊"
   wp-graphql:
     name: "Integration: ${{ matrix.name }}"
     needs: detect-changes
