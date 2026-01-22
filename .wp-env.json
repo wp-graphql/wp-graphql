@@ -31,6 +31,6 @@
 		}
 	},
 	"lifecycleScripts": {
-		"afterStart": "bash bin/after-start.sh"
+		"afterStart": "bash bin/setup-wp-env.sh"
 	}
 }

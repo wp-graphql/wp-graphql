@@ -6,6 +6,33 @@
 # This script runs automatically via the afterStart lifecycle hook
 # in .wp-env.json when `npm run wp-env start` is executed.
 
+# Setups WordPress environments inside wp-env
+#
+# @ todo call inside container via afterStart when we have a clearer mono repo strategy.
+#
+# Arguments:
+#   $1 - wp-env Environment Name
+setup_wp() {
+	local ENV_NAME="$1"
+	echo "=== Setting up WPGraphQL development environment ==="
+
+	# Flush permalinks
+	npm run wp-env run $ENV_NAME -- wp rewrite structure /%postname%/ --hard
+	npm run wp-env run $ENV_NAME -- wp rewrite flush --hard
+
+	# Delete default WordPress content to ensure consistent test state
+	# The "Hello world!" post and default comment can interfere with test assertions
+	npm run wp-env run $ENV_NAME -- wp post delete 1 --force 2>/dev/null || true
+	npm run wp-env run $ENV_NAME -- wp comment delete 1 --force 2>/dev/null || true
+
+	# Explicitly deactivate maintenance mode if active
+	npm run wp-env run $ENV_NAME -- wp maintenance-mode deactivate 2>/dev/null || echo "Maintenance mode already inactive or command not available"
+
+	# Remove .maintenance file if it exists
+	npm run wp-env run $ENV_NAME -- bash -c 'rm -f /var/www/html/.maintenance 2>/dev/null || true'
+}
+
+
 # Install the pdo_mysql extension on the provided container
 # Arguments:
 #   $1 - Docker Container ID
@@ -134,11 +161,15 @@ echo "Installed URL fix mu-plugin"
 '
 }
 
+#============================================
+# Main Script Execution
+#============================================
+
 echo "=== Configuring wp-env for WPGraphQL ==="
 
-# Run the setup scripts for the plugins inside the wp-env environment in parallel
-(npm run wp-env run cli -- --env-cwd=wp-content/plugins/wp-graphql -- bash bin/setup.sh) &
-(npm run wp-env run tests-cli -- --env-cwd=wp-content/plugins/wp-graphql -- bash bin/setup.sh) &
+# Run setup_wp in parallel for both environments
+setup_wp "cli" &
+setup_wp "tests-cli" &
 wait
 
 # Install the URL fix mu-plugin on tests-cli environment
@@ -149,7 +180,7 @@ cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
 # Configure Apache (matches old Docker setup)
 for container in tests-wordpress wordpress; do
-	# configure_apache "$container"
+	configure_apache "$container"
 done
 
 # Wait for Apache to stabilize after config changes
