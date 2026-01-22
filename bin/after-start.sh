@@ -156,7 +156,7 @@ if [[ "$PCOV_ENABLED" == "1" ]]; then
 fi
 
 # Get install Path for docker compose commands
-cd $(npm run wp-env install-path)
+cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
 # Configure Apache (matches old Docker setup)
 for container in tests-wordpress wordpress; do
