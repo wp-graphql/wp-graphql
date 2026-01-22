@@ -107,6 +107,32 @@ jobs:
           npm ci
           npm run -w @wpgraphql/wp-graphql build
 
+      - name: Create clean build directory for deployment
+        working-directory: plugins/wp-graphql
+        run: |
+          echo "📦 Creating clean build directory using .distignore..."
+          echo "This ensures only production files are included (respects .distignore)"
+          
+          # Create the build directory (same as zip script does)
+          mkdir -p ../../plugin-build/wp-graphql
+          
+          # Use rsync with .distignore to create a clean copy (same as zip script)
+          # This respects .distignore and excludes node_modules, packages, etc.
+          rsync -rc --exclude-from=.distignore --exclude=plugin-build . ../../plugin-build/wp-graphql/ --delete --delete-excluded -v
+          
+          echo "✅ Clean build directory created at plugin-build/wp-graphql"
+          echo "📋 Verifying no node_modules in build directory..."
+          if find ../../plugin-build/wp-graphql -type d -name "node_modules" 2>/dev/null | grep -q .; then
+            echo "⚠️  Warning: node_modules found in build directory!"
+            find ../../plugin-build/wp-graphql -type d -name "node_modules" 2>/dev/null | head -5
+            exit 1
+          else
+            echo "✅ No node_modules found in build directory"
+          fi
+          
+          echo "📦 Files in build directory:"
+          ls -la ../../plugin-build/wp-graphql | head -20
+
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
@@ -114,15 +140,13 @@ jobs:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SLUG: wp-graphql
-          BUILD_DIR: plugins/wp-graphql
+          BUILD_DIR: plugin-build/wp-graphql
           VERSION: ${{ needs.release-please.outputs['wp-graphql--version'] }}
 
-      - name: Create artifact directory
-        run: mkdir -p plugin-build
-
-      - name: Create plugin artifact
-        working-directory: plugins/wp-graphql
-        run: composer run-script zip
+      - name: Create plugin zip artifact
+        run: |
+          cd plugin-build
+          zip -r wp-graphql.zip wp-graphql
 
       - name: Upload artifact to workflow
         uses: actions/upload-artifact@v6
