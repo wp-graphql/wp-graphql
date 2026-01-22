@@ -166,7 +166,8 @@ register_graphql_connection([
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `testing-integration.yml` | PR, Push | Run test suites |
+| `integration-tests.yml` | PR, Push | Run integration tests (uses reusable workflow) |
+| `integration-tests-reusable.yml` | Called by other workflows | Reusable integration test workflow |
 | `code-quality.yml` | PR, Push | PHPStan analysis |
 | `wordpress-coding-standards.yml` | PR, Push | PHPCS linting |
 | `schema-linter.yml` | PR, Push | GraphQL schema validation |
@@ -194,9 +195,9 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 When adding new plugins to the monorepo:
 
 1. Create directory in `plugins/`
-2. Add `package.json` with workspace name
+2. Add `package.json` with workspace name (e.g., `@wpgraphql/my-plugin`)
 3. Update `.wp-env.json` to include plugin
-4. Add to CI test matrix if needed
+4. Add integration tests workflow (see below)
 
 Example for WPGraphQL Smart Cache:
 ```
@@ -209,6 +210,24 @@ plugins/
     ├── composer.json
     └── package.json
 ```
+
+### Adding Integration Tests for a New Plugin
+
+To add integration tests for a new plugin, add a new job to `.github/workflows/integration-tests.yml` that calls the reusable workflow. Copy the existing `wp-graphql` job and update the plugin name/path.
+
+The reusable workflow (`integration-tests-reusable.yml`) handles all the test execution logic. Each plugin job just defines:
+- The test matrix (WP/PHP versions, themes, multisite)
+- Plugin path and name
+
+### Test Matrix Strategy
+
+We use "boundary testing" rather than testing every PHP × WP combination:
+
+- **Coverage jobs**: Latest WP/PHP with all theme × multisite combinations
+- **Boundary jobs**: Current stable, mid-range, oldest supported versions
+- **Experimental**: WordPress trunk (allowed to fail)
+
+If tests pass at version boundaries, they almost certainly pass for versions in between.
 
 ## Resources
 
