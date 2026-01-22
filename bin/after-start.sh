@@ -149,7 +149,7 @@ cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
 # Configure Apache (matches old Docker setup)
 for container in tests-wordpress wordpress; do
-	configure_apache "$container"
+	# configure_apache "$container"
 done
 
 # Wait for Apache to stabilize after config changes
