@@ -3,7 +3,7 @@
  * WPGraphQL CLI Commands
  *
  * @package WPGraphQL
- * @since x-release-please-version
+ * @since 2.7.0
  */
 
 namespace WPGraphQL\CLI;

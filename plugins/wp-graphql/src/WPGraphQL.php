@@ -259,7 +259,7 @@ final class WPGraphQL {
 	/**
 	 * Registers WP-CLI commands.
 	 *
-	 * @since x-release-please-version
+	 * @since 2.7.0
 	 */
 	private function commands(): void {
 		if ( ! class_exists( 'WP_CLI' ) || ! defined( 'WP_CLI' ) || ! WP_CLI ) {

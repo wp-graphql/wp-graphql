@@ -20,7 +20,7 @@ class ValidSinceTagSniff implements Sniff
      * @var array<string>
      */
     private $validPlaceholders = [
-        'x-release-please-version',
+        '2.7.0',
     ];
 
     public function __construct()
@@ -87,14 +87,14 @@ class ValidSinceTagSniff implements Sniff
         // Validate semver
         if (!$this->isValidSemver($version)) {
             $fix = $phpcsFile->addFixableError(
-                'Version for @since tag must be a valid semver version or "x-release-please-version" but got "%s"',
+                'Version for @since tag must be a valid semver version or "2.7.0" but got "%s"',
                 $versionPtr,
                 'InvalidVersion',
                 [$version]
             );
 
             if ($fix === true) {
-                $this->fixVersion($phpcsFile, $versionPtr, $version, 'x-release-please-version');
+                $this->fixVersion($phpcsFile, $versionPtr, $version, '2.7.0');
             }
         }
     }
