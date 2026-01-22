@@ -6,33 +6,119 @@
 # This script runs automatically via the afterStart lifecycle hook
 # in .wp-env.json when `npm run wp-env start` is executed.
 
-echo "=== Setting up WPGraphQL development environment ==="
+# Setups WordPress environments inside wp-env
+#
+# @ todo call inside container via afterStart when we have a clearer mono repo strategy.
+#
+# Arguments:
+#   $1 - wp-env Environment Name
+setup_wp() {
+	local ENV_NAME="$1"
+	echo "=== Setting up WPGraphQL development environment ==="
 
-# Install Composer dependencies for each plugin
-echo "Installing Composer dependencies for plugins..."
-npm run wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql/ -- composer install --no-interaction 2>/dev/null || echo "Composer install failed or already installed"
+	# Flush permalinks
+	npm run wp-env run $ENV_NAME -- wp rewrite structure /%postname%/ --hard
+	npm run wp-env run $ENV_NAME -- wp rewrite flush --hard
 
-## Flush permalinks
-npm run wp-env run cli -- wp rewrite structure /%postname%/ --hard
-npm run wp-env run tests-cli -- wp rewrite structure /%postname%/ --hard
+	# Delete default WordPress content to ensure consistent test state
+	# The "Hello world!" post and default comment can interfere with test assertions
+	npm run wp-env run $ENV_NAME -- wp post delete 1 --force 2>/dev/null || true
+	npm run wp-env run $ENV_NAME -- wp comment delete 1 --force 2>/dev/null || true
 
-npm run wp-env run cli -- wp rewrite flush --hard
-npm run wp-env run tests-cli  -- wp rewrite flush --hard
+	# Explicitly deactivate maintenance mode if active
+	npm run wp-env run $ENV_NAME -- wp maintenance-mode deactivate 2>/dev/null || echo "Maintenance mode already inactive or command not available"
 
-# Delete default WordPress content to ensure consistent test state
-# The "Hello world!" post and default comment can interfere with test assertions
-npm run wp-env run tests-cli -- wp post delete 1 --force 2>/dev/null || true
-npm run wp-env run tests-cli -- wp comment delete 1 --force 2>/dev/null || true
+	# Remove .maintenance file if it exists
+	npm run wp-env run $ENV_NAME -- bash -c 'rm -f /var/www/html/.maintenance 2>/dev/null || true'
+}
 
-# Auto-update constants are now set in tests/_data/config.php which is loaded
-# by Codeception's WPLoader. Setting them here in wp-config.php causes
-# "constant already defined" warnings since config.php loads first.
 
-# Explicitly deactivate maintenance mode if active (matches old Docker setup)
-npm run wp-env run tests-cli -- wp maintenance-mode deactivate 2>/dev/null || echo "Maintenance mode already inactive or command not available"
+# Install the pdo_mysql extension on the provided container
+# Arguments:
+#   $1 - Docker Container ID
+#   $2 - wp-env Environment Name
+install_pdo_mysql() {
+	local CONTAINER_ID="$1"
+	local ENV_NAME="$2"
 
-# Remove .maintenance file if it exists
-npm run wp-env run tests-cli -- rm -f /var/www/html/.maintenance 2>/dev/null || true
+	if docker exec -u root "$CONTAINER_ID" php -m | grep -q pdo_mysql; then
+		echo "pdo_mysql Extension on $ENV_NAME: Already installed."
+		return 0
+	fi
+
+	echo "Installing: pdo_mysql Extension on $ENV_NAME."
+	if ! docker exec -u root "$CONTAINER_ID" docker-php-ext-install pdo_mysql > /dev/null 2>&1; then
+		echo "WARNING: pdo_mysql Extension on $ENV_NAME: Installation failed. This is expected on ephemeral containers." >&2
+		return 0
+	fi
+
+	if ! docker exec -u root "$CONTAINER_ID" php -m | grep -q pdo_mysql; then
+		echo "WARNING: pdo_mysql Extension on $ENV_NAME: Installation command succeeded but extension not loaded." >&2
+		return 0
+	fi
+
+	echo "pdo_mysql Extension on $ENV_NAME: Installed."
+}
+
+# Install PCOV
+# Arguments:
+#   $1 - wp-env Environment Name
+install_pcov() {
+	local ENV_NAME="$1"
+
+	if npm run wp-env run $ENV_NAME -- php -m | grep -q pcov; then
+		echo "pcov Extension on $ENV_NAME: Already installed."
+		return 0
+	fi
+
+	echo "Installing: pcov Extension on $ENV_NAME."
+	if ! npm run wp-env run $ENV_NAME -- sudo pecl install pcov > /dev/null 2>&1; then
+		echo "WARNING: pcov Extension on $ENV_NAME: Installation failed. This is expected on ephemeral containers." >&2
+		return 0
+	fi
+
+	npm run wp-env run $ENV_NAME -- bash -- -c 'echo "extension=pcov" | sudo tee /usr/local/etc/php/conf.d/99-pcov.ini > /dev/null'
+	npm run wp-env run $ENV_NAME -- bash -- -c 'echo "pcov.enabled=1" | sudo tee -a /usr/local/etc/php/conf.d/99-pcov.ini > /dev/null'
+
+	echo "pcov Extension on $ENV_NAME: Installed."
+}
+
+# Configure Apache (to match old Docker setup) on the specified wp-env environment
+# Arguments:
+#   $1 - wp-env Environment Name
+configure_apache() {
+	local ENV_NAME="$1"
+
+	echo "Configuring Apache for $ENV_NAME..."
+	
+	# Set ServerName to prevent Apache warnings (matches old Docker setup)
+	if ! docker compose exec -T $ENV_NAME grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null; then
+		echo "Setting ServerName localhost..."
+		docker compose exec -T -u root $ENV_NAME bash -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
+	fi
+	
+	# Ensure mod_setenvif is enabled (required for SetEnvIf directive)
+	echo "Enabling mod_setenvif..."
+	docker compose exec -T -u root $ENV_NAME a2enmod setenvif 2>/dev/null || echo "mod_setenvif already enabled or failed"
+	
+	# Enable HTTP Authorization header passthrough
+	# This must be in Apache's main config, not .htaccess (matches old Docker setup)
+	# See: https://github.com/wp-graphql/wp-graphql/pull/3448
+	if ! docker compose exec -T $ENV_NAME grep -q "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf 2>/dev/null; then
+		echo "Adding SetEnvIf directive to Apache config..."
+		docker compose exec -T -u root $ENV_NAME bash -c 'echo "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1" >> /etc/apache2/apache2.conf'
+	else
+		echo "Authorization header passthrough already configured."
+	fi
+	
+	# Reload Apache to apply changes
+	echo "Reloading Apache..."
+	docker compose exec -T -u root $ENV_NAME apache2ctl graceful
+	
+	# Verify config
+	echo "Verifying Apache config:"
+	docker compose exec -T $ENV_NAME grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
+}
 
 # Fix internal Docker URL resolution for acceptance/functional tests
 # wp-env sets WP_SITEURL to localhost:8889, but that port doesn't work inside
@@ -42,7 +128,10 @@ npm run wp-env run tests-cli -- rm -f /var/www/html/.maintenance 2>/dev/null || 
 # IMPORTANT: This fix is ONLY applied when the request comes from Codeception tests
 # (identified by X_TEST_REQUEST or X_WPBROWSER_REQUEST headers). Playwright e2e tests
 # run outside Docker and need localhost:8889 URLs, so we must NOT rewrite for them.
-npm run wp-env run tests-cli -- bash -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cat > /var/www/html/wp-content/mu-plugins/wp-env-url-fix.php << '\''MUPLUGIN'\''
+#
+# @todo move to a mapped `mu-plugins` directory in .wp-env.json when this is no longer shared.
+create_url_fix_mu_plugin() {
+	npm run wp-env run tests-cli -- bash -c 'mkdir -p /var/www/html/wp-content/mu-plugins && cat > /var/www/html/wp-content/mu-plugins/wp-env-url-fix.php << '\''MUPLUGIN'\''
 <?php
 /**
  * Plugin Name: WP-ENV URL Fix
@@ -70,42 +159,29 @@ add_filter( "admin_url", "wpgraphql_wpenv_fix_url", 1 );
 MUPLUGIN
 echo "Installed URL fix mu-plugin"
 '
+}
+
+#============================================
+# Main Script Execution
+#============================================
+
+echo "=== Configuring wp-env for WPGraphQL ==="
+
+# Run setup_wp in parallel for both environments
+setup_wp "cli" &
+setup_wp "tests-cli" &
+wait
+
+# Install the URL fix mu-plugin on tests-cli environment
+create_url_fix_mu_plugin
 
 # Get install Path for docker compose commands
-cd $(npx wp-env install-path)
+cd "$(npm run wp-env install-path 2>/dev/null | tail -1)"
 
-# Configure Apache (matches old Docker setup)
-for container in tests-wordpress wordpress; do
-	echo "Configuring Apache for $container..."
-	
-	# Set ServerName to prevent Apache warnings (matches old Docker setup)
-	if ! docker compose exec -T $container grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null; then
-		echo "Setting ServerName localhost..."
-		docker compose exec -T -u root $container bash -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
-	fi
-	
-	# Ensure mod_setenvif is enabled (required for SetEnvIf directive)
-	echo "Enabling mod_setenvif..."
-	docker compose exec -T -u root $container a2enmod setenvif 2>/dev/null || echo "mod_setenvif already enabled or failed"
-	
-	# Enable HTTP Authorization header passthrough
-	# This must be in Apache's main config, not .htaccess (matches old Docker setup)
-	# See: https://github.com/wp-graphql/wp-graphql/pull/3448
-	if ! docker compose exec -T $container grep -q "HTTP_AUTHORIZATION" /etc/apache2/apache2.conf 2>/dev/null; then
-		echo "Adding SetEnvIf directive to Apache config..."
-		docker compose exec -T -u root $container bash -c 'echo "SetEnvIf Authorization \"(.*)\" HTTP_AUTHORIZATION=\$1" >> /etc/apache2/apache2.conf'
-	else
-		echo "Authorization header passthrough already configured."
-	fi
-	
-	# Reload Apache to apply changes
-	echo "Reloading Apache..."
-	docker compose exec -T -u root $container apache2ctl graceful
-	
-	# Verify config
-	echo "Verifying Apache config:"
-	docker compose exec -T $container grep -E "(ServerName|HTTP_AUTHORIZATION)" /etc/apache2/apache2.conf || echo "WARNING: Config issue!"
-done
+# Configure Apache (in parallel) to match old Docker setup
+configure_apache "tests-wordpress" &
+configure_apache "wordpress" &
+wait
 
 # Wait for Apache to stabilize after config changes
 echo "Waiting for Apache to stabilize..."
@@ -128,23 +204,15 @@ docker compose exec -T tests-cli cat /var/www/html/wp-content/mu-plugins/wp-env-
 echo "Verifying WordPress is responding:"
 docker compose exec -T tests-cli wp option get siteurl || echo "WARNING: WordPress not responding!"
 
+cd -
 
-# Install pdo on tests-cli (still in wp-env install path for docker compose)
-if [[ $(docker compose exec -T -u root tests-cli php -m | grep pdo_mysql) != "pdo_mysql" ]]; then
-	echo "Installing: pdo_mysql Extension on tests-cli."
-	if docker compose exec -T -u root tests-cli docker-php-ext-install pdo_mysql; then
-		if [[ $(docker compose exec -T -u root tests-cli php -m | grep pdo_mysql) == "pdo_mysql" ]]; then
-			echo "pdo_mysql Extension on tests-cli: Installed."
-		else
-			echo "ERROR: pdo_mysql Extension on tests-cli: Installation command succeeded but extension not loaded." >&2
-			exit 1
-		fi
-	else
-		echo "ERROR: pdo_mysql Extension on tests-cli: Installation failed." >&2
-		exit 1
-	fi
-else
-	echo "pdo_mysql Extension on tests-cli: Already installed."
+# Install pdo_mysql extension in the tests-cli environment
+CONTAINER_ID="$(docker ps | grep tests-cli  | awk '{print $1}')"
+if [[ -n "$CONTAINER_ID" ]]; then
+	install_pdo_mysql "$CONTAINER_ID" "tests-cli"
 fi
 
-cd -
+if [[ "$PCOV_ENABLED" == "1" ]]; then
+	# Install pcov extension in the tests-cli environment
+	install_pcov "tests-cli"
+fi
