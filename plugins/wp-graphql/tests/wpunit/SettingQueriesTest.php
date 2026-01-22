@@ -571,4 +571,163 @@ class SettingQueriesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$this->assertArrayNotHasKey( 'errors', $actual );
 		$this->assertSame( $expected, $actual['data']['generalSettings']['myCustomField'] );
 	}
+
+	/**
+	 * Test that the siteIconUrl field returns null when no site icon is set.
+	 *
+	 * @return void
+	 */
+	public function testSiteIconUrlReturnsNullWhenNotSet() {
+		// Ensure no site icon is set.
+		delete_option( 'site_icon' );
+
+		$query = '
+			{
+				generalSettings {
+					siteIconUrl
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['siteIconUrl'] );
+	}
+
+	/**
+	 * Test that the siteIconUrl field returns the URL when a site icon is set.
+	 *
+	 * @return void
+	 */
+	public function testSiteIconUrlReturnsUrlWhenSet() {
+		// Create a test attachment to use as site icon.
+		$filename      = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		// Set the site icon.
+		update_option( 'site_icon', $attachment_id );
+
+		$query = '
+			{
+				generalSettings {
+					siteIconUrl
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['generalSettings']['siteIconUrl'] );
+		$this->assertStringContainsString( 'test', $actual['data']['generalSettings']['siteIconUrl'] );
+
+		// Cleanup.
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test that the siteIconUrl field respects the size argument.
+	 *
+	 * @return void
+	 */
+	public function testSiteIconUrlWithSizeArgument() {
+		// Create a test attachment to use as site icon.
+		$filename      = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		// Set the site icon.
+		update_option( 'site_icon', $attachment_id );
+
+		$query = '
+			{
+				generalSettings {
+					defaultSize: siteIconUrl
+					smallSize: siteIconUrl(size: 32)
+					largeSize: siteIconUrl(size: 512)
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['generalSettings']['defaultSize'] );
+		$this->assertNotNull( $actual['data']['generalSettings']['smallSize'] );
+		$this->assertNotNull( $actual['data']['generalSettings']['largeSize'] );
+
+		// Cleanup.
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test that the siteIcon connection returns null when no site icon is set.
+	 *
+	 * @return void
+	 */
+	public function testSiteIconConnectionReturnsNullWhenNotSet() {
+		// Ensure no site icon is set.
+		delete_option( 'site_icon' );
+
+		$query = '
+			{
+				generalSettings {
+					siteIcon {
+						node {
+							id
+							databaseId
+							sourceUrl
+						}
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['generalSettings']['siteIcon'] );
+	}
+
+	/**
+	 * Test that the siteIcon connection returns the MediaItem when a site icon is set.
+	 *
+	 * @return void
+	 */
+	public function testSiteIconConnectionReturnsMediaItemWhenSet() {
+		// Create a test attachment to use as site icon.
+		$filename      = WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png';
+		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
+
+		// Set the site icon.
+		update_option( 'site_icon', $attachment_id );
+
+		$query = '
+			{
+				generalSettings {
+					siteIcon {
+						node {
+							id
+							databaseId
+							sourceUrl
+						}
+					}
+				}
+			}
+		';
+
+		$actual = $this->graphql( compact( 'query' ) );
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNotNull( $actual['data']['generalSettings']['siteIcon'] );
+		$this->assertNotNull( $actual['data']['generalSettings']['siteIcon']['node'] );
+		$this->assertEquals( $attachment_id, $actual['data']['generalSettings']['siteIcon']['node']['databaseId'] );
+		$this->assertNotNull( $actual['data']['generalSettings']['siteIcon']['node']['sourceUrl'] );
+
+		// Cleanup.
+		delete_option( 'site_icon' );
+		wp_delete_attachment( $attachment_id, true );
+	}
 }
