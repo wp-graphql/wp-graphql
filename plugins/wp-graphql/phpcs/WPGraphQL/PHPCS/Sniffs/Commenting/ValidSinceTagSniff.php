@@ -51,8 +51,6 @@ class ValidSinceTagSniff implements Sniff
         // Skip files in certain directories
         $file = $phpcsFile->getFilename();
         $skipDirs = [
-            'scripts/__tests__',
-            '.changeset',
             'docs',
         ];
 

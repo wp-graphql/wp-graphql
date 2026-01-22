@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP w/ Composer & WP-CLI
         uses: shivammathur/setup-php@v2
@@ -40,7 +40,7 @@ jobs:
           working-directory: plugins/wp-graphql
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
             cache: 'npm'
             node-version-file: '.nvmrc'
@@ -58,9 +58,6 @@ jobs:
 
       - name: Start wp-env
         run: npm run wp-env start
-
-      - name: Run setup script
-        run: bash bin/setup-wp-env.sh
 
       - name: Generate the Static Schema
         run: |

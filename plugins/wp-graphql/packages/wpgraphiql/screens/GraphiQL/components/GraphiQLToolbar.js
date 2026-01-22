@@ -1,4 +1,5 @@
 import { GraphiQL } from "graphiql";
+import { usePrettifyEditors, useHistoryContext } from "@graphiql/react";
 import { useGraphiQLContext } from "../context/GraphiQLContext";
 const { hooks } = wpGraphiQL;
 
@@ -18,20 +19,30 @@ const { hooks } = wpGraphiQL;
 const GraphiQLToolbar = (props) => {
   const { graphiql } = props;
 
+  // Get the prettify function from the GraphiQL React context
+  const prettifyEditors = usePrettifyEditors();
+
+  // Get the history context to toggle the history panel
+  const historyContext = useHistoryContext();
+
   // Configure initial buttons to load into the Toolbar
   let defaultButtonsConfig = [
     {
       label: `Prettify`,
       title: `Prettify Query (Shift-Ctrl-P)`,
-      onClick: (GraphiQL) => {
-        GraphiQL().handlePrettifyQuery();
+      onClick: () => {
+        if (prettifyEditors) {
+          prettifyEditors();
+        }
       },
     },
     {
       label: `History`,
       title: `Show History`,
-      onClick: (GraphiQL) => {
-        GraphiQL().handleToggleHistory();
+      onClick: () => {
+        if (historyContext) {
+          historyContext.toggle();
+        }
       },
     },
   ];
@@ -85,7 +96,13 @@ const GraphiQLToolbar = (props) => {
                 data-testid={label}
                 key={i}
                 onClick={() => {
-                  onClick(graphiql);
+                  // Support both new hook-based onClick (no args) and
+                  // legacy onClick(graphiql) for backward compatibility with filters
+                  if (onClick.length === 0) {
+                    onClick();
+                  } else {
+                    onClick(graphiql);
+                  }
                 }}
                 label={label}
                 title={title}

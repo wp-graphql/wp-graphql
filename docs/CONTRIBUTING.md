@@ -18,25 +18,37 @@ Thank you for your interest in contributing to WPGraphQL! This guide covers how 
 
 ## Development Workflow
 
-### 1. Conventional Commits
+### 1. PR Titles and Conventional Commits
 
-All PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+**PR titles** must follow [Conventional Commits](https://www.conventionalcommits.org/) format. This is important because:
+
+1. PRs are **squash merged** - your PR title becomes the commit message
+2. [release-please](https://github.com/googleapis/release-please) reads these commits to determine version bumps
+3. Your PR title is validated by the `lint-pr.yml` workflow
 
 | Prefix | Description | Version Bump |
 |--------|-------------|--------------|
 | `feat:` | New feature | Minor |
 | `fix:` | Bug fix | Patch |
+| `perf:` | Performance improvement | Patch |
 | `docs:` | Documentation only | None |
 | `refactor:` | Code change (no feature/fix) | None |
 | `test:` | Adding/fixing tests | None |
 | `chore:` | Maintenance tasks | None |
-| `feat!:` | Breaking change (feature) | Major |
-| `fix!:` | Breaking change (fix) | Major |
+| `ci:` | CI/CD changes | None |
+| `feat!:` | Breaking change (feature) | **Major** |
+| `fix!:` | Breaking change (fix) | **Major** |
+| `perf!:` | Breaking change (performance) | **Major** |
+
+**Breaking Change Marker (`!`)**: The `!` suffix can only be used with `feat`, `fix`, or `perf` prefixes. Using `!` with other prefixes (like `chore!:` or `ci!:`) will fail CI validation since those types don't trigger releases.
 
 **Examples:**
 - `feat: add support for custom post type archives`
 - `fix: resolve N+1 query issue in connections`
 - `feat!: change default behavior of user queries`
+- `perf: optimize resolver execution time`
+
+> **Note:** Your individual commits within a PR don't need to follow this format—only the PR title matters.
 
 ### 2. Pull Request Templates
 
@@ -64,14 +76,14 @@ When creating a PR, select the appropriate template:
 ### 4. Documentation
 
 **For new features:**
-- Add PHPDoc blocks with `@since next-version` tags
+- Add PHPDoc blocks with `@since x-release-please-version` tags
 - Update relevant documentation in `plugins/wp-graphql/docs/`
 
 **For deprecations:**
-- Use `@deprecated next-version` in docblocks
-- Use `@next-version` as placeholder in deprecation function calls
+- Use `@deprecated x-release-please-version` in docblocks
+- Use `x-release-please-version` as placeholder in deprecation function calls
 
-These placeholders are automatically replaced with the actual version during release.
+These placeholders are automatically replaced with the actual version by release-please during the release PR.
 
 ### 5. Testing
 
@@ -89,18 +101,27 @@ See the [Testing Guide](./TESTING.md) for detailed instructions.
 
 ## Automated Processes
 
-### Changesets
+### Release Process (release-please)
 
-When your PR is merged:
-1. A changeset is automatically generated from your PR title/description
-2. The changeset is added to the `.changesets/` directory
-3. During release, changesets are compiled into the changelog
+We use [release-please](https://github.com/googleapis/release-please) for automated releases:
+
+1. **PR Merged**: Your PR is squash merged with a conventional commit title
+2. **Release PR Created**: release-please creates/updates a Release PR with:
+   - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
+   - Auto-generated changelog from commit messages
+3. **Release PR Merged**: When the Release PR is merged:
+   - GitHub Release is created
+   - Plugin is deployed to WordPress.org
+   - Artifacts are attached to the release
 
 ### Version Management
 
-- Version numbers are updated automatically during release
-- `@since next-version` tags are replaced with the actual version
-- Changelogs are generated from changesets
+- Version numbers are updated automatically by release-please
+- `@since x-release-please-version` placeholders are replaced with the actual version during the release PR
+- Changelogs are generated from PR titles (via squash merge commits)
+- **Upgrade Notices** are automatically added to `readme.txt` when there are breaking changes
+
+> **⚠️ Do not manually edit**: Version numbers, changelogs, or upgrade notices. These are all managed automatically by release-please and our CI workflows.
 
 ## Working with the Monorepo
 

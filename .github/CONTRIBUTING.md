@@ -4,6 +4,8 @@ WPGraphQL welcomes community contributions, bug reports and other constructive f
 
 When contributing please ensure you follow the guidelines below so that we can keep on top of things.
 
+> **📚 Full Contributing Guide**: For comprehensive documentation on contributing, including development setup, testing, and the release process, see [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md).
+
 ## Getting Started
 
 * __Do not report potential security vulnerabilities here. Email them privately to our security team at 
@@ -62,5 +64,25 @@ There are 4 Github Project Boards for the WPGraphQL organization:
     - When an issue is completed, it should be closed and moved to the "Done" column
     - If an issue couldn't be completed for whatever, but still needs to be, it should be moved out of the "In Progress" column and back into the top of "Prioritized" column.
 
-  
+## Automated Release Processes
+
+The following are handled automatically by our CI/CD workflows. **Please do not manually edit these**:
+
+| What | Where | Automated By |
+|------|-------|--------------|
+| Version numbers | `constants.php`, `wp-graphql.php`, `package.json`, `readme.txt` | release-please |
+| `@since` tags | PHP files | release-please (replaces `x-release-please-version`) |
+| Changelog entries | `CHANGELOG.md` | release-please |
+| **Upgrade Notice** | `readme.txt` | `update-release-pr.yml` workflow |
+
+### Breaking Changes & Upgrade Notices
+
+When a release contains breaking changes (commits with `feat!:`, `fix!:`, or `perf!:` prefix):
+
+1. **release-please** detects the breaking changes and adds them to `CHANGELOG.md`
+2. **update-release-pr.yml** workflow automatically updates the `== Upgrade Notice ==` section in `readme.txt`
+3. WordPress.org displays this notice to users before they update
+
+**⚠️ Do not manually add upgrade notices** - they will be automatically generated from breaking changes in the changelog.
+
 > **NOTE:** This CONTRIBUTING.md file was forked from [Easy Digital Downloads](https://github.com/easydigitaldownloads/easy-digital-downloads/blob/main/CONTRIBUTING.md)

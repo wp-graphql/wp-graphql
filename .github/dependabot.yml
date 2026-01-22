@@ -1,0 +1,54 @@
+version: 2
+
+updates:
+  # Composer: 1x weekly for minor/patch, 1x monthly for major.
+  - package-ecosystem: 'composer'
+    directories:
+      - '/plugins/*'
+    schedule:
+      interval: 'weekly'
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 7
+    groups:
+      composer-dev-minor-patch:
+        dependency-type: 'development'
+        update-types: [minor, patch]
+      composer-dev-major:
+        dependency-type: 'development'
+        update-types: [major]
+      composer-minor-patch:
+        dependency-type: 'production'
+        update-types: [minor, patch]
+      # We don't bundle minor or major production assets, so they're tested individually.
+      composer-patch:
+        dependency-type: 'production'
+        update-types: [patch]
+
+  # NPM: 1x weekly for minor/patch, 1x monthly for major.
+  - package-ecosystem: 'npm'
+    directories:
+      - '/'
+      # @todo add other plugin directories when their dependency trees are stabilized.
+    schedule:
+      interval: 'weekly'
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 7
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+      npm-dev-major:
+        dependency-type: 'development'
+        update-types: [major]
+
+  # GitHub Actions: 1x weekly.
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    groups:
+      github-actions-updates:
+        patterns: ['*']

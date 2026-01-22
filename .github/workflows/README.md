@@ -4,45 +4,39 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ## Code Quality & Testing
 
-### 1. Code Quality Checks (`code-quality.yml`)
+### 1. Code Quality Checks (`lint.yml` and `lint-reusable.yml`)
+- Checks for:
+  - WordPress Coding Standards compliance using PHPCS
+  - Static type and error checking with PHPStan
+- `lint.yml` triggers the reusable workflow defined in `lint-reusable.yml` for each plugin in the matrix.
 
-- Runs static analysis and code quality checks (PHPStan)
-- Ensures code meets quality standards
-- Identifies potential issues and improvements
-
-### 2. WordPress Coding Standards (`wordpress-coding-standards.yml`)
-
-- Validates code against WordPress Coding Standards
-- Ensures consistent code style across the project
-- Runs PHPCS with WordPress-specific ruleset
-
-### 3. Schema Linting (`schema-linter.yml`)
+### 2. Schema Linting (`schema-linter.yml`)
 
 - Validates GraphQL schema structure
 - Ensures schema follows GraphQL best practices
 - Compares schema against previous releases to detect breaking changes
 
-### 4. Testing Integration (`testing-integration.yml`)
+### 3. Testing Integration (`testing-integration.yml`)
 
 - Runs comprehensive integration tests via Codeception
 - Tests across multiple PHP and WordPress versions
 - Uses "boundary testing" approach for efficiency (~8 jobs for PRs, ~18 for merges)
 - Collects code coverage from multiple configurations
 
-### 5. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
+### 4. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
 
 - End-to-end testing of GraphiQL interface using Playwright
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 6. Smoke Test (`smoke-test.yml`)
+### 5. Smoke Test (`smoke-test.yml`)
 
 - Validates the production zip artifact works correctly
 - Builds the plugin zip (same as release process)
 - Installs it in a clean WordPress environment
 - Runs smoke tests to verify core functionality
 
-### 7. CodeQL Analysis (`codeql-analysis.yml`)
+### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
 - Performs security analysis
 - Identifies potential vulnerabilities
@@ -74,11 +68,25 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
    - Deploys to WordPress.org
    - Uploads zip artifact to release
 
+### Update Release PR (`update-release-pr.yml`)
+
+- Triggers when release-please creates/updates a Release PR
+- Checks for breaking changes in the CHANGELOG
+- Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
+- Ensures WordPress.org users see warnings before upgrading
+
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)
 
 - Generates GraphQL schema artifact on release
 - Uploads schema to GitHub Release
 - Used for schema tracking and breaking change detection
+
+### Test Release Scripts (`test-scripts.yml`)
+
+- Tests the monorepo release scripts in `scripts/`
+- Runs on push/PR when scripts change
+- Runs monthly to catch environment-related issues
+- Can be triggered manually
 
 ## Build
 
@@ -94,25 +102,26 @@ We use [release-please](https://github.com/googleapis/release-please) for automa
 flowchart TD
     %% PR Process
     PR[PR Created] --> LPR[Lint PR Title]
-    LPR --> QA[Quality Checks]
-    QA --> Tests[Run Tests]
+    PR --> QA[Quality Checks]
 
     %% Quality Checks
-    QA --> CQ[Code Quality]
-    QA --> WCS[WP Coding Standards]
+    QA --> Lint[Lint Code]
     QA --> SL[Schema Linter]
     QA --> SEC[Security Analysis]
     QA --> SM[Smoke Test]
+    QA --> INT[Integration Tests]
+    QA --> E2E[GraphiQL E2E Tests]
 
-    %% Tests
-    Tests --> INT[Integration Tests]
-    Tests --> E2E[GraphiQL E2E]
+    %% Linting
+    Lint --> CS["PHPCS (WP Coding Standards)"]
+    Lint --> STAN[PHPStan]
 
     %% Merge and Release
     PR --> |Squash Merged| MAIN[main branch]
     MAIN --> RP[release-please]
     RP --> |Creates/Updates| RPR[Release PR]
-    RPR --> |Merged| REL[Create Release]
+    RPR --> URP[Update Upgrade Notice]
+    URP --> |Merged| REL[Create Release]
     REL --> WO[Deploy to WordPress.org]
     REL --> ZIP[Upload Zip Artifact]
     REL --> GH[GitHub Release]
