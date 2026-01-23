@@ -353,11 +353,13 @@ jobs:
           path: plugin-build/${{ matrix.component }}.zip
 
       - name: Upload artifact to release
-        if: steps.plugin_info.outputs.is_redeploy == 'false'
+        # Upload for both new releases and re-deployments
+        # For re-deployments, this updates the existing release asset with the corrected version
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip
+          overwrite: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
