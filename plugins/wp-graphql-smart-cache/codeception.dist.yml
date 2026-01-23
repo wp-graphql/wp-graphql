@@ -19,4 +19,3 @@ extensions:
         - Codeception\Command\GenerateWPXMLRPC
 params:
     - env
-    - .env
