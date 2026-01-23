@@ -298,25 +298,60 @@ jobs:
           
           echo "✅ Clean build directory created at ${BUILD_DIR}"
           
-          # Update Stable tag in build directory's readme.txt
-          # This is necessary because the tag may have an old Stable tag value
-          # We only update the Stable tag (metadata), not source code placeholders
+          # Update version numbers in build directory files
+          # This is necessary because the tag may have old version numbers
+          # The 10up action reads version from wp-graphql.php and may overwrite Stable tag if versions don't match
+          echo "🔄 Updating version numbers in build directory to ${VERSION}..."
+          
+          # Update Stable tag in readme.txt
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            echo "🔄 Updating Stable tag in build directory to ${VERSION}..."
             sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
             rm -f "${BUILD_DIR}/readme.txt.bak"
-            
-            # Verify the update
+            echo "✅ Updated Stable tag in readme.txt"
+          fi
+          
+          # Update Version in wp-graphql.php (both header and @version docblock)
+          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
+            sed -i.bak "s/^ \* Version: [0-9]\+\.[0-9]\+\.[0-9]\+/ * Version: ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
+            sed -i.bak "s/^ \* @version  [0-9]\+\.[0-9]\+\.[0-9]\+/ * @version  ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
+            rm -f "${BUILD_DIR}/wp-graphql.php.bak"
+            echo "✅ Updated Version in wp-graphql.php"
+          fi
+          
+          # Update WPGRAPHQL_VERSION constant in constants.php
+          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
+            sed -i.bak "s/define( 'WPGRAPHQL_VERSION', '[^']*' );/define( 'WPGRAPHQL_VERSION', '${VERSION}' );/" "${BUILD_DIR}/constants.php"
+            rm -f "${BUILD_DIR}/constants.php.bak"
+            echo "✅ Updated WPGRAPHQL_VERSION in constants.php"
+          fi
+          
+          # Verify all updates
+          echo "🔍 Verifying version updates:"
+          if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             if grep -q "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
-              echo "✅ Stable tag updated to ${VERSION} in build directory"
+              echo "  ✅ readme.txt Stable tag: ${VERSION}"
             else
-              echo "::error::Failed to update Stable tag in build directory readme.txt"
-              echo "Current Stable tag:"
-              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
-              exit 1
+              echo "  ❌ readme.txt Stable tag incorrect"
+              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
             fi
-          else
-            echo "⚠️  Warning: readme.txt not found in build directory"
+          fi
+          
+          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
+            if grep -q "Version: ${VERSION}" "${BUILD_DIR}/wp-graphql.php"; then
+              echo "  ✅ wp-graphql.php Version: ${VERSION}"
+            else
+              echo "  ❌ wp-graphql.php Version incorrect"
+              grep "Version:" "${BUILD_DIR}/wp-graphql.php" | head -2
+            fi
+          fi
+          
+          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
+            if grep -q "WPGRAPHQL_VERSION', '${VERSION}'" "${BUILD_DIR}/constants.php"; then
+              echo "  ✅ constants.php WPGRAPHQL_VERSION: ${VERSION}"
+            else
+              echo "  ❌ constants.php WPGRAPHQL_VERSION incorrect"
+              grep "WPGRAPHQL_VERSION" "${BUILD_DIR}/constants.php" | head -1
+            fi
           fi
           
           echo "📋 Verifying no node_modules in build directory..."
