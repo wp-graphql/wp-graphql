@@ -55,24 +55,39 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### Release Please (`release-please.yml`)
 
-We use [release-please](https://github.com/googleapis/release-please) for automated releases:
+We use [release-please](https://github.com/googleapis/release-please) for automated releases. The workflow is **component-agnostic** and works for any plugin defined in `release-please-config.json`:
 
 1. **On Push to Main**: release-please analyzes commits and creates/updates a Release PR
 2. **Release PR Contents**:
    - Version bump based on commit types (`feat:` → minor, `fix:` → patch, `!` → major)
    - Auto-generated changelog from commit messages
    - Version updates across all configured files
-   - `@since x-release-please-version` placeholders replaced with actual version (native to release-please)
 3. **On Release PR Merge**:
    - Creates GitHub Release with changelog
-   - Deploys to WordPress.org
-   - Uploads zip artifact to release
+   - Detects which components had releases (supports multiple plugins in monorepo)
+   - Deploys each component to WordPress.org in parallel (matrix strategy)
+   - Updates all version numbers in build directory before deployment:
+     - `readme.txt` Stable tag
+     - `wp-graphql.php` Version header and @version docblock
+     - `constants.php` WPGRAPHQL_VERSION constant
+   - Uploads zip artifact to GitHub release
+   - Creates/updates SVN tag on WordPress.org
+
+**Manual Re-deployment**:
+- Can be triggered via `workflow_dispatch` with `redeploy_tag` input (e.g., `wp-graphql/v2.7.0`)
+- Automatically deletes existing SVN tag before re-deployment to ensure clean deployment
+- Useful for fixing deployment issues or updating version numbers
 
 ### Update Release PR (`update-release-pr.yml`)
 
 - Triggers when release-please creates/updates a Release PR
+- **Component-agnostic**: Works for any plugin in the monorepo
+- Replaces `x-release-please-version` placeholders with actual version:
+  - In all PHP files (`@since x-release-please-version` → `@since 2.7.0`)
+  - In `readme.txt` (`Stable tag: x-release-please-version` → `Stable tag: 2.7.0`)
 - Checks for breaking changes in the CHANGELOG
 - Updates the Upgrade Notice section in `readme.txt` if breaking changes exist
+- Commits changes back to the Release PR branch
 - Ensures WordPress.org users see warnings before upgrading
 
 ### Schema Artifact Upload (`upload-schema-artifact.yml`)

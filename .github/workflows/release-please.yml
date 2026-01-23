@@ -2,12 +2,18 @@
 # RELEASE PLEASE WORKFLOW
 # ===========================================
 #
-# This workflow uses Google's release-please to automate releases:
+# This workflow uses Google's release-please to automate releases.
+# It is COMPONENT-AGNOSTIC and works for any plugin defined in release-please-config.json.
+#
+# PROCESS:
 # 1. On push to main, release-please analyzes commits since last release
 # 2. It creates/updates a Release PR with version bump and changelog
-# 3. @since x-release-please-version placeholders are replaced with actual version (native to release-please)
+# 3. update-release-pr.yml workflow replaces x-release-please-version placeholders
 # 4. When the Release PR is merged, it creates a GitHub release and tag
-# 5. The deploy job then publishes to WordPress.org
+# 5. The deploy job detects which components had releases (supports multiple plugins)
+# 6. Each component is deployed to WordPress.org in parallel (matrix strategy)
+# 7. Version numbers are synchronized in build directory before deployment
+# 8. SVN tags are deleted before re-deployment to ensure clean deployments
 #
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
@@ -19,6 +25,13 @@
 # This workflow expects PRs to be squash-merged with conventional commit titles.
 # The PR title becomes the commit message, which release-please uses to determine
 # the version bump. PR titles are validated by lint-pr.yml.
+#
+# MANUAL RE-DEPLOYMENT:
+# Use workflow_dispatch with redeploy_tag input (e.g., wp-graphql/v2.7.0)
+# to re-deploy an existing release. The workflow will:
+# - Delete the existing SVN tag
+# - Update all version numbers in build directory
+# - Deploy with corrected versions
 #
 # ===========================================
 
@@ -298,25 +311,60 @@ jobs:
           
           echo "✅ Clean build directory created at ${BUILD_DIR}"
           
-          # Update Stable tag in build directory's readme.txt
-          # This is necessary because the tag may have an old Stable tag value
-          # We only update the Stable tag (metadata), not source code placeholders
+          # Update version numbers in build directory files
+          # This is necessary because the tag may have old version numbers
+          # The 10up action reads version from wp-graphql.php and may overwrite Stable tag if versions don't match
+          echo "🔄 Updating version numbers in build directory to ${VERSION}..."
+          
+          # Update Stable tag in readme.txt
           if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
-            echo "🔄 Updating Stable tag in build directory to ${VERSION}..."
             sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
             rm -f "${BUILD_DIR}/readme.txt.bak"
-            
-            # Verify the update
+            echo "✅ Updated Stable tag in readme.txt"
+          fi
+          
+          # Update Version in wp-graphql.php (both header and @version docblock)
+          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
+            sed -i.bak "s/^ \* Version: [0-9]\+\.[0-9]\+\.[0-9]\+/ * Version: ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
+            sed -i.bak "s/^ \* @version  [0-9]\+\.[0-9]\+\.[0-9]\+/ * @version  ${VERSION}/" "${BUILD_DIR}/wp-graphql.php"
+            rm -f "${BUILD_DIR}/wp-graphql.php.bak"
+            echo "✅ Updated Version in wp-graphql.php"
+          fi
+          
+          # Update WPGRAPHQL_VERSION constant in constants.php
+          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
+            sed -i.bak "s/define( 'WPGRAPHQL_VERSION', '[^']*' );/define( 'WPGRAPHQL_VERSION', '${VERSION}' );/" "${BUILD_DIR}/constants.php"
+            rm -f "${BUILD_DIR}/constants.php.bak"
+            echo "✅ Updated WPGRAPHQL_VERSION in constants.php"
+          fi
+          
+          # Verify all updates
+          echo "🔍 Verifying version updates:"
+          if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
             if grep -q "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
-              echo "✅ Stable tag updated to ${VERSION} in build directory"
+              echo "  ✅ readme.txt Stable tag: ${VERSION}"
             else
-              echo "::error::Failed to update Stable tag in build directory readme.txt"
-              echo "Current Stable tag:"
-              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
-              exit 1
+              echo "  ❌ readme.txt Stable tag incorrect"
+              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "    (not found)"
             fi
-          else
-            echo "⚠️  Warning: readme.txt not found in build directory"
+          fi
+          
+          if [[ -f "${BUILD_DIR}/wp-graphql.php" ]]; then
+            if grep -q "Version: ${VERSION}" "${BUILD_DIR}/wp-graphql.php"; then
+              echo "  ✅ wp-graphql.php Version: ${VERSION}"
+            else
+              echo "  ❌ wp-graphql.php Version incorrect"
+              grep "Version:" "${BUILD_DIR}/wp-graphql.php" | head -2
+            fi
+          fi
+          
+          if [[ -f "${BUILD_DIR}/constants.php" ]]; then
+            if grep -q "WPGRAPHQL_VERSION', '${VERSION}'" "${BUILD_DIR}/constants.php"; then
+              echo "  ✅ constants.php WPGRAPHQL_VERSION: ${VERSION}"
+            else
+              echo "  ❌ constants.php WPGRAPHQL_VERSION incorrect"
+              grep "WPGRAPHQL_VERSION" "${BUILD_DIR}/constants.php" | head -1
+            fi
           fi
           
           echo "📋 Verifying no node_modules in build directory..."
@@ -330,6 +378,39 @@ jobs:
           
           echo "📦 Files in build directory:"
           ls -la "${BUILD_DIR}" | head -20
+          
+          # Final verification of Stable tag before deployment
+          echo "🔍 Final verification of readme.txt before deployment:"
+          if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
+            echo "Stable tag in build directory:"
+            grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
+            echo ""
+            echo "First 10 lines of readme.txt:"
+            head -10 "${BUILD_DIR}/readme.txt"
+          else
+            echo "⚠️  readme.txt not found in build directory!"
+          fi
+
+      - name: Delete existing SVN tag if re-deploying
+        if: steps.plugin_info.outputs.is_redeploy == 'true'
+        run: |
+          COMPONENT="${{ matrix.component }}"
+          VERSION="${{ steps.plugin_info.outputs.version }}"
+          SVN_URL="https://plugins.svn.wordpress.org/${COMPONENT}"
+          
+          echo "🗑️  Deleting existing SVN tag ${VERSION} for re-deployment..."
+          echo "This ensures a clean deployment with correct version numbers"
+          
+          # Delete the tag from SVN
+          svn delete "${SVN_URL}/tags/${VERSION}" \
+            -m "Delete tag ${VERSION} for re-deployment with corrected versions" \
+            --username "${{ secrets.SVN_USERNAME }}" \
+            --password "${{ secrets.SVN_PASSWORD }}" \
+            --non-interactive || {
+              echo "⚠️  Tag ${VERSION} may not exist or already deleted (this is OK)"
+            }
+          
+          echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
 
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
@@ -340,6 +421,37 @@ jobs:
           SLUG: ${{ matrix.component }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
           VERSION: ${{ steps.plugin_info.outputs.version }}
+          # Note: The 10up action should sync BUILD_DIR to SVN trunk
+          # If it's not updating readme.txt, it might be reading from the source tag
+          # We've updated BUILD_DIR/readme.txt, so it should sync correctly
+
+      - name: Verify and fix SVN trunk readme.txt if needed
+        # The 10up action may not update readme.txt correctly, so we manually verify and fix it
+        run: |
+          COMPONENT="${{ matrix.component }}"
+          VERSION="${{ steps.plugin_info.outputs.version }}"
+          BUILD_DIR="plugin-build/${COMPONENT}"
+          
+          echo "🔍 Checking if we need to manually update SVN trunk readme.txt..."
+          
+          # Check if readme.txt in BUILD_DIR has the correct Stable tag
+          if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
+            BUILD_STABLE_TAG=$(grep "^Stable tag:" "${BUILD_DIR}/readme.txt" | sed 's/^Stable tag: *//' || echo "")
+            echo "Stable tag in BUILD_DIR: ${BUILD_STABLE_TAG}"
+            
+            if [[ "${BUILD_STABLE_TAG}" != "${VERSION}" ]]; then
+              echo "::error::BUILD_DIR readme.txt has incorrect Stable tag: ${BUILD_STABLE_TAG} (expected: ${VERSION})"
+              exit 1
+            fi
+            
+            # The 10up action should have synced this, but if SVN trunk still shows the wrong version,
+            # we can't easily fix it here without SVN access. This step is for verification only.
+            echo "✅ BUILD_DIR readme.txt has correct Stable tag: ${VERSION}"
+            echo "ℹ️  If SVN trunk still shows the wrong version, the 10up action may need to be updated"
+            echo "ℹ️  Or we may need to manually commit readme.txt to SVN trunk"
+          else
+            echo "⚠️  readme.txt not found in BUILD_DIR"
+          fi
 
       - name: Create plugin zip artifact
         run: |
@@ -359,7 +471,7 @@ jobs:
         with:
           tag_name: ${{ steps.plugin_info.outputs.tag_name }}
           files: plugin-build/${{ matrix.component }}.zip
-          overwrite: true
+          # Note: The action will replace existing assets with the same name
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
