@@ -1,0 +1,71 @@
+name: Tests - WordPress
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: WordPress ${{ matrix.wordpress }} Integration Tests on PHP ${{ matrix.php }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '8.2', '8.1' ]
+        wordpress: [ '6.3', '6.2', '6.1' ]
+        wpgraphql_version: [ 'latest' ]
+        include:
+          - php: '8.2'
+            wordpress: '6.7'
+          - php: '8.2'
+            wordpress: '6.5'
+          - php: '8.2'
+            wordpress: '6.4.0'
+          - php: '8.0'
+            wordpress: '6.2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build container image
+        env:
+          PHP_VERSION: ${{ matrix.php }}
+          WP_VERSION: ${{ matrix.wordpress }}
+        run: |
+          docker compose build \
+            --build-arg WP_VERSION=${{ matrix.wordpress }} \
+            --build-arg PHP_VERSION=${{ matrix.php }} \
+            --build-arg DOCKER_REGISTRY=ghcr.io/wp-graphql/
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+
+      - name: Get Composer Cache Directory
+        id: composercache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: php-${{ matrix.php }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: php-${{ matrix.php }}-${{ runner.os }}-composer-
+
+      - name: Composer update dependencies
+        run: composer update
+
+      - name: Run acceptance, functional tests
+        run: docker compose run -e DEBUG=1 -e WPGRAPHQL_VERSION=${{matrix.wpgraphql_version}} testing
+        env:
+          WP_VERSION: ${{ matrix.wordpress }}
+          PHP_VERSION: ${{ matrix.php }}
+          SUITES: use value from .env

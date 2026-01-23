@@ -1,0 +1,31 @@
+name: Build plugin zip file
+on:
+  release:
+    types: [ published ]
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          tools: composer
+      - name: Install PHP dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+      - name: Create Artifact
+        # Create a zip file similar to 10up/action-wordpress-plugin-deploy action
+        run: |
+          composer run-script zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpgraphql-smart-cache
+          path: plugin-build/wpgraphql-smart-cache.zip
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugin-build/wpgraphql-smart-cache.zip
