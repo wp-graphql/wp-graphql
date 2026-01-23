@@ -81,6 +81,7 @@ jobs:
               - plugins/wp-graphql-smart-cache/composer.json
               - plugins/wp-graphql-smart-cache/composer.lock
               - plugins/wp-graphql-smart-cache/package.json
+              - plugins/wp-graphql-smart-cache/package-lock.json
               - plugins/wp-graphql-smart-cache/tests/**
               - plugins/wp-graphql-smart-cache/codeception.dist.yml
               - plugins/wp-graphql/**/*.php
