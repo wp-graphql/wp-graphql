@@ -2,12 +2,18 @@
 # RELEASE PLEASE WORKFLOW
 # ===========================================
 #
-# This workflow uses Google's release-please to automate releases:
+# This workflow uses Google's release-please to automate releases.
+# It is COMPONENT-AGNOSTIC and works for any plugin defined in release-please-config.json.
+#
+# PROCESS:
 # 1. On push to main, release-please analyzes commits since last release
 # 2. It creates/updates a Release PR with version bump and changelog
-# 3. @since x-release-please-version placeholders are replaced with actual version (native to release-please)
+# 3. update-release-pr.yml workflow replaces x-release-please-version placeholders
 # 4. When the Release PR is merged, it creates a GitHub release and tag
-# 5. The deploy job then publishes to WordPress.org
+# 5. The deploy job detects which components had releases (supports multiple plugins)
+# 6. Each component is deployed to WordPress.org in parallel (matrix strategy)
+# 7. Version numbers are synchronized in build directory before deployment
+# 8. SVN tags are deleted before re-deployment to ensure clean deployments
 #
 # VERSION DETERMINATION:
 # - feat: commits trigger a MINOR version bump
@@ -19,6 +25,13 @@
 # This workflow expects PRs to be squash-merged with conventional commit titles.
 # The PR title becomes the commit message, which release-please uses to determine
 # the version bump. PR titles are validated by lint-pr.yml.
+#
+# MANUAL RE-DEPLOYMENT:
+# Use workflow_dispatch with redeploy_tag input (e.g., wp-graphql/v2.7.0)
+# to re-deploy an existing release. The workflow will:
+# - Delete the existing SVN tag
+# - Update all version numbers in build directory
+# - Deploy with corrected versions
 #
 # ===========================================
 
