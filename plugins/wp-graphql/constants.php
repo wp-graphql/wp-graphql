@@ -18,7 +18,7 @@ function graphql_setup_constants() {
 
 	// Plugin version.
 	if ( ! defined( 'WPGRAPHQL_VERSION' ) ) {
-		define( 'WPGRAPHQL_VERSION', '2.6.0' );
+		define( 'WPGRAPHQL_VERSION', '2.7.0' );
 	}
 
 	// Plugin Folder Path.
