@@ -378,6 +378,27 @@ jobs:
             echo "⚠️  readme.txt not found in build directory!"
           fi
 
+      - name: Delete existing SVN tag if re-deploying
+        if: steps.plugin_info.outputs.is_redeploy == 'true'
+        run: |
+          COMPONENT="${{ matrix.component }}"
+          VERSION="${{ steps.plugin_info.outputs.version }}"
+          SVN_URL="https://plugins.svn.wordpress.org/${COMPONENT}"
+          
+          echo "🗑️  Deleting existing SVN tag ${VERSION} for re-deployment..."
+          echo "This ensures a clean deployment with correct version numbers"
+          
+          # Delete the tag from SVN
+          svn delete "${SVN_URL}/tags/${VERSION}" \
+            -m "Delete tag ${VERSION} for re-deployment with corrected versions" \
+            --username "${{ secrets.SVN_USERNAME }}" \
+            --password "${{ secrets.SVN_PASSWORD }}" \
+            --non-interactive || {
+              echo "⚠️  Tag ${VERSION} may not exist or already deleted (this is OK)"
+            }
+          
+          echo "✅ SVN tag ${VERSION} deleted (or didn't exist)"
+
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
