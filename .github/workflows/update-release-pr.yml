@@ -6,10 +6,15 @@
 # It handles tasks that release-please doesn't do natively:
 #
 # 1. Updates the Upgrade Notice section in readme.txt if there are breaking changes
+# 2. Regenerates the POT file for translations (if languages/ directory exists)
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
-# - Label "autorelease: pending"
+#
+# Multi-plugin support:
+# - Parses the component name from the release-please branch
+# - Branch format: release-please--branches--main--components--{component}
+# - Component name maps to plugins/{component}/ directory
 #
 # ===========================================
 
@@ -26,8 +31,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-upgrade-notice:
-    name: Update Upgrade Notice
+  update-release-pr:
+    name: Update Release PR
     # Only run on release-please PRs
     if: startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest
@@ -39,25 +44,57 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract plugin info from branch
+        id: plugin
+        run: |
+          # Branch format: release-please--branches--main--components--wp-graphql
+          BRANCH="${{ github.head_ref }}"
+          COMPONENT=$(echo "$BRANCH" | sed 's/.*--components--//')
+          
+          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
+          echo "dir=plugins/$COMPONENT" >> $GITHUB_OUTPUT
+          echo "Detected component: $COMPONENT"
+          echo "Plugin directory: plugins/$COMPONENT"
+
+      - name: Verify plugin directory exists
+        id: verify
+        run: |
+          if [ -d "${{ steps.plugin.outputs.dir }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Plugin directory exists: ${{ steps.plugin.outputs.dir }}"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::error::Plugin directory not found: ${{ steps.plugin.outputs.dir }}"
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "22"
 
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
+
       - name: Extract version from PR
         id: version
         run: |
-          # Extract version from the PR title or branch name
+          # Extract version from the PR title or CHANGELOG
           # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
-          # Branch names are like "release-please--branches--main--components--wp-graphql"
           
-          # Try to get version from PR title first
           PR_TITLE="${{ github.event.pull_request.title }}"
           VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
           
           if [ -z "$VERSION" ]; then
             # Fallback: extract from CHANGELOG.md (first version header)
-            VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' plugins/wp-graphql/CHANGELOG.md | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            CHANGELOG="${{ steps.plugin.outputs.dir }}/CHANGELOG.md"
+            if [ -f "$CHANGELOG" ]; then
+              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "$CHANGELOG" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            fi
           fi
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -68,25 +105,66 @@ jobs:
         run: |
           node scripts/update-upgrade-notice.js \
             --version=${{ steps.version.outputs.version }} \
-            --plugin-dir=plugins/wp-graphql
+            --plugin-dir=${{ steps.plugin.outputs.dir }}
+
+      - name: Check for languages directory
+        id: i18n
+        run: |
+          if [ -d "${{ steps.plugin.outputs.dir }}/languages" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+            echo "Languages directory found - will regenerate POT file"
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "No languages directory - skipping POT generation"
+          fi
+
+      - name: Regenerate POT file
+        if: steps.i18n.outputs.enabled == 'true'
+        working-directory: ${{ steps.plugin.outputs.dir }}
+        run: |
+          COMPONENT="${{ steps.plugin.outputs.component }}"
+          wp i18n make-pot . languages/${COMPONENT}.pot \
+            --slug=${COMPONENT} \
+            --domain=${COMPONENT} \
+            --include=src,access-functions.php,*.php \
+            --exclude=node_modules,vendor,tests,build,packages
+          echo "POT file regenerated: languages/${COMPONENT}.pot"
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet plugins/wp-graphql/readme.txt; then
+          PLUGIN_DIR="${{ steps.plugin.outputs.dir }}"
+          
+          # Build list of files to check
+          FILES_TO_CHECK="$PLUGIN_DIR/readme.txt"
+          if [ "${{ steps.i18n.outputs.enabled }}" == "true" ]; then
+            FILES_TO_CHECK="$FILES_TO_CHECK $PLUGIN_DIR/languages/${{ steps.plugin.outputs.component }}.pot"
+          fi
+          
+          # Check for changes (ignore missing files)
+          if git diff --quiet -- $FILES_TO_CHECK 2>/dev/null; then
             echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No changes to readme.txt"
+            echo "No changes detected"
           else
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in readme.txt"
-            git diff plugins/wp-graphql/readme.txt
+            echo "Changes detected:"
+            git diff --stat -- $FILES_TO_CHECK 2>/dev/null || true
           fi
 
       - name: Commit and push changes
         if: steps.changes.outputs.changed == 'true'
         run: |
+          PLUGIN_DIR="${{ steps.plugin.outputs.dir }}"
+          COMPONENT="${{ steps.plugin.outputs.component }}"
+          
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add plugins/wp-graphql/readme.txt
-          git commit -m "chore: update upgrade notice for breaking changes"
+          
+          # Add files that exist
+          git add "$PLUGIN_DIR/readme.txt" 2>/dev/null || true
+          if [ "${{ steps.i18n.outputs.enabled }}" == "true" ]; then
+            git add "$PLUGIN_DIR/languages/${COMPONENT}.pot" 2>/dev/null || true
+          fi
+          
+          git commit -m "chore($COMPONENT): update release assets (upgrade notice, translations)"
           git push

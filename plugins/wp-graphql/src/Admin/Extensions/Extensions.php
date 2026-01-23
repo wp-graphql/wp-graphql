@@ -135,6 +135,9 @@ final class Extensions {
 			true
 		);
 
+		// Set up script translations for i18n
+		wp_set_script_translations( 'wpgraphql-extensions', 'wp-graphql', WPGRAPHQL_PLUGIN_DIR . 'languages' );
+
 		wp_localize_script(
 			'wpgraphql-extensions',
 			'wpgraphqlExtensions',

@@ -1,0 +1,5266 @@
+# Copyright (C) 2026 WPGraphQL
+# This file is distributed under the GPL-3.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPGraphQL 2.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-graphql\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-01-22T17:21:39+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-graphql\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: wp-graphql.php
+msgid "WPGraphQL"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-graphql.php
+msgid "https://github.com/wp-graphql/wp-graphql"
+msgstr ""
+
+#. Description of the plugin
+#: wp-graphql.php
+msgid "GraphQL API for WordPress"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp-graphql.php
+msgid "http://www.wpgraphql.com"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:81
+msgid "You are using WPGraphQL and Advanced Custom Fields. Have you seen the new <a href=\"https://acf.wpgraphql.com/\" target=\"_blank\" rel=\"nofollow\">WPGraphQL for ACF</a>?"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:188
+msgid "Config message is required"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:193
+msgid "Config conditions should be callable"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:198
+msgid "Config type should be one of the following: error | warning | success | info"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:203
+msgid "is_dismissable should be a boolean"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:333
+msgid "Dismiss"
+msgstr ""
+
+#: src/Admin/Extensions/Extensions.php:64
+msgid "WPGraphQL Extensions"
+msgstr ""
+
+#: src/Admin/Extensions/Extensions.php:65
+msgid "Extensions"
+msgstr ""
+
+#. translators: 1: npm ci command, 2: npm run build command, 3: releases URL
+#: src/Admin/Extensions/Extensions.php:85
+#, php-format
+msgid "The Extensions page requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
+msgstr ""
+
+#. translators: First placeholder is the extension name. Second placeholder is the property that is missing from the extension.
+#: src/Admin/Extensions/Extensions.php:287
+#, php-format
+msgid "Invalid extension %1$s is missing a valid value for %2$s."
+msgstr ""
+
+#: src/Admin/Extensions/Extensions.php:291
+msgid "Invalid extension. All extensions must have a `name`."
+msgstr ""
+
+#: src/Admin/GraphiQL/GraphiQL.php:199
+#: src/Admin/GraphiQL/GraphiQL.php:232
+#: src/Admin/GraphiQL/GraphiQL.php:233
+msgid "GraphiQL IDE"
+msgstr ""
+
+#: src/Admin/GraphiQL/GraphiQL.php:221
+#: src/Admin/GraphiQL/GraphiQL.php:222
+#: src/Admin/Settings/Settings.php:63
+msgid "GraphQL"
+msgstr ""
+
+#. translators: 1: npm ci command, 2: npm run build command, 3: documentation URL
+#: src/Admin/GraphiQL/GraphiQL.php:258
+#, php-format
+msgid "The GraphiQL IDE requires JavaScript assets that need to be built. Please run %1$s followed by %2$s in the plugin directory, or <a href=\"%3$s\" target=\"_blank\">download a release</a> that includes pre-built assets."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:62
+#: src/Admin/Settings/Settings.php:72
+msgid "WPGraphQL Settings"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:73
+msgid "Settings"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:90
+msgid "WPGraphQL General Settings"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:99
+msgid "GraphQL Endpoint"
+msgstr ""
+
+#. translators: %1$s is the site url, %2$s is the default endpoint
+#: src/Admin/Settings/Settings.php:102
+#, php-format
+msgid "The endpoint (path) for the GraphQL API on the site. <a target=\"_blank\" href=\"%1$s/%2$s\">%1$s/%2$s</a>. <br/><strong>Note:</strong> Changing the endpoint to something other than \"graphql\" <em>could</em> have an affect on tooling in the GraphQL ecosystem"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:114
+msgid "The \"GraphQL Endpoint\" field is required and cannot be blank. The default endpoint is \"graphql\""
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:129
+msgid "Restrict Endpoint to Authenticated Users"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:130
+msgid "Limit the execution of GraphQL operations to authenticated requests. Non-authenticated requests to the GraphQL endpoint will not execute and will return an error."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:136
+msgid "Enable Batch Queries"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:137
+msgid "WPGraphQL supports batch queries, or the ability to send multiple GraphQL operations in a single HTTP request. Batch requests are enabled by default."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:143
+msgid "Batch Query Limit"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:144
+msgid "If Batch Queries are enabled, this value sets the max number of batch operations to allow per request. Requests containing more batch operations than allowed will be rejected before execution."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:157
+msgid "Enable Query Depth Limiting"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:158
+msgid "Enabling this will limit the depth of queries WPGraphQL will execute using the value of the Max Depth setting."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:164
+msgid "Max Depth to allow for GraphQL Queries"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:165
+msgid "If Query Depth limiting is enabled, this is the number of levels WPGraphQL will allow. Queries with deeper nesting will be rejected. Must be a positive integer value. Default 10."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:178
+msgid "Enable GraphQL Type Tracking"
+msgstr ""
+
+#. translators: %s is either empty or a string with a note about force enabling.
+#: src/Admin/Settings/Settings.php:181
+#, php-format
+msgid "When enabled, WPGraphQL will track the Types, Models, and Nodes used in the request, and return those values in the headers for use in debugging or header-based cache invalidation. %s"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:182
+#: src/Admin/Settings/Settings.php:287
+msgid "NOTE: This setting is force enabled because GraphQL Debug Mode is enabled. "
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:190
+msgid "Enable GraphiQL IDE"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:191
+msgid "GraphiQL IDE is a tool for exploring the GraphQL Schema and test GraphQL operations. Uncheck this to disable GraphiQL in the Dashboard."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:197
+msgid "GraphiQL IDE Admin Bar Link"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:198
+msgid "Show GraphiQL IDE Link in the WordPress Admin Bar"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:204
+msgid "Delete Data on Deactivation"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:205
+msgid "Delete settings and any other data stored by WPGraphQL upon de-activation of the plugin. Un-checking this will keep data after the plugin is de-activated."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:211
+msgid "Enable GraphQL Debug Mode"
+msgstr ""
+
+#. translators: %s is the value of the GRAPHQL_DEBUG constant
+#: src/Admin/Settings/Settings.php:214
+#, php-format
+msgid "This setting is disabled. \"GRAPHQL_DEBUG\" has been set to \"%s\" with code"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:215
+msgid "Whether GraphQL requests should execute in \"debug\" mode. This setting is disabled if <strong>GRAPHQL_DEBUG</strong> is defined in wp-config.php. <br/>This will provide more information in GraphQL errors but can leak server implementation details so this setting is <strong>NOT RECOMMENDED FOR PRODUCTION ENVIRONMENTS</strong>."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:223
+msgid "Enable GraphQL Tracing"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:224
+msgid "Adds trace data to the extensions portion of GraphQL responses. This can help identify bottlenecks for specific fields."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:230
+msgid "Tracing Role"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:231
+msgid "If Tracing is enabled, this limits it to requests from users with the specified User Role."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:253
+msgid "Enable GraphQL Query Logs"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:254
+msgid "Adds SQL Query logs to the extensions portion of GraphQL responses. <br/><strong>Note:</strong> This is a debug tool that can have an impact on performance and is not recommended to have active in production."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:260
+msgid "Query Log Role"
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:261
+msgid "If Query Logs are enabled, this limits them to requests from users with the specified User Role."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php:283
+msgid "Enable Public Introspection"
+msgstr ""
+
+#. translators: %s is either empty or a string with a note about debug mode.
+#: src/Admin/Settings/Settings.php:286
+#, php-format
+msgid "GraphQL Introspection is a feature that allows the GraphQL Schema to be queried. For Production and Staging environments, WPGraphQL will by default limit introspection queries to authenticated requests. Checking this enables Introspection for public requests, regardless of environment. %s "
+msgstr ""
+
+#: src/Admin/Settings/SettingsRegistry.php:455
+msgid "Choose File"
+msgstr ""
+
+#: src/Admin/Updates/PluginsScreenLoader.php:84
+msgid "Untested Plugins:"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:136
+msgid "Invalid WPGraphQL version"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:148
+msgid "Unknown"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:234
+msgid "Are you sure you're ready to update?"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:241
+msgid "Cancel"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:242
+msgid "Update now"
+msgstr ""
+
+#. translators: %s: The WPGraphQL version wrapped in a strong tag.
+#: src/Admin/Updates/UpdateChecker.php:541
+#, php-format
+msgid "The following active plugin(s) require WPGraphQL to function but have not yet declared compatibility with %s. Before updating WPGraphQL, please:"
+msgstr ""
+
+#. translators: %s: The WPGraphQL version wrapped in a strong tag.
+#: src/Admin/Updates/UpdateChecker.php:558
+#, php-format
+msgid "Update these plugins to their latest versions that declare compatibility with %s, OR"
+msgstr ""
+
+#. translators: %s: The WPGraphQL version wrapped in a strong tag.
+#: src/Admin/Updates/UpdateChecker.php:569
+#, php-format
+msgid "Confirm their compatibility with %s on your staging environment."
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:581
+msgid "Plugin"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:582
+msgid "WPGraphQL Tested Up To"
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:596
+msgid "For more information, review each plugin's changelogs or contact the plugin's developers."
+msgstr ""
+
+#: src/Admin/Updates/UpdateChecker.php:598
+msgid "We strongly recommend creating a backup of your site before updating."
+msgstr ""
+
+#: src/Admin/Updates/Updates.php:191
+msgid "The following plugins were deactivated because they require a newer version of WPGraphQL. Please update WPGraphQL to a newer version to reactivate these plugins."
+msgstr ""
+
+#: src/AppContext.php:224
+msgid "The graphql_data_loaders filter is deprecated and will be removed in a future version. Instead, use the graphql_data_loader_classes filter to add/change data loader classes before they are instantiated."
+msgstr ""
+
+#. translators: %s is the key of the loader that was not found.
+#: src/AppContext.php:259
+#, php-format
+msgid "No loader assigned to the key %s"
+msgstr ""
+
+#. translators: %s is the key of the loader that failed to instantiate.
+#: src/AppContext.php:268
+#, php-format
+msgid "Failed to instantiate %1$s: %2$s"
+msgstr ""
+
+#: src/AppContext.php:294
+msgid "Accessing the AppContext::$loaders property from outside the AppContext class is deprecated and will throw an error in a future version. Use AppContext::get_loader() instead."
+msgstr ""
+
+#. translators: %s is the name of the property being set.
+#: src/AppContext.php:360
+#, php-format
+msgid "Setting dynamic properties on AppContext is deprecated. Use AppContext::set() instead. Attempted to set property: %s"
+msgstr ""
+
+#: src/Data/CommentMutation.php:57
+msgid "Comment must include an authorName."
+msgstr ""
+
+#: src/Data/CommentMutation.php:65
+#: src/Data/UserMutation.php:197
+msgid "The email address you are trying to use is invalid"
+msgstr ""
+
+#. translators: %s is the name of the connection resolver class.
+#: src/Data/Connection/AbstractConnectionResolver.php:288
+#, php-format
+msgid "Class %s does not implement a valid method `prepare_query_args()`."
+msgstr ""
+
+#. translators: %s is the name of the connection resolver class.
+#: src/Data/Connection/AbstractConnectionResolver.php:314
+#, php-format
+msgid "Class %s does not implement a valid method `get_ids_from_query()`."
+msgstr ""
+
+#. translators: %s is the name of the connection resolver class.
+#: src/Data/Connection/AbstractConnectionResolver.php:428
+#, php-format
+msgid "The %s class does not rely on a query class. Please define a `query()` method to return the data directly."
+msgstr ""
+
+#. translators: %s is the name of the connection resolver class.
+#: src/Data/Connection/AbstractConnectionResolver.php:546
+#, php-format
+msgid "Class %s does not implement a valid method `loader_name()`."
+msgstr ""
+
+#: src/Data/Connection/AbstractConnectionResolver.php:563
+msgid "The Connection Resolver needs to define a loader name"
+msgstr ""
+
+#: src/Data/Connection/AbstractConnectionResolver.php:931
+msgid "The `first` and `last` connection args cannot be used together. For forward pagination, use `first` & `after`. For backward pagination, use `last` & `before`."
+msgstr ""
+
+#. translators: %s: The name of the arg that was invalid
+#: src/Data/Connection/AbstractConnectionResolver.php:952
+#, php-format
+msgid "%s must be a positive integer."
+msgstr ""
+
+#. translators: %1$s: The name of the class that should not use a query class. %2$s: The name of the query class that is set by the resolver.
+#: src/Data/Connection/AbstractConnectionResolver.php:1137
+#, php-format
+msgid "Class %1$s should not use a query class, but is attempting to use the %2$s query class."
+msgstr ""
+
+#. translators: %s: The connection resolver class name.
+#: src/Data/Connection/AbstractConnectionResolver.php:1149
+#, php-format
+msgid "%s requires a query class, but no query class is set."
+msgstr ""
+
+#. translators: %s: The name of the query class that is set by the resolver.
+#: src/Data/Connection/AbstractConnectionResolver.php:1160
+#, php-format
+msgid "The query class %s does not exist."
+msgstr ""
+
+#. translators: %1$s: The name of the query class that is set by the resolver. %2$s: The name of the resolver class.
+#: src/Data/Connection/AbstractConnectionResolver.php:1171
+#, php-format
+msgid "The query class %1$s is not compatible with %2$s."
+msgstr ""
+
+#. translators: %s: The name of the method that should be used instead.
+#: src/Data/Connection/AbstractConnectionResolver.php:1540
+#: src/Data/Connection/AbstractConnectionResolver.php:1564
+#: src/Data/Connection/AbstractConnectionResolver.php:1585
+#: src/Data/Connection/AbstractConnectionResolver.php:1610
+#: src/Data/Connection/AbstractConnectionResolver.php:1629
+#: src/Data/Connection/AbstractConnectionResolver.php:1648
+#: src/Data/Connection/AbstractConnectionResolver.php:1667
+#: src/Data/Connection/AbstractConnectionResolver.php:1688
+#, php-format
+msgid "This will be removed in the next major release. Use %s instead."
+msgstr ""
+
+#: src/Data/Connection/CommentConnectionResolver.php:86
+msgid "In order to sort by comment__in, an array of IDs must be passed as the commentIn argument"
+msgstr ""
+
+#: src/Data/Connection/PostObjectConnectionResolver.php:86
+msgid "WP_Query has been modified by a plugin or theme to suppress_filters, which will cause issues with WPGraphQL Execution. If you need to suppress filters for a specific reason within GraphQL, consider registering a custom field to the WPGraphQL Schema with a custom resolver."
+msgstr ""
+
+#: src/Data/Connection/UserConnectionResolver.php:102
+msgid "The `hasPublishedPosts` where arg does not support the `ATTACHMENT` value, and will be removed from the possible enum values in a future release."
+msgstr ""
+
+#: src/Data/Connection/UserConnectionResolver.php:226
+msgid "Sorry, you are not allowed to filter users by role."
+msgstr ""
+
+#: src/Data/Cursor/AbstractCursor.php:91
+msgid "Use 'graphql_before_cursor' or 'graphql_after_cursor' instead. This will be removed in the next major release"
+msgstr ""
+
+#. translators: %1$s: Cursor class name. %2$s: value type.
+#: src/Data/Cursor/AbstractCursor.php:167
+#, php-format
+msgid "Invalid value provided for %1$s cursor compare field. Expected Array, %2$s given."
+msgstr ""
+
+#. translators: %s: Cursor class name.
+#: src/Data/Cursor/AbstractCursor.php:181
+#, php-format
+msgid "Expected \"key\" value to be provided for %s cursor compare field. A string value must be given."
+msgstr ""
+
+#. translators: %s: Cursor class name.
+#: src/Data/Cursor/AbstractCursor.php:194
+#, php-format
+msgid "Expected \"value\" value to be provided for %s cursor compare field. A scalar value must be given."
+msgstr ""
+
+#. translators: %s: Cursor class name.
+#: src/Data/Cursor/AbstractCursor.php:207
+#, php-format
+msgid "Invalid value provided for \"type\" value to be provided for type of %s cursor compare field. A string value must be given."
+msgstr ""
+
+#. translators: %s: Cursor class name.
+#: src/Data/Cursor/AbstractCursor.php:220
+#, php-format
+msgid "Invalid value provided for \"order\" value to be provided for type of %s cursor compare field. Either \"ASC\" or \"DESC\" must be given."
+msgstr ""
+
+#. translators: %s: value type.
+#: src/Data/Cursor/AbstractCursor.php:269
+#, php-format
+msgid "Invalid value provided for graphql_cursor_compare_fields. Expected Array, %s given."
+msgstr ""
+
+#: src/Data/Cursor/CommentObjectCursor.php:31
+#: src/Data/Cursor/PostObjectCursor.php:33
+#: src/Data/Cursor/UserCursor.php:38
+msgid "The first argument should be an array of $query_vars, not the WP_Query object. This will throw an error in the next major release"
+msgstr ""
+
+#. translators: %s is the method name
+#: src/Data/Cursor/PostObjectCursor.php:292
+#: src/Data/Cursor/TermObjectCursor.php:212
+#: src/Data/Cursor/TermObjectCursor.php:233
+#: src/Data/Cursor/UserCursor.php:255
+#: src/Data/DataSource.php:664
+#: src/Data/DataSource.php:691
+#: src/Data/DataSource.php:715
+#: src/Data/DataSource.php:739
+#: src/Data/DataSource.php:763
+#: src/Data/Loader/AbstractDataLoader.php:487
+#: src/Data/Loader/AbstractDataLoader.php:507
+#: src/Data/Loader/AbstractDataLoader.php:528
+#, php-format
+msgid "This method will be removed in the next major release. Use %s instead."
+msgstr ""
+
+#. translators: %s is the name of the taxonomy.
+#: src/Data/DataSource.php:139
+#: src/Data/DataSource.php:146
+#, php-format
+msgid "No taxonomy was found with the name %s"
+msgstr ""
+
+#. translators: %s is the name of the theme stylesheet.
+#: src/Data/DataSource.php:186
+#, php-format
+msgid "No theme was found with the stylesheet: %s"
+msgstr ""
+
+#. translators: %s is the name of the user role.
+#: src/Data/DataSource.php:239
+#, php-format
+msgid "No user role was found with the name %s"
+msgstr ""
+
+#: src/Data/DataSource.php:560
+msgid "No type was found matching the node"
+msgstr ""
+
+#: src/Data/DataSource.php:583
+msgid "An ID needs to be provided to resolve a node."
+msgstr ""
+
+#. translators: %s is the global ID.
+#: src/Data/DataSource.php:600
+#, php-format
+msgid "The global ID isn't recognized ID: %s"
+msgstr ""
+
+#. translators: %s: The query class used to resolve the URI
+#: src/Data/NodeResolver.php:171
+#, php-format
+msgid "The query class %s used to resolve the URI does not exist."
+msgstr ""
+
+#: src/Data/NodeResolver.php:324
+msgid "Cannot parse provided URI"
+msgstr ""
+
+#: src/Data/NodeResolver.php:350
+msgid "Cannot return a resource for an external URI"
+msgstr ""
+
+#: src/Data/TermObjectMutation.php:54
+msgid "Please provide only one of parentId or parentDatabaseId"
+msgstr ""
+
+#: src/Data/TermObjectMutation.php:67
+msgid "The parent ID is not a valid ID"
+msgstr ""
+
+#: src/Data/TermObjectMutation.php:76
+#: src/Data/TermObjectMutation.php:93
+msgid "The parent does not exist"
+msgstr ""
+
+#: src/Data/UserMutation.php:34
+#: src/Mutation/UserCreate.php:55
+msgid "A string that contains the plain text password for the user."
+msgstr ""
+
+#: src/Data/UserMutation.php:40
+#: src/Mutation/UserCreate.php:61
+msgid "A string that contains a URL-friendly name for the user. The default is the user's username."
+msgstr ""
+
+#: src/Data/UserMutation.php:46
+#: src/Mutation/UserCreate.php:67
+msgid "A string containing the user's URL for the user's web site."
+msgstr ""
+
+#: src/Data/UserMutation.php:52
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:193
+#: src/Mutation/UserCreate.php:73
+#: src/Mutation/UserRegister.php:48
+msgid "A string containing the user's email address."
+msgstr ""
+
+#: src/Data/UserMutation.php:58
+#: src/Mutation/UserCreate.php:79
+msgid "A string that will be shown on the site. Defaults to user's username. It is likely that you will want to change this, for both appearance and security through obscurity (that is if you dont use and delete the default admin user)."
+msgstr ""
+
+#: src/Data/UserMutation.php:64
+#: src/Mutation/UserCreate.php:85
+msgid "The user's nickname, defaults to the user's username."
+msgstr ""
+
+#: src/Data/UserMutation.php:70
+#: src/Mutation/UserCreate.php:91
+msgid "The user's first name."
+msgstr ""
+
+#: src/Data/UserMutation.php:76
+#: src/Mutation/UserCreate.php:97
+msgid "The user's last name."
+msgstr ""
+
+#: src/Data/UserMutation.php:82
+#: src/Mutation/UserCreate.php:103
+msgid "A string containing content about the user."
+msgstr ""
+
+#: src/Data/UserMutation.php:88
+#: src/Mutation/UserCreate.php:109
+msgid "A string for whether to enable the rich editor or not. False if not empty."
+msgstr ""
+
+#: src/Data/UserMutation.php:94
+#: src/Mutation/UserCreate.php:115
+msgid "The date the user registered. Format is Y-m-d H:i:s."
+msgstr ""
+
+#: src/Data/UserMutation.php:100
+#: src/Mutation/UserCreate.php:123
+msgid "An array of roles to be assigned to the user."
+msgstr ""
+
+#: src/Data/UserMutation.php:106
+#: src/Mutation/UserCreate.php:129
+msgid "User's Jabber account."
+msgstr ""
+
+#: src/Data/UserMutation.php:112
+#: src/Mutation/UserCreate.php:135
+msgid "User's AOL IM account."
+msgstr ""
+
+#: src/Data/UserMutation.php:118
+#: src/Mutation/UserCreate.php:141
+msgid "User's Yahoo IM account."
+msgstr ""
+
+#: src/Data/UserMutation.php:124
+#: src/Mutation/UserCreate.php:147
+msgid "User's locale."
+msgstr ""
+
+#. Translators: The placeholder is the name of the user role
+#: src/Data/UserMutation.php:291
+#, php-format
+msgid "The %s role cannot be added to this user"
+msgstr ""
+
+#. Translators: The placeholder is the name of the user role
+#: src/Data/UserMutation.php:313
+#, php-format
+msgid "The role %s does not exist"
+msgstr ""
+
+#: src/Data/UserMutation.php:325
+msgid "Sorry, you cannot remove user editing permissions for your own account."
+msgstr ""
+
+#. Translators: %s is the name of the role that can't be added to the user.
+#: src/Data/UserMutation.php:339
+#, php-format
+msgid "Sorry, you are not allowed to give this the following role: %s."
+msgstr ""
+
+#: src/Deprecated.php:63
+#: src/Deprecated.php:96
+msgid "This will be removed in the next major release of WPGraphQL."
+msgstr ""
+
+#: src/Deprecated.php:129
+msgid "Deprecated in favor of the connectedNode field"
+msgstr ""
+
+#: src/Deprecated.php:132
+msgid "The object connected to this menu item."
+msgstr ""
+
+#: src/Deprecated.php:177
+msgid "This will be removed in the next version of WPGraphQL. Use the `graphql_pre_resolve_menu_item_connected_node` filter on `connectedNode` instead."
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:211
+#, php-format
+msgid "Get the %s object by its global ID"
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:221
+#, php-format
+msgid "Get the %s by its database ID"
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:231
+#, php-format
+msgid "Get the %s by its uri"
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:244
+#, php-format
+msgid "Get the %s by its slug (only available for non-hierarchical types)"
+msgstr ""
+
+#: src/Deprecated.php:260
+msgid "Deprecated in favor of using the single entry point for this type with ID and IDType fields. For example, instead of postBy( id: \"\" ), use post(id: \"\" idType: \"\")"
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:265
+#, php-format
+msgid "A %s object"
+msgstr ""
+
+#: src/Deprecated.php:276
+msgid "The \"id\" is invalid"
+msgstr ""
+
+#: src/Deprecated.php:355
+msgid "The ancestors of the content node."
+msgstr ""
+
+#: src/Deprecated.php:358
+msgid "This content type is not hierarchical and typically will not have ancestors"
+msgstr ""
+
+#: src/Deprecated.php:374
+msgid "The parent of the content node."
+msgstr ""
+
+#: src/Deprecated.php:377
+msgid "This content type is not hierarchical and typically will not have a parent"
+msgstr ""
+
+#. translators: %s is the post type's GraphQL name.
+#: src/Deprecated.php:407
+#, php-format
+msgid "The \"%s\" Type is not publicly queryable and does not support previews. This field will be removed in the future."
+msgstr ""
+
+#: src/Deprecated.php:440
+msgid "The user that the password reset email was sent to"
+msgstr ""
+
+#: src/Deprecated.php:443
+msgid "This field will be removed in a future version of WPGraphQL"
+msgstr ""
+
+#: src/Experimental/Admin.php:43
+msgid "Experiments 🧪"
+msgstr ""
+
+#: src/Experimental/Admin.php:46
+msgid "WPGraphQL Experiments are experimental features that are under active development, with the goal of shipping them as core WPGraphQL features. They may change, break, or disappear at any time. Enable experiments to test them out and provide feedback. We recommend enabling and testing them in a development environment before enabling them in production."
+msgstr ""
+
+#: src/Experimental/Admin.php:68
+msgid "No Experiments Available"
+msgstr ""
+
+#: src/Experimental/Admin.php:69
+msgid "There are no experiments available at this time."
+msgstr ""
+
+#. translators: %s: List of required experiment names
+#: src/Experimental/Admin.php:334
+#, php-format
+msgid "This experiment cannot be activated because required experiments are missing or inactive: %s"
+msgstr ""
+
+#. translators: %s: List of required experiment names
+#: src/Experimental/Admin.php:341
+#, php-format
+msgid "Required experiments: %s"
+msgstr ""
+
+#. translators: %s: List of optional experiment names
+#: src/Experimental/Admin.php:377
+#, php-format
+msgid "Enhanced functionality available with: %s"
+msgstr ""
+
+#. translators: %s: List of optional experiment names
+#: src/Experimental/Admin.php:383
+#, php-format
+msgid "Enhanced functionality available with: %s (not active)"
+msgstr ""
+
+#. translators: %1$s: The experiment's slug, %2$s: The deprecation message.
+#: src/Experimental/Experiment/AbstractExperiment.php:80
+#, php-format
+msgid "The experiment %1$s is deprecated: %2$s"
+msgstr ""
+
+#. translators: %1$s: The experiment's slug, %2$s: The expected README path.
+#: src/Experimental/Experiment/AbstractExperiment.php:152
+#, php-format
+msgid "Experiment \"%1$s\" is missing a README.md file. Consider adding documentation at %2$s"
+msgstr ""
+
+#: src/Experimental/Experiment/AbstractExperiment.php:190
+msgid "View documentation"
+msgstr ""
+
+#. translators: %s: The experiment's class name.
+#: src/Experimental/Experiment/AbstractExperiment.php:239
+#, php-format
+msgid "The experiment %s is missing a slug. Ensure a valid `slug` is defined in the ::slug() method."
+msgstr ""
+
+#. translators: %s: The experiment's class name.
+#: src/Experimental/Experiment/AbstractExperiment.php:376
+#, php-format
+msgid "The experiment %s is missing a configuration. Ensure a valid `config` is defined in the ::config() method."
+msgstr ""
+
+#. translators: %s: The experiment's class name.
+#: src/Experimental/Experiment/AbstractExperiment.php:386
+#, php-format
+msgid "The experiment %s is missing a title in the configuration. Ensure a valid `title` is defined in the ::config() method."
+msgstr ""
+
+#. translators: %s: The experiment's class name.
+#: src/Experimental/Experiment/AbstractExperiment.php:396
+#, php-format
+msgid "The experiment %s is missing a description in the configuration. Ensure a valid `description` is defined in the ::config() method."
+msgstr ""
+
+#. translators: %s: The experiment's class name.
+#: src/Experimental/Experiment/AbstractExperiment.php:406
+#, php-format
+msgid "The experiment %s has an invalid deprecation message in the configuration. If you are trying to deprecate the Experiment, ensure a valid `deprecationMessage` is defined in the ::config() method. Otherwise remove the `deprecationMessage` from the array"
+msgstr ""
+
+#. translators: %s: The value that was passed to be serialized
+#. translators: %s: The value that was passed to be parsed
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:32
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:72
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:112
+#, php-format
+msgid "Email address must be a string. Received: %s"
+msgstr ""
+
+#. translators: %s: The invalid email value
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:45
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:85
+#, php-format
+msgid "Value is not a valid email address: %s"
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddress.php:133
+msgid "The `EmailAddress` scalar type represents a valid email address, conforming to the HTML specification and RFC 5322."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddressScalarExperiment.php:45
+msgid "Email Address Scalar"
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddressScalarExperiment.php:46
+msgid "Registers the EmailAddress scalar type for validating email addresses using WordPress's is_email() function. This provides better type safety and validation for email fields."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddressScalarExperiment.php:56
+msgid "Email Address Scalar experiment activated! The EmailAddress scalar type is now available for use in custom fields. See the documentation for usage examples."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarExperiment/EmailAddressScalarExperiment.php:65
+msgid "Email Address Scalar experiment deactivated. The EmailAddress scalar type has been removed from the schema. Any custom fields using this scalar will now fail validation."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:40
+msgid "Email Address Scalar Fields"
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:41
+msgid "Adds emailAddress fields using the EmailAddress scalar to core WPGraphQL types including User, Commenter, CommentAuthor, and GeneralSettings. Also updates mutation inputs to accept EmailAddress values."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:60
+msgid "Email Address Scalar Fields experiment activated! New emailAddress fields are now available on User, Commenter, CommentAuthor, and GeneralSettings types. Deprecated email fields remain functional for backward compatibility."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:69
+msgid "Email Address Scalar Fields experiment deactivated. The emailAddress fields have been removed from the schema. Existing email String fields continue to work normally."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:101
+msgid "Email address of the comment author. Only visible to users with comment moderation privileges."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:117
+msgid "Email address of the site administrator. Only visible to users with administrative privileges."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:121
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:228
+#: src/Type/ObjectType/SettingGroup.php:102
+#: src/Type/ObjectType/Settings.php:104
+msgid "Sorry, you do not have permission to view this setting."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:136
+msgid "The email address representing the author for this particular comment"
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:176
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:41
+msgid "The user's email address."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:188
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:194
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:247
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:279
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:311
+msgid "Deprecated in favor of the `emailAddress` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:211
+msgid "Deprecated in favor of the `adminEmail` field for better validation and type safety. This deprecation is part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:218
+msgid "WPGraphQL: The field \"GeneralSettings.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"GeneralSettings.adminEmail\" instead."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:254
+msgid "WPGraphQL: The field \"Commenter.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"Commenter.emailAddress\" instead."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:286
+msgid "WPGraphQL: The field \"CommentAuthor.email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"CommentAuthor.emailAddress\" instead."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:318
+msgid "WPGraphQL: The connection edge field \"email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"emailAddress\" instead."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:361
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:397
+msgid "Cannot provide both \"email\" and \"emailAddress\" fields. Please use \"emailAddress\" as \"email\" is deprecated as part of the Email Address Scalar Fields experiment."
+msgstr ""
+
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:374
+#: src/Experimental/Experiment/EmailAddressScalarFieldsExperiment/EmailAddressScalarFieldsExperiment.php:404
+msgid "WPGraphQL: The input field \"email\" is deprecated as part of the Email Address Scalar Fields experiment. If the experiment graduates to core, this field would be deprecated in a future version. Use \"emailAddress\" instead."
+msgstr ""
+
+#: src/Experimental/Experiment/TestDependantExperiment/TestDependantExperiment.php:70
+msgid "Test Dependant Experiment"
+msgstr ""
+
+#: src/Experimental/Experiment/TestDependantExperiment/TestDependantExperiment.php:71
+msgid "A demonstration experiment that depends on TestExperiment. This shows how experiments can depend on other experiments and use their functionality."
+msgstr ""
+
+#: src/Experimental/Experiment/TestDependantExperiment/TestDependantExperiment.php:81
+msgid "Test Dependant Experiment activated! The `testDependantExperiment` field is now available in your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestDependantExperiment/TestDependantExperiment.php:90
+msgid "Test Dependant Experiment deactivated. The `testDependantExperiment` field has been removed from your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestDependantExperiment/TestDependantExperiment.php:112
+msgid "A test field that demonstrates experiment dependencies. This field uses data from the TestExperiment dependency."
+msgstr ""
+
+#: src/Experimental/Experiment/TestExperiment/TestExperiment.php:52
+msgid "Test Experiment"
+msgstr ""
+
+#: src/Experimental/Experiment/TestExperiment/TestExperiment.php:53
+msgid "A test experiment for WPGraphQL. Registers the `RootQuery.testExperiment` field to the schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestExperiment/TestExperiment.php:63
+msgid "Test Experiment activated! The `testExperiment` field is now available in your GraphQL schema. This is only a test experiment to demonstrate the Experiments API."
+msgstr ""
+
+#: src/Experimental/Experiment/TestExperiment/TestExperiment.php:72
+msgid "Test Experiment deactivated. The `testExperiment` field has been removed from your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:70
+msgid "Test Optional Dependency Experiment"
+msgstr ""
+
+#: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:71
+msgid "A demonstration experiment that shows how optional dependencies work. This experiment functions independently but provides enhanced functionality when TestExperiment is also active."
+msgstr ""
+
+#: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:81
+msgid "Test Optional Dependency Experiment activated! The `testOptionalDependency` field is now available in your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:90
+msgid "Test Optional Dependency Experiment deactivated. The `testOptionalDependency` field has been removed from your GraphQL schema."
+msgstr ""
+
+#: src/Experimental/Experiment/TestOptionalDependencyExperiment/TestOptionalDependencyExperiment.php:112
+msgid "A test field that demonstrates optional dependencies. Returns enhanced data if TestExperiment is active, basic data otherwise."
+msgstr ""
+
+#: src/Experimental/ExperimentRegistry.php:124
+msgid "Registered experiments have not been set. Make sure not to call this function before the `graphql_experiments_registered` hook."
+msgstr ""
+
+#: src/Experimental/ExperimentRegistry.php:143
+msgid "Experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook."
+msgstr ""
+
+#: src/Experimental/ExperimentRegistry.php:162
+msgid "Active experiments have not been loaded. Make sure not to call this function before the `graphql_experiments_loaded` hook."
+msgstr ""
+
+#. translators: %s is the fully-qualified class name for AbstractExperiment.
+#: src/Experimental/ExperimentRegistry.php:343
+#, php-format
+msgid "Experiment classes must extend the %s class."
+msgstr ""
+
+#. translators: %s is the menu item ID.
+#: src/Model/MenuItem.php:81
+#, php-format
+msgid "No menus could be found for menu item %s"
+msgstr ""
+
+#. translators: %s is the name of the model.
+#: src/Model/Model.php:90
+#, php-format
+msgid "An empty data set was used to initialize the modeling of this %s object"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:38
+msgid "The approval status of the comment."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:41
+msgid "Deprecated in favor of the status field"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:47
+msgid "The name of the comment's author."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:53
+msgid "The email of the comment's author."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:59
+msgid "The url of the comment's author."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:65
+msgid "The database ID of the post object the comment belongs to."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:71
+msgid "Content of the comment."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:77
+msgid "The date of the object. Preferable to enter as year/month/day ( e.g. 01/31/2017 ) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, \"2017\" as the input will use current date with timestamp 20:17 "
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:83
+msgid "Parent comment ID of current comment."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:89
+msgid "The approval status of the comment"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:95
+msgid "Type of comment."
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:111
+msgid "The comment that was created"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:137
+msgid "Whether the mutation succeeded. If the comment is not approved, the server will not return the comment to a non authenticated user, but a success message can be returned if the create succeeded, and the client can optimistically add the comment to the client cache"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:155
+msgid "Mutation not processed. There was no input for the mutation or the comment_object was invalid"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:161
+msgid "The ID of the node to comment on is invalid"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:168
+msgid "Sorry, this post is closed to comments at the moment"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:172
+msgid "This site requires you to be logged in to leave a comment"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:201
+#: src/Mutation/PostObjectCreate.php:340
+#: src/Mutation/UserCreate.php:198
+msgid "The object failed to create but no error was provided"
+msgstr ""
+
+#: src/Mutation/CommentCreate.php:209
+#: src/Mutation/PostObjectCreate.php:323
+#: src/Mutation/TermObjectCreate.php:184
+#: src/Mutation/UserCreate.php:206
+msgid "The object failed to create"
+msgstr ""
+
+#: src/Mutation/CommentDelete.php:40
+#: src/Mutation/CommentDelete.php:62
+msgid "The deleted comment ID"
+msgstr ""
+
+#: src/Mutation/CommentDelete.php:46
+msgid "Whether the comment should be force deleted instead of being moved to the trash"
+msgstr ""
+
+#: src/Mutation/CommentDelete.php:73
+msgid "The deleted comment object"
+msgstr ""
+
+#: src/Mutation/CommentDelete.php:96
+msgid "The Comment could not be deleted"
+msgstr ""
+
+#: src/Mutation/CommentDelete.php:124
+msgid "Sorry, you are not allowed to delete this comment."
+msgstr ""
+
+#: src/Mutation/CommentRestore.php:44
+msgid "The ID of the comment to be restored"
+msgstr ""
+
+#: src/Mutation/CommentRestore.php:60
+msgid "The ID of the restored comment"
+msgstr ""
+
+#: src/Mutation/CommentRestore.php:71
+msgid "The restored comment object"
+msgstr ""
+
+#: src/Mutation/CommentRestore.php:92
+#: src/Mutation/CommentRestore.php:99
+msgid "Sorry, you are not allowed to restore this comment."
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:48
+msgid "The ID of the comment being updated."
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:78
+msgid "The Comment could not be updated"
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:108
+msgid "Sorry, you are not allowed to update this comment."
+msgstr ""
+
+#: src/Mutation/CommentUpdate.php:113
+msgid "No changes have been provided to the comment."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:39
+msgid "Alternative text to display when mediaItem is not displayed"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:45
+msgid "The userId to assign as the author of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:51
+msgid "The caption for the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:57
+msgid "The comment status for the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:63
+msgid "The date of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:69
+msgid "The date (in GMT zone) of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:75
+msgid "Description of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:81
+msgid "The file name of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:87
+msgid "The file type of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:93
+msgid "The slug of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:99
+msgid "The status of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:105
+msgid "The title of the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:111
+msgid "The ping status for the mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:117
+#: src/Mutation/PostObjectCreate.php:162
+msgid "The ID of the parent object"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:133
+msgid "The MediaItem object mutation type."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:157
+msgid "Sorry, you are not allowed to upload mediaItems"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:162
+msgid "The Media Item could not be created"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:175
+msgid "Sorry, you are not allowed to create mediaItems as this user"
+msgstr ""
+
+#. translators: %s is the file path.
+#: src/Mutation/MediaItemCreate.php:193
+#, php-format
+msgid "Invalid filePath \"%s\""
+msgstr ""
+
+#. translators: %1$s is the protocol, %2$s is the list of allowed protocols.
+#: src/Mutation/MediaItemCreate.php:217
+#, php-format
+msgid "Invalid protocol. \"%1$s\". Only \"%2$s\" allowed."
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:245
+msgid "Sorry, the file could not be uploaded"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:260
+msgid "Sorry, the URL for this file is invalid, it must be a valid URL"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:292
+msgid "Sorry, the URL for this file is invalid, it must be a path to the mediaItem file"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:314
+msgid "The parent of the Media Item is of an invalid type"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:318
+msgid "Sorry, you are not allowed to upload mediaItems assigned to this parent node"
+msgstr ""
+
+#: src/Mutation/MediaItemCreate.php:340
+msgid "The media item failed to create but no error was provided"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:39
+msgid "The ID of the mediaItem to delete"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:45
+msgid "Whether the mediaItem should be force deleted instead of being moved to the trash"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:61
+msgid "The ID of the deleted mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:72
+msgid "The mediaItem before it was deleted"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:101
+msgid "No mediaItem with that ID could be found to delete"
+msgstr ""
+
+#. Translators: the placeholder is the post_type of the object being deleted
+#: src/Mutation/MediaItemDelete.php:107
+#, php-format
+msgid "Sorry, the item you are trying to delete is a %1%s, not a mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemDelete.php:116
+msgid "Sorry, you are not allowed to delete mediaItems"
+msgstr ""
+
+#. translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+#: src/Mutation/MediaItemDelete.php:130
+#, php-format
+msgid "The mediaItem with id %1$s is already in the trash. To remove from the trash, use the forceDelete input"
+msgstr ""
+
+#. translators: the placeholder is the name of the type of post object being updated
+#: src/Mutation/MediaItemUpdate.php:46
+#: src/Mutation/PostObjectUpdate.php:50
+#, php-format
+msgid "The ID of the %1$s object"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:89
+msgid "No mediaItem with that ID could be found to update"
+msgstr ""
+
+#. translators: The placeholder is the ID of the mediaItem being edited
+#: src/Mutation/MediaItemUpdate.php:97
+#, php-format
+msgid "The id %1$d is not of the type mediaItem"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:104
+msgid "Sorry, you are not allowed to update mediaItems"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:125
+msgid "Sorry, you are not allowed to update mediaItems as this user."
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:137
+msgid "The media item failed to update"
+msgstr ""
+
+#: src/Mutation/MediaItemUpdate.php:154
+msgid "The media item failed to update but no error was provided"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:50
+msgid "The date of the object. Preferable to enter as year/month/day (e.g. 01/31/2017) as it will rearrange date as fit if it is not specified. Incomplete dates may have unintended results for example, \"2017\" as the input will use current date with timestamp 20:17 "
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:56
+#: src/Type/InterfaceType/NodeWithPageAttributes.php:28
+msgid "A field used for ordering posts. This is typically used with nav menu items or for special ordering of hierarchical content types."
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:62
+msgid "The password used to protect the content of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:68
+msgid "The slug of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:74
+msgid "The status of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:83
+msgid "The userId to assign as the author of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:92
+msgid "The comment status for the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:101
+msgid "The content of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:110
+msgid "The excerpt of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:119
+msgid "The title of the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:130
+#: src/Type/InterfaceType/NodeWithTrackbacks.php:34
+msgid "URLs that have been pinged."
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:137
+msgid "The ping status for the object"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:146
+#: src/Type/InterfaceType/NodeWithTrackbacks.php:28
+msgid "URLs queued to be pinged."
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:171
+msgid "If the post is an attachment or a media file, this field will carry the corresponding MIME type. This field is equivalent to the value of WP_Post->post_mime_type and the post_mime_type column in the \"post_objects\" database table."
+msgstr ""
+
+#. translators: %1$s is the post type GraphQL name, %2$s is the taxonomy GraphQL name.
+#: src/Mutation/PostObjectCreate.php:185
+#, php-format
+msgid "Set connections between the %1$s and %2$s"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:210
+msgid "The Post object mutation type."
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:238
+msgid "Mutation not processed. There was no input for the mutation or the post_type_object was invalid"
+msgstr ""
+
+#. translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
+#. translators: the $taxonomy->graphql_plural_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectCreate.php:246
+#: src/Mutation/TermObjectCreate.php:140
+#, php-format
+msgid "Sorry, you are not allowed to create %1$s"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:260
+msgid "The provided `authorId` is not a valid user"
+msgstr ""
+
+#. translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectCreate.php:265
+#, php-format
+msgid "Sorry, you are not allowed to create %1$s as this user"
+msgstr ""
+
+#: src/Mutation/PostObjectCreate.php:384
+msgid "The status of the post could not be set"
+msgstr ""
+
+#. translators: The placeholder is the name of the post's post_type being deleted
+#. translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/PostObjectDelete.php:49
+#: src/Mutation/TermObjectDelete.php:52
+#, php-format
+msgid "The ID of the %1$s to delete"
+msgstr ""
+
+#: src/Mutation/PostObjectDelete.php:55
+msgid "Whether the object should be force deleted instead of being moved to the trash"
+msgstr ""
+
+#: src/Mutation/PostObjectDelete.php:61
+#: src/Mutation/PostObjectUpdate.php:56
+msgid "Override the edit lock when another user is editing the post"
+msgstr ""
+
+#: src/Mutation/PostObjectDelete.php:79
+#: src/Mutation/TermObjectDelete.php:70
+msgid "The ID of the deleted object"
+msgstr ""
+
+#: src/Mutation/PostObjectDelete.php:91
+msgid "The object before it was deleted"
+msgstr ""
+
+#. translators: the $post_type_object->graphql_plural_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectDelete.php:121
+#, php-format
+msgid "Sorry, you are not allowed to delete %1$s"
+msgstr ""
+
+#: src/Mutation/PostObjectDelete.php:135
+msgid "The post could not be deleted"
+msgstr ""
+
+#. Translators: the first placeholder is the post_type of the object being deleted and the second placeholder is the unique ID of that object
+#: src/Mutation/PostObjectDelete.php:146
+#, php-format
+msgid "The %1$s with id %2$s is already in the trash. To remove from the trash, use the forceDelete input"
+msgstr ""
+
+#. translators: %s: User's display name.
+#: src/Mutation/PostObjectDelete.php:155
+#, php-format
+msgid "You cannot delete this item. %s is currently editing."
+msgstr ""
+
+#. translators: the placeholder is the name of the type of post being updated
+#: src/Mutation/PostObjectUpdate.php:93
+#, php-format
+msgid "No %1$s could be found to update"
+msgstr ""
+
+#. translators: The first placeholder is an ID and the second placeholder is the name of the post type being edited
+#: src/Mutation/PostObjectUpdate.php:98
+#: src/Mutation/TermObjectUpdate.php:123
+#, php-format
+msgid "The id %1$d is not of the type \"%2$s\""
+msgstr ""
+
+#. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectUpdate.php:106
+#, php-format
+msgid "Sorry, you are not allowed to update a %1$s"
+msgstr ""
+
+#. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectUpdate.php:114
+#, php-format
+msgid "Sorry, you are not allowed to update another author's %1$s"
+msgstr ""
+
+#. translators: the $post_type_object->graphql_single_name placeholder is the name of the object being mutated
+#: src/Mutation/PostObjectUpdate.php:136
+#, php-format
+msgid "Sorry, you are not allowed to update %1$s as this user."
+msgstr ""
+
+#. translators: %s: User's display name.
+#: src/Mutation/PostObjectUpdate.php:145
+#, php-format
+msgid "You cannot update this item. %s is currently editing."
+msgstr ""
+
+#: src/Mutation/PostObjectUpdate.php:167
+msgid "The object failed to update."
+msgstr ""
+
+#: src/Mutation/PostObjectUpdate.php:184
+#: src/Mutation/TermObjectCreate.php:176
+msgid "The object failed to update but no error was provided"
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:35
+msgid "Password reset key"
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:41
+msgid "The user's login (username)."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:47
+msgid "The new password."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:70
+msgid "A password reset key is required."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:74
+msgid "A user login is required."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:78
+msgid "A new password is required."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:92
+msgid "Password reset link has expired."
+msgstr ""
+
+#: src/Mutation/ResetUserPassword.php:94
+msgid "Password reset link is invalid."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:20
+msgid "Send password reset email to user"
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:41
+msgid "A string that contains the user's username or email address."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:57
+msgid "Whether the mutation completed successfully. This does NOT necessarily mean that an email was sent."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:71
+msgid "Enter a username or email address."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:91
+msgid "Unable to generate a password reset key."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:108
+msgid "The email could not be sent."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:108
+msgid "Possible reason: your host may have disabled the mail() function."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:160
+msgid "There is no user registered with that email address."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:163
+msgid "Invalid username."
+msgstr ""
+
+#. translators: Password reset email subject. %s: Site name
+#: src/Mutation/SendPasswordResetEmail.php:182
+#, php-format
+msgid "[%s] Password Reset"
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:220
+msgid "Someone has requested a password reset for the following account:"
+msgstr ""
+
+#. translators: %s: site name
+#: src/Mutation/SendPasswordResetEmail.php:222
+#, php-format
+msgid "Site Name: %s"
+msgstr ""
+
+#. translators: %s: user login
+#: src/Mutation/SendPasswordResetEmail.php:224
+#, php-format
+msgid "Username: %s"
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:225
+msgid "If this was a mistake, just ignore this email and nothing will happen."
+msgstr ""
+
+#: src/Mutation/SendPasswordResetEmail.php:226
+msgid "To reset your password, visit the following address:"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#. Translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:34
+#: src/Mutation/TermObjectUpdate.php:51
+#, php-format
+msgid "The name of the %1$s object to mutate"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:58
+#, php-format
+msgid "The slug that the %1$s will be an alias of"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:65
+#, php-format
+msgid "The description of the %1$s object"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:72
+msgid "If this argument exists then the slug will be checked to see if it is not an existing valid term. If that check succeeds (it is not a valid term), then it is added and the term id is given. If it fails, then a check is made to whether the taxonomy is hierarchical and the parent argument is not empty. If the second check succeeds, the term will be inserted and the term id will be given. If the slug argument is empty, then it will be calculated from the term name."
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:85
+#, php-format
+msgid "The ID of the %1$s that should be set as the parent. This field cannot be used in conjunction with parentDatabaseId"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy for the object being mutated
+#: src/Mutation/TermObjectCreate.php:92
+#, php-format
+msgid "The database ID of the %1$s that should be set as the parent. This field cannot be used in conjunction with parentId"
+msgstr ""
+
+#. translators: Placeholder is the name of the taxonomy
+#: src/Mutation/TermObjectCreate.php:113
+#, php-format
+msgid "The created %s"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy of the term being mutated
+#: src/Mutation/TermObjectCreate.php:153
+#, php-format
+msgid "A name is required to create a %1$s"
+msgstr ""
+
+#. translators: The placeholder is the name of the taxonomy of the term being mutated
+#: src/Mutation/TermObjectCreate.php:160
+#, php-format
+msgid "A valid name is required to create a %1$s"
+msgstr ""
+
+#: src/Mutation/TermObjectDelete.php:81
+msgid "The deleted term object"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectDelete.php:105
+#, php-format
+msgid "The ID for the %1$s was not valid"
+msgstr ""
+
+#: src/Mutation/TermObjectDelete.php:114
+msgid "The ID passed is invalid"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being edited
+#: src/Mutation/TermObjectDelete.php:122
+#: src/Mutation/TermObjectUpdate.php:95
+#, php-format
+msgid "The ID passed is not for a %1$s object"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectDelete.php:130
+#, php-format
+msgid "You do not have permission to delete %1$s"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectDelete.php:147
+#, php-format
+msgid "The %1$s failed to delete but no error was provided"
+msgstr ""
+
+#. Translators: The placeholder is the taxonomy of the term being updated
+#: src/Mutation/TermObjectUpdate.php:60
+#, php-format
+msgid "The ID of the %1$s object to update"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectUpdate.php:113
+#: src/Mutation/TermObjectUpdate.php:118
+#, php-format
+msgid "The %1$s node failed to update"
+msgstr ""
+
+#. Translators: The placeholder is the name of the taxonomy for the term being deleted
+#: src/Mutation/TermObjectUpdate.php:131
+#, php-format
+msgid "You do not have permission to update %1$s"
+msgstr ""
+
+#. Translators: the placeholder is the name of the taxonomy
+#: src/Mutation/TermObjectUpdate.php:151
+#, php-format
+msgid "The %1$s failed to update"
+msgstr ""
+
+#: src/Mutation/UpdateSettings.php:125
+msgid "Update all settings."
+msgstr ""
+
+#. translators: %s is the setting type name
+#: src/Mutation/UpdateSettings.php:142
+#, php-format
+msgid "Update the %s setting."
+msgstr ""
+
+#: src/Mutation/UpdateSettings.php:168
+msgid "Sorry, you are not allowed to edit settings as this user."
+msgstr ""
+
+#: src/Mutation/UpdateSettings.php:212
+msgid "Sorry, that is not allowed, speak with your site administrator to change the site URL."
+msgstr ""
+
+#: src/Mutation/UserCreate.php:33
+msgid "A string that contains the user's username for logging in."
+msgstr ""
+
+#: src/Mutation/UserCreate.php:163
+msgid "The User object mutation type."
+msgstr ""
+
+#: src/Mutation/UserCreate.php:177
+msgid "Sorry, you are not allowed to create a new user."
+msgstr ""
+
+#: src/Mutation/UserDelete.php:44
+msgid "The ID of the user you want to delete"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:50
+msgid "Reassign posts and links to new User ID."
+msgstr ""
+
+#: src/Mutation/UserDelete.php:66
+msgid "The ID of the user that you just deleted"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:76
+msgid "The deleted user object"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:96
+#: src/Mutation/UserUpdate.php:70
+msgid "The user ID passed is invalid"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:100
+msgid "Sorry, you are not allowed to delete users."
+msgstr ""
+
+#: src/Mutation/UserDelete.php:112
+msgid "Could not find an existing user to delete"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:123
+msgid "The user ID passed to `reassignId` is invalid"
+msgstr ""
+
+#: src/Mutation/UserDelete.php:131
+msgid "Could not find the existing user to reassign."
+msgstr ""
+
+#: src/Mutation/UserDelete.php:168
+msgid "Could not delete the user."
+msgstr ""
+
+#: src/Mutation/UserRegister.php:42
+msgid "A string that contains the user's username."
+msgstr ""
+
+#: src/Mutation/UserRegister.php:79
+msgid "User registration is currently not allowed."
+msgstr ""
+
+#: src/Mutation/UserRegister.php:83
+msgid "A username was not provided."
+msgstr ""
+
+#: src/Mutation/UserRegister.php:87
+msgid "An email address was not provided."
+msgstr ""
+
+#: src/Mutation/UserRegister.php:108
+msgid "The user failed to register but no error was provided"
+msgstr ""
+
+#: src/Mutation/UserRegister.php:116
+msgid "The user failed to create"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:42
+msgid "The ID of the user"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:78
+msgid "A user could not be updated with the provided ID"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:82
+#: src/Mutation/UserUpdate.php:87
+msgid "You do not have the appropriate capabilities to perform this action"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:106
+msgid "The user failed to update but no error was provided"
+msgstr ""
+
+#: src/Mutation/UserUpdate.php:114
+msgid "The user failed to update"
+msgstr ""
+
+#. translators: %1$s is the GraphQL plural name of the taxonomy, %2$s is the GraphQL singular name of the post type.
+#: src/Registry/TypeRegistry.php:459
+#, php-format
+msgid "List of %1$s to connect the %2$s to. If an ID is set, it will be used to create the connection. If not, it will look for a slug. If neither are valid existing terms, and the site is configured to allow terms to be created during post mutations, a term will be created using the Name if it exists in the input, then fallback to the slug if it exists."
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the GraphQL name of the post type.
+#: src/Registry/TypeRegistry.php:470
+#, php-format
+msgid "The ID of the %1$s. If present, this will be used to connect to the %2$s. If no existing %1$s exists with this ID, no connection will be made."
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the taxonomy.
+#: src/Registry/TypeRegistry.php:481
+#, php-format
+msgid "The slug of the %1$s. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation."
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the taxonomy.
+#: src/Registry/TypeRegistry.php:491
+#, php-format
+msgid "The description of the %1$s. This field is used to set a description of the %1$s if a new one is created during the mutation."
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the taxonomy.
+#: src/Registry/TypeRegistry.php:501
+#, php-format
+msgid "The name of the %1$s. This field is used to create a new term, if term creation is enabled in nested mutations, and if one does not already exist with the provided slug or ID or if a slug or ID is not provided. If no name is included and a term is created, the creation will fallback to the slug field."
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the post type, %2$s is the plural GraphQL name of the taxonomy.
+#: src/Registry/TypeRegistry.php:516
+#, php-format
+msgid "Set relationships between the %1$s to %2$s"
+msgstr ""
+
+#. translators: %1$s is the GraphQL name of the taxonomy, %2$s is the plural GraphQL name of the taxonomy.
+#: src/Registry/TypeRegistry.php:527
+#, php-format
+msgid "If true, this will append the %1$s to existing related %2$s. If false, this will replace existing relationships. Default true."
+msgstr ""
+
+#: src/Registry/TypeRegistry.php:538
+msgid "The input list of items to set."
+msgstr ""
+
+#: src/Registry/TypeRegistry.php:584
+msgid "Site URL."
+msgstr ""
+
+#. translators: %s is the GraphQL name of the settings group.
+#: src/Registry/TypeRegistry.php:610
+#, php-format
+msgid "Fields of the '%s' settings group"
+msgstr ""
+
+#. translators: %s is the name of the type.
+#: src/Registry/TypeRegistry.php:705
+#, php-format
+msgid "The Type name '%1$s' is invalid and has not been added to the GraphQL Schema."
+msgstr ""
+
+#. translators: %s is the name of the type.
+#: src/Registry/TypeRegistry.php:723
+#, php-format
+msgid "You cannot register duplicate Types to the Schema. The Type '%1$s' already exists in the Schema. Make sure to give new Types a unique name."
+msgstr ""
+
+#. translators: %s is the Field name.
+#: src/Registry/TypeRegistry.php:1021
+#, php-format
+msgid "The registered field '%s' does not have a Type defined. Make sure to define a type for all fields."
+msgstr ""
+
+#. translators: %1$s is the Field name, %2$s is the type name the field belongs to. %3$s is the non-existent type name being referenced.
+#: src/Registry/TypeRegistry.php:1050
+#, php-format
+msgid "The field '%1$s' on Type '%2$s' is configured to return '%3$s' which is a non-existent Type in the Schema. Make sure to define a valid type for all fields. This might occur if there was a typo with '%3$s', or it needs to be registered to the Schema."
+msgstr ""
+
+#. translators: %1$s is the field name, %2$s is the type name.
+#: src/Registry/TypeRegistry.php:1180
+#, php-format
+msgid "The field '%1$s' on Type '%2$s' is invalid. Field names cannot start with a number."
+msgstr ""
+
+#. translators: %1$s is the field name, %2$s is the type name.
+#: src/Registry/TypeRegistry.php:1218
+#, php-format
+msgid "You cannot register duplicate fields on the same Type. The field '%1$s' already exists on the type '%2$s'. Make sure to give the field a unique name."
+msgstr ""
+
+#. translators: post object singular name w/ description
+#. translators: taxonomy object singular name w/ description
+#: src/Registry/Utils/PostObject.php:43
+#: src/Registry/Utils/TermObject.php:42
+#, php-format
+msgid "The %s type"
+msgstr ""
+
+#. translators: %1$s is the post type name, %2$s is the graphql kind.
+#. translators: %1$s is the term object singular name, %2$s is the graphql kind.
+#: src/Registry/Utils/PostObject.php:75
+#: src/Registry/Utils/TermObject.php:68
+#, php-format
+msgid "%1$s is registered as a GraphQL %2$s, but has no way to resolve the type. Ensure \"graphql_resolve_type\" is a valid callback function"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:96
+msgid "Registering a post type with \"graphql_kind\" => \"union\" requires \"graphql_union_types\" to be a valid array of possible GraphQL type names."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:174
+#: src/Type/Connection/TermObjects.php:35
+msgid "The Taxonomy to filter terms by"
+msgstr ""
+
+#. translators: %s: custom post-type name
+#: src/Registry/Utils/PostObject.php:330
+#, php-format
+msgid "The globally unique identifier of the %s object."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:340
+#: src/Type/ObjectType/Menu.php:42
+#: src/Type/ObjectType/MenuItem.php:152
+#: src/Type/ObjectType/User.php:199
+msgid "Deprecated in favor of the databaseId field"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:343
+#: src/Registry/Utils/TermObject.php:322
+msgid "The id field matches the WP_Post->ID field."
+msgstr ""
+
+#. translators: %s: custom post-type name.
+#: src/Registry/Utils/PostObject.php:354
+#, php-format
+msgid "Whether the %s object is password protected."
+msgstr ""
+
+#. translators: %s: custom post-type name.
+#: src/Registry/Utils/PostObject.php:364
+#, php-format
+msgid "The password for the %s object."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:375
+#: src/Type/ObjectType/ContentType.php:179
+msgid "Whether this page is set to the static front page."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:382
+#: src/Type/ObjectType/ContentType.php:185
+msgid "Whether this page is set to the blog posts page."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:389
+msgid "Whether this page is set to the privacy page."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:398
+msgid "Whether this page is sticky"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:433
+msgid "The caption for the resource"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:439
+#: src/Registry/Utils/PostObject.php:530
+#: src/Type/InterfaceType/NodeWithContentEditor.php:33
+#: src/Type/InterfaceType/NodeWithExcerpt.php:34
+#: src/Type/InterfaceType/NodeWithTitle.php:34
+#: src/Type/ObjectType/Comment.php:138
+msgid "Format of the field output"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:456
+msgid "Alternative text to display when resource is not displayed"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:465
+msgid "Size of the MediaItem to calculate srcSet with"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:470
+msgid "The srcset attribute specifies the URL of the image to use in different situations. It is a comma separated string of urls and their widths."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:489
+msgid "Size of the MediaItem to calculate sizes with"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:494
+msgid "The sizes attribute value for an image."
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:524
+msgid "Description of the image (stored as post_content)"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:547
+#: src/Registry/Utils/PostObject.php:559
+msgid "Url of the mediaItem"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:553
+msgid "Type of resource"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:565
+#: src/Registry/Utils/PostObject.php:590
+#: src/Registry/Utils/PostObject.php:621
+#: src/Registry/Utils/PostObject.php:662
+msgid "Size of the MediaItem to return"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:584
+msgid "The filename of the mediaItem for the specified size (default size is full)"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:615
+msgid "The path to the original file relative to the uploads directory"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:656
+msgid "The filesize in bytes of the resource"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:696
+msgid "The mime type of the mediaItem"
+msgstr ""
+
+#: src/Registry/Utils/PostObject.php:702
+msgid "Details about the mediaItem"
+msgstr ""
+
+#: src/Registry/Utils/TermObject.php:89
+msgid "Registering a taxonomy with \"graphql_kind\" => \"union\" requires \"graphql_union_types\" to be a valid array of possible GraphQL type names."
+msgstr ""
+
+#. translators: %1$s is the term object singular name, %2$s is the term object plural name.
+#: src/Registry/Utils/TermObject.php:135
+#, php-format
+msgid "Connection between the %1$s type and its children %2$s."
+msgstr ""
+
+#. translators: %s is the term object singular name.
+#: src/Registry/Utils/TermObject.php:156
+#, php-format
+msgid "Connection between the %1$s type and its parent %1$s."
+msgstr ""
+
+#: src/Registry/Utils/TermObject.php:178
+msgid "The ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root)."
+msgstr ""
+
+#: src/Registry/Utils/TermObject.php:319
+#: src/Type/ObjectType/Comment.php:126
+msgid "Deprecated in favor of databaseId"
+msgstr ""
+
+#: src/Request.php:303
+msgid "Batch Queries are not supported"
+msgstr ""
+
+#. translators: First placeholder is the max number of batch operations allowed in a GraphQL request. The 2nd placeholder is the number of operations requested in the current request.
+#: src/Request.php:313
+#, php-format
+msgid "Batch requests are limited to %1$d operations. This request contained %2$d"
+msgstr ""
+
+#: src/Request.php:626
+#: src/Request.php:726
+msgid "Authentication Error"
+msgstr ""
+
+#: src/Request.php:687
+msgid "The GraphQL request returned an invalid response"
+msgstr ""
+
+#. translators: %s is the content type header value that was received
+#: src/Request.php:825
+#, php-format
+msgid "HTTP POST requests must have Content-Type: application/json header. Received: %s"
+msgstr ""
+
+#: src/Router.php:333
+msgid "If you're reading this, you should visit github.com/wp-graphql/wp-graphql and contribute!"
+msgstr ""
+
+#. translators: %s is the class name
+#: src/Router.php:628
+#, php-format
+msgid "This method is deprecated and will be removed in the next major version of WPGraphQL. Use %s instead."
+msgstr ""
+
+#: src/Router.php:747
+msgid "Cookie nonce is invalid"
+msgstr ""
+
+#: src/Server/ValidationRules/DisableIntrospection.php:34
+msgid "The query contained __schema or __type, however GraphQL introspection is not allowed for public requests by default. Public introspection can be enabled under the WPGraphQL Settings."
+msgstr ""
+
+#. translators: %s is the field name
+#: src/Server/ValidationRules/RequireAuthentication.php:98
+#, php-format
+msgid "The field \"%s\" cannot be accessed without authentication."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:118
+msgid "Comment author email address."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:124
+msgid "Comment author URL."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:132
+msgid "Array of author IDs to include comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:140
+msgid "Array of author IDs to exclude comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:148
+msgid "Array of comment IDs to include."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:156
+msgid "Array of IDs of users whose unapproved comments will be returned by the query regardless of status."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:162
+msgid "Include comments of a given type."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:170
+msgid "Include comments from a given array of comment types."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:176
+msgid "Exclude comments from a given array of comment types."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:184
+msgid "Content object author ID to limit results by."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:192
+msgid "Array of author IDs to retrieve comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:200
+msgid "Array of author IDs *not* to retrieve comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:206
+msgid "Limit results to those affiliated with a given content object ID."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:214
+msgid "Array of content object IDs to include affiliated comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:222
+msgid "Array of content object IDs to exclude affiliated comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:230
+msgid "Array of content object statuses to retrieve affiliated comments for. Pass 'any' to match any value."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:238
+msgid "Content object type or array of types to retrieve affiliated comments for. Pass 'any' to match any value."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:244
+msgid "Content object name (i.e. slug ) to retrieve affiliated comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:250
+msgid "Content Object parent ID to retrieve affiliated comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:258
+msgid "Array of IDs or email addresses of users whose unapproved comments will be returned by the query regardless of $status. Default empty"
+msgstr ""
+
+#: src/Type/Connection/Comments.php:264
+msgid "Karma score to retrieve matching comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:270
+msgid "Field to order the comments by."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:276
+#: src/Type/Input/UsersConnectionOrderbyInput.php:31
+msgid "The cardinality of the order of the connection"
+msgstr ""
+
+#: src/Type/Connection/Comments.php:282
+msgid "Parent ID of comment to retrieve children of."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:290
+msgid "Array of parent IDs of comments to retrieve children for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:298
+msgid "Array of parent IDs of comments *not* to retrieve children for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:304
+msgid "Search term(s) to retrieve matching comments for."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:310
+msgid "Comment status to limit results by."
+msgstr ""
+
+#: src/Type/Connection/Comments.php:313
+msgid "Deprecated in favor of statusIn which accepts a list of one or more CommentStatusEnum values instead of a string"
+msgstr ""
+
+#: src/Type/Connection/Comments.php:319
+msgid "One or more Comment Statuses to limit results by"
+msgstr ""
+
+#: src/Type/Connection/Comments.php:325
+msgid "Include comments for a specific user ID."
+msgstr ""
+
+#: src/Type/Connection/MenuItems.php:104
+#: src/Type/ObjectType/RootQuery.php:55
+msgid "The database ID of the object"
+msgstr ""
+
+#: src/Type/Connection/MenuItems.php:110
+#: src/Type/ObjectType/RootQuery.php:61
+msgid "The menu location for the menu being queried"
+msgstr ""
+
+#: src/Type/Connection/MenuItems.php:116
+msgid "The ID of the parent menu object"
+msgstr ""
+
+#: src/Type/Connection/MenuItems.php:122
+msgid "The database ID of the parent menu object"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:74
+msgid "If the current node is a revision, this field exposes the node this is a revision of. Returns null if the node is not a revision of another node."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:112
+msgid "The parent of the node. The parent object can be of various types"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:160
+msgid "Returns ancestors of the node. Default ordered as lowest (closest to the child) to highest (closest to the root)."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:283
+msgid "Show Posts based on a keyword search"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:296
+msgid "Specific database ID of the object"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:304
+msgid "Array of IDs for the objects to retrieve"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:312
+msgid "Specify IDs NOT to retrieve. If this is used in the same query as \"in\", it will be ignored"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:318
+msgid "Slug / post_name of the object"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:326
+msgid "Specify objects to retrieve. Use slugs"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:332
+msgid "Use ID to return only children. Use 0 to return only top-level items"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:340
+msgid "Specify objects whose parent is in an array"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:348
+msgid "Specify posts whose parent is not in an array"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:354
+msgid "Title of the object"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:367
+msgid "True for objects with passwords; False for objects without passwords; null for all objects with or without passwords"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:373
+msgid "Show posts with a specific password."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:395
+msgid "Show posts with a specific status."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:403
+msgid "Retrieve posts where post status is in an array."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:418
+#: src/Type/Connection/Users.php:238
+msgid "What parameter to use to order the objects by."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:430
+msgid "Filter the connection based on dates"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:442
+msgid "Get objects with a specific mimeType property"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:520
+msgid "The user that's connected as the author of the object. Use the userId for the author object."
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:526
+msgid "Find objects connected to the author by the author's nicename"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:534
+msgid "Find objects connected to author(s) in the array of author's userIds"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:542
+msgid "Find objects NOT connected to author(s) in the array of author's userIds"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:558
+msgid "Category ID"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:564
+msgid "Use Category Slug"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:572
+#: src/Type/Connection/PostObjects.php:580
+msgid "Array of category IDs, used to display objects from one category OR another"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:595
+msgid "Tag Slug"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:601
+msgid "Use Tag ID"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:609
+#: src/Type/Connection/PostObjects.php:617
+msgid "Array of tag IDs, used to display objects from one tag OR another"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:625
+msgid "Array of tag slugs, used to display objects from one tag AND another"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:633
+msgid "Array of tag slugs, used to include objects in ANY specified tags"
+msgstr ""
+
+#: src/Type/Connection/PostObjects.php:646
+#: src/Type/Connection/PostObjects.php:662
+msgid "The Types of content to filter"
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:117
+msgid "True to limit results to terms that have no children. This parameter has no effect on non-hierarchical taxonomies. Default false."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:123
+msgid "Term ID to retrieve child terms of. If multiple taxonomies are passed, $child_of is ignored. Default 0."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:129
+msgid "Unique cache key to be produced when this query is stored in an object cache. Default is 'core'."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:135
+msgid "Retrieve terms where the description is LIKE the input value. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:143
+msgid "Array of term ids to exclude. If $include is non-empty, $exclude is ignored. Default empty array."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:151
+msgid "Array of term ids to exclude along with all of their descendant terms. If $include is non-empty, $exclude_tree is ignored. Default empty array."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:157
+msgid "Whether to hide terms not assigned to any posts. Accepts true or false. Default false"
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:163
+msgid "Whether to include terms that have non-empty descendants (even if $hide_empty is set to true). Default true."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:171
+msgid "Array of term ids to include. Default empty array."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:179
+msgid "Array of names to return term(s) for. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:185
+msgid "Retrieve terms where the name is LIKE the input value. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:193
+msgid "Array of object IDs. Results will be limited to terms associated with these objects."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:199
+msgid "Field(s) to order terms by. Defaults to 'name'."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:205
+msgid "Direction the connection should be ordered in"
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:211
+msgid "Whether to pad the quantity of a term's children in the quantity of each term's \"count\" object variable. Default false."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:217
+msgid "Parent term ID to retrieve direct-child terms of. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:223
+msgid "Search criteria to match terms. Will be SQL-formatted with wildcards before and after. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:231
+msgid "Array of slugs to return term(s) for. Default empty."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:240
+#: src/Type/Connection/TermObjects.php:251
+msgid "Array of term taxonomy IDs, to match when querying terms."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:243
+msgid "Use `termTaxonomyId` instead. This will be removed in the next major version of WPGraphQL."
+msgstr ""
+
+#: src/Type/Connection/TermObjects.php:257
+msgid "Whether to prime meta caches for matched terms. Default true."
+msgstr ""
+
+#: src/Type/Connection/Users.php:51
+msgid "The timestamp for when the node was last edited"
+msgstr ""
+
+#: src/Type/Connection/Users.php:65
+msgid "If a user has edited the node within the past 15 seconds, this will return the user that last edited. Null if the edit lock doesn't exist or is greater than 15 seconds"
+msgstr ""
+
+#: src/Type/Connection/Users.php:88
+msgid "The user that most recently edited the node"
+msgstr ""
+
+#: src/Type/Connection/Users.php:132
+msgid "An array of role names that users must match to be included in results. Note that this is an inclusive list: users must match *each* role."
+msgstr ""
+
+#: src/Type/Connection/Users.php:140
+msgid "An array of role names. Matched users must have at least one of these roles."
+msgstr ""
+
+#: src/Type/Connection/Users.php:148
+msgid "An array of role names to exclude. Users matching one or more of these roles will not be included in results."
+msgstr ""
+
+#: src/Type/Connection/Users.php:156
+msgid "Array of userIds to include."
+msgstr ""
+
+#: src/Type/Connection/Users.php:164
+msgid "Array of userIds to exclude."
+msgstr ""
+
+#: src/Type/Connection/Users.php:170
+msgid "Search keyword. Searches for possible string matches on columns. When \"searchColumns\" is left empty, it tries to determine which column to search in based on search string."
+msgstr ""
+
+#: src/Type/Connection/Users.php:178
+msgid "Array of column names to be searched. Accepts 'ID', 'login', 'nicename', 'email', 'url'."
+msgstr ""
+
+#: src/Type/Connection/Users.php:186
+msgid "Pass an array of post types to filter results to users who have published posts in those post types."
+msgstr ""
+
+#: src/Type/Connection/Users.php:192
+msgid "The user nicename."
+msgstr ""
+
+#: src/Type/Connection/Users.php:200
+msgid "An array of nicenames to include. Users matching one of these nicenames will be included in results."
+msgstr ""
+
+#: src/Type/Connection/Users.php:208
+msgid "An array of nicenames to exclude. Users matching one of these nicenames will not be included in results."
+msgstr ""
+
+#: src/Type/Connection/Users.php:214
+msgid "The user login."
+msgstr ""
+
+#: src/Type/Connection/Users.php:222
+msgid "An array of logins to include. Users matching one of these logins will be included in results."
+msgstr ""
+
+#: src/Type/Connection/Users.php:230
+msgid "An array of logins to exclude. Users matching one of these logins will not be included in results."
+msgstr ""
+
+#: src/Type/Enum/AvatarRatingEnum.php:16
+msgid "Content rating filter for user avatars. Determines the maximum maturity level of avatars to display, following standard content rating classifications (G, PG, R, X)."
+msgstr ""
+
+#: src/Type/Enum/AvatarRatingEnum.php:21
+msgid "Indicates a G level avatar rating level."
+msgstr ""
+
+#: src/Type/Enum/AvatarRatingEnum.php:27
+msgid "Indicates a PG level avatar rating level."
+msgstr ""
+
+#: src/Type/Enum/AvatarRatingEnum.php:33
+msgid "Indicates an R level avatar rating level."
+msgstr ""
+
+#: src/Type/Enum/AvatarRatingEnum.php:39
+msgid "Indicates an X level avatar rating level."
+msgstr ""
+
+#: src/Type/Enum/CommentNodeIdTypeEnum.php:21
+msgid "Identifier types for retrieving a specific comment. Specifies which unique attribute is used to find a particular comment."
+msgstr ""
+
+#: src/Type/Enum/CommentNodeIdTypeEnum.php:28
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:85
+#: src/Type/Enum/MenuItemNodeIdTypeEnum.php:28
+msgid "Identify a resource by the (hashed) Global ID."
+msgstr ""
+
+#: src/Type/Enum/CommentNodeIdTypeEnum.php:35
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:92
+#: src/Type/Enum/MenuItemNodeIdTypeEnum.php:35
+msgid "Identify a resource by the Database ID."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:16
+msgid "Sorting attributes for comment collections. Specifies which comment property determines the order of results."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:21
+msgid "Order by browser user agent of the commenter."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:27
+msgid "Order by approval status of the comment."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:33
+msgid "Order by name of the comment author."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:39
+msgid "Order by e-mail of the comment author."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:45
+msgid "Order by IP address of the comment author."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:51
+msgid "Order by URL address of the comment author."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:57
+msgid "Order by the comment contents."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:63
+msgid "Chronological ordering by comment submission date."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:69
+msgid "Chronological ordering by comment date in UTC/GMT time."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:75
+msgid "Ordering by internal ID (typically reflects creation order)."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:81
+msgid "Preserve custom order of IDs as specified in the query."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:87
+msgid "Order by the comment karma score."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:93
+msgid "Ordering by parent comment relationship (threaded discussions)."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:99
+msgid "Ordering by associated content item ID."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:105
+msgid "Ordering by comment classification (standard comments, pingbacks, etc.)."
+msgstr ""
+
+#: src/Type/Enum/CommentsConnectionOrderbyEnum.php:111
+msgid "Ordering by the user account ID associated with the comment as the comment author."
+msgstr ""
+
+#: src/Type/Enum/CommentStatusEnum.php:35
+msgid "Moderation state for user comments. Determines whether comments are publicly visible, pending approval, or marked as spam."
+msgstr ""
+
+#: src/Type/Enum/CommentStatusEnum.php:53
+msgid "Comments that are publicly visible on content."
+msgstr ""
+
+#: src/Type/Enum/CommentStatusEnum.php:56
+msgid "Comments awaiting moderation before becoming publicly visible."
+msgstr ""
+
+#: src/Type/Enum/CommentStatusEnum.php:59
+msgid "Comments flagged as spam and hidden from public view."
+msgstr ""
+
+#: src/Type/Enum/CommentStatusEnum.php:62
+msgid "Comments marked for deletion but still recoverable. Hidden from public view."
+msgstr ""
+
+#. translators: %s is the comment status.
+#: src/Type/Enum/CommentStatusEnum.php:67
+#, php-format
+msgid "Comments with the %s status"
+msgstr ""
+
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:26
+msgid "Identifier types for retrieving specific content. Determines which property (global ID, database ID, URI) is used to locate content objects."
+msgstr ""
+
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:42
+msgid "Identify a resource by the slug. Available to non-hierarchcial Types where the slug is a unique identifier."
+msgstr ""
+
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:52
+msgid "Identify a media item by its source url"
+msgstr ""
+
+#. translators: %1$s is the post type name, %2$s is the post type name
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:66
+#, php-format
+msgid "Identifier types for retrieving a specific %1$s. Specifies which unique attribute is used to find an exact %2$s."
+msgstr ""
+
+#: src/Type/Enum/ContentNodeIdTypeEnum.php:99
+msgid "Identify a resource by the URI."
+msgstr ""
+
+#: src/Type/Enum/ContentTypeEnum.php:29
+#: src/Type/Enum/ContentTypeEnum.php:64
+msgid "The Type of Content object"
+msgstr ""
+
+#: src/Type/Enum/ContentTypeEnum.php:38
+msgid "Available content entity types that can be queried or filtered. Identifies the primary content structures available in the system."
+msgstr ""
+
+#. translators: %s is the taxonomy's GraphQL name.
+#: src/Type/Enum/ContentTypeEnum.php:76
+#, php-format
+msgid "Allowed Content Types of the %s taxonomy."
+msgstr ""
+
+#: src/Type/Enum/ContentTypeIdTypeEnum.php:17
+msgid "Identifier types for retrieving a specific content type definition. Determines whether to look up content types by ID or name."
+msgstr ""
+
+#: src/Type/Enum/ContentTypeIdTypeEnum.php:24
+#: src/Type/Enum/TaxonomyIdTypeEnum.php:24
+msgid "The globally unique ID"
+msgstr ""
+
+#: src/Type/Enum/ContentTypeIdTypeEnum.php:31
+msgid "The name of the content type."
+msgstr ""
+
+#: src/Type/Enum/MediaItemSizeEnum.php:117
+msgid "Predefined image size variations. Represents the standard image dimensions available for media assets."
+msgstr ""
+
+#. translators: %1$s is the width of the image, %2$s is the height of the image
+#: src/Type/Enum/MediaItemSizeEnum.php:138
+#, php-format
+msgid "Small image preview suitable for thumbnails and listings. (%1$sx%2$s)"
+msgstr ""
+
+#. translators: %1$s is the width of the image, %2$s is the height of the image
+#: src/Type/Enum/MediaItemSizeEnum.php:146
+#, php-format
+msgid "Medium image preview typically suitable for listings and detail views. (%1$sx%2$s)"
+msgstr ""
+
+#. translators: %1$s is the width of the image, %2$s is the height of the image
+#: src/Type/Enum/MediaItemSizeEnum.php:154
+#, php-format
+msgid "Medium-to-large image preview suitable for listings and detail views. (%1$sx%2$s)"
+msgstr ""
+
+#. translators: %1$s is the width of the image, %2$s is the height of the image
+#: src/Type/Enum/MediaItemSizeEnum.php:162
+#, php-format
+msgid "Large image preview suitable for detail views. (%1$sx%2$s)"
+msgstr ""
+
+#: src/Type/Enum/MediaItemSizeEnum.php:168
+msgid "Full-size image."
+msgstr ""
+
+#. translators: %1$s is the width of the image, %2$s is the height of the image
+#: src/Type/Enum/MediaItemSizeEnum.php:173
+#, php-format
+msgid "Custom Image Size. (%1$sx%2$s)"
+msgstr ""
+
+#: src/Type/Enum/MediaItemStatusEnum.php:19
+msgid "Media that inherits its publication status from the parent content"
+msgstr ""
+
+#: src/Type/Enum/MediaItemStatusEnum.php:22
+msgid "Media visible only to users with appropriate permissions"
+msgstr ""
+
+#: src/Type/Enum/MediaItemStatusEnum.php:25
+msgid "Media marked for deletion but still recoverable"
+msgstr ""
+
+#: src/Type/Enum/MediaItemStatusEnum.php:28
+msgid "Automatically created media that has not been finalized"
+msgstr ""
+
+#: src/Type/Enum/MediaItemStatusEnum.php:46
+msgid "Publication status for media items. Controls whether media is publicly accessible, private, or in another state."
+msgstr ""
+
+#: src/Type/Enum/MenuItemNodeIdTypeEnum.php:21
+msgid "Identifier types for retrieving a specific menu item. Determines whether to look up menu items by global ID or database ID."
+msgstr ""
+
+#. translators: %s is the menu location name.
+#: src/Type/Enum/MenuLocationEnum.php:26
+#, php-format
+msgid "Put the menu in the %s location"
+msgstr ""
+
+#: src/Type/Enum/MenuLocationEnum.php:38
+msgid "Empty menu location"
+msgstr ""
+
+#: src/Type/Enum/MenuLocationEnum.php:47
+msgid "Designated areas where navigation menus can be displayed. Represents the named regions in the interface where menus can be assigned."
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:21
+msgid "Identifier types for retrieving a specific navigation menu. Specifies which property (ID, name, location) is used to locate a particular menu."
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:28
+msgid "Identify a menu node by the (hashed) Global ID."
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:35
+msgid "Identify a menu node by the Database ID."
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:42
+msgid "Identify a menu node by the slug of menu location to which it is assigned"
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:49
+msgid "Identify a menu node by its name"
+msgstr ""
+
+#: src/Type/Enum/MenuNodeIdTypeEnum.php:56
+msgid "Identify a menu node by its slug"
+msgstr ""
+
+#: src/Type/Enum/MimeTypeEnum.php:19
+msgid "An image in the JPEG format"
+msgstr ""
+
+#. translators: %s is the mime type.
+#: src/Type/Enum/MimeTypeEnum.php:34
+#, php-format
+msgid "%s mime type."
+msgstr ""
+
+#: src/Type/Enum/MimeTypeEnum.php:46
+msgid "Media file type classification based on MIME standards. Used to identify and filter media items by their format and content type."
+msgstr ""
+
+#: src/Type/Enum/OrderEnum.php:17
+msgid "Sort direction for ordered results. Determines whether items are returned in ascending or descending order."
+msgstr ""
+
+#: src/Type/Enum/OrderEnum.php:23
+msgid "Results ordered from lowest to highest values (i.e. A-Z, oldest-newest)"
+msgstr ""
+
+#: src/Type/Enum/OrderEnum.php:29
+msgid "Results ordered from highest to lowest values (i.e. Z-A, newest-oldest)"
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:24
+msgid "Operational status of a plugin. Indicates whether a plugin is active, inactive, or in another state that affects its functionality."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:42
+msgid "The plugin is currently active."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:48
+msgid "The plugin is a drop-in plugin."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:54
+msgid "The plugin is currently inactive."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:60
+msgid "The plugin is a must-use plugin."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:66
+msgid "The plugin is technically active but was paused while loading."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:72
+msgid "The plugin was active recently."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:78
+msgid "The plugin has an upgrade available."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:88
+msgid "The plugin is activated on the multisite network."
+msgstr ""
+
+#: src/Type/Enum/PluginStatusEnum.php:94
+msgid "The plugin is installed on the multisite network, but is currently inactive."
+msgstr ""
+
+#: src/Type/Enum/PostObjectFieldFormatEnum.php:17
+msgid "Content field rendering options. Determines whether content fields are returned as raw data or with applied formatting and transformations. Default is RENDERED."
+msgstr ""
+
+#: src/Type/Enum/PostObjectFieldFormatEnum.php:23
+msgid "Unprocessed content exactly as stored in the database, requires appropriate permissions."
+msgstr ""
+
+#: src/Type/Enum/PostObjectFieldFormatEnum.php:30
+msgid "Content with all formatting and transformations applied, ready for display."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionDateColumnEnum.php:17
+msgid "Date field selectors for content filtering. Specifies which date attribute (creation date, modification date) should be used for date-based queries."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionDateColumnEnum.php:23
+msgid "The date the comment was created in local time."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionDateColumnEnum.php:29
+msgid "The most recent modification date of the comment."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:17
+msgid "Content sorting attributes for post-type objects. Identifies which content property should be used to determine result order."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:23
+msgid "Ordering by content author (typically by author name)."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:29
+msgid "Ordering by popularity based on number of comments."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:35
+msgid "Chronological ordering by publication date."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:41
+msgid "Maintain custom order of IDs exactly as specified in the query with the IN field."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:47
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:58
+msgid "Ordering by manually defined sort position."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:53
+msgid "Chronological ordering by modified date."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:59
+msgid "Maintain custom order of IDs exactly as specified in the query with the NAME_IN field."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:65
+msgid "Ordering by parent-child relationship in hierarchical content."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:71
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:40
+msgid "Alphabetical ordering by URL-friendly name."
+msgstr ""
+
+#: src/Type/Enum/PostObjectsConnectionOrderbyEnum.php:77
+msgid "Alphabetical ordering by content title"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:27
+msgid "Publishing status that controls the visibility and editorial state of content. Determines whether content is published, pending review, in draft state, or private."
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:61
+msgid "Content that is publicly visible to all visitors"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:66
+msgid "Content that is saved but not yet published or visible to the public"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:71
+msgid "Content awaiting review before publication"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:76
+msgid "Content only visible to authorized users with appropriate permissions"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:81
+msgid "Content marked for deletion but still recoverable"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:86
+msgid "Automatically saved content that has not been manually saved"
+msgstr ""
+
+#: src/Type/Enum/PostStatusEnum.php:91
+msgid "Content that inherits its status from a parent object"
+msgstr ""
+
+#. translators: %1$s is the post status.
+#: src/Type/Enum/PostStatusEnum.php:98
+#, php-format
+msgid "Objects with the %1$s status"
+msgstr ""
+
+#: src/Type/Enum/RelationEnum.php:17
+msgid "Logical operators for filter conditions. Determines whether multiple filtering criteria should be combined with AND (all must match) or OR (any can match)."
+msgstr ""
+
+#: src/Type/Enum/RelationEnum.php:24
+msgid "All conditions must match (more restrictive filtering)"
+msgstr ""
+
+#: src/Type/Enum/RelationEnum.php:31
+msgid "Any condition can match (more inclusive filtering)"
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingGroupLocationEnum.php:26
+msgid "Script insertion positions in the document structure. Determines whether scripts are placed in the document head or before the closing body tag."
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingGroupLocationEnum.php:32
+msgid "Early loading in document `<head>` tag. (executes before page content renders)"
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingGroupLocationEnum.php:38
+msgid "Delayed loading at end of document, right before the closing `<body>` tag. (allows content to render first)"
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingStrategyEnum.php:26
+msgid "Script loading optimization attributes. Controls browser behavior for script loading to improve page performance (async or defer)."
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingStrategyEnum.php:32
+msgid "Load script in parallel with page rendering, executing as soon as downloaded"
+msgstr ""
+
+#: src/Type/Enum/ScriptLoadingStrategyEnum.php:38
+msgid "Download script in parallel but defer execution until page is fully parsed"
+msgstr ""
+
+#. translators: %s is the taxonomy name.
+#: src/Type/Enum/TaxonomyEnum.php:31
+#, php-format
+msgid "Taxonomy enum %s"
+msgstr ""
+
+#: src/Type/Enum/TaxonomyEnum.php:43
+msgid "Available classification systems for organizing content. Identifies the different taxonomy types that can be used for content categorization."
+msgstr ""
+
+#: src/Type/Enum/TaxonomyIdTypeEnum.php:17
+msgid "Identifier types for retrieving a taxonomy definition. Determines whether to look up taxonomies by ID or name."
+msgstr ""
+
+#: src/Type/Enum/TaxonomyIdTypeEnum.php:31
+msgid "The name of the taxonomy"
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:26
+msgid "The Type of Identifier used to fetch a single resource. Default is \"ID\". To be used along with the \"id\" field."
+msgstr ""
+
+#. translators: %1$s is the taxonomy name, %2$s is the taxonomy name
+#: src/Type/Enum/TermNodeIdTypeEnum.php:46
+#, php-format
+msgid "Identifier types for retrieving a specific %1$s. Determines which unique property (global ID, database ID, slug, etc.) is used to locate the %2$s."
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:65
+msgid "Url friendly name of the node"
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:72
+msgid "The name of the node"
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:79
+#: src/Type/Enum/UserNodeIdTypeEnum.php:41
+msgid "The hashed Global ID"
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:86
+#: src/Type/Enum/UserNodeIdTypeEnum.php:48
+msgid "The Database ID for the node"
+msgstr ""
+
+#: src/Type/Enum/TermNodeIdTypeEnum.php:93
+#: src/Type/Enum/UserNodeIdTypeEnum.php:55
+msgid "The URI for the node"
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:16
+msgid "Sorting attributes for taxonomy term collections. Determines which property of taxonomy terms is used for ordering results."
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:22
+msgid "Ordering by number of associated content items."
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:28
+msgid "Alphabetical ordering by term description text."
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:34
+msgid "Alphabetical ordering by term name."
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:46
+msgid "Ordering by assigned term grouping value."
+msgstr ""
+
+#: src/Type/Enum/TermObjectsConnectionOrderbyEnum.php:52
+msgid "Ordering by internal identifier."
+msgstr ""
+
+#. translators: %s is the UTC offset.
+#: src/Type/Enum/TimezoneEnum.php:183
+#, php-format
+msgid "UTC offset: %s"
+msgstr ""
+
+#: src/Type/Enum/TimezoneEnum.php:194
+msgid "Standardized timezone identifiers. Represents geographical time zones using standard format for date and time operations."
+msgstr ""
+
+#: src/Type/Enum/UserNodeIdTypeEnum.php:23
+msgid "Identifier types for retrieving a specific user. Determines whether to look up users by ID, email, username, or other unique properties."
+msgstr ""
+
+#: src/Type/Enum/UserNodeIdTypeEnum.php:62
+msgid "The slug of the User"
+msgstr ""
+
+#: src/Type/Enum/UserNodeIdTypeEnum.php:69
+msgid "The Email of the User"
+msgstr ""
+
+#: src/Type/Enum/UserNodeIdTypeEnum.php:76
+msgid "The username the User uses to login with"
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:24
+msgid "Full system access with ability to manage all aspects of the site."
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:29
+msgid "Content management access without administrative capabilities."
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:34
+msgid "Can publish and manage their own content."
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:39
+msgid "Can write and manage their own content but cannot publish."
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:44
+msgid "Can only manage their profile and read content."
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:49
+msgid "User role with specific capabilities"
+msgstr ""
+
+#: src/Type/Enum/UserRoleEnum.php:69
+msgid "Permission levels for user accounts. Defines the standard access levels that control what actions users can perform within the system."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:17
+msgid "User attribute sorting options. Determines which property of user accounts is used for ordering user listings."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:23
+msgid "Order by display name"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:29
+msgid "Order by email address"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:35
+msgid "Order by login"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:41
+msgid "Preserve the login order given in the LOGIN_IN array"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:47
+msgid "Order by nice name"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:53
+msgid "Preserve the nice name order given in the NICE_NAME_IN array"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:59
+msgid "Order by registration date"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionOrderbyEnum.php:65
+msgid "Order by URL"
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:17
+msgid "User properties that can be targeted in search operations. Defines which user attributes can be searched when looking for specific users."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:23
+msgid "The globally unique ID."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:29
+msgid "The username the User uses to login with."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:35
+msgid "A URL-friendly name for the user. The default is the user's username."
+msgstr ""
+
+#: src/Type/Enum/UsersConnectionSearchColumnEnum.php:47
+msgid "The URL of the user's website."
+msgstr ""
+
+#: src/Type/Input/DateInput.php:16
+msgid "Date values"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:23
+#: src/Type/Input/DateQueryInput.php:24
+msgid "4 digit year (e.g. 2017)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:29
+#: src/Type/Input/DateQueryInput.php:30
+msgid "Month number (from 1 to 12)"
+msgstr ""
+
+#: src/Type/Input/DateInput.php:35
+#: src/Type/Input/DateQueryInput.php:42
+msgid "Day of the month (from 1 to 31)"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:17
+msgid "Filter the connection based on input"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:36
+msgid "Week of the year (from 0 to 53)"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:48
+msgid "Hour (from 0 to 23)"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:54
+msgid "Minute (from 0 to 59)"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:60
+msgid "Second (0 to 59)"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:66
+msgid "Nodes should be returned after this date"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:72
+msgid "Nodes should be returned before this date"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:78
+#: src/Type/Input/DateQueryInput.php:84
+msgid "For after/before, whether exact value should be matched or not"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:90
+msgid "Column to query against"
+msgstr ""
+
+#: src/Type/Input/DateQueryInput.php:96
+msgid "OR or AND, how the sub-arrays should be compared"
+msgstr ""
+
+#: src/Type/Input/PostObjectsConnectionOrderbyInput.php:17
+#: src/Type/Input/UsersConnectionOrderbyInput.php:17
+msgid "Options for ordering the connection"
+msgstr ""
+
+#: src/Type/Input/PostObjectsConnectionOrderbyInput.php:26
+msgid "The field to order the connection by"
+msgstr ""
+
+#: src/Type/Input/PostObjectsConnectionOrderbyInput.php:34
+msgid "Possible directions in which to order a list of items"
+msgstr ""
+
+#: src/Type/Input/UsersConnectionOrderbyInput.php:23
+msgid "The field name used to sort the results."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:27
+msgid "A user or guest who has submitted a comment. Provides identification and contact information for the comment author."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:46
+msgid "The globally unique identifier for the comment author."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:52
+msgid "Avatar object for user. The avatar object can be retrieved in different sizes by specifying the size argument."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:60
+#: src/Type/InterfaceType/TermNode.php:71
+#: src/Type/ObjectType/User.php:106
+msgid "Identifies the primary key from the database."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:66
+msgid "The name of the author of a comment."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:72
+msgid "The email address of the author of a comment."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:78
+msgid "The url of the author of a comment."
+msgstr ""
+
+#: src/Type/InterfaceType/Commenter.php:84
+msgid "Whether the author information is considered restricted. (not fully public)"
+msgstr ""
+
+#: src/Type/InterfaceType/Connection.php:20
+msgid "A paginated relationship between objects. Supports cursor-based pagination with edges containing relationship metadata and nodes containing the related objects."
+msgstr ""
+
+#: src/Type/InterfaceType/Connection.php:27
+#: src/Type/WPConnectionType.php:480
+msgid "Information about pagination in a connection."
+msgstr ""
+
+#: src/Type/InterfaceType/Connection.php:33
+msgid "A list of edges (relational context) between connected nodes"
+msgstr ""
+
+#: src/Type/InterfaceType/Connection.php:39
+msgid "A list of connected nodes"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:31
+msgid "Base interface for content objects like posts, pages, and media items. Provides common fields available across these content types."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:103
+msgid "The name of the Content Type the node belongs to"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:112
+msgid "The template assigned to a node of content"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:120
+msgid "The ID of the node in the database."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:126
+msgid "Post publishing date."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:132
+msgid "The publishing date set in GMT."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:138
+msgid "The RSS enclosure for the object"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:144
+msgid "The current status of the object"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:150
+msgid "The uri slug for the post. This is equivalent to the WP_Post->post_name field and the post_name column in the database for the \"post_objects\" table."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:156
+msgid "The local modified time for a post. If a post was recently updated the modified field will change to match the corresponding time."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:162
+msgid "The GMT modified time for a post. If a post was recently updated the modified field will change to match the corresponding time in GMT."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:168
+msgid "The global unique identifier for this post. This currently matches the value stored in WP_Post->guid and the guid column in the \"post_objects\" database table."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:174
+msgid "The desired slug of the post"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:180
+msgid "The permalink of the post"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:186
+#: src/Type/InterfaceType/TermNode.php:122
+#: src/Type/ObjectType/Avatar.php:87
+#: src/Type/ObjectType/Comment.php:170
+#: src/Type/ObjectType/CommentAuthor.php:52
+#: src/Type/ObjectType/ContentType.php:173
+#: src/Type/ObjectType/Menu.php:60
+#: src/Type/ObjectType/MenuItem.php:190
+#: src/Type/ObjectType/Plugin.php:74
+#: src/Type/ObjectType/Taxonomy.php:90
+#: src/Type/ObjectType/Theme.php:94
+#: src/Type/ObjectType/User.php:205
+#: src/Type/ObjectType/UserRole.php:53
+msgid "Whether the object is restricted from the current viewer"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:192
+#: src/Type/InterfaceType/ContentNode.php:204
+#: src/Type/InterfaceType/Previewable.php:29
+#: src/Type/InterfaceType/Previewable.php:41
+msgid "Whether the object is a node in the preview state"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentNode.php:198
+#: src/Type/InterfaceType/Previewable.php:35
+msgid "The database id of the preview node"
+msgstr ""
+
+#: src/Type/InterfaceType/ContentTemplate.php:19
+msgid "A layout pattern that can help inform how content might be structured and displayed. Templates can define specialized layouts for different types of content."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentTemplate.php:26
+msgid "The name of the template"
+msgstr ""
+
+#. Translators: %s is the file name.
+#: src/Type/InterfaceType/ContentTemplate.php:66
+#, php-format
+msgid "Unable to register the %1s template file as a GraphQL Type. Either the template name or the file name must only use ASCII characters. \"DefaultTemplate\" will be used instead."
+msgstr ""
+
+#: src/Type/InterfaceType/ContentTemplate.php:80
+#: src/Type/InterfaceType/NodeWithTemplate.php:27
+msgid "The template assigned to the node"
+msgstr ""
+
+#: src/Type/InterfaceType/DatabaseIdentifier.php:22
+msgid "An object that has a unique numeric identifier in the database. Provides consistent access to the database ID across different object types."
+msgstr ""
+
+#: src/Type/InterfaceType/DatabaseIdentifier.php:29
+msgid "The unique identifier stored in the database"
+msgstr ""
+
+#: src/Type/InterfaceType/Edge.php:20
+msgid "Represents a connection between two objects. Contains both the related object (node) and metadata about the relationship (cursor)."
+msgstr ""
+
+#: src/Type/InterfaceType/Edge.php:27
+msgid "Opaque reference to the nodes position in the connection. Value can be used with pagination args."
+msgstr ""
+
+#: src/Type/InterfaceType/Edge.php:33
+#: src/Type/InterfaceType/OneToOneConnection.php:28
+msgid "The connected node"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:25
+msgid "A script or stylesheet resource that should be loaded by the client. Contains information about the resource's location, dependencies, and loading behavior."
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:50
+msgid "Deprecated"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:53
+msgid "Use `EnqueuedAsset.media` instead."
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:59
+msgid "The inline code to be run after the asset is loaded."
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:79
+msgid "The inline code to be run before the asset is loaded."
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:99
+msgid "The HTML conditional comment for the enqueued asset. E.g. IE 6, lte IE 7, etc"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:112
+#: src/Type/ObjectType/EnqueuedScript.php:41
+#: src/Type/ObjectType/EnqueuedStylesheet.php:41
+msgid "Dependencies needed to use this asset"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:118
+msgid "The ID of the enqueued asset"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:124
+msgid "The handle of the enqueued asset"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:130
+msgid "The source of the asset"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:139
+msgid "The version of the enqueued asset"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:145
+msgid "Extra information needed for the script"
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:148
+msgid "Use `EnqueuedScript.extraData` instead."
+msgstr ""
+
+#: src/Type/InterfaceType/EnqueuedAsset.php:157
+msgid "The loading group to which this asset belongs."
+msgstr ""
+
+#: src/Type/InterfaceType/HierarchicalContentNode.php:25
+msgid "Content that can be organized in a parent-child structure. Provides fields for navigating up and down the hierarchy and maintaining structured relationships."
+msgstr ""
+
+#: src/Type/InterfaceType/HierarchicalContentNode.php:38
+#: src/Type/InterfaceType/HierarchicalNode.php:37
+#: src/Type/InterfaceType/HierarchicalTermNode.php:38
+msgid "The globally unique identifier of the parent node."
+msgstr ""
+
+#: src/Type/InterfaceType/HierarchicalContentNode.php:44
+#: src/Type/InterfaceType/HierarchicalNode.php:43
+#: src/Type/InterfaceType/HierarchicalTermNode.php:44
+msgid "Database id of the parent node"
+msgstr ""
+
+#: src/Type/InterfaceType/HierarchicalNode.php:26
+msgid "Content that can exist in a parent-child structure. Provides fields for navigating up (parent) and down (children) through the hierarchy."
+msgstr ""
+
+#: src/Type/InterfaceType/HierarchicalTermNode.php:25
+msgid "Term node with hierarchical (parent/child) relationships"
+msgstr ""
+
+#: src/Type/InterfaceType/MenuItemLinkable.php:23
+msgid "Content that can be referenced by navigation menu items. Provides the essential fields needed to create links within navigation structures."
+msgstr ""
+
+#: src/Type/InterfaceType/Node.php:18
+msgid "An object with a globally unique identifier. All objects that can be identified by a unique ID implement this interface."
+msgstr ""
+
+#: src/Type/InterfaceType/Node.php:25
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:39
+msgid "The globally unique ID for the object"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithAuthor.php:20
+msgid "Content that can be attributed to a specific user. Provides fields for accessing the author's information and establishing content ownership."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithAuthor.php:27
+msgid "The globally unique identifier of the author of the node"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithAuthor.php:33
+msgid "The database identifier of the author of the node"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithComments.php:20
+msgid "Content that can receive and display user-submitted comments. Provides fields for accessing comment counts and managing comment status."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithComments.php:27
+msgid "The number of comments. Even though WPGraphQL denotes this field as an integer, in WordPress this field should be saved as a numeric string for compatibility."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithComments.php:33
+msgid "Whether the comments are open or closed for this particular post."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithContentEditor.php:20
+msgid "Content that has a main body field which can contain formatted text and media. Provides access to both raw (with appropriate permissions) and rendered versions of the content."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithContentEditor.php:27
+msgid "The content of the post."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithExcerpt.php:21
+msgid "A node which provides an excerpt field, which is a condensed summary of the main content. Excerpts can be manually created or automatically generated and are often used in content listings and search results."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithExcerpt.php:28
+msgid "The excerpt of the post."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:25
+msgid "Content that can have a primary image attached. This image is typically used for thumbnails, social sharing, and prominent display in the presentation layer."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:49
+msgid "Globally unique ID of the featured image assigned to the node"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithFeaturedImage.php:55
+msgid "The database identifier for the featured image node assigned to the content node"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithPageAttributes.php:21
+msgid "Content that supports ordering metadata. Includes a menu order field which can be used for custom sorting in navigation menus and other ordered collections."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithRevisions.php:21
+msgid "Content that maintains a history of changes. Provides access to previous versions of the content and the ability to restore earlier revisions."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithRevisions.php:28
+msgid "True if the node is a revision of another node"
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithTemplate.php:20
+msgid "Content that provides template metadata. The template can help inform how the content is might be structured, styled, and presented to the user."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithTitle.php:21
+msgid "Content with a dedicated title field. The title typically serves as the main heading and identifier for the content."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithTitle.php:28
+msgid "The title of the post. This is currently just the raw title. An amendment to support rendered title needs to be made."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithTrackbacks.php:21
+msgid "Content that supports cross-site notifications when linked to by other sites. Includes fields for pingback status and linked URLs."
+msgstr ""
+
+#: src/Type/InterfaceType/NodeWithTrackbacks.php:40
+msgid "Whether the pings are open or closed for this particular post."
+msgstr ""
+
+#: src/Type/InterfaceType/OneToOneConnection.php:20
+msgid "A direct one-to-one relationship between objects. Unlike plural connections, this represents a single related object rather than a collection."
+msgstr ""
+
+#: src/Type/InterfaceType/PageInfo.php:20
+#: src/Type/InterfaceType/PageInfo.php:33
+msgid "Metadata for cursor-based pagination. Provides cursors for continuing pagination and boolean flags indicating if more items exist in either direction."
+msgstr ""
+
+#: src/Type/InterfaceType/PageInfo.php:54
+msgid "When paginating forwards, are there more items?"
+msgstr ""
+
+#: src/Type/InterfaceType/PageInfo.php:62
+msgid "When paginating backwards, are there more items?"
+msgstr ""
+
+#: src/Type/InterfaceType/PageInfo.php:68
+msgid "When paginating backwards, the cursor to continue."
+msgstr ""
+
+#: src/Type/InterfaceType/PageInfo.php:74
+msgid "When paginating forwards, the cursor to continue."
+msgstr ""
+
+#: src/Type/InterfaceType/Previewable.php:22
+msgid "Content that supports a draft preview mode. Allows viewing unpublished changes before they are made publicly available. Previewing unpublished changes requires appropriate permissions."
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:43
+msgid "Base interface for taxonomy terms such as categories and tags. Terms are used to organize and classify content."
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:80
+msgid "The number of objects connected to the object"
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:86
+msgid "The description of the object"
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:92
+msgid "The human friendly name of the object."
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:98
+msgid "An alphanumeric identifier for the object unique to its type."
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:104
+msgid "The ID of the term group that this term object belongs to"
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:110
+msgid "The taxonomy ID that the object is associated with"
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:116
+msgid "The name of the taxonomy that the object is associated with"
+msgstr ""
+
+#: src/Type/InterfaceType/TermNode.php:128
+msgid "The link to the term"
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:26
+msgid "An interface for content that can be accessed via a unique URI/URL path. Implemented by content types that have their own permalinks."
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:33
+msgid "The unique resource identifier path"
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:45
+msgid "Whether the node is a Content Node"
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:54
+msgid "Whether the node is a Term"
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:63
+msgid "Whether the node represents the front page."
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:72
+msgid "Whether  the node represents the blog page."
+msgstr ""
+
+#: src/Type/InterfaceType/UniformResourceIdentifiable.php:81
+msgid "Whether the node is a Comment"
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:19
+msgid "Avatars are profile images for users. WordPress by default uses the Gravatar service to host and fetch avatars from."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:27
+msgid "The size of the avatar in pixels. A value of 96 will match a 96px x 96px gravatar image."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:33
+msgid "Height of the avatar image."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:39
+msgid "Width of the avatar image."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:45
+msgid "TEST: URL for the default image or a default type. Accepts '404' (return a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster), 'wavatar' (cartoon face), 'indenticon' (the 'quilt'), 'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or 'gravatar_default' (the Gravatar logo)."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:51
+msgid "Whether to always show the default image, never the Gravatar."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:57
+msgid "What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are judged in that order."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:63
+msgid "Type of url scheme to use. Typically HTTP vs. HTTPS."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:69
+msgid "HTML attributes to insert in the IMG element. Is not sanitized."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:75
+msgid "Whether the avatar was successfully found."
+msgstr ""
+
+#: src/Type/ObjectType/Avatar.php:81
+msgid "URL for the gravatar image source."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:25
+msgid "A response or reaction to content submitted by users. Comments are typically associated with a specific content entry."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:33
+msgid "The author of the comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:40
+msgid "Email address representing the author for this particular comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:49
+msgid "IP address of the author at the time of making this comment. This field is equivalent to WP_Comment->comment_author_IP and the value matching the \"comment_author_IP\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:58
+msgid "The display name of the comment author for this particular comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:67
+msgid "The url entered for the comment author on this particular comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:100
+msgid "User agent used to post the comment. This field is equivalent to WP_Comment->comment_agent and the value matching the \"comment_agent\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:106
+#: src/Type/ObjectType/Comment.php:200
+msgid "The approval status of the comment. This field is equivalent to WP_Comment->comment_approved and the value matching the \"comment_approved\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:108
+msgid "Deprecated in favor of the `status` field"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:115
+msgid "Use the ipAddress field on the edge between the comment and author"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:117
+msgid "IP address for the author at the time of commenting. This field is equivalent to WP_Comment->comment_author_IP and the value matching the \"comment_author_IP\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:123
+msgid "ID for the comment, unique among comments."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:132
+msgid "Content of the comment. This field is equivalent to WP_Comment->comment_content and the value matching the \"comment_content\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:153
+msgid "Date the comment was posted in local time. This field is equivalent to WP_Comment->date and the value matching the \"date\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:159
+msgid "Date the comment was posted in GMT. This field is equivalent to WP_Comment->date_gmt and the value matching the \"date_gmt\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:164
+msgid "The globally unique identifier for the comment object"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:176
+msgid "Karma value for the comment. This field is equivalent to WP_Comment->comment_karma and the value matching the \"comment_karma\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:182
+msgid "The permalink of the comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:188
+msgid "The globally unique identifier of the parent comment node."
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:194
+msgid "The database id of the parent comment node or null if it is the root comment"
+msgstr ""
+
+#: src/Type/ObjectType/Comment.php:206
+msgid "Type of comment. This field is equivalent to WP_Comment->comment_type and the value matching the \"comment_type\" column in SQL."
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:19
+msgid "A Comment Author object"
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:28
+msgid "The globally unique identifier for the comment author object"
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:34
+msgid "The name for the comment author."
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:40
+msgid "The email for the comment author."
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:46
+msgid "The url the comment author."
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:60
+#: src/Type/ObjectType/User.php:219
+msgid "The size attribute of the avatar field can be used to fetch avatars of different sizes. The value corresponds to the dimension in pixels to fetch. The default is 96 pixels."
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:67
+#: src/Type/ObjectType/User.php:226
+msgid "Whether to always show the default image, never the Gravatar. Default false"
+msgstr ""
+
+#: src/Type/ObjectType/CommentAuthor.php:73
+#: src/Type/ObjectType/User.php:232
+msgid "The rating level of the avatar."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:21
+msgid "An Post Type object"
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:29
+msgid "The globally unique identifier of the post-type object."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:35
+msgid "The internal name of the post type. This should not be used for display purposes."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:41
+msgid "Display name of the content type."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:47
+msgid "Details about the content type labels."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:53
+msgid "Description of the content type."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:59
+msgid "Whether a content type is intended for use publicly either via the admin interface or by front-end users. While the default settings of exclude_from_search, publicly_queryable, show_ui, and show_in_nav_menus are inherited from public, each does not rely on this relationship and controls a very specific intention."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:65
+msgid "Whether the content type is hierarchical, for example pages."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:71
+msgid "Whether to exclude nodes of this content type from front end search results."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:77
+msgid "Whether queries can be performed on the front end for the content type as part of parse_request()."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:83
+msgid "Whether to generate and allow a UI for managing this content type in the admin."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:89
+msgid "Where to show the content type in the admin menu. To work, $show_ui must be true. If true, the post type is shown in its own top level menu. If false, no menu is shown. If a string of an existing top level menu (eg. \"tools.php\" or \"edit.php?post_type=page\"), the post type will be placed as a sub-menu of that."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:95
+msgid "Makes this content type available for selection in navigation menus."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:101
+msgid "Makes this content type available via the admin bar."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:107
+msgid "The position of this post type in the menu. Only applies if show_in_menu is true."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:113
+msgid "The name of the icon file to display as a menu icon."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:119
+msgid "Whether this content type should have archives. Content archives are generated by type and by date."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:125
+msgid "Whether this content type should can be exported."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:131
+msgid "Whether content of this type should be deleted when the author of it is deleted from the system."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:137
+msgid "Whether the content type is associated with a route under the the REST API \"wp/v2\" namespace."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:143
+#: src/Type/ObjectType/Taxonomy.php:144
+msgid "Name of content type to display in REST API \"wp/v2\" namespace."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:149
+#: src/Type/ObjectType/Taxonomy.php:150
+msgid "The REST Controller class assigned to handling this content type."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:155
+msgid "Whether to add the content type to the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:161
+msgid "The singular name of the content type within the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/ContentType.php:167
+msgid "The plural name of the content type within the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:24
+msgid "Script enqueued by the CMS"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:32
+msgid "The global ID of the enqueued script"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:47
+msgid "Extra data supplied to the enqueued script"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:60
+msgid "The loading strategy to use on the script tag"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:73
+msgid "The location where this script should be loaded"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedScript.php:81
+msgid "The version of the enqueued script"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:24
+msgid "Stylesheet enqueued by the CMS"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:32
+msgid "The global ID of the enqueued stylesheet"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:47
+msgid "Whether the enqueued style is RTL or not"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:56
+msgid "The media attribute to use for the link"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:65
+msgid "The absolute path to the enqueued style. Set when the stylesheet is meant to load inline."
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:74
+msgid "The `rel` attribute to use for the link"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:83
+msgid "Optional suffix, used in combination with RTL"
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:92
+msgid "The title of the enqueued style. Used for preferred/alternate stylesheets."
+msgstr ""
+
+#: src/Type/ObjectType/EnqueuedStylesheet.php:101
+msgid "The version of the enqueued style"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:17
+msgid "File details for a Media Item"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:24
+msgid "The width of the mediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:30
+msgid "The height of the mediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:36
+msgid "The filename of the mediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:45
+msgid "The path to the mediaItem relative to the uploads directory"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:67
+msgid "The sizes to exclude. Will take precedence over `include`."
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:73
+msgid "The sizes to include. Can be overridden by `exclude`."
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:78
+msgid "The available sizes of the mediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaDetails.php:110
+msgid "Meta information associated with the mediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:22
+msgid "Meta connected to a MediaItem"
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:29
+msgid "Aperture measurement of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:35
+msgid "The original creator of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:41
+msgid "Information about the camera used to create the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:47
+msgid "The text string description associated with the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:53
+msgid "The date/time when the media was created."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:62
+msgid "Copyright information associated with the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:68
+msgid "The focal length value of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:77
+msgid "The ISO (International Organization for Standardization) value of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:83
+msgid "The shutter speed information of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:92
+msgid "A useful title for the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:98
+msgid "The vertical or horizontal aspect of the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaItemMeta.php:106
+msgid "List of keywords used to describe or identfy the media item."
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:17
+msgid "Details of an available size for a media item"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:24
+msgid "The referenced size name"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:30
+msgid "The filename of the referenced size"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:36
+msgid "The path of the file for the referenced size (default size is full)"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:57
+msgid "The width of the referenced size"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:63
+msgid "The height of the referenced size"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:69
+msgid "The mime type of the referenced size"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:78
+msgid "The filesize of the resource"
+msgstr ""
+
+#: src/Type/ObjectType/MediaSize.php:94
+msgid "The url of the referenced size"
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:19
+msgid "Collections of navigation links. Menus can be assigned to designated locations and used to build site navigation structures."
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:27
+msgid "The globally unique identifier of the nav menu object."
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:33
+msgid "The number of items in the menu"
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:39
+msgid "WP ID of the nav menu."
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:48
+msgid "Display name of the menu. Equivalent to WP_Term->name."
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:54
+msgid "The url friendly name of the menu. Equivalent to WP_Term->slug"
+msgstr ""
+
+#: src/Type/ObjectType/Menu.php:68
+msgid "The locations a menu is assigned to"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:24
+msgid "Navigation menu items are the individual items assigned to a menu. These are rendered as the links in a navigation menu."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:32
+msgid "Connection from MenuItem to it's connected node"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:90
+msgid "The Menu a MenuItem is part of"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:105
+msgid "The globally unique identifier of the nav menu item object."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:111
+msgid "The globally unique identifier of the parent nav menu item object."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:117
+msgid "The database id of the parent menu item or null if it is the root"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:125
+msgid "Class attribute for the menu item link"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:131
+msgid "Description of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:137
+msgid "Label or title of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:143
+msgid "Link relationship (XFN) of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:149
+msgid "WP ID of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:158
+msgid "Target attribute for the menu item link."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:164
+msgid "Title attribute for the menu item link"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:170
+msgid "URL or destination of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:178
+msgid "The uri of the resource the menu item links to"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:184
+msgid "Path for the resource. Relative path for internal resources. Absolute path for external resources."
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:196
+msgid "Menu item order"
+msgstr ""
+
+#: src/Type/ObjectType/MenuItem.php:204
+msgid "The locations the menu item's Menu is assigned to"
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:26
+msgid "An plugin object"
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:32
+msgid "The globally unique identifier of the plugin object."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:38
+msgid "Display name of the plugin."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:44
+msgid "URI for the plugin website. This is useful for directing users for support requests etc."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:50
+msgid "Description of the plugin."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:56
+msgid "Name of the plugin author(s), may also be a company name."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:62
+msgid "URI for the related author(s)/company website."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:68
+msgid "Current version of the plugin."
+msgstr ""
+
+#: src/Type/ObjectType/Plugin.php:80
+msgid "Plugin path."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:22
+msgid "Details for labels of the PostType"
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:29
+msgid "General name for the post type, usually plural."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:35
+msgid "Name for one object of this post type."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:44
+msgid "Default is ‘Add New’ for both hierarchical and non-hierarchical types."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:53
+msgid "Label for adding a new singular item."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:62
+msgid "Label for editing a singular item."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:71
+msgid "Label for the new item page title."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:80
+msgid "Label for viewing a singular item."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:89
+msgid "Label for viewing post type archives."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:98
+msgid "Label for searching plural items."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:107
+msgid "Label used when no items are found."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:116
+msgid "Label used when no items are in the trash."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:125
+msgid "Label used to prefix parents of hierarchical items."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:134
+msgid "Label to signify all items in a submenu link."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:143
+msgid "Label for archives in nav menus"
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:149
+msgid "Label for the attributes meta box."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:155
+msgid "Label for the media frame button."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:164
+msgid "Label for the media frame filter."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:173
+msgid "Label for the Featured Image meta box title."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:182
+msgid "Label for setting the featured image."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:191
+msgid "Label for removing the featured image."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:200
+msgid "Label in the media frame for using a featured image."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:209
+msgid "Label for the menu name."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:218
+msgid "Label for the table views hidden heading."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:227
+msgid "Label for the table pagination hidden heading."
+msgstr ""
+
+#: src/Type/ObjectType/PostTypeLabelDetails.php:236
+msgid "Label for the table hidden heading."
+msgstr ""
+
+#: src/Type/ObjectType/RootMutation.php:17
+msgid "The root mutation"
+msgstr ""
+
+#: src/Type/ObjectType/RootMutation.php:24
+msgid "Increase the count."
+msgstr ""
+
+#: src/Type/ObjectType/RootMutation.php:30
+msgid "The count to increase"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:38
+msgid "The root entry point into the Graph"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:67
+msgid "The slug of the menu to query items for"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:84
+msgid "Show plugin based on a keyword search."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:90
+msgid "Show plugins with a specific status."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:96
+msgid "Retrieve plugins where plugin status is in an array."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:169
+msgid "Entry point to get all settings for the site"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:178
+msgid "Returns a Comment"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:186
+msgid "Unique identifier for the comment node."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:192
+msgid "Type of unique identifier to fetch a comment by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:206
+#: src/Type/ObjectType/RootQuery.php:471
+#: src/Type/ObjectType/RootQuery.php:512
+#: src/Type/ObjectType/RootQuery.php:608
+#: src/Type/ObjectType/RootQuery.php:929
+msgid "The ID input is invalid"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:219
+msgid "A node used to manage content"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:227
+msgid "Unique identifier for the content node."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:233
+msgid "Type of unique identifier to fetch a content node by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:239
+msgid "The content type the node is used for. Required when idType is set to \"name\" or \"slug\""
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:245
+#: src/Type/ObjectType/RootQuery.php:785
+msgid "Whether to return the Preview Node instead of the Published Node. When the ID of a Node is provided along with asPreview being set to true, the preview node with un-published changes will be returned instead of the published node. If no preview node exists or the requester doesn't have proper capabilities to preview, no node will be returned. If the ID provided is a URI and has a preview query arg, it will be used as a fallback if the \"asPreview\" argument is not explicitly provided as an argument."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:267
+#: src/Type/ObjectType/RootQuery.php:828
+msgid "The ID input is invalid. Make sure you set the proper idType for your input."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:300
+msgid "Fetch a Content Type node by unique Identifier"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:306
+msgid "Unique Identifier for the Content Type node."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:312
+msgid "Type of unique identifier to fetch a content type by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:338
+msgid "Fetch a Taxonomy node by unique Identifier"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:344
+msgid "Unique Identifier for the Taxonomy node."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:350
+msgid "Type of unique identifier to fetch a taxonomy by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:376
+msgid "Fetches an object given its ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:382
+msgid "The unique identifier of the node"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:393
+msgid "Fetches an object given its Unique Resource Identifier"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:399
+msgid "Unique Resource Identifier in the form of a path or permalink for a node. Ex: \"/hello-world\""
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:410
+msgid "A WordPress navigation menu"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:418
+msgid "The globally unique identifier of the menu."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:424
+msgid "Type of unique identifier to fetch a menu by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:439
+msgid "No menu set for the provided location"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:484
+msgid "A WordPress navigation menu item"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:492
+msgid "The globally unique identifier of the menu item."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:498
+msgid "Type of unique identifier to fetch a menu item by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:525
+msgid "A WordPress plugin"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:533
+msgid "The globally unique identifier of the plugin."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:546
+msgid "A node in a taxonomy used to group and relate content nodes"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:554
+msgid "Unique identifier for the term node."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:560
+msgid "Type of unique identifier to fetch a term node by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:566
+msgid "The taxonomy of the tern node. Required when idType is set to \"name\" or \"slug\""
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:587
+msgid "When fetching a Term Node by \"slug\" or \"name\", the \"taxonomy\" also needs to be set as an input."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:620
+msgid "A Theme object"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:628
+msgid "The globally unique identifier of the theme."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:641
+msgid "Returns a user"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:649
+msgid "The globally unique identifier of the user."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:655
+msgid "Type of unique identifier to fetch a user by. Default is Global ID"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:677
+msgid "You do not have permission to request a User by Username"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:688
+msgid "You do not have permission to request a User by Email"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:712
+msgid "Returns a user role"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:720
+msgid "The globally unique identifier of the user object."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:733
+msgid "Returns the current user"
+msgstr ""
+
+#. translators: %1$s is the post type GraphQL name, %2$s is the post type description
+#: src/Type/ObjectType/RootQuery.php:762
+#, php-format
+msgid "An object of the %1$s Type. %2$s"
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:773
+#: src/Type/ObjectType/RootQuery.php:893
+msgid "The globally unique identifier of the object."
+msgstr ""
+
+#: src/Type/ObjectType/RootQuery.php:779
+#: src/Type/ObjectType/RootQuery.php:899
+msgid "Type of unique identifier to fetch by. Default is Global ID"
+msgstr ""
+
+#. translators: %s is the taxonomys' GraphQL name.
+#: src/Type/ObjectType/RootQuery.php:883
+msgid "A % object"
+msgstr ""
+
+#. translators: %s is the name of the setting group.
+#: src/Type/ObjectType/SettingGroup.php:37
+#, php-format
+msgid "The %s setting type"
+msgstr ""
+
+#. translators: %s is the name of the setting group.
+#: src/Type/ObjectType/SettingGroup.php:92
+#, php-format
+msgid "The %s Settings Group"
+msgstr ""
+
+#: src/Type/ObjectType/Settings.php:35
+msgid "All of the registered settings"
+msgstr ""
+
+#. translators: %s is the name of the setting group.
+#: src/Type/ObjectType/Settings.php:96
+#, php-format
+msgid "Settings of the the %s Settings Group"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:23
+msgid "A taxonomy object"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:31
+msgid "List of Content Types associated with the Taxonomy"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:44
+msgid "List of Term Nodes associated with the Taxonomy"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:59
+msgid "The globally unique identifier of the taxonomy object."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:65
+msgid "The display name of the taxonomy. This field is equivalent to WP_Taxonomy->label"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:71
+msgid "Name of the taxonomy shown in the menu. Usually plural."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:78
+msgid "Description of the taxonomy. This field is equivalent to WP_Taxonomy->description"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:84
+msgid "Whether the taxonomy is publicly queryable"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:96
+msgid "Whether the taxonomy is hierarchical"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:102
+msgid "Whether to generate and allow a UI for managing terms in this taxonomy in the admin"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:108
+msgid "Whether to show the taxonomy in the admin menu"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:114
+msgid "Whether the taxonomy is available for selection in navigation menus."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:120
+msgid "Whether to show the taxonomy as part of a tag cloud widget. This field is equivalent to WP_Taxonomy->show_tagcloud"
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:126
+msgid "Whether to show the taxonomy in the quick/bulk edit panel."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:132
+msgid "Whether to display a column for the taxonomy on its post type listing screens."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:138
+msgid "Whether to add the post type route in the REST API \"wp/v2\" namespace."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:156
+msgid "Whether to add the post type to the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:162
+msgid "The singular name of the post type within the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/Taxonomy.php:168
+msgid "The plural name of the post type within the GraphQL Schema."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:24
+msgid "A theme object"
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:32
+msgid "The globally unique identifier of the theme object."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:38
+msgid "The theme slug is used to internally match themes. Theme slugs can have subdirectories like: my-theme/sub-theme. This field is equivalent to WP_Theme->get_stylesheet()."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:44
+msgid "Display name of the theme. This field is equivalent to WP_Theme->get( \"Name\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:50
+msgid "The URL of the screenshot for the theme. The screenshot is intended to give an overview of what the theme looks like. This field is equivalent to WP_Theme->get_screenshot()."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:56
+msgid "A URI if the theme has a website associated with it. The Theme URI is handy for directing users to a theme site for support etc. This field is equivalent to WP_Theme->get( \"ThemeURI\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:62
+msgid "The description of the theme. This field is equivalent to WP_Theme->get( \"Description\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:68
+msgid "Name of the theme author(s), could also be a company name. This field is equivalent to WP_Theme->get( \"Author\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:74
+msgid "URI for the author/company website. This field is equivalent to WP_Theme->get( \"AuthorURI\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:82
+msgid "URI for the author/company website. This field is equivalent to WP_Theme->get( \"Tags\" )."
+msgstr ""
+
+#: src/Type/ObjectType/Theme.php:88
+msgid "The current version of the theme. This field is equivalent to WP_Theme->get( \"Version\" )."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:30
+msgid "A registered user account. Users can be assigned roles, author content, and have various capabilities within the site."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:56
+msgid "Connection between the User and Revisions authored by the user"
+msgstr ""
+
+#: src/Type/ObjectType/User.php:86
+msgid "The globally unique identifier for the user object."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:94
+msgid "A list of capabilities (permissions) granted to the user"
+msgstr ""
+
+#: src/Type/ObjectType/User.php:100
+msgid "User metadata option name. Usually it will be \"wp_capabilities\"."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:115
+msgid "Description of the user."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:121
+msgid "Email address of the user. This is equivalent to the WP_User->user_email property."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:129
+msgid "A complete list of capabilities including capabilities inherited from a role. This is equivalent to the array keys of WP_User->allcaps."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:135
+msgid "First name of the user. This is equivalent to the WP_User->user_first_name property."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:141
+msgid "Last name of the user. This is equivalent to the WP_User->user_last_name property."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:148
+msgid "Username for the user. This field is equivalent to WP_User->user_login."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:154
+msgid "Display name of the user. This is equivalent to the WP_User->display_name property."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:160
+msgid "The date the user registered or was created. The field follows a full ISO8601 date string format."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:166
+msgid "Nickname of the user."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:172
+msgid "A website url that is associated with the user."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:178
+msgid "The slug for the user. This field is equivalent to WP_User->user_nicename"
+msgstr ""
+
+#: src/Type/ObjectType/User.php:184
+msgid "The nicename for the user. This field is equivalent to WP_User->user_nicename"
+msgstr ""
+
+#: src/Type/ObjectType/User.php:190
+msgid "The preferred language locale set for the user. Value derived from get_user_locale()."
+msgstr ""
+
+#: src/Type/ObjectType/User.php:196
+msgid "The Id of the user. Equivalent to WP_User->ID"
+msgstr ""
+
+#: src/Type/ObjectType/User.php:211
+msgid "Whether the Toolbar should be displayed when the user is viewing the site."
+msgstr ""
+
+#: src/Type/ObjectType/UserRole.php:19
+msgid "A user role object"
+msgstr ""
+
+#: src/Type/ObjectType/UserRole.php:27
+msgid "The globally unique identifier for the user role object."
+msgstr ""
+
+#: src/Type/ObjectType/UserRole.php:33
+msgid "The registered name of the role"
+msgstr ""
+
+#: src/Type/ObjectType/UserRole.php:41
+msgid "The capabilities that belong to this role"
+msgstr ""
+
+#: src/Type/ObjectType/UserRole.php:47
+msgid "The display name of the role"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:210
+msgid "Connection config needs to have at least a fromType defined"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:214
+msgid "Connection config needs to have a \"toType\" defined"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:218
+msgid "Connection config needs to have \"fromFieldName\" defined as a string value"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:290
+msgid "Arguments for filtering the connection"
+msgstr ""
+
+#. translators: %s is the name of the connection
+#: src/Type/WPConnectionType.php:304
+#, php-format
+msgid "Arguments for filtering the %s connection"
+msgstr ""
+
+#. translators: Placeholders are for the name of the Type the connection is coming from and the name of the Type the connection is going to
+#. translators: the placeholders are the name of the Types the connection is between.
+#: src/Type/WPConnectionType.php:339
+#: src/Type/WPConnectionType.php:457
+#: src/Type/WPConnectionType.php:562
+#, php-format
+msgid "Connection between the %1$s type and the %2$s type"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:349
+msgid "The node of the connection, without the edges"
+msgstr ""
+
+#. translators: %s is the name of the connection.
+#: src/Type/WPConnectionType.php:377
+#, php-format
+msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of %2$s Nodes."
+msgstr ""
+
+#: src/Type/WPConnectionType.php:406
+msgid "An edge in a connection"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:414
+msgid "A cursor for use in pagination"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:422
+msgid "The item at the end of the edge"
+msgstr ""
+
+#. translators: %s is the name of the connection.
+#: src/Type/WPConnectionType.php:487
+#, php-format
+msgid "Edges for the %s connection"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:493
+msgid "The nodes of the connection, without the edges"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:514
+msgid "The number of items to return after the referenced \"after\" cursor"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:520
+msgid "The number of items to return before the referenced \"before\" cursor"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:526
+msgid "Cursor used along with the \"first\" argument to reference where in the dataset to get data"
+msgstr ""
+
+#: src/Type/WPConnectionType.php:532
+msgid "Cursor used along with the \"last\" argument to reference where in the dataset to get data"
+msgstr ""
+
+#. translators: %s is the name of the connection edge.
+#: src/Type/WPConnectionType.php:599
+#, php-format
+msgid "Pagination metadata specific to \"%1$s\" collections. Provides cursors and flags for navigating through sets of \"%2$s\" Nodes."
+msgstr ""
+
+#. translators: %s is the name of the type the connection edge is to.
+#: src/Type/WPConnectionType.php:613
+#, php-format
+msgid "Represents a connection to a %1$s. Contains both the %2$s Node and metadata about the relationship."
+msgstr ""
+
+#. translators: %s is the name of the type the connection edge is to.
+#: src/Type/WPConnectionType.php:620
+#, php-format
+msgid "The connected %s Node"
+msgstr ""
+
+#. translators: %s is the name of the type the connection is to.
+#: src/Type/WPConnectionType.php:635
+#, php-format
+msgid "A paginated collection of %1$s Nodes, Supports cursor-based pagination and filtering to efficiently retrieve sets of %2$s Nodes"
+msgstr ""
+
+#. translators: %1$s is the name of the type the connection is from, %2$s is the name of the type the connection is to.
+#: src/Type/WPConnectionType.php:643
+#, php-format
+msgid "A list of edges (relational context) between %1$s and connected %2$s Nodes"
+msgstr ""
+
+#. translators: %s is the name of the type the connection is to.
+#: src/Type/WPConnectionType.php:656
+#, php-format
+msgid "A list of connected %s Nodes"
+msgstr ""
+
+#. translators: %1$s is the name of the type and %2$s is the invalid fields
+#: src/Type/WPInputObjectType.php:167
+#, php-format
+msgid "%1$s fields must be an array, an iterable, or an InputObjectField instance, got: %2$s"
+msgstr ""
+
+#. translators: %s is the name of the interface.
+#: src/Type/WPInterfaceTrait.php:82
+#, php-format
+msgid "The \"%s\" Interface attempted to implement itself, which is not allowed"
+msgstr ""
+
+#. translators: %s is the name of the GraphQL type.
+#: src/Type/WPInterfaceTrait.php:99
+#, php-format
+msgid "Invalid Interface registered to the \"%s\" Type. Interfaces can only be registered with an interface name or a valid instance of an InterfaceType"
+msgstr ""
+
+#. translators: %1$s is the name of the interface, %2$s is the name of the type.
+#: src/Type/WPInterfaceTrait.php:115
+#, php-format
+msgid "\"%1$s\" is not a valid Interface Type and cannot be implemented as an Interface on the \"%2$s\" Type"
+msgstr ""
+
+#. translators: %1$s is the field name, %2$s is the type name.
+#: src/Type/WPInterfaceTrait.php:262
+#, php-format
+msgid "Invalid Interface field %1$s registered to the \"%2$s\" Type. Fields must be registered a valid GraphQL `type`."
+msgstr ""
+
+#. translators: 1: Object type name, 2: Field name, 3: Argument name, 4: Expected argument type, 5: Actual argument type.
+#: src/Type/WPInterfaceTrait.php:317
+#, php-format
+msgid "Interface field argument \"%1$s.%2$s(%3$s:)\" expected to be of type \"%4$s\" but got \"%5$s\". Please ensure the field arguments match the interface field arguments or rename the argument."
+msgstr ""
+
+#: src/Type/WPMutationType.php:132
+msgid "Mutation config needs to have a valid name."
+msgstr ""
+
+#: src/Type/WPMutationType.php:142
+msgid "Mutation config needs to have \"mutateAndGetPayload\" defined as a callable."
+msgstr ""
+
+#: src/Type/WPMutationType.php:163
+msgid "This is an ID that can be passed to a mutation by the client to track the progress of mutations and catch possible duplicate mutation submissions."
+msgstr ""
+
+#: src/Type/WPMutationType.php:185
+msgid "If a 'clientMutationId' input is provided to the mutation, it will be returned as output on the mutation. This ID can be used by the client to track the progress of mutations and catch possible duplicate mutation submissions."
+msgstr ""
+
+#. translators: %s is the name of the mutation.
+#: src/Type/WPMutationType.php:286
+#, php-format
+msgid "Input for the %1$s mutation."
+msgstr ""
+
+#. translators: %s is the name of the mutation.
+#: src/Type/WPMutationType.php:310
+#, php-format
+msgid "The payload for the %s mutation."
+msgstr ""
+
+#. translators: %s is the name of the mutation.
+#: src/Type/WPMutationType.php:332
+#, php-format
+msgid "Input for the %s mutation"
+msgstr ""
+
+#. translators: %s is the name of the mutation.
+#: src/Type/WPMutationType.php:340
+#, php-format
+msgid "The %s mutation"
+msgstr ""
+
+#: src/Utils/DebugLog.php:126
+msgid "GraphQL Debug logging is not active. To see debug logs, GRAPHQL_DEBUG must be enabled."
+msgstr ""
+
+#: src/Utils/InstrumentSchema.php:222
+msgid "You do not have permission to view this"
+msgstr ""
+
+#. translators: %s is the value of the SAVEQUERIES constant
+#: src/Utils/QueryLog.php:135
+#, php-format
+msgid "Query Logging has been disabled. The 'SAVEQUERIES' Constant is set to '%s' on your server."
+msgstr ""
+
+#: src/Utils/Utils.php:147
+msgid "The `graphql_pre_format_name` filter must return a string or null."
+msgstr ""
+
+#: src/WPGraphQL.php:104
+msgid "The WPGraphQL class should not be cloned."
+msgstr ""
+
+#: src/WPGraphQL.php:115
+msgid "De-serializing instances of the WPGraphQL class is not allowed"
+msgstr ""
+
+#. translators: %1$s is the current PHP version, %2$s is the minimum required PHP version.
+#: src/WPGraphQL.php:310
+#, php-format
+msgid "The server's current PHP version %1$s is lower than the WPGraphQL minimum required version: %2$s"
+msgstr ""
+
+#: src/WPGraphQL.php:524
+msgid "Represents uploaded media, including images, videos, documents, and audio files."
+msgstr ""
+
+#: src/WPGraphQL.php:529
+msgid "A standalone content entry generally used for static, non-chronological content such as \"About Us\" or \"Contact\" pages."
+msgstr ""
+
+#: src/WPGraphQL.php:534
+msgid "A chronological content entry typically used for blog posts, news articles, or similar date-based content."
+msgstr ""
+
+#: src/WPGraphQL.php:555
+msgid "A taxonomy term that classifies content. Categories support hierarchy and can be used to create a nested structure."
+msgstr ""
+
+#: src/WPGraphQL.php:560
+msgid "A taxonomy term used to organize and classify content. Tags do not have a hierarchy and are generally used for more specific classifications."
+msgstr ""
+
+#: src/WPGraphQL.php:565
+msgid "A standardized classification system for content presentation styles. These formats can be used to display content differently based on type, such as \"standard\", \"gallery\", \"video\", etc."
+msgstr ""
+
+#. translators: %s will replaced with the registered type
+#: src/WPGraphQL.php:730
+#, php-format
+msgid "The \"%s\" post_type isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
+msgstr ""
+
+#. translators: %s will replaced with the registered taxonomy
+#: src/WPGraphQL.php:814
+#, php-format
+msgid "The \"%s\" taxonomy isn't configured properly to show in GraphQL. It needs a \"graphql_single_name\" and a \"graphql_plural_name\""
+msgstr ""
+
+#: wp-graphql.php:150
+msgid "WPGraphQL appears to have been installed without it's dependencies. It will not work properly until dependencies are installed. This likely means you have cloned WPGraphQL from Github and need to run the command `composer install`."
+msgstr ""
+
+#. translators: %s is the error message
+#: wp-graphql.php:188
+#, php-format
+msgid "Error initializing Appsero: %s"
+msgstr ""
