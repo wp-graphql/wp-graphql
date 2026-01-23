@@ -12,7 +12,7 @@
 	"scripts": {
 		"test:codecept": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- vendor/bin/codecept",
 		"test:codecept:wpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- vendor/bin/codecept run wpunit",
-		"test:codecept:acceptance": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run acceptance \"$@\"' --",
-		"test:codecept:functional": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- bash -c 'TEST_WP_URL=http://tests-wordpress vendor/bin/codecept run functional \"$@\"' --"
+		"test:codecept:acceptance": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- bash -c 'TEST_SITE_WP_URL=http://tests-wordpress vendor/bin/codecept run acceptance \"$@\"' --",
+		"test:codecept:functional": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-graphql-smart-cache/ -- bash -c 'TEST_SITE_WP_URL=http://tests-wordpress vendor/bin/codecept run functional \"$@\"' --"
 	}
 }
