@@ -3,6 +3,7 @@
 	"core": null,
 	"plugins": [
 		"./plugins/wp-graphql",
+		"./plugins/wp-graphql-smart-cache",
 		"https://downloads.wordpress.org/plugin/wpgraphql-ide.latest-stable.zip"
 	],
 	"themes": [
@@ -19,6 +20,7 @@
 		"tests": {
 			"plugins": [
 				"./plugins/wp-graphql",
+				"./plugins/wp-graphql-smart-cache",
 				"./plugins/wp-graphql/tests/e2e/plugins/settings-page-spec"
 			],
 			"config": {
@@ -26,7 +28,8 @@
 			},
 			"mappings": {
 				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
-				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist"
+				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist",
+				"/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache"
 			}
 		}
 	},
