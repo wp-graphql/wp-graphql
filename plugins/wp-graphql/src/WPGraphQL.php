@@ -266,6 +266,11 @@ final class WPGraphQL {
 			return;
 		}
 
+		// Ensure the Commands class is loaded before trying to register it
+		if ( ! class_exists( \WPGraphQL\CLI\Commands::class ) ) {
+			return;
+		}
+
 		\WP_CLI::add_command( 'graphql', \WPGraphQL\CLI\Commands::class );
 	}
 
