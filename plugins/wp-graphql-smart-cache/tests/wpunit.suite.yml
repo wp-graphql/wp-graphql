@@ -14,9 +14,9 @@ modules:
             dbHost: "%TEST_DB_HOST%"
             dbUser: "%TEST_DB_USER%"
             dbPassword: "%TEST_DB_PASSWORD%"
-            tablePrefix: "%TEST_TABLE_PREFIX%"
-            domain: "%TEST_SITE_WP_DOMAIN%"
-            adminEmail: "%TEST_SITE_ADMIN_EMAIL%"
+            tablePrefix: "%TEST_WP_TABLE_PREFIX%"
+            domain: "%TEST_WP_DOMAIN%"
+            adminEmail: "%TEST_ADMIN_EMAIL%"
             title: "Test"
             plugins: ['wp-graphql/wp-graphql.php', 'wp-graphql-smart-cache/wp-graphql-smart-cache.php']
             activatePlugins: ['wp-graphql/wp-graphql.php', 'wp-graphql-smart-cache/wp-graphql-smart-cache.php']
