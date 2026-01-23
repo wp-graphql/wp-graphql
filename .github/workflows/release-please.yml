@@ -279,6 +279,7 @@ jobs:
           COMPONENT="${{ matrix.component }}"
           PLUGIN_DIR="${{ steps.plugin_info.outputs.package_path }}"
           BUILD_DIR="../../plugin-build/${COMPONENT}"
+          VERSION="${{ steps.plugin_info.outputs.version }}"
           
           echo "📦 Creating clean build directory for ${COMPONENT} using .distignore..."
           echo "This ensures only production files are included (respects .distignore)"
@@ -296,6 +297,28 @@ jobs:
           fi
           
           echo "✅ Clean build directory created at ${BUILD_DIR}"
+          
+          # Update Stable tag in build directory's readme.txt
+          # This is necessary because the tag may have an old Stable tag value
+          # We only update the Stable tag (metadata), not source code placeholders
+          if [[ -f "${BUILD_DIR}/readme.txt" ]]; then
+            echo "🔄 Updating Stable tag in build directory to ${VERSION}..."
+            sed -i.bak "s/^Stable tag: .*/Stable tag: ${VERSION}/" "${BUILD_DIR}/readme.txt"
+            rm -f "${BUILD_DIR}/readme.txt.bak"
+            
+            # Verify the update
+            if grep -q "Stable tag: ${VERSION}" "${BUILD_DIR}/readme.txt"; then
+              echo "✅ Stable tag updated to ${VERSION} in build directory"
+            else
+              echo "::error::Failed to update Stable tag in build directory readme.txt"
+              echo "Current Stable tag:"
+              grep "^Stable tag:" "${BUILD_DIR}/readme.txt" || echo "  (not found)"
+              exit 1
+            fi
+          else
+            echo "⚠️  Warning: readme.txt not found in build directory"
+          fi
+          
           echo "📋 Verifying no node_modules in build directory..."
           if find "${BUILD_DIR}" -type d -name "node_modules" 2>/dev/null | grep -q .; then
             echo "⚠️  Warning: node_modules found in build directory!"
