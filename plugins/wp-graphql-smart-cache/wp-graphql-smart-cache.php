@@ -8,7 +8,7 @@
  * Author URI: http://www.wpgraphql.com
  * Requires at least: 6.0
  * Tested up to: 6.9
- * Requires PHP: 7.4
+ * Requires PHP: 8.1
  * Requires WPGraphQL: 2.0.0
  * WPGraphQL Tested Up To: 2.0.0
  * Text Domain: wp-graphql-smart-cache
