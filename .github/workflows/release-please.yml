@@ -284,16 +284,30 @@ jobs:
           find . -type f -name "*.php.bak" -delete
           
           # Replace in readme.txt (Stable tag field)
+          # Handle both placeholder format and existing version numbers
           if [[ -f "readme.txt" ]]; then
+            # First try to replace placeholder
             sed -i.bak "s/Stable tag: x-release-please-version/Stable tag: ${VERSION}/" readme.txt
+            # Also replace any existing version number (for re-deployments)
+            sed -i.bak "s/^Stable tag: [0-9]\+\.[0-9]\+\.[0-9]\+/Stable tag: ${VERSION}/" readme.txt
             rm -f readme.txt.bak
+            
+            # Verify the update
+            if grep -q "Stable tag: ${VERSION}" readme.txt; then
+              echo "✅ Stable tag updated to ${VERSION}"
+            else
+              echo "::error::Failed to update Stable tag in readme.txt"
+              echo "Current Stable tag line:"
+              grep "^Stable tag:" readme.txt || echo "  (not found)"
+              exit 1
+            fi
           fi
           
           echo "✅ Placeholders replaced"
           
           # Verify replacements (show a few examples)
           echo "📋 Sample replacements:"
-          grep -r "x-release-please-version" . 2>/dev/null | head -3 || echo "  (no remaining placeholders found)"
+          grep -r "x-release-please-version" . 2>/dev/null | grep -v "docs/contributing.md" | grep -v ".git" | head -3 || echo "  (no remaining placeholders found)"
 
       - name: Create clean build directory for deployment
         working-directory: ${{ steps.plugin_info.outputs.package_path }}
