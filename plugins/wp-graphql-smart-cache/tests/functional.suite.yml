@@ -24,7 +24,7 @@ modules:
             password: '%TEST_DB_PASSWORD%'
             url: '%TEST_WP_URL%'
             tablePrefix: '%TEST_WP_TABLE_PREFIX%'
-            urlReplacement: false
+            urlReplacement: true
         WPBrowser:
             url: '%TEST_WP_URL%'
             adminUsername: '%TEST_ADMIN_USERNAME%'

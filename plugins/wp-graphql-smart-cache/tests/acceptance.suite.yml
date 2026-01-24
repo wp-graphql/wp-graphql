@@ -25,6 +25,9 @@ modules:
             adminUsername: '%TEST_ADMIN_USERNAME%'
             adminPassword: '%TEST_ADMIN_PASSWORD%'
             adminPath: '%TEST_ADMIN_PATH%'
+            headers:
+                X_WPBROWSER_REQUEST: 1
+                X_TEST_REQUEST: 1
         WPDb:
             dsn: 'mysql:host=%TEST_DB_HOST%;dbname=%TEST_DB_NAME%'
             user: '%TEST_DB_USER%'
