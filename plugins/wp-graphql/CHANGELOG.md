@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.7.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.7.0...wp-graphql/v2.7.1) (2026-01-23)
+
+
+### Bug Fixes
+
+* add step to replace x-release-please-version placeholders during deployment ([727a9ea](https://github.com/wp-graphql/wp-graphql/commit/727a9ea814eee8c99535d78c7becaad8cf5fbd6f))
+* replace x-release-please-version placeholders with 2.7.0 ([143f407](https://github.com/wp-graphql/wp-graphql/commit/143f407b6fb5ff9fb698ee6f253fbe7bd7d960fb))
+* use clean build directory for WordPress.org deployment ([#3502](https://github.com/wp-graphql/wp-graphql/issues/3502)) ([55298a4](https://github.com/wp-graphql/wp-graphql/commit/55298a4157060b2d032e8a2ccb9e6c17e58dd260))
+
 ## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql/v2.6.0...wp-graphql/v2.7.0) (2026-01-22)
 
 
