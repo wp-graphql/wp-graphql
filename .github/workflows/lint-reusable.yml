@@ -11,53 +11,7 @@ on:
         description: "Name of the plugin (e.g., wp-graphql)"
         required: true
         type: string
-      test_all_plugins:
-        description: "Whether to test all plugins (skip change detection)"
-        required: false
-        type: string
-        default: "false"
-
 jobs:
-  pre_run:
-    name: Check ${{ inputs.plugin_name }} for changes
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    timeout-minutes: 20
-    outputs:
-      any_changed_phpcs: ${{ steps.changed-files-phpcs.outputs.any_changed }}
-      any_changed_phpstan: ${{ steps.changed-files-phpstan.outputs.any_changed }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.2
-        with:
-          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
-          persist-credentials: false
-
-      - name: Get changed files for PHPCS
-        id: changed-files-phpcs
-        uses: tj-actions/changed-files@v46
-        with:
-          files: |
-            .github/workflows/lint-reusable.yml
-            .github/workflows/lint.yml
-            ${{ inputs.plugin_path }}/**/*.php
-            ${{ inputs.plugin_path }}/composer.json
-            ${{ inputs.plugin_path }}/composer.lock
-            ${{ inputs.plugin_path }}/phpcs.xml.dist
-
-      - name: Get changed files for PHPStan
-        id: changed-files-phpstan
-        uses: tj-actions/changed-files@v46
-        with:
-          files: |
-            .github/workflows/lint-reusable.yml
-            .github/workflows/lint.yml
-            ${{ inputs.plugin_path }}/**/*.php
-            ${{ inputs.plugin_path }}/composer.json
-            ${{ inputs.plugin_path }}/composer.lock
-            ${{ inputs.plugin_path }}/phpstan.neon.dist
-
   # Runs the PHP coding standards checks.
   #
   # Violations are reported inline with annotations.
@@ -72,8 +26,6 @@ jobs:
   phpcs:
     name: PHP Coding Standards (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
-    needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpcs == 'true' || inputs.test_all_plugins == 'true'
     permissions:
       contents: read
     timeout-minutes: 20
@@ -135,8 +87,6 @@ jobs:
   phpstan:
     name: PHP static analysis (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
-    needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpstan == 'true' || inputs.test_all_plugins == 'true'
     permissions:
       contents: read
     timeout-minutes: 20

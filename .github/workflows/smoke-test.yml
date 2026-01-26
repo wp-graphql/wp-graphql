@@ -52,246 +52,144 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke-test:
-    name: Smoke Test (${{ matrix.plugin_name }} - WP ${{ matrix.wp }} / PHP ${{ matrix.php }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Matrix strategy to test each plugin across different WP/PHP versions
-        # 
-        # To add a new plugin:
-        # 1. Add a new entry to the include array below
-        # 2. Set plugin_name, plugin_path, composer_working_dir, zip_name, plugin_slug
-        # 3. If the plugin requires wp-graphql to be active first, set requires_wp_graphql: true
-        # 4. If the plugin has its own smoke test script, set smoke_test_script path
-        include:
-          # Core WPGraphQL plugin
-          - plugin_name: wp-graphql
-            plugin_path: plugins/wp-graphql
-            composer_working_dir: plugins/wp-graphql
-            zip_name: wp-graphql.zip
-            plugin_slug: wp-graphql
-            requires_wp_graphql: false
-            smoke_test_script: bin/smoke-test.sh
-            needs_build: true
-            wp: "6.8"
-            php: "8.3"
-          - plugin_name: wp-graphql
-            plugin_path: plugins/wp-graphql
-            composer_working_dir: plugins/wp-graphql
-            zip_name: wp-graphql.zip
-            plugin_slug: wp-graphql
-            requires_wp_graphql: false
-            smoke_test_script: bin/smoke-test.sh
-            needs_build: true
-            wp: "6.1"
-            php: "7.4"
-          # WPGraphQL Smart Cache
-          - plugin_name: wp-graphql-smart-cache
-            plugin_path: plugins/wp-graphql-smart-cache
-            composer_working_dir: plugins/wp-graphql-smart-cache
-            zip_name: wpgraphql-smart-cache.zip
-            plugin_slug: wp-graphql-smart-cache
-            requires_wp_graphql: true
-            smoke_test_script: bin/smoke-test.sh
-            needs_build: false
-            wp: "6.8"
-            php: "8.3"
-          - plugin_name: wp-graphql-smart-cache
-            plugin_path: plugins/wp-graphql-smart-cache
-            composer_working_dir: plugins/wp-graphql-smart-cache
-            zip_name: wpgraphql-smart-cache.zip
-            plugin_slug: wp-graphql-smart-cache
-            requires_wp_graphql: true
-            smoke_test_script: bin/smoke-test.sh
-            needs_build: false
-            wp: "6.1"
-            php: "7.4"
+  # ===========================================
+  # CHANGE DETECTION
+  # ===========================================
+  # Detects which plugins have changes to determine which smoke tests to run.
+  # Each plugin job depends on this and only runs if its files changed.
+  # ===========================================
 
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
+      wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
+      # Add outputs for additional plugins here:
+      # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
+      test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          tools: composer:v2
-          extensions: json, mbstring
-
-      - name: Install Composer dependencies (production)
-        uses: ramsey/composer-install@v3
-        with:
-          working-directory: ${{ matrix.composer_working_dir }}
-          # Use --no-dev to match the production release build
-          composer-options: "--no-dev --optimize-autoloader"
-
-      - name: Setup Node.js
-        if: matrix.needs_build == true || matrix.requires_wp_graphql == true
-        uses: actions/setup-node@v6
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-
-      - name: Install NPM dependencies
-        if: matrix.needs_build == true
-        run: npm ci
-
-      - name: Build JavaScript assets
-        if: matrix.needs_build == true
-        run: npm run build
-
-      - name: Build wp-graphql zip (if required as dependency)
-        if: matrix.requires_wp_graphql == true
+      - name: Check context (Release PR or push to main)
+        id: check-context
         run: |
-          # Build wp-graphql first if this plugin requires it
-          if [ ! -f "plugin-build/wp-graphql.zip" ]; then
-            echo "📦 Building wp-graphql (required dependency)..."
-            # Install wp-graphql composer dependencies (with dev for build tools)
-            composer install --working-dir=plugins/wp-graphql
-            # Build JS assets if needed
-            if [ -f "plugins/wp-graphql/package.json" ]; then
-              npm ci
-              npm run build
+          TEST_ALL=false
+          # Check if Release PR
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH_NAME="${{ github.head_ref }}"
+            if [[ "$BRANCH_NAME" == release-please--* ]]; then
+              TEST_ALL=true
+              echo "🔔 Detected Release PR - will smoke test all plugins"
             fi
-            # Build production zip
-            cd plugins/wp-graphql
-            composer run-script zip
-            cd ../..
-            echo "✅ wp-graphql.zip built successfully"
-          else
-            echo "✅ wp-graphql.zip already exists"
+          # Check if push to main
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            TEST_ALL=true
+            echo "Push to main - will smoke test all plugins"
           fi
+          echo "test_all=$TEST_ALL" >> $GITHUB_OUTPUT
 
-      - name: Build plugin zip
-        working-directory: ${{ matrix.plugin_path }}
-        run: composer run-script zip
-
-      - name: Verify zip contents
-        run: |
-          echo "📦 Verifying zip was created..."
-          ls -la plugin-build/ || ls -la ${{ matrix.plugin_path }}/plugin-build/
-          echo ""
-          echo "📋 Zip contents:"
-          ZIP_PATH="plugin-build/${{ matrix.zip_name }}"
-          if [ ! -f "$ZIP_PATH" ]; then
-            ZIP_PATH="${{ matrix.plugin_path }}/plugin-build/${{ matrix.zip_name }}"
-          fi
-          unzip -l "$ZIP_PATH" | head -50
-
-      # Create a minimal wp-env config with NO plugins
-      # We'll install the zip manually via WP-CLI for reliable testing
-      - name: Create wp-env config for zip testing
-        run: |
-          cat > .wp-env.override.json << 'EOF'
-          {
-            "plugins": [],
-            "lifecycleScripts": {
-              "afterStart": null
-            },
-            "mappings": {},
-            "env": {
-              "development": {
-                "plugins": [],
-                "mappings": {}
-              },
-              "tests": {
-                "plugins": [],
-                "mappings": {}
-              }
-            }
-          }
-          EOF
-          echo "📋 Created .wp-env.override.json:"
-          cat .wp-env.override.json
-          echo ""
-          echo "🔍 Validating JSON syntax..."
-          python3 -c "import json; json.load(open('.wp-env.override.json')); print('✅ JSON is valid')"
-
-      - name: Clean wp-env cache
-        run: |
-          # Ensure no stale wp-env state interferes with the smoke test
-          npm run wp-env destroy -- --force || true
-          # Clear the wp-env cache directory to ensure zip is freshly extracted
-          rm -rf ~/.wp-env || true
-
-      - name: Start WordPress environment
-        env:
-          WP_ENV_PHP_VERSION: ${{ matrix.php }}
-          WP_ENV_CORE: ${{ format('https://wordpress.org/wordpress-{0}.zip', matrix.wp) }}
-        run: npm run wp-env start
-
-      - name: Install plugin from zip via WP-CLI
-        run: |
-          # Find the zip file location
-          ZIP_PATH="plugin-build/${{ matrix.zip_name }}"
-          if [ ! -f "$ZIP_PATH" ]; then
-            ZIP_PATH="${{ matrix.plugin_path }}/plugin-build/${{ matrix.zip_name }}"
-          fi
-          
-          echo "📦 Copying zip to container..."
-          CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
-          docker cp "$ZIP_PATH" "$CONTAINER_NAME":/tmp/${{ matrix.zip_name }}
-          
-          # Install wp-graphql first if required
-          if [ "${{ matrix.requires_wp_graphql }}" = "true" ]; then
-            echo "📦 Installing wp-graphql first (required dependency)..."
-            # Check if wp-graphql zip exists, if not we'll need to build it or skip
-            if [ -f "plugin-build/wp-graphql.zip" ]; then
-              docker cp plugin-build/wp-graphql.zip "$CONTAINER_NAME":/tmp/wp-graphql.zip
-              npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
-            else
-              echo "⚠️ Warning: wp-graphql.zip not found. This plugin requires wp-graphql to be active."
-              echo "For now, we'll try to install the plugin and see if wp-graphql is available."
-            fi
-          fi
-          
-          echo "📦 Installing ${{ matrix.plugin_name }} from zip..."
-          npm run wp-env -- run cli wp plugin install /tmp/${{ matrix.zip_name }} --activate
-          
-          echo "🔄 Flushing permalinks..."
-          npm run wp-env -- run cli wp rewrite structure '/%postname%/' --hard
-          npm run wp-env -- run cli wp rewrite flush --hard
-          
-          # Only enable GraphQL settings if wp-graphql is active
-          if npm run wp-env -- run cli wp plugin is-active wp-graphql 2>/dev/null; then
-            echo "⚙️ Enabling public introspection..."
-            npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
-          fi
-
-      - name: Verify plugin is active
-        run: |
-          echo "📦 Installed plugins:"
-          npm run wp-env -- run cli wp plugin list
-          echo ""
-          npm run wp-env -- run cli wp plugin is-active ${{ matrix.plugin_slug }}
-
-      - name: Run smoke tests
-        run: |
-          # Run smoke tests against the WordPress container
-          if [ -f "${{ matrix.smoke_test_script }}" ]; then
-            ${{ matrix.smoke_test_script }} --verbose
-          else
-            echo "⚠️ Smoke test script not found: ${{ matrix.smoke_test_script }}"
-            echo "Skipping smoke tests for this plugin."
-          fi
-
-      - name: Check for PHP errors
-        if: always()
-        run: |
-          echo "📋 Checking for PHP errors..."
-          npm run wp-env -- run cli cat /var/www/html/wp-content/debug.log 2>/dev/null || echo "No debug.log found"
-
-      - name: Upload tested zip artifact
-        if: always()
-        uses: actions/upload-artifact@v6
+      - name: Detect changed files
+        id: filter
+        uses: tj-actions/changed-files@v46
         with:
-          name: ${{ matrix.plugin_name }}-smoke-tested-${{ matrix.wp }}-${{ matrix.php }}
-          path: |
-            plugin-build/${{ matrix.zip_name }}
-            ${{ matrix.plugin_path }}/plugin-build/${{ matrix.zip_name }}
+          files_yaml: |
+            wp-graphql:
+              - .github/workflows/smoke-test.yml
+              - plugins/wp-graphql/**/*.php
+              - plugins/wp-graphql/composer.json
+              - plugins/wp-graphql/.distignore
+              - plugins/wp-graphql/package.json
+              - plugins/wp-graphql/packages/**
+              - plugins/wp-graphql/webpack.config.js
+              - package.json
+              - .wp-env.json
+              - bin/smoke-test.sh
+            wp-graphql-smart-cache:
+              - .github/workflows/smoke-test.yml
+              - plugins/wp-graphql-smart-cache/**/*.php
+              - plugins/wp-graphql-smart-cache/composer.json
+              - plugins/wp-graphql-smart-cache/.distignore
+              - plugins/wp-graphql-smart-cache/package.json
+              - package.json
+              - .wp-env.json
+              - bin/smoke-test.sh
+              # Smart cache depends on wp-graphql, so wp-graphql changes trigger smart-cache smoke tests
+              - plugins/wp-graphql/**/*.php
+            # Add additional plugins here:
+            # wpgraphql-acf:
+            #   - .github/workflows/smoke-test.yml
+            #   - plugins/wpgraphql-acf/**/*.php
+            #   - plugins/wpgraphql-acf/composer.json
+            #   - plugins/wpgraphql-acf/.distignore
 
-      - name: Stop WordPress environment
-        if: always()
-        run: npm run wp-env stop
+      - name: Log detected changes
+        run: |
+          echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
+          echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
+
+  # ===========================================
+  # SMOKE TEST JOBS
+  # ===========================================
+  # Each plugin gets smoke tested across different WP/PHP versions.
+  # Only runs if the plugin has changes (or if test_all is true).
+  # ===========================================
+
+  wp-graphql:
+    name: "Smoke Test: ${{ matrix.name }}"
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "wp-graphql / WP 6.8 / PHP 8.3"
+            wp: "6.8"
+            php: "8.3"
+          - name: "wp-graphql / WP 6.1 / PHP 7.4"
+            wp: "6.1"
+            php: "7.4"
+    uses: ./.github/workflows/smoke-test-reusable.yml
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql
+      plugin_name: wp-graphql
+      composer_working_dir: plugins/wp-graphql
+      zip_name: wp-graphql.zip
+      plugin_slug: wp-graphql
+      requires_wp_graphql: false
+      smoke_test_script: bin/smoke-test.sh
+      needs_build: true
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}
+
+  wp-graphql-smart-cache:
+    name: "Smoke Test: ${{ matrix.name }}"
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || needs.detect-changes.outputs.test_all == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "wp-graphql-smart-cache / WP 6.8 / PHP 8.3"
+            wp: "6.8"
+            php: "8.3"
+          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 7.4"
+            wp: "6.1"
+            php: "7.4"
+    uses: ./.github/workflows/smoke-test-reusable.yml
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql-smart-cache
+      plugin_name: wp-graphql-smart-cache
+      composer_working_dir: plugins/wp-graphql-smart-cache
+      zip_name: wpgraphql-smart-cache.zip
+      plugin_slug: wp-graphql-smart-cache
+      requires_wp_graphql: true
+      smoke_test_script: bin/smoke-test.sh
+      needs_build: false
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}

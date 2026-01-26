@@ -35,10 +35,12 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 5. Smoke Test (`smoke-test.yml`)
+### 5. Smoke Test (`smoke-test.yml` and `smoke-test-reusable.yml`)
 
 - Validates production zip artifacts work correctly for each plugin in the monorepo
-- Uses matrix strategy to test each plugin across different WP/PHP versions
+- Uses change detection to only test plugins that have changed files
+- `smoke-test.yml` detects changes and triggers `smoke-test-reusable.yml` for each affected plugin
+- Tests each plugin across different WP/PHP versions (boundary testing approach)
 - Builds the plugin zip (same as release process)
 - Handles plugin dependencies (e.g., builds wp-graphql first if required by another plugin)
 - Installs plugins in a clean WordPress environment
@@ -182,17 +184,18 @@ When adding or modifying workflows:
 
 When adding a new plugin:
 
-1. **Add change detection patterns** in `integration-tests.yml` and `lint.yml`:
+1. **Add change detection patterns** in `integration-tests.yml`, `lint.yml`, and `smoke-test.yml`:
    - Add plugin output in `detect-changes` job
    - Add file patterns in `files_yaml` section
    - Add plugin job that uses the reusable workflow
 2. **Add test job** that uses `integration-tests-reusable.yml`
 3. **Add lint job** that uses `lint-reusable.yml`
-4. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
-5. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
-   - Set `component` to match release tag prefix
-   - Configure `active_plugins` for schema generation
-6. **Add plugin to Smoke Test matrix** in `smoke-test.yml`:
+4. **Add smoke test job** that uses `smoke-test-reusable.yml`:
    - Configure plugin paths, zip names, and plugin slugs
    - Set `requires_wp_graphql: true` if plugin depends on wp-graphql
    - Set `needs_build: true` if plugin requires JS asset building
+   - Add WP/PHP version matrix entries
+5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
+6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+   - Set `component` to match release tag prefix
+   - Configure `active_plugins` for schema generation
