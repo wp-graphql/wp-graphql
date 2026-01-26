@@ -32,10 +32,11 @@ class MutationsCest {
 			],
 		];
 
-		$I->sendPost( 'graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost( 'graphql', json_encode( [
 			'query' => $query,
 			'variables' => $variables
-		] );
+		] ) );
 
 		$I->seeResponseContainsJson([
 			'data' => [
@@ -51,10 +52,11 @@ class MutationsCest {
 
 		$I->assertEmpty( $cache_response[0] );
 
-		$I->sendPost( 'graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost( 'graphql', json_encode( [
 			'query' => $query,
 			'variables' => $variables,
-		] );
+		] ) );
 
 		// this fails because there is already same comment
 		$error = $I->grabDataFromResponseByJsonPath( '$.errors..message' )[0];

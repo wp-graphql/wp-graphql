@@ -10,10 +10,11 @@ class BatchQueryCest {
 		$this->query_alias = uniqid( "savedquery_posts_" );
 		$query_string = sprintf( "query %s { posts { nodes { id title } } }", $this->query_alias );
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query_string,
 			'queryId' =>$this->query_alias
-		] );
+		] ) );
 
 		// Create a published post for our queries
 		$I->havePostInDatabase( [
@@ -71,7 +72,8 @@ class BatchQueryCest {
 			]
 		;
 
-		$I->sendPost('graphql', $query );
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( $query ) );
 
 		$response = json_decode( $I->grabResponse(), 1 );
 		codecept_debug( $response );

@@ -19,10 +19,11 @@ class DocumentCest {
 		$query_alias = 'test-save-query-alias';
 
 		$I->dontSeeTermInDatabase( [ 'name' => 'graphql_query_alias' ] );
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_alias
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'posts' => [
@@ -39,11 +40,12 @@ class DocumentCest {
 		$query = "query my_query_1 {\n  __typename\n}\n\nquery my_query_2 {\n  __typename\n}\n";
 		$query_hash = hash( 'sha256', $query );
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query'         => $query,
 			'queryId'       => $query_hash,
 			'operationName' => 'my_query_1',
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'__typename' => 'RootQuery'
@@ -57,11 +59,12 @@ class DocumentCest {
 			'post_title'    => 'my_query_1, my_query_2',
 		] );
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query'         => $query,
 			'queryId'       => $query_hash,
 			'operationName' => 'my_query_2',
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'__typename' => 'RootQuery'
@@ -83,10 +86,11 @@ class DocumentCest {
 		$query_alias = 'test-save-query-creates-alias';
 
 		$I->dontSeeTermInDatabase( [ 'name' => 'graphql_query_alias' ] );
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_alias
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'__typename' => 'RootQuery'
@@ -105,13 +109,16 @@ class DocumentCest {
 		$query = "{\n  __typename";
 		$query_hash = hash( 'sha256', $query );
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_hash
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'errors' => [
-				'message' => 'Syntax Error: Expected Name, found <EOF>'
+				0 => [
+					'message' => 'Syntax Error: Expected Name, found <EOF>'
+				]
 			]
 		]);
 		$I->dontSeePostInDatabase( [
@@ -137,10 +144,11 @@ class DocumentCest {
 			}
 		  }
 		";
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query_for_posts,
 			'queryId' => $query_hash
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'posts' => [
@@ -160,10 +168,11 @@ class DocumentCest {
 			]
 		]);
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_hash
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'errors' => [
 				0 => [
@@ -189,10 +198,11 @@ class DocumentCest {
 		$query = "{ posts { nodes { __typename content } } }";
 		$query_alias = 'query_posts_with_content';
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_alias
-		] );
+		] ) );
 		$I->seeResponseContainsJson( [
 			'data' => [
 				'posts' => [
@@ -208,10 +218,11 @@ class DocumentCest {
 		// Save a different query using an alias for the first query with content
 		$query = "{ posts { nodes { slug uri } } }";
 
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query' => $query,
 			'queryId' => $query_alias
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'errors' => [
 				0 => [

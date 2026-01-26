@@ -11,9 +11,10 @@ class DocumentMaxAgeCest {
 
 	public function _runQuery( FunctionalTester $I ) {
 		$query = "query { __typename }";
-		$I->sendPost('graphql', [
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( [
 			'query'         => $query,
-		] );
+		] ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'__typename' => 'RootQuery'
@@ -59,7 +60,8 @@ class DocumentMaxAgeCest {
 			]
 		;
 
-		$I->sendPost('graphql', $query );
+		$I->haveHttpHeader( 'Content-Type', 'application/json' );
+		$I->sendPost('graphql', json_encode( $query ) );
 		$I->seeResponseContainsJson([
 			'data' => [
 				'__typename' => 'RootQuery'

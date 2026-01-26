@@ -16,4 +16,5 @@ modules:
             cleanup: false
         lucatume\WPBrowser\Module\WPLoader:
             loadOnly: true
+            wpRootFolder: "%TEST_WP_ROOT_FOLDER%"
 bootstrap: bootstrap.php
