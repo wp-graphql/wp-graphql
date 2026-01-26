@@ -29,7 +29,8 @@
 			"mappings": {
 				"/wp-content/plugins/wp-graphql": "./plugins/wp-graphql",
 				"/wp-content/plugins/wp-graphql/.env": "./plugins/wp-graphql/.env.dist",
-				"/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache"
+				"/wp-content/plugins/wp-graphql-smart-cache": "./plugins/wp-graphql-smart-cache",
+				"/var/www/html/tests": "./tests"
 			}
 		}
 	},
