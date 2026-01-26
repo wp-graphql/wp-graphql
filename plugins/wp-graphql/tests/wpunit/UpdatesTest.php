@@ -29,39 +29,27 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		// Filter out monorepo plugins and test plugins from dependents and possible dependents.
-		// This prevents monorepo plugins from being detected as untested dependencies.
+		// Filter out all plugins except the test plugins created by this test from dependents and possible dependents.
+		// This prevents monorepo plugins and other extensions from being detected as untested dependencies.
 		$filter_test_plugins = static function ( $plugins, $all_plugins ) {
-			// Get monorepo plugin names from release-please-config.json
-			// Path: plugins/wp-graphql/tests/wpunit -> root (4 levels up)
-			$monorepo_plugin_patterns = [];
-			$config_path = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/release-please-config.json';
-			
-			if ( file_exists( $config_path ) ) {
-				$config = json_decode( file_get_contents( $config_path ), true );
-				if ( isset( $config['packages'] ) && is_array( $config['packages'] ) ) {
-					foreach ( array_keys( $config['packages'] ) as $package_path ) {
-						// Extract plugin name from path like "plugins/wp-graphql" -> "wp-graphql"
-						if ( preg_match( '#^plugins/([^/]+)$#', $package_path, $matches ) ) {
-							$monorepo_plugin_patterns[] = $matches[1] . '/';
-						}
-					}
-				}
-			}
-
-			// Also filter out test-specific plugins
-			$test_plugin_patterns = [
-				'settings-page-spec/', // E2E test plugin in wp-env
+			// Whitelist: only keep the test plugins that this test explicitly creates
+			$allowed_patterns = [
+				'plugin-with-headers/',
+				'plugin-with-requires/',
+				'plugin-with-meta/',
+				'plugin-incompatible-version/',
 			];
 
-			$all_patterns = array_merge( $monorepo_plugin_patterns, $test_plugin_patterns );
-
 			foreach ( array_keys( $plugins ) as $plugin_path ) {
-				foreach ( $all_patterns as $pattern ) {
+				$keep = false;
+				foreach ( $allowed_patterns as $pattern ) {
 					if ( false !== strpos( $plugin_path, $pattern ) ) {
-						unset( $plugins[ $plugin_path ] );
-						break; // No need to check other patterns for this plugin
+						$keep = true;
+						break;
 					}
+				}
+				if ( ! $keep ) {
+					unset( $plugins[ $plugin_path ] );
 				}
 			}
 
