@@ -35,36 +35,51 @@ class AuthenticatedRequestCacheCest {
 	}
 
 	/**
-	 * Helper to get a valid nonce from the GraphiQL IDE page.
+	 * Helper to get a valid nonce for GraphQL requests.
 	 *
-	 * This works by logging in and visiting the GraphiQL IDE page, which outputs
-	 * the nonce in a JavaScript variable (wpGraphiQLSettings.nonce).
+	 * This works by visiting any WordPress admin page, which outputs
+	 * the nonce in wpApiSettings.nonce (available on all admin pages).
+	 * This is more reliable than the GraphiQL IDE page which may not
+	 * have JavaScript assets built in test environments.
+	 *
+	 * Note: The user must be logged in before calling this method.
 	 *
 	 * @param AcceptanceTester $I
 	 * @return string The nonce value
 	 */
 	private function getValidNonce( AcceptanceTester $I ): string {
-		// Visit the GraphiQL IDE page which outputs the nonce
-		$I->amOnPage( '/wp-admin/admin.php?page=graphiql-ide' );
+		// Ensure we're logged in (the page requires authentication)
+		// Note: This assumes loginAsAdmin() was called before this method
+		
+		// Visit any admin page which outputs wpApiSettings.nonce
+		// This is more reliable than the GraphiQL IDE page
+		$I->amOnPage( '/wp-admin/' );
+		
+		// Verify we're on the admin page (if not logged in, we'd be redirected to login)
+		$I->seeInCurrentUrl( '/wp-admin/' );
 
-		// The nonce is output via wp_localize_script as: var wpGraphiQLSettings = {"nonce":"xxx",...}
+		// The nonce is output via wp_localize_script as: var wpApiSettings = {"nonce":"xxx",...}
 		// We need to grab it from the page source
 		$pageSource = $I->grabPageSource();
 
-		// Extract the nonce from wpGraphiQLSettings JSON
-		if ( preg_match( '/var\s+wpGraphiQLSettings\s*=\s*(\{[^;]+\});/', $pageSource, $matches ) ) {
+		// Extract the nonce from wpApiSettings JSON
+		// The pattern needs to match across newlines and handle the script tag format
+		if ( preg_match( '/var\s+wpApiSettings\s*=\s*(\{[^}]*"nonce"\s*:\s*"[^"]+"[^}]*\});/s', $pageSource, $matches ) ) {
 			$settings = json_decode( $matches[1], true );
-			if ( isset( $settings['nonce'] ) ) {
+			if ( isset( $settings['nonce'] ) && ! empty( $settings['nonce'] ) ) {
 				return $settings['nonce'];
 			}
 		}
 
-		// Fallback: try to find it in a different format
+		// Fallback: try to find it in a different format (more flexible pattern)
 		if ( preg_match( '/"nonce"\s*:\s*"([^"]+)"/', $pageSource, $matches ) ) {
 			return $matches[1];
 		}
 
-		throw new \Exception( 'Could not extract nonce from GraphiQL IDE page' );
+		// Debug: log a snippet of the page source to help diagnose
+		codecept_debug( 'Page source snippet (first 500 chars): ' . substr( $pageSource, 0, 500 ) );
+		
+		throw new \Exception( 'Could not extract nonce from admin page. Make sure you are logged in.' );
 	}
 
 	/**
@@ -104,6 +119,7 @@ class AuthenticatedRequestCacheCest {
 		$nonce = $this->getValidNonce( $I );
 		
 		// Include nonce in the GraphQL URL for GET requests
+		// Use amOnPage() with WPBrowser to maintain cookie session
 		$graphql_url = "/graphql?query={$query_encoded}&_wpnonce={$nonce}";
 		$I->amOnPage( $graphql_url );
 
@@ -239,8 +255,10 @@ class AuthenticatedRequestCacheCest {
 		// =====================================================
 		// STEP 2: Second public request - SHOULD be from cache
 		// =====================================================
-		$I->amOnPage( $graphql_url );
-		$body2 = $I->grabPageSource();
+		$I->sendGET( $graphql_url );
+		$I->seeResponseCodeIs( 200 );
+		$I->seeResponseIsJson();
+		$body2 = $I->grabResponse();
 		codecept_debug( 'Second public response: ' . $body2 );
 		
 		$response2 = json_decode( $body2, true );

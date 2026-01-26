@@ -16,7 +16,17 @@ setup_wp() {
 	local ENV_NAME="$1"
 	echo "=== Setting up WPGraphQL development environment ==="
 
-	# Flush permalinks
+	# Always activate wp-graphql (base plugin required for all tests)
+	npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql 2>/dev/null || true
+
+	# Activate wp-graphql-smart-cache in tests-cli environment (where all tests run)
+	# This ensures smart-cache tests have the plugin active, and wp-graphql tests should be
+	# resilient to extensions being active (which is realistic for production scenarios)
+	if [ "$ENV_NAME" = "tests-cli" ]; then
+		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-smart-cache 2>/dev/null || true
+	fi
+
+	# Flush permalinks (must be done after plugins are activated so GraphQL endpoint is registered)
 	npm run wp-env run $ENV_NAME -- wp rewrite structure /%postname%/ --hard
 	npm run wp-env run $ENV_NAME -- wp rewrite flush --hard
 
