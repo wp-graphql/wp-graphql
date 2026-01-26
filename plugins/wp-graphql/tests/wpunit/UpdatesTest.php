@@ -58,7 +58,7 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 			foreach ( array_keys( $plugins ) as $plugin_path ) {
 				foreach ( $all_patterns as $pattern ) {
-					if ( str_contains( $plugin_path, $pattern ) ) {
+					if ( false !== strpos( $plugin_path, $pattern ) ) {
 						unset( $plugins[ $plugin_path ] );
 						break; // No need to check other patterns for this plugin
 					}
