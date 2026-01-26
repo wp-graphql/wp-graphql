@@ -29,17 +29,38 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		// Filter out unrelated test plugins from dependents and possible dependents.
+		// Filter out monorepo plugins and test plugins from dependents and possible dependents.
+		// This prevents monorepo plugins from being detected as untested dependencies.
 		$filter_test_plugins = static function ( $plugins, $all_plugins ) {
+			// Get monorepo plugin names from release-please-config.json
+			// Path: plugins/wp-graphql/tests/wpunit -> root (4 levels up)
+			$monorepo_plugin_patterns = [];
+			$config_path = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/release-please-config.json';
+			
+			if ( file_exists( $config_path ) ) {
+				$config = json_decode( file_get_contents( $config_path ), true );
+				if ( isset( $config['packages'] ) && is_array( $config['packages'] ) ) {
+					foreach ( array_keys( $config['packages'] ) as $package_path ) {
+						// Extract plugin name from path like "plugins/wp-graphql" -> "wp-graphql"
+						if ( preg_match( '#^plugins/([^/]+)$#', $package_path, $matches ) ) {
+							$monorepo_plugin_patterns[] = $matches[1] . '/';
+						}
+					}
+				}
+			}
+
+			// Also filter out test-specific plugins
 			$test_plugin_patterns = [
 				'settings-page-spec/', // E2E test plugin in wp-env
-				'wp-graphql-smart-cache/', // Smart Cache plugin in monorepo
 			];
 
+			$all_patterns = array_merge( $monorepo_plugin_patterns, $test_plugin_patterns );
+
 			foreach ( array_keys( $plugins ) as $plugin_path ) {
-				foreach ( $test_plugin_patterns as $pattern ) {
+				foreach ( $all_patterns as $pattern ) {
 					if ( str_contains( $plugin_path, $pattern ) ) {
 						unset( $plugins[ $plugin_path ] );
+						break; // No need to check other patterns for this plugin
 					}
 				}
 			}
@@ -64,7 +85,8 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		$this->reset_current_screen();
 
-		// Clean up the filter added in setUp
+		// Clean up the filters added in setUp
+		remove_all_filters( 'graphql_get_dependents' );
 		remove_all_filters( 'graphql_get_possible_dependents' );
 
 		parent::tearDown();
