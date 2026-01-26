@@ -119,7 +119,6 @@ jobs:
     with:
       plugin_path: plugins/wp-graphql
       plugin_name: wp-graphql
-      test_all_plugins: ${{ needs.detect-changes.outputs.test_all }}
 
   wp-graphql-smart-cache:
     name: Lint wp-graphql-smart-cache
@@ -129,4 +128,3 @@ jobs:
     with:
       plugin_path: plugins/wp-graphql-smart-cache
       plugin_name: wp-graphql-smart-cache
-      test_all_plugins: ${{ needs.detect-changes.outputs.test_all }}
