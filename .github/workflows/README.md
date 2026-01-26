@@ -149,6 +149,19 @@ flowchart TD
 - release-please uses commit messages to determine version bumps
 - WordPress.org deployment depends on successful release creation
 
+## Change Detection
+
+The workflows use change detection to optimize CI runs:
+
+- **Regular PRs**: Only run tests/linting for plugins that have changed files
+- **Release PRs**: Run all tests for all plugins (branches starting with `release-please--`)
+- **Change detection patterns**: Defined in `integration-tests.yml` and `lint.yml` using `tj-actions/changed-files`
+
+This ensures:
+- Faster CI feedback for focused changes
+- Comprehensive testing when releases are prepared
+- Extensions are tested when core WPGraphQL changes (due to dependencies)
+
 ## Contributing
 
 When adding or modifying workflows:
@@ -157,3 +170,9 @@ When adding or modifying workflows:
 2. Update the flowchart if process changes
 3. Ensure proper error handling and notifications
 4. Test workflows in a feature branch first
+
+When adding a new plugin:
+
+1. Add change detection patterns in `integration-tests.yml`
+2. Add test job that uses `integration-tests-reusable.yml`
+3. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
