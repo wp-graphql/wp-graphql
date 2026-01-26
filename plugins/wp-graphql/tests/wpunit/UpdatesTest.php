@@ -29,27 +29,26 @@ class UpdatesTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_cache_delete( 'plugins', 'plugins' );
 
-		// Filter out unrelated test plugins from possible dependents.
-		add_filter(
-			'graphql_get_possible_dependents',
-			static function ( $plugins, $all_plugins ) {
-				$test_plugin_patterns = [
-					'settings-page-spec/', // E2E test plugin in wp-env
-				];
+		// Filter out unrelated test plugins from dependents and possible dependents.
+		$filter_test_plugins = static function ( $plugins, $all_plugins ) {
+			$test_plugin_patterns = [
+				'settings-page-spec/', // E2E test plugin in wp-env
+				'wp-graphql-smart-cache/', // Smart Cache plugin in monorepo
+			];
 
-				foreach ( array_keys( $plugins ) as $plugin_path ) {
-					foreach ( $test_plugin_patterns as $pattern ) {
-						if ( str_contains( $plugin_path, $pattern ) ) {
-							unset( $plugins[ $plugin_path ] );
-						}
+			foreach ( array_keys( $plugins ) as $plugin_path ) {
+				foreach ( $test_plugin_patterns as $pattern ) {
+					if ( str_contains( $plugin_path, $pattern ) ) {
+						unset( $plugins[ $plugin_path ] );
 					}
 				}
+			}
 
-				return $plugins;
-			},
-			10,
-			2
-		);
+			return $plugins;
+		};
+
+		add_filter( 'graphql_get_dependents', $filter_test_plugins, 10, 2 );
+		add_filter( 'graphql_get_possible_dependents', $filter_test_plugins, 10, 2 );
 	}
 
 	/**
