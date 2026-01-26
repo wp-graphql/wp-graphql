@@ -33,7 +33,7 @@ class CacheFromConnectionFieldNameTest extends \Codeception\TestCase\WPTestCase 
                 'fromType' => 'RootQuery',
                 'toType' => 'Post',
                 'fromFieldName' => 'postsByFoo',
-                'connectionArgs' => \WPGraphQL\Connection\PostObjects::get_connection_args(),
+                'connectionArgs' => \WPGraphQL\Type\Connection\PostObjects::get_connection_args(),
                 'resolve' => function( $source, $args, $context, $info ) {
                     $resolver = new \WPGraphQL\Data\Connection\PostObjectConnectionResolver( $source, $args, $context, $info, 'post' );
                     $resolver->set_query_arg( 'author_name', 'foo' );

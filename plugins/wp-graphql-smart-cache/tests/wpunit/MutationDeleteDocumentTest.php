@@ -15,6 +15,16 @@ class MutationDeleteDocumentTest extends \Codeception\TestCase\WPTestCase {
             'role' => 'administrator',
         ] );
 
+        // Clean up any orphaned terms from previous test runs
+        $terms = get_terms([
+            'taxonomy' => 'graphql_query_alias',
+            'hide_empty' => false,
+        ]);
+        if ( $terms && ! is_wp_error( $terms ) ) {
+            foreach ( $terms as $term ) {
+                wp_delete_term( $term->term_id, 'graphql_query_alias' );
+            }
+        }
     }
 
     public function tearDown(): void {
