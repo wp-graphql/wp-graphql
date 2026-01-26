@@ -57,7 +57,8 @@ jobs:
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           path: ./tests/_output/phpcs-cache.json
-          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path)) }}
+          # Handle both phpcs.xml.dist and .phpcs.xml.dist naming conventions
+          key: ${{ runner.os }}-date-${{ steps.get-date.outputs.date }}-phpcs-cache-${{ hashFiles(format('{0}/**/composer.json', inputs.plugin_path), format('{0}/phpcs.xml.dist', inputs.plugin_path), format('{0}/.phpcs.xml.dist', inputs.plugin_path)) }}
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
