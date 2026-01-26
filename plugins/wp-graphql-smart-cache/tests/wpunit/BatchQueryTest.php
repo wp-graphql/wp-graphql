@@ -32,7 +32,9 @@ class BatchQueryTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	public function _after() {
 		delete_option( 'graphql_cache_section' );
 		foreach ( $this->created_post_ids as $post_id ) {
-			wp_delete_post( $this->post_id );
+			if ( $post_id > 0 ) {
+				wp_delete_post( $post_id, true );
+			}
 		}
 	}
 
