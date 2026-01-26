@@ -35,6 +35,39 @@ class AuthenticatedRequestCacheCest {
 	}
 
 	/**
+	 * Helper to get a valid nonce from the GraphiQL IDE page.
+	 *
+	 * This works by logging in and visiting the GraphiQL IDE page, which outputs
+	 * the nonce in a JavaScript variable (wpGraphiQLSettings.nonce).
+	 *
+	 * @param AcceptanceTester $I
+	 * @return string The nonce value
+	 */
+	private function getValidNonce( AcceptanceTester $I ): string {
+		// Visit the GraphiQL IDE page which outputs the nonce
+		$I->amOnPage( '/wp-admin/admin.php?page=graphiql-ide' );
+
+		// The nonce is output via wp_localize_script as: var wpGraphiQLSettings = {"nonce":"xxx",...}
+		// We need to grab it from the page source
+		$pageSource = $I->grabPageSource();
+
+		// Extract the nonce from wpGraphiQLSettings JSON
+		if ( preg_match( '/var\s+wpGraphiQLSettings\s*=\s*(\{[^;]+\});/', $pageSource, $matches ) ) {
+			$settings = json_decode( $matches[1], true );
+			if ( isset( $settings['nonce'] ) ) {
+				return $settings['nonce'];
+			}
+		}
+
+		// Fallback: try to find it in a different format
+		if ( preg_match( '/"nonce"\s*:\s*"([^"]+)"/', $pageSource, $matches ) ) {
+			return $matches[1];
+		}
+
+		throw new \Exception( 'Could not extract nonce from GraphiQL IDE page' );
+	}
+
+	/**
 	 * Test that draft posts visible to admin don't leak to public users via cache.
 	 *
 	 * This test:
@@ -61,12 +94,17 @@ class AuthenticatedRequestCacheCest {
 		$operation_name = 'TestDraft_' . str_replace( '.', '_', $this->test_run_id );
 		$query = "query {$operation_name} { posts(where: {status: DRAFT}) { nodes { title status } } }";
 		$query_encoded = urlencode( $query );
-		$graphql_url = "/graphql?query={$query_encoded}";
 
 		// =====================================================
 		// STEP 1: Admin logs in and makes GraphQL request
 		// =====================================================
 		$I->loginAsAdmin();
+		
+		// Get a valid nonce for authenticated requests
+		$nonce = $this->getValidNonce( $I );
+		
+		// Include nonce in the GraphQL URL for GET requests
+		$graphql_url = "/graphql?query={$query_encoded}&_wpnonce={$nonce}";
 		$I->amOnPage( $graphql_url );
 
 		// Grab the raw page source (JSON response)
@@ -96,7 +134,10 @@ class AuthenticatedRequestCacheCest {
 		// =====================================================
 		// STEP 2: Make SECOND authenticated request to verify cache is still not populated
 		// =====================================================
-		$I->amOnPage( $graphql_url );
+		// Get a fresh nonce for the second request
+		$nonce_2 = $this->getValidNonce( $I );
+		$graphql_url_2 = "/graphql?query={$query_encoded}&_wpnonce={$nonce_2}";
+		$I->amOnPage( $graphql_url_2 );
 
 		$auth_body_2 = $I->grabPageSource();
 		codecept_debug( 'Second authenticated response: ' . $auth_body_2 );
@@ -184,6 +225,7 @@ class AuthenticatedRequestCacheCest {
 		// =====================================================
 		// STEP 1: First public request - NOT from cache (populates cache)
 		// =====================================================
+		// No nonce needed for public requests
 		$I->amOnPage( $graphql_url );
 		$body1 = $I->grabPageSource();
 		codecept_debug( 'First public response: ' . $body1 );
@@ -212,7 +254,11 @@ class AuthenticatedRequestCacheCest {
 		// Even though there's a cached entry, authenticated users bypass it entirely
 		// =====================================================
 		$I->loginAsAdmin();
-		$I->amOnPage( $graphql_url );
+		
+		// Get a valid nonce for authenticated requests
+		$nonce = $this->getValidNonce( $I );
+		$graphql_url_auth = "/graphql?query={$query}&_wpnonce={$nonce}";
+		$I->amOnPage( $graphql_url_auth );
 		$body3 = $I->grabPageSource();
 		codecept_debug( 'Authenticated response: ' . $body3 );
 		
