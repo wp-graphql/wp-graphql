@@ -46,7 +46,7 @@
 		"@wordpress/hooks": "^4.37.0",
 		"@wordpress/i18n": "^6.10.0",
 		"@wordpress/icons": "^11.4.0",
-		"antd": "5.29.3",
+		"antd": "6.1.2",
 		"graphiql": "1.11.5",
 		"graphql": "16.12.0",
 		"lz-string": "1.5.0",
