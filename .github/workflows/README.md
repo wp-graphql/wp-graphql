@@ -12,9 +12,12 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### 2. Schema Linting (`schema-linter.yml`)
 
-- Validates GraphQL schema structure
+- Validates GraphQL schema structure for each plugin in the monorepo
+- Uses matrix strategy to test each plugin independently
 - Ensures schema follows GraphQL best practices
 - Compares schema against previous releases to detect breaking changes
+- Each plugin's schema is compared against its own release history (e.g., `wp-graphql/v2.7.0`, `wp-graphql-smart-cache/v1.0.0`)
+- Supports plugins that extend the schema (e.g., smart-cache tests with both wp-graphql and smart-cache active)
 
 ### 3. Testing Integration (`testing-integration.yml`)
 
@@ -31,10 +34,13 @@ This directory contains GitHub Actions workflows that automate our development, 
 
 ### 5. Smoke Test (`smoke-test.yml`)
 
-- Validates the production zip artifact works correctly
+- Validates production zip artifacts work correctly for each plugin in the monorepo
+- Uses matrix strategy to test each plugin across different WP/PHP versions
 - Builds the plugin zip (same as release process)
-- Installs it in a clean WordPress environment
+- Handles plugin dependencies (e.g., builds wp-graphql first if required by another plugin)
+- Installs plugins in a clean WordPress environment
 - Runs smoke tests to verify core functionality
+- Currently tests: wp-graphql (WP 6.8/PHP 8.3, WP 6.1/PHP 7.4) and wp-graphql-smart-cache (same versions)
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
