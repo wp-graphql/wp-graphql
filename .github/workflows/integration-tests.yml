@@ -228,9 +228,9 @@ jobs:
             theme: twentytwentyfive
             multisite: false
             coverage: false
-          # Boundary: Oldest supported (Smart Cache requires PHP 8.1+ per original repo tests)
-          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 8.1"
-            php: "8.1"
+          # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
+          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 7.4"
+            php: "7.4"
             wp: "6.1"
             theme: twentytwentyone
             multisite: false

@@ -7,26 +7,13 @@ actor: FunctionalTester
 modules:
     enabled:
         - Asserts
-        - REST:
-            depends: PhpBrowser
-            part: Json
-        - WPDb
-        - \Helper\Functional
-        - WPBrowser
+        - REST
+        - lucatume\WPBrowser\Module\WPBrowser
+        - lucatume\WPBrowser\Module\WPDb
+        - lucatume\WPBrowser\Module\WPLoader
     config:
-        PhpBrowser:
-            url: '%TEST_WP_URL%'
-            headers:
-                Content-Type: application/json
-        WPDb:
-            dsn: 'mysql:host=%TEST_DB_HOST%;dbname=%TEST_DB_NAME%'
-            user: '%TEST_DB_USER%'
-            password: '%TEST_DB_PASSWORD%'
-            url: '%TEST_WP_URL%'
-            tablePrefix: '%TEST_WP_TABLE_PREFIX%'
-            urlReplacement: true
-        WPBrowser:
-            url: '%TEST_WP_URL%'
-            adminUsername: '%TEST_ADMIN_USERNAME%'
-            adminPassword: '%TEST_ADMIN_PASSWORD%'
-            adminPath: '%TEST_ADMIN_PATH%'
+        lucatume\WPBrowser\Module\WPDb:
+            cleanup: false
+        lucatume\WPBrowser\Module\WPLoader:
+            loadOnly: true
+bootstrap: bootstrap.php

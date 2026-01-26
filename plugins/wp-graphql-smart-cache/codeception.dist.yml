@@ -4,18 +4,80 @@ paths:
     data: tests/_data
     support: tests/_support
     envs: tests/_envs
+params:
+    - env
 actor_suffix: Tester
-gherkin: []
+settings:
+    colors: true
+    memory_limit: 1024M
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+        - lucatume\WPBrowser\Extension\IsolationSupport
     commands:
-        - Codeception\Command\GenerateWPUnit
-        - Codeception\Command\GenerateWPRestApi
-        - Codeception\Command\GenerateWPRestController
-        - Codeception\Command\GenerateWPRestPostTypeController
-        - Codeception\Command\GenerateWPAjax
-        - Codeception\Command\GenerateWPCanonical
-        - Codeception\Command\GenerateWPXMLRPC
-params:
-    - env
+        - lucatume\WPBrowser\Command\RunOriginal
+        - lucatume\WPBrowser\Command\RunAll
+        - lucatume\WPBrowser\Command\DbExport
+        - lucatume\WPBrowser\Command\DbImport
+        - lucatume\WPBrowser\Command\MonkeyCachePath
+        - lucatume\WPBrowser\Command\MonkeyCacheClear
+        - lucatume\WPBrowser\Command\GenerateWPUnit
+        - lucatume\WPBrowser\Command\GenerateWPRestApi
+        - lucatume\WPBrowser\Command\GenerateWPRestController
+        - lucatume\WPBrowser\Command\GenerateWPRestPostTypeController
+        - lucatume\WPBrowser\Command\GenerateWPAjax
+        - lucatume\WPBrowser\Command\GenerateWPCanonical
+        - lucatume\WPBrowser\Command\GenerateWPXMLRPC
+modules:
+    config:
+        REST:
+            depends: lucatume\WPBrowser\Module\WPBrowser
+            url: "%TEST_WP_URL%"
+        lucatume\WPBrowser\Module\WPDb:
+            dsn: "mysql:host=%TEST_DB_HOST%;dbname=%TEST_DB_NAME%"
+            user: "%TEST_DB_USER%"
+            password: "%TEST_DB_PASSWORD%"
+            populator: "mysql -u $user -p$password -h $host $dbname < $dump"
+            dump: "tests/_data/dump.sql"
+            populate: false
+            cleanup: true
+            waitlock: 0
+            url: "%TEST_WP_URL%"
+            urlReplacement: true
+            tablePrefix: "%TEST_WP_TABLE_PREFIX%"
+        lucatume\WPBrowser\Module\WPBrowser:
+            url: "%TEST_WP_URL%"
+            adminUsername: "%TEST_ADMIN_USERNAME%"
+            adminPassword: "%TEST_ADMIN_PASSWORD%"
+            adminPath: "%TEST_ADMIN_PATH%"
+            headers:
+                X_WPBROWSER_REQUEST: 1
+                X_TEST_REQUEST: 1
+                X_APM_REQUEST: 1
+            connect_timeout: 3
+            cookies: false
+        lucatume\WPBrowser\Module\WPFilesystem:
+            wpRootFolder: "%TEST_WP_ROOT_FOLDER%"
+            plugins: "/wp-content/plugins"
+            mu-plugins: "/wp-content/mu-plugins"
+            themes: "/wp-content/themes"
+            uploads: "/wp-content/uploads"
+        lucatume\WPBrowser\Module\WPLoader:
+            wpRootFolder: "%TEST_WP_ROOT_FOLDER%"
+            dbName: "%TEST_DB_NAME%"
+            dbHost: "%TEST_DB_HOST%"
+            dbUser: "%TEST_DB_USER%"
+            dbPassword: "%TEST_DB_PASSWORD%"
+            tablePrefix: "%TEST_WP_TABLE_PREFIX%"
+            domain: "%TEST_WP_DOMAIN%"
+            adminEmail: "%TEST_ADMIN_EMAIL%"
+            multisite: "%MULTISITE%"
+            title: "Test"
+            theme: "%TEST_THEME%"
+            plugins:
+                - wp-graphql/wp-graphql.php
+                - wp-graphql-smart-cache/wp-graphql-smart-cache.php
+            activatePlugins:
+                - wp-graphql/wp-graphql.php
+                - wp-graphql-smart-cache/wp-graphql-smart-cache.php
+            configFile: "tests/_data/config.php"
