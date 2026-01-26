@@ -11,6 +11,11 @@ on:
         description: "Name of the plugin (e.g., wp-graphql)"
         required: true
         type: string
+      test_all_plugins:
+        description: "Whether to test all plugins (skip change detection)"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   pre_run:
@@ -68,7 +73,7 @@ jobs:
     name: PHP Coding Standards (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
     needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpcs == 'true'
+    if: needs.pre_run.outputs.any_changed_phpcs == 'true' || inputs.test_all_plugins == 'true'
     permissions:
       contents: read
     timeout-minutes: 20
@@ -131,7 +136,7 @@ jobs:
     name: PHP static analysis (${{ inputs.plugin_name }})
     runs-on: ubuntu-24.04
     needs: pre_run
-    if: needs.pre_run.outputs.any_changed_phpstan == 'true'
+    if: needs.pre_run.outputs.any_changed_phpstan == 'true' || inputs.test_all_plugins == 'true'
     permissions:
       contents: read
     timeout-minutes: 20

@@ -8,7 +8,10 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Checks for:
   - WordPress Coding Standards compliance using PHPCS
   - Static type and error checking with PHPStan
-- `lint.yml` triggers the reusable workflow defined in `lint-reusable.yml` for each plugin in the matrix.
+- Uses change detection to only lint plugins that have changed files
+- `lint.yml` detects which plugins have changes and triggers `lint-reusable.yml` for each affected plugin
+- Runs all plugins on release PRs or pushes to main
+- Each plugin's linting runs independently (PHPCS and PHPStan)
 
 ### 2. Schema Linting (`schema-linter.yml`)
 
@@ -179,6 +182,17 @@ When adding or modifying workflows:
 
 When adding a new plugin:
 
-1. Add change detection patterns in `integration-tests.yml`
-2. Add test job that uses `integration-tests-reusable.yml`
-3. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
+1. **Add change detection patterns** in `integration-tests.yml` and `lint.yml`:
+   - Add plugin output in `detect-changes` job
+   - Add file patterns in `files_yaml` section
+   - Add plugin job that uses the reusable workflow
+2. **Add test job** that uses `integration-tests-reusable.yml`
+3. **Add lint job** that uses `lint-reusable.yml`
+4. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
+5. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+   - Set `component` to match release tag prefix
+   - Configure `active_plugins` for schema generation
+6. **Add plugin to Smoke Test matrix** in `smoke-test.yml`:
+   - Configure plugin paths, zip names, and plugin slugs
+   - Set `requires_wp_graphql: true` if plugin depends on wp-graphql
+   - Set `needs_build: true` if plugin requires JS asset building
