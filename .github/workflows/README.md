@@ -199,3 +199,25 @@ When adding a new plugin:
 6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
    - Set `component` to match release tag prefix
    - Configure `active_plugins` for schema generation
+
+## Plugin Naming Conventions
+
+When adding plugins to the monorepo, be aware of the difference between directory names, GitHub component names, and WordPress.org slugs:
+
+- **Directory name** (`plugins/wp-graphql-smart-cache/`): Used for file paths and repository structure. **We keep this consistent with core** (`wp-graphql`) by using hyphens, even if WordPress.org requires a different format.
+- **GitHub component name** (`wp-graphql-smart-cache`): Used in `release-please-config.json` and for GitHub release tags (e.g., `wp-graphql-smart-cache/v2.0.1`). Matches directory name for consistency.
+- **WordPress.org slug** (`wpgraphql-smart-cache`): Used for WordPress.org SVN repository, zip file names, and WP-CLI commands. **WordPress.org policy changed** - they no longer allow the `wp-` prefix for new plugins, so plugins must use `wpgraphql` (no hyphen) as part of the full plugin name.
+
+**Why the difference?**
+- We maintain `wp-graphql-smart-cache` in the repository to stay consistent with the core `wp-graphql` plugin naming convention
+- The build process automatically creates a zip with the WordPress.org-compliant name (`wpgraphql-smart-cache.zip`)
+- This allows us to keep internal consistency while meeting WordPress.org requirements
+
+**Example for wp-graphql-smart-cache:**
+- Directory: `plugins/wp-graphql-smart-cache/` (matches core `wp-graphql` convention)
+- GitHub component: `wp-graphql-smart-cache` (in `release-please-config.json`)
+- GitHub release tag: `wp-graphql-smart-cache/v2.0.1`
+- WordPress.org slug: `wpgraphql-smart-cache` (WordPress.org policy requirement)
+- Zip file: `wpgraphql-smart-cache.zip` (created by build script with WordPress.org-compliant name)
+
+The release workflow automatically maps component names to WordPress.org slugs when deploying. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.

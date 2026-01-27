@@ -50,6 +50,9 @@
       "composer install --no-dev --optimize-autoloader && composer run-script zip && composer install"
     ],
     "zip": [
+      "# Note: WordPress.org requires 'wpgraphql-smart-cache' (no hyphen between wp and graphql)",
+      "# We keep the directory name as 'wp-graphql-smart-cache' to match core 'wp-graphql' convention",
+      "# but the zip must use the WordPress.org-compliant slug for deployment",
       "mkdir -p plugin-build/wpgraphql-smart-cache",
       "rsync -rc --exclude-from=.distignore --exclude=plugin-build . plugin-build/wpgraphql-smart-cache/ --delete --delete-excluded -v",
       "cd plugin-build ; zip -r wpgraphql-smart-cache.zip wpgraphql-smart-cache",

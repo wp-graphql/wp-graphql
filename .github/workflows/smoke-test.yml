@@ -187,7 +187,10 @@ jobs:
       plugin_name: wp-graphql-smart-cache
       composer_working_dir: plugins/wp-graphql-smart-cache
       zip_name: wpgraphql-smart-cache.zip
-      plugin_slug: wp-graphql-smart-cache
+      # Note: WordPress.org slug is wpgraphql-smart-cache (no hyphen between wp and graphql)
+      # This is because WordPress.org doesn't allow "wp-" prefix for new plugins.
+      # The directory name (wp-graphql-smart-cache) and GitHub component name can differ.
+      plugin_slug: wpgraphql-smart-cache
       requires_wp_graphql: true
       smoke_test_script: bin/smoke-test.sh
       needs_build: false

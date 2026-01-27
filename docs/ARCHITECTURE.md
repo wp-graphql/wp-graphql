@@ -212,6 +212,11 @@ plugins/
     └── package.json             # JS dependencies (if needed)
 ```
 
+**Note on Naming Conventions:**
+- **Directory names** should match the core `wp-graphql` convention (use hyphens, e.g., `wp-graphql-smart-cache`)
+- **WordPress.org slugs** may differ if WordPress.org policy requires it (e.g., `wpgraphql-smart-cache` without hyphen)
+- The build process handles the mapping automatically - see [Plugin Naming Conventions](../.github/workflows/README.md#plugin-naming-conventions) for details
+
 ### 2. Package Configuration
 
 **Add to root `package.json` workspaces:**

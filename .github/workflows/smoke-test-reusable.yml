@@ -24,7 +24,7 @@ on:
         required: true
         type: string
       plugin_slug:
-        description: "WordPress plugin slug (e.g., wp-graphql)"
+        description: "WordPress.org plugin slug for WP-CLI commands (e.g., wp-graphql or wpgraphql-smart-cache). Note: WordPress.org doesn't allow 'wp-' prefix for new plugins, so some plugins use 'wpgraphql' without hyphen."
         required: true
         type: string
       requires_wp_graphql:
