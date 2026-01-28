@@ -97,6 +97,14 @@ jobs:
 
       - name: Start wp-env
         run: npm run wp-env start
+      
+      # For plugins that depend on wp-graphql, install wp-graphql's dependencies inside the container
+      # so the CLI command is available (wp-env maps plugin dirs as volumes, but vendor needs to exist)
+      - name: Install wp-graphql dependencies in container (if needed)
+        if: matrix.component != 'wp-graphql'
+        run: |
+          echo "Installing wp-graphql composer dependencies in container..."
+          npm run wp-env run cli -- env-cwd=wp-content/plugins/wp-graphql -- composer install --no-interaction --no-progress
 
       - name: Configure active plugins for schema generation
         run: |
