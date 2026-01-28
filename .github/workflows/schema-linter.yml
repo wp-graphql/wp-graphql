@@ -71,12 +71,22 @@ jobs:
           working-directory: ${{ matrix.composer_working_dir }}
       
       # For plugins that depend on wp-graphql, we also need to install wp-graphql's dependencies
-      # so the CLI command is available
+      # BEFORE wp-env starts so the vendor directory is available when WordPress loads the plugin
+      # (wp-env maps plugin dirs as volumes, so host vendor dirs are available in containers)
       - name: Install wp-graphql dependencies (if needed)
         if: matrix.component != 'wp-graphql'
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: plugins/wp-graphql
+      
+      # Verify vendor directories exist before starting wp-env
+      - name: Verify vendor directories exist
+        run: |
+          echo "Verifying vendor directories..."
+          if [ "${{ matrix.component }}" != "wp-graphql" ]; then
+            test -f plugins/wp-graphql/vendor/autoload.php && echo "✅ wp-graphql vendor/autoload.php exists" || echo "❌ wp-graphql vendor/autoload.php missing"
+          fi
+          test -f ${{ matrix.composer_working_dir }}/vendor/autoload.php && echo "✅ ${{ matrix.component }} vendor/autoload.php exists" || echo "❌ ${{ matrix.component }} vendor/autoload.php missing"
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -97,14 +107,6 @@ jobs:
 
       - name: Start wp-env
         run: npm run wp-env start
-      
-      # For plugins that depend on wp-graphql, install wp-graphql's dependencies inside the container
-      # so the CLI command is available (wp-env maps plugin dirs as volumes, but vendor needs to exist)
-      - name: Install wp-graphql dependencies in container (if needed)
-        if: matrix.component != 'wp-graphql'
-        run: |
-          echo "Installing wp-graphql composer dependencies in container..."
-          npm run wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql -- composer install --no-interaction --no-progress
 
       - name: Configure active plugins for schema generation
         run: |
