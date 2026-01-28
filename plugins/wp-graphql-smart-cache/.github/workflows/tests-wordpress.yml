@@ -68,4 +68,3 @@ jobs:
         env:
           WP_VERSION: ${{ matrix.wordpress }}
           PHP_VERSION: ${{ matrix.php }}
-          SUITES: use value from .env
