@@ -85,7 +85,7 @@ jobs:
               - plugins/wp-graphql-smart-cache/**/*.php
               - plugins/wp-graphql-smart-cache/composer.json
               - plugins/wp-graphql-smart-cache/composer.lock
-              - plugins/wp-graphql-smart-cache/.phpcs.xml.dist
+              - plugins/wp-graphql-smart-cache/phpcs.xml.dist
               - plugins/wp-graphql-smart-cache/phpstan.neon.dist
               # Smart cache depends on wp-graphql, so wp-graphql changes trigger smart-cache linting
               - plugins/wp-graphql/**/*.php
