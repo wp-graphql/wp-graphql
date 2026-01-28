@@ -179,6 +179,22 @@ jobs:
           COMPONENT="${{ matrix.component }}"
           PACKAGE_PATH="plugins/${COMPONENT}"
           
+          # Map component name to WordPress.org slug
+          # Note: WordPress.org doesn't allow "wp-" prefix, so wp-graphql-smart-cache
+          # (GitHub component) maps to wpgraphql-smart-cache (WordPress.org slug)
+          # This only affects WordPress.org deployment; GitHub tags use the component name
+          case "$COMPONENT" in
+            wp-graphql-smart-cache)
+              WP_ORG_SLUG="wpgraphql-smart-cache"
+              ;;
+            *)
+              WP_ORG_SLUG="$COMPONENT"
+              ;;
+          esac
+          
+          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+          echo "wp_org_slug=${WP_ORG_SLUG}" >> $GITHUB_OUTPUT
+          
           if [[ "${{ github.event.inputs.redeploy_tag }}" != "" ]]; then
             # Re-deploy: extract version from full tag format (e.g., wp-graphql/v2.7.0)
             TAG="${{ github.event.inputs.redeploy_tag }}"
@@ -394,9 +410,10 @@ jobs:
       - name: Delete existing SVN tag if re-deploying
         if: steps.plugin_info.outputs.is_redeploy == 'true'
         run: |
-          COMPONENT="${{ matrix.component }}"
+          # Use WordPress.org slug (not GitHub component name) for SVN
+          WP_ORG_SLUG="${{ steps.plugin_info.outputs.wp_org_slug }}"
           VERSION="${{ steps.plugin_info.outputs.version }}"
-          SVN_URL="https://plugins.svn.wordpress.org/${COMPONENT}"
+          SVN_URL="https://plugins.svn.wordpress.org/${WP_ORG_SLUG}"
           
           echo "🗑️  Deleting existing SVN tag ${VERSION} for re-deployment..."
           echo "This ensures a clean deployment with correct version numbers"
@@ -418,7 +435,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SLUG: ${{ matrix.component }}
+          # Use WordPress.org slug (not GitHub component name) for deployment
+          # wp-graphql-smart-cache (component) -> wpgraphql-smart-cache (WordPress.org slug)
+          SLUG: ${{ steps.plugin_info.outputs.wp_org_slug }}
           BUILD_DIR: plugin-build/${{ matrix.component }}
           VERSION: ${{ steps.plugin_info.outputs.version }}
           # Note: The 10up action should sync BUILD_DIR to SVN trunk
@@ -428,6 +447,8 @@ jobs:
       - name: Verify and fix SVN trunk readme.txt if needed
         # The 10up action may not update readme.txt correctly, so we manually verify and fix it
         run: |
+          # Use WordPress.org slug for SVN operations
+          WP_ORG_SLUG="${{ steps.plugin_info.outputs.wp_org_slug }}"
           COMPONENT="${{ matrix.component }}"
           VERSION="${{ steps.plugin_info.outputs.version }}"
           BUILD_DIR="plugin-build/${COMPONENT}"

@@ -1,0 +1,242 @@
+name: Reusable Smoke Test
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Display name for the job (e.g., WP 6.8 / PHP 8.3)"
+        required: true
+        type: string
+      plugin_path:
+        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        required: true
+        type: string
+      plugin_name:
+        description: "Name of the plugin (e.g., wp-graphql)"
+        required: true
+        type: string
+      composer_working_dir:
+        description: "Working directory for composer (usually plugins/wp-graphql for dependencies)"
+        required: true
+        type: string
+      zip_name:
+        description: "Name of the zip file (e.g., wp-graphql.zip)"
+        required: true
+        type: string
+      plugin_slug:
+        description: "WordPress.org plugin slug for WP-CLI commands (e.g., wp-graphql or wpgraphql-smart-cache). Note: WordPress.org doesn't allow 'wp-' prefix for new plugins, so some plugins use 'wpgraphql' without hyphen."
+        required: true
+        type: string
+      requires_wp_graphql:
+        description: "Whether this plugin requires wp-graphql to be active"
+        required: true
+        type: boolean
+      smoke_test_script:
+        description: "Path to smoke test script"
+        required: true
+        type: string
+      needs_build:
+        description: "Whether this plugin needs JS assets built"
+        required: true
+        type: boolean
+      wp:
+        description: "WordPress version (e.g., 6.8)"
+        required: true
+        type: string
+      php:
+        description: "PHP version (e.g., 8.3)"
+        required: true
+        type: string
+
+jobs:
+  smoke-test:
+    name: "${{ inputs.name }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php }}
+          tools: composer:v2
+          extensions: json, mbstring
+
+      - name: Install Composer dependencies (production)
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: ${{ inputs.composer_working_dir }}
+          # Use --no-dev to match the production release build
+          composer-options: "--no-dev --optimize-autoloader"
+
+      - name: Setup Node.js
+        if: inputs.needs_build == true || inputs.requires_wp_graphql == true
+        uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install NPM dependencies
+        if: inputs.needs_build == true
+        run: npm ci
+
+      - name: Build JavaScript assets
+        if: inputs.needs_build == true
+        run: npm run build
+
+      - name: Build wp-graphql zip (if required as dependency)
+        if: inputs.requires_wp_graphql == true
+        run: |
+          # Build wp-graphql first if this plugin requires it
+          if [ ! -f "plugin-build/wp-graphql.zip" ]; then
+            echo "📦 Building wp-graphql (required dependency)..."
+            # Install wp-graphql composer dependencies (with dev for build tools)
+            composer install --working-dir=plugins/wp-graphql
+            # Build JS assets if needed
+            if [ -f "plugins/wp-graphql/package.json" ]; then
+              npm ci
+              npm run build
+            fi
+            # Build production zip
+            cd plugins/wp-graphql
+            composer run-script zip
+            cd ../..
+            echo "✅ wp-graphql.zip built successfully"
+          else
+            echo "✅ wp-graphql.zip already exists"
+          fi
+
+      - name: Build plugin zip
+        working-directory: ${{ inputs.plugin_path }}
+        run: composer run-script zip
+
+      - name: Verify zip contents
+        run: |
+          echo "📦 Verifying zip was created..."
+          ls -la plugin-build/ || ls -la ${{ inputs.plugin_path }}/plugin-build/
+          echo ""
+          echo "📋 Zip contents:"
+          ZIP_PATH="plugin-build/${{ inputs.zip_name }}"
+          if [ ! -f "$ZIP_PATH" ]; then
+            ZIP_PATH="${{ inputs.plugin_path }}/plugin-build/${{ inputs.zip_name }}"
+          fi
+          unzip -l "$ZIP_PATH" | head -50
+
+      # Create a minimal wp-env config with NO plugins
+      # We'll install the zip manually via WP-CLI for reliable testing
+      - name: Create wp-env config for zip testing
+        run: |
+          cat > .wp-env.override.json << 'EOF'
+          {
+            "plugins": [],
+            "lifecycleScripts": {
+              "afterStart": null
+            },
+            "mappings": {},
+            "env": {
+              "development": {
+                "plugins": [],
+                "mappings": {}
+              },
+              "tests": {
+                "plugins": [],
+                "mappings": {}
+              }
+            }
+          }
+          EOF
+          echo "📋 Created .wp-env.override.json:"
+          cat .wp-env.override.json
+          echo ""
+          echo "🔍 Validating JSON syntax..."
+          python3 -c "import json; json.load(open('.wp-env.override.json')); print('✅ JSON is valid')"
+
+      - name: Clean wp-env cache
+        run: |
+          # Ensure no stale wp-env state interferes with the smoke test
+          npm run wp-env destroy -- --force || true
+          # Clear the wp-env cache directory to ensure zip is freshly extracted
+          rm -rf ~/.wp-env || true
+
+      - name: Start WordPress environment
+        env:
+          WP_ENV_PHP_VERSION: ${{ inputs.php }}
+          WP_ENV_CORE: ${{ format('https://wordpress.org/wordpress-{0}.zip', inputs.wp) }}
+        run: npm run wp-env start
+
+      - name: Install plugin from zip via WP-CLI
+        run: |
+          # Find the zip file location
+          ZIP_PATH="plugin-build/${{ inputs.zip_name }}"
+          if [ ! -f "$ZIP_PATH" ]; then
+            ZIP_PATH="${{ inputs.plugin_path }}/plugin-build/${{ inputs.zip_name }}"
+          fi
+          
+          echo "📦 Copying zip to container..."
+          CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep 'cli-1' | grep -v 'tests' | head -1)
+          docker cp "$ZIP_PATH" "$CONTAINER_NAME":/tmp/${{ inputs.zip_name }}
+          
+          # Install wp-graphql first if required
+          if [ "${{ inputs.requires_wp_graphql }}" = "true" ]; then
+            echo "📦 Installing wp-graphql first (required dependency)..."
+            # Check if wp-graphql zip exists, if not we'll need to build it or skip
+            if [ -f "plugin-build/wp-graphql.zip" ]; then
+              docker cp plugin-build/wp-graphql.zip "$CONTAINER_NAME":/tmp/wp-graphql.zip
+              npm run wp-env -- run cli wp plugin install /tmp/wp-graphql.zip --activate
+            else
+              echo "⚠️ Warning: wp-graphql.zip not found. This plugin requires wp-graphql to be active."
+              echo "For now, we'll try to install the plugin and see if wp-graphql is available."
+            fi
+          fi
+          
+          echo "📦 Installing ${{ inputs.plugin_name }} from zip..."
+          npm run wp-env -- run cli wp plugin install /tmp/${{ inputs.zip_name }} --activate
+          
+          echo "🔄 Flushing permalinks..."
+          npm run wp-env -- run cli wp rewrite structure '/%postname%/' --hard
+          npm run wp-env -- run cli wp rewrite flush --hard
+          
+          # Only enable GraphQL settings if wp-graphql is active
+          if npm run wp-env -- run cli wp plugin is-active wp-graphql 2>/dev/null; then
+            echo "⚙️ Enabling public introspection..."
+            npm run wp-env -- run cli wp option update graphql_general_settings '{"graphql_endpoint":"graphql","public_introspection_enabled":"on"}' --format=json
+          fi
+
+      - name: Verify plugin is active
+        run: |
+          echo "📦 Installed plugins:"
+          npm run wp-env -- run cli wp plugin list
+          echo ""
+          npm run wp-env -- run cli wp plugin is-active ${{ inputs.plugin_slug }}
+
+      - name: Run smoke tests
+        run: |
+          # Run smoke tests against the WordPress container
+          if [ -f "${{ inputs.smoke_test_script }}" ]; then
+            ${{ inputs.smoke_test_script }} --verbose
+          else
+            echo "⚠️ Smoke test script not found: ${{ inputs.smoke_test_script }}"
+            echo "Skipping smoke tests for this plugin."
+          fi
+
+      - name: Check for PHP errors
+        if: always()
+        run: |
+          echo "📋 Checking for PHP errors..."
+          npm run wp-env -- run cli cat /var/www/html/wp-content/debug.log 2>/dev/null || echo "No debug.log found"
+
+      - name: Upload tested zip artifact
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.plugin_name }}-smoke-tested-${{ inputs.wp }}-${{ inputs.php }}
+          path: |
+            plugin-build/${{ inputs.zip_name }}
+            ${{ inputs.plugin_path }}/plugin-build/${{ inputs.zip_name }}
+
+      - name: Stop WordPress environment
+        if: always()
+        run: npm run wp-env stop

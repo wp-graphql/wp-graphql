@@ -180,7 +180,7 @@ Hosts that support it, will cache the GraphQL response and tag the cached docume
 
 WPGraphQL Smart Cache will then listen for events such as posts (of any post type, and terms, users, comments, etc) being published, updated or deleted, and will emit an event indicating which "tags" have been impacted, allowing cached documents with the corresponding tag to be purged from the cache.
 
-Learn more about [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache). 
+Learn more about [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache). 
 
 ### GET vs POST Requests
 

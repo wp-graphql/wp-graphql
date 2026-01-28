@@ -8,13 +8,19 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Checks for:
   - WordPress Coding Standards compliance using PHPCS
   - Static type and error checking with PHPStan
-- `lint.yml` triggers the reusable workflow defined in `lint-reusable.yml` for each plugin in the matrix.
+- Uses change detection to only lint plugins that have changed files
+- `lint.yml` detects which plugins have changes and triggers `lint-reusable.yml` for each affected plugin
+- Runs all plugins on release PRs or pushes to main
+- Each plugin's linting runs independently (PHPCS and PHPStan)
 
 ### 2. Schema Linting (`schema-linter.yml`)
 
-- Validates GraphQL schema structure
+- Validates GraphQL schema structure for each plugin in the monorepo
+- Uses matrix strategy to test each plugin independently
 - Ensures schema follows GraphQL best practices
 - Compares schema against previous releases to detect breaking changes
+- Each plugin's schema is compared against its own release history (e.g., `wp-graphql/v2.7.0`, `wp-graphql-smart-cache/v1.0.0`)
+- Supports plugins that extend the schema (e.g., smart-cache tests with both wp-graphql and smart-cache active)
 
 ### 3. Testing Integration (`testing-integration.yml`)
 
@@ -29,12 +35,17 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Ensures GraphiQL functionality works as expected
 - Tests user interactions and UI components
 
-### 5. Smoke Test (`smoke-test.yml`)
+### 5. Smoke Test (`smoke-test.yml` and `smoke-test-reusable.yml`)
 
-- Validates the production zip artifact works correctly
+- Validates production zip artifacts work correctly for each plugin in the monorepo
+- Uses change detection to only test plugins that have changed files
+- `smoke-test.yml` detects changes and triggers `smoke-test-reusable.yml` for each affected plugin
+- Tests each plugin across different WP/PHP versions (boundary testing approach)
 - Builds the plugin zip (same as release process)
-- Installs it in a clean WordPress environment
+- Handles plugin dependencies (e.g., builds wp-graphql first if required by another plugin)
+- Installs plugins in a clean WordPress environment
 - Runs smoke tests to verify core functionality
+- Currently tests: wp-graphql (WP 6.8/PHP 8.3, WP 6.1/PHP 7.4) and wp-graphql-smart-cache (same versions)
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
@@ -149,6 +160,19 @@ flowchart TD
 - release-please uses commit messages to determine version bumps
 - WordPress.org deployment depends on successful release creation
 
+## Change Detection
+
+The workflows use change detection to optimize CI runs:
+
+- **Regular PRs**: Only run tests/linting for plugins that have changed files
+- **Release PRs**: Run all tests for all plugins (branches starting with `release-please--`)
+- **Change detection patterns**: Defined in `integration-tests.yml` and `lint.yml` using `tj-actions/changed-files`
+
+This ensures:
+- Faster CI feedback for focused changes
+- Comprehensive testing when releases are prepared
+- Extensions are tested when core WPGraphQL changes (due to dependencies)
+
 ## Contributing
 
 When adding or modifying workflows:
@@ -157,3 +181,43 @@ When adding or modifying workflows:
 2. Update the flowchart if process changes
 3. Ensure proper error handling and notifications
 4. Test workflows in a feature branch first
+
+When adding a new plugin:
+
+1. **Add change detection patterns** in `integration-tests.yml`, `lint.yml`, and `smoke-test.yml`:
+   - Add plugin output in `detect-changes` job
+   - Add file patterns in `files_yaml` section
+   - Add plugin job that uses the reusable workflow
+2. **Add test job** that uses `integration-tests-reusable.yml`
+3. **Add lint job** that uses `lint-reusable.yml`
+4. **Add smoke test job** that uses `smoke-test-reusable.yml`:
+   - Configure plugin paths, zip names, and plugin slugs
+   - Set `requires_wp_graphql: true` if plugin depends on wp-graphql
+   - Set `needs_build: true` if plugin requires JS asset building
+   - Add WP/PHP version matrix entries
+5. Ensure plugin is added to `release-please-config.json` (see [Architecture Docs](../docs/ARCHITECTURE.md#future-plugins))
+6. **Add plugin to Schema Linter matrix** in `schema-linter.yml`:
+   - Set `component` to match release tag prefix
+   - Configure `active_plugins` for schema generation
+
+## Plugin Naming Conventions
+
+When adding plugins to the monorepo, be aware of the difference between directory names, GitHub component names, and WordPress.org slugs:
+
+- **Directory name** (`plugins/wp-graphql-smart-cache/`): Used for file paths and repository structure. **We keep this consistent with core** (`wp-graphql`) by using hyphens, even if WordPress.org requires a different format.
+- **GitHub component name** (`wp-graphql-smart-cache`): Used in `release-please-config.json` and for GitHub release tags (e.g., `wp-graphql-smart-cache/v2.0.1`). Matches directory name for consistency.
+- **WordPress.org slug** (`wpgraphql-smart-cache`): Used for WordPress.org SVN repository, zip file names, and WP-CLI commands. **WordPress.org policy changed** - they no longer allow the `wp-` prefix for new plugins, so plugins must use `wpgraphql` (no hyphen) as part of the full plugin name.
+
+**Why the difference?**
+- We maintain `wp-graphql-smart-cache` in the repository to stay consistent with the core `wp-graphql` plugin naming convention
+- The build process automatically creates a zip with the WordPress.org-compliant name (`wpgraphql-smart-cache.zip`)
+- This allows us to keep internal consistency while meeting WordPress.org requirements
+
+**Example for wp-graphql-smart-cache:**
+- Directory: `plugins/wp-graphql-smart-cache/` (matches core `wp-graphql` convention)
+- GitHub component: `wp-graphql-smart-cache` (in `release-please-config.json`)
+- GitHub release tag: `wp-graphql-smart-cache/v2.0.1`
+- WordPress.org slug: `wpgraphql-smart-cache` (WordPress.org policy requirement)
+- Zip file: `wpgraphql-smart-cache.zip` (created by build script with WordPress.org-compliant name)
+
+The release workflow automatically maps component names to WordPress.org slugs when deploying. For smoke tests, use the WordPress.org slug in the `plugin_slug` field.

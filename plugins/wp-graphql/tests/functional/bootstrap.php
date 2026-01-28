@@ -5,10 +5,6 @@
  * @package WPGraphQL\Tests\Functional
  */
 
-/**
- * Helper constant used by the tests to query the GraphQL endpoint.
- */
-if ( ! defined( 'TEST_GRAPHQL_ENDPOINT' ) ) {
-	$graphql_base = getenv( 'TEST_WP_URL' );
-	define( 'TEST_GRAPHQL_ENDPOINT', rtrim( $graphql_base, '/' ) . '/graphql' );
-}
+// Load common bootstrap from wp-graphql plugin (shared across monorepo)
+// Path: plugins/wp-graphql/tests/functional -> plugins/wp-graphql/tests (1 level up)
+require_once dirname( __DIR__ ) . '/bootstrap-common.php';

@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.log
+.vscode
+c3.php
+node_modules/
+phpcs.xml
+phpunit.xml
+Thumbs.db
+wp-cli.local.yml
+vendor
+*.sql
+*.tar.gz
+*.zip
+.idea

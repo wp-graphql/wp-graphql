@@ -87,18 +87,28 @@ Under the "assets" section of the release will be a `wp-graphql.zip` file that y
 
 This install method is recommended for contributors that would like to submit pull requests to the codebase. This step assumes you have [Node.js](https://nodejs.org/) (v20+), [Composer](https://getcomposer.org/doc/00-intro.md), and [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed locally, and [SSH keys setup with Github](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 
-1. In your command line, navigate to your WordPress plugin directory (`wp-content/plugins`)
-1. Run the following command `git clone git@github.com:wp-graphql/wp-graphql.git`
-1. This will install WPGraphQL to your plugins directory under `/wp-content/plugins/wp-graphql`
+> **Note:** WPGraphQL is now part of a [monorepo](https://github.com/wp-graphql/wp-graphql). The plugin is located at `plugins/wp-graphql/` in the repository.
+
+1. Clone the monorepo: `git clone git@github.com:wp-graphql/wp-graphql.git`
+1. Navigate to the plugin directory: `cd wp-graphql/plugins/wp-graphql`
 1. Run the following command to install PHP dependencies: `composer install` (or `composer install --no-dev` for production)
 1. Run the following commands to build the JavaScript assets (required for GraphiQL IDE):
    ```bash
    npm ci
    npm run build
    ```
+1. Create a symlink or copy the plugin to your WordPress plugins directory:
+   ```bash
+   # From your WordPress wp-content/plugins directory:
+   ln -s /path/to/wp-graphql/plugins/wp-graphql wp-graphql
+   # Or copy it:
+   cp -r /path/to/wp-graphql/plugins/wp-graphql /path/to/wordpress/wp-content/plugins/
+   ```
 1. From the [Administration Panels](http://codex.wordpress.org/Administration_Panels), click on the [Plugin](http://codex.wordpress.org/Administration_Panels#Plugins) Menu
 1. WPGraphQL should now show up as a plugin.
 1. Click "Activate"
+
+Alternatively, you can use `wp-env` from the monorepo root for local development. See the [Development Guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/DEVELOPMENT.md) for details.
 
 > **Note:** The `/build` directory containing compiled JavaScript assets is not included in the repository. If you skip the npm build step, the GraphiQL IDE and Extensions pages will show a message with instructions to build the assets.
 
