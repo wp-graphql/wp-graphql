@@ -1,0 +1,125 @@
+name: Reusable JS E2E Tests
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Display name for the job (e.g., wp-graphql)"
+        required: true
+        type: string
+      plugin_path:
+        description: "Path to the plugin directory (e.g., plugins/wp-graphql)"
+        required: true
+        type: string
+      plugin_name:
+        description: "Name of the plugin (e.g., wp-graphql)"
+        required: true
+        type: string
+
+jobs:
+  # Runs JavaScript e2e tests for a WordPress plugin using Playwright.
+  #
+  # Performs the following steps:
+  # - Checks out the repository.
+  # - Sets up Node.js and PHP.
+  # - Installs Composer and NPM dependencies.
+  # - Builds JavaScript assets.
+  # - Installs Playwright dependencies.
+  # - Starts the wp-env Docker testing environment.
+  # - Runs Playwright e2e tests.
+  # - Uploads test failure artifacts.
+  test:
+    name: "${{ inputs.name }}"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version-file: ".nvmrc"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          tools: composer:v2
+          extensions: json, mbstring, intl
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: ${{ inputs.plugin_path }}
+          composer-options: "--no-progress"
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build JavaScript assets
+        run: npm run build
+
+      - name: Install Playwright dependencies
+        run: npx playwright install chromium firefox webkit --with-deps
+
+      - name: Cache Docker images
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-e2e
+
+      - name: Start the Docker testing environment
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            npm run wp-env start -- ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }}
+
+      - name: Log versions
+        run: |
+          npm run wp-env -- run cli php -- -v
+          npm run wp-env -- run cli wp core version
+
+      - name: Verify test environment
+        run: |
+          echo "Checking mu-plugin installation..."
+          npm run wp-env run tests-cli -- ls -la /var/www/html/wp-content/mu-plugins/
+          echo "Checking site URL..."
+          npm run wp-env run tests-cli -- wp option get siteurl
+          echo "Testing GraphQL endpoint..."
+          npm run wp-env run tests-cli -- curl -s -o /dev/null -w "HTTP %{http_code}" http://tests-wordpress/graphql?query=%7B__typename%7D
+
+      - name: Run E2E tests
+        run: |
+          npm run -w @wpgraphql/${{ inputs.plugin_name }} test:e2e
+
+      - name: Stop WordPress Environment
+        if: always()
+        run: npm run wp-env -- stop
+
+      - name: Upload test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.plugin_name }}-e2e-test-failures
+          path: |
+            ${{ inputs.plugin_path }}/artifacts/test-results/**
+            ${{ inputs.plugin_path }}/artifacts/storage-states/**
+          if-no-files-found: ignore
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.plugin_name }}-e2e-playwright-report
+          path: |
+            ${{ inputs.plugin_path }}/artifacts/test-results/**
+          if-no-files-found: ignore
