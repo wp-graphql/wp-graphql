@@ -173,47 +173,19 @@ jobs:
           echo "Active plugins for schema generation:"
           npm run wp-env run cli -- wp plugin list --status=active
           
-          # Verify wp-graphql is actually loaded (not just active)
-          echo "Verifying wp-graphql plugin is loaded..."
-          npm run wp-env run cli -- wp eval 'echo class_exists("WPGraphQL") ? "✅ WPGraphQL class loaded" : "❌ WPGraphQL class not loaded";' 2>&1 || true
-          
-          # Verify wp-graphql vendor directory exists (critical for CLI command)
-          echo "Verifying wp-graphql vendor directory exists..."
-          npm run wp-env run cli -- test -f wp-content/plugins/wp-graphql/vendor/autoload.php && echo "✅ wp-graphql vendor/autoload.php exists" || echo "❌ wp-graphql vendor/autoload.php MISSING"
-          
-          # Verify CLI Commands class can be loaded
-          echo "Verifying CLI Commands class exists..."
-          npm run wp-env run cli -- wp eval 'echo class_exists("WPGraphQL\CLI\Commands") ? "✅ CLI Commands class loaded" : "❌ CLI Commands class not loaded";' 2>&1 || true
-          
-          # Check if WP_CLI is available
-          echo "Verifying WP_CLI is available..."
-          npm run wp-env run cli -- wp eval 'echo (class_exists("WP_CLI") && defined("WP_CLI") && WP_CLI) ? "✅ WP_CLI available" : "❌ WP_CLI not available";' 2>&1 || true
-          
           # Verify wp-graphql CLI command is available (critical for schema generation)
-          # This must succeed or schema generation will fail
+          # The WPGraphQL plugin should automatically register the CLI command when it loads
           echo "Verifying wp graphql CLI command is registered..."
           if npm run wp-env run cli -- wp help graphql 2>&1 | grep -q "generate-static-schema"; then
             echo "✅ wp graphql CLI command is available"
           else
             echo "❌ wp graphql CLI command NOT found"
-            echo "Attempting to reload wp-graphql by deactivating and reactivating..."
-            # Try deactivating and reactivating to trigger CLI command registration
-            npm run wp-env run cli -- wp plugin deactivate wp-graphql 2>/dev/null || true
-            sleep 1
-            npm run wp-env run cli -- wp plugin activate wp-graphql 2>/dev/null || true
-            sleep 1
-            
-            # Check again
-            if npm run wp-env run cli -- wp help graphql 2>&1 | grep -q "generate-static-schema"; then
-              echo "✅ wp graphql CLI command is now available after reload"
-            else
-              echo "❌ wp graphql CLI command still NOT found after reload"
-              echo "Debug: Available wp commands:"
-              npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
-              echo "Debug: Checking if WPGraphQL class exists..."
-              npm run wp-env run cli -- wp eval 'var_dump(class_exists("WPGraphQL"));' 2>&1 || true
-              exit 1
-            fi
+            echo "This may indicate a problem with wp-graphql plugin loading or CLI command registration."
+            echo "Debug: Checking wp-graphql plugin status..."
+            npm run wp-env run cli -- wp plugin list | grep wp-graphql || echo "wp-graphql plugin not found"
+            echo "Debug: Available wp commands:"
+            npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
+            exit 1
           fi
           
           # Flush rewrite rules to ensure GraphQL endpoint is registered

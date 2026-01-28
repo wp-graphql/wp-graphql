@@ -267,11 +267,19 @@ final class WPGraphQL {
 		}
 
 		// Ensure the Commands class is loaded before trying to register it
+		// If the class doesn't exist, try to require the file directly
+		// (in case the autoloader hasn't loaded it yet)
 		if ( ! class_exists( \WPGraphQL\CLI\Commands::class ) ) {
-			return;
+			$commands_file = WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php';
+			if ( file_exists( $commands_file ) ) {
+				require_once $commands_file;
+			}
 		}
 
-		\WP_CLI::add_command( 'graphql', \WPGraphQL\CLI\Commands::class );
+		// Only register if the class exists after attempting to load it
+		if ( class_exists( \WPGraphQL\CLI\Commands::class ) ) {
+			\WP_CLI::add_command( 'graphql', \WPGraphQL\CLI\Commands::class );
+		}
 	}
 
 	/**

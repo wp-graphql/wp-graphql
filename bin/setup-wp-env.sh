@@ -16,12 +16,14 @@ setup_wp() {
 	local ENV_NAME="$1"
 	echo "=== Setting up WPGraphQL development environment ==="
 
-	# Always activate wp-graphql (base plugin required for all tests)
+	# Always activate wp-graphql (base plugin required for all tests and schema generation)
 	npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql 2>/dev/null || true
 
 	# Activate wp-graphql-smart-cache in tests-cli environment (where all tests run)
 	# This ensures smart-cache tests have the plugin active, and wp-graphql tests should be
 	# resilient to extensions being active (which is realistic for production scenarios)
+	# Note: For schema linter, we activate smart-cache manually in the workflow since
+	# it uses the 'cli' container, not 'tests-cli'
 	if [ "$ENV_NAME" = "tests-cli" ]; then
 		npm run wp-env run $ENV_NAME -- wp plugin activate wp-graphql-smart-cache 2>/dev/null || true
 	fi
