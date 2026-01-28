@@ -111,38 +111,55 @@ jobs:
       - name: Configure active plugins for schema generation
         run: |
           # setup-wp-env.sh (via afterStart) already activates wp-graphql in the cli container,
-          # which registers the CLI command. We need to preserve this activation.
-          # For smart-cache, we just need to ensure it's also active.
+          # which registers the CLI command. We need to ensure ONLY the plugins we want
+          # for this schema are active (wp-graphql + target plugin), deactivating all others.
           
           echo "Current plugin status (before configuration):"
           npm run wp-env run cli -- wp plugin list --status=active
           
-          # Ensure wp-graphql is active (should already be from setup-wp-env.sh)
-          echo "Ensuring wp-graphql is active..."
-          npm run wp-env run cli -- wp plugin activate wp-graphql 2>/dev/null || echo "wp-graphql already active or failed to activate"
-          
-          # Activate additional plugins if needed (for smart-cache)
+          # Determine which plugins should be active for this component
+          REQUIRED_PLUGINS="wp-graphql"
           if [ -n "${{ matrix.active_plugins }}" ]; then
+            # Add any additional plugins specified in active_plugins
             for plugin in $(echo "${{ matrix.active_plugins }}" | tr ',' ' '); do
-              # Skip wp-graphql since we already handled it
               if [ "$plugin" != "wp-graphql" ]; then
-                echo "Activating plugin: $plugin"
-                npm run wp-env run cli -- wp plugin activate "$plugin" 2>/dev/null || echo "Warning: Could not activate $plugin"
+                REQUIRED_PLUGINS="$REQUIRED_PLUGINS $plugin"
               fi
             done
           fi
           
-          # Show final active plugins
+          echo "Required plugins for schema generation: $REQUIRED_PLUGINS"
+          
+          # Deactivate all plugins first to ensure clean state
+          echo "Deactivating all plugins..."
+          npm run wp-env run cli -- wp plugin deactivate --all 2>/dev/null || true
+          
+          # Activate only the required plugins in order
+          for plugin in $REQUIRED_PLUGINS; do
+            echo "Activating required plugin: $plugin"
+            npm run wp-env run cli -- wp plugin activate "$plugin" 2>/dev/null || echo "Warning: Could not activate $plugin"
+          done
+          
+          # Show final active plugins (should only be wp-graphql + target plugin)
           echo "Active plugins for schema generation:"
           npm run wp-env run cli -- wp plugin list --status=active
           
+          # Verify only expected plugins are active
+          ACTIVE_COUNT=$(npm run wp-env run cli -- wp plugin list --status=active --field=name 2>/dev/null | wc -l)
+          EXPECTED_COUNT=$(echo "$REQUIRED_PLUGINS" | wc -w)
+          if [ "$ACTIVE_COUNT" -ne "$EXPECTED_COUNT" ]; then
+            echo "⚠️ Warning: Expected $EXPECTED_COUNT active plugin(s), but found $ACTIVE_COUNT"
+            echo "This may indicate other plugins are active that shouldn't be"
+          fi
+          
           # Verify wp-graphql CLI command is available (critical for schema generation)
+          # This must succeed or schema generation will fail
           echo "Verifying wp graphql CLI command is registered..."
           if npm run wp-env run cli -- wp help graphql 2>&1 | grep -q "generate-static-schema"; then
             echo "✅ wp graphql CLI command is available"
           else
-            echo "❌ wp graphql CLI command NOT found - this will cause schema generation to fail"
-            echo "Debug: Listing all available wp commands..."
+            echo "❌ wp graphql CLI command NOT found - schema generation will fail"
+            echo "Debug: Available wp commands:"
             npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
             exit 1
           fi
