@@ -104,7 +104,7 @@ jobs:
         if: matrix.component != 'wp-graphql'
         run: |
           echo "Installing wp-graphql composer dependencies in container..."
-          npm run wp-env run cli -- env-cwd=wp-content/plugins/wp-graphql -- composer install --no-interaction --no-progress
+          npm run wp-env -- run cli --env-cwd=wp-content/plugins/wp-graphql -- composer install --no-interaction --no-progress
 
       - name: Configure active plugins for schema generation
         run: |
