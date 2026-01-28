@@ -48,7 +48,7 @@ jobs:
           # WPGraphQL Smart Cache - test with wp-graphql + smart-cache active
           - component: wp-graphql-smart-cache
             plugin_path: plugins/wp-graphql-smart-cache
-            composer_working_dir: plugins/wp-graphql
+            composer_working_dir: plugins/wp-graphql-smart-cache
             # Activate both core and smart-cache for schema generation
             active_plugins: "wp-graphql,wp-graphql-smart-cache"
     name: Lint ${{ matrix.component }} Schema
