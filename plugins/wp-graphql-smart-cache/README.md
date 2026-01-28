@@ -6,7 +6,7 @@ Do you want your API data _fast_ or _accurate_? With WPGraphQL Smart Cache, you 
 
 WPGraphQL Smart Cache is a free, open-source WordPress plugin that provides support for caching and cache invalidation of WPGraphQL Queries.
 
-To get the most out of this plugin, we recommend using GET requests with Network Caching, which requires your WordPress install to be on a [supported host](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/network-cache.md#supported-hosts).
+To get the most out of this plugin, we recommend using GET requests with Network Caching, which requires your WordPress install to be on a [supported host](./docs/network-cache.md#supported-hosts).
 
 **BREAKING CHANGES:** We may make breaking changes in the future to improve functionality and experience. If we do, we will use semver to do so. Pay attention to release notes and upgrade notices before updating.
 
@@ -241,13 +241,15 @@ You can read more about the nuances of supporting settings here: [#158](https://
 
 If you have feedback after using WPGraphQL Smart Cache, we would love to hear it!
 
+> **Note:** WPGraphQL Smart Cache is now part of the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql). The code and releases are managed in the main repository. Issues and discussions are currently still in the original repository and will be migrated in the future.
+
 ### Issues & Bug Reports
 
-If you have an issue or a bug to report, the best place to do that is in the GitHub Repository: [https://github.com/wp-graphql/wp-graphql-smart-cache/issues](https://github.com/wp-graphql/wp-graphql-smart-cache/issues)
+If you have an issue or a bug to report, the best place to do that is in the [GitHub Repository](https://github.com/wp-graphql/wp-graphql-smart-cache/issues).
 
 ### Feature Requests
 
-If you have an idea for a feature that feels like it would be a nice addition to the WPGraphQL Smart Cache plugin, you can let us know in the Discussion section of the GitHub Repository: [https://github.com/wp-graphql/wp-graphql-smart-cache/discussions](https://github.com/wp-graphql/wp-graphql-smart-cache/discussions)
+If you have an idea for a feature that feels like it would be a nice addition to the WPGraphQL Smart Cache plugin, you can let us know in the [Discussion section of the GitHub Repository](https://github.com/wp-graphql/wp-graphql-smart-cache/discussions).
 
 ### General Discussion
 

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: WPGraphQL Smart Cache
- * Plugin URI: https://github.com/wp-graphql/wp-graphql-smart-cache
- * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql-smart-cache
+ * Plugin URI: https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache
+ * GitHub Plugin URI: https://github.com/wp-graphql/wp-graphql
  * Description: Smart Caching and Cache Invalidation for WPGraphQL
  * Author: WPGraphQL
  * Author URI: http://www.wpgraphql.com

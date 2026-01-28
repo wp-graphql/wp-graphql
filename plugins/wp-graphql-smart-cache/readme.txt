@@ -18,33 +18,35 @@ Do you want your API data _fast_ or _accurate_? With WPGraphQL Smart Cache, you 
 
 WPGraphQL Smart Cache is a free, open-source WordPress plugin that provides support for caching and cache invalidation of WPGraphQL Queries.
 
-To get the most out of this plugin, we recommend using GET requests with Network Caching, which requires your WordPress install to be on a [supported host](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/network-cache.md#supported-hosts).
+To get the most out of this plugin, we recommend using GET requests with Network Caching, which requires your WordPress install to be on a [supported host](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/network-cache.md#supported-hosts).
+
+> **Note:** WPGraphQL Smart Cache is now part of the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql). All releases, issues, and discussions are managed in the main repository.
 
 *BREAKING CHANGES:* We may make breaking changes in the future to improve functionality and experience. If we do, we will use semver to do so. Pay attention to release notes and upgrade notices before updating.
 
 == Video Overview ==
 
-<a href="https://youtu.be/t_y6q02q7K4" target="_blank"><img src="https://github.com/wp-graphql/wp-graphql-smart-cache/raw/main/docs/images/banner-wp-graphql-smart-cache-v1.jpg" width="640px" /></a>
+<a href="https://youtu.be/t_y6q02q7K4" target="_blank"><img src="https://github.com/wp-graphql/wp-graphql/raw/main/plugins/wp-graphql-smart-cache/docs/images/banner-wp-graphql-smart-cache-v1.jpg" width="640px" /></a>
 
 == Docs ==
 
-- [Overview](https://github.com/wp-graphql/wp-graphql-smart-cache#overview)
-- [Quick Start](https://github.com/wp-graphql/wp-graphql-smart-cache#-quick-start)
+- [Overview](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache#overview)
+- [Quick Start](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache#-quick-start)
 - Features
-  - [Network Cache](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/network-cache.md)
-  - [Object Cache](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/object-cache.md)
-  - [Persisted Queries](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/persisted-queries.md)
-  - [Cache Invalidation](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/cache-invalidation.md)
-- [Extending / Customizing Functionality](https://github.com/wp-graphql/wp-graphql-smart-cache/blob/main/docs/extending.md)
-- [FAQ and Troubleshooting](https://github.com/wp-graphql/wp-graphql-smart-cache#faq--troubleshooting)
-- [Known Issues](https://github.com/wp-graphql/wp-graphql-smart-cache#known-issues)
-- [Providing Feedback](https://github.com/wp-graphql/wp-graphql-smart-cache#providing-feedback)
+  - [Network Cache](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/network-cache.md)
+  - [Object Cache](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/object-cache.md)
+  - [Persisted Queries](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/persisted-queries.md)
+  - [Cache Invalidation](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/cache-invalidation.md)
+- [Extending / Customizing Functionality](https://github.com/wp-graphql/wp-graphql/blob/main/plugins/wp-graphql-smart-cache/docs/extending.md)
+- [FAQ and Troubleshooting](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache#faq--troubleshooting)
+- [Known Issues](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache#known-issues)
+- [Providing Feedback](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache#providing-feedback)
 
 = Upgrading =
 
 It is recommended that anytime you want to update WPGraphQL Smart Cache that you get familiar with what's changed in the release.
 
-WPGraphQL Smart Cache publishes [release notes on GitHub](https://github.com/wp-graphql/wp-graphql-smart-cache/releases).
+WPGraphQL Smart Cache publishes [release notes on GitHub](https://github.com/wp-graphql/wp-graphql/releases). Look for releases tagged with `wp-graphql-smart-cache/v*`.
 
 WPGraphQL Smart Cache will follow Semver versioning.
 

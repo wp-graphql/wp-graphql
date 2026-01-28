@@ -20,13 +20,15 @@ Over time we plan to support multiple versions, but currently we will only provi
 
 At the moment, WPGraphQL Smart Cache is not available on the WordPress.org repository, or packagist.org, so you must download the plugin from Github.
 
-You can find the latest release by visiting this page: [https://github.com/wp-graphql/wp-graphql-smart-cache/releases/latest](https://github.com/wp-graphql/wp-graphql-smart-cache/releases/latest).
+You can find the latest release by visiting the [WPGraphQL monorepo releases page](https://github.com/wp-graphql/wp-graphql/releases) and looking for releases tagged with `wp-graphql-smart-cache/v*` (e.g., `wp-graphql-smart-cache/v2.0.1`).
 
-On this page you will see an "Assets" panel.
+On the release page you will see an "Assets" panel.
 
 The asset named `wp-graphql-smart-cache.zip` is the plugin.
 
 Download the .zip file.
+
+> **Note:** WPGraphQL Smart Cache is now part of the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql). All releases, issues, and discussions are managed in the main repository.
 
 ## Upload the Plugin
 

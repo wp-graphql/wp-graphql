@@ -2,6 +2,8 @@
 
 In this document you will find information about how to develop for and contribute to the WPGraphQL Smart Cache plugin.
 
+> **Note:** WPGraphQL Smart Cache is now part of the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql). For general contributing guidelines, PR requirements, and development workflow, please see the [main Contributing guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/CONTRIBUTING.md) in the monorepo root.
+
 - [Build](#plugin-build)
 - [WordPress App](#wordpress-app)
 - [WordPress Tests](#wordpess-tests)
@@ -9,6 +11,8 @@ In this document you will find information about how to develop for and contribu
 
 
 We recommend using Docker for local development. With the instructions below, you can use Docker to build the app in an isolated environment with a local running WordPress + WPGraphQL. You can also use Docker to run the test suites.
+
+> **Monorepo Development:** When developing in the monorepo, the plugin is located at `plugins/wp-graphql-smart-cache/`. You can use the monorepo's `wp-env` setup (see [Development Setup](https://github.com/wp-graphql/wp-graphql/blob/main/docs/DEVELOPMENT.md)) or use the Docker setup described below for plugin-specific testing.
 
 ## Plugin Build
 

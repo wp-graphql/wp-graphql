@@ -96,7 +96,7 @@ WPGraphQL Smart Cache tracks events related to all the core WordPress data types
 
 Currently WPGraphQL Smart Cache does not track events related to updating settings.
 
-There is a lot of nuance to consider. You can read more about this here: [https://github.com/wp-graphql/wp-graphql-smart-cache/issues/158](https://github.com/wp-graphql/wp-graphql-smart-cache/issues/158)
+There is a lot of nuance to consider. You can read more about this here: [#158](https://github.com/wp-graphql/wp-graphql-smart-cache/issues/158)
 
 ----
 
