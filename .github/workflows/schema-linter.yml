@@ -177,6 +177,18 @@ jobs:
           echo "Verifying wp-graphql plugin is loaded..."
           npm run wp-env run cli -- wp eval 'echo class_exists("WPGraphQL") ? "✅ WPGraphQL class loaded" : "❌ WPGraphQL class not loaded";' 2>&1 || true
           
+          # Verify wp-graphql vendor directory exists (critical for CLI command)
+          echo "Verifying wp-graphql vendor directory exists..."
+          npm run wp-env run cli -- test -f wp-content/plugins/wp-graphql/vendor/autoload.php && echo "✅ wp-graphql vendor/autoload.php exists" || echo "❌ wp-graphql vendor/autoload.php MISSING"
+          
+          # Verify CLI Commands class can be loaded
+          echo "Verifying CLI Commands class exists..."
+          npm run wp-env run cli -- wp eval 'echo class_exists("WPGraphQL\CLI\Commands") ? "✅ CLI Commands class loaded" : "❌ CLI Commands class not loaded";' 2>&1 || true
+          
+          # Check if WP_CLI is available
+          echo "Verifying WP_CLI is available..."
+          npm run wp-env run cli -- wp eval 'echo (class_exists("WP_CLI") && defined("WP_CLI") && WP_CLI) ? "✅ WP_CLI available" : "❌ WP_CLI not available";' 2>&1 || true
+          
           # Verify wp-graphql CLI command is available (critical for schema generation)
           # This must succeed or schema generation will fail
           echo "Verifying wp graphql CLI command is registered..."
