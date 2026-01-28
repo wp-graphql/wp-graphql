@@ -69,6 +69,14 @@ jobs:
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
         with:
           working-directory: ${{ matrix.composer_working_dir }}
+      
+      # For plugins that depend on wp-graphql, we also need to install wp-graphql's dependencies
+      # so the CLI command is available
+      - name: Install wp-graphql dependencies (if needed)
+        if: matrix.component != 'wp-graphql'
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: plugins/wp-graphql
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
