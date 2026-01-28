@@ -132,25 +132,34 @@ jobs:
           echo "Required plugins for schema generation: $REQUIRED_PLUGINS"
           
           # Get list of currently active plugins (excluding wp-graphql)
-          ACTIVE_PLUGINS=$(npm run wp-env run cli -- wp plugin list --status=active --field=name 2>/dev/null | grep -v "wp-graphql" || true)
+          # Parse the tabular output and extract just the plugin names from the first column
+          # Skip header line (NR>1) and filter out wp-graphql
+          ACTIVE_PLUGINS=$(npm run wp-env run cli -- wp plugin list --status=active 2>/dev/null | awk 'NR>1 {print $1}' | grep -v "^wp-graphql$" || true)
           
           # Deactivate plugins that shouldn't be active (but keep wp-graphql active!)
           echo "Deactivating unnecessary plugins (keeping wp-graphql active)..."
-          for plugin in $ACTIVE_PLUGINS; do
-            # Check if this plugin should be kept active
-            KEEP_PLUGIN=false
-            for required in $REQUIRED_PLUGINS; do
-              if [ "$plugin" = "$required" ]; then
-                KEEP_PLUGIN=true
-                break
+          if [ -n "$ACTIVE_PLUGINS" ]; then
+            for plugin in $ACTIVE_PLUGINS; do
+              # Skip empty lines and non-plugin strings
+              if [ -z "$plugin" ] || [ "$plugin" = "name" ] || [ "$plugin" = "status" ]; then
+                continue
+              fi
+              
+              # Check if this plugin should be kept active
+              KEEP_PLUGIN=false
+              for required in $REQUIRED_PLUGINS; do
+                if [ "$plugin" = "$required" ]; then
+                  KEEP_PLUGIN=true
+                  break
+                fi
+              done
+              
+              if [ "$KEEP_PLUGIN" = "false" ]; then
+                echo "Deactivating: $plugin"
+                npm run wp-env run cli -- wp plugin deactivate "$plugin" 2>/dev/null || true
               fi
             done
-            
-            if [ "$KEEP_PLUGIN" = "false" ]; then
-              echo "Deactivating: $plugin"
-              npm run wp-env run cli -- wp plugin deactivate "$plugin" 2>/dev/null || true
-            fi
-          done
+          fi
           
           # Activate any required plugins that aren't already active
           for plugin in $REQUIRED_PLUGINS; do
@@ -164,16 +173,35 @@ jobs:
           echo "Active plugins for schema generation:"
           npm run wp-env run cli -- wp plugin list --status=active
           
+          # Verify wp-graphql is actually loaded (not just active)
+          echo "Verifying wp-graphql plugin is loaded..."
+          npm run wp-env run cli -- wp eval 'echo class_exists("WPGraphQL") ? "✅ WPGraphQL class loaded" : "❌ WPGraphQL class not loaded";' 2>&1 || true
+          
           # Verify wp-graphql CLI command is available (critical for schema generation)
           # This must succeed or schema generation will fail
           echo "Verifying wp graphql CLI command is registered..."
           if npm run wp-env run cli -- wp help graphql 2>&1 | grep -q "generate-static-schema"; then
             echo "✅ wp graphql CLI command is available"
           else
-            echo "❌ wp graphql CLI command NOT found - schema generation will fail"
-            echo "Debug: Available wp commands:"
-            npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
-            exit 1
+            echo "❌ wp graphql CLI command NOT found"
+            echo "Attempting to reload wp-graphql by deactivating and reactivating..."
+            # Try deactivating and reactivating to trigger CLI command registration
+            npm run wp-env run cli -- wp plugin deactivate wp-graphql 2>/dev/null || true
+            sleep 1
+            npm run wp-env run cli -- wp plugin activate wp-graphql 2>/dev/null || true
+            sleep 1
+            
+            # Check again
+            if npm run wp-env run cli -- wp help graphql 2>&1 | grep -q "generate-static-schema"; then
+              echo "✅ wp graphql CLI command is now available after reload"
+            else
+              echo "❌ wp graphql CLI command still NOT found after reload"
+              echo "Debug: Available wp commands:"
+              npm run wp-env run cli -- wp help 2>&1 | grep -E "^  [a-z]" | head -10
+              echo "Debug: Checking if WPGraphQL class exists..."
+              npm run wp-env run cli -- wp eval 'var_dump(class_exists("WPGraphQL"));' 2>&1 || true
+              exit 1
+            fi
           fi
           
           # Flush rewrite rules to ensure GraphQL endpoint is registered
