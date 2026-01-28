@@ -95,6 +95,11 @@
           "glob": false
         },
         {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
           "type": "generic",
           "path": "src/**/*.php",
           "glob": true
