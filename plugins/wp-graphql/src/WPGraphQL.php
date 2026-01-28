@@ -270,9 +270,9 @@ final class WPGraphQL {
 		// If the class doesn't exist, try to require the file directly
 		// (in case the autoloader hasn't loaded it yet)
 		if ( ! class_exists( \WPGraphQL\CLI\Commands::class ) ) {
-			$commands_file = WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php';
-			if ( file_exists( $commands_file ) ) {
-				require_once $commands_file;
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- WPGRAPHQL_PLUGIN_DIR is a constant, not user input
+			if ( file_exists( WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php' ) ) {
+				require_once WPGRAPHQL_PLUGIN_DIR . 'src/CLI/Commands.php';
 			}
 		}
 
