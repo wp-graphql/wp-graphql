@@ -9,19 +9,6 @@ on:
     branches:
       - main
       - release/*
-    paths:
-      - ".github/workflows/js-e2e-tests-reusable.yml"
-      - ".github/workflows/js-e2e-tests.yml"
-      - "plugins/**/packages/**"
-      - "plugins/**/src/Admin/**"
-      - "plugins/**/tests/e2e/**"
-      - "plugins/**/package.json"
-      - "plugins/**/package-lock.json"
-      - "package.json"
-      - "package-lock.json"
-      - ".wp-env.json"
-      - "bin/**"
-      - "!plugins/**/docs/**"
   workflow_dispatch:
 
 # Cancel previous workflow run groups that have not completed.
