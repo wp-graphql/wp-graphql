@@ -2,6 +2,7 @@ version: 2
 
 updates:
   # Composer: 1x weekly for minor/patch, 1x monthly for major.
+  # Plugin dependencies use 'fix' prefix to trigger PATCH releases via release-please.
   - package-ecosystem: 'composer'
     directories:
       - '/plugins/*'
@@ -11,6 +12,10 @@ updates:
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 7
+    commit-message:
+      prefix: 'fix'
+      prefix-development: 'fix'
+      include: 'scope'
     groups:
       composer-dev-minor-patch:
         dependency-type: 'development'
@@ -26,29 +31,59 @@ updates:
         dependency-type: 'production'
         update-types: [patch]
 
-  # NPM: 1x weekly for minor/patch, 1x monthly for major.
+  # NPM: Plugin dependencies - 1x weekly for minor/patch, 1x monthly for major.
+  # Plugin npm dependencies use 'feat' prefix to trigger MINOR releases via release-please.
   - package-ecosystem: 'npm'
     directories:
-      - '/'
-      # @todo add other plugin directories when their dependency trees are stabilized.
+      - '/plugins/*'
     schedule:
       interval: 'weekly'
     cooldown:
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 7
+    commit-message:
+      prefix: 'feat'
+      prefix-development: 'feat'
+      include: 'scope'
     groups:
-      npm-minor-patch:
+      npm-plugin-minor-patch:
         update-types: [minor, patch]
-      npm-dev-major:
+      npm-plugin-dev-major:
+        dependency-type: 'development'
+        update-types: [major]
+
+  # NPM: Root/tooling dependencies - 1x weekly for minor/patch, 1x monthly for major.
+  # Root/tooling dependencies use 'chore' prefix (no releases triggered).
+  - package-ecosystem: 'npm'
+    directories:
+      - '/'
+    schedule:
+      interval: 'weekly'
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 7
+    commit-message:
+      prefix: 'chore'
+      prefix-development: 'chore'
+      include: 'scope'
+    groups:
+      npm-root-minor-patch:
+        update-types: [minor, patch]
+      npm-root-dev-major:
         dependency-type: 'development'
         update-types: [major]
 
   # GitHub Actions: 1x weekly.
+  # CI/tooling dependencies use 'chore' prefix (no releases triggered).
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
     groups:
       github-actions-updates:
         patterns: ['*']
