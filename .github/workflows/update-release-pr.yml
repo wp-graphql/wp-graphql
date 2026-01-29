@@ -5,16 +5,13 @@
 # This workflow runs when release-please creates or updates a Release PR.
 # It handles tasks that release-please doesn't do natively:
 #
-# 1. Updates the Upgrade Notice section in readme.txt if there are breaking changes
-# 2. Regenerates the POT file for translations (if languages/ directory exists)
+# 1. Replaces x-release-please-version placeholders with actual version
+# 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
+# 3. Regenerates the POT file for translations (if languages/ directory exists)
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
-#
-# Multi-plugin support:
-# - Parses the component name from the release-please branch
-# - Branch format: release-please--branches--main--components--{component}
-# - Component name maps to plugins/{component}/ directory
+# - Label "autorelease: pending"
 #
 # ===========================================
 
@@ -44,30 +41,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract plugin info from branch
-        id: plugin
-        run: |
-          # Branch format: release-please--branches--main--components--wp-graphql
-          BRANCH="${{ github.head_ref }}"
-          COMPONENT=$(echo "$BRANCH" | sed 's/.*--components--//')
-          
-          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
-          echo "dir=plugins/$COMPONENT" >> $GITHUB_OUTPUT
-          echo "Detected component: $COMPONENT"
-          echo "Plugin directory: plugins/$COMPONENT"
-
-      - name: Verify plugin directory exists
-        id: verify
-        run: |
-          if [ -d "${{ steps.plugin.outputs.dir }}" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Plugin directory exists: ${{ steps.plugin.outputs.dir }}"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "::error::Plugin directory not found: ${{ steps.plugin.outputs.dir }}"
-            exit 1
-          fi
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -80,37 +53,93 @@ jobs:
           sudo mv wp-cli.phar /usr/local/bin/wp
           wp --info
 
-      - name: Extract version from PR
-        id: version
+      - name: Extract version and component from PR
+        id: version_info
         run: |
-          # Extract version from the PR title or CHANGELOG
+          # Extract version and component from the PR title or branch name
           # Release-please PR titles are like "chore(main): release wp-graphql 2.7.0"
+          # Branch names are like "release-please--branches--main--components--wp-graphql"
           
           PR_TITLE="${{ github.event.pull_request.title }}"
+          BRANCH_NAME="${{ github.head_ref }}"
+          
+          # Extract component from PR title (e.g., "wp-graphql" from "release wp-graphql 2.7.0")
+          COMPONENT=$(echo "$PR_TITLE" | grep -oE 'release\s+([a-z0-9-]+)' | awk '{print $2}' || echo "")
+          
+          if [ -z "$COMPONENT" ]; then
+            # Fallback: extract from branch name
+            COMPONENT=$(echo "$BRANCH_NAME" | sed 's/.*--components--//' || echo "wp-graphql")
+          fi
+          
+          # Try to get version from PR title first
           VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
           
           if [ -z "$VERSION" ]; then
             # Fallback: extract from CHANGELOG.md (first version header)
-            CHANGELOG="${{ steps.plugin.outputs.dir }}/CHANGELOG.md"
-            if [ -f "$CHANGELOG" ]; then
-              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "$CHANGELOG" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            PLUGIN_DIR="plugins/${COMPONENT}"
+            if [ -f "${PLUGIN_DIR}/CHANGELOG.md" ]; then
+              VERSION=$(grep -oE '## \[?[0-9]+\.[0-9]+\.[0-9]+' "${PLUGIN_DIR}/CHANGELOG.md" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
             fi
           fi
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION"
+          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
+          echo "plugin_dir=plugins/${COMPONENT}" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION for component: $COMPONENT"
+
+      - name: Replace x-release-please-version placeholders
+        if: steps.version_info.outputs.version != ''
+        working-directory: ${{ steps.version_info.outputs.plugin_dir }}
+        run: |
+          VERSION="${{ steps.version_info.outputs.version }}"
+          echo "🔄 Replacing x-release-please-version placeholders with ${VERSION}..."
+          
+          # Replace in all PHP files
+          find . -type f -name "*.php" -exec sed -i.bak "s/x-release-please-version/${VERSION}/g" {} \;
+          find . -type f -name "*.php.bak" -delete
+          
+          # Replace in readme.txt (Stable tag field)
+          # Handle both placeholder format and existing version numbers
+          if [[ -f "readme.txt" ]]; then
+            # First try to replace placeholder
+            sed -i.bak "s/Stable tag: x-release-please-version/Stable tag: ${VERSION}/" readme.txt
+            # Also replace any existing version number (for updates to existing Release PRs)
+            sed -i.bak "s/^Stable tag: [0-9]\+\.[0-9]\+\.[0-9]\+/Stable tag: ${VERSION}/" readme.txt
+            rm -f readme.txt.bak
+            
+            # Verify the update
+            if grep -q "Stable tag: ${VERSION}" readme.txt; then
+              echo "✅ Stable tag updated to ${VERSION}"
+            else
+              echo "::warning::Failed to verify Stable tag update"
+              echo "Current Stable tag line:"
+              grep "^Stable tag:" readme.txt || echo "  (not found)"
+            fi
+          fi
+          
+          echo "✅ Placeholders replaced"
+          
+          # Count remaining placeholders (excluding docs which are examples)
+          REMAINING=$(grep -r "x-release-please-version" . 2>/dev/null | grep -v "docs/" | grep -v ".git" | wc -l || echo "0")
+          if [ "$REMAINING" -gt 0 ]; then
+            echo "⚠️  Warning: $REMAINING placeholder(s) still remain (excluding docs):"
+            grep -r "x-release-please-version" . 2>/dev/null | grep -v "docs/" | grep -v ".git" | head -5
+          else
+            echo "✅ All placeholders replaced (docs examples excluded)"
+          fi
 
       - name: Update Upgrade Notice
-        if: steps.version.outputs.version != ''
+        if: steps.version_info.outputs.version != ''
         run: |
           node scripts/update-upgrade-notice.js \
-            --version=${{ steps.version.outputs.version }} \
-            --plugin-dir=${{ steps.plugin.outputs.dir }}
+            --version=${{ steps.version_info.outputs.version }} \
+            --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
 
       - name: Check for languages directory
         id: i18n
         run: |
-          if [ -d "${{ steps.plugin.outputs.dir }}/languages" ]; then
+          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
+          if [ -d "${PLUGIN_DIR}/languages" ]; then
             echo "enabled=true" >> $GITHUB_OUTPUT
             echo "Languages directory found - will regenerate POT file"
           else
@@ -119,10 +148,10 @@ jobs:
           fi
 
       - name: Regenerate POT file
-        if: steps.i18n.outputs.enabled == 'true'
-        working-directory: ${{ steps.plugin.outputs.dir }}
+        if: steps.i18n.outputs.enabled == 'true' && steps.version_info.outputs.version != ''
+        working-directory: ${{ steps.version_info.outputs.plugin_dir }}
         run: |
-          COMPONENT="${{ steps.plugin.outputs.component }}"
+          COMPONENT="${{ steps.version_info.outputs.component }}"
           wp i18n make-pot . languages/${COMPONENT}.pot \
             --slug=${COMPONENT} \
             --domain=${COMPONENT} \
@@ -133,38 +162,31 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          PLUGIN_DIR="${{ steps.plugin.outputs.dir }}"
+          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
+          CHANGED_FILES=""
           
-          # Build list of files to check
-          FILES_TO_CHECK="$PLUGIN_DIR/readme.txt"
-          if [ "${{ steps.i18n.outputs.enabled }}" == "true" ]; then
-            FILES_TO_CHECK="$FILES_TO_CHECK $PLUGIN_DIR/languages/${{ steps.plugin.outputs.component }}.pot"
-          fi
-          
-          # Check for changes (ignore missing files)
-          if git diff --quiet -- $FILES_TO_CHECK 2>/dev/null; then
+          # Check if any files changed
+          if ! git diff --quiet "$PLUGIN_DIR"; then
+            CHANGED_FILES=$(git diff --name-only "$PLUGIN_DIR")
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in:"
+            echo "$CHANGED_FILES"
+            echo ""
+            echo "Diff:"
+            git diff "$PLUGIN_DIR"
+          else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected:"
-            git diff --stat -- $FILES_TO_CHECK 2>/dev/null || true
           fi
 
       - name: Commit and push changes
         if: steps.changes.outputs.changed == 'true'
         run: |
-          PLUGIN_DIR="${{ steps.plugin.outputs.dir }}"
-          COMPONENT="${{ steps.plugin.outputs.component }}"
+          PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
+          COMPONENT="${{ steps.version_info.outputs.component }}"
           
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # Add files that exist
-          git add "$PLUGIN_DIR/readme.txt" 2>/dev/null || true
-          if [ "${{ steps.i18n.outputs.enabled }}" == "true" ]; then
-            git add "$PLUGIN_DIR/languages/${COMPONENT}.pot" 2>/dev/null || true
-          fi
-          
-          git commit -m "chore($COMPONENT): update release assets (upgrade notice, translations)"
+          git add "$PLUGIN_DIR"
+          git commit -m "chore: replace x-release-please-version placeholders, update upgrade notice, and regenerate translations for ${COMPONENT}"
           git push
