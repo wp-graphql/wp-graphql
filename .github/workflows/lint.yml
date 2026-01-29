@@ -46,7 +46,7 @@ jobs:
       test_all: ${{ steps.check-context.outputs.test_all }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check context (Release PR or push to main)
         id: check-context
@@ -68,7 +68,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files_yaml: |
             wp-graphql:
