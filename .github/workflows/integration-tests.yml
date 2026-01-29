@@ -48,6 +48,7 @@ jobs:
       contents: read
     outputs:
       wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
+      wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
       # Add outputs for additional plugins here:
       # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
     steps:
@@ -73,6 +74,21 @@ jobs:
               - package-lock.json
               - .wp-env.json
               - bin/**
+            wp-graphql-smart-cache:
+              - .github/workflows/integration-tests-reusable.yml
+              - .github/workflows/integration-tests.yml
+              - plugins/wp-graphql-smart-cache/**/*.php
+              - plugins/wp-graphql-smart-cache/composer.json
+              - plugins/wp-graphql-smart-cache/composer.lock
+              - plugins/wp-graphql-smart-cache/package.json
+              - plugins/wp-graphql-smart-cache/package-lock.json
+              - plugins/wp-graphql-smart-cache/tests/**
+              - plugins/wp-graphql-smart-cache/codeception.dist.yml
+              - plugins/wp-graphql/**/*.php
+              - package.json
+              - package-lock.json
+              - .wp-env.json
+              - bin/**
             # Add additional plugins here:
             # wpgraphql-acf:
             #   - .github/workflows/integration-tests-reusable.yml
@@ -82,6 +98,7 @@ jobs:
       - name: Log detected changes
         run: |
           echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
+          echo "wp-graphql-smart-cache changed: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}"
 
   # ===========================================
   # TEST MATRIX
@@ -180,3 +197,95 @@ jobs:
       multisite: ${{ matrix.multisite }}
       coverage: ${{ matrix.coverage }}
       experimental: ${{ matrix.experimental || false }}
+
+  # ===========================================
+  # WP GraphQL Smart Cache
+  # ===========================================
+  # Tests the WP GraphQL Smart Cache plugin.
+  # Smart Cache depends on WPGraphQL, so wp-graphql changes trigger these tests.
+  # Uses a smaller matrix since coverage is collected from the core plugin.
+  # ===========================================
+
+  wp-graphql-smart-cache:
+    name: "Integration: ${{ matrix.name }}"
+    needs: detect-changes
+    if: needs.detect-changes.outputs.wp-graphql-smart-cache == 'true' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Coverage job: Latest WP/PHP
+          - name: "wp-graphql-smart-cache / WP 6.9 / PHP 8.4"
+            php: "8.4"
+            wp: "6.9"
+            theme: twentytwentyfive
+            multisite: false
+            coverage: true
+          # Boundary: Current stable
+          - name: "wp-graphql-smart-cache / WP 6.8 / PHP 8.3"
+            php: "8.3"
+            wp: "6.8"
+            theme: twentytwentyfive
+            multisite: false
+            coverage: false
+          # Boundary: Oldest supported (matches wp-graphql PHP 7.4 requirement)
+          - name: "wp-graphql-smart-cache / WP 6.1 / PHP 7.4"
+            php: "7.4"
+            wp: "6.1"
+            theme: twentytwentyone
+            multisite: false
+            coverage: false
+          # Experimental: WordPress trunk (allowed to fail)
+          - name: "wp-graphql-smart-cache / WP trunk / PHP 8.4"
+            php: "8.4"
+            wp: trunk
+            theme: twentytwentyfive
+            multisite: false
+            coverage: false
+            experimental: true
+    uses: ./.github/workflows/integration-tests-reusable.yml
+    secrets: inherit
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql-smart-cache
+      plugin_name: wp-graphql-smart-cache
+      wp: ${{ matrix.wp }}
+      php: ${{ matrix.php }}
+      theme: ${{ matrix.theme }}
+      multisite: ${{ matrix.multisite }}
+      coverage: ${{ matrix.coverage }}
+      experimental: ${{ matrix.experimental || false }}
+
+  # ===========================================
+  # FINAL STATUS CHECK
+  # ===========================================
+  # This job always runs and provides a consistent status check name
+  # for GitHub branch protection rules. It depends on all conditional
+  # test jobs and only fails if required jobs failed (not if they were skipped).
+  # ===========================================
+
+  status-check:
+    name: "Integration Tests"
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
+    if: always()  # Run even if previous jobs were skipped
+    steps:
+      - name: Check integration test results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          if [ "${{ needs.wp-graphql.result }}" == "failure" ]; then
+            echo "❌ wp-graphql integration tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-smart-cache integration tests failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql tests skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-smart-cache tests skipped (no changes detected)"
+          fi
+          echo "✅ All required integration tests passed"

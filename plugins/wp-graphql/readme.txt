@@ -27,7 +27,7 @@ WPGraphQL is a free, open-source WordPress plugin that provides an extendable Gr
 - **Flexible API**: Query posts, pages, custom post types, taxonomies, users, and more.
 - **Extendable Schema**: Easily add functionality with WPGraphQL’s API, enabling custom integrations.
 - **Compatible with Modern Frameworks**: Works seamlessly with [Next.js](https://vercel.com/guides/wordpress-with-vercel), [Astro](https://docs.astro.build/en/guides/cms/wordpress/), [SvelteKit](https://www.okupter.com/blog/headless-wordpress-graphql-sveltekit), and more.
-- **Optimized Performance**: Fetch exactly the data you need in a single query. Boost performance with [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql-smart-cache).
+- **Optimized Performance**: Fetch exactly the data you need in a single query. Boost performance with [WPGraphQL Smart Cache](https://github.com/wp-graphql/wp-graphql/tree/main/plugins/wp-graphql-smart-cache).
 
 WPGraphQL is becoming a [Canonical Plugin](https://wordpress.org/news/2024/10/wpgraphql/) on WordPress.org, ensuring long-term support and a growing community of users and contributors.
 
