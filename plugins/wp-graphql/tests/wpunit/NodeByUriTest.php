@@ -2578,4 +2578,111 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		wp_delete_post( $post_id, true );
 	}
+
+	/**
+	 * Test that REST API URIs return null
+	 *
+	 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
+	 */
+	public function testRestApiUriReturnsNull(): void {
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				id
+			}
+		}
+		';
+
+		// Get the REST API prefix (default is 'wp-json', but can be customized)
+		$rest_prefix = rest_get_url_prefix();
+
+		// Test with an existing REST API endpoint
+		$uri = '/' . $rest_prefix . '/wp/v2/users';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'], 'REST API endpoint should return null' );
+
+		// Test with a non-existent REST API endpoint
+		$uri = '/' . $rest_prefix . '/something-something';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'], 'Non-existent REST API endpoint should return null' );
+
+		// Test with REST API prefix only
+		$uri = '/' . $rest_prefix;
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'errors', $actual );
+		$this->assertNull( $actual['data']['nodeByUri'], 'REST API prefix only should return null' );
+	}
+
+	/**
+	 * Test that static file paths (images, uploads) return null
+	 *
+	 * Tests that direct file paths in the uploads directory are not resolved as nodes.
+	 * Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes.
+	 */
+	public function testStaticFilePathsReturnNull(): void {
+		$query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				id
+			}
+		}
+		';
+
+		$upload_dir  = wp_upload_dir();
+		$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+
+		// Test various image/file paths in uploads directory
+		$file_paths = [
+			$upload_path . '/2024/01/image.jpg',
+			$upload_path . '/2024/01/image.png',
+			$upload_path . '/2024/01/document.pdf',
+			$upload_path . '/some-file.jpg',
+			$upload_path . '/folder/subfolder/image.gif',
+		];
+
+		foreach ( $file_paths as $uri ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'uri' => $uri,
+					],
+				]
+			);
+
+			$this->assertArrayNotHasKey( 'errors', $actual );
+			$this->assertNull( $actual['data']['nodeByUri'], "Static file path '{$uri}' should return null" );
+		}
+	}
 }

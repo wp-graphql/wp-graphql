@@ -121,6 +121,39 @@ class NodeResolver {
 		}
 
 		/**
+		 * WordPress system endpoints and static files are not nodes, so they should return null.
+		 *
+		 * Check for URLs that should not be resolved as nodes:
+		 * - REST API endpoints (default is 'wp-json', but can be customized via the 'rest_url_prefix' filter)
+		 *   These actively process requests and return JSON responses, which was causing the bug.
+		 * - Static file paths (images, uploads, etc.) that are not nodes
+		 *
+		 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
+		 */
+
+		// Check for REST API endpoints
+		$rest_prefix = rest_get_url_prefix();
+		if ( ! empty( $rest_prefix ) ) {
+			$rest_prefix_path = '/' . trim( $rest_prefix, '/' );
+			// Check if URI starts with the REST API prefix
+			if ( strpos( $uri, $rest_prefix_path ) === 0 ) {
+				return null;
+			}
+		}
+
+		// Check for static file paths in the uploads directory (images, media files, etc.)
+		// These are file paths, not permalinks, so they should not be resolved as nodes
+		// Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes
+		$upload_dir = wp_upload_dir();
+		if ( ! empty( $upload_dir['baseurl'] ) ) {
+			$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+			// Check if URI starts with the uploads directory path
+			if ( strpos( $uri, $upload_path ) === 0 ) {
+				return null;
+			}
+		}
+
+		/**
 		 * Comments are embedded as a #comment-{$id} in the post's content.
 		 *
 		 * If the URI is for a comment, we can resolve it now.
