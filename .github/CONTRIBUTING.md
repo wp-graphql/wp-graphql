@@ -23,6 +23,7 @@ When contributing please ensure you follow the guidelines below so that we can k
   * Ensure you stick to the [WordPress Coding Standards](https://codex.wordpress.org/WordPress_Coding_Standards)
 * When committing, reference your issue (if present) and include a note about the fix
 * If possible, and if applicable, please also add/update unit tests for your changes
+  * **Code Coverage**: PRs must maintain or increase code coverage (both project-wide and for new code). While we encourage contributors to include tests, maintainers can help fulfill testing requirements if needed.
 * Push the changes to your fork and submit a pull request to the `main` branch of this repository
 
 ## Code Documentation
