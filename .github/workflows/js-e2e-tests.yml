@@ -52,7 +52,7 @@ jobs:
       is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check if release-please PR
         id: check-release-pr
@@ -66,7 +66,7 @@ jobs:
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files_yaml: |
             wp-graphql:

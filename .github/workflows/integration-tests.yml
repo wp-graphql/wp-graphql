@@ -53,11 +53,11 @@ jobs:
       # wpgraphql-acf: ${{ steps.filter.outputs.wpgraphql-acf_any_changed }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Detect changed files
         id: filter
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files_yaml: |
             wp-graphql:
