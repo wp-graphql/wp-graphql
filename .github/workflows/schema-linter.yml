@@ -291,3 +291,26 @@ jobs:
             echo "::notice::Schema comparison was skipped because the previous release (${{ steps.get-latest-tag.outputs.tag }}) does not have a schema.graphql artifact."
             echo "This is expected for the first release after enabling schema artifact uploads."
           fi
+
+  # ===========================================
+  # FINAL STATUS CHECK
+  # ===========================================
+  # This job always runs and provides a consistent status check name
+  # for GitHub branch protection rules. Since schema-linter uses a matrix
+  # strategy, all jobs should run, but this ensures a consistent status check.
+  # ===========================================
+
+  status-check:
+    name: "Schema Linter"
+    runs-on: ubuntu-latest
+    needs: [lint-schema]
+    if: always()  # Run even if previous job failed
+    steps:
+      - name: Check schema lint results
+        run: |
+          # Check if schema linting failed
+          if [ "${{ needs.lint-schema.result }}" == "failure" ]; then
+            echo "❌ Schema linting failed"
+            exit 1
+          fi
+          echo "✅ Schema linting passed"

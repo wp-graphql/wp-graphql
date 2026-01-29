@@ -128,3 +128,37 @@ jobs:
     with:
       plugin_path: plugins/wp-graphql-smart-cache
       plugin_name: wp-graphql-smart-cache
+
+  # ===========================================
+  # FINAL STATUS CHECK
+  # ===========================================
+  # This job always runs and provides a consistent status check name
+  # for GitHub branch protection rules. It depends on all conditional
+  # lint jobs and only fails if required jobs failed (not if they were skipped).
+  # ===========================================
+
+  status-check:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
+    if: always()  # Run even if previous jobs were skipped
+    steps:
+      - name: Check lint results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          if [ "${{ needs.wp-graphql.result }}" == "failure" ]; then
+            echo "❌ wp-graphql linting failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-smart-cache linting failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql linting skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-smart-cache linting skipped (no changes detected)"
+          fi
+          echo "✅ All required linting passed"

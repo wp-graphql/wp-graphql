@@ -196,3 +196,39 @@ jobs:
       needs_build: false
       wp: ${{ matrix.wp }}
       php: ${{ matrix.php }}
+
+  # ===========================================
+  # FINAL STATUS CHECK
+  # ===========================================
+  # This job always runs and provides a consistent status check name
+  # for GitHub branch protection rules. It depends on all conditional
+  # smoke test jobs and only fails if required jobs failed (not if they were skipped).
+  # Note: Matrix jobs create multiple status checks, so we check the parent job result.
+  # ===========================================
+
+  status-check:
+    name: "Smoke Test"
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wp-graphql, wp-graphql-smart-cache]
+    if: always()  # Run even if previous jobs were skipped
+    steps:
+      - name: Check smoke test results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          # Matrix jobs: if any matrix job fails, the parent job result is "failure"
+          if [ "${{ needs.wp-graphql.result }}" == "failure" ]; then
+            echo "❌ wp-graphql smoke tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "failure" ]; then
+            echo "❌ wp-graphql-smart-cache smoke tests failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql smoke tests skipped (no changes detected)"
+          fi
+          if [ "${{ needs.wp-graphql-smart-cache.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql-smart-cache smoke tests skipped (no changes detected)"
+          fi
+          echo "✅ All required smoke tests passed"
