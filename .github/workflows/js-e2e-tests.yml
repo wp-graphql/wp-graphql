@@ -1,0 +1,171 @@
+name: JS E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths:
+      - ".github/workflows/js-e2e-tests-reusable.yml"
+      - ".github/workflows/js-e2e-tests.yml"
+      - "plugins/**/packages/**"
+      - "plugins/**/src/Admin/**"
+      - "plugins/**/tests/e2e/**"
+      - "plugins/**/package.json"
+      - "plugins/**/package-lock.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".wp-env.json"
+      - "bin/**"
+      - "!plugins/**/docs/**"
+  workflow_dispatch:
+
+# Cancel previous workflow run groups that have not completed.
+concurrency:
+  # Group workflow runs by workflow name, along with the head branch ref of the pull request
+  # or otherwise the branch or tag ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================
+  # CHANGE DETECTION
+  # ===========================================
+  # Detects which plugins have JavaScript changes to determine which e2e test suites to run.
+  # Each plugin job depends on this and only runs if its files changed.
+  # Release-please PRs (branches starting with "release-please--") will run all tests.
+  # ===========================================
+
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      wp-graphql: ${{ steps.filter.outputs.wp-graphql_any_changed }}
+      # Add outputs for additional plugins here:
+      # wp-graphql-smart-cache: ${{ steps.filter.outputs.wp-graphql-smart-cache_any_changed }}
+      is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check if release-please PR
+        id: check-release-pr
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.head_ref }}" =~ ^release-please-- ]]; then
+            echo "is-release-pr=true" >> $GITHUB_OUTPUT
+            echo "🔔 Detected Release PR - will run e2e tests for all plugins with e2e tests"
+          else
+            echo "is-release-pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed files
+        id: filter
+        uses: tj-actions/changed-files@v47
+        with:
+          files_yaml: |
+            wp-graphql:
+              - .github/workflows/js-e2e-tests-reusable.yml
+              - .github/workflows/js-e2e-tests.yml
+              - plugins/wp-graphql/packages/**
+              - plugins/wp-graphql/src/Admin/**
+              - plugins/wp-graphql/tests/e2e/**
+              - plugins/wp-graphql/package.json
+              - plugins/wp-graphql/package-lock.json
+              - package.json
+              - package-lock.json
+              - .wp-env.json
+              - bin/**
+            # Add additional plugins here:
+            # WPGraphQL Smart Cache doesn't currently ship any
+            # JS so it doesn't have JS tests, but this is an example
+            # of how to add it if it did.
+            # wp-graphql-smart-cache:
+            #   - .github/workflows/js-e2e-tests-reusable.yml
+            #   - .github/workflows/js-e2e-tests.yml
+            #   - plugins/wp-graphql-smart-cache/packages/**
+            #   - plugins/wp-graphql-smart-cache/src/Admin/**
+            #   - plugins/wp-graphql-smart-cache/tests/e2e/**
+            #   - plugins/wp-graphql-smart-cache/package.json
+            #   - plugins/wp-graphql-smart-cache/package-lock.json
+            #   - plugins/wp-graphql/**/packages/**
+            #   - plugins/wp-graphql/**/src/Admin/**
+            #   - package.json
+            #   - package-lock.json
+            #   - .wp-env.json
+            #   - bin/**
+
+      - name: Log detected changes
+        run: |
+          echo "wp-graphql changed: ${{ steps.filter.outputs.wp-graphql_any_changed }}"
+          echo "is-release-pr: ${{ steps.check-release-pr.outputs.is-release-pr }}"
+
+  # ===========================================
+  # WP GRAPHQL
+  # ===========================================
+  # Tests the WP GraphQL plugin's JavaScript e2e tests.
+  # Includes tests for GraphiQL IDE, settings pages, and extensions pages.
+  # ===========================================
+
+  wp-graphql:
+    name: "E2E: ${{ matrix.name }}"
+    needs: detect-changes
+    # Run if: plugin has changes OR it's a release-please PR OR manual dispatch
+    if: |
+      (needs.detect-changes.outputs.wp-graphql == 'true' || 
+       needs.detect-changes.outputs.is-release-pr == 'true' || 
+       github.event_name == 'workflow_dispatch')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "wp-graphql"
+    uses: ./.github/workflows/js-e2e-tests-reusable.yml
+    secrets: inherit
+    with:
+      name: ${{ matrix.name }}
+      plugin_path: plugins/wp-graphql
+      plugin_name: wp-graphql
+
+  # ===========================================
+  # FINAL STATUS CHECK
+  # ===========================================
+  # This job always runs and provides a consistent status check name
+  # for GitHub branch protection rules. It depends on all conditional
+  # e2e test jobs and only fails if required jobs failed (not if they were skipped).
+  # ===========================================
+
+  status-check:
+    name: "JS E2E Tests"
+    runs-on: ubuntu-latest
+    needs: [detect-changes, wp-graphql]
+    if: always()  # Run even if previous jobs were skipped
+    steps:
+      - name: Check JS E2E test results
+        run: |
+          # Check if any required jobs failed (excluding skipped)
+          if [ "${{ needs.wp-graphql.result }}" == "failure" ]; then
+            echo "❌ wp-graphql JS E2E tests failed"
+            exit 1
+          fi
+          # Allow skipped jobs (expected when files don't change)
+          if [ "${{ needs.wp-graphql.result }}" == "skipped" ]; then
+            echo "ℹ️ wp-graphql JS E2E tests skipped (no changes detected)"
+          fi
+          echo "✅ All required JS E2E tests passed"
+
+  # ===========================================
+  # ADDITIONAL PLUGINS
+  # ===========================================
+  # To add e2e tests for another plugin:
+  # 1. Add plugin to change detection outputs and files_yaml above
+  # 2. Add a job below following the wp-graphql pattern
+  # 3. Ensure plugin has test:e2e script in package.json
+  # 4. Ensure plugin has tests/e2e/ directory with Playwright config
+  # 5. Add the plugin job to status-check needs array above
+  # ===========================================

@@ -13,7 +13,7 @@ The goal is to ensure that extensions are well-maintained, properly supported, a
 
 To submit a WPGraphQL extension for review:
 
-1. **Fork** the [WPGraphQL GitHub repository](https://github.com/wp-graphql/wp-graphql).
+1. **Fork** the [WPGraphQL monorepo](https://github.com/wp-graphql/wp-graphql). The WPGraphQL plugin is located at `plugins/wp-graphql/` in the repository.
 2. **Create a new branch** for your extension submission.
 3. **Modify** the `./src/Admin/Extensions/Registry.php` file: Add your plugin's details to the array returned by the `Registry::get_extensions()` method.
 4. **Validate** your change by ensuring `npm run lint:php` and `npm run lint:php:stan` pass.
