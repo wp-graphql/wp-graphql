@@ -1,5 +1,5 @@
 {
-  "description": "WPGraphQL is a WordPress plugin that adds a /graphql endpoint to the WordPress site and defines a GraphQL Schema based on internal WordPress registries.",
+  "description": "WPGraphQL is a monorepo containing the WPGraphQL ecosystem of WordPress plugins. The core WPGraphQL plugin adds a /graphql endpoint to WordPress sites and defines a GraphQL Schema based on internal WordPress registries. The repository uses npm workspaces and Turborepo for managing multiple plugins.",
   "file_patterns": ["**/*"],
   "rules": {
     "frameworks_and_technologies": {
@@ -11,6 +11,22 @@
       "api": "graphql"
     },
     "key_concepts": [
+      {
+        "name": "Monorepo",
+        "description": "Single repository containing multiple related WordPress plugins. All plugins are in the plugins/ directory, each as a self-contained WordPress plugin."
+      },
+      {
+        "name": "npm Workspaces",
+        "description": "Package management system that manages dependencies across all plugins in the monorepo. Workspaces are defined in the root package.json as plugins/*"
+      },
+      {
+        "name": "Turborepo",
+        "description": "Build orchestration tool that runs tasks across workspaces in parallel, with caching and dependency awareness"
+      },
+      {
+        "name": "Plugin Ecosystem",
+        "description": "Related plugins that extend WPGraphQL, including WPGraphQL Smart Cache, and future plugins like WPGraphQL IDE and WPGraphQL for ACF"
+      },
       {
         "name": "GraphQL Schema",
         "description": "The structure that defines the types, queries, and mutations available in the WPGraphQL API"
@@ -30,72 +46,88 @@
       {
         "name": "GraphiQL IDE",
         "description": "An interactive development environment for testing GraphQL queries"
+      },
+      {
+        "name": "Authentication",
+        "description": "WPGraphQL does not include built-in authentication. Authentication is handled via extension plugins (e.g., WPGraphQL JWT Authentication, WPGraphQL Headless Login). Application Passwords (WordPress 5.6+) are supported and may be enhanced in future releases."
+      },
+      {
+        "name": "Multisite Support",
+        "description": "WPGraphQL works with WordPress Multisite installations. Each site in the network has its own GraphQL endpoint. Network-level endpoints are not currently supported but may be considered in the future."
       }
     ],
     "file_patterns": [
       {
-        "pattern": "src/Admin/*.php",
-        "description": "WordPress admin interface implementations"
+        "pattern": "plugins/wp-graphql/src/Admin/*.php",
+        "description": "WordPress admin interface implementations for core WPGraphQL plugin"
       },
       {
-        "pattern": "src/Connection/*.php",
+        "pattern": "plugins/wp-graphql/src/Connection/*.php",
         "description": "Classes handling GraphQL connections and pagination"
       },
       {
-        "pattern": "src/Data/*.php",
+        "pattern": "plugins/wp-graphql/src/Data/*.php",
         "description": "Data manipulation and transformation classes"
       },
       {
-        "pattern": "src/Model/*.php",
+        "pattern": "plugins/wp-graphql/src/Model/*.php",
         "description": "Model classes that handle data access and authorization"
       },
       {
-        "pattern": "src/Mutation/*.php",
+        "pattern": "plugins/wp-graphql/src/Mutation/*.php",
         "description": "Classes defining GraphQL mutations"
       },
       {
-        "pattern": "src/Registry/*.php",
+        "pattern": "plugins/wp-graphql/src/Registry/*.php",
         "description": "Classes for registering types and fields"
       },
       {
-        "pattern": "src/Server/*.php",
+        "pattern": "plugins/wp-graphql/src/Server/*.php",
         "description": "Validation Rules and other configuration for the GraphQL Server"
       },
       {
-        "pattern": "src/Type/*.php",
+        "pattern": "plugins/wp-graphql/src/Type/*.php",
         "description": "GraphQL type definitions"
       },
       {
-        "pattern": "src/Utils/*.php",
+        "pattern": "plugins/wp-graphql/src/Utils/*.php",
         "description": "Utility classes and helper functions"
       },
       {
-        "pattern": "tests/**/*.php",
-        "description": "PHPUnit test files"
+        "pattern": "plugins/*/src/**/*.php",
+        "description": "PHP source code for all plugins in the monorepo"
       },
       {
-        "pattern": "access-functions.php",
-        "description": "Global access functions"
+        "pattern": "plugins/wp-graphql/tests/**/*.php",
+        "description": "PHPUnit test files for core WPGraphQL plugin"
       },
       {
-        "pattern": "docs/*.md",
-        "description": "User documentation for the plugin"
+        "pattern": "plugins/*/tests/**/*.php",
+        "description": "Test files for all plugins in the monorepo"
       },
       {
-        "pattern": "cli/*.php",
-        "description": "WP-CLI commands for interacting with WPGraphQL using WP-CLI"
+        "pattern": "plugins/wp-graphql/access-functions.php",
+        "description": "Global access functions for WPGraphQL"
       },
       {
-        "pattern": "phpstan/*.php",
-        "description": "Stubs for use with phpstan for static analysis"
+        "pattern": "plugins/wp-graphql/docs/*.md",
+        "description": "User documentation for the core plugin"
       },
       {
-        "pattern": "packages/**/*.js",
+        "pattern": "plugins/wp-graphql/packages/**/*.js",
         "description": "JavaScript packages that make up the GraphiQL IDE"
       },
       {
-        "pattern": ".wordpress-org/",
-        "description": "Files used for building and deploying the plugin to WordPress.org"
+        "pattern": "plugins/wp-graphql-smart-cache/**/*.php",
+        "description": "WPGraphQL Smart Cache plugin source code"
+      },
+      {
+        "pattern": "docs/**/*.md",
+        "description": "Shared contributor documentation"
+      },
+      {
+        "pattern": "bin/**/*.sh",
+        "description": "Shared scripts for development and CI"
       }
     ],
     "dependencies": [
@@ -139,82 +171,94 @@
     },
     "key_directories": [
       {
-        "directory": "src/",
-        "description": "Core plugin source code"
+        "directory": "plugins/",
+        "description": "Root directory containing all WordPress plugins in the monorepo. Each subdirectory is a self-contained plugin."
       },
       {
-        "directory": "includes/",
-        "description": "Plugin includes and utilities"
+        "directory": "plugins/wp-graphql/",
+        "description": "Core WPGraphQL plugin directory"
       },
       {
-        "directory": "tests/",
-        "description": "Test files"
+        "directory": "plugins/wp-graphql/src/",
+        "description": "Core plugin PHP source code"
+      },
+      {
+        "directory": "plugins/wp-graphql/tests/",
+        "description": "Test files for core WPGraphQL plugin"
+      },
+      {
+        "directory": "plugins/wp-graphql-smart-cache/",
+        "description": "WPGraphQL Smart Cache extension plugin"
+      },
+      {
+        "directory": "plugins/*/src/",
+        "description": "PHP source code for any plugin in the monorepo"
       },
       {
         "directory": "docs/",
-        "description": "Documentation"
-      },
-      {
-        "directory": "languages/",
-        "description": "Translation files"
-      },
-      {
-        "directory": ".github/",
-        "description": "Files used for interacting with GitHub"
-      },
-      {
-        "directory": ".wordpress-org/",
-        "description": "Files used for building and deploying the plugin to WordPress.org"
-      },
-      {
-        "directory": "build/",
-        "description": "Contains the built assets for the GraphiQL IDE"
+        "description": "Shared contributor documentation (DEVELOPMENT.md, CONTRIBUTING.md, TESTING.md, ARCHITECTURE.md)"
       },
       {
         "directory": "bin/",
-        "description": "Contains scripts used in CI"
+        "description": "Shared scripts for development and CI"
       },
       {
-        "directory": "img",
-        "description": "Contains images used in documentation"
+        "directory": ".github/",
+        "description": "GitHub workflows, templates, and configuration"
       },
       {
-        "directory": "phpstan/",
-        "description": "PHPStan configuration and stubs"
+        "directory": "plugins/wp-graphql/docs/",
+        "description": "User documentation for the core plugin (published to wpgraphql.com)"
+      },
+      {
+        "directory": "plugins/wp-graphql/build/",
+        "description": "Built assets for the GraphiQL IDE"
       }
     ],
     "important_files": [
       {
-        "file": "wp-graphql.php",
-        "description": "Main plugin file"
+        "file": "package.json",
+        "description": "Root workspace configuration for npm workspaces and Turborepo"
       },
       {
-        "file": "composer.json",
-        "description": "Dependency management"
-      },
-      {
-        "file": ".phpcs.xml.dist",
-        "description": "PHP CodeSniffer configuration"
-      },
-      {
-        "file": "phpunit.xml.dist",
-        "description": "PHPUnit configuration"
-      },
-      {
-        "file": "access-functions.php",
-        "description": "Global access functions"
-      },
-      {
-        "file": "phpstan.neon.dist",
-        "description": "PHPStan configuration"
+        "file": "turbo.json",
+        "description": "Turborepo build orchestration configuration"
       },
       {
         "file": ".wp-env.json",
-        "description": "@wordpress/env (Docker) configuration for local development and testing"
+        "description": "@wordpress/env (Docker) configuration for local development and testing. Shared across all plugins."
       },
       {
-        "file": ".wordpress-org/blueprints/blueprint.json",
-        "description": "Blueprint for running WPGraphQL in WordPress Playground, a WASM environment that runs WordPress fully in the browser"
+        "file": "plugins/wp-graphql/wp-graphql.php",
+        "description": "Main plugin file for core WPGraphQL plugin"
+      },
+      {
+        "file": "plugins/wp-graphql/composer.json",
+        "description": "PHP dependency management for core plugin"
+      },
+      {
+        "file": "plugins/wp-graphql/package.json",
+        "description": "JavaScript dependency management for core plugin"
+      },
+      {
+        "file": "plugins/wp-graphql/access-functions.php",
+        "description": "Global access functions for WPGraphQL"
+      },
+      {
+        "file": "plugins/wp-graphql-smart-cache/wp-graphql-smart-cache.php",
+        "description": "Main plugin file for WPGraphQL Smart Cache"
+      },
+      {
+        "file": "docs/DEVELOPMENT.md",
+        "description": "Development setup guide for the monorepo"
+      },
+      {
+        "file": "docs/CONTRIBUTING.md",
+        "description": "Contributing guide with conventional commits and PR workflow"
+      },
+      {
+        "file": "docs/ARCHITECTURE.md",
+        "description": "Architecture overview of the monorepo structure"
       }
     ],
     "debug_tools": [
@@ -230,6 +274,90 @@
         "name": "Query Tracing",
         "description": "Shows trace data for resolvers (i.e. timing for execution). Enabled via WPGraphQL Settings and available in GraphiQL when debug mode is enabled"
       }
-    ]
+    ],
+    "development_workflows": {
+      "conventional_commits": {
+        "description": "PR titles must follow Conventional Commits format. PRs are squash merged, so the PR title becomes the commit message.",
+        "formats": {
+          "feat:": "New feature (minor version bump)",
+          "fix:": "Bug fix (patch version bump)",
+          "perf:": "Performance improvement (patch version bump)",
+          "docs:": "Documentation only (no version bump)",
+          "refactor:": "Code change without feature/fix (no version bump)",
+          "test:": "Adding/fixing tests (no version bump)",
+          "chore:": "Maintenance tasks (no version bump)",
+          "ci:": "CI/CD changes (no version bump)",
+          "feat!:": "Breaking change feature (major version bump)",
+          "fix!:": "Breaking change fix (major version bump)",
+          "perf!:": "Breaking change performance (major version bump)"
+        },
+        "note": "The ! suffix can only be used with feat, fix, or perf prefixes. release-please uses these to determine version bumps."
+      },
+      "pr_workflow": {
+        "description": "PRs are squash merged to main. The PR title must follow conventional commits format as it becomes the commit message.",
+        "process": [
+          "1. Create feature branch from main",
+          "2. Make changes and commit (individual commits don't need conventional format)",
+          "3. Open PR with conventional commit title",
+          "4. PR is validated by CI",
+          "5. PR is squash merged to main",
+          "6. release-please creates/updates Release PR automatically"
+        ]
+      },
+      "testing_commands": {
+        "run_all_tests": "npm run -w @wpgraphql/wp-graphql test:codecept:wpunit",
+        "run_specific_test": "npm run -w @wpgraphql/wp-graphql test:codecept:wpunit -- tests/wpunit/PostObjectQueriesTest.php",
+        "run_acceptance_tests": "npm run -w @wpgraphql/wp-graphql test:codecept:acceptance",
+        "run_functional_tests": "npm run -w @wpgraphql/wp-graphql test:codecept:functional",
+        "run_e2e_tests": "npm run -w @wpgraphql/wp-graphql test:e2e",
+        "run_with_coverage": "PCOV_ENABLED=1 npm run wp-env start && npm run -w @wpgraphql/wp-graphql test:codecept:coverage",
+        "test_environment": "Test site runs at localhost:8889 via wp-env, development site at localhost:8888"
+      },
+      "build_commands": {
+        "build_all": "npm run build (uses Turborepo to build all plugins in parallel)",
+        "build_specific_plugin": "npm run -w @wpgraphql/wp-graphql build",
+        "turborepo_cache": "Turborepo caches build outputs, skipping unchanged work"
+      },
+      "environment_commands": {
+        "start": "npm run wp-env start (starts development site at localhost:8888 and test site at localhost:8889)",
+        "start_with_xdebug": "npm run wp-env start -- --xdebug",
+        "stop": "npm run wp-env stop",
+        "destroy": "npm run wp-env destroy (removes all data)",
+        "wp_cli": "npm run wp-env run cli -- wp <command>",
+        "test_wp_cli": "npm run wp-env run tests-cli -- wp <command>"
+      },
+      "dependency_management": {
+        "install_all": "npm install (installs dependencies for all workspaces)",
+        "install_plugin_dep": "npm install <package> -w @wpgraphql/wp-graphql",
+        "composer_install": "Composer dependencies are installed automatically in Docker container when wp-env starts"
+      }
+    },
+    "common_tasks": {
+      "running_tests": {
+        "description": "Run tests for a specific plugin using npm workspaces",
+        "example": "npm run -w @wpgraphql/wp-graphql test:codecept:wpunit"
+      },
+      "building_assets": {
+        "description": "Build assets using Turborepo for parallel builds and caching",
+        "example": "npm run build (builds all plugins) or npm run -w @wpgraphql/wp-graphql build (specific plugin)"
+      },
+      "adding_dependencies": {
+        "description": "Add dependencies to a specific plugin workspace",
+        "example": "npm install <package> -w @wpgraphql/wp-graphql"
+      },
+      "creating_new_plugin": {
+        "description": "When adding a new plugin to the monorepo, create it in plugins/ directory with standard WordPress plugin structure",
+        "structure": "plugins/your-plugin-name/your-plugin-name.php, src/, tests/, composer.json, package.json"
+      },
+      "local_development": {
+        "description": "Start local WordPress environment with all plugins",
+        "steps": [
+          "1. npm install (install all workspace dependencies)",
+          "2. npm run wp-env start (start Docker environment)",
+          "3. Access development site at localhost:8888",
+          "4. Access test site at localhost:8889"
+        ]
+      }
+    }
   }
 }
