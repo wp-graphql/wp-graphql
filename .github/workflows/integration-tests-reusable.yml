@@ -77,7 +77,7 @@ jobs:
           echo "PHP_FPM_GID=$(id -g)" >> "$GITHUB_ENV"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           show-progress: ${{ runner.debug == '1' && 'true' || 'false' }}
           persist-credentials: false
@@ -95,7 +95,7 @@ jobs:
           working-directory: ${{ inputs.plugin_path }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           cache: "npm"
           node-version-file: ".nvmrc"
@@ -154,11 +154,11 @@ jobs:
           MULTISITE: ${{ inputs.multisite && 'true' || '' }}
           TEST_THEME: ${{ inputs.theme }}
         run: |
-          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && '--coverage --coverage-xml' || '' }}'
+          npm run wp-env -- run tests-cli --env-cwd=wp-content/plugins/${{ inputs.plugin_name }}/ -- bash -c 'export TEST_DB_HOST=${WORDPRESS_DB_HOST:-tests-mysql} TEST_DB_NAME=${WORDPRESS_DB_NAME:-tests-wordpress} TEST_DB_USER=${WORDPRESS_DB_USER:-root} TEST_DB_PASSWORD=${WORDPRESS_DB_PASSWORD:-password} TEST_WP_TABLE_PREFIX=${TEST_WP_TABLE_PREFIX:-wp_} TEST_WP_DOMAIN=${TEST_WP_DOMAIN:-localhost} TEST_ADMIN_EMAIL=${TEST_ADMIN_EMAIL:-admin@example.org} TEST_WP_ROOT_FOLDER=${TEST_WP_ROOT_FOLDER:-/var/www/html} MULTISITE=${{ inputs.multisite && 'true' || 'false' }} TEST_THEME=${{ inputs.theme }} && vendor/bin/codecept run wpunit ${{ secrets.ACTIONS_STEP_DEBUG && '--debug' || '' }} ${{ inputs.coverage && '--coverage --coverage-xml' || '' }}'
 
       - name: Upload test failure artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.plugin_name }}-test-failures-php${{ inputs.php }}-wp${{ inputs.wp }}${{ inputs.multisite && '-multisite' || '' }}
           path: ${{ inputs.plugin_path }}/tests/_output/*.fail.html
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload HTML coverage report as artifact
         if: ${{ inputs.coverage }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.plugin_name }}-code-coverage-${{ inputs.php }}-${{ inputs.wp }}-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
           path: ${{ inputs.plugin_path }}/tests/_output/html

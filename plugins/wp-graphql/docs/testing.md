@@ -5,7 +5,7 @@ title: "Testing"
 
 This document will be most useful for developers that want to contribute to WPGraphQL and want to run tests locally.
 
-In order to run tests, you must [clone the plugin from GitHub](https://github.com/wp-graphql/wp-graphql). Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
+In order to run tests, you must [clone the monorepo from GitHub](https://github.com/wp-graphql/wp-graphql). The WPGraphQL plugin is located at `plugins/wp-graphql/` in the repository. Downloading from Composer or Packagist will not include the dev dependencies needed to run tests.
 
 > **Note**: WPGraphQL is now a monorepo. For detailed testing instructions, see the [Testing Guide](https://github.com/wp-graphql/wp-graphql/blob/main/docs/TESTING.md) in the repository root.
 
