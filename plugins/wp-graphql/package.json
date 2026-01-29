@@ -37,7 +37,7 @@
 		"zip": "composer run-script build-plugin"
 	},
 	"dependencies": {
-		"@ant-design/icons": "5.6.1",
+		"@ant-design/icons": "6.1.0",
 		"@apollo/client": "3.13.9",
 		"@wordpress/api-fetch": "^7.37.0",
 		"@wordpress/components": "^30.9.0",
