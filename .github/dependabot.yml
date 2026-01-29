@@ -51,9 +51,6 @@ updates:
     groups:
       npm-plugin-minor-patch:
         update-types: [minor, patch]
-      npm-plugin-dev-major:
-        dependency-type: 'development'
-        update-types: [major]
 
   # NPM: Root/tooling dependencies - 1x weekly for minor/patch, 1x monthly for major.
   # Root/tooling dependencies use 'chore' prefix (no releases triggered).
