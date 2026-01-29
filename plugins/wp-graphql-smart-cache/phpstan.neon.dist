@@ -1,0 +1,29 @@
+parameters:
+    level: 7
+    inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
+    stubFiles:
+        # Simulate added properties
+        - phpstan/class-wp-post-type.stub
+        - phpstan/class-wp-taxonomy.stub
+        - phpstan/class-wp-dependency.stub
+        - phpstan/class-wp-error.stub
+        - phpstan/appsero.stub
+    bootstrapFiles:
+        - phpstan/constants.php
+        - vendor/wp-graphql/wp-graphql/wp-graphql.php
+        - wp-graphql-smart-cache.php
+        # - access-functions.php
+        # - activation.php
+        # - deactivation.php
+    paths:
+        - wp-graphql-smart-cache.php
+        # - access-functions.php
+        # - activation.php
+        # - deactivation.php
+        - src/
+    excludePaths:
+      analyseAndScan:
+        - */node_modules/*
+        - */vendor/*
+    ignoreErrors:
