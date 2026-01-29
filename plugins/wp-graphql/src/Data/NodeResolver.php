@@ -131,25 +131,45 @@ class NodeResolver {
 		 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
 		 */
 
-		// Check for REST API endpoints
-		$rest_prefix = rest_get_url_prefix();
-		if ( ! empty( $rest_prefix ) ) {
-			$rest_prefix_path = '/' . trim( $rest_prefix, '/' );
-			// Check if URI starts with the REST API prefix
-			if ( strpos( $uri, $rest_prefix_path ) === 0 ) {
-				return null;
+		// Normalize the URI to a local path (extract path from absolute URLs, strip home path for subdirectory installs)
+		$normalized_uri = $this->normalize_uri_for_path_check( $uri );
+		if ( null === $normalized_uri ) {
+			// If normalization fails (e.g., external URL), let parse_request handle it
+			// Continue with the rest of the resolution logic
+		} else {
+			// Check for REST API endpoints
+			$rest_prefix = rest_get_url_prefix();
+			if ( ! empty( $rest_prefix ) ) {
+				$rest_prefix_path = '/' . trim( $rest_prefix, '/' );
+				// Check if normalized URI starts with the REST API prefix
+				// Ensure exact match or followed by '/' to avoid false positives like /wp-json-foo
+				if ( $normalized_uri === $rest_prefix_path || strpos( $normalized_uri, $rest_prefix_path . '/' ) === 0 ) {
+					return null;
+				}
 			}
-		}
 
-		// Check for static file paths in the uploads directory (images, media files, etc.)
-		// These are file paths, not permalinks, so they should not be resolved as nodes
-		// Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes
-		$upload_dir = wp_upload_dir();
-		if ( ! empty( $upload_dir['baseurl'] ) ) {
-			$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
-			// Check if URI starts with the uploads directory path
-			if ( strpos( $uri, $upload_path ) === 0 ) {
-				return null;
+			// Check for static file paths in the uploads directory (images, media files, etc.)
+			// These are file paths, not permalinks, so they should not be resolved as nodes
+			// Note: MediaItem nodes have their own permalinks, but the direct file paths are not nodes
+			$upload_dir = wp_upload_dir();
+			if ( ! empty( $upload_dir['baseurl'] ) ) {
+				$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
+				$upload_path = trim( $upload_path, '/' );
+				// Normalize upload path by stripping home path if needed
+				$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+				if ( is_string( $home_path ) && '' !== $home_path ) {
+					$home_path = trim( $home_path, '/' );
+					if ( ! empty( $home_path ) && strpos( $upload_path, $home_path ) === 0 ) {
+						$upload_path = substr( $upload_path, strlen( $home_path ) );
+						$upload_path = trim( $upload_path, '/' );
+					}
+				}
+				$upload_path = '/' . $upload_path;
+				// Check if normalized URI starts with the uploads directory path
+				// Ensure exact match or followed by '/' to avoid false positives like /wp-content/uploads-foo
+				if ( $normalized_uri === $upload_path || strpos( $normalized_uri, $upload_path . '/' ) === 0 ) {
+					return null;
+				}
 			}
 		}
 
@@ -695,5 +715,69 @@ class NodeResolver {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Normalizes a URI to a local path for path-based checks.
+	 *
+	 * Extracts the path from absolute URLs and strips the home path for subdirectory installs.
+	 * This ensures that checks for REST API endpoints and uploads paths work correctly
+	 * regardless of whether the URI is absolute or relative, and regardless of subdirectory installs.
+	 *
+	 * @param string $uri The URI to normalize.
+	 * @return string|null The normalized path, or null if the URI is external or cannot be normalized.
+	 */
+	protected function normalize_uri_for_path_check( string $uri ): ?string {
+		// Parse the URI to extract the path
+		$parsed_url = wp_parse_url( $uri );
+
+		if ( false === $parsed_url ) {
+			return null;
+		}
+
+		// If the URI has a host, check if it's external
+		if ( isset( $parsed_url['host'] ) ) {
+			$site_url = wp_parse_url( site_url() );
+			$home_url = wp_parse_url( home_url() );
+
+			/**
+			 * @var array<string,mixed> $home_url
+			 * @var array<string,mixed> $site_url
+			 */
+			if ( ! in_array(
+				$parsed_url['host'],
+				[
+					$site_url['host'],
+					$home_url['host'],
+				],
+				true
+			) ) {
+				// External URI, cannot normalize
+				return null;
+			}
+		}
+
+		// Extract the path from the parsed URL
+		$path = $parsed_url['path'] ?? '/';
+
+		// Strip the home path for subdirectory installs
+		$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( is_string( $home_path ) && '' !== $home_path ) {
+			$home_path = trim( $home_path, '/' );
+			if ( ! empty( $home_path ) ) {
+				$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
+				$replaced_path   = preg_replace( $home_path_regex, '', $path );
+				$path            = is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : trim( $path, '/' );
+			}
+		}
+
+		// Ensure the path starts with /
+		if ( '' === $path ) {
+			$path = '/';
+		} elseif ( '/' !== $path[0] ) {
+			$path = '/' . $path;
+		}
+
+		return $path;
 	}
 }

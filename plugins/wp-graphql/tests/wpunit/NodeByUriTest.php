@@ -2597,7 +2597,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Get the REST API prefix (default is 'wp-json', but can be customized)
 		$rest_prefix = rest_get_url_prefix();
 
-		// Test with an existing REST API endpoint
+		// Test with an existing REST API endpoint (relative path)
 		$uri = '/' . $rest_prefix . '/wp/v2/users';
 
 		$actual = $this->graphql(
@@ -2609,8 +2609,32 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['nodeByUri'], 'REST API endpoint should return null' );
+		// Use assertQuerySuccessful to handle REST error JSON responses safely
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+			]
+		);
+
+		// Test with absolute REST API URL
+		$uri = rest_url( 'wp/v2/users' );
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+			]
+		);
 
 		// Test with a non-existent REST API endpoint
 		$uri = '/' . $rest_prefix . '/something-something';
@@ -2624,8 +2648,12 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['nodeByUri'], 'Non-existent REST API endpoint should return null' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+			]
+		);
 
 		// Test with REST API prefix only
 		$uri = '/' . $rest_prefix;
@@ -2639,8 +2667,28 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		$this->assertArrayNotHasKey( 'errors', $actual );
-		$this->assertNull( $actual['data']['nodeByUri'], 'REST API prefix only should return null' );
+		$this->assertQuerySuccessful(
+			$actual,
+			[
+				$this->expectedField( 'nodeByUri', self::IS_NULL ),
+			]
+		);
+
+		// Test boundary case: /wp-json-foo should NOT match (false positive prevention)
+		$uri = '/' . $rest_prefix . '-foo';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		// This should NOT be treated as a REST API endpoint, so it may return null for other reasons
+		// but not because it matched the REST API prefix check
+		$this->assertQuerySuccessful( $actual );
 	}
 
 	/**
@@ -2662,7 +2710,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$upload_dir  = wp_upload_dir();
 		$upload_path = wp_make_link_relative( $upload_dir['baseurl'] );
 
-		// Test various image/file paths in uploads directory
+		// Test various image/file paths in uploads directory (relative paths)
 		$file_paths = [
 			$upload_path . '/2024/01/image.jpg',
 			$upload_path . '/2024/01/image.png',
@@ -2681,8 +2729,52 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 				]
 			);
 
-			$this->assertArrayNotHasKey( 'errors', $actual );
-			$this->assertNull( $actual['data']['nodeByUri'], "Static file path '{$uri}' should return null" );
+			$this->assertQuerySuccessful(
+				$actual,
+				[
+					$this->expectedField( 'nodeByUri', self::IS_NULL ),
+				]
+			);
 		}
+
+		// Test with absolute uploads file URLs
+		$absolute_file_paths = [
+			$upload_dir['baseurl'] . '/2024/01/image.jpg',
+			$upload_dir['baseurl'] . '/some-file.png',
+		];
+
+		foreach ( $absolute_file_paths as $uri ) {
+			$actual = $this->graphql(
+				[
+					'query'     => $query,
+					'variables' => [
+						'uri' => $uri,
+					],
+				]
+			);
+
+			$this->assertQuerySuccessful(
+				$actual,
+				[
+					$this->expectedField( 'nodeByUri', self::IS_NULL ),
+				]
+			);
+		}
+
+		// Test boundary case: /wp-content/uploads-foo should NOT match (false positive prevention)
+		$uri = '/wp-content/uploads-foo/image.jpg';
+
+		$actual = $this->graphql(
+			[
+				'query'     => $query,
+				'variables' => [
+					'uri' => $uri,
+				],
+			]
+		);
+
+		// This should NOT be treated as an uploads path, so it may return null for other reasons
+		// but not because it matched the uploads path check
+		$this->assertQuerySuccessful( $actual );
 	}
 }
