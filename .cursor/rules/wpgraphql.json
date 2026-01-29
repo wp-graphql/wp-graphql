@@ -276,6 +276,18 @@
       }
     ],
     "development_workflows": {
+      "test_driven_development": {
+        "preference": "strongly_preferred",
+        "description": "For bug fixes, always follow TDD (Test-Driven Development) approach",
+        "workflow": [
+          "1. Write failing tests first that demonstrate the bug or expected behavior",
+          "2. Run tests to confirm they fail (red)",
+          "3. Implement the fix",
+          "4. Run tests to confirm they pass (green)",
+          "5. Refactor if needed while keeping tests green"
+        ],
+        "note": "Tests should be written in the appropriate test directory (tests/wpunit/ for WPUnit tests, tests/acceptance/ for acceptance tests, etc.)"
+      },
       "conventional_commits": {
         "description": "PR titles must follow Conventional Commits format. PRs are squash merged, so the PR title becomes the commit message.",
         "formats": {
@@ -287,9 +299,9 @@
           "test:": "Adding/fixing tests (no version bump)",
           "chore:": "Maintenance tasks (no version bump)",
           "ci:": "CI/CD changes (no version bump)",
-          "feat!:": "Breaking change feature (major version bump)",
-          "fix!:": "Breaking change fix (major version bump)",
-          "perf!:": "Breaking change performance (major version bump)"
+          "feat!": "Breaking change feature (major version bump)",
+          "fix!": "Breaking change fix (major version bump)",
+          "perf!": "Breaking change performance (major version bump)"
         },
         "note": "The ! suffix can only be used with feat, fix, or perf prefixes. release-please uses these to determine version bumps."
       },
@@ -311,7 +323,14 @@
         "run_functional_tests": "npm run -w @wpgraphql/wp-graphql test:codecept:functional",
         "run_e2e_tests": "npm run -w @wpgraphql/wp-graphql test:e2e",
         "run_with_coverage": "PCOV_ENABLED=1 npm run wp-env start && npm run -w @wpgraphql/wp-graphql test:codecept:coverage",
-        "test_environment": "Test site runs at localhost:8889 via wp-env, development site at localhost:8888"
+        "test_environment": "Test site runs at localhost:8889 via wp-env, development site at localhost:8888",
+        "note": "All test commands run inside wp-env Docker containers. Test file paths are relative to plugins/wp-graphql/"
+      },
+      "linting_commands": {
+        "phpcs_check": "npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run check-cs -- src/Data/NodeResolver.php tests/wpunit/NodeByUriTest.php",
+        "phpcs_fix": "npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run fix-cs -- src/Data/NodeResolver.php tests/wpunit/NodeByUriTest.php",
+        "phpstan_analyze": "npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run phpstan -- --memory-limit=2G",
+        "note": "File paths in linting commands are relative to plugins/wp-graphql/ directory (e.g., 'src/Data/NodeResolver.php', not 'plugins/wp-graphql/src/Data/NodeResolver.php'). PHPStan requires --memory-limit=2G flag to avoid memory exhaustion. wp-env must be running for linting commands to work."
       },
       "build_commands": {
         "build_all": "npm run build (uses Turborepo to build all plugins in parallel)",
@@ -324,12 +343,23 @@
         "stop": "npm run wp-env stop",
         "destroy": "npm run wp-env destroy (removes all data)",
         "wp_cli": "npm run wp-env run cli -- wp <command>",
-        "test_wp_cli": "npm run wp-env run tests-cli -- wp <command>"
+        "test_wp_cli": "npm run wp-env run tests-cli -- wp <command>",
+        "wp_env_cli": "npm run -w @wpgraphql/wp-graphql wp-env:cli -- <command>",
+        "note": "wp-env must be running for tests and linting commands to work"
       },
       "dependency_management": {
         "install_all": "npm install (installs dependencies for all workspaces)",
         "install_plugin_dep": "npm install <package> -w @wpgraphql/wp-graphql",
         "composer_install": "Composer dependencies are installed automatically in Docker container when wp-env starts"
+      },
+      "code_quality_checks": {
+        "before_committing": [
+          "Run relevant tests to ensure they pass",
+          "Run PHPCS fix: npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run fix-cs -- <file_paths>",
+          "Run PHPStan: npm run -w @wpgraphql/wp-graphql wp-env:cli -- composer run phpstan -- --memory-limit=2G",
+          "Ensure all tests pass before pushing"
+        ],
+        "file_paths_note": "When running linting commands, file paths must be relative to plugins/wp-graphql/ directory. For example, use 'src/Data/NodeResolver.php' not 'plugins/wp-graphql/src/Data/NodeResolver.php'"
       }
     },
     "common_tasks": {
