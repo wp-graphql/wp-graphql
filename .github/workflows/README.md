@@ -29,11 +29,14 @@ This directory contains GitHub Actions workflows that automate our development, 
 - Uses "boundary testing" approach for efficiency (~8 jobs for PRs, ~18 for merges)
 - Collects code coverage from multiple configurations
 
-### 4. GraphiQL E2E Tests (`graphiql-e2e-tests.yml`)
+### 4. JS E2E Tests (`js-e2e-tests.yml` and `js-e2e-tests-reusable.yml`)
 
-- End-to-end testing of GraphiQL interface using Playwright
-- Ensures GraphiQL functionality works as expected
+- End-to-end testing of GraphiQL interface and admin pages using Playwright
+- Uses change detection to only run tests for plugins that have JavaScript changes
+- `js-e2e-tests.yml` detects changes and triggers `js-e2e-tests-reusable.yml` for each affected plugin
+- Ensures GraphiQL functionality, settings pages, and extensions pages work as expected
 - Tests user interactions and UI components
+- Workflow always runs on PRs to provide consistent status checks for branch protection
 
 ### 5. Smoke Test (`smoke-test.yml` and `smoke-test-reusable.yml`)
 
@@ -164,12 +167,15 @@ flowchart TD
 
 The workflows use change detection to optimize CI runs:
 
+- **Workflows always run on PRs**: All workflows run on every PR to ensure status checks are created for branch protection
+- **Tests are conditionally executed**: Tests/linting only run for plugins that have changed files (via internal change detection)
 - **Regular PRs**: Only run tests/linting for plugins that have changed files
 - **Release PRs**: Run all tests for all plugins (branches starting with `release-please--`)
-- **Change detection patterns**: Defined in `integration-tests.yml` and `lint.yml` using `tj-actions/changed-files`
+- **Change detection patterns**: Defined in `integration-tests.yml`, `lint.yml`, `js-e2e-tests.yml`, and `smoke-test.yml` using `tj-actions/changed-files`
 
 This ensures:
-- Faster CI feedback for focused changes
+- Status checks are always created for branch protection (workflows always run)
+- Faster CI feedback for focused changes (tests only run when needed)
 - Comprehensive testing when releases are prepared
 - Extensions are tested when core WPGraphQL changes (due to dependencies)
 
@@ -184,7 +190,7 @@ When adding or modifying workflows:
 
 When adding a new plugin:
 
-1. **Add change detection patterns** in `integration-tests.yml`, `lint.yml`, and `smoke-test.yml`:
+1. **Add change detection patterns** in `integration-tests.yml`, `lint.yml`, `js-e2e-tests.yml`, and `smoke-test.yml`:
    - Add plugin output in `detect-changes` job
    - Add file patterns in `files_yaml` section
    - Add plugin job that uses the reusable workflow

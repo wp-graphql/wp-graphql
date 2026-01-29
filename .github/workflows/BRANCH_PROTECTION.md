@@ -123,15 +123,14 @@ For each workflow with conditional jobs:
 ## Current Workflow Status
 
 ### ✅ Already Have Final Status Checks
-- None currently implemented
-
-### ⚠️ Need Final Status Checks
-- `integration-tests.yml` - Has conditional jobs based on change detection
-- `lint.yml` - Has conditional jobs based on change detection  
-- `smoke-test.yml` - Has conditional jobs based on change detection
-- `js-e2e-tests.yml` - Has conditional jobs based on change detection
-- `schema-linter.yml` - Uses matrix strategy (all jobs should run)
+- `integration-tests.yml` - Has final status check job
+- `lint.yml` - Has final status check job
+- `smoke-test.yml` - Has final status check job
+- `js-e2e-tests.yml` - Has final status check job
+- `schema-linter.yml` - Has final status check job (uses matrix strategy, all jobs should run)
 
 ### 📝 Notes
+- All workflows with conditional jobs now have final status check jobs
+- Workflows always run on PRs (no path filters on triggers) to ensure status checks are created
+- Tests/linting are conditionally executed based on change detection, but the workflow always runs
 - `schema-linter.yml` uses a matrix strategy, so all jobs should run (no conditionals)
-- Consider adding final status check jobs to workflows with change detection

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f310b4cae10e15c14339620b4ac814c",
+    "content-hash": "2dbd53acb354fcd007739183a340cf0c",
     "packages": [
         {
             "name": "appsero/client",
@@ -117,25 +117,25 @@
         },
         {
             "name": "axepress/wp-graphql-stubs",
-            "version": "v1.31.1",
+            "version": "v2.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AxeWP/wp-graphql-stubs.git",
-                "reference": "55296773a7537e0dbc008010959718c7c796e170"
+                "reference": "6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/55296773a7537e0dbc008010959718c7c796e170",
-                "reference": "55296773a7537e0dbc008010959718c7c796e170",
+                "url": "https://api.github.com/repos/AxeWP/wp-graphql-stubs/zipball/6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8",
+                "reference": "6ca5c5ee37012743e09e2f9e7c3c272c5e273bb8",
                 "shasum": ""
             },
             "require": {
-                "php-stubs/wordpress-stubs": "^5.4 || ^6.0"
+                "php-stubs/wordpress-stubs": ">=5.4"
             },
             "require-dev": {
-                "php": ">=7.3",
+                "php": ">=7.4",
                 "php-stubs/generator": "^0.8.0",
-                "phpstan/phpstan": "^1.8"
+                "phpstan/phpstan": "^2.1.5"
             },
             "suggest": {
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
@@ -157,7 +157,7 @@
             ],
             "support": {
                 "issues": "https://github.com/AxeWP/wp-graphql-stubs/issues",
-                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v1.31.1"
+                "source": "https://github.com/AxeWP/wp-graphql-stubs/tree/v2.3.3"
             },
             "funding": [
                 {
@@ -165,7 +165,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-01-29T12:41:14+00:00"
+            "time": "2025-06-18T02:06:46+00:00"
         },
         {
             "name": "behat/gherkin",
