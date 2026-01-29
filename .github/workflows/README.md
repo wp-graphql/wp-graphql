@@ -167,12 +167,15 @@ flowchart TD
 
 The workflows use change detection to optimize CI runs:
 
+- **Workflows always run on PRs**: All workflows run on every PR to ensure status checks are created for branch protection
+- **Tests are conditionally executed**: Tests/linting only run for plugins that have changed files (via internal change detection)
 - **Regular PRs**: Only run tests/linting for plugins that have changed files
 - **Release PRs**: Run all tests for all plugins (branches starting with `release-please--`)
 - **Change detection patterns**: Defined in `integration-tests.yml`, `lint.yml`, `js-e2e-tests.yml`, and `smoke-test.yml` using `tj-actions/changed-files`
 
 This ensures:
-- Faster CI feedback for focused changes
+- Status checks are always created for branch protection (workflows always run)
+- Faster CI feedback for focused changes (tests only run when needed)
 - Comprehensive testing when releases are prepared
 - Extensions are tested when core WPGraphQL changes (due to dependencies)
 
