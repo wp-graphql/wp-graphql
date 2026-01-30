@@ -185,7 +185,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           files: ${{ inputs.plugin_path }}/tests/_output/coverage.xml
-          flags: wpunit,${{ inputs.theme }},${{ inputs.multisite && 'multisite' || 'single' }}
+          flags: ${{ inputs.plugin_name }}-wpunit-${{ inputs.theme }}-${{ inputs.multisite && 'multisite' || 'single' }}
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN || '' }}
           slug: wp-graphql/wp-graphql
