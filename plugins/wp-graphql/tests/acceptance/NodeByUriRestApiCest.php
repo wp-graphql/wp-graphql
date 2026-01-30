@@ -17,6 +17,15 @@ class NodeByUriRestApiCest {
 	 * @param AcceptanceTester $I
 	 */
 	public function _before( AcceptanceTester $I ) {
+		// Clear authentication/session cookies to ensure deterministic unauthenticated baseline
+		// This prevents other tests from affecting these tests if they log in earlier
+		$I->resetCookie( 'wordpress_logged_in_' );
+		$I->resetCookie( 'wordpress_sec_' );
+		$I->resetCookie( 'wordpress_' );
+		$I->deleteHeader( 'Cookie' );
+		$I->deleteHeader( 'X-WP-Nonce' );
+		$I->deleteHeader( 'Authorization' );
+
 		// Make a simple request to ensure WordPress is fully initialized
 		// This ensures rewrite rules and REST API routes are properly registered
 		// Similar to how WPUnit tests flush rewrite rules in setUp()
@@ -27,35 +36,17 @@ class NodeByUriRestApiCest {
 	/**
 	 * DIAGNOSTIC TEST: Check if we can reproduce the bug
 	 *
-	 * This test executes the exact query that reproduces the bug and checks
-	 * if we get the REST API error JSON response. If we don't get that response,
-	 * our test environment is not matching the real-life environment.
-	 *
-	 * Execute this query as a non-authenticated user:
-	 * {
-	 *   nodeByUri(uri: "/wp-json/wp/v2/users") {
-	 *     id
-	 *     __typename
-	 *   }
-	 * }
-	 *
-	 * BUG RESPONSE (what we expect to see WITHOUT the fix):
-	 * {
-	 *   "code": "rest_missing_callback_param",
-	 *   "message": "Missing parameter(s): username, email, password",
-	 *   "data": {
-	 *     "status": 400,
-	 *     "params": [
-	 *       "username",
-	 *       "email",
-	 *       "password"
-	 *     ]
-	 *   }
-	 * }
+	 * This test is skipped by default as it's for diagnostic purposes only.
+	 * It doesn't provide regression protection and adds noise/runtime to the acceptance suite.
+	 * To run it, set the DIAGNOSTIC_TESTS environment variable.
 	 *
 	 * @param AcceptanceTester $I
 	 */
 	public function diagnosticTestReproduceBug( AcceptanceTester $I ) {
+		if ( ! getenv( 'DIAGNOSTIC_TESTS' ) ) {
+			$I->skipTest( 'Diagnostic test skipped by default. Set DIAGNOSTIC_TESTS=1 to run.' );
+			return;
+		}
 		$I->wantTo( 'diagnose if we can reproduce the bug in test environment' );
 
 		// Ensure we're not authenticated
@@ -277,6 +268,7 @@ class NodeByUriRestApiCest {
 		$I->assertArrayNotHasKey( 'code', $response, 'Response should not contain REST API error code' );
 		$I->assertArrayNotHasKey( 'message', $response, 'Response should not contain REST API error message' );
 		$I->assertArrayHasKey( 'data', $response, 'Response should have data key (GraphQL format)' );
+		$I->assertArrayHasKey( 'nodeByUri', $response['data'], 'Response data should have nodeByUri key' );
 		$I->assertNull( $response['data']['nodeByUri'], 'nodeByUri should be null for REST API endpoints' );
 	}
 }

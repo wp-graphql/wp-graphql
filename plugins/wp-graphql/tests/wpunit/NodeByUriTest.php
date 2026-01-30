@@ -2807,26 +2807,6 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
-	 * Test that REST API endpoints return proper GraphQL response structure (not REST API JSON)
-	 *
-	 * This test verifies the bug fix: without the fix, REST API endpoints would return
-	 * REST API JSON responses instead of proper GraphQL null responses.
-	 * 
-	 * BUG BEHAVIOR (without fix):
-	 * - REST API error responses: {"code":"rest_missing_callback_param","message":"...","data":{"status":400}}
-	 * - REST API user objects: {"id":1,"name":"admin","_links":{...},"avatar_urls":{...}}
-	 * 
-	 * EXPECTED BEHAVIOR (with fix):
-	 * - GraphQL response: {"data":{"nodeByUri":null}}
-	 * 
-	 * This test should FAIL on origin/main where the fix doesn't exist.
-	 * 
-	 * NOTE: We don't flush rewrite rules here to better reproduce the bug conditions.
-	 * The bug manifests when WordPress processes REST API requests during parse_request.
-	 *
-	 * @see https://github.com/wp-graphql/wp-graphql/issues/3513
-	 */
-	/**
 	 * Test that REST API endpoints return valid GraphQL responses (not REST API JSON)
 	 *
 	 * This test verifies the fix for the bug where nodeByUri queries with REST API endpoint URIs
@@ -2878,6 +2858,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Verify response is a valid GraphQL response structure
 		$this->assertIsArray( $actual, 'Response should be an array' );
 		$this->assertArrayHasKey( 'data', $actual, 'Response should have data key (GraphQL format)' );
+		$this->assertArrayHasKey( 'nodeByUri', $actual['data'], 'Response data should have nodeByUri key' );
 
 		// Verify nodeByUri is null (the expected behavior)
 		$this->assertNull( $actual['data']['nodeByUri'], 'nodeByUri should be null for REST API endpoints' );
@@ -2956,18 +2937,16 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$wp_property->setAccessible( true );
 		$wp = $wp_property->getValue( $resolver );
 
-		// CRITICAL: Set up Router request context so Router::get_request() returns non-null
-		// This is what the fix checks for - if Router::get_request() is null, the fix won't run
-		$request = new \WPGraphQL\Request( [ 'query' => '{__typename}' ] );
-		
-		// Use reflection to set Router::$request (static property)
-		$router_reflection = new \ReflectionClass( \WPGraphQL\Router::class );
-		$request_property  = $router_reflection->getProperty( 'request' );
-		$request_property->setAccessible( true );
-		$request_property->setValue( null, $request );
+		// CRITICAL: Set up GraphQL request context so is_graphql_request() returns true
+		// This is what the fix checks for - if is_graphql_request() is false, the fix won't run
+		// Store the original state so we can restore it
+		$original_is_graphql_request = \WPGraphQL::is_graphql_request();
+		$original_graphql_request_const = defined( 'GRAPHQL_REQUEST' ) ? GRAPHQL_REQUEST : null;
 
-		// Verify Router::get_request() now returns the request
-		$this->assertNotNull( \WPGraphQL\Router::get_request(), 'Router::get_request() must be set for this test to work' );
+		$request = new \WPGraphQL\Request( [ 'query' => '{__typename}' ] );
+
+		// Verify is_graphql_request() now returns true
+		$this->assertTrue( is_graphql_request(), 'is_graphql_request() must be true for this test to work' );
 
 		// Manually set rest_route in query_vars to simulate what happens when
 		// WordPress identifies a URI as a REST API route during parsing
@@ -3025,10 +3004,14 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 					}
 				}
 			}
-		}
 
-		// Clean up: reset Router::$request
-		$request_property->setValue( null, null );
+			// Clean up: restore original GraphQL request state
+			\WPGraphQL::set_is_graphql_request( $original_is_graphql_request );
+			if ( $original_graphql_request_const === null && defined( 'GRAPHQL_REQUEST' ) ) {
+				// Can't undefine a constant, but Request constructor only defines it if not already defined
+				// So this is fine - the constant will remain but the static property is reset
+			}
+		}
 	}
 
 	/**
@@ -3048,7 +3031,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 
 		// Set a custom REST API prefix
 		$custom_prefix   = 'api';
-		$filter_callback = static function () use ( $custom_prefix ) {
+		$filter_callback = static function ( $prefix ) use ( $custom_prefix ) {
 			return $custom_prefix;
 		};
 		add_filter( 'rest_url_prefix', $filter_callback );

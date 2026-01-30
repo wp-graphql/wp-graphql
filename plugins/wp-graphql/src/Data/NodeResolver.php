@@ -612,12 +612,15 @@ class NodeResolver {
 		//
 		// IMPORTANT: This fix is critical and was confirmed in production. Removing this
 		// code will cause REST API JSON responses to be returned instead of GraphQL responses
-		// when nodeByUri queries use REST API endpoint URIs. The test environment may not
-		// fully reproduce this bug, but the fix is still necessary.
+		// when nodeByUri queries use REST API endpoint URIs.
+		//
+		// We use is_graphql_request() instead of Router::get_request() to ensure the fix
+		// applies to all GraphQL requests, including internal calls via graphql() function,
+		// not just HTTP-routed requests.
 		//
 		// Regression test: testRestRouteIsRemovedFromQueryVarsDuringGraphQLRequest()
 		// See: https://github.com/wp-graphql/wp-graphql/issues/3513
-		if ( Router::get_request() !== null && isset( $this->wp->query_vars['rest_route'] ) ) {
+		if ( is_graphql_request() && isset( $this->wp->query_vars['rest_route'] ) ) {
 			unset( $this->wp->query_vars['rest_route'] );
 		}
 
