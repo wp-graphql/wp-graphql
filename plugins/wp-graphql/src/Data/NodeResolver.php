@@ -761,13 +761,16 @@ class NodeResolver {
 		$path = $parsed_url['path'] ?? '/';
 
 		// Strip the home path for subdirectory installs
+		// Follow the same pattern as parse_request(): trim the path before applying the regex
 		$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		if ( is_string( $home_path ) && '' !== $home_path ) {
 			$home_path = trim( $home_path, '/' );
 			if ( ! empty( $home_path ) ) {
+				// Trim leading/trailing slashes from path before applying regex (matches parse_request behavior)
+				$path_trimmed    = trim( $path, '/' );
 				$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
-				$replaced_path   = preg_replace( $home_path_regex, '', $path );
-				$path            = is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : trim( $path, '/' );
+				$replaced_path   = preg_replace( $home_path_regex, '', $path_trimmed );
+				$path            = is_string( $replaced_path ) ? trim( $replaced_path, '/' ) : $path_trimmed;
 			}
 		}
 
