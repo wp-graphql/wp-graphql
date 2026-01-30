@@ -2773,9 +2773,21 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Get the actual permalink for the page
 		$uri = wp_make_link_relative( get_permalink( $page_id ) );
 
+		// Use a query that includes databaseId for boundary test assertions
+		$boundary_query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on Page {
+					databaseId
+				}
+			}
+		}
+		';
+
 		$actual = $this->graphql(
 			[
-				'query'     => $query,
+				'query'     => $boundary_query,
 				'variables' => [
 					'uri' => $uri,
 				],
@@ -2783,14 +2795,12 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// This should resolve to the page, not be treated as a REST API endpoint
-		// Verify the query succeeds and nodeByUri is not null (proves our REST check isn't too broad)
+		// Verify the query succeeds and nodeByUri resolves to the expected page
+		// This proves our REST check isn't too broad and doesn't block valid pages
 		$this->assertQuerySuccessful( $actual );
-
-		// If nodeByUri is null, it might be due to WordPress restrictions on certain slugs,
-		// but at minimum, our REST check should not have blocked it (query should succeed)
-		if ( null !== $actual['data']['nodeByUri'] ) {
-			$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'], 'Should resolve to a Page if WordPress allows this slug' );
-		}
+		$this->assertNotNull( $actual['data']['nodeByUri'], 'Boundary test: Page with slug starting with REST prefix should resolve' );
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'], 'Should resolve to a Page' );
+		$this->assertSame( $page_id, $actual['data']['nodeByUri']['databaseId'], 'Should resolve to the correct page' );
 
 		// Cleanup
 		wp_delete_post( $page_id, true );
@@ -2812,13 +2822,11 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		// Set a custom REST API prefix
-		$custom_prefix = 'api';
-		add_filter(
-			'rest_url_prefix',
-			static function () use ( $custom_prefix ) {
-				return $custom_prefix;
-			}
-		);
+		$custom_prefix   = 'api';
+		$filter_callback = static function () use ( $custom_prefix ) {
+			return $custom_prefix;
+		};
+		add_filter( 'rest_url_prefix', $filter_callback );
 
 		// Flush rewrite rules to apply the custom prefix
 		flush_rewrite_rules( false );
@@ -2865,8 +2873,8 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 			]
 		);
 
-		// Cleanup: Remove the filter
-		remove_all_filters( 'rest_url_prefix' );
+		// Cleanup: Remove only the filter we added
+		remove_filter( 'rest_url_prefix', $filter_callback );
 		flush_rewrite_rules( false );
 	}
 
@@ -3083,9 +3091,21 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// Get the actual permalink for the child page
 		$uri = wp_make_link_relative( get_permalink( $child_page_id ) );
 
+		// Use a query that includes databaseId for boundary test assertions
+		$boundary_query = '
+		query GET_NODE_BY_URI( $uri: String! ) {
+			nodeByUri( uri: $uri ) {
+				__typename
+				... on Page {
+					databaseId
+				}
+			}
+		}
+		';
+
 		$actual = $this->graphql(
 			[
-				'query'     => $query,
+				'query'     => $boundary_query,
 				'variables' => [
 					'uri' => $uri,
 				],
@@ -3093,14 +3113,12 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// This should resolve to the child page, not be treated as an uploads path
-		// Verify the query succeeds (proves our uploads check isn't too broad)
+		// Verify the query succeeds and nodeByUri resolves to the expected page
+		// This proves our uploads check isn't too broad and doesn't block valid pages
 		$this->assertQuerySuccessful( $actual );
-
-		// If nodeByUri is null, it might be due to WordPress restrictions on certain slugs,
-		// but at minimum, our uploads check should not have blocked it (query should succeed)
-		if ( null !== $actual['data']['nodeByUri'] ) {
-			$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'], 'Should resolve to a Page if WordPress allows this slug' );
-		}
+		$this->assertNotNull( $actual['data']['nodeByUri'], 'Boundary test: Hierarchical page with path starting with uploads should resolve' );
+		$this->assertSame( 'Page', $actual['data']['nodeByUri']['__typename'], 'Should resolve to a Page' );
+		$this->assertSame( $child_page_id, $actual['data']['nodeByUri']['databaseId'], 'Should resolve to the correct child page' );
 
 		// Cleanup
 		wp_delete_post( $child_page_id, true );
