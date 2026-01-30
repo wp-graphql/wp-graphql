@@ -2785,7 +2785,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// This should resolve to the page, not be treated as a REST API endpoint
 		// Verify the query succeeds and nodeByUri is not null (proves our REST check isn't too broad)
 		$this->assertQuerySuccessful( $actual );
-		
+
 		// If nodeByUri is null, it might be due to WordPress restrictions on certain slugs,
 		// but at minimum, our REST check should not have blocked it (query should succeed)
 		if ( null !== $actual['data']['nodeByUri'] ) {
@@ -2815,7 +2815,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		$custom_prefix = 'api';
 		add_filter(
 			'rest_url_prefix',
-			function() use ( $custom_prefix ) {
+			static function () use ( $custom_prefix ) {
 				return $custom_prefix;
 			}
 		);
@@ -2889,7 +2889,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		';
 
 		// Create a test image attachment
-		$filename = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
+		$filename      = ( WPGRAPHQL_PLUGIN_DIR . 'tests/_data/images/test.png' );
 		$attachment_id = $this->factory()->attachment->create_upload_object( $filename );
 
 		$this->assertIsNumeric( $attachment_id, 'Attachment should be created' );
@@ -2916,9 +2916,9 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		);
 
 		// Get the direct file path (should NOT resolve)
-		$upload_dir  = wp_upload_dir();
+		$upload_dir    = wp_upload_dir();
 		$attached_file = get_post_meta( $attachment_id, '_wp_attached_file', true );
-		$file_path = wp_make_link_relative( $upload_dir['baseurl'] ) . '/' . $attached_file;
+		$file_path     = wp_make_link_relative( $upload_dir['baseurl'] ) . '/' . $attached_file;
 
 		$actual = $this->graphql(
 			[
@@ -3095,7 +3095,7 @@ class NodeByUriTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 		// This should resolve to the child page, not be treated as an uploads path
 		// Verify the query succeeds (proves our uploads check isn't too broad)
 		$this->assertQuerySuccessful( $actual );
-		
+
 		// If nodeByUri is null, it might be due to WordPress restrictions on certain slugs,
 		// but at minimum, our uploads check should not have blocked it (query should succeed)
 		if ( null !== $actual['data']['nodeByUri'] ) {

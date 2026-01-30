@@ -133,10 +133,8 @@ class NodeResolver {
 
 		// Normalize the URI to a local path (extract path from absolute URLs, strip home path for subdirectory installs)
 		$normalized_uri = $this->normalize_uri_for_path_check( $uri );
-		if ( null === $normalized_uri ) {
-			// If normalization fails (e.g., external URL), let parse_request handle it
-			// Continue with the rest of the resolution logic
-		} else {
+		// If normalization succeeds, check for REST API endpoints and static file paths
+		if ( null !== $normalized_uri ) {
 			// Check for REST API endpoints
 			$rest_prefix = rest_get_url_prefix();
 			if ( ! empty( $rest_prefix ) ) {
@@ -172,6 +170,7 @@ class NodeResolver {
 				}
 			}
 		}
+		// If normalization fails (e.g., external URL), let parse_request handle it
 
 		/**
 		 * Comments are embedded as a #comment-{$id} in the post's content.
