@@ -7,6 +7,7 @@
 #
 # 1. Replaces x-release-please-version placeholders with actual version
 # 2. Updates the Upgrade Notice section in readme.txt if there are breaking changes
+# 3. Regenerates the POT file for translations (if languages/ directory exists)
 #
 # The workflow identifies release-please PRs by:
 # - Branch name starting with "release-please--"
@@ -127,21 +128,57 @@ jobs:
             --version=${{ steps.version_info.outputs.version }} \
             --plugin-dir=${{ steps.version_info.outputs.plugin_dir }}
 
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
+
+      - name: Check for languages directory
+        id: i18n
+        run: |
+          if [ -d "${{ steps.version_info.outputs.plugin_dir }}/languages" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+            echo "Languages directory found - will regenerate POT file"
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "No languages directory - skipping POT generation"
+          fi
+
+      - name: Regenerate POT file
+        if: steps.i18n.outputs.enabled == 'true'
+        working-directory: ${{ steps.version_info.outputs.plugin_dir }}
+        run: |
+          COMPONENT="${{ steps.version_info.outputs.component }}"
+          wp i18n make-pot . languages/${COMPONENT}.pot \
+            --slug=${COMPONENT} \
+            --domain=${COMPONENT} \
+            --include=src,access-functions.php,*.php \
+            --exclude=node_modules,vendor,tests,build,packages
+          echo "POT file regenerated: languages/${COMPONENT}.pot"
+
       - name: Check for changes
         id: changes
         run: |
           PLUGIN_DIR="${{ steps.version_info.outputs.plugin_dir }}"
           CHANGED_FILES=""
           
+          # Build list of files to check
+          FILES_TO_CHECK="$PLUGIN_DIR"
+          if [ "${{ steps.i18n.outputs.enabled }}" == "true" ]; then
+            FILES_TO_CHECK="$FILES_TO_CHECK $PLUGIN_DIR/languages/${{ steps.version_info.outputs.component }}.pot"
+          fi
+          
           # Check if any files changed
-          if ! git diff --quiet "$PLUGIN_DIR"; then
-            CHANGED_FILES=$(git diff --name-only "$PLUGIN_DIR")
+          if ! git diff --quiet -- $FILES_TO_CHECK 2>/dev/null; then
+            CHANGED_FILES=$(git diff --name-only -- $FILES_TO_CHECK 2>/dev/null || echo "")
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changes detected in:"
             echo "$CHANGED_FILES"
             echo ""
             echo "Diff:"
-            git diff "$PLUGIN_DIR"
+            git diff -- $FILES_TO_CHECK 2>/dev/null || true
           else
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected"
@@ -156,5 +193,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add "$PLUGIN_DIR"
-          git commit -m "chore: replace x-release-please-version placeholders and update upgrade notice for ${COMPONENT}"
+          git commit -m "chore: replace x-release-please-version placeholders, update upgrade notice, and regenerate translations for ${COMPONENT}"
           git push
