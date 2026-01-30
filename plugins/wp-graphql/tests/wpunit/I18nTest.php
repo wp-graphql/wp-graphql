@@ -145,6 +145,39 @@ class I18nTest extends \Tests\WPGraphQL\TestCase\WPGraphQLTestCase {
 	}
 
 	/**
+	 * Test that the load_textdomain hook is registered on init.
+	 *
+	 * This test verifies that line 209 (add_action hook registration) is executed.
+	 * The hook registration happens during WPGraphQL initialization via the actions() method.
+	 * 
+	 * Note: Line 209 executes during WPGraphQL singleton initialization, which typically
+	 * happens during WordPress bootstrap. Even though coverage may show count="0" for this
+	 * line (because it executes before coverage tracking starts), the fact that the hook
+	 * is registered confirms the line executed.
+	 *
+	 * @covers WPGraphQL::actions
+	 */
+	public function testLoadTextdomainHookIsRegistered(): void {
+		// Ensure WPGraphQL is initialized
+		// This calls instance() which calls actions() which executes line 209
+		// Note: If WPGraphQL is already initialized (via parent::setUp()), this returns
+		// the cached instance, but the hook registration still happened during initial init
+		graphql_init();
+
+		// Verify the hook is registered (this confirms line 209 executed)
+		$hook_priority = has_action( 'init', [ \WPGraphQL::class, 'load_textdomain' ] );
+		$this->assertNotFalse(
+			$hook_priority,
+			'load_textdomain should be hooked to init action (confirms line 209 executed)'
+		);
+		$this->assertEquals(
+			0,
+			$hook_priority,
+			'load_textdomain should be hooked to init with priority 0'
+		);
+	}
+
+	/**
 	 * Test that load_textdomain() calls load_plugin_textdomain() with correct parameters.
 	 *
 	 * @covers WPGraphQL::load_textdomain
